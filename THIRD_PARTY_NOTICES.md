@@ -18,3 +18,15 @@ details are recorded in experiment output.
 - https://huggingface.co/h2oai/h2o-lightning-4b
 - https://huggingface.co/netprojects/h2o-lightning-4b-mlx-q8
 - https://github.com/internet-projects/h2o-lightning-mlx
+
+## Qwen3 embeddings and MLX embedding runtime
+
+Original Qwen3-Embedding-0.6B weights are downloaded separately at revision
+`97b0c614be4d77ee51c0cef4e5f07c00f9eb65b3` and are not redistributed here.
+The model is licensed under Apache-2.0:
+https://huggingface.co/Qwen/Qwen3-Embedding-0.6B
+
+The optional Mac dependency `mlx-embeddings==0.1.0` is licensed under
+GPL-3.0-or-later, copyright 2024 Prince Canuma. Its package includes its license;
+the dependency's source is not vendored in this repository:
+https://github.com/Blaizzy/mlx-embeddings
