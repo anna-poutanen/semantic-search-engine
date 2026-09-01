@@ -9,15 +9,20 @@ This follows the agreed plan in **Choose a project for YC roles** on October 12,
 
 ## Sequence
 
-1. **Model experiment (current):** H2O-Lightning-4B q8 on the M4, real-code
+1. **Model experiment (complete):** H2O-Lightning-4B q8 on the M4, real-code
    relevance judgments, decoys, memory and cold/warm latency. Compare candidate
    ordering before and after reranking. Publish failures as well as successes.
-2. **Core CLI:** syntax-aware symbols, Qwen3-Embedding-0.6B candidate retrieval,
+2. **Core CLI (complete):** syntax-aware symbols, Qwen3-Embedding-0.6B candidate retrieval,
    lexical retrieval, hybrid ranking, H2O shortlist scoring, exact locations.
-3. **Retrieval quality:** context selection, duplicate removal, output budgets,
-   evaluated multi-file behavior and absent features.
-4. **Persistent index:** SQLite FTS5 and pinned sqlite-vec, incremental updates,
-   deletion/rename/branch handling, source hashes, caching and cancellation.
+3. **Retrieval quality (in progress):** duplicate removal and source-character
+   budgets are implemented. A frozen Requests development/test split adds a
+   second corpus. Broader coverage, multi-file behavior, token budgets, and
+   absent-feature abstention remain to evaluate.
+4. **Persistent index (in progress):** resident service and SQLite vector cache,
+   incremental embedding updates, deletion/rename/branch handling, source hashes,
+   and stale-snapshot rejection are implemented. SQLite FTS5 and pinned sqlite-vec,
+   file watching, caching at larger scale, and cancellation remain. The current
+   retrievers use in-memory BM25 and a NumPy vector scan.
 5. **MCP:** small stdio adapter, shared service, budgeted excerpts; paired agent
    tasks with provider-reported tokens and correctness checks.
 6. **VS Code:** search command, result previews, exact navigation, indexing/model
