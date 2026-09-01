@@ -7,6 +7,7 @@ import hashlib
 import io
 import subprocess
 import tokenize
+from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -136,6 +137,8 @@ def extract_snippets(
     source_root: str = "src/flask",
     max_lines: int = 100,
     overlap_lines: int = 20,
+    *,
+    sources: Mapping[str, str] | None = None,
 ) -> list[Snippet]:
     """Return functions and methods, windowing long bodies without changing source.
 
@@ -143,6 +146,8 @@ def extract_snippets(
     are omitted, along with windows containing only signatures and docstrings.
     Overlapping windows still cover every implementation statement's source lines.
     Classes are traversed for methods, rather than indexed again as whole files.
+    Optional sources maps repository-relative paths to already captured decoded
+    source; this mode parses exactly that membership without rereading files.
     """
     if max_lines < 1 or not 0 <= overlap_lines < max_lines:
         raise ValueError("Require max_lines > 0 and 0 <= overlap_lines < max_lines")
@@ -150,13 +155,30 @@ def extract_snippets(
     root = (repo / source_root).resolve()
     if not root.is_relative_to(repo):
         raise ValueError("source_root must be inside the repository")
-    if not root.is_dir():
+    if sources is None and not root.is_dir():
         raise FileNotFoundError(f"Source directory does not exist: {root}")
+    if sources is None:
+        entries = ((path, None) for path in _source_files(repo, root))
+    else:
+        if not isinstance(sources, Mapping):
+            raise ValueError("sources must map repository-relative paths to source strings")
+        captured = []
+        for relative_path, source in sources.items():
+            if not isinstance(relative_path, str) or not isinstance(source, str):
+                raise ValueError("Captured source paths and contents must be strings")
+            relative = Path(relative_path)
+            path = repo / relative
+            if (relative.is_absolute() or ".." in relative.parts or path.suffix != ".py"
+                    or not path.is_relative_to(root) or not path.resolve().is_relative_to(root)):
+                raise ValueError("Captured source paths must be Python files inside source_root")
+            captured.append((path, source))
+        entries = sorted(captured)
     snippets: list[Snippet] = []
-    for path in _source_files(repo, root):
-        raw = path.read_bytes()
-        encoding, _ = tokenize.detect_encoding(io.BytesIO(raw).readline)
-        source = raw.decode(encoding)
+    for path, source in entries:
+        if source is None:
+            raw = path.read_bytes()
+            encoding, _ = tokenize.detect_encoding(io.BytesIO(raw).readline)
+            source = raw.decode(encoding)
         lines = source.splitlines(keepends=True)
         definitions = _Definitions()
         definitions.visit(ast.parse(source, filename=str(path)))

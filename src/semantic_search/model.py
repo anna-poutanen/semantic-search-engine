@@ -4,6 +4,7 @@ import math
 import time
 import urllib.error
 import urllib.request
+from urllib.parse import urlsplit
 from dataclasses import dataclass
 
 RUBRIC = [
@@ -31,8 +32,18 @@ class Judgment:
 
 class H2OClient:
     def __init__(self, url="http://127.0.0.1:8741", timeout=180):
+        parsed = urlsplit(url)
+        if (parsed.scheme != "http" or parsed.hostname not in {"127.0.0.1", "localhost", "::1"}
+                or parsed.username is not None or parsed.password is not None
+                or parsed.path not in {"", "/"}
+                or parsed.query or parsed.fragment):
+            raise ValueError("H2O URL must be a loopback HTTP address without a path")
+        if parsed.port is not None and not 1 <= parsed.port <= 65535:
+            raise ValueError("H2O port must be positive")
         self.url = url.rstrip("/")
         self.timeout = timeout
+        from semantic_search.client import NoRedirect
+        self._opener = urllib.request.build_opener(urllib.request.ProxyHandler({}), NoRedirect())
 
     def score(self, query, snippet):
         payload = {
@@ -48,7 +59,7 @@ class H2OClient:
                                          headers={"Content-Type": "application/json"})
         started = time.perf_counter()
         try:
-            with urllib.request.urlopen(request, timeout=self.timeout) as response:
+            with self._opener.open(request, timeout=self.timeout) as response:
                 result = json.load(response)
         except urllib.error.HTTPError as error:
             raise RuntimeError(f"H2O returned HTTP {error.code}: {error.read().decode()}") from error

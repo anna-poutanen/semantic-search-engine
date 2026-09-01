@@ -4,6 +4,7 @@ import subprocess
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from semantic_search.corpus import extract_snippets
 
@@ -154,6 +155,35 @@ class CorpusTests(unittest.TestCase):
         (self.repo / "escape").symlink_to(self.repo.parent, target_is_directory=True)
         with self.assertRaises(ValueError):
             extract_snippets(self.repo, source_root="escape")
+
+    def test_captured_sources_keep_initial_symbols_and_membership_during_live_edits(self):
+        original = "class C:\n    def method(self):\n        return 1\n"
+        removed_source = "def removed():\n    return 2\n"
+        path = self.write_source(original)
+        removed_path = self.root / "removed.py"
+        removed_path.write_text(removed_source)
+        sources = {"src/flask/removed.py": removed_source, "src/flask/example.py": original}
+        initial = extract_snippets(self.repo)
+        path.write_text(original.replace("class C:", "class D:"))
+        removed_path.unlink()
+        try:
+            with patch("semantic_search.corpus._source_files", side_effect=AssertionError("Git listing")), \
+                    patch.object(Path, "read_bytes", side_effect=AssertionError("File reread")):
+                captured = extract_snippets(self.repo, sources=sources)
+        finally:
+            path.write_text(original)
+            removed_path.write_text(removed_source)
+        self.assertEqual(captured, initial)
+        self.assertEqual([s.symbol for s in captured], ["C.method", "removed"])
+
+    def test_captured_source_paths_and_contents_are_validated(self):
+        source = "def run():\n    return 1\n"
+        invalid = [{"../outside.py": source}, {"other.py": source},
+                   {str(self.root / "absolute.py"): source}, {"src/flask/file.txt": source},
+                   {"src/flask/code.py": b"not decoded"}, [source]]
+        for sources in invalid:
+            with self.subTest(sources=sources), self.assertRaises(ValueError):
+                extract_snippets(self.repo, sources=sources)
 
 
 if __name__ == "__main__":
