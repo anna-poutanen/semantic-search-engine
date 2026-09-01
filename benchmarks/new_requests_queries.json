@@ -1,0 +1,168 @@
+{
+  "repo_url": "https://github.com/psf/requests",
+  "revision": "611c6162cbc4ac2020a2f91c7cfa4f3abf9bbb60",
+  "source_root": "src/requests",
+  "split_policy": "Alternating present-query topics in source-review order, with two absent-feature queries assigned to each partition before any retrieval output.",
+  "queries": [
+    {
+      "id": "requests_merge_request_settings",
+      "query": "Where are per-request dictionary settings combined with session defaults so the request wins on duplicate keys and a value of None removes a setting?",
+      "targets": [{"path": "src/requests/sessions.py", "symbol": "merge_setting", "evidence_lines": [84, 105]}],
+      "notes": "The function returns whichever setting is available, lets a request scalar override, merges mapping entries in request-over-session order, and deletes keys whose merged value is None. The case-insensitive header-removal integration case is tested in tests/test_requests.py::TestRequests.test_header_remove_is_case_insensitive; case handling itself belongs to the supplied dictionary class.",
+      "kind": "present",
+      "split": "development"
+    },
+    {
+      "id": "requests_redirect_auth_boundary",
+      "query": "Where is the decision made to drop credentials when a redirect changes host, scheme, or port, while allowing an ordinary HTTP-to-HTTPS upgrade on the same host?",
+      "targets": [{"path": "src/requests/sessions.py", "symbol": "SessionRedirectMixin.should_strip_auth", "evidence_lines": [156, 184]}],
+      "notes": "This is the authorization-stripping decision, not deletion of the header. It rejects host changes, permits same-host HTTP-to-HTTPS upgrades on the default ports, treats explicit and implicit default ports as equivalent, and otherwise checks scheme/port changes. Reviewed tests/test_requests.py::TestRequests.test_should_strip_auth_host_change, test_should_strip_auth_https_upgrade, and test_should_strip_auth_default_port.",
+      "kind": "present",
+      "split": "test"
+    },
+    {
+      "id": "requests_redirect_method_rewrite",
+      "query": "Which code changes a redirected POST into GET for a 301 and changes non-HEAD requests into GET for 302 or 303, while leaving HEAD alone?",
+      "targets": [{"path": "src/requests/sessions.py", "symbol": "SessionRedirectMixin.rebuild_method", "evidence_lines": [376, 392]}],
+      "notes": "The three status/method conditions directly update prepared_request.method. This asks for method rewriting, not following redirects or deleting bodies/headers. Existing redirect integration cases in tests/test_requests.py were read for context; the exact branch conditions were verified in source.",
+      "kind": "present",
+      "split": "development"
+    },
+    {
+      "id": "requests_environment_transport_settings",
+      "query": "When environment settings are trusted, where do proxy values fill missing request entries and certificate-bundle environment variables override the default verification choice before settings are merged with the session?",
+      "targets": [{"path": "src/requests/sessions.py", "symbol": "Session.merge_environment_settings", "evidence_lines": [845, 868]}],
+      "notes": "The trust_env branch uses setdefault for environment proxies and REQUESTS_CA_BUNDLE/CURL_CA_BUNDLE when verify is True or None, then merges proxies, stream, verify, and cert. Reviewed tests/test_requests.py::TestRequests.test_env_cert_bundles and test_proxy_env_vars_override_default. This asks for gathering/merging settings, not opening a network connection.",
+      "kind": "present",
+      "split": "test"
+    },
+    {
+      "id": "requests_unicode_url_preparation",
+      "query": "Where is an internationalized HTTP hostname made safe for the wire, a missing path changed to a slash, and new query parameters appended without losing the URL's existing query string?",
+      "targets": [{"path": "src/requests/models.py", "symbol": "PreparedRequest.prepare_url", "evidence_lines": [528, 563]}],
+      "notes": "The method invokes IDNA encoding for a non-ASCII hostname, rejects invalid labels, reconstructs the network location, inserts a slash for an empty path, appends encoded parameters, requotes the URI, and assigns self.url. Helper functions handle individual encodings but not this full preparation flow. Unicode URL and query-parameter tests in tests/test_requests.py were reviewed.",
+      "kind": "present",
+      "split": "development"
+    },
+    {
+      "id": "requests_streamed_upload_length",
+      "query": "Where does a generator-style upload get chunked transfer encoding when no usable body length is available, while a sized stream gets a Content-Length header?",
+      "targets": [{"path": "src/requests/models.py", "symbol": "PreparedRequest.prepare_body", "evidence_lines": [602, 630]}],
+      "notes": "The iterable-stream branch obtains super_len, tolerates unavailable length, rejects simultaneous file uploads, and chooses Content-Length for a truthy length or Transfer-Encoding: chunked otherwise. A known zero-length stream also takes the chunked branch. Reviewed tests/test_requests.py::TestRequests.test_chunked_upload_does_not_set_content_length_header and test_stream_with_auth_does_not_set_transfer_encoding_header.",
+      "kind": "present",
+      "split": "test"
+    },
+    {
+      "id": "requests_multipart_file_fields",
+      "query": "Which implementation packages uploaded files into a multipart body, accepting custom filenames, content types, and per-file headers and reading file-like objects into each part?",
+      "targets": [{"path": "src/requests/models.py", "symbol": "RequestEncodingMixin._encode_files", "evidence_lines": [221, 251]}],
+      "notes": "The file loop interprets 2/3/4-item specifications, accepts bytes-like data or reads file-like objects, builds RequestField instances with custom headers, marks their content type, and calls the multipart encoder. This asks for assembling file fields, not the underlying dependency's byte-boundary encoding. Reviewed related multipart/file cases in tests/test_requests.py.",
+      "kind": "present",
+      "split": "development"
+    },
+    {
+      "id": "requests_streaming_line_boundaries",
+      "query": "Where is a streamed response split into complete lines while carrying an unfinished line across network chunks and emitting a final leftover line when the stream ends?",
+      "targets": [{"path": "src/requests/models.py", "symbol": "Response.iter_lines", "evidence_lines": [1010, 1032]}],
+      "notes": "The executable overload maintains pending, prepends it to the next chunk, splits using a delimiter or splitlines, retains an incomplete trailing line, and yields pending after iteration. Skip type-only overloads. Reviewed tests/test_requests.py::TestRequests.test_response_iter_lines; the pending-line branches were verified directly in source.",
+      "kind": "present",
+      "split": "test"
+    },
+    {
+      "id": "requests_json_response_decoding",
+      "query": "Where is an unlabelled JSON response's UTF encoding detected before parsing, with a text-decoding fallback and malformed JSON converted into the library's own decoding exception?",
+      "targets": [{"path": "src/requests/models.py", "symbol": "Response.json", "evidence_lines": [1101, 1124]}],
+      "notes": "For content longer than three bytes with no explicit encoding, this method tries guess_json_utf and parses decoded bytes. A codec failure falls through to self.text. Both JSON parse paths wrap JSONDecodeError as RequestsJSONDecodeError. Reviewed tests/test_requests.py::TestRequests.test_json_decode_compatibility and test_json_decode_persists_doc_attr, plus UTF-detection tests in tests/test_utils.py.",
+      "kind": "present",
+      "split": "development"
+    },
+    {
+      "id": "requests_http_status_exception",
+      "query": "Where does a 4xx or 5xx response become an exception containing the status, reason, URL, and response object, while successful responses do not raise that exception?",
+      "targets": [{"path": "src/requests/models.py", "symbol": "Response.raise_for_status", "evidence_lines": [1160, 1171]}],
+      "notes": "The method creates different client/server error messages for 400-499 and 500-599 and raises HTTPError only if a message exists, attaching response=self. Reason-string decoding occurs earlier in the same function. Reviewed tests/test_requests.py::TestRequests.test_status_raising and the response-reason Unicode tests.",
+      "kind": "present",
+      "split": "test"
+    },
+    {
+      "id": "requests_proxy_connection_manager",
+      "query": "Where are connection managers reused by proxy URL, creating a SOCKS manager with extracted credentials for SOCKS proxies and an ordinary proxy manager with proxy headers otherwise?",
+      "targets": [{"path": "src/requests/adapters.py", "symbol": "HTTPAdapter.proxy_manager_for", "evidence_lines": [281, 305]}],
+      "notes": "The adapter checks its proxy_manager cache first, stores newly constructed SOCKSProxyManager or proxy_from_url results by the proxy string, and passes pool sizing/blocking options. This asks for manager selection and caching rather than implementing SOCKS transport in Requests; SOCKS transport itself is dependency code.",
+      "kind": "present",
+      "split": "development"
+    },
+    {
+      "id": "requests_tls_certificate_setup",
+      "query": "Where does HTTPS setup choose a trusted certificate file versus a directory, require verification when enabled, and reject missing client certificate or private-key files?",
+      "targets": [{"path": "src/requests/adapters.py", "symbol": "HTTPAdapter.cert_verify", "evidence_lines": [321, 363]}],
+      "notes": "The method resolves the verification path or default bundle, checks its existence, assigns CERT_REQUIRED and either ca_certs or ca_cert_dir, and validates optional client certificate/key paths. It configures the connection; the cryptographic handshake and chain validation are outside Requests. Reviewed tests/test_requests.py::TestRequests.test_invalid_ca_certificate_path and test_invalid_ssl_certificate_files.",
+      "kind": "present",
+      "split": "test"
+    },
+    {
+      "id": "requests_proxy_request_target",
+      "query": "Where is the outgoing request target switched to a full URL for an ordinary HTTP proxy, while HTTPS and SOCKS connections keep the path-and-query form?",
+      "targets": [{"path": "src/requests/adapters.py", "symbol": "HTTPAdapter.request_url", "evidence_lines": [583, 597]}],
+      "notes": "The method selects a proxy, detects whether the request is non-HTTPS and non-SOCKS, defaults to request.path_url, and uses a defragmented credential-free full URL for the ordinary proxied HTTP case. The URL-cleaning helper alone does not implement this selection. Reviewed tests/test_adapters.py::test_request_url_handles_leading_path_separators for preservation of the direct request path.",
+      "kind": "present",
+      "split": "development"
+    },
+    {
+      "id": "requests_digest_challenge_retry",
+      "query": "After a server sends an authentication challenge using Digest, where is the original connection released and a copied request sent again with an Authorization header, with repeated authentication attempts limited?",
+      "targets": [{"path": "src/requests/auth.py", "symbol": "HTTPDigestAuth.handle_401", "evidence_lines": [282, 319]}],
+      "notes": "For a 4xx response with a Digest challenge and fewer than two calls, the method increments its attempt counter, records the challenge, consumes/closes the response, copies the request, restores cookies, obtains a digest header, and resends through the connection. Header cryptography is delegated to build_digest_header; this query asks for challenge retry orchestration. Reviewed the Digest success, wrong-password, cookie, and streaming integration tests in tests/test_requests.py.",
+      "kind": "present",
+      "split": "test"
+    },
+    {
+      "id": "requests_ambiguous_cookie_lookup",
+      "query": "Where does looking up a cookie by name reject multiple matching cookies instead of silently choosing one, while an optional domain or path can narrow the lookup?",
+      "targets": [{"path": "src/requests/cookies.py", "symbol": "RequestsCookieJar._find_no_duplicates", "evidence_lines": [437, 452]}],
+      "notes": "The jar iterates matching names and optional domain/path filters, raises CookieConflictError after a second matching value, returns a unique value, or raises KeyError when none was found. The public get method delegates this duplicate check. Reviewed tests/test_requests.py::TestRequests.test_cookie_duplicate_names_different_domains and test_cookie_duplicate_names_raises_cookie_conflict_error.",
+      "kind": "present",
+      "split": "development"
+    },
+    {
+      "id": "requests_proxy_exclusion_rules",
+      "query": "Where is a comma-separated proxy exclusion list checked against IPv4 ranges, domain suffixes, and optional host ports to decide whether a request should connect directly?",
+      "targets": [{"path": "src/requests/utils.py", "symbol": "should_bypass_proxies", "evidence_lines": [824, 870]}],
+      "notes": "The function resolves no_proxy, checks IPv4 addresses/CIDR ranges, matches hostname or hostname:port with domain-boundary handling, then consults system proxy-bypass behavior. Reviewed tests/test_utils.py::test_should_bypass_proxies, test_should_bypass_proxies_no_proxy, and test_should_bypass_proxies_no_proxy_domain_boundary.",
+      "kind": "present",
+      "split": "test"
+    },
+    {
+      "id": "requests_absent_native_async_requests",
+      "query": "Where does the client schedule several HTTP requests as native awaitable coroutines and collect their responses without blocking an event loop?",
+      "targets": [],
+      "notes": "No native coroutine-based request scheduler or async/await implementation was found in src/requests. Its synchronous send/request methods and streamed iterators do not provide this behavior. An external executor or third-party async wrapper is outside this corpus.",
+      "kind": "absent",
+      "split": "development"
+    },
+    {
+      "id": "requests_absent_persistent_response_cache",
+      "query": "Where are HTTP responses persisted to a disk cache and reused according to Cache-Control or expiry rules, revalidating stale entries with ETags before downloading the body again?",
+      "targets": [],
+      "notes": "No persistent response cache, freshness policy, or ETag-based cache revalidation was found in src/requests. Cached connection managers and the in-memory Response.content buffer are related storage concepts but do not implement this behavior. Cache extensions and server-side caching are outside the corpus.",
+      "kind": "absent",
+      "split": "test"
+    },
+    {
+      "id": "requests_absent_oauth_token_refresh",
+      "query": "Where does an expired OAuth access token trigger a refresh-token grant and then retry the original request with the newly issued access token?",
+      "targets": [],
+      "notes": "No OAuth access-token lifecycle or refresh-token grant implementation was found in src/requests. The prepared-request ordering includes a comment about supporting external OAuth authentication, and the built-in Digest challenge retry is a different authentication protocol. OAuth extensions are outside the corpus.",
+      "kind": "absent",
+      "split": "development"
+    },
+    {
+      "id": "requests_absent_certificate_key_pinning",
+      "query": "Where is an HTTPS server's public key compared with a configured pinned hash so the connection is rejected even when its certificate chain is otherwise trusted?",
+      "targets": [],
+      "notes": "No configured public-key hash pinning or peer-key comparison was found in src/requests. CA-bundle selection and client-certificate path checks are not key pinning. Dependency internals, custom adapters, and third-party pinning implementations are outside the corpus.",
+      "kind": "absent",
+      "split": "test"
+    }
+  ]
+}
