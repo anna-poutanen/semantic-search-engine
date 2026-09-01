@@ -31,6 +31,7 @@ The final command stays running in a terminal. In a second terminal:
   --repo .cache/corpora/flask
 
 .venv/bin/semantic-search benchmark --output results/local/flask-run
+.venv/bin/python scripts/capture_memory.py results/local/flask-run
 ```
 
 Use `--lexical-only` for a search without the model. Search another Python
@@ -46,6 +47,23 @@ Boolean confidence flooring is disabled. Ordinal scores use the shipped
 temperature calibration and are ranking signals, not certainty percentages.
 
 ## Experiment
+
+The [October 12 Flask pilot](results/flask-h2o-q8-2026-10-12/report.md) is complete:
+
+| Measurement | Result |
+|---|---|
+| Correct implementation at rank 1 | BM25: 8/12; BM25 + H2O: 11/12 |
+| Correct implementation beats both labeled decoys | 12/12 |
+| Correct implementation in the initial shortlist | 11/12 |
+| Warm ten-candidate search, median / p95 | 19.3s / 23.9s |
+| Warm single-candidate scoring, median / p95 | 1.61s / 4.16s |
+| Facade peak physical footprint, including Metal | About 7.5 GB, as reported by macOS |
+
+H2O improved three query rankings and preserved the other successful top results.
+The remaining miss was missing from candidate retrieval. This is promising
+development evidence for an optional reranker. It does not meet the plan's
+five-second warm search target. Next: embeddings and hybrid candidate retrieval,
+a smaller reranked shortlist, and evaluation on unseen repositories.
 
 [The frozen Flask dataset](benchmarks/flask_queries.json) contains 12 reviewed
 behavior queries, two plausible decoys per implementation, and two absent-feature
@@ -64,6 +82,10 @@ token counts, timing, source hashes, ranked windows, a machine-readable summary,
 and a report. Input token counts here are **local H2O processing counts**; no
 paid-agent token savings have been demonstrated. The dataset is a small
 development pilot, not a held-out quality benchmark.
+
+`capture_memory.py` adds macOS physical footprint and peak since process launch
+after the experiment, while the server is still running. Ordinary `ps` RSS on
+Apple Silicon omits Metal allocations and understates the model's memory use.
 
 ## Validation
 

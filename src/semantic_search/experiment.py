@@ -9,6 +9,8 @@ import platform
 import statistics
 import subprocess
 import time
+import urllib.request
+from urllib.parse import urlsplit
 from dataclasses import asdict
 from pathlib import Path
 
@@ -56,13 +58,34 @@ def retrieval_metrics(rows, key):
             "mrr": sum(1 / rank if rank else 0 for rank in ranks) / count}
 
 
-def sampled_rss_bytes():
+def sampled_rss_bytes(pids):
     """Sample facade + shim resident size; not a peak or total system memory."""
-    output = subprocess.run(["ps", "-ax", "-o", "rss=,command="], capture_output=True,
+    output = subprocess.run(["ps", "-p", ",".join(str(pid) for pid in pids), "-o", "rss="], capture_output=True,
                             text=True, check=True).stdout
-    names = ("mlx_vllm_facade.py", "h2o_lightning_shim.py")
-    return sum(int(line.split(maxsplit=1)[0]) * 1024 for line in output.splitlines()
-               if any(name in line for name in names))
+    return sum(int(line.strip()) * 1024 for line in output.splitlines() if line.strip())
+
+
+def runtime_provenance(url):
+    """Require the managed local runtime so metadata and RSS describe this run."""
+    root = Path(__file__).resolve().parents[2]
+    state = json.loads((root / ".cache/server/processes.json").read_text())
+    parsed = urlsplit(url)
+    if parsed.hostname not in {"localhost", "127.0.0.1"} or parsed.port != state["port"]:
+        raise ValueError("Benchmark URL must match the local scripts/serve_mac.py runtime")
+    health = {}
+    for name, port in (("shim", state["port"]), ("facade", state["facade_port"])):
+        with urllib.request.urlopen(f"http://127.0.0.1:{port}/health", timeout=10) as response:
+            health[name] = json.load(response)
+    if health["facade"]["prefix_min"] != 0:
+        raise ValueError("This benchmark requires disabled facade prefix caching")
+    config = json.loads((root / ".cache/models/h2o-lightning-4b-mlx-q8/config.json").read_text())
+    vendor_revision = subprocess.check_output([
+        "git", "-C", str(root / ".cache/vendor/h2o-lightning-mlx"), "rev-parse", "HEAD"
+    ], text=True).strip()
+    if vendor_revision != "0fc8e0299608867746682a0552c906b03a284a47":
+        raise ValueError("Unexpected facade runtime revision; run scripts/setup_mac.py")
+    return state, {"health_before_run": health, "config_quantization": config.get("quantization"),
+                   "head_dtype": config.get("head_dtype"), "runtime_revision": vendor_revision}
 
 
 def run_experiment(repo, dataset_path, output_dir, url, candidates=10, max_lines=160):
@@ -76,6 +99,7 @@ def run_experiment(repo, dataset_path, output_dir, url, candidates=10, max_lines
         raise ValueError("Benchmark corpus must have a clean working tree")
     if not any(query["kind"] == "present" for query in dataset["queries"]):
         raise ValueError("Dataset needs present queries for retrieval metrics")
+    runtime_state, provenance = runtime_provenance(url)
     output_dir.mkdir(parents=True, exist_ok=False)
     snippets = extract_snippets(repo, dataset["source_root"], max_lines=max_lines, overlap_lines=40)
     index = BM25Retriever(snippets)
@@ -97,7 +121,7 @@ def run_experiment(repo, dataset_path, output_dir, url, candidates=10, max_lines
             audit.flush()
             memo[key] = judgment
             calls.append(judgment)
-            rss_samples.append(sampled_rss_bytes())
+            rss_samples.append(sampled_rss_bytes(runtime_state["pids"]))
             return judgment
 
         for number, query in enumerate(dataset["queries"], 1):
@@ -154,7 +178,7 @@ def run_experiment(repo, dataset_path, output_dir, url, candidates=10, max_lines
                   "revision": "a1048d02d9e713ba9f7481efa5c3df7ec8a2adaa",
                   "runtime_revision": "0fc8e0299608867746682a0552c906b03a284a47",
                   "bits": 8, "group_size": 64, "prefix_cache": False,
-                  "rubric": RUBRIC, "instructions": INSTRUCTIONS},
+                  "rubric": RUBRIC, "instructions": INSTRUCTIONS, "provenance": provenance},
         "environment": {"platform": platform.platform(), "python": platform.python_version(),
                         "packages": versions, "machine": platform.machine()},
         "settings": {"candidates": candidates, "max_lines": max_lines, "overlap_lines": 40,
@@ -197,11 +221,27 @@ def render_report(result):
               f"First request: {m['first_request_s']:.2f}s. Warm per-candidate median/p95: "
               f"{m['warm_request_median_s']:.2f}/{m['warm_request_p95_s']:.2f}s. "
               f"Warm complete-search median/p95: {m['warm_search_median_s']:.2f}/{m['warm_search_p95_s']:.2f}s.", "",
-              f"Maximum sampled combined facade/shim RSS: {m['max_sampled_combined_rss_bytes'] / 2**30:.2f} GiB.", "",
+              f"Maximum sampled combined facade/shim CPU RSS: {m['max_sampled_combined_rss_bytes'] / 2**30:.2f} GiB. "
+              "This excludes Metal allocations and must not be interpreted as model RAM.", "",
               "| Query | BM25 rank | H2O rank | Gold minus strongest decoy |", "|---|---:|---:|---:|"]
     for row in result["queries"]:
         margin = f"{row['gold_margin']:.3f}" if "gold_margin" in row else "absent feature"
-        lines.append(f"| {row['id']} | {row['bm25_rank'] or 'miss'} | {row['h2o_rank'] or 'miss'} | {margin} |")
+        bm25_rank = (row['bm25_rank'] or 'miss') if row['kind'] == 'present' else 'n/a'
+        h2o_rank = (row['h2o_rank'] or 'miss') if row['kind'] == 'present' else 'n/a'
+        lines.append(f"| {row['id']} | {bm25_rank} | {h2o_rank} | {margin} |")
+    lines += ["", "## Absent-feature inspection", "",
+              "No rejection threshold was fitted. These are the highest expected ordinal scores among "
+              "the retrieved candidates (0 = unrelated, 3 = direct implementation).", ""]
+    for row in result["queries"]:
+        if row['kind'] == 'absent':
+            lines.append(f"- {row['id']}: {row['scores'][0]['h2o']:.3f}/3; `{row['scores'][0]['id']}`.")
+    if "memory_footprint" in result:
+        memory = result["memory_footprint"]["processes"]["facade"]
+        lines += ["", "## Mac memory footprint", "",
+                  f"The facade's physical footprint was {memory['physical_footprint']} "
+                  f"(peak since launch: {memory['physical_footprint_peak']}) according to `vmmap -summary`.",
+                  "This includes Metal allocations. Values are rounded by the macOS tool; the peak belongs "
+                  "to this process, not total system memory. Captured after the completed run."]
     lines += ["", "## Limits", "", *[f"- {item}" for item in result["limitations"]], "",
               "Exact ranked windows, model distributions and timings are in `results.json` and `judgments.jsonl`.", ""]
     return "\n".join(lines)
