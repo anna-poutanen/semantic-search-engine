@@ -1,0 +1,3087 @@
+{
+  "schema_version": 1,
+  "conditions": [
+    {
+      "retrieval": "dense",
+      "k": 0
+    },
+    {
+      "retrieval": "hybrid",
+      "k": 0
+    },
+    {
+      "retrieval": "dense",
+      "k": 1
+    },
+    {
+      "retrieval": "hybrid",
+      "k": 1
+    },
+    {
+      "retrieval": "hybrid",
+      "k": 3
+    },
+    {
+      "retrieval": "hybrid",
+      "k": 2
+    },
+    {
+      "retrieval": "dense",
+      "k": 4
+    },
+    {
+      "retrieval": "dense",
+      "k": 3
+    }
+  ],
+  "warm_models": true,
+  "query_embedding_cache": false,
+  "h2o_judgment_cache": false,
+  "output": "scored prefix only; K0 means retrieval-only top5 results",
+  "timing_setup_index": {
+    "key": "51ecfce3bbe1aa1989241329a69ac0c01b9898111fd3c391f7b1b4c15878de72",
+    "cache_hit": false,
+    "elapsed_s": 26.17712212499464
+  },
+  "dataset_sha256": "7394c6c04a13f470b693a58095edbb12e07db2330e8dbec4b5c6448529143235",
+  "embedding": {
+    "id": "Qwen/Qwen3-Embedding-0.6B",
+    "revision": "97b0c614be4d77ee51c0cef4e5f07c00f9eb65b3",
+    "weights_dtype": "bfloat16",
+    "quantized": false,
+    "runtime": "mlx-embeddings",
+    "runtime_version": "0.1.0",
+    "packages": {
+      "mlx-embeddings": "0.1.0",
+      "mlx": "0.32.3",
+      "mlx-metal": "0.32.3",
+      "transformers": "5.19.0",
+      "numpy": "2.5.4"
+    },
+    "dimensions": 1024,
+    "query_instruction": "Given a description of code behavior, retrieve the code implementation that performs it.",
+    "query_prompt": "Instruct: Given a description of code behavior, retrieve the code implementation that performs it.\nQuery:",
+    "document_prompt": null,
+    "pooling": "last non-padding token",
+    "normalization": "L2, float32",
+    "max_tokens": 8192,
+    "truncation": "right",
+    "padding_side": "right",
+    "add_special_tokens": true,
+    "batch_size": 4,
+    "batch_order": "stable ascending token length; restore input order",
+    "checkpoint_validation": "pinned Hub download provenance; original unquantized config"
+  },
+  "h2o_provenance": {
+    "health_before_run": {
+      "shim": {
+        "ok": true,
+        "model": "h2oai/h2o-lightning-4b",
+        "shim": "h2o-lightning-shim",
+        "backend": "vllm http://127.0.0.1:8743",
+        "layout": "plain",
+        "chat_template": true,
+        "state_compact": true,
+        "prefill": "Answer:",
+        "max_state_tokens": 32000,
+        "noul_floor": {
+          "value": 0.0,
+          "source": "SHIM_NOUL_FLOOR"
+        },
+        "temperature_by_type": {
+          "choice": 0.75,
+          "noul": 0.8,
+          "score": 0.65
+        },
+        "temperature_source": "serve_config.json",
+        "max_options": 255,
+        "vllm_max_model_len": 40960,
+        "images": {
+          "max_images": 4,
+          "max_pixels": 1048576,
+          "temperature": 0.65,
+          "verified": false
+        }
+      },
+      "facade": {
+        "ok": true,
+        "model": "h2oai/h2o-lightning-4b",
+        "loaded": true,
+        "loads": 1,
+        "backend": "mlx",
+        "head_fp32": true,
+        "prefix_hits": 0,
+        "prefix_min": 0
+      }
+    },
+    "config_quantization": {
+      "group_size": 64,
+      "bits": 8,
+      "mode": "affine"
+    },
+    "head_dtype": "float32",
+    "runtime_revision": "0fc8e0299608867746682a0552c906b03a284a47"
+  },
+  "summary": {
+    "dense:0": {
+      "queries": 12,
+      "hit_at_1": 0.8333333333333334,
+      "hit_at_3": 0.9166666666666666,
+      "hit_at_5": 1.0,
+      "mrr": 0.8958333333333334,
+      "returned_coverage": 1.0,
+      "samples": 14,
+      "median_s": 0.039760292005667,
+      "p95_s": 0.1800388749979902,
+      "max_s": 0.1800388749979902,
+      "median_query_embedding_s": 0.0395493539981544,
+      "median_h2o_s": 0.0
+    },
+    "hybrid:0": {
+      "queries": 12,
+      "hit_at_1": 0.8333333333333334,
+      "hit_at_3": 0.9166666666666666,
+      "hit_at_5": 0.9166666666666666,
+      "mrr": 0.8611111111111112,
+      "returned_coverage": 0.9166666666666666,
+      "samples": 14,
+      "median_s": 0.029127750000043306,
+      "p95_s": 0.037372541992226616,
+      "max_s": 0.037372541992226616,
+      "median_query_embedding_s": 0.02860918750957353,
+      "median_h2o_s": 0.0
+    },
+    "dense:1": {
+      "queries": 12,
+      "hit_at_1": 0.8333333333333334,
+      "hit_at_3": 0.8333333333333334,
+      "hit_at_5": 0.8333333333333334,
+      "mrr": 0.8333333333333334,
+      "returned_coverage": 0.8333333333333334,
+      "samples": 14,
+      "median_s": 1.7384377915004734,
+      "p95_s": 4.35837137499766,
+      "max_s": 4.35837137499766,
+      "median_query_embedding_s": 0.028540645995235536,
+      "median_h2o_s": 1.711577916998067
+    },
+    "hybrid:1": {
+      "queries": 12,
+      "hit_at_1": 0.8333333333333334,
+      "hit_at_3": 0.8333333333333334,
+      "hit_at_5": 0.8333333333333334,
+      "mrr": 0.8333333333333334,
+      "returned_coverage": 0.8333333333333334,
+      "samples": 14,
+      "median_s": 1.7385117919984623,
+      "p95_s": 4.4743514170113485,
+      "max_s": 4.4743514170113485,
+      "median_query_embedding_s": 0.0333068124964484,
+      "median_h2o_s": 1.7056168120034272
+    },
+    "hybrid:3": {
+      "queries": 12,
+      "hit_at_1": 0.9166666666666666,
+      "hit_at_3": 0.9166666666666666,
+      "hit_at_5": 0.9166666666666666,
+      "mrr": 0.9166666666666666,
+      "returned_coverage": 0.9166666666666666,
+      "samples": 14,
+      "median_s": 5.056423437999911,
+      "p95_s": 8.846478875013418,
+      "max_s": 8.846478875013418,
+      "median_query_embedding_s": 0.03717374999541789,
+      "median_h2o_s": 5.019726416503545
+    },
+    "hybrid:2": {
+      "queries": 12,
+      "hit_at_1": 0.8333333333333334,
+      "hit_at_3": 0.8333333333333334,
+      "hit_at_5": 0.8333333333333334,
+      "mrr": 0.8333333333333334,
+      "returned_coverage": 0.8333333333333334,
+      "samples": 14,
+      "median_s": 3.33753443799651,
+      "p95_s": 6.641831250002724,
+      "max_s": 6.641831250002724,
+      "median_query_embedding_s": 0.03819068749726284,
+      "median_h2o_s": 3.302866271493258
+    },
+    "dense:4": {
+      "queries": 12,
+      "hit_at_1": 1.0,
+      "hit_at_3": 1.0,
+      "hit_at_5": 1.0,
+      "mrr": 1.0,
+      "returned_coverage": 1.0,
+      "samples": 14,
+      "median_s": 5.947299999497773,
+      "p95_s": 9.696639791000052,
+      "max_s": 9.696639791000052,
+      "median_query_embedding_s": 0.03727741649345262,
+      "median_h2o_s": 5.778576395496202
+    },
+    "dense:3": {
+      "queries": 12,
+      "hit_at_1": 0.9166666666666666,
+      "hit_at_3": 0.9166666666666666,
+      "hit_at_5": 0.9166666666666666,
+      "mrr": 0.9166666666666666,
+      "returned_coverage": 0.9166666666666666,
+      "samples": 14,
+      "median_s": 4.7620138749989565,
+      "p95_s": 8.487889040989103,
+      "max_s": 8.487889040989103,
+      "median_query_embedding_s": 0.03915781249816064,
+      "median_h2o_s": 4.718986208506976
+    }
+  },
+  "rows": [
+    {
+      "query_id": "request_dispatch_pipeline",
+      "kind": "present",
+      "retrieval": "dense",
+      "k": 0,
+      "query_embedding_s": 0.17948649999743793,
+      "retrieval_s": 0.00031320800189860165,
+      "h2o_s": 0,
+      "ranking_and_client_overhead_s": 0.0002381670055910945,
+      "elapsed_s": 0.1800388749979902,
+      "candidate_ids": [
+        "src/flask/app.py:Flask.finalize_request:1021-1051",
+        "src/flask/app.py:Flask.full_dispatch_request:992-1019",
+        "src/flask/app.py:Flask.handle_http_exception:830-863",
+        "src/flask/ctx.py:AppContext.match_request:405-414",
+        "src/flask/app.py:Flask.raise_routing_exception:560-586",
+        "src/flask/app.py:Flask.preprocess_request:1366-1392",
+        "src/flask/app.py:Flask.dispatch_request:966-990",
+        "src/flask/app.py:Flask.handle_exception:897-948",
+        "src/flask/app.py:Flask.handle_user_exception:865-895",
+        "src/flask/app.py:Flask.process_response:1394-1418"
+      ],
+      "returned_ids": [
+        "src/flask/app.py:Flask.finalize_request:1021-1051",
+        "src/flask/app.py:Flask.full_dispatch_request:992-1019",
+        "src/flask/app.py:Flask.handle_http_exception:830-863",
+        "src/flask/ctx.py:AppContext.match_request:405-414",
+        "src/flask/app.py:Flask.raise_routing_exception:560-586"
+      ],
+      "rank": 2,
+      "candidate_has_gold": true,
+      "max_h2o_score": null
+    },
+    {
+      "query_id": "request_dispatch_pipeline",
+      "kind": "present",
+      "retrieval": "hybrid",
+      "k": 0,
+      "query_embedding_s": 0.03335029201116413,
+      "retrieval_s": 0.0005035000067437068,
+      "h2o_s": 0,
+      "ranking_and_client_overhead_s": 1.5249999705702066e-05,
+      "elapsed_s": 0.03386975001194514,
+      "candidate_ids": [
+        "src/flask/app.py:Flask.finalize_request:1021-1051",
+        "src/flask/app.py:Flask.handle_http_exception:830-863",
+        "src/flask/app.py:Flask.handle_exception:897-948",
+        "src/flask/app.py:Flask.handle_user_exception:865-895",
+        "src/flask/app.py:Flask.dispatch_request:966-990",
+        "src/flask/sansio/scaffold.py:Scaffold.errorhandler:605-647",
+        "src/flask/sansio/app.py:App.trap_http_exception:894-927",
+        "src/flask/app.py:Flask.wsgi_app:1566-1616",
+        "src/flask/views.py:View.as_view:85-135",
+        "src/flask/app.py:Flask.process_response:1394-1418"
+      ],
+      "returned_ids": [
+        "src/flask/app.py:Flask.finalize_request:1021-1051",
+        "src/flask/app.py:Flask.handle_http_exception:830-863",
+        "src/flask/app.py:Flask.handle_exception:897-948",
+        "src/flask/app.py:Flask.handle_user_exception:865-895",
+        "src/flask/app.py:Flask.dispatch_request:966-990"
+      ],
+      "rank": null,
+      "candidate_has_gold": false,
+      "max_h2o_score": null
+    },
+    {
+      "query_id": "request_dispatch_pipeline",
+      "kind": "present",
+      "retrieval": "dense",
+      "k": 1,
+      "query_embedding_s": 0.026282124992576428,
+      "retrieval_s": 0.0001598329981788993,
+      "h2o_s": 1.5192909589968622,
+      "ranking_and_client_overhead_s": 6.474899419117719e-05,
+      "elapsed_s": 1.545798166989698,
+      "candidate_ids": [
+        "src/flask/app.py:Flask.finalize_request:1021-1051"
+      ],
+      "returned_ids": [
+        "src/flask/app.py:Flask.finalize_request:1021-1051"
+      ],
+      "rank": null,
+      "candidate_has_gold": false,
+      "max_h2o_score": 1.8927394181009072
+    },
+    {
+      "query_id": "request_dispatch_pipeline",
+      "kind": "present",
+      "retrieval": "hybrid",
+      "k": 1,
+      "query_embedding_s": 0.033341041998937726,
+      "retrieval_s": 0.0006086250068619847,
+      "h2o_s": 1.4619417079957202,
+      "ranking_and_client_overhead_s": 5.895800131838769e-05,
+      "elapsed_s": 1.4959509580075974,
+      "candidate_ids": [
+        "src/flask/app.py:Flask.finalize_request:1021-1051"
+      ],
+      "returned_ids": [
+        "src/flask/app.py:Flask.finalize_request:1021-1051"
+      ],
+      "rank": null,
+      "candidate_has_gold": false,
+      "max_h2o_score": 1.8927394181009072
+    },
+    {
+      "query_id": "request_dispatch_pipeline",
+      "kind": "present",
+      "retrieval": "hybrid",
+      "k": 3,
+      "query_embedding_s": 0.03539533399452921,
+      "retrieval_s": 0.0006386660097632557,
+      "h2o_s": 5.147735457998351,
+      "ranking_and_client_overhead_s": 0.00018437500693835318,
+      "elapsed_s": 5.1839544999966165,
+      "candidate_ids": [
+        "src/flask/app.py:Flask.finalize_request:1021-1051",
+        "src/flask/app.py:Flask.handle_http_exception:830-863",
+        "src/flask/app.py:Flask.handle_exception:897-948"
+      ],
+      "returned_ids": [
+        "src/flask/app.py:Flask.handle_exception:897-948",
+        "src/flask/app.py:Flask.finalize_request:1021-1051",
+        "src/flask/app.py:Flask.handle_http_exception:830-863"
+      ],
+      "rank": null,
+      "candidate_has_gold": false,
+      "max_h2o_score": 2.0289815126845294
+    },
+    {
+      "query_id": "request_dispatch_pipeline",
+      "kind": "present",
+      "retrieval": "hybrid",
+      "k": 2,
+      "query_embedding_s": 0.03647649999766145,
+      "retrieval_s": 0.000546208000741899,
+      "h2o_s": 3.0291321239928948,
+      "ranking_and_client_overhead_s": 0.0001248760090675205,
+      "elapsed_s": 3.0662802919978276,
+      "candidate_ids": [
+        "src/flask/app.py:Flask.finalize_request:1021-1051",
+        "src/flask/app.py:Flask.handle_http_exception:830-863"
+      ],
+      "returned_ids": [
+        "src/flask/app.py:Flask.finalize_request:1021-1051",
+        "src/flask/app.py:Flask.handle_http_exception:830-863"
+      ],
+      "rank": null,
+      "candidate_has_gold": false,
+      "max_h2o_score": 1.8927394181009072
+    },
+    {
+      "query_id": "request_dispatch_pipeline",
+      "kind": "present",
+      "retrieval": "dense",
+      "k": 4,
+      "query_embedding_s": 0.03949491700041108,
+      "retrieval_s": 0.00017762499919626862,
+      "h2o_s": 5.494499792010174,
+      "ranking_and_client_overhead_s": 0.0002394989860476926,
+      "elapsed_s": 5.534412167005939,
+      "candidate_ids": [
+        "src/flask/app.py:Flask.finalize_request:1021-1051",
+        "src/flask/app.py:Flask.full_dispatch_request:992-1019",
+        "src/flask/app.py:Flask.handle_http_exception:830-863",
+        "src/flask/ctx.py:AppContext.match_request:405-414"
+      ],
+      "returned_ids": [
+        "src/flask/app.py:Flask.full_dispatch_request:992-1019",
+        "src/flask/ctx.py:AppContext.match_request:405-414",
+        "src/flask/app.py:Flask.finalize_request:1021-1051",
+        "src/flask/app.py:Flask.handle_http_exception:830-863"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": 2.917854209145032
+    },
+    {
+      "query_id": "request_dispatch_pipeline",
+      "kind": "present",
+      "retrieval": "dense",
+      "k": 3,
+      "query_embedding_s": 0.037823250007932074,
+      "retrieval_s": 0.00015916599659249187,
+      "h2o_s": 4.398146957028075,
+      "ranking_and_client_overhead_s": 0.00014454296615440398,
+      "elapsed_s": 4.436274499996216,
+      "candidate_ids": [
+        "src/flask/app.py:Flask.finalize_request:1021-1051",
+        "src/flask/app.py:Flask.full_dispatch_request:992-1019",
+        "src/flask/app.py:Flask.handle_http_exception:830-863"
+      ],
+      "returned_ids": [
+        "src/flask/app.py:Flask.full_dispatch_request:992-1019",
+        "src/flask/app.py:Flask.finalize_request:1021-1051",
+        "src/flask/app.py:Flask.handle_http_exception:830-863"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": 2.917854209145032
+    },
+    {
+      "query_id": "view_return_conversion",
+      "kind": "present",
+      "retrieval": "hybrid",
+      "k": 0,
+      "query_embedding_s": 0.032309083006111905,
+      "retrieval_s": 0.0008162090089172125,
+      "h2o_s": 0,
+      "ranking_and_client_overhead_s": 1.0750009096227586e-05,
+      "elapsed_s": 0.033136792000732385,
+      "candidate_ids": [
+        "src/flask/app.py:Flask.make_response:1224-1364",
+        "src/flask/helpers.py:make_response:151-197",
+        "src/flask/json/__init__.py:jsonify:138-170",
+        "src/flask/json/provider.py:JSONProvider.response:89-105",
+        "src/flask/json/provider.py:DefaultJSONProvider.response:189-215",
+        "src/flask/app.py:Flask.handle_http_exception:830-863",
+        "src/flask/sansio/scaffold.py:Scaffold._get_exc_class_and_code:664-706",
+        "src/flask/app.py:Flask.raise_routing_exception:560-586",
+        "src/flask/app.py:Flask.finalize_request:1021-1051",
+        "src/flask/app.py:Flask.dispatch_request:966-990"
+      ],
+      "returned_ids": [
+        "src/flask/app.py:Flask.make_response:1224-1364",
+        "src/flask/helpers.py:make_response:151-197",
+        "src/flask/json/__init__.py:jsonify:138-170",
+        "src/flask/json/provider.py:JSONProvider.response:89-105",
+        "src/flask/json/provider.py:DefaultJSONProvider.response:189-215"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": null
+    },
+    {
+      "query_id": "view_return_conversion",
+      "kind": "present",
+      "retrieval": "dense",
+      "k": 1,
+      "query_embedding_s": 0.025382957988767885,
+      "retrieval_s": 0.00017070899775717407,
+      "h2o_s": 4.332746542000677,
+      "ranking_and_client_overhead_s": 7.075000030454248e-05,
+      "elapsed_s": 4.35837137499766,
+      "candidate_ids": [
+        "src/flask/app.py:Flask.make_response:1224-1364"
+      ],
+      "returned_ids": [
+        "src/flask/app.py:Flask.make_response:1224-1364"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": 2.9036911343250678
+    },
+    {
+      "query_id": "view_return_conversion",
+      "kind": "present",
+      "retrieval": "hybrid",
+      "k": 1,
+      "query_embedding_s": 0.0526132079976378,
+      "retrieval_s": 0.0005825419939355925,
+      "h2o_s": 4.421085875001154,
+      "ranking_and_client_overhead_s": 6.895799015183002e-05,
+      "elapsed_s": 4.4743514170113485,
+      "candidate_ids": [
+        "src/flask/app.py:Flask.make_response:1224-1364"
+      ],
+      "returned_ids": [
+        "src/flask/app.py:Flask.make_response:1224-1364"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": 2.9036911343250678
+    },
+    {
+      "query_id": "view_return_conversion",
+      "kind": "present",
+      "retrieval": "hybrid",
+      "k": 3,
+      "query_embedding_s": 0.047843958003795706,
+      "retrieval_s": 0.0005267499946057796,
+      "h2o_s": 8.576176999995369,
+      "ranking_and_client_overhead_s": 0.00034091700217686594,
+      "elapsed_s": 8.624888958991505,
+      "candidate_ids": [
+        "src/flask/app.py:Flask.make_response:1224-1364",
+        "src/flask/helpers.py:make_response:151-197",
+        "src/flask/json/__init__.py:jsonify:138-170"
+      ],
+      "returned_ids": [
+        "src/flask/app.py:Flask.make_response:1224-1364",
+        "src/flask/helpers.py:make_response:151-197",
+        "src/flask/json/__init__.py:jsonify:138-170"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": 2.9036911343250678
+    },
+    {
+      "query_id": "view_return_conversion",
+      "kind": "present",
+      "retrieval": "hybrid",
+      "k": 2,
+      "query_embedding_s": 0.16553666700201575,
+      "retrieval_s": 0.000786708013038151,
+      "h2o_s": 6.4754007079900475,
+      "ranking_and_client_overhead_s": 0.0001067080011125654,
+      "elapsed_s": 6.641831250002724,
+      "candidate_ids": [
+        "src/flask/app.py:Flask.make_response:1224-1364",
+        "src/flask/helpers.py:make_response:151-197"
+      ],
+      "returned_ids": [
+        "src/flask/app.py:Flask.make_response:1224-1364",
+        "src/flask/helpers.py:make_response:151-197"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": 2.9036911343250678
+    },
+    {
+      "query_id": "view_return_conversion",
+      "kind": "present",
+      "retrieval": "dense",
+      "k": 4,
+      "query_embedding_s": 0.03681049999431707,
+      "retrieval_s": 0.00016529200365766883,
+      "h2o_s": 9.659393291018205,
+      "ranking_and_client_overhead_s": 0.0002701259800232947,
+      "elapsed_s": 9.696639791000052,
+      "candidate_ids": [
+        "src/flask/app.py:Flask.make_response:1224-1364",
+        "src/flask/helpers.py:make_response:151-197",
+        "src/flask/json/__init__.py:jsonify:138-170",
+        "src/flask/json/provider.py:JSONProvider.response:89-105"
+      ],
+      "returned_ids": [
+        "src/flask/app.py:Flask.make_response:1224-1364",
+        "src/flask/json/provider.py:JSONProvider.response:89-105",
+        "src/flask/helpers.py:make_response:151-197",
+        "src/flask/json/__init__.py:jsonify:138-170"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": 2.9036911343250678
+    },
+    {
+      "query_id": "view_return_conversion",
+      "kind": "present",
+      "retrieval": "dense",
+      "k": 3,
+      "query_embedding_s": 0.043728332995669916,
+      "retrieval_s": 0.00017783399380277842,
+      "h2o_s": 8.278221041007782,
+      "ranking_and_client_overhead_s": 0.00021445899619720876,
+      "elapsed_s": 8.322342291998211,
+      "candidate_ids": [
+        "src/flask/app.py:Flask.make_response:1224-1364",
+        "src/flask/helpers.py:make_response:151-197",
+        "src/flask/json/__init__.py:jsonify:138-170"
+      ],
+      "returned_ids": [
+        "src/flask/app.py:Flask.make_response:1224-1364",
+        "src/flask/helpers.py:make_response:151-197",
+        "src/flask/json/__init__.py:jsonify:138-170"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": 2.9036911343250678
+    },
+    {
+      "query_id": "view_return_conversion",
+      "kind": "present",
+      "retrieval": "dense",
+      "k": 0,
+      "query_embedding_s": 0.038415625007473864,
+      "retrieval_s": 0.0002448330051265657,
+      "h2o_s": 0,
+      "ranking_and_client_overhead_s": 1.0208008461631835e-05,
+      "elapsed_s": 0.03867133399762679,
+      "candidate_ids": [
+        "src/flask/app.py:Flask.make_response:1224-1364",
+        "src/flask/helpers.py:make_response:151-197",
+        "src/flask/json/__init__.py:jsonify:138-170",
+        "src/flask/json/provider.py:JSONProvider.response:89-105",
+        "src/flask/json/provider.py:DefaultJSONProvider.response:189-215",
+        "src/flask/app.py:Flask.raise_routing_exception:560-586",
+        "src/flask/json/provider.py:JSONProvider._prepare_response_obj:75-87",
+        "src/flask/app.py:Flask.dispatch_request:966-990",
+        "src/flask/app.py:Flask.make_default_options_response:1053-1063",
+        "src/flask/app.py:Flask.handle_http_exception:830-863"
+      ],
+      "returned_ids": [
+        "src/flask/app.py:Flask.make_response:1224-1364",
+        "src/flask/helpers.py:make_response:151-197",
+        "src/flask/json/__init__.py:jsonify:138-170",
+        "src/flask/json/provider.py:JSONProvider.response:89-105",
+        "src/flask/json/provider.py:DefaultJSONProvider.response:189-215"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": null
+    },
+    {
+      "query_id": "nested_environment_config",
+      "kind": "present",
+      "retrieval": "dense",
+      "k": 1,
+      "query_embedding_s": 0.03176820800581481,
+      "retrieval_s": 0.00016258399409707636,
+      "h2o_s": 2.209798750001937,
+      "ranking_and_client_overhead_s": 6.86249986756593e-05,
+      "elapsed_s": 2.2417986250075046,
+      "candidate_ids": [
+        "src/flask/config.py:Config.from_prefixed_env:126-185"
+      ],
+      "returned_ids": [
+        "src/flask/config.py:Config.from_prefixed_env:126-185"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": 2.947843931725526
+    },
+    {
+      "query_id": "nested_environment_config",
+      "kind": "present",
+      "retrieval": "hybrid",
+      "k": 1,
+      "query_embedding_s": 0.03669095800432842,
+      "retrieval_s": 0.0007408750097965822,
+      "h2o_s": 2.192485207997379,
+      "ranking_and_client_overhead_s": 6.566701631527394e-05,
+      "elapsed_s": 2.22998324999935,
+      "candidate_ids": [
+        "src/flask/config.py:Config.from_prefixed_env:126-185"
+      ],
+      "returned_ids": [
+        "src/flask/config.py:Config.from_prefixed_env:126-185"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": 2.947843931725526
+    },
+    {
+      "query_id": "nested_environment_config",
+      "kind": "present",
+      "retrieval": "hybrid",
+      "k": 3,
+      "query_embedding_s": 0.038887332993908785,
+      "retrieval_s": 0.0004695840034401044,
+      "h2o_s": 5.486455915990518,
+      "ranking_and_client_overhead_s": 0.00020854301692452282,
+      "elapsed_s": 5.526022041987744,
+      "candidate_ids": [
+        "src/flask/config.py:Config.from_prefixed_env:126-185",
+        "src/flask/config.py:Config.from_envvar:102-124",
+        "src/flask/config.py:Config.from_object:218-254"
+      ],
+      "returned_ids": [
+        "src/flask/config.py:Config.from_prefixed_env:126-185",
+        "src/flask/config.py:Config.from_envvar:102-124",
+        "src/flask/config.py:Config.from_object:218-254"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": 2.947843931725526
+    },
+    {
+      "query_id": "nested_environment_config",
+      "kind": "present",
+      "retrieval": "hybrid",
+      "k": 2,
+      "query_embedding_s": 0.039322666998486966,
+      "retrieval_s": 0.0004825829964829609,
+      "h2o_s": 3.65593091599294,
+      "ranking_and_client_overhead_s": 0.00013087601109873503,
+      "elapsed_s": 3.695867582995561,
+      "candidate_ids": [
+        "src/flask/config.py:Config.from_prefixed_env:126-185",
+        "src/flask/config.py:Config.from_envvar:102-124"
+      ],
+      "returned_ids": [
+        "src/flask/config.py:Config.from_prefixed_env:126-185",
+        "src/flask/config.py:Config.from_envvar:102-124"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": 2.947843931725526
+    },
+    {
+      "query_id": "nested_environment_config",
+      "kind": "present",
+      "retrieval": "dense",
+      "k": 4,
+      "query_embedding_s": 0.03774433299258817,
+      "retrieval_s": 0.00017874999321065843,
+      "h2o_s": 7.963477917001001,
+      "ranking_and_client_overhead_s": 0.00027150000096298754,
+      "elapsed_s": 8.001672959013376,
+      "candidate_ids": [
+        "src/flask/config.py:Config.from_prefixed_env:126-185",
+        "src/flask/config.py:Config.get_namespace:323-364",
+        "src/flask/config.py:Config.from_envvar:102-124",
+        "src/flask/cli.py:load_dotenv:698-763"
+      ],
+      "returned_ids": [
+        "src/flask/config.py:Config.from_prefixed_env:126-185",
+        "src/flask/config.py:Config.from_envvar:102-124",
+        "src/flask/config.py:Config.get_namespace:323-364",
+        "src/flask/cli.py:load_dotenv:698-763"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": 2.947843931725526
+    },
+    {
+      "query_id": "nested_environment_config",
+      "kind": "present",
+      "retrieval": "dense",
+      "k": 3,
+      "query_embedding_s": 0.039059750008163974,
+      "retrieval_s": 0.00017333299911115319,
+      "h2o_s": 5.478907041993807,
+      "ranking_and_client_overhead_s": 0.0001718740095384419,
+      "elapsed_s": 5.518312500003958,
+      "candidate_ids": [
+        "src/flask/config.py:Config.from_prefixed_env:126-185",
+        "src/flask/config.py:Config.get_namespace:323-364",
+        "src/flask/config.py:Config.from_envvar:102-124"
+      ],
+      "returned_ids": [
+        "src/flask/config.py:Config.from_prefixed_env:126-185",
+        "src/flask/config.py:Config.from_envvar:102-124",
+        "src/flask/config.py:Config.get_namespace:323-364"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": 2.947843931725526
+    },
+    {
+      "query_id": "nested_environment_config",
+      "kind": "present",
+      "retrieval": "dense",
+      "k": 0,
+      "query_embedding_s": 0.038534292005351745,
+      "retrieval_s": 0.00016954100283328444,
+      "h2o_s": 0,
+      "ranking_and_client_overhead_s": 1.7875005141831934e-05,
+      "elapsed_s": 0.038722625002264977,
+      "candidate_ids": [
+        "src/flask/config.py:Config.from_prefixed_env:126-185",
+        "src/flask/config.py:Config.get_namespace:323-364",
+        "src/flask/config.py:Config.from_envvar:102-124",
+        "src/flask/cli.py:load_dotenv:698-763",
+        "src/flask/config.py:Config.from_object:218-254",
+        "src/flask/cli.py:SeparatedPathType.convert:873-878",
+        "src/flask/helpers.py:get_load_dotenv:36-48",
+        "src/flask/json/tag.py:TagDict.to_python:114-116",
+        "src/flask/config.py:Config.from_file:256-302",
+        "src/flask/json/__init__.py:load:108-135"
+      ],
+      "returned_ids": [
+        "src/flask/config.py:Config.from_prefixed_env:126-185",
+        "src/flask/config.py:Config.get_namespace:323-364",
+        "src/flask/config.py:Config.from_envvar:102-124",
+        "src/flask/cli.py:load_dotenv:698-763",
+        "src/flask/config.py:Config.from_object:218-254"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": null
+    },
+    {
+      "query_id": "nested_environment_config",
+      "kind": "present",
+      "retrieval": "hybrid",
+      "k": 0,
+      "query_embedding_s": 0.027159083998412825,
+      "retrieval_s": 0.000462583004264161,
+      "h2o_s": 0,
+      "ranking_and_client_overhead_s": 1.3041993952356279e-05,
+      "elapsed_s": 0.027635208010906354,
+      "candidate_ids": [
+        "src/flask/config.py:Config.from_prefixed_env:126-185",
+        "src/flask/config.py:Config.from_envvar:102-124",
+        "src/flask/config.py:Config.from_object:218-254",
+        "src/flask/config.py:Config.from_file:256-302",
+        "src/flask/cli.py:load_dotenv:698-763",
+        "src/flask/config.py:Config.from_pyfile:187-216",
+        "src/flask/app.py:Flask.create_jinja_environment:467-505",
+        "src/flask/config.py:Config.get_namespace:323-364",
+        "src/flask/sansio/app.py:App.inject_url_defaults:961-980",
+        "src/flask/cli.py:ScriptInfo.__init__:305-331"
+      ],
+      "returned_ids": [
+        "src/flask/config.py:Config.from_prefixed_env:126-185",
+        "src/flask/config.py:Config.from_envvar:102-124",
+        "src/flask/config.py:Config.from_object:218-254",
+        "src/flask/config.py:Config.from_file:256-302",
+        "src/flask/cli.py:load_dotenv:698-763"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": null
+    },
+    {
+      "query_id": "session_cookie_restore",
+      "kind": "present",
+      "retrieval": "hybrid",
+      "k": 1,
+      "query_embedding_s": 0.02824766599223949,
+      "retrieval_s": 0.0005327920080162585,
+      "h2o_s": 1.1324272920028307,
+      "ranking_and_client_overhead_s": 5.47909876331687e-05,
+      "elapsed_s": 1.1612631250027334,
+      "candidate_ids": [
+        "src/flask/sessions.py:SecureCookieSessionInterface.open_session:323-335"
+      ],
+      "returned_ids": [
+        "src/flask/sessions.py:SecureCookieSessionInterface.open_session:323-335"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": 2.9180986535456928
+    },
+    {
+      "query_id": "session_cookie_restore",
+      "kind": "present",
+      "retrieval": "hybrid",
+      "k": 3,
+      "query_embedding_s": 0.03969474999757949,
+      "retrieval_s": 0.00042708299588412046,
+      "h2o_s": 4.232671208999818,
+      "ranking_and_client_overhead_s": 0.00018629099940881133,
+      "elapsed_s": 4.272979999994277,
+      "candidate_ids": [
+        "src/flask/sessions.py:SecureCookieSessionInterface.open_session:323-335",
+        "src/flask/sessions.py:SecureCookieSessionInterface.save_session:337-385",
+        "src/flask/sessions.py:SessionInterface.get_cookie_domain:175-185"
+      ],
+      "returned_ids": [
+        "src/flask/sessions.py:SecureCookieSessionInterface.open_session:323-335",
+        "src/flask/sessions.py:SecureCookieSessionInterface.save_session:337-385",
+        "src/flask/sessions.py:SessionInterface.get_cookie_domain:175-185"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": 2.9180986535456928
+    },
+    {
+      "query_id": "session_cookie_restore",
+      "kind": "present",
+      "retrieval": "hybrid",
+      "k": 2,
+      "query_embedding_s": 0.04642045800574124,
+      "retrieval_s": 0.0005367080011637881,
+      "h2o_s": 3.001474832984968,
+      "ranking_and_client_overhead_s": 0.00011120901035610586,
+      "elapsed_s": 3.0485438329924364,
+      "candidate_ids": [
+        "src/flask/sessions.py:SecureCookieSessionInterface.open_session:323-335",
+        "src/flask/sessions.py:SecureCookieSessionInterface.save_session:337-385"
+      ],
+      "returned_ids": [
+        "src/flask/sessions.py:SecureCookieSessionInterface.open_session:323-335",
+        "src/flask/sessions.py:SecureCookieSessionInterface.save_session:337-385"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": 2.9180986535456928
+    },
+    {
+      "query_id": "session_cookie_restore",
+      "kind": "present",
+      "retrieval": "dense",
+      "k": 4,
+      "query_embedding_s": 0.033943540998734534,
+      "retrieval_s": 0.0001593750057509169,
+      "h2o_s": 5.302604459007853,
+      "ranking_and_client_overhead_s": 0.0002889159950427711,
+      "elapsed_s": 5.336996875004843,
+      "candidate_ids": [
+        "src/flask/sessions.py:SecureCookieSessionInterface.open_session:323-335",
+        "src/flask/sessions.py:SecureCookieSessionInterface.save_session:337-385",
+        "src/flask/sessions.py:SecureCookieSession.__init__:73-80",
+        "src/flask/sessions.py:SessionInterface.get_cookie_domain:175-185"
+      ],
+      "returned_ids": [
+        "src/flask/sessions.py:SecureCookieSessionInterface.open_session:323-335",
+        "src/flask/sessions.py:SecureCookieSessionInterface.save_session:337-385",
+        "src/flask/sessions.py:SecureCookieSession.__init__:73-80",
+        "src/flask/sessions.py:SessionInterface.get_cookie_domain:175-185"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": 2.9180986535456928
+    },
+    {
+      "query_id": "session_cookie_restore",
+      "kind": "present",
+      "retrieval": "dense",
+      "k": 3,
+      "query_embedding_s": 0.04219120799098164,
+      "retrieval_s": 0.00017725001089274883,
+      "h2o_s": 4.048108749993844,
+      "ranking_and_client_overhead_s": 0.00017100000695791095,
+      "elapsed_s": 4.090649082994787,
+      "candidate_ids": [
+        "src/flask/sessions.py:SecureCookieSessionInterface.open_session:323-335",
+        "src/flask/sessions.py:SecureCookieSessionInterface.save_session:337-385",
+        "src/flask/sessions.py:SecureCookieSession.__init__:73-80"
+      ],
+      "returned_ids": [
+        "src/flask/sessions.py:SecureCookieSessionInterface.open_session:323-335",
+        "src/flask/sessions.py:SecureCookieSessionInterface.save_session:337-385",
+        "src/flask/sessions.py:SecureCookieSession.__init__:73-80"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": 2.9180986535456928
+    },
+    {
+      "query_id": "session_cookie_restore",
+      "kind": "present",
+      "retrieval": "dense",
+      "k": 0,
+      "query_embedding_s": 0.04804962499474641,
+      "retrieval_s": 0.00020583299919962883,
+      "h2o_s": 0,
+      "ranking_and_client_overhead_s": 1.3083001249469817e-05,
+      "elapsed_s": 0.04826983298698906,
+      "candidate_ids": [
+        "src/flask/sessions.py:SecureCookieSessionInterface.open_session:323-335",
+        "src/flask/sessions.py:SecureCookieSessionInterface.save_session:337-385",
+        "src/flask/sessions.py:SecureCookieSession.__init__:73-80",
+        "src/flask/sessions.py:SessionInterface.get_cookie_domain:175-185",
+        "src/flask/sessions.py:SessionInterface.get_cookie_samesite:208-213",
+        "src/flask/sessions.py:SecureCookieSessionInterface.get_signing_serializer:303-321",
+        "src/flask/sessions.py:SessionInterface.should_set_cookie:233-247",
+        "src/flask/sessions.py:SecureCookieSession.__init__.on_update:77-78",
+        "src/flask/sessions.py:SessionInterface.get_expiration_time:223-231",
+        "src/flask/sessions.py:SessionInterface.get_cookie_name:171-173"
+      ],
+      "returned_ids": [
+        "src/flask/sessions.py:SecureCookieSessionInterface.open_session:323-335",
+        "src/flask/sessions.py:SecureCookieSessionInterface.save_session:337-385",
+        "src/flask/sessions.py:SecureCookieSession.__init__:73-80",
+        "src/flask/sessions.py:SessionInterface.get_cookie_domain:175-185",
+        "src/flask/sessions.py:SessionInterface.get_cookie_samesite:208-213"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": null
+    },
+    {
+      "query_id": "session_cookie_restore",
+      "kind": "present",
+      "retrieval": "hybrid",
+      "k": 0,
+      "query_embedding_s": 0.02830266700766515,
+      "retrieval_s": 0.0006293339974945411,
+      "h2o_s": 0,
+      "ranking_and_client_overhead_s": 7.541995728388429e-06,
+      "elapsed_s": 0.0289402920025168,
+      "candidate_ids": [
+        "src/flask/sessions.py:SecureCookieSessionInterface.open_session:323-335",
+        "src/flask/sessions.py:SecureCookieSessionInterface.save_session:337-385",
+        "src/flask/sessions.py:SessionInterface.get_cookie_domain:175-185",
+        "src/flask/sessions.py:SessionInterface.get_cookie_samesite:208-213",
+        "src/flask/sessions.py:SessionInterface.get_expiration_time:223-231",
+        "src/flask/sessions.py:SessionInterface.should_set_cookie:233-247",
+        "src/flask/sessions.py:SessionInterface.get_cookie_path:187-193",
+        "src/flask/sessions.py:SessionInterface.get_cookie_partitioned:215-221",
+        "src/flask/sessions.py:SessionInterface.get_cookie_name:171-173",
+        "src/flask/testing.py:FlaskClient.session_transaction:135-183"
+      ],
+      "returned_ids": [
+        "src/flask/sessions.py:SecureCookieSessionInterface.open_session:323-335",
+        "src/flask/sessions.py:SecureCookieSessionInterface.save_session:337-385",
+        "src/flask/sessions.py:SessionInterface.get_cookie_domain:175-185",
+        "src/flask/sessions.py:SessionInterface.get_cookie_samesite:208-213",
+        "src/flask/sessions.py:SessionInterface.get_expiration_time:223-231"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": null
+    },
+    {
+      "query_id": "session_cookie_restore",
+      "kind": "present",
+      "retrieval": "dense",
+      "k": 1,
+      "query_embedding_s": 0.028820124993217178,
+      "retrieval_s": 0.00021841700072400272,
+      "h2o_s": 1.126091208003345,
+      "ranking_and_client_overhead_s": 7.958398782648146e-05,
+      "elapsed_s": 1.1552099169930443,
+      "candidate_ids": [
+        "src/flask/sessions.py:SecureCookieSessionInterface.open_session:323-335"
+      ],
+      "returned_ids": [
+        "src/flask/sessions.py:SecureCookieSessionInterface.open_session:323-335"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": 2.9180986535456928
+    },
+    {
+      "query_id": "cleared_session_cookie",
+      "kind": "present",
+      "retrieval": "hybrid",
+      "k": 3,
+      "query_embedding_s": 0.042286084004445,
+      "retrieval_s": 0.0005887080042157322,
+      "h2o_s": 4.787584666992188,
+      "ranking_and_client_overhead_s": 0.00018320800154469907,
+      "elapsed_s": 4.830643041001167,
+      "candidate_ids": [
+        "src/flask/sessions.py:SecureCookieSessionInterface.save_session:337-385",
+        "src/flask/sessions.py:SessionInterface.should_set_cookie:233-247",
+        "src/flask/app.py:Flask.process_response:1394-1418"
+      ],
+      "returned_ids": [
+        "src/flask/sessions.py:SecureCookieSessionInterface.save_session:337-385",
+        "src/flask/sessions.py:SessionInterface.should_set_cookie:233-247",
+        "src/flask/app.py:Flask.process_response:1394-1418"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": 2.93622660449603
+    },
+    {
+      "query_id": "cleared_session_cookie",
+      "kind": "present",
+      "retrieval": "hybrid",
+      "k": 2,
+      "query_embedding_s": 0.03342854201036971,
+      "retrieval_s": 0.00045287499960977584,
+      "h2o_s": 3.257466166993254,
+      "ranking_and_client_overhead_s": 0.00015316600911319256,
+      "elapsed_s": 3.29150112500065,
+      "candidate_ids": [
+        "src/flask/sessions.py:SecureCookieSessionInterface.save_session:337-385",
+        "src/flask/sessions.py:SessionInterface.should_set_cookie:233-247"
+      ],
+      "returned_ids": [
+        "src/flask/sessions.py:SecureCookieSessionInterface.save_session:337-385",
+        "src/flask/sessions.py:SessionInterface.should_set_cookie:233-247"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": 2.93622660449603
+    },
+    {
+      "query_id": "cleared_session_cookie",
+      "kind": "present",
+      "retrieval": "dense",
+      "k": 4,
+      "query_embedding_s": 0.1587669580039801,
+      "retrieval_s": 0.000254625003435649,
+      "h2o_s": 5.619470874997205,
+      "ranking_and_client_overhead_s": 0.0002575830148998648,
+      "elapsed_s": 5.778750415993272,
+      "candidate_ids": [
+        "src/flask/sessions.py:SecureCookieSessionInterface.save_session:337-385",
+        "src/flask/sessions.py:SessionInterface.should_set_cookie:233-247",
+        "src/flask/sessions.py:SessionInterface.get_cookie_samesite:208-213",
+        "src/flask/sessions.py:SessionInterface.get_cookie_domain:175-185"
+      ],
+      "returned_ids": [
+        "src/flask/sessions.py:SecureCookieSessionInterface.save_session:337-385",
+        "src/flask/sessions.py:SessionInterface.should_set_cookie:233-247",
+        "src/flask/sessions.py:SessionInterface.get_cookie_domain:175-185",
+        "src/flask/sessions.py:SessionInterface.get_cookie_samesite:208-213"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": 2.93622660449603
+    },
+    {
+      "query_id": "cleared_session_cookie",
+      "kind": "present",
+      "retrieval": "dense",
+      "k": 3,
+      "query_embedding_s": 0.03873870801180601,
+      "retrieval_s": 0.00018287499551661313,
+      "h2o_s": 4.342663582996465,
+      "ranking_and_client_overhead_s": 0.00019545901159290224,
+      "elapsed_s": 4.381781125004636,
+      "candidate_ids": [
+        "src/flask/sessions.py:SecureCookieSessionInterface.save_session:337-385",
+        "src/flask/sessions.py:SessionInterface.should_set_cookie:233-247",
+        "src/flask/sessions.py:SessionInterface.get_cookie_samesite:208-213"
+      ],
+      "returned_ids": [
+        "src/flask/sessions.py:SecureCookieSessionInterface.save_session:337-385",
+        "src/flask/sessions.py:SessionInterface.should_set_cookie:233-247",
+        "src/flask/sessions.py:SessionInterface.get_cookie_samesite:208-213"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": 2.93622660449603
+    },
+    {
+      "query_id": "cleared_session_cookie",
+      "kind": "present",
+      "retrieval": "dense",
+      "k": 0,
+      "query_embedding_s": 0.033993457996984944,
+      "retrieval_s": 0.00015466699551325291,
+      "h2o_s": 0,
+      "ranking_and_client_overhead_s": 9.249997674487531e-06,
+      "elapsed_s": 0.03415783400123473,
+      "candidate_ids": [
+        "src/flask/sessions.py:SecureCookieSessionInterface.save_session:337-385",
+        "src/flask/sessions.py:SessionInterface.should_set_cookie:233-247",
+        "src/flask/sessions.py:SessionInterface.get_cookie_samesite:208-213",
+        "src/flask/sessions.py:SessionInterface.get_cookie_domain:175-185",
+        "src/flask/sessions.py:SecureCookieSession.__init__.on_update:77-78",
+        "src/flask/sessions.py:SessionInterface.get_cookie_path:187-193",
+        "src/flask/sessions.py:SessionInterface.get_cookie_httponly:195-200",
+        "src/flask/app.py:Flask.process_response:1394-1418",
+        "src/flask/sessions.py:SessionInterface.get_cookie_name:171-173",
+        "src/flask/sessions.py:SecureCookieSession.__init__:73-80"
+      ],
+      "returned_ids": [
+        "src/flask/sessions.py:SecureCookieSessionInterface.save_session:337-385",
+        "src/flask/sessions.py:SessionInterface.should_set_cookie:233-247",
+        "src/flask/sessions.py:SessionInterface.get_cookie_samesite:208-213",
+        "src/flask/sessions.py:SessionInterface.get_cookie_domain:175-185",
+        "src/flask/sessions.py:SecureCookieSession.__init__.on_update:77-78"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": null
+    },
+    {
+      "query_id": "cleared_session_cookie",
+      "kind": "present",
+      "retrieval": "hybrid",
+      "k": 0,
+      "query_embedding_s": 0.02657895900483709,
+      "retrieval_s": 0.0006121250044088811,
+      "h2o_s": 0,
+      "ranking_and_client_overhead_s": 1.229200279340148e-05,
+      "elapsed_s": 0.027203833000385202,
+      "candidate_ids": [
+        "src/flask/sessions.py:SecureCookieSessionInterface.save_session:337-385",
+        "src/flask/sessions.py:SessionInterface.should_set_cookie:233-247",
+        "src/flask/app.py:Flask.process_response:1394-1418",
+        "src/flask/testing.py:FlaskClient.session_transaction:135-183",
+        "src/flask/sessions.py:SessionInterface.get_cookie_domain:175-185",
+        "src/flask/helpers.py:stream_with_context:63-148",
+        "src/flask/sessions.py:SessionInterface.get_cookie_path:187-193",
+        "src/flask/sessions.py:SecureCookieSessionInterface.open_session:323-335",
+        "src/flask/sansio/scaffold.py:Scaffold.after_request:494-513",
+        "src/flask/sessions.py:SessionInterface.get_expiration_time:223-231"
+      ],
+      "returned_ids": [
+        "src/flask/sessions.py:SecureCookieSessionInterface.save_session:337-385",
+        "src/flask/sessions.py:SessionInterface.should_set_cookie:233-247",
+        "src/flask/app.py:Flask.process_response:1394-1418",
+        "src/flask/testing.py:FlaskClient.session_transaction:135-183",
+        "src/flask/sessions.py:SessionInterface.get_cookie_domain:175-185"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": null
+    },
+    {
+      "query_id": "cleared_session_cookie",
+      "kind": "present",
+      "retrieval": "dense",
+      "k": 1,
+      "query_embedding_s": 0.026870292000239715,
+      "retrieval_s": 0.0002512079954613,
+      "h2o_s": 1.9038648749992717,
+      "ranking_and_client_overhead_s": 9.041601151693612e-05,
+      "elapsed_s": 1.9310774160112487,
+      "candidate_ids": [
+        "src/flask/sessions.py:SecureCookieSessionInterface.save_session:337-385"
+      ],
+      "returned_ids": [
+        "src/flask/sessions.py:SecureCookieSessionInterface.save_session:337-385"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": 2.93622660449603
+    },
+    {
+      "query_id": "cleared_session_cookie",
+      "kind": "present",
+      "retrieval": "hybrid",
+      "k": 1,
+      "query_embedding_s": 0.03260787499311846,
+      "retrieval_s": 0.0004507910052780062,
+      "h2o_s": 1.9477429160033353,
+      "ranking_and_client_overhead_s": 6.087598740123212e-05,
+      "elapsed_s": 1.9808627500024159,
+      "candidate_ids": [
+        "src/flask/sessions.py:SecureCookieSessionInterface.save_session:337-385"
+      ],
+      "returned_ids": [
+        "src/flask/sessions.py:SecureCookieSessionInterface.save_session:337-385"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": 2.93622660449603
+    },
+    {
+      "query_id": "head_method_fallback",
+      "kind": "present",
+      "retrieval": "hybrid",
+      "k": 2,
+      "query_embedding_s": 0.046224082994740456,
+      "retrieval_s": 0.001126291012042202,
+      "h2o_s": 2.892122042016126,
+      "ranking_and_client_overhead_s": 0.00016787397908046842,
+      "elapsed_s": 2.939640832992154,
+      "candidate_ids": [
+        "src/flask/views.py:MethodView.dispatch_request:182-191",
+        "src/flask/app.py:Flask.dispatch_request:966-990"
+      ],
+      "returned_ids": [
+        "src/flask/views.py:MethodView.dispatch_request:182-191",
+        "src/flask/app.py:Flask.dispatch_request:966-990"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": 2.9420974210151467
+    },
+    {
+      "query_id": "head_method_fallback",
+      "kind": "present",
+      "retrieval": "dense",
+      "k": 4,
+      "query_embedding_s": 0.0357206250046147,
+      "retrieval_s": 0.00026458299544174224,
+      "h2o_s": 5.130615584013867,
+      "ranking_and_client_overhead_s": 0.00031854098779149354,
+      "elapsed_s": 5.166919958996004,
+      "candidate_ids": [
+        "src/flask/views.py:MethodView.dispatch_request:182-191",
+        "src/flask/app.py:Flask.dispatch_request:966-990",
+        "src/flask/ctx.py:AppContext.match_request:405-414",
+        "src/flask/sansio/scaffold.py:Scaffold.get:295-301"
+      ],
+      "returned_ids": [
+        "src/flask/views.py:MethodView.dispatch_request:182-191",
+        "src/flask/sansio/scaffold.py:Scaffold.get:295-301",
+        "src/flask/ctx.py:AppContext.match_request:405-414",
+        "src/flask/app.py:Flask.dispatch_request:966-990"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": 2.9420974210151467
+    },
+    {
+      "query_id": "head_method_fallback",
+      "kind": "present",
+      "retrieval": "dense",
+      "k": 3,
+      "query_embedding_s": 0.0392558749881573,
+      "retrieval_s": 0.0001784170017344877,
+      "h2o_s": 4.066975916008232,
+      "ranking_and_client_overhead_s": 0.00019112598965875804,
+      "elapsed_s": 4.106602125000791,
+      "candidate_ids": [
+        "src/flask/views.py:MethodView.dispatch_request:182-191",
+        "src/flask/app.py:Flask.dispatch_request:966-990",
+        "src/flask/ctx.py:AppContext.match_request:405-414"
+      ],
+      "returned_ids": [
+        "src/flask/views.py:MethodView.dispatch_request:182-191",
+        "src/flask/ctx.py:AppContext.match_request:405-414",
+        "src/flask/app.py:Flask.dispatch_request:966-990"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": 2.9420974210151467
+    },
+    {
+      "query_id": "head_method_fallback",
+      "kind": "present",
+      "retrieval": "dense",
+      "k": 0,
+      "query_embedding_s": 0.0556962080008816,
+      "retrieval_s": 0.0001644589938223362,
+      "h2o_s": 0,
+      "ranking_and_client_overhead_s": 1.0832998668774962e-05,
+      "elapsed_s": 0.05587233300320804,
+      "candidate_ids": [
+        "src/flask/views.py:MethodView.dispatch_request:182-191",
+        "src/flask/app.py:Flask.dispatch_request:966-990",
+        "src/flask/ctx.py:AppContext.match_request:405-414",
+        "src/flask/sansio/scaffold.py:Scaffold.get:295-301",
+        "src/flask/views.py:MethodView.__init_subclass__:165-180",
+        "src/flask/wrappers.py:Request.endpoint:146-159",
+        "src/flask/views.py:View.as_view:85-135",
+        "src/flask/app.py:Flask.handle_http_exception:830-863",
+        "src/flask/views.py:View.as_view.view:115-116",
+        "src/flask/views.py:View.as_view.view:106-110"
+      ],
+      "returned_ids": [
+        "src/flask/views.py:MethodView.dispatch_request:182-191",
+        "src/flask/app.py:Flask.dispatch_request:966-990",
+        "src/flask/ctx.py:AppContext.match_request:405-414",
+        "src/flask/sansio/scaffold.py:Scaffold.get:295-301",
+        "src/flask/views.py:MethodView.__init_subclass__:165-180"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": null
+    },
+    {
+      "query_id": "head_method_fallback",
+      "kind": "present",
+      "retrieval": "hybrid",
+      "k": 0,
+      "query_embedding_s": 0.028756583007634617,
+      "retrieval_s": 0.0005460419924929738,
+      "h2o_s": 0,
+      "ranking_and_client_overhead_s": 1.200000406242907e-05,
+      "elapsed_s": 0.029315207997569814,
+      "candidate_ids": [
+        "src/flask/views.py:MethodView.dispatch_request:182-191",
+        "src/flask/app.py:Flask.dispatch_request:966-990",
+        "src/flask/app.py:Flask.handle_http_exception:830-863",
+        "src/flask/views.py:View.as_view:85-135",
+        "src/flask/wrappers.py:Request.endpoint:146-159",
+        "src/flask/app.py:Flask.handle_user_exception:865-895",
+        "src/flask/app.py:Flask.finalize_request:1021-1051",
+        "src/flask/cli.py:routes_command:1047-1106",
+        "src/flask/app.py:Flask.raise_routing_exception:560-586",
+        "src/flask/sansio/app.py:App.trap_http_exception:894-927"
+      ],
+      "returned_ids": [
+        "src/flask/views.py:MethodView.dispatch_request:182-191",
+        "src/flask/app.py:Flask.dispatch_request:966-990",
+        "src/flask/app.py:Flask.handle_http_exception:830-863",
+        "src/flask/views.py:View.as_view:85-135",
+        "src/flask/wrappers.py:Request.endpoint:146-159"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": null
+    },
+    {
+      "query_id": "head_method_fallback",
+      "kind": "present",
+      "retrieval": "dense",
+      "k": 1,
+      "query_embedding_s": 0.028261166997253895,
+      "retrieval_s": 0.00016549999418202788,
+      "h2o_s": 1.3061918749881443,
+      "ranking_and_client_overhead_s": 5.77500177314505e-05,
+      "elapsed_s": 1.3346767500042915,
+      "candidate_ids": [
+        "src/flask/views.py:MethodView.dispatch_request:182-191"
+      ],
+      "returned_ids": [
+        "src/flask/views.py:MethodView.dispatch_request:182-191"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": 2.9420974210151467
+    },
+    {
+      "query_id": "head_method_fallback",
+      "kind": "present",
+      "retrieval": "hybrid",
+      "k": 1,
+      "query_embedding_s": 0.03327258299395908,
+      "retrieval_s": 0.0006855839892523363,
+      "h2o_s": 1.2264430840004934,
+      "ranking_and_client_overhead_s": 7.499998901039362e-05,
+      "elapsed_s": 1.2604772909980966,
+      "candidate_ids": [
+        "src/flask/views.py:MethodView.dispatch_request:182-191"
+      ],
+      "returned_ids": [
+        "src/flask/views.py:MethodView.dispatch_request:182-191"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": 2.9420974210151467
+    },
+    {
+      "query_id": "head_method_fallback",
+      "kind": "present",
+      "retrieval": "hybrid",
+      "k": 3,
+      "query_embedding_s": 0.03845208299753722,
+      "retrieval_s": 0.0005557080003200099,
+      "h2o_s": 4.595381124992855,
+      "ranking_and_client_overhead_s": 0.00019479201000649482,
+      "elapsed_s": 4.634584084007656,
+      "candidate_ids": [
+        "src/flask/views.py:MethodView.dispatch_request:182-191",
+        "src/flask/app.py:Flask.dispatch_request:966-990",
+        "src/flask/app.py:Flask.handle_http_exception:830-863"
+      ],
+      "returned_ids": [
+        "src/flask/views.py:MethodView.dispatch_request:182-191",
+        "src/flask/app.py:Flask.dispatch_request:966-990",
+        "src/flask/app.py:Flask.handle_http_exception:830-863"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": 2.9420974210151467
+    },
+    {
+      "query_id": "template_loader_fallback",
+      "kind": "present",
+      "retrieval": "dense",
+      "k": 4,
+      "query_embedding_s": 0.17750879099185113,
+      "retrieval_s": 0.00023800000781193376,
+      "h2o_s": 5.937681915995199,
+      "ranking_and_client_overhead_s": 0.0004197509988443926,
+      "elapsed_s": 6.115849583002273,
+      "candidate_ids": [
+        "src/flask/debughelpers.py:explain_template_loading_attempts:124-179",
+        "src/flask/templating.py:DispatchingJinjaLoader._iter_loaders:98-106",
+        "src/flask/templating.py:DispatchingJinjaLoader._get_source_explained:64-86",
+        "src/flask/templating.py:DispatchingJinjaLoader._get_source_fast:88-96"
+      ],
+      "returned_ids": [
+        "src/flask/templating.py:DispatchingJinjaLoader._get_source_fast:88-96",
+        "src/flask/templating.py:DispatchingJinjaLoader._get_source_explained:64-86",
+        "src/flask/templating.py:DispatchingJinjaLoader._iter_loaders:98-106",
+        "src/flask/debughelpers.py:explain_template_loading_attempts:124-179"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": 2.907865544521785
+    },
+    {
+      "query_id": "template_loader_fallback",
+      "kind": "present",
+      "retrieval": "dense",
+      "k": 3,
+      "query_embedding_s": 0.049051624999265186,
+      "retrieval_s": 0.00021625000226777047,
+      "h2o_s": 4.83912837500975,
+      "ranking_and_client_overhead_s": 0.00027624999347608536,
+      "elapsed_s": 4.888673082998139,
+      "candidate_ids": [
+        "src/flask/debughelpers.py:explain_template_loading_attempts:124-179",
+        "src/flask/templating.py:DispatchingJinjaLoader._iter_loaders:98-106",
+        "src/flask/templating.py:DispatchingJinjaLoader._get_source_explained:64-86"
+      ],
+      "returned_ids": [
+        "src/flask/templating.py:DispatchingJinjaLoader._get_source_explained:64-86",
+        "src/flask/templating.py:DispatchingJinjaLoader._iter_loaders:98-106",
+        "src/flask/debughelpers.py:explain_template_loading_attempts:124-179"
+      ],
+      "rank": null,
+      "candidate_has_gold": false,
+      "max_h2o_score": 2.8517775809606265
+    },
+    {
+      "query_id": "template_loader_fallback",
+      "kind": "present",
+      "retrieval": "dense",
+      "k": 0,
+      "query_embedding_s": 0.03506816599110607,
+      "retrieval_s": 0.00023579200205858797,
+      "h2o_s": 0,
+      "ranking_and_client_overhead_s": 1.083400275092572e-05,
+      "elapsed_s": 0.035315542001626454,
+      "candidate_ids": [
+        "src/flask/debughelpers.py:explain_template_loading_attempts:124-179",
+        "src/flask/templating.py:DispatchingJinjaLoader._iter_loaders:98-106",
+        "src/flask/templating.py:DispatchingJinjaLoader._get_source_explained:64-86",
+        "src/flask/templating.py:DispatchingJinjaLoader._get_source_fast:88-96",
+        "src/flask/sansio/scaffold.py:Scaffold.jinja_loader:271-282",
+        "src/flask/templating.py:DispatchingJinjaLoader.get_source:57-62",
+        "src/flask/templating.py:DispatchingJinjaLoader.list_templates:108-120",
+        "src/flask/templating.py:DispatchingJinjaLoader.__init__:54-55",
+        "src/flask/sansio/app.py:App.create_global_jinja_loader:521-532",
+        "src/flask/sansio/blueprints.py:Blueprint.app_context_processor:643-653"
+      ],
+      "returned_ids": [
+        "src/flask/debughelpers.py:explain_template_loading_attempts:124-179",
+        "src/flask/templating.py:DispatchingJinjaLoader._iter_loaders:98-106",
+        "src/flask/templating.py:DispatchingJinjaLoader._get_source_explained:64-86",
+        "src/flask/templating.py:DispatchingJinjaLoader._get_source_fast:88-96",
+        "src/flask/sansio/scaffold.py:Scaffold.jinja_loader:271-282"
+      ],
+      "rank": 4,
+      "candidate_has_gold": true,
+      "max_h2o_score": null
+    },
+    {
+      "query_id": "template_loader_fallback",
+      "kind": "present",
+      "retrieval": "hybrid",
+      "k": 0,
+      "query_embedding_s": 0.027083708002464846,
+      "retrieval_s": 0.0009905000042635947,
+      "h2o_s": 0,
+      "ranking_and_client_overhead_s": 7.124996045604348e-06,
+      "elapsed_s": 0.02808191700023599,
+      "candidate_ids": [
+        "src/flask/debughelpers.py:explain_template_loading_attempts:124-179",
+        "src/flask/templating.py:DispatchingJinjaLoader._get_source_explained:64-86",
+        "src/flask/templating.py:DispatchingJinjaLoader._get_source_fast:88-96",
+        "src/flask/sansio/scaffold.py:Scaffold.jinja_loader:271-282",
+        "src/flask/templating.py:DispatchingJinjaLoader._iter_loaders:98-106",
+        "src/flask/templating.py:DispatchingJinjaLoader.get_source:57-62",
+        "src/flask/templating.py:DispatchingJinjaLoader.list_templates:108-120",
+        "src/flask/sansio/app.py:App.create_global_jinja_loader:521-532",
+        "src/flask/sansio/scaffold.py:Scaffold.context_processor:549-564",
+        "src/flask/sansio/blueprints.py:Blueprint.app_context_processor:643-653"
+      ],
+      "returned_ids": [
+        "src/flask/debughelpers.py:explain_template_loading_attempts:124-179",
+        "src/flask/templating.py:DispatchingJinjaLoader._get_source_explained:64-86",
+        "src/flask/templating.py:DispatchingJinjaLoader._get_source_fast:88-96",
+        "src/flask/sansio/scaffold.py:Scaffold.jinja_loader:271-282",
+        "src/flask/templating.py:DispatchingJinjaLoader._iter_loaders:98-106"
+      ],
+      "rank": 3,
+      "candidate_has_gold": true,
+      "max_h2o_score": null
+    },
+    {
+      "query_id": "template_loader_fallback",
+      "kind": "present",
+      "retrieval": "dense",
+      "k": 1,
+      "query_embedding_s": 0.027189999993424863,
+      "retrieval_s": 0.0002574579993961379,
+      "h2o_s": 2.275807124999119,
+      "ranking_and_client_overhead_s": 7.741599984001368e-05,
+      "elapsed_s": 2.3033330840116832,
+      "candidate_ids": [
+        "src/flask/debughelpers.py:explain_template_loading_attempts:124-179"
+      ],
+      "returned_ids": [
+        "src/flask/debughelpers.py:explain_template_loading_attempts:124-179"
+      ],
+      "rank": null,
+      "candidate_has_gold": false,
+      "max_h2o_score": 1.7511734025519718
+    },
+    {
+      "query_id": "template_loader_fallback",
+      "kind": "present",
+      "retrieval": "hybrid",
+      "k": 1,
+      "query_embedding_s": 0.036690499997348525,
+      "retrieval_s": 0.0006201250071171671,
+      "h2o_s": 2.272494958000607,
+      "ranking_and_client_overhead_s": 5.783401138614863e-05,
+      "elapsed_s": 2.3098639999952866,
+      "candidate_ids": [
+        "src/flask/debughelpers.py:explain_template_loading_attempts:124-179"
+      ],
+      "returned_ids": [
+        "src/flask/debughelpers.py:explain_template_loading_attempts:124-179"
+      ],
+      "rank": null,
+      "candidate_has_gold": false,
+      "max_h2o_score": 1.7511734025519718
+    },
+    {
+      "query_id": "template_loader_fallback",
+      "kind": "present",
+      "retrieval": "hybrid",
+      "k": 3,
+      "query_embedding_s": 0.034133790992200375,
+      "retrieval_s": 0.0005436250066850334,
+      "h2o_s": 4.896214665990556,
+      "ranking_and_client_overhead_s": 0.00019750000501517206,
+      "elapsed_s": 4.931089917008649,
+      "candidate_ids": [
+        "src/flask/debughelpers.py:explain_template_loading_attempts:124-179",
+        "src/flask/templating.py:DispatchingJinjaLoader._get_source_explained:64-86",
+        "src/flask/templating.py:DispatchingJinjaLoader._get_source_fast:88-96"
+      ],
+      "returned_ids": [
+        "src/flask/templating.py:DispatchingJinjaLoader._get_source_fast:88-96",
+        "src/flask/templating.py:DispatchingJinjaLoader._get_source_explained:64-86",
+        "src/flask/debughelpers.py:explain_template_loading_attempts:124-179"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": 2.907865544521785
+    },
+    {
+      "query_id": "template_loader_fallback",
+      "kind": "present",
+      "retrieval": "hybrid",
+      "k": 2,
+      "query_embedding_s": 0.04792720799741801,
+      "retrieval_s": 0.0005939589900663123,
+      "h2o_s": 3.7690018330031307,
+      "ranking_and_client_overhead_s": 0.0001297089911531657,
+      "elapsed_s": 3.8176533749938244,
+      "candidate_ids": [
+        "src/flask/debughelpers.py:explain_template_loading_attempts:124-179",
+        "src/flask/templating.py:DispatchingJinjaLoader._get_source_explained:64-86"
+      ],
+      "returned_ids": [
+        "src/flask/templating.py:DispatchingJinjaLoader._get_source_explained:64-86",
+        "src/flask/debughelpers.py:explain_template_loading_attempts:124-179"
+      ],
+      "rank": null,
+      "candidate_has_gold": false,
+      "max_h2o_score": 2.8517775809606265
+    },
+    {
+      "query_id": "cli_application_discovery",
+      "kind": "present",
+      "retrieval": "dense",
+      "k": 3,
+      "query_embedding_s": 0.04097887501120567,
+      "retrieval_s": 0.00046941699110902846,
+      "h2o_s": 5.941564499997185,
+      "ranking_and_client_overhead_s": 0.0002268329990329221,
+      "elapsed_s": 5.983240375004243,
+      "candidate_ids": [
+        "src/flask/cli.py:find_best_app:41-91",
+        "src/flask/cli.py:find_app_by_string:120-197",
+        "src/flask/sansio/app.py:App.auto_find_instance_path:508-519"
+      ],
+      "returned_ids": [
+        "src/flask/cli.py:find_best_app:41-91",
+        "src/flask/sansio/app.py:App.auto_find_instance_path:508-519",
+        "src/flask/cli.py:find_app_by_string:120-197"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": 2.9411786980474433
+    },
+    {
+      "query_id": "cli_application_discovery",
+      "kind": "present",
+      "retrieval": "dense",
+      "k": 0,
+      "query_embedding_s": 0.12326466699596494,
+      "retrieval_s": 0.00015658400661777705,
+      "h2o_s": 0,
+      "ranking_and_client_overhead_s": 1.3084005331620574e-05,
+      "elapsed_s": 0.123435082990909,
+      "candidate_ids": [
+        "src/flask/cli.py:find_best_app:41-91",
+        "src/flask/cli.py:find_app_by_string:120-197",
+        "src/flask/sansio/app.py:App.auto_find_instance_path:508-519",
+        "src/flask/cli.py:locate_app:241-264",
+        "src/flask/cli.py:ScriptInfo.load_app:333-372",
+        "src/flask/sansio/app.py:App.name:423-438",
+        "src/flask/cli.py:_set_app:440-446",
+        "src/flask/cli.py:FlaskGroup.get_command:609-634",
+        "src/flask/app.py:Flask.__init__:308-361",
+        "src/flask/cli.py:FlaskGroup.parse_args:678-688"
+      ],
+      "returned_ids": [
+        "src/flask/cli.py:find_best_app:41-91",
+        "src/flask/cli.py:find_app_by_string:120-197",
+        "src/flask/sansio/app.py:App.auto_find_instance_path:508-519",
+        "src/flask/cli.py:locate_app:241-264",
+        "src/flask/cli.py:ScriptInfo.load_app:333-372"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": null
+    },
+    {
+      "query_id": "cli_application_discovery",
+      "kind": "present",
+      "retrieval": "hybrid",
+      "k": 0,
+      "query_embedding_s": 0.025628207993577234,
+      "retrieval_s": 0.0005015420028939843,
+      "h2o_s": 0,
+      "ranking_and_client_overhead_s": 5.2910036174580455e-06,
+      "elapsed_s": 0.026135500011150725,
+      "candidate_ids": [
+        "src/flask/cli.py:find_best_app:41-91",
+        "src/flask/cli.py:find_app_by_string:120-197",
+        "src/flask/cli.py:locate_app:241-264",
+        "src/flask/sansio/app.py:App.auto_find_instance_path:508-519",
+        "src/flask/sansio/app.py:App.__init__:280-409",
+        "src/flask/app.py:Flask.__init__:308-361",
+        "src/flask/cli.py:shell_command:998-1044",
+        "src/flask/sansio/app.py:App.name:423-438",
+        "src/flask/cli.py:FlaskGroup.get_command:609-634",
+        "src/flask/helpers.py:get_root_path:587-641"
+      ],
+      "returned_ids": [
+        "src/flask/cli.py:find_best_app:41-91",
+        "src/flask/cli.py:find_app_by_string:120-197",
+        "src/flask/cli.py:locate_app:241-264",
+        "src/flask/sansio/app.py:App.auto_find_instance_path:508-519",
+        "src/flask/sansio/app.py:App.__init__:280-409"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": null
+    },
+    {
+      "query_id": "cli_application_discovery",
+      "kind": "present",
+      "retrieval": "dense",
+      "k": 1,
+      "query_embedding_s": 0.02634804199624341,
+      "retrieval_s": 0.00016370799858123064,
+      "h2o_s": 1.9759447499964153,
+      "ranking_and_client_overhead_s": 5.8249992434866726e-05,
+      "elapsed_s": 2.002515415995731,
+      "candidate_ids": [
+        "src/flask/cli.py:find_best_app:41-91"
+      ],
+      "returned_ids": [
+        "src/flask/cli.py:find_best_app:41-91"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": 2.9411786980474433
+    },
+    {
+      "query_id": "cli_application_discovery",
+      "kind": "present",
+      "retrieval": "hybrid",
+      "k": 1,
+      "query_embedding_s": 0.030464082999969833,
+      "retrieval_s": 0.0004914589953841642,
+      "h2o_s": 2.0043269579909975,
+      "ranking_and_client_overhead_s": 6.345901056192815e-05,
+      "elapsed_s": 2.035346499993466,
+      "candidate_ids": [
+        "src/flask/cli.py:find_best_app:41-91"
+      ],
+      "returned_ids": [
+        "src/flask/cli.py:find_best_app:41-91"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": 2.9411786980474433
+    },
+    {
+      "query_id": "cli_application_discovery",
+      "kind": "present",
+      "retrieval": "hybrid",
+      "k": 3,
+      "query_embedding_s": 0.036532541998894885,
+      "retrieval_s": 0.0006289590091910213,
+      "h2o_s": 6.085666500002844,
+      "ranking_and_client_overhead_s": 0.0001782080071279779,
+      "elapsed_s": 6.123006458001328,
+      "candidate_ids": [
+        "src/flask/cli.py:find_best_app:41-91",
+        "src/flask/cli.py:find_app_by_string:120-197",
+        "src/flask/cli.py:locate_app:241-264"
+      ],
+      "returned_ids": [
+        "src/flask/cli.py:find_best_app:41-91",
+        "src/flask/cli.py:locate_app:241-264",
+        "src/flask/cli.py:find_app_by_string:120-197"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": 2.9411786980474433
+    },
+    {
+      "query_id": "cli_application_discovery",
+      "kind": "present",
+      "retrieval": "hybrid",
+      "k": 2,
+      "query_embedding_s": 0.034462750001694076,
+      "retrieval_s": 0.0005399169895099476,
+      "h2o_s": 4.6238033330009785,
+      "ranking_and_client_overhead_s": 0.00012370898912195116,
+      "elapsed_s": 4.658930166988284,
+      "candidate_ids": [
+        "src/flask/cli.py:find_best_app:41-91",
+        "src/flask/cli.py:find_app_by_string:120-197"
+      ],
+      "returned_ids": [
+        "src/flask/cli.py:find_best_app:41-91",
+        "src/flask/cli.py:find_app_by_string:120-197"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": 2.9411786980474433
+    },
+    {
+      "query_id": "cli_application_discovery",
+      "kind": "present",
+      "retrieval": "dense",
+      "k": 4,
+      "query_embedding_s": 0.03196449999813922,
+      "retrieval_s": 0.0001561250101076439,
+      "h2o_s": 7.297642124976846,
+      "ranking_and_client_overhead_s": 0.00028341703000478446,
+      "elapsed_s": 7.3300465420034016,
+      "candidate_ids": [
+        "src/flask/cli.py:find_best_app:41-91",
+        "src/flask/cli.py:find_app_by_string:120-197",
+        "src/flask/sansio/app.py:App.auto_find_instance_path:508-519",
+        "src/flask/cli.py:locate_app:241-264"
+      ],
+      "returned_ids": [
+        "src/flask/cli.py:find_best_app:41-91",
+        "src/flask/cli.py:locate_app:241-264",
+        "src/flask/sansio/app.py:App.auto_find_instance_path:508-519",
+        "src/flask/cli.py:find_app_by_string:120-197"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": 2.9411786980474433
+    },
+    {
+      "query_id": "streaming_request_context",
+      "kind": "present",
+      "retrieval": "dense",
+      "k": 0,
+      "query_embedding_s": 0.047118208996835165,
+      "retrieval_s": 0.00020762499480042607,
+      "h2o_s": 0,
+      "ranking_and_client_overhead_s": 2.195900015067309e-05,
+      "elapsed_s": 0.047348291001981124,
+      "candidate_ids": [
+        "src/flask/helpers.py:stream_with_context:63-148",
+        "src/flask/helpers.py:stream_with_context.generator:126-141",
+        "src/flask/app.py:Flask.make_response:1224-1364",
+        "src/flask/helpers.py:stream_with_context.decorator:120-122",
+        "src/flask/templating.py:_stream:163-178",
+        "src/flask/templating.py:stream_template_string:200-212",
+        "src/flask/app.py:Flask.process_response:1394-1418",
+        "src/flask/templating.py:stream_template:181-197",
+        "src/flask/testing.py:FlaskClient.open:204-247",
+        "src/flask/app.py:Flask.finalize_request:1021-1051"
+      ],
+      "returned_ids": [
+        "src/flask/helpers.py:stream_with_context:63-148",
+        "src/flask/helpers.py:stream_with_context.generator:126-141",
+        "src/flask/app.py:Flask.make_response:1224-1364",
+        "src/flask/helpers.py:stream_with_context.decorator:120-122",
+        "src/flask/templating.py:_stream:163-178"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": null
+    },
+    {
+      "query_id": "streaming_request_context",
+      "kind": "present",
+      "retrieval": "hybrid",
+      "k": 0,
+      "query_embedding_s": 0.028929166990565136,
+      "retrieval_s": 0.0006905000045662746,
+      "h2o_s": 0,
+      "ranking_and_client_overhead_s": 1.0707997716963291e-05,
+      "elapsed_s": 0.029630834003910422,
+      "candidate_ids": [
+        "src/flask/helpers.py:stream_with_context:63-148",
+        "src/flask/helpers.py:stream_with_context.generator:126-141",
+        "src/flask/app.py:Flask.make_response:1224-1364",
+        "src/flask/templating.py:stream_template_string:200-212",
+        "src/flask/templating.py:stream_template:181-197",
+        "src/flask/ctx.py:copy_current_request_context:154-206",
+        "src/flask/app.py:Flask.process_response:1394-1418",
+        "src/flask/app.py:Flask.finalize_request:1021-1051",
+        "src/flask/app.py:Flask.wsgi_app:1566-1616",
+        "src/flask/helpers.py:make_response:151-197"
+      ],
+      "returned_ids": [
+        "src/flask/helpers.py:stream_with_context:63-148",
+        "src/flask/helpers.py:stream_with_context.generator:126-141",
+        "src/flask/app.py:Flask.make_response:1224-1364",
+        "src/flask/templating.py:stream_template_string:200-212",
+        "src/flask/templating.py:stream_template:181-197"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": null
+    },
+    {
+      "query_id": "streaming_request_context",
+      "kind": "present",
+      "retrieval": "dense",
+      "k": 1,
+      "query_embedding_s": 0.028876624986878596,
+      "retrieval_s": 0.00019474999862723053,
+      "h2o_s": 2.963370958008454,
+      "ranking_and_client_overhead_s": 0.00010454199218656868,
+      "elapsed_s": 2.992547250003554,
+      "candidate_ids": [
+        "src/flask/helpers.py:stream_with_context:63-148"
+      ],
+      "returned_ids": [
+        "src/flask/helpers.py:stream_with_context:63-148"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": 2.927615995992148
+    },
+    {
+      "query_id": "streaming_request_context",
+      "kind": "present",
+      "retrieval": "hybrid",
+      "k": 1,
+      "query_embedding_s": 0.10761495800397824,
+      "retrieval_s": 0.00045279199548531324,
+      "h2o_s": 2.8920270840026205,
+      "ranking_and_client_overhead_s": 7.045800157357007e-05,
+      "elapsed_s": 3.0001657499960857,
+      "candidate_ids": [
+        "src/flask/helpers.py:stream_with_context:63-148"
+      ],
+      "returned_ids": [
+        "src/flask/helpers.py:stream_with_context:63-148"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": 2.927615995992148
+    },
+    {
+      "query_id": "streaming_request_context",
+      "kind": "present",
+      "retrieval": "hybrid",
+      "k": 3,
+      "query_embedding_s": 0.15482116599741857,
+      "retrieval_s": 0.000520665998919867,
+      "h2o_s": 8.69086304200755,
+      "ranking_and_client_overhead_s": 0.00027354099438525736,
+      "elapsed_s": 8.846478875013418,
+      "candidate_ids": [
+        "src/flask/helpers.py:stream_with_context:63-148",
+        "src/flask/helpers.py:stream_with_context.generator:126-141",
+        "src/flask/app.py:Flask.make_response:1224-1364"
+      ],
+      "returned_ids": [
+        "src/flask/helpers.py:stream_with_context:63-148",
+        "src/flask/helpers.py:stream_with_context.generator:126-141",
+        "src/flask/app.py:Flask.make_response:1224-1364"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": 2.927615995992148
+    },
+    {
+      "query_id": "streaming_request_context",
+      "kind": "present",
+      "retrieval": "hybrid",
+      "k": 2,
+      "query_embedding_s": 0.16197841700341087,
+      "retrieval_s": 0.0006952090043341741,
+      "h2o_s": 4.0488252920040395,
+      "ranking_and_client_overhead_s": 0.00014354099403135478,
+      "elapsed_s": 4.211643333997927,
+      "candidate_ids": [
+        "src/flask/helpers.py:stream_with_context:63-148",
+        "src/flask/helpers.py:stream_with_context.generator:126-141"
+      ],
+      "returned_ids": [
+        "src/flask/helpers.py:stream_with_context:63-148",
+        "src/flask/helpers.py:stream_with_context.generator:126-141"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": 2.927615995992148
+    },
+    {
+      "query_id": "streaming_request_context",
+      "kind": "present",
+      "retrieval": "dense",
+      "k": 4,
+      "query_embedding_s": 0.04679687500174623,
+      "retrieval_s": 0.00024300000222865492,
+      "h2o_s": 9.37706712500949,
+      "ranking_and_client_overhead_s": 0.00028270899201743305,
+      "elapsed_s": 9.424390125001082,
+      "candidate_ids": [
+        "src/flask/helpers.py:stream_with_context:63-148",
+        "src/flask/helpers.py:stream_with_context.generator:126-141",
+        "src/flask/app.py:Flask.make_response:1224-1364",
+        "src/flask/helpers.py:stream_with_context.decorator:120-122"
+      ],
+      "returned_ids": [
+        "src/flask/helpers.py:stream_with_context:63-148",
+        "src/flask/helpers.py:stream_with_context.generator:126-141",
+        "src/flask/helpers.py:stream_with_context.decorator:120-122",
+        "src/flask/app.py:Flask.make_response:1224-1364"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": 2.927615995992148
+    },
+    {
+      "query_id": "streaming_request_context",
+      "kind": "present",
+      "retrieval": "dense",
+      "k": 3,
+      "query_embedding_s": 0.040895583006204106,
+      "retrieval_s": 0.0002504580043023452,
+      "h2o_s": 8.44654599999194,
+      "ranking_and_client_overhead_s": 0.00019608299771789461,
+      "elapsed_s": 8.487889040989103,
+      "candidate_ids": [
+        "src/flask/helpers.py:stream_with_context:63-148",
+        "src/flask/helpers.py:stream_with_context.generator:126-141",
+        "src/flask/app.py:Flask.make_response:1224-1364"
+      ],
+      "returned_ids": [
+        "src/flask/helpers.py:stream_with_context:63-148",
+        "src/flask/helpers.py:stream_with_context.generator:126-141",
+        "src/flask/app.py:Flask.make_response:1224-1364"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": 2.927615995992148
+    },
+    {
+      "query_id": "json_special_objects",
+      "kind": "present",
+      "retrieval": "hybrid",
+      "k": 0,
+      "query_embedding_s": 0.03663541600690223,
+      "retrieval_s": 0.0007196250080596656,
+      "h2o_s": 0,
+      "ranking_and_client_overhead_s": 1.7125013982877135e-05,
+      "elapsed_s": 0.037372541992226616,
+      "candidate_ids": [
+        "src/flask/json/provider.py:_default:108-121",
+        "src/flask/json/provider.py:DefaultJSONProvider.response:189-215",
+        "src/flask/json/__init__.py:jsonify:138-170",
+        "src/flask/json/tag.py:TagDateTime.to_json:212-213",
+        "src/flask/json/provider.py:JSONProvider.response:89-105",
+        "src/flask/json/provider.py:DefaultJSONProvider.dumps:166-179",
+        "src/flask/json/__init__.py:dump:47-74",
+        "src/flask/json/provider.py:JSONProvider.dump:49-57",
+        "src/flask/config.py:Config.from_prefixed_env:126-185",
+        "src/flask/sansio/app.py:App.inject_url_defaults:961-980"
+      ],
+      "returned_ids": [
+        "src/flask/json/provider.py:_default:108-121",
+        "src/flask/json/provider.py:DefaultJSONProvider.response:189-215",
+        "src/flask/json/__init__.py:jsonify:138-170",
+        "src/flask/json/tag.py:TagDateTime.to_json:212-213",
+        "src/flask/json/provider.py:JSONProvider.response:89-105"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": null
+    },
+    {
+      "query_id": "json_special_objects",
+      "kind": "present",
+      "retrieval": "dense",
+      "k": 1,
+      "query_embedding_s": 0.029799417010508478,
+      "retrieval_s": 0.00018279098730999976,
+      "h2o_s": 1.1194524159946013,
+      "ranking_and_client_overhead_s": 0.00011204199108760804,
+      "elapsed_s": 1.1495474580005975,
+      "candidate_ids": [
+        "src/flask/json/provider.py:_default:108-121"
+      ],
+      "returned_ids": [
+        "src/flask/json/provider.py:_default:108-121"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": 2.9388117936124463
+    },
+    {
+      "query_id": "json_special_objects",
+      "kind": "present",
+      "retrieval": "hybrid",
+      "k": 1,
+      "query_embedding_s": 0.038705957995262,
+      "retrieval_s": 0.0005215830024098977,
+      "h2o_s": 1.1275047919916688,
+      "ranking_and_client_overhead_s": 8.358301420230418e-05,
+      "elapsed_s": 1.1668169170006877,
+      "candidate_ids": [
+        "src/flask/json/provider.py:_default:108-121"
+      ],
+      "returned_ids": [
+        "src/flask/json/provider.py:_default:108-121"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": 2.9388117936124463
+    },
+    {
+      "query_id": "json_special_objects",
+      "kind": "present",
+      "retrieval": "hybrid",
+      "k": 3,
+      "query_embedding_s": 0.02987270799349062,
+      "retrieval_s": 0.0011123750009573996,
+      "h2o_s": 4.50845137500437,
+      "ranking_and_client_overhead_s": 0.0002226249926025048,
+      "elapsed_s": 4.539660374997766,
+      "candidate_ids": [
+        "src/flask/json/provider.py:_default:108-121",
+        "src/flask/json/provider.py:DefaultJSONProvider.response:189-215",
+        "src/flask/json/__init__.py:jsonify:138-170"
+      ],
+      "returned_ids": [
+        "src/flask/json/provider.py:_default:108-121",
+        "src/flask/json/__init__.py:jsonify:138-170",
+        "src/flask/json/provider.py:DefaultJSONProvider.response:189-215"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": 2.9388117936124463
+    },
+    {
+      "query_id": "json_special_objects",
+      "kind": "present",
+      "retrieval": "hybrid",
+      "k": 2,
+      "query_embedding_s": 0.038103249986306764,
+      "retrieval_s": 0.0005021660035708919,
+      "h2o_s": 2.7441515420068754,
+      "ranking_and_client_overhead_s": 0.00013304098683875054,
+      "elapsed_s": 2.7828905830101576,
+      "candidate_ids": [
+        "src/flask/json/provider.py:_default:108-121",
+        "src/flask/json/provider.py:DefaultJSONProvider.response:189-215"
+      ],
+      "returned_ids": [
+        "src/flask/json/provider.py:_default:108-121",
+        "src/flask/json/provider.py:DefaultJSONProvider.response:189-215"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": 2.9388117936124463
+    },
+    {
+      "query_id": "json_special_objects",
+      "kind": "present",
+      "retrieval": "dense",
+      "k": 4,
+      "query_embedding_s": 0.03412195900455117,
+      "retrieval_s": 0.00015787499432917684,
+      "h2o_s": 4.834218749034335,
+      "ranking_and_client_overhead_s": 0.000293500954285264,
+      "elapsed_s": 4.868792750014109,
+      "candidate_ids": [
+        "src/flask/json/provider.py:_default:108-121",
+        "src/flask/json/tag.py:TagDateTime.to_json:212-213",
+        "src/flask/json/provider.py:DefaultJSONProvider.dumps:166-179",
+        "src/flask/json/__init__.py:dumps:13-44"
+      ],
+      "returned_ids": [
+        "src/flask/json/provider.py:_default:108-121",
+        "src/flask/json/tag.py:TagDateTime.to_json:212-213",
+        "src/flask/json/__init__.py:dumps:13-44",
+        "src/flask/json/provider.py:DefaultJSONProvider.dumps:166-179"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": 2.9388117936124463
+    },
+    {
+      "query_id": "json_special_objects",
+      "kind": "present",
+      "retrieval": "dense",
+      "k": 3,
+      "query_embedding_s": 0.03694674999860581,
+      "retrieval_s": 0.0001689169876044616,
+      "h2o_s": 3.185744666014216,
+      "ranking_and_client_overhead_s": 0.00024566698994021863,
+      "elapsed_s": 3.2231067910033744,
+      "candidate_ids": [
+        "src/flask/json/provider.py:_default:108-121",
+        "src/flask/json/tag.py:TagDateTime.to_json:212-213",
+        "src/flask/json/provider.py:DefaultJSONProvider.dumps:166-179"
+      ],
+      "returned_ids": [
+        "src/flask/json/provider.py:_default:108-121",
+        "src/flask/json/tag.py:TagDateTime.to_json:212-213",
+        "src/flask/json/provider.py:DefaultJSONProvider.dumps:166-179"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": 2.9388117936124463
+    },
+    {
+      "query_id": "json_special_objects",
+      "kind": "present",
+      "retrieval": "dense",
+      "k": 0,
+      "query_embedding_s": 0.04266999999526888,
+      "retrieval_s": 0.0001867079990915954,
+      "h2o_s": 0,
+      "ranking_and_client_overhead_s": 1.1583993909880519e-05,
+      "elapsed_s": 0.0428692499990575,
+      "candidate_ids": [
+        "src/flask/json/provider.py:_default:108-121",
+        "src/flask/json/tag.py:TagDateTime.to_json:212-213",
+        "src/flask/json/provider.py:DefaultJSONProvider.dumps:166-179",
+        "src/flask/json/__init__.py:dumps:13-44",
+        "src/flask/json/provider.py:DefaultJSONProvider.response:189-215",
+        "src/flask/json/tag.py:TagDateTime.to_python:215-216",
+        "src/flask/json/__init__.py:jsonify:138-170",
+        "src/flask/json/tag.py:TagUUID.to_json:198-199",
+        "src/flask/testing.py:EnvironBuilder.json_dumps:88-94",
+        "src/flask/json/provider.py:JSONProvider.response:89-105"
+      ],
+      "returned_ids": [
+        "src/flask/json/provider.py:_default:108-121",
+        "src/flask/json/tag.py:TagDateTime.to_json:212-213",
+        "src/flask/json/provider.py:DefaultJSONProvider.dumps:166-179",
+        "src/flask/json/__init__.py:dumps:13-44",
+        "src/flask/json/provider.py:DefaultJSONProvider.response:189-215"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": null
+    },
+    {
+      "query_id": "exception_handler_precedence",
+      "kind": "present",
+      "retrieval": "dense",
+      "k": 1,
+      "query_embedding_s": 0.026781708002090454,
+      "retrieval_s": 0.00018741600797511637,
+      "h2o_s": 1.4653909579938045,
+      "ranking_and_client_overhead_s": 6.1000013374723494e-05,
+      "elapsed_s": 1.4924219170061406,
+      "candidate_ids": [
+        "src/flask/sansio/app.py:App._find_error_handler:869-892"
+      ],
+      "returned_ids": [
+        "src/flask/sansio/app.py:App._find_error_handler:869-892"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": 2.9437386225280076
+    },
+    {
+      "query_id": "exception_handler_precedence",
+      "kind": "present",
+      "retrieval": "hybrid",
+      "k": 1,
+      "query_embedding_s": 0.0320521249959711,
+      "retrieval_s": 0.0005608329956885427,
+      "h2o_s": 1.463490708003519,
+      "ranking_and_client_overhead_s": 5.658400186803192e-05,
+      "elapsed_s": 1.4961608339945087,
+      "candidate_ids": [
+        "src/flask/sansio/app.py:App._find_error_handler:869-892"
+      ],
+      "returned_ids": [
+        "src/flask/sansio/app.py:App._find_error_handler:869-892"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": 2.9437386225280076
+    },
+    {
+      "query_id": "exception_handler_precedence",
+      "kind": "present",
+      "retrieval": "hybrid",
+      "k": 3,
+      "query_embedding_s": 0.03778754199447576,
+      "retrieval_s": 0.0005196660058572888,
+      "h2o_s": 5.143238167016534,
+      "ranking_and_client_overhead_s": 0.00021116598509252071,
+      "elapsed_s": 5.181756958991173,
+      "candidate_ids": [
+        "src/flask/sansio/app.py:App._find_error_handler:869-892",
+        "src/flask/sansio/scaffold.py:Scaffold._get_exc_class_and_code:664-706",
+        "src/flask/sansio/scaffold.py:Scaffold.errorhandler:605-647"
+      ],
+      "returned_ids": [
+        "src/flask/sansio/app.py:App._find_error_handler:869-892",
+        "src/flask/sansio/scaffold.py:Scaffold.errorhandler:605-647",
+        "src/flask/sansio/scaffold.py:Scaffold._get_exc_class_and_code:664-706"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": 2.9437386225280076
+    },
+    {
+      "query_id": "exception_handler_precedence",
+      "kind": "present",
+      "retrieval": "hybrid",
+      "k": 2,
+      "query_embedding_s": 0.03339687499101274,
+      "retrieval_s": 0.0004991660098312423,
+      "h2o_s": 3.348266375993262,
+      "ranking_and_client_overhead_s": 9.683200914878398e-05,
+      "elapsed_s": 3.382259666992468,
+      "candidate_ids": [
+        "src/flask/sansio/app.py:App._find_error_handler:869-892",
+        "src/flask/sansio/scaffold.py:Scaffold._get_exc_class_and_code:664-706"
+      ],
+      "returned_ids": [
+        "src/flask/sansio/app.py:App._find_error_handler:869-892",
+        "src/flask/sansio/scaffold.py:Scaffold._get_exc_class_and_code:664-706"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": 2.9437386225280076
+    },
+    {
+      "query_id": "exception_handler_precedence",
+      "kind": "present",
+      "retrieval": "dense",
+      "k": 4,
+      "query_embedding_s": 0.03216616599820554,
+      "retrieval_s": 0.0001831250119721517,
+      "h2o_s": 6.82875183300348,
+      "ranking_and_client_overhead_s": 0.0003053760010516271,
+      "elapsed_s": 6.861407208998571,
+      "candidate_ids": [
+        "src/flask/sansio/app.py:App._find_error_handler:869-892",
+        "src/flask/app.py:Flask.handle_http_exception:830-863",
+        "src/flask/sansio/scaffold.py:Scaffold.errorhandler:605-647",
+        "src/flask/sansio/scaffold.py:Scaffold._get_exc_class_and_code:664-706"
+      ],
+      "returned_ids": [
+        "src/flask/sansio/app.py:App._find_error_handler:869-892",
+        "src/flask/app.py:Flask.handle_http_exception:830-863",
+        "src/flask/sansio/scaffold.py:Scaffold.errorhandler:605-647",
+        "src/flask/sansio/scaffold.py:Scaffold._get_exc_class_and_code:664-706"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": 2.9437386225280076
+    },
+    {
+      "query_id": "exception_handler_precedence",
+      "kind": "present",
+      "retrieval": "dense",
+      "k": 3,
+      "query_embedding_s": 0.036060042009921744,
+      "retrieval_s": 0.00016820798919070512,
+      "h2o_s": 5.02520795899909,
+      "ranking_and_client_overhead_s": 0.00022258199169300497,
+      "elapsed_s": 5.061659499988309,
+      "candidate_ids": [
+        "src/flask/sansio/app.py:App._find_error_handler:869-892",
+        "src/flask/app.py:Flask.handle_http_exception:830-863",
+        "src/flask/sansio/scaffold.py:Scaffold.errorhandler:605-647"
+      ],
+      "returned_ids": [
+        "src/flask/sansio/app.py:App._find_error_handler:869-892",
+        "src/flask/app.py:Flask.handle_http_exception:830-863",
+        "src/flask/sansio/scaffold.py:Scaffold.errorhandler:605-647"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": 2.9437386225280076
+    },
+    {
+      "query_id": "exception_handler_precedence",
+      "kind": "present",
+      "retrieval": "dense",
+      "k": 0,
+      "query_embedding_s": 0.04056441599095706,
+      "retrieval_s": 0.00021983400802128017,
+      "h2o_s": 0,
+      "ranking_and_client_overhead_s": 1.2499993317760527e-05,
+      "elapsed_s": 0.04079795900906902,
+      "candidate_ids": [
+        "src/flask/sansio/app.py:App._find_error_handler:869-892",
+        "src/flask/app.py:Flask.handle_http_exception:830-863",
+        "src/flask/sansio/scaffold.py:Scaffold.errorhandler:605-647",
+        "src/flask/sansio/scaffold.py:Scaffold._get_exc_class_and_code:664-706",
+        "src/flask/sansio/blueprints.py:Blueprint.app_errorhandler:655-670",
+        "src/flask/sansio/blueprints.py:Blueprint.app_errorhandler.decorator.from_blueprint:664-665",
+        "src/flask/sansio/blueprints.py:Blueprint.app_errorhandler.decorator:663-668",
+        "src/flask/sansio/scaffold.py:Scaffold.register_error_handler:649-662",
+        "src/flask/app.py:Flask.handle_user_exception:865-895",
+        "src/flask/app.py:Flask.handle_exception:897-948"
+      ],
+      "returned_ids": [
+        "src/flask/sansio/app.py:App._find_error_handler:869-892",
+        "src/flask/app.py:Flask.handle_http_exception:830-863",
+        "src/flask/sansio/scaffold.py:Scaffold.errorhandler:605-647",
+        "src/flask/sansio/scaffold.py:Scaffold._get_exc_class_and_code:664-706",
+        "src/flask/sansio/blueprints.py:Blueprint.app_errorhandler:655-670"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": null
+    },
+    {
+      "query_id": "exception_handler_precedence",
+      "kind": "present",
+      "retrieval": "hybrid",
+      "k": 0,
+      "query_embedding_s": 0.02655120899726171,
+      "retrieval_s": 0.0005469999887282029,
+      "h2o_s": 0,
+      "ranking_and_client_overhead_s": 6.082991603761911e-06,
+      "elapsed_s": 0.0271048750000773,
+      "candidate_ids": [
+        "src/flask/sansio/app.py:App._find_error_handler:869-892",
+        "src/flask/sansio/scaffold.py:Scaffold._get_exc_class_and_code:664-706",
+        "src/flask/sansio/scaffold.py:Scaffold.errorhandler:605-647",
+        "src/flask/app.py:Flask.handle_http_exception:830-863",
+        "src/flask/sansio/scaffold.py:Scaffold.register_error_handler:649-662",
+        "src/flask/app.py:Flask.log_exception:950-964",
+        "src/flask/app.py:Flask.handle_user_exception:865-895",
+        "src/flask/sansio/blueprints.py:Blueprint.app_errorhandler:655-670",
+        "src/flask/app.py:Flask.handle_exception:897-948",
+        "src/flask/sansio/app.py:App.trap_http_exception:894-927"
+      ],
+      "returned_ids": [
+        "src/flask/sansio/app.py:App._find_error_handler:869-892",
+        "src/flask/sansio/scaffold.py:Scaffold._get_exc_class_and_code:664-706",
+        "src/flask/sansio/scaffold.py:Scaffold.errorhandler:605-647",
+        "src/flask/app.py:Flask.handle_http_exception:830-863",
+        "src/flask/sansio/scaffold.py:Scaffold.register_error_handler:649-662"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": null
+    },
+    {
+      "query_id": "nested_blueprint_prefixes",
+      "kind": "present",
+      "retrieval": "hybrid",
+      "k": 1,
+      "query_embedding_s": 0.027558415997191332,
+      "retrieval_s": 0.001359625006443821,
+      "h2o_s": 3.5161940420075553,
+      "ranking_and_client_overhead_s": 8.433299080934376e-05,
+      "elapsed_s": 3.545196916005807,
+      "candidate_ids": [
+        "src/flask/sansio/blueprints.py:Blueprint.register:273-377"
+      ],
+      "returned_ids": [
+        "src/flask/sansio/blueprints.py:Blueprint.register:273-377"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": 2.919777234017723
+    },
+    {
+      "query_id": "nested_blueprint_prefixes",
+      "kind": "present",
+      "retrieval": "hybrid",
+      "k": 3,
+      "query_embedding_s": 0.03493058400636073,
+      "retrieval_s": 0.0005026250000810251,
+      "h2o_s": 6.856240875989897,
+      "ranking_and_client_overhead_s": 0.00018491499940864742,
+      "elapsed_s": 6.891859582989127,
+      "candidate_ids": [
+        "src/flask/sansio/blueprints.py:Blueprint.register:273-377",
+        "src/flask/sansio/app.py:App.register_blueprint:570-596",
+        "src/flask/blueprints.py:Blueprint.__init__:19-53"
+      ],
+      "returned_ids": [
+        "src/flask/sansio/blueprints.py:Blueprint.register:273-377",
+        "src/flask/sansio/app.py:App.register_blueprint:570-596",
+        "src/flask/blueprints.py:Blueprint.__init__:19-53"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": 2.919777234017723
+    },
+    {
+      "query_id": "nested_blueprint_prefixes",
+      "kind": "present",
+      "retrieval": "hybrid",
+      "k": 2,
+      "query_embedding_s": 0.0371433749969583,
+      "retrieval_s": 0.0004762500029755756,
+      "h2o_s": 5.184707167005399,
+      "ranking_and_client_overhead_s": 0.00011874998745042831,
+      "elapsed_s": 5.222446416009916,
+      "candidate_ids": [
+        "src/flask/sansio/blueprints.py:Blueprint.register:273-377",
+        "src/flask/sansio/app.py:App.register_blueprint:570-596"
+      ],
+      "returned_ids": [
+        "src/flask/sansio/blueprints.py:Blueprint.register:273-377",
+        "src/flask/sansio/app.py:App.register_blueprint:570-596"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": 2.919777234017723
+    },
+    {
+      "query_id": "nested_blueprint_prefixes",
+      "kind": "present",
+      "retrieval": "dense",
+      "k": 4,
+      "query_embedding_s": 0.04228787499596365,
+      "retrieval_s": 0.00019508300465531647,
+      "h2o_s": 8.45910650100268,
+      "ranking_and_client_overhead_s": 0.0002473740023560822,
+      "elapsed_s": 8.501837374991737,
+      "candidate_ids": [
+        "src/flask/sansio/blueprints.py:Blueprint.register:273-377",
+        "src/flask/sansio/app.py:App.register_blueprint:570-596",
+        "src/flask/sansio/blueprints.py:BlueprintSetupState.add_url_rule:87-116",
+        "src/flask/blueprints.py:Blueprint.__init__:19-53"
+      ],
+      "returned_ids": [
+        "src/flask/sansio/blueprints.py:Blueprint.register:273-377",
+        "src/flask/sansio/blueprints.py:BlueprintSetupState.add_url_rule:87-116",
+        "src/flask/sansio/app.py:App.register_blueprint:570-596",
+        "src/flask/blueprints.py:Blueprint.__init__:19-53"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": 2.919777234017723
+    },
+    {
+      "query_id": "nested_blueprint_prefixes",
+      "kind": "present",
+      "retrieval": "dense",
+      "k": 3,
+      "query_embedding_s": 0.03993083300883882,
+      "retrieval_s": 0.0001773750118445605,
+      "h2o_s": 6.783215957999346,
+      "ranking_and_client_overhead_s": 0.00018587498925626278,
+      "elapsed_s": 6.823510542002623,
+      "candidate_ids": [
+        "src/flask/sansio/blueprints.py:Blueprint.register:273-377",
+        "src/flask/sansio/app.py:App.register_blueprint:570-596",
+        "src/flask/sansio/blueprints.py:BlueprintSetupState.add_url_rule:87-116"
+      ],
+      "returned_ids": [
+        "src/flask/sansio/blueprints.py:Blueprint.register:273-377",
+        "src/flask/sansio/blueprints.py:BlueprintSetupState.add_url_rule:87-116",
+        "src/flask/sansio/app.py:App.register_blueprint:570-596"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": 2.919777234017723
+    },
+    {
+      "query_id": "nested_blueprint_prefixes",
+      "kind": "present",
+      "retrieval": "dense",
+      "k": 0,
+      "query_embedding_s": 0.03348120900045615,
+      "retrieval_s": 0.00016887499077711254,
+      "h2o_s": 0,
+      "ranking_and_client_overhead_s": 1.116600469686091e-05,
+      "elapsed_s": 0.03366204199846834,
+      "candidate_ids": [
+        "src/flask/sansio/blueprints.py:Blueprint.register:273-377",
+        "src/flask/sansio/app.py:App.register_blueprint:570-596",
+        "src/flask/sansio/blueprints.py:BlueprintSetupState.add_url_rule:87-116",
+        "src/flask/blueprints.py:Blueprint.__init__:19-53",
+        "src/flask/sansio/blueprints.py:Blueprint.add_url_rule:412-441",
+        "src/flask/sansio/blueprints.py:Blueprint.__init__:174-211",
+        "src/flask/sansio/blueprints.py:Blueprint.register_blueprint:255-271",
+        "src/flask/cli.py:AppGroup.group:429-437",
+        "src/flask/app.py:Flask.__init__:308-361",
+        "src/flask/sansio/blueprints.py:BlueprintSetupState.__init__:41-85"
+      ],
+      "returned_ids": [
+        "src/flask/sansio/blueprints.py:Blueprint.register:273-377",
+        "src/flask/sansio/app.py:App.register_blueprint:570-596",
+        "src/flask/sansio/blueprints.py:BlueprintSetupState.add_url_rule:87-116",
+        "src/flask/blueprints.py:Blueprint.__init__:19-53",
+        "src/flask/sansio/blueprints.py:Blueprint.add_url_rule:412-441"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": null
+    },
+    {
+      "query_id": "nested_blueprint_prefixes",
+      "kind": "present",
+      "retrieval": "hybrid",
+      "k": 0,
+      "query_embedding_s": 0.028461792011512443,
+      "retrieval_s": 0.0004407920059747994,
+      "h2o_s": 0,
+      "ranking_and_client_overhead_s": 5.916008376516402e-06,
+      "elapsed_s": 0.028908874999615364,
+      "candidate_ids": [
+        "src/flask/sansio/blueprints.py:Blueprint.register:273-377",
+        "src/flask/sansio/app.py:App.register_blueprint:570-596",
+        "src/flask/blueprints.py:Blueprint.__init__:19-53",
+        "src/flask/sansio/blueprints.py:Blueprint.register_blueprint:255-271",
+        "src/flask/app.py:Flask.__init__:308-361",
+        "src/flask/sansio/blueprints.py:Blueprint.add_url_rule:412-441",
+        "src/flask/wrappers.py:Request.blueprints:180-195",
+        "src/flask/sansio/app.py:App.inject_url_defaults:961-980",
+        "src/flask/sansio/blueprints.py:BlueprintSetupState.add_url_rule:87-116",
+        "src/flask/sansio/app.py:App.__init__:280-409"
+      ],
+      "returned_ids": [
+        "src/flask/sansio/blueprints.py:Blueprint.register:273-377",
+        "src/flask/sansio/app.py:App.register_blueprint:570-596",
+        "src/flask/blueprints.py:Blueprint.__init__:19-53",
+        "src/flask/sansio/blueprints.py:Blueprint.register_blueprint:255-271",
+        "src/flask/app.py:Flask.__init__:308-361"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": null
+    },
+    {
+      "query_id": "nested_blueprint_prefixes",
+      "kind": "present",
+      "retrieval": "dense",
+      "k": 1,
+      "query_embedding_s": 0.029873375009628944,
+      "retrieval_s": 0.00019500000053085387,
+      "h2o_s": 3.5455437080090633,
+      "ranking_and_client_overhead_s": 7.374997949227691e-05,
+      "elapsed_s": 3.5756863340066047,
+      "candidate_ids": [
+        "src/flask/sansio/blueprints.py:Blueprint.register:273-377"
+      ],
+      "returned_ids": [
+        "src/flask/sansio/blueprints.py:Blueprint.register:273-377"
+      ],
+      "rank": 1,
+      "candidate_has_gold": true,
+      "max_h2o_score": 2.919777234017723
+    },
+    {
+      "query_id": "absent_builtin_csrf_validation",
+      "kind": "absent",
+      "retrieval": "hybrid",
+      "k": 3,
+      "query_embedding_s": 0.036559957996360026,
+      "retrieval_s": 0.0007824579952284694,
+      "h2o_s": 4.776418414985528,
+      "ranking_and_client_overhead_s": 0.00020587701874319464,
+      "elapsed_s": 4.813967167006922,
+      "candidate_ids": [
+        "src/flask/debughelpers.py:DebugFilesKeyError.__init__:28-44",
+        "src/flask/testing.py:FlaskClient.session_transaction:135-183",
+        "src/flask/app.py:Flask.raise_routing_exception:560-586"
+      ],
+      "returned_ids": [
+        "src/flask/app.py:Flask.raise_routing_exception:560-586",
+        "src/flask/testing.py:FlaskClient.session_transaction:135-183",
+        "src/flask/debughelpers.py:DebugFilesKeyError.__init__:28-44"
+      ],
+      "rank": null,
+      "candidate_has_gold": false,
+      "max_h2o_score": 0.27302849036651866
+    },
+    {
+      "query_id": "absent_builtin_csrf_validation",
+      "kind": "absent",
+      "retrieval": "hybrid",
+      "k": 2,
+      "query_embedding_s": 0.0361139590095263,
+      "retrieval_s": 0.0005901670083403587,
+      "h2o_s": 3.2559876659797737,
+      "ranking_and_client_overhead_s": 0.00011662601900752634,
+      "elapsed_s": 3.292809209000552,
+      "candidate_ids": [
+        "src/flask/debughelpers.py:DebugFilesKeyError.__init__:28-44",
+        "src/flask/testing.py:FlaskClient.session_transaction:135-183"
+      ],
+      "returned_ids": [
+        "src/flask/testing.py:FlaskClient.session_transaction:135-183",
+        "src/flask/debughelpers.py:DebugFilesKeyError.__init__:28-44"
+      ],
+      "rank": null,
+      "candidate_has_gold": false,
+      "max_h2o_score": 0.09829003308786081
+    },
+    {
+      "query_id": "absent_builtin_csrf_validation",
+      "kind": "absent",
+      "retrieval": "dense",
+      "k": 4,
+      "query_embedding_s": 0.03361570798733737,
+      "retrieval_s": 0.00019795799744315445,
+      "h2o_s": 4.592176832986297,
+      "ranking_and_client_overhead_s": 0.0002659590245457366,
+      "elapsed_s": 4.626256874995306,
+      "candidate_ids": [
+        "src/flask/sessions.py:NullSession._fail:89-94",
+        "src/flask/wrappers.py:Request.on_json_loading_failed:212-219",
+        "src/flask/sessions.py:SecureCookieSessionInterface.open_session:323-335",
+        "src/flask/app.py:Flask.raise_routing_exception:560-586"
+      ],
+      "returned_ids": [
+        "src/flask/sessions.py:NullSession._fail:89-94",
+        "src/flask/app.py:Flask.raise_routing_exception:560-586",
+        "src/flask/sessions.py:SecureCookieSessionInterface.open_session:323-335",
+        "src/flask/wrappers.py:Request.on_json_loading_failed:212-219"
+      ],
+      "rank": null,
+      "candidate_has_gold": false,
+      "max_h2o_score": 0.5477272346781742
+    },
+    {
+      "query_id": "absent_builtin_csrf_validation",
+      "kind": "absent",
+      "retrieval": "dense",
+      "k": 3,
+      "query_embedding_s": 0.03272987500531599,
+      "retrieval_s": 0.0001658329856581986,
+      "h2o_s": 3.1222509589861147,
+      "ranking_and_client_overhead_s": 0.00013166602002456784,
+      "elapsed_s": 3.1552786249958444,
+      "candidate_ids": [
+        "src/flask/sessions.py:NullSession._fail:89-94",
+        "src/flask/wrappers.py:Request.on_json_loading_failed:212-219",
+        "src/flask/sessions.py:SecureCookieSessionInterface.open_session:323-335"
+      ],
+      "returned_ids": [
+        "src/flask/sessions.py:NullSession._fail:89-94",
+        "src/flask/sessions.py:SecureCookieSessionInterface.open_session:323-335",
+        "src/flask/wrappers.py:Request.on_json_loading_failed:212-219"
+      ],
+      "rank": null,
+      "candidate_has_gold": false,
+      "max_h2o_score": 0.5477272346781742
+    },
+    {
+      "query_id": "absent_builtin_csrf_validation",
+      "kind": "absent",
+      "retrieval": "dense",
+      "k": 0,
+      "query_embedding_s": 0.036299582992796786,
+      "retrieval_s": 0.00015754099877085537,
+      "h2o_s": 0,
+      "ranking_and_client_overhead_s": 9.791998309083283e-06,
+      "elapsed_s": 0.03646758300601505,
+      "candidate_ids": [
+        "src/flask/sessions.py:NullSession._fail:89-94",
+        "src/flask/wrappers.py:Request.on_json_loading_failed:212-219",
+        "src/flask/sessions.py:SecureCookieSessionInterface.open_session:323-335",
+        "src/flask/app.py:Flask.raise_routing_exception:560-586",
+        "src/flask/wrappers.py:Request._load_form_data:197-210",
+        "src/flask/debughelpers.py:DebugFilesKeyError.__init__:28-44",
+        "src/flask/app.py:Flask.full_dispatch_request:992-1019",
+        "src/flask/app.py:Flask.handle_user_exception:865-895",
+        "src/flask/debughelpers.py:attach_enctype_error_multidict.newcls.__getitem__:91-100",
+        "src/flask/wrappers.py:Request.max_form_parts:142-144"
+      ],
+      "returned_ids": [
+        "src/flask/sessions.py:NullSession._fail:89-94",
+        "src/flask/wrappers.py:Request.on_json_loading_failed:212-219",
+        "src/flask/sessions.py:SecureCookieSessionInterface.open_session:323-335",
+        "src/flask/app.py:Flask.raise_routing_exception:560-586",
+        "src/flask/wrappers.py:Request._load_form_data:197-210"
+      ],
+      "rank": null,
+      "candidate_has_gold": false,
+      "max_h2o_score": null
+    },
+    {
+      "query_id": "absent_builtin_csrf_validation",
+      "kind": "absent",
+      "retrieval": "hybrid",
+      "k": 0,
+      "query_embedding_s": 0.029699791994062252,
+      "retrieval_s": 0.00044379199971444905,
+      "h2o_s": 0,
+      "ranking_and_client_overhead_s": 5.374997272156179e-06,
+      "elapsed_s": 0.030149541998980567,
+      "candidate_ids": [
+        "src/flask/debughelpers.py:DebugFilesKeyError.__init__:28-44",
+        "src/flask/testing.py:FlaskClient.session_transaction:135-183",
+        "src/flask/app.py:Flask.raise_routing_exception:560-586",
+        "src/flask/wrappers.py:Request.max_form_parts:119-140",
+        "src/flask/helpers.py:flash:326-357",
+        "src/flask/wrappers.py:Request.max_form_memory_size:92-113",
+        "src/flask/wrappers.py:Request._load_form_data:197-210",
+        "src/flask/helpers.py:get_flashed_messages:360-399",
+        "src/flask/sessions.py:SessionInterface.make_null_session:150-160",
+        "src/flask/app.py:Flask.process_response:1394-1418"
+      ],
+      "returned_ids": [
+        "src/flask/debughelpers.py:DebugFilesKeyError.__init__:28-44",
+        "src/flask/testing.py:FlaskClient.session_transaction:135-183",
+        "src/flask/app.py:Flask.raise_routing_exception:560-586",
+        "src/flask/wrappers.py:Request.max_form_parts:119-140",
+        "src/flask/helpers.py:flash:326-357"
+      ],
+      "rank": null,
+      "candidate_has_gold": false,
+      "max_h2o_score": null
+    },
+    {
+      "query_id": "absent_builtin_csrf_validation",
+      "kind": "absent",
+      "retrieval": "dense",
+      "k": 1,
+      "query_embedding_s": 0.02931308299594093,
+      "retrieval_s": 0.00017533400387037545,
+      "h2o_s": 1.0285567920072936,
+      "ranking_and_client_overhead_s": 6.19169877609238e-05,
+      "elapsed_s": 1.0581078340037493,
+      "candidate_ids": [
+        "src/flask/sessions.py:NullSession._fail:89-94"
+      ],
+      "returned_ids": [
+        "src/flask/sessions.py:NullSession._fail:89-94"
+      ],
+      "rank": null,
+      "candidate_has_gold": false,
+      "max_h2o_score": 0.5477272346781742
+    },
+    {
+      "query_id": "absent_builtin_csrf_validation",
+      "kind": "absent",
+      "retrieval": "hybrid",
+      "k": 1,
+      "query_embedding_s": 0.028926750004757196,
+      "retrieval_s": 0.0004445829981705174,
+      "h2o_s": 1.357641667011194,
+      "ranking_and_client_overhead_s": 5.108298500999808e-05,
+      "elapsed_s": 1.387064708993421,
+      "candidate_ids": [
+        "src/flask/debughelpers.py:DebugFilesKeyError.__init__:28-44"
+      ],
+      "returned_ids": [
+        "src/flask/debughelpers.py:DebugFilesKeyError.__init__:28-44"
+      ],
+      "rank": null,
+      "candidate_has_gold": false,
+      "max_h2o_score": 0.09602486693931547
+    },
+    {
+      "query_id": "absent_builtin_rate_limiting",
+      "kind": "absent",
+      "retrieval": "hybrid",
+      "k": 2,
+      "query_embedding_s": 0.03827812500821892,
+      "retrieval_s": 0.0007113750034477562,
+      "h2o_s": 3.1000701669981936,
+      "ranking_and_client_overhead_s": 0.00010075001046061516,
+      "elapsed_s": 3.1391609590064036,
+      "candidate_ids": [
+        "src/flask/wrappers.py:Request.max_form_parts:119-140",
+        "src/flask/wrappers.py:Request.max_content_length:59-86"
+      ],
+      "returned_ids": [
+        "src/flask/wrappers.py:Request.max_form_parts:119-140",
+        "src/flask/wrappers.py:Request.max_content_length:59-86"
+      ],
+      "rank": null,
+      "candidate_has_gold": false,
+      "max_h2o_score": 0.3076941202616352
+    },
+    {
+      "query_id": "absent_builtin_rate_limiting",
+      "kind": "absent",
+      "retrieval": "dense",
+      "k": 4,
+      "query_embedding_s": 0.03887587500503287,
+      "retrieval_s": 0.00017091698828153312,
+      "h2o_s": 5.605787540000165,
+      "ranking_and_client_overhead_s": 0.00023004300601314753,
+      "elapsed_s": 5.645064833996003,
+      "candidate_ids": [
+        "src/flask/wrappers.py:Request.max_form_parts:119-140",
+        "src/flask/wrappers.py:Request.max_form_memory_size:92-113",
+        "src/flask/wrappers.py:Request.max_content_length:59-86",
+        "src/flask/sansio/blueprints.py:Blueprint.after_app_request:623-631"
+      ],
+      "returned_ids": [
+        "src/flask/wrappers.py:Request.max_form_parts:119-140",
+        "src/flask/wrappers.py:Request.max_content_length:59-86",
+        "src/flask/sansio/blueprints.py:Blueprint.after_app_request:623-631",
+        "src/flask/wrappers.py:Request.max_form_memory_size:92-113"
+      ],
+      "rank": null,
+      "candidate_has_gold": false,
+      "max_h2o_score": 0.3076941202616352
+    },
+    {
+      "query_id": "absent_builtin_rate_limiting",
+      "kind": "absent",
+      "retrieval": "dense",
+      "k": 3,
+      "query_embedding_s": 0.03619837498990819,
+      "retrieval_s": 0.00015754099877085537,
+      "h2o_s": 4.5988440420042025,
+      "ranking_and_client_overhead_s": 0.00015437399270012975,
+      "elapsed_s": 4.635354666999774,
+      "candidate_ids": [
+        "src/flask/wrappers.py:Request.max_form_parts:119-140",
+        "src/flask/wrappers.py:Request.max_form_memory_size:92-113",
+        "src/flask/wrappers.py:Request.max_content_length:59-86"
+      ],
+      "returned_ids": [
+        "src/flask/wrappers.py:Request.max_form_parts:119-140",
+        "src/flask/wrappers.py:Request.max_content_length:59-86",
+        "src/flask/wrappers.py:Request.max_form_memory_size:92-113"
+      ],
+      "rank": null,
+      "candidate_has_gold": false,
+      "max_h2o_score": 0.3076941202616352
+    },
+    {
+      "query_id": "absent_builtin_rate_limiting",
+      "kind": "absent",
+      "retrieval": "dense",
+      "k": 0,
+      "query_embedding_s": 0.03790679200028535,
+      "retrieval_s": 0.00019200000679120421,
+      "h2o_s": 0,
+      "ranking_and_client_overhead_s": 1.4667006325908005e-05,
+      "elapsed_s": 0.03811416699318215,
+      "candidate_ids": [
+        "src/flask/wrappers.py:Request.max_form_parts:119-140",
+        "src/flask/wrappers.py:Request.max_form_memory_size:92-113",
+        "src/flask/wrappers.py:Request.max_content_length:59-86",
+        "src/flask/sansio/blueprints.py:Blueprint.after_app_request:623-631",
+        "src/flask/wrappers.py:Request.max_form_parts:142-144",
+        "src/flask/wrappers.py:Request.max_form_memory_size:115-117",
+        "src/flask/sansio/blueprints.py:Blueprint.teardown_app_request:633-641",
+        "src/flask/app.py:Flask.do_teardown_request:1420-1451",
+        "src/flask/ctx.py:after_this_request:118-148",
+        "src/flask/sansio/blueprints.py:Blueprint.before_app_request:613-621"
+      ],
+      "returned_ids": [
+        "src/flask/wrappers.py:Request.max_form_parts:119-140",
+        "src/flask/wrappers.py:Request.max_form_memory_size:92-113",
+        "src/flask/wrappers.py:Request.max_content_length:59-86",
+        "src/flask/sansio/blueprints.py:Blueprint.after_app_request:623-631",
+        "src/flask/sansio/blueprints.py:Blueprint.teardown_app_request:633-641"
+      ],
+      "rank": null,
+      "candidate_has_gold": false,
+      "max_h2o_score": null
+    },
+    {
+      "query_id": "absent_builtin_rate_limiting",
+      "kind": "absent",
+      "retrieval": "hybrid",
+      "k": 0,
+      "query_embedding_s": 0.02878187499300111,
+      "retrieval_s": 0.0006235000037122518,
+      "h2o_s": 0,
+      "ranking_and_client_overhead_s": 2.2917010937817395e-05,
+      "elapsed_s": 0.029429290996631607,
+      "candidate_ids": [
+        "src/flask/wrappers.py:Request.max_form_parts:119-140",
+        "src/flask/wrappers.py:Request.max_content_length:59-86",
+        "src/flask/wrappers.py:Request.max_form_memory_size:92-113",
+        "src/flask/app.py:Flask.do_teardown_request:1420-1451",
+        "src/flask/sansio/scaffold.py:Scaffold.teardown_request:515-547",
+        "src/flask/sansio/scaffold.py:Scaffold.after_request:494-513",
+        "src/flask/ctx.py:after_this_request:118-148",
+        "src/flask/sansio/blueprints.py:Blueprint.after_app_request:623-631",
+        "src/flask/app.py:Flask.create_url_adapter:507-558",
+        "src/flask/testing.py:FlaskClient.session_transaction:135-183"
+      ],
+      "returned_ids": [
+        "src/flask/wrappers.py:Request.max_form_parts:119-140",
+        "src/flask/wrappers.py:Request.max_content_length:59-86",
+        "src/flask/wrappers.py:Request.max_form_memory_size:92-113",
+        "src/flask/app.py:Flask.do_teardown_request:1420-1451",
+        "src/flask/sansio/scaffold.py:Scaffold.teardown_request:515-547"
+      ],
+      "rank": null,
+      "candidate_has_gold": false,
+      "max_h2o_score": null
+    },
+    {
+      "query_id": "absent_builtin_rate_limiting",
+      "kind": "absent",
+      "retrieval": "dense",
+      "k": 1,
+      "query_embedding_s": 0.028892207992612384,
+      "retrieval_s": 0.00019929099653381854,
+      "h2o_s": 1.4736827919987263,
+      "ranking_and_client_overhead_s": 7.083300442900509e-05,
+      "elapsed_s": 1.5028457080043154,
+      "candidate_ids": [
+        "src/flask/wrappers.py:Request.max_form_parts:119-140"
+      ],
+      "returned_ids": [
+        "src/flask/wrappers.py:Request.max_form_parts:119-140"
+      ],
+      "rank": null,
+      "candidate_has_gold": false,
+      "max_h2o_score": 0.3076941202616352
+    },
+    {
+      "query_id": "absent_builtin_rate_limiting",
+      "kind": "absent",
+      "retrieval": "hybrid",
+      "k": 1,
+      "query_embedding_s": 0.042545208998490125,
+      "retrieval_s": 0.00047199999971780926,
+      "h2o_s": 1.4397063340002205,
+      "ranking_and_client_overhead_s": 5.7416007621213794e-05,
+      "elapsed_s": 1.4827814999880502,
+      "candidate_ids": [
+        "src/flask/wrappers.py:Request.max_form_parts:119-140"
+      ],
+      "returned_ids": [
+        "src/flask/wrappers.py:Request.max_form_parts:119-140"
+      ],
+      "rank": null,
+      "candidate_has_gold": false,
+      "max_h2o_score": 0.3076941202616352
+    },
+    {
+      "query_id": "absent_builtin_rate_limiting",
+      "kind": "absent",
+      "retrieval": "hybrid",
+      "k": 3,
+      "query_embedding_s": 0.034488332996261306,
+      "retrieval_s": 0.00040316599188372493,
+      "h2o_s": 4.602069832981215,
+      "ranking_and_client_overhead_s": 0.0001814170100260526,
+      "elapsed_s": 4.637142999999924,
+      "candidate_ids": [
+        "src/flask/wrappers.py:Request.max_form_parts:119-140",
+        "src/flask/wrappers.py:Request.max_content_length:59-86",
+        "src/flask/wrappers.py:Request.max_form_memory_size:92-113"
+      ],
+      "returned_ids": [
+        "src/flask/wrappers.py:Request.max_form_parts:119-140",
+        "src/flask/wrappers.py:Request.max_content_length:59-86",
+        "src/flask/wrappers.py:Request.max_form_memory_size:92-113"
+      ],
+      "rank": null,
+      "candidate_has_gold": false,
+      "max_h2o_score": 0.3076941202616352
+    }
+  ],
+  "memory_footprint": {
+    "tool": "macOS vmmap -summary",
+    "processes": {
+      "embedding_worker": {
+        "current": "15.4G",
+        "peak": "15.5G"
+      },
+      "h2o_facade": {
+        "current": "6.2G",
+        "peak": "7.4G"
+      },
+      "h2o_shim": {
+        "current": "17.6M",
+        "peak": "17.7M"
+      }
+    },
+    "note": "Includes Metal. Individual rounded peaks since process launch are not a simultaneous combined peak."
+  }
+}

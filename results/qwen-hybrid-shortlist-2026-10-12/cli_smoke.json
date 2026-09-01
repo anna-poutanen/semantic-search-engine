@@ -1,0 +1,38 @@
+{
+  "note": "CLI main calls in one Python process; weights reload between calls, but Python startup and repeated library imports are excluded. These are routing smoke tests, not cold-start benchmarks.",
+  "checks": [
+    {
+      "mode": "dense4",
+      "query_id": "request_dispatch_pipeline",
+      "headers": [
+        "src/flask/app.py:992-1019 Flask.full_dispatch_request relevance=2.918/3",
+        "src/flask/ctx.py:405-414 AppContext.match_request relevance=1.968/3",
+        "src/flask/app.py:1021-1051 Flask.finalize_request relevance=1.893/3",
+        "src/flask/app.py:830-863 Flask.handle_http_exception relevance=1.860/3"
+      ],
+      "elapsed_cli_main_call_s": 7.229170250007883
+    },
+    {
+      "mode": "hybrid3",
+      "query_id": "template_loader_fallback",
+      "headers": [
+        "src/flask/templating.py:88-96 DispatchingJinjaLoader._get_source_fast relevance=2.908/3",
+        "src/flask/templating.py:64-86 DispatchingJinjaLoader._get_source_explained relevance=2.852/3",
+        "src/flask/debughelpers.py:124-179 explain_template_loading_attempts relevance=1.751/3"
+      ],
+      "elapsed_cli_main_call_s": 5.061278249995667
+    },
+    {
+      "mode": "dense_only",
+      "query_id": "request_dispatch_pipeline",
+      "headers": [
+        "src/flask/app.py:1021-1051 Flask.finalize_request",
+        "src/flask/app.py:992-1019 Flask.full_dispatch_request",
+        "src/flask/app.py:830-863 Flask.handle_http_exception",
+        "src/flask/ctx.py:405-414 AppContext.match_request",
+        "src/flask/app.py:560-586 Flask.raise_routing_exception"
+      ],
+      "elapsed_cli_main_call_s": 0.5486609159997897
+    }
+  ]
+}
