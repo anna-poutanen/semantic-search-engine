@@ -226,16 +226,19 @@ def memory_footprints(pids):
 
 
 def fresh_latency_sweep(dataset, prepared, quality_by_method, embedder, dense, hybrid,
-                        output_dir, url, index_info):
+                        output_dir, url, index_info, conditions=None):
     """Fresh query embedding and scoring for every condition; no judgment cache."""
     runtime_state, provenance = runtime_provenance(url)
     client = H2OClient(url)
-    conditions = [("dense", 0), ("hybrid", 0), ("dense", 1), ("hybrid", 1)]
-    for name in ("hybrid", "dense"):
-        size = quality_by_method[name]["selected_k"]
-        conditions += [(name, size)]
-        if size > 1:
-            conditions += [(name, size - 1)]
+    if conditions is None:
+        conditions = [("dense", 0), ("hybrid", 0), ("dense", 1), ("hybrid", 1)]
+        for name in ("hybrid", "dense"):
+            size = quality_by_method[name]["selected_k"]
+            conditions += [(name, size)]
+            if size > 1:
+                conditions += [(name, size - 1)]
+    if not conditions or any(name not in {"dense", "hybrid"} or size < 0 for name, size in conditions):
+        raise ValueError("Latency conditions require dense/hybrid retrieval and nonnegative K")
     conditions = list(dict.fromkeys(conditions))
     warm_query = dataset["queries"][0]["query"]
     warm_vector = embedder.embed_query(warm_query)

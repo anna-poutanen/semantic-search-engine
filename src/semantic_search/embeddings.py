@@ -152,6 +152,10 @@ class QwenEmbedder:
             if vectors.shape != (len(indices), DIMENSIONS):
                 raise ValueError(f"Unexpected Qwen embedding shape: {vectors.shape}")
             output[indices] = vectors
+            # Token-length batches otherwise accumulate unused Metal allocations
+            # across many shapes. Keep weights resident, release batch buffers.
+            if len(texts) > 1 and self._mx is not None:
+                self._mx.clear_cache()
             completed = start + len(indices)
             if (self.progress and len(texts) > 1
                     and (completed - reported >= 32 or completed == len(texts))):
@@ -160,7 +164,11 @@ class QwenEmbedder:
         return output
 
     def embed_documents(self, texts: list[str]) -> np.ndarray:
-        return self._embed_texts(texts)
+        try:
+            return self._embed_texts(texts)
+        finally:
+            if self._mx is not None:
+                self._mx.clear_cache()
 
     def embed_query(self, query: str) -> np.ndarray:
         if not isinstance(query, str) or not query.strip():
