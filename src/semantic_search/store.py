@@ -14,8 +14,41 @@ from pathlib import Path
 import numpy as np
 
 from semantic_search.index import document_text
+from semantic_search.corpus import Snippet
+from semantic_search.retrieval import tokenize
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
+SQLITE_VEC_VERSION = "0.1.9"
+SNIPPET_COLUMNS = "id,path,symbol,start_line,end_line,text,content_hash"
+
+
+def _limit(limit):
+    if type(limit) is not int or limit < 0:
+        raise ValueError("limit must be a nonnegative integer")
+
+
+def _float32_vectors(matrix):
+    """Normalize before conversion so finite extreme values remain representable."""
+    if not len(matrix):
+        return np.empty(matrix.shape, dtype="<f4")
+    scaled = matrix / np.max(np.abs(matrix), axis=1, keepdims=True)
+    return (scaled / np.linalg.norm(scaled, axis=1, keepdims=True)).astype("<f4")
+
+
+def _source_rows(snippets, hashes, fingerprint):
+    return [(snippet.id, position, snippet.path, snippet.symbol,
+             snippet.start_line, snippet.end_line, snippet.text, snippet.content_hash,
+             hashes[position], fingerprint)
+            for position, snippet in enumerate(snippets)]
+
+
+def _documents(snippets):
+    snippets = list(snippets)
+    if len({snippet.id for snippet in snippets}) != len(snippets):
+        raise ValueError("Snippet IDs must be unique")
+    documents = [document_text(snippet) for snippet in snippets]
+    hashes = [hashlib.sha256(document.encode()).hexdigest() for document in documents]
+    return snippets, documents, hashes
 
 
 def _matrix(vectors, rows, dimensions=None):
@@ -47,17 +80,22 @@ class SQLiteIndex:
         self._refresh_lock = threading.Lock()
         with closing(self._connect()) as connection, connection:
             version = connection.execute("PRAGMA user_version").fetchone()[0]
-            if version not in (0, SCHEMA_VERSION):
+            if version not in (0, 1, SCHEMA_VERSION):
                 raise ValueError(f"Unsupported SQLite index schema: {version}")
             connection.execute("PRAGMA journal_mode=WAL")
-            connection.executescript("""
+            connection.execute("BEGIN IMMEDIATE")
+            connection.execute("""
                 CREATE TABLE IF NOT EXISTS embeddings (
                     model_fingerprint TEXT NOT NULL,
                     document_hash TEXT NOT NULL,
                     dimensions INTEGER NOT NULL,
                     vector BLOB NOT NULL,
                     PRIMARY KEY (model_fingerprint, document_hash)
-                );
+                )
+            """)
+            if version == 1:
+                connection.execute("ALTER TABLE snippets RENAME TO snippets_v1")
+            connection.execute("""
                 CREATE TABLE IF NOT EXISTS snippets (
                     id TEXT PRIMARY KEY,
                     position INTEGER NOT NULL UNIQUE,
@@ -68,15 +106,46 @@ class SQLiteIndex:
                     text TEXT NOT NULL,
                     content_hash TEXT NOT NULL,
                     document_hash TEXT NOT NULL,
-                    model_fingerprint TEXT NOT NULL,
+                    model_fingerprint TEXT,
                     FOREIGN KEY (model_fingerprint, document_hash)
                         REFERENCES embeddings (model_fingerprint, document_hash)
-                );
+                )
+            """)
+            connection.execute("""
                 CREATE TABLE IF NOT EXISTS metadata (
                     key TEXT PRIMARY KEY,
                     value TEXT NOT NULL
-                );
+                )
             """)
+            connection.execute("""
+                CREATE VIRTUAL TABLE IF NOT EXISTS snippets_fts USING fts5(
+                    id UNINDEXED, terms, tokenize='ascii'
+                )
+            """)
+            connection.execute("""
+                CREATE TABLE IF NOT EXISTS active_vectors (
+                    snippet_id TEXT PRIMARY KEY REFERENCES snippets(id) ON DELETE CASCADE,
+                    model_fingerprint TEXT NOT NULL,
+                    dimensions INTEGER NOT NULL,
+                    vector BLOB NOT NULL
+                )
+            """)
+            if version == 1:
+                connection.execute("INSERT INTO snippets SELECT * FROM snippets_v1")
+                connection.execute("DROP TABLE snippets_v1")
+                items = [Snippet(*row) for row in connection.execute(
+                    f"SELECT {SNIPPET_COLUMNS} FROM snippets ORDER BY position")]
+                self._write_fts(connection, items)
+                for identifier, fingerprint, dimensions, blob in connection.execute(
+                        "SELECT s.id,e.model_fingerprint,e.dimensions,e.vector FROM snippets s "
+                        "JOIN embeddings e USING (model_fingerprint,document_hash)").fetchall():
+                    try:
+                        matrix = _matrix(np.frombuffer(blob, dtype="<f8").reshape(1, dimensions), 1)
+                    except (TypeError, ValueError) as error:
+                        raise ValueError("Stored embedding vector is invalid") from error
+                    connection.execute("INSERT INTO active_vectors VALUES (?,?,?,?)",
+                                       (identifier, fingerprint, dimensions,
+                                        _float32_vectors(matrix)[0].tobytes()))
             connection.execute(f"PRAGMA user_version={SCHEMA_VERSION}")
 
     def _connect(self):
@@ -84,12 +153,125 @@ class SQLiteIndex:
         connection.execute("PRAGMA foreign_keys=ON")
         return connection
 
+    @staticmethod
+    def _write_fts(connection, snippets):
+        connection.execute("DELETE FROM snippets_fts")
+        connection.executemany("INSERT INTO snippets_fts(id,terms) VALUES (?,?)", [
+            (snippet.id, " ".join(tokenize(f"{snippet.path} {snippet.symbol}\n{snippet.text}")))
+            for snippet in snippets])
+
+    @staticmethod
+    def _load_vec(connection):
+        # The package supplies the fixed bundled extension; no caller-controlled path.
+        try:
+            import sqlite_vec
+        except ImportError as error:
+            raise RuntimeError(f"Dense SQLite search requires sqlite-vec=={SQLITE_VEC_VERSION}") from error
+        try:
+            connection.enable_load_extension(True)
+            try:
+                sqlite_vec.load(connection)
+            finally:
+                connection.enable_load_extension(False)
+        except (AttributeError, sqlite3.Error) as error:
+            raise RuntimeError("This Python SQLite build cannot load sqlite-vec") from error
+        version = connection.execute("SELECT vec_version()").fetchone()[0]
+        if version != f"v{SQLITE_VEC_VERSION}":
+            raise RuntimeError(f"Expected sqlite-vec {SQLITE_VEC_VERSION}, found {version}")
+
+    @property
+    def snippets(self):
+        with closing(self._connect()) as connection, connection:
+            connection.execute("BEGIN")
+            return [Snippet(*row) for row in connection.execute(
+                f"SELECT {SNIPPET_COLUMNS} FROM snippets ORDER BY position")]
+
+    def search_lexical(self, query, limit=10):
+        """FTS5 BM25 over the same identifier tokens as the original lexical index.
+
+        Query terms are literal OR matches, never caller-provided FTS syntax.
+        FTS5's BM25 constants differ from the experiment's Python baseline.
+        """
+        _limit(limit)
+        if not isinstance(query, str):
+            raise ValueError("query must be a string")
+        terms = list(dict.fromkeys(tokenize(query)))
+        if not terms or limit == 0:
+            return []
+        match = " OR ".join(f'"{term}"' for term in terms)
+        with closing(self._connect()) as connection, connection:
+            connection.execute("BEGIN")
+            rows = connection.execute(
+                "SELECT s.id,s.path,s.symbol,s.start_line,s.end_line,s.text,s.content_hash,"
+                "bm25(snippets_fts) AS distance FROM snippets_fts "
+                "JOIN snippets s ON s.id=snippets_fts.id WHERE snippets_fts MATCH ? "
+                "ORDER BY distance,s.id LIMIT ?", (match, limit)).fetchall()
+        return [(Snippet(*row[:7]), -float(row[7])) for row in rows]
+
+    def search_dense(self, query_vector, limit=10):
+        """Exact float32 cosine scan in SQLite; stable IDs resolve distance ties."""
+        _limit(limit)
+        if limit == 0:
+            return []
+        with closing(self._connect()) as connection, connection:
+            connection.execute("BEGIN")
+            row = connection.execute("SELECT value FROM metadata WHERE key='active'").fetchone()
+            active = json.loads(row[0]) if row else {}
+            dimensions = active.get("dimensions")
+            if dimensions is None:
+                return []
+            try:
+                query = np.asarray(query_vector)
+                if query.ndim != 1:
+                    raise ValueError("Query vector must be one-dimensional")
+                query = _matrix(query.reshape(1, -1), 1, dimensions)
+            except (TypeError, ValueError, OverflowError) as error:
+                raise ValueError(f"Query vector must be finite, nonzero and have shape ({dimensions},)") from error
+            self._load_vec(connection)
+            rows = connection.execute(
+                "SELECT s.id,s.path,s.symbol,s.start_line,s.end_line,s.text,s.content_hash,"
+                "vec_distance_cosine(v.vector, ?) AS distance FROM active_vectors v "
+                "JOIN snippets s ON s.id=v.snippet_id AND s.model_fingerprint=v.model_fingerprint "
+                "WHERE v.model_fingerprint=? AND v.dimensions=? "
+                "ORDER BY distance,s.id LIMIT ?",
+                (_float32_vectors(query)[0].tobytes(), active.get("model_fingerprint"),
+                 dimensions, limit)).fetchall()
+        if any(row[7] is None or not np.isfinite(row[7]) for row in rows):
+            raise ValueError("Stored SQLite cosine result is not finite")
+        return [(Snippet(*row[:7]), 1.0 - float(row[7])) for row in rows]
+
+    def refresh_lexical(self, snippets, *, before_commit=None):
+        """Atomically promote saved source/FTS without embedding inference.
+
+        The active dense snapshot is cleared; the document/model vector cache
+        remains available for the next dense refresh or a return to an old branch.
+        """
+        started = time.perf_counter()
+        snippets, _, hashes = _documents(snippets)
+        with self._refresh_lock, closing(self._connect()) as connection, connection:
+            connection.execute("BEGIN IMMEDIATE")
+            previous = dict(connection.execute("SELECT id,document_hash FROM snippets"))
+            if before_commit is not None:
+                before_commit()
+            connection.execute("DELETE FROM active_vectors")
+            connection.execute("DELETE FROM snippets")
+            connection.executemany("INSERT INTO snippets VALUES (?,?,?,?,?,?,?,?,?,?)",
+                                   _source_rows(snippets, hashes, None))
+            self._write_fts(connection, snippets)
+            active = {"model_fingerprint": None, "embedding": None, "dimensions": None,
+                      "updated_at": datetime.now(timezone.utc).isoformat()}
+            connection.execute("INSERT OR REPLACE INTO metadata VALUES ('active',?)",
+                               (json.dumps(active, sort_keys=True),))
+        reused = sum(previous.get(snippet.id) == key for snippet, key in zip(snippets, hashes))
+        return {"indexed_windows": len(snippets) - reused, "reused_windows": reused,
+                "deleted_windows": len(previous.keys() - {snippet.id for snippet in snippets}),
+                "total_windows": len(snippets), "elapsed_s": time.perf_counter() - started,
+                "model_fingerprint": None}
+
     def refresh(self, snippets, embedder, *, before_commit=None):
         """Return vectors in input order; replace the snapshot after validation only."""
         started = time.perf_counter()
-        snippets = list(snippets)
-        if len({snippet.id for snippet in snippets}) != len(snippets):
-            raise ValueError("Snippet IDs must be unique")
+        snippets, documents, hashes = _documents(snippets)
         try:
             metadata_json = json.dumps(embedder.metadata, sort_keys=True,
                                        separators=(",", ":"), allow_nan=False)
@@ -103,8 +285,6 @@ class SQLiteIndex:
         if dimensions is not None and (not isinstance(dimensions, int)
                                        or isinstance(dimensions, bool) or dimensions < 1):
             raise ValueError("Embedding dimensions must be a positive integer")
-        documents = [document_text(snippet) for snippet in snippets]
-        hashes = [hashlib.sha256(document.encode()).hexdigest() for document in documents]
         unique_documents = dict(zip(hashes, documents))
 
         with self._refresh_lock:
@@ -155,14 +335,17 @@ class SQLiteIndex:
                         (fingerprint, document_hash, dimensions,
                          sqlite3.Binary(vector.astype("<f8", copy=False).tobytes())),
                     )
+                connection.execute("DELETE FROM active_vectors")
                 connection.execute("DELETE FROM snippets")
                 connection.executemany(
                     "INSERT INTO snippets VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                    [(snippet.id, position, snippet.path, snippet.symbol,
-                      snippet.start_line, snippet.end_line, snippet.text, snippet.content_hash,
-                      hashes[position], fingerprint)
-                     for position, snippet in enumerate(snippets)],
+                    _source_rows(snippets, hashes, fingerprint),
                 )
+                self._write_fts(connection, snippets)
+                normalized = _float32_vectors(matrix)
+                connection.executemany("INSERT INTO active_vectors VALUES (?,?,?,?)", [
+                    (snippet.id, fingerprint, dimensions, normalized[position].tobytes())
+                    for position, snippet in enumerate(snippets)])
                 connection.execute("INSERT OR REPLACE INTO metadata VALUES ('active', ?)",
                                    (json.dumps(active, sort_keys=True),))
             reused = sum(key in cached for key in hashes)
@@ -176,10 +359,13 @@ class SQLiteIndex:
             connection.execute("BEGIN")
             row = connection.execute("SELECT value FROM metadata WHERE key='active'").fetchone()
             total = connection.execute("SELECT COUNT(*) FROM snippets").fetchone()[0]
+            dense_windows = connection.execute("SELECT COUNT(*) FROM active_vectors").fetchone()[0]
         active = json.loads(row[0]) if row else {
             "model_fingerprint": None, "embedding": None, "dimensions": None, "updated_at": None}
         return {"db_path": str(self.db_path), "schema_version": SCHEMA_VERSION,
-                "total_windows": total, **active}
+                "total_windows": total, "dense_windows": dense_windows,
+                "lexical_backend": "sqlite_fts5", "dense_backend": "sqlite_vec_cosine_exact",
+                "sqlite_vec_version": SQLITE_VEC_VERSION, **active}
 
     def close(self):
         """Connections are already closed at the end of each operation."""

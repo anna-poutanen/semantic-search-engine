@@ -1,0 +1,431 @@
+{
+  "repo_url": "https://github.com/Textualize/rich",
+  "revision": "43d3b04725ab9731727fb1126e35980c62f32377",
+  "release": "13.9.4",
+  "source_root": "rich",
+  "benchmark_role": "repository_holdout",
+  "split_policy": "All24queries are reserved as a repository-level holdout. No Rich labels, retrieval outputs, or scores may choose prompts, ranking settings, budgets, or abstention thresholds before the first frozen evaluation.",
+  "target_groups_semantics": "OR within each group, AND across all groups; targets retains legacy OR semantics.",
+  "queries": [
+    {
+      "id": "rich_display_cell_tabs",
+      "query": "Where are tabs expanded to the next display-cell stop separately on each line while carrying text styles into the inserted spaces?",
+      "targets": [
+        {
+          "path": "rich/text.py",
+          "symbol": "Text.expand_tabs",
+          "evidence_lines": [
+            835,
+            858
+          ]
+        }
+      ],
+      "notes": "cell_position resets for each line; parts advance by cell_len and extend_style fills each tab stop before styled parts are rejoined. Reviewed tests/test_text.py::test_tabs_to_spaces.",
+      "kind": "present",
+      "split": "repository_holdout"
+    },
+    {
+      "id": "rich_ellipsis_and_padding",
+      "query": "Where is text shortened by terminal-cell width, reserving one cell for an ellipsis when requested and optionally padding text that is shorter than the target width?",
+      "targets": [
+        {
+          "path": "rich/text.py",
+          "symbol": "Text.truncate",
+          "evidence_lines": [
+            874,
+            885
+          ]
+        }
+      ],
+      "notes": "The overflow branch chooses set_cell_size(max_width-1)+ellipsis or plain cropping; pad adds exactly the missing cells. Reviewed tests/test_text.py::test_truncate_ellipsis and test_truncate_ellipsis_pad.",
+      "kind": "present",
+      "split": "repository_holdout"
+    },
+    {
+      "id": "rich_split_style_offsets",
+      "query": "When styled text is cut at supplied offsets, where are spanning styles clipped to each resulting line and shifted to offsets relative to that line?",
+      "targets": [
+        {
+          "path": "rich/text.py",
+          "symbol": "Text.divide",
+          "evidence_lines": [
+            1146,
+            1184
+          ]
+        }
+      ],
+      "notes": "Binary searches locate affected line ranges, then max/min clipping generates line-relative Span objects. Reviewed tests/test_text.py::test_divide, including a bold span split across three pieces.",
+      "kind": "present",
+      "split": "repository_holdout"
+    },
+    {
+      "id": "rich_wide_character_fit",
+      "query": "Where is a string padded or cut to an exact terminal-cell width, replacing a double-width character with a space when it straddles the right boundary?",
+      "targets": [
+        {
+          "path": "rich/cells.py",
+          "symbol": "set_cell_size",
+          "evidence_lines": [
+            99,
+            128
+          ]
+        }
+      ],
+      "notes": "For nonnegative requested widths, the function pads short strings and binary-searches longer ones, handling a two-cell boundary with a single space. Reviewed tests/test_cells.py::test_set_cell_size.",
+      "kind": "present",
+      "split": "repository_holdout"
+    },
+    {
+      "id": "rich_wide_segment_split",
+      "query": "Where is a styled output segment split at a display-cell position, preserving styles and replacing the two halves of a cut double-width character with spaces?",
+      "targets": [
+        {
+          "path": "rich/segment.py",
+          "symbol": "Segment._split_cells",
+          "evidence_lines": [
+            124,
+            156
+          ]
+        }
+      ],
+      "notes": "The helper adjusts a tentative character offset until it reaches the desired cell position and handles both sides of a two-cell split. Reviewed tests/test_segment.py::test_split_cells_doubles.",
+      "kind": "present",
+      "split": "repository_holdout"
+    },
+    {
+      "id": "rich_remove_output_links",
+      "query": "Where are hyperlinks removed from a stream of styled output segments while leaving control segments and other style attributes intact?",
+      "targets": [
+        {
+          "path": "rich/segment.py",
+          "symbol": "Segment.strip_links",
+          "evidence_lines": [
+            559,
+            564
+          ]
+        }
+      ],
+      "notes": "Control/unstyled segments are yielded unchanged; other segments receive a style updated with link=None. Reviewed tests/test_segment.py::test_strip_links.",
+      "kind": "present",
+      "split": "repository_holdout"
+    },
+    {
+      "id": "rich_recorded_plain_text",
+      "query": "Where is recorded console output exported as plain text without control segments, or with ANSI styles when requested, and optionally removed from the recording buffer afterward?",
+      "targets": [
+        {
+          "path": "rich/console.py",
+          "symbol": "Console.export_text",
+          "evidence_lines": [
+            2170,
+            2184
+          ]
+        }
+      ],
+      "notes": "The record-buffer lock covers styled/plain assembly and optional deletion. Reviewed tests/test_console.py::test_export_text.",
+      "kind": "present",
+      "split": "repository_holdout"
+    },
+    {
+      "id": "rich_html_style_deduplication",
+      "query": "Where does recorded terminal output become escaped HTML with reusable CSS classes for repeated styles and anchor elements for hyperlinks?",
+      "targets": [
+        {
+          "path": "rich/console.py",
+          "symbol": "Console.export_html",
+          "evidence_lines": [
+            2245,
+            2263
+          ]
+        }
+      ],
+      "notes": "The non-inline branch escapes segment text, numbers distinct CSS rules, emits spans or anchors, and creates one stylesheet rule per distinct style. This does not claim that arbitrary href values are sanitized. Reviewed tests/test_console.py::test_export_html.",
+      "kind": "present",
+      "split": "repository_holdout"
+    },
+    {
+      "id": "rich_color_syntax_parsing",
+      "query": "Where are named colors, hexadecimal colors, indexed colors, and RGB triples parsed, rejecting out-of-range indexed values or RGB components?",
+      "targets": [
+        {
+          "path": "rich/color.py",
+          "symbol": "Color.parse",
+          "evidence_lines": [
+            435,
+            482
+          ]
+        }
+      ],
+      "notes": "The parser recognizes ANSI names and RE_COLOR alternatives, builds the corresponding Color type, and rejects values above255. Reviewed tests/test_color.py::test_parse_success.",
+      "kind": "present",
+      "split": "repository_holdout"
+    },
+    {
+      "id": "rich_style_attribute_language",
+      "query": "Where does a textual style description combine foreground and background colors, enabled or negated attributes, and a hyperlink, reporting incomplete or invalid style terms?",
+      "targets": [
+        {
+          "path": "rich/style.py",
+          "symbol": "Style.parse",
+          "evidence_lines": [
+            519,
+            561
+          ]
+        }
+      ],
+      "notes": "The words loop implements on/not/link and attribute tokens, wrapping invalid color parsing as StyleSyntaxError. Reviewed tests/test_style.py::test_parse.",
+      "kind": "present",
+      "split": "repository_holdout"
+    },
+    {
+      "id": "rich_ansi_hyperlink_state",
+      "query": "Where does decoding terminal output attach the current style to plain text and update or clear hyperlink state when an OSC8 sequence is encountered?",
+      "targets": [
+        {
+          "path": "rich/ansi.py",
+          "symbol": "AnsiDecoder.decode_line",
+          "evidence_lines": [
+            152,
+            160
+          ]
+        }
+      ],
+      "notes": "Plain tokens append with self.style; OSC8 partitioning calls update_link(link or None), allowing link reset. This query is deliberately scoped to text/hyperlink handling rather than the separate SGR color branches.",
+      "kind": "present",
+      "split": "repository_holdout"
+    },
+    {
+      "id": "rich_table_width_allocation",
+      "query": "Where are flexible table columns allocated width according to ratios, then overly wide tables reduced and remeasured to fit the available width?",
+      "targets": [
+        {
+          "path": "rich/table.py",
+          "symbol": "Table._calculate_column_widths",
+          "evidence_lines": [
+            535,
+            572
+          ]
+        }
+      ],
+      "notes": "The expand branch distributes flexible widths; overflow invokes collapse, then even reduction if still needed, then measures with the reduced widths. Ratio arithmetic and intrinsic measurement are delegated substeps.",
+      "kind": "present",
+      "split": "repository_holdout"
+    },
+    {
+      "id": "rich_column_first_packing",
+      "query": "Where are renderables arranged down columns before moving to the next column, then packed into a table whose number of columns is reduced until the measured widths fit?",
+      "targets": [
+        {
+          "path": "rich/columns.py",
+          "symbol": "Columns.__rich_console__",
+          "evidence_lines": [
+            86,
+            148
+          ]
+        }
+      ],
+      "notes": "The nested iterator builds a column-first index grid and the outer width loop tests arrangements against max_width. Evidence remains inside the outer function window containing both stages.",
+      "kind": "present",
+      "split": "repository_holdout"
+    },
+    {
+      "id": "rich_tree_guide_transitions",
+      "query": "Where does tree rendering choose a final-branch guide for the last sibling and switch later label lines to either blank indentation or a continuing vertical guide?",
+      "targets": [
+        {
+          "path": "rich/tree.py",
+          "symbol": "Tree.__rich_console__",
+          "evidence_lines": [
+            131,
+            162
+          ]
+        }
+      ],
+      "notes": "The last flag selects END and the first rendered label line changes its suffix to SPACE or CONTINUE for following lines. This asks for guide transitions, not traversal initialization.",
+      "kind": "present",
+      "split": "repository_holdout"
+    },
+    {
+      "id": "rich_manual_progress_iteration",
+      "query": "Where does progress tracking yield the original sequence items and, when automatic refresh is disabled, advance the task and refresh the display after each item?",
+      "targets": [
+        {
+          "path": "rich/progress.py",
+          "symbol": "Progress.track",
+          "evidence_lines": [
+            1228,
+            1234
+          ]
+        }
+      ],
+      "notes": "The explicit no-auto-refresh loop yields first, advances by one after resumption, and refreshes. Threaded auto-refresh machinery is outside the requested branch.",
+      "kind": "present",
+      "split": "repository_holdout"
+    },
+    {
+      "id": "rich_bounded_render_measurement",
+      "query": "Where is a renderable's custom width-measurement hook called and its result normalized and bounded by the available console width, with a fallback range when no hook exists?",
+      "targets": [
+        {
+          "path": "rich/measure.py",
+          "symbol": "Measurement.get",
+          "evidence_lines": [
+            103,
+            117
+          ]
+        }
+      ],
+      "notes": "For a renderable, the custom measurement is normalized, limited with with_maximum, and normalized again; otherwise the range spans zero to max width. Non-renderable rejection occurs later in the same method.",
+      "kind": "present",
+      "split": "repository_holdout"
+    },
+    {
+      "id": "rich_console_markup_error_path",
+      "query": "When markup is enabled for a printed string, where is markup parsing selected and where is an unmatched explicit or implicit closing tag rejected?",
+      "target_groups": [
+        [
+          {
+            "path": "rich/console.py",
+            "symbol": "Console.render_str",
+            "evidence_lines": [
+              1424,
+              1436
+            ]
+          }
+        ],
+        [
+          {
+            "path": "rich/markup.py",
+            "symbol": "render",
+            "evidence_lines": [
+              159,
+              176
+            ]
+          }
+        ]
+      ],
+      "notes": "Both groups are required: console option resolution/markup routing and executable closing-tag stack/error handling. Markup output has not been inspected in a retrieval run.",
+      "kind": "present",
+      "split": "repository_holdout"
+    },
+    {
+      "id": "rich_live_refresh_and_overflow",
+      "query": "Where does refreshing a live display replace its renderable under a lock, and where is output taller than the terminal cropped or given an ellipsis on its last visible line?",
+      "target_groups": [
+        [
+          {
+            "path": "rich/live.py",
+            "symbol": "Live.refresh",
+            "evidence_lines": [
+              222,
+              223
+            ]
+          }
+        ],
+        [
+          {
+            "path": "rich/live_render.py",
+            "symbol": "LiveRender.__rich_console__",
+            "evidence_lines": [
+              90,
+              106
+            ]
+          }
+        ]
+      ],
+      "notes": "The first group installs the next renderable; the second implements the crop/ellipsis policies. Reviewed tests/test_live.py::test_growing_display_overflow_ellipsis and test_growing_display_overflow_crop.",
+      "kind": "present",
+      "split": "repository_holdout"
+    },
+    {
+      "id": "rich_progress_spinner_frames",
+      "query": "Where does a progress column stop animating a finished task, and where is an unfinished spinner's frame selected from elapsed time and animation speed?",
+      "target_groups": [
+        [
+          {
+            "path": "rich/progress.py",
+            "symbol": "SpinnerColumn.render",
+            "evidence_lines": [
+              610,
+              615
+            ]
+          }
+        ],
+        [
+          {
+            "path": "rich/spinner.py",
+            "symbol": "Spinner.render",
+            "evidence_lines": [
+              70,
+              78
+            ]
+          }
+        ]
+      ],
+      "notes": "The progress column chooses finished_text or a time-based spinner; Spinner computes frame index using elapsed time, interval, speed, and modulo. Reviewed tests/test_spinner.py::test_spinner_render.",
+      "kind": "present",
+      "split": "repository_holdout"
+    },
+    {
+      "id": "rich_centered_panel_composition",
+      "query": "When horizontally centered content is composed inside a bordered panel, where are the panel's top and side borders emitted and where are content lines padded on the left and right to center them?",
+      "target_groups": [
+        [
+          {
+            "path": "rich/panel.py",
+            "symbol": "Panel.__rich_console__",
+            "evidence_lines": [
+              232,
+              254
+            ]
+          }
+        ],
+        [
+          {
+            "path": "rich/align.py",
+            "symbol": "Align.__rich_console__.generate_segments",
+            "evidence_lines": [
+              169,
+              182
+            ]
+          }
+        ]
+      ],
+      "notes": "Both border rendering and inner alignment are required. The caller composes Panel with an Align-center renderable; Panel does not automatically center arbitrary content. The nested generate_segments definition is the direct centering implementation.",
+      "kind": "present",
+      "split": "repository_holdout"
+    },
+    {
+      "id": "rich_pdf_export",
+      "query": "Where does recorded console output get written directly as a PDF document, with pagination and embedded fonts?",
+      "targets": [],
+      "notes": "Rich exports text/HTML/SVG, but rich contains no direct PDF renderer, pagination engine, or font embedding implementation. External conversion tools are excluded.",
+      "kind": "absent",
+      "split": "repository_holdout"
+    },
+    {
+      "id": "rich_mouse_widget_dispatch",
+      "query": "Where does the live terminal dashboard decode mouse coordinates and dispatch click events to interactive widgets?",
+      "targets": [],
+      "notes": "Markup can store handler metadata, but rich does not provide a mouse-input decoder/widget event loop. Textual, terminal drivers, and application-defined event dispatch are outside the rich source-root scope.",
+      "kind": "absent",
+      "split": "repository_holdout"
+    },
+    {
+      "id": "rich_durable_progress_resume",
+      "query": "Where are progress tasks and completed counts persisted in SQLite and restored after a process restart?",
+      "targets": [],
+      "notes": "Progress state is held in memory; rich has no SQLite task persistence/resumption engine. Recording rendered output does not satisfy durable task restoration.",
+      "kind": "absent",
+      "split": "repository_holdout"
+    },
+    {
+      "id": "rich_websocket_dashboard_server",
+      "query": "Where is a network server started that streams live progress updates to browser clients over WebSockets?",
+      "targets": [],
+      "notes": "Rich renders locally and can export HTML, but rich contains no WebSocket server or browser streaming transport. Jupyter display integration and external servers are excluded.",
+      "kind": "absent",
+      "split": "repository_holdout"
+    }
+  ]
+}

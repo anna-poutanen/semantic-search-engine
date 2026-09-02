@@ -1,0 +1,121 @@
+{
+  "manifest_sha256": "51222d58f565e5865c4569bf122aa957b2cb703f4d41ae20f079f4f987a14b11",
+  "frozen_at_utc": "2026-10-13T01:54:42.429431+00:00",
+  "conditions": [
+    {
+      "name": "fts5",
+      "retrieval": "bm25",
+      "max_results": 5,
+      "token_budget": 4096
+    },
+    {
+      "name": "dense",
+      "retrieval": "dense",
+      "max_results": 5,
+      "token_budget": 4096
+    },
+    {
+      "name": "hybrid",
+      "retrieval": "hybrid",
+      "max_results": 5,
+      "token_budget": 4096
+    },
+    {
+      "name": "dense_context",
+      "retrieval": "dense",
+      "max_results": 8,
+      "include_dependencies": true,
+      "token_budget": 4096
+    }
+  ],
+  "candidate_depth": 50,
+  "source_budget_chars": 12000,
+  "unreranked_retrieval_depth": 50,
+  "extraction": {
+    "max_lines": 160,
+    "overlap_lines": 40
+  },
+  "fusion": {
+    "weights": "equal",
+    "rrf_k": 60,
+    "fetch_depth": 50
+  },
+  "dependencies": {
+    "anchors": 5,
+    "max_callees_per_anchor": 2,
+    "depth": 1
+  },
+  "tokenizer": "cl100k_base",
+  "query_cache": false,
+  "embedding": {
+    "id": "Qwen/Qwen3-Embedding-0.6B",
+    "revision": "97b0c614be4d77ee51c0cef4e5f07c00f9eb65b3",
+    "weights_dtype": "bfloat16",
+    "quantized": false,
+    "runtime": "mlx-embeddings",
+    "runtime_version": "0.1.0",
+    "packages": {
+      "mlx-embeddings": "0.1.0",
+      "mlx": "0.32.3",
+      "mlx-metal": "0.32.3",
+      "transformers": "5.19.0",
+      "numpy": "2.5.4"
+    },
+    "dimensions": 1024,
+    "query_instruction": "Given a description of code behavior, retrieve the code implementation that performs it.",
+    "query_prompt": "Instruct: Given a description of code behavior, retrieve the code implementation that performs it.\nQuery:",
+    "document_prompt": null,
+    "pooling": "last non-padding token",
+    "normalization": "L2, float32",
+    "max_tokens": 8192,
+    "truncation": "right",
+    "padding_side": "right",
+    "add_special_tokens": true,
+    "batch_size": 4,
+    "batch_order": "stable ascending token length; restore input order",
+    "checkpoint_validation": "pinned Hub download provenance; original unquantized config"
+  },
+  "document_format": "Path: {path}\nSymbol: {symbol}\nSource:\n{text}",
+  "deduplication": "First ranked window per exact (path, qualified symbol) within the retrieved 50 windows.",
+  "packing": "Ranked source prefixes, complete physical CR/LF lines; exact compact UTF-8 JSON including metadata and token_usage.",
+  "ties": "SQLite distance/FTS score then snippet ID; equal-weight RRF then snippet ID.",
+  "client_timeout_s": 180,
+  "cancellation": "Cooperative between requests, embedding batches, and H2O calls; no single Metal-forward preemption.",
+  "packages": {
+    "sqlite-vec": "0.1.9",
+    "tiktoken": "0.14.0",
+    "mcp": "2.3.0"
+  },
+  "implementation_sha256": {
+    "src/semantic_search/__init__.py": "f914fe9eba74600e07dbd60c41d5278062001a4b1d08bde7efe8931f45321a59",
+    "src/semantic_search/backend.py": "083d26a9b09eba330d73b1197094548d2d45e6c917e5a9b6c7271b9b30209876",
+    "src/semantic_search/cancellation.py": "98421411d994a4e770183273f87f2587fc4673d0501a15361effff3863ead8b2",
+    "src/semantic_search/cli.py": "97c11c24d3122cf535c5a2ee44f28a96d720856335ee22e8d9a1412c6b3d7845",
+    "src/semantic_search/client.py": "6a5158308a7fa341688a417dc09d7e7ede3e86d42c43e97c4ffd933a11865b07",
+    "src/semantic_search/context.py": "08a5c0497e6f713c946b372c5a9b05d77171f886ac2b55ba59ebd234f987d07d",
+    "src/semantic_search/corpus.py": "78d1e4b70254176f6d0057e424a64c3abad46ccbf7ff5c9cea2dabc515f0d65b",
+    "src/semantic_search/embeddings.py": "29b0059ba5061d84254bc077d0c8e5ce112e679f61b122a95337a44435094c9f",
+    "src/semantic_search/experiment.py": "bc071bb658009c2e4d56cb66f171b4169c7345a09c1fa3afad3c3241809a98d1",
+    "src/semantic_search/index.py": "ec5702ae408a6cce30f0e36bd21412dc97c5a61314a6814b81a31287c03f08b5",
+    "src/semantic_search/matching.py": "44bc74f06e729c96234e6b2f2ec5740e16b523ab3fe3a72e403b112780b4c976",
+    "src/semantic_search/mcp_server.py": "40deb754b1674b074be7c7e87ca56398967b9257fb4749f31219d35795fa7450",
+    "src/semantic_search/model.py": "3b07f4539f025b6e305392dafc70f32a8c37290926dd29071fffa16332c66208",
+    "src/semantic_search/persistent_retrieval.py": "4597d1b0de5f977e4fab966500f063ae923b66dde1809a9c88cf1723ae44e6e2",
+    "src/semantic_search/quality.py": "034a60cec77427b5f57104b75eddb872d3c290519ebdc07f2344071062f8da4e",
+    "src/semantic_search/relations.py": "7e3a8e0154f814497c0998405e2b720ca974663c9a3e470bbba5ba3c44b1c65e",
+    "src/semantic_search/retrieval.py": "21bb25d259916ce1d0aa876b2d0cd355fa907a60c019b99de0ccfd90c6a9ab88",
+    "src/semantic_search/server.py": "0d8e41808c35a06f1ec2cdf036f55b136c140c0e674084c10a096911e6bee28c",
+    "src/semantic_search/service_experiment.py": "f6f8fbb7ff526822d817c9c0b98c0aba79ef2d226f3af5924d4e6fa91771dd87",
+    "src/semantic_search/shortlist.py": "a0e606310da7f1b780996bc73ed6a30b4c65871084a7397009cfe9189d16e4a9",
+    "src/semantic_search/source.py": "eb8dc397d95bb82bee8941dc3ff62ad3af911439f63d014af2e4b5a5f06036d4",
+    "src/semantic_search/store.py": "89cb5508cc7116314405ad36b288136186c12a86e97e856c70822dad708129e5",
+    "src/semantic_search/watcher.py": "f46e82641f519d56a53f7b919b898ce9d438a5e9de1990133740c8c3634cdad6"
+  },
+  "abstention": "Fit only declared development calibration rows; retain every calibration positive.",
+  "limits": [
+    "Developer-authored source-reviewed queries; not representative user tasks.",
+    "Repository holdout applies to this evaluation, not model pretraining.",
+    "Token counts describe one compact tool payload, not provider billing.",
+    "Insufficient evidence does not prove behavior absent."
+  ]
+}

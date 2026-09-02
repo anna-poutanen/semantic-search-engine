@@ -54,8 +54,14 @@ class CLITests(unittest.TestCase):
         backend.search.assert_called_once_with("Find the implementation", max_results=1)
         server.server_close.assert_called_once()
         backend.close.assert_called_once()
+        backend.start_watching.assert_called_once_with(poll_interval=1.0)
         self.assertEqual(install.call_args_list[0].args, (cli.signal.SIGTERM, cli.interrupt_service))
         self.assertEqual(install.call_args_list[1].args, (cli.signal.SIGTERM, previous_handler))
+
+    def test_mcp_command_reuses_service_url(self):
+        with patch("semantic_search.mcp_server.run_mcp") as run:
+            self.call("mcp", "--server", "http://127.0.0.1:9123")
+        run.assert_called_once_with("http://127.0.0.1:9123")
 
     def test_server_search_does_not_create_local_backend_and_transmits_budget(self):
         client = Mock()

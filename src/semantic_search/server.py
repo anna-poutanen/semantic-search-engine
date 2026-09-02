@@ -7,6 +7,7 @@ import socket
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 from semantic_search.backend import SourceSnapshotError
+from semantic_search.cancellation import SearchCancelled
 
 MAX_BODY_BYTES = 64 * 1024
 MAX_RESPONSE_BYTES = 1024 * 1024
@@ -137,19 +138,24 @@ class BackendHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         if not self._guard():
             return
-        if self.path not in ("/search", "/index"):
+        if self.path not in ("/search", "/index", "/cancel"):
             self._error(404, "not_found", "Unknown endpoint")
             return
         data = self._body()
         if data is None:
             return
         try:
-            if self.path == "/index":
+            if self.path == "/cancel":
+                if set(data) != {"request_id"}:
+                    raise ValueError("/cancel requires exactly request_id")
+                result = self.server.backend.cancel(data["request_id"])
+            elif self.path == "/index":
                 if data:
                     raise ValueError("/index accepts an empty JSON object")
                 result = {"indexstats": self.server.backend.refresh()}
             else:
-                allowed = {"query", "retrieval", "rerank", "candidates", "max_results", "source_budget"}
+                allowed = {"query", "retrieval", "rerank", "candidates", "max_results", "source_budget",
+                           "token_budget", "include_dependencies", "request_id"}
                 if set(data) - allowed:
                     raise ValueError("Unknown search option")
                 if "query" not in data:
@@ -160,6 +166,8 @@ class BackendHandler(BaseHTTPRequestHandler):
             self._error(400, "invalid_request", str(error))
         except SourceSnapshotError as error:
             self._error(409, "source_snapshot", str(error))
+        except SearchCancelled as error:
+            self._error(409, "request_cancelled", str(error))
         except Exception as error:
             self._error(503, "backend_error", f"Search backend failed: {error}")
 

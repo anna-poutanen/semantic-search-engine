@@ -1,0 +1,1563 @@
+{
+  "kind": "seeded_synthetic_cpu_index_profile",
+  "model_inference": false,
+  "semantic_quality_measurement": false,
+  "config": {
+    "windows": 10000,
+    "dimensions": 1024,
+    "searches": 30,
+    "seed": 20261012,
+    "top_k": 10,
+    "warmups_per_retriever": {
+      "dense": 3,
+      "fts5": 3,
+      "fts5_broad": 0
+    },
+    "fts5_selective_workload": "unique marker literal; one matching row",
+    "fts5_broad_workload": "payload implementation; all windows match",
+    "extraction": {
+      "max_lines": 160,
+      "overlap_lines": 40
+    }
+  },
+  "runtime": {
+    "python": "3.12.15",
+    "platform": "macOS-15.1.1-arm64-arm-64bit",
+    "machine": "arm64",
+    "numpy": "2.5.4",
+    "sqlite": "3.53.1",
+    "sqlite_vec": "0.1.9"
+  },
+  "fixture_source_manifest": "77ef0ab14aca512ef8452de60e4acc773eb5141beef07ec02cbf4e3c85e3014b",
+  "timings": {
+    "fixture_and_vector_preparation_s": 0.2449134999915259,
+    "create_schema_s": 0.003136957995593548,
+    "build_s": 0.5944694169884315,
+    "reopen_s": 0.0006433329981518909,
+    "reuse_refresh_s": 0.3897643749951385,
+    "first_dense_s": 0.01983220799593255,
+    "first_fts5_s": 0.0005873750051250681,
+    "dense": {
+      "count": 30,
+      "median_s": 0.018622749506903347,
+      "p95_s": 0.019633218593662603,
+      "min_s": 0.01828820799710229,
+      "max_s": 0.019769499995163642,
+      "samples_s": [
+        0.018724916997598484,
+        0.018600833995151334,
+        0.018633333005709574,
+        0.01840545900631696,
+        0.018635208005434833,
+        0.018329917002120055,
+        0.01856283299275674,
+        0.01828820799710229,
+        0.01864529099839274,
+        0.018375958999968134,
+        0.018580874995677732,
+        0.018333749991143122,
+        0.01864354099961929,
+        0.01837175000400748,
+        0.018821416000719182,
+        0.01950820798811037,
+        0.019095209005172364,
+        0.01973549999820534,
+        0.019769499995163642,
+        0.01882437498716172,
+        0.01861216600809712,
+        0.01891704100125935,
+        0.019366499996976927,
+        0.018372499995166436,
+        0.018646875003469177,
+        0.018802374994265847,
+        0.01858991700282786,
+        0.01831358300114516,
+        0.018349582998780534,
+        0.018342249997658655
+      ]
+    },
+    "fts5": {
+      "count": 30,
+      "median_s": 0.00047272899973904714,
+      "p95_s": 0.0005957751520327292,
+      "min_s": 0.00042920799751300365,
+      "max_s": 0.0006386250024661422,
+      "samples_s": [
+        0.0005854170012753457,
+        0.0005510830087587237,
+        0.0004639160033548251,
+        0.0004567500000121072,
+        0.0004532919992925599,
+        0.0004423750069690868,
+        0.00042920799751300365,
+        0.0004349999944679439,
+        0.0005004999984521419,
+        0.0006042500026524067,
+        0.0004958330100635067,
+        0.0005147079937160015,
+        0.00047050000284798443,
+        0.0004424579965416342,
+        0.00044662499567493796,
+        0.00048066700401250273,
+        0.0004792079998878762,
+        0.00045325000246521086,
+        0.0006386250024661422,
+        0.0005008330044802278,
+        0.0004664169973693788,
+        0.0004803749907296151,
+        0.0004746670019812882,
+        0.000501832997542806,
+        0.0005042499979026616,
+        0.0004707909974968061,
+        0.0005245409993221983,
+        0.0004360000020824373,
+        0.00046091699914541095,
+        0.000462958007119596
+      ]
+    },
+    "fts5_broad": {
+      "count": 30,
+      "median_s": 0.006393083494913299,
+      "p95_s": 0.006650310602708487,
+      "min_s": 0.006204833000083454,
+      "max_s": 0.006901917004142888,
+      "samples_s": [
+        0.00647604200639762,
+        0.006255499989492819,
+        0.006394750002073124,
+        0.006460832999437116,
+        0.006443374993978068,
+        0.006412625007214956,
+        0.0063862080132821575,
+        0.006397082994226366,
+        0.006406125001376495,
+        0.006204833000083454,
+        0.006407416993170045,
+        0.00642366599640809,
+        0.0062180829991120845,
+        0.006390916998498142,
+        0.006242417002795264,
+        0.006607250004890375,
+        0.0063788330007810146,
+        0.006364957996993326,
+        0.006685542000923306,
+        0.00635583300027065,
+        0.006432624999433756,
+        0.006901917004142888,
+        0.006491874999483116,
+        0.006306958995992318,
+        0.006517957997857593,
+        0.006391416987753473,
+        0.0062839580059517175,
+        0.006390875001670793,
+        0.006273458988289349,
+        0.006357125006616116
+      ]
+    }
+  },
+  "build_stats": {
+    "indexed_windows": 10000,
+    "reused_windows": 0,
+    "deleted_windows": 0,
+    "total_windows": 10000,
+    "elapsed_s": 0.5924511670018546,
+    "model_fingerprint": "948003632bafb43707e405d65070096ce9df872e3d4e200d06a7e063f4f69dc4"
+  },
+  "reuse_stats": {
+    "indexed_windows": 0,
+    "reused_windows": 10000,
+    "deleted_windows": 0,
+    "total_windows": 10000,
+    "elapsed_s": 0.3839752089988906,
+    "model_fingerprint": "948003632bafb43707e405d65070096ce9df872e3d4e200d06a7e063f4f69dc4"
+  },
+  "index_status": {
+    "db_path": "<ignored-profile-output>/index.sqlite3",
+    "schema_version": 2,
+    "total_windows": 10000,
+    "dense_windows": 10000,
+    "lexical_backend": "sqlite_fts5",
+    "dense_backend": "sqlite_vec_cosine_exact",
+    "sqlite_vec_version": "0.1.9",
+    "dimensions": 1024,
+    "embedding": {
+      "dimensions": 1024,
+      "id": "synthetic-gaussian-cpu",
+      "model_inference": false,
+      "normalization": "L2",
+      "revision": "20261012"
+    },
+    "model_fingerprint": "948003632bafb43707e405d65070096ce9df872e3d4e200d06a7e063f4f69dc4",
+    "updated_at": "2026-10-13T01:49:19.286726+00:00"
+  },
+  "database_bytes": {
+    "index.sqlite3": 142258176
+  },
+  "total_database_bytes": 142258176,
+  "verification": {
+    "exact_top_k_matches_numpy": true,
+    "cosine_max_absolute_error": 1.1909764356943242e-06,
+    "all_fts5_unique_literal_hits": true,
+    "all_fts5_common_term_orderings_exact": true,
+    "cached_vectors_exactly_reused": true
+  },
+  "queries": [
+    {
+      "query_number": 0,
+      "anchor_id": "src/module_0154.py:implementation_07746:139-140",
+      "dense_ids": [
+        "src/module_0154.py:implementation_07746:139-140",
+        "src/module_0135.py:implementation_06799:148-149",
+        "src/module_0137.py:implementation_06850:1-2",
+        "src/module_0172.py:implementation_08641:124-125",
+        "src/module_0086.py:implementation_04341:124-125",
+        "src/module_0073.py:implementation_03671:64-65",
+        "src/module_0170.py:implementation_08510:31-32",
+        "src/module_0188.py:implementation_09419:58-59",
+        "src/module_0060.py:implementation_03022:67-68",
+        "src/module_0056.py:implementation_02849:148-149"
+      ],
+      "expected_numpy_ids": [
+        "src/module_0154.py:implementation_07746:139-140",
+        "src/module_0135.py:implementation_06799:148-149",
+        "src/module_0137.py:implementation_06850:1-2",
+        "src/module_0172.py:implementation_08641:124-125",
+        "src/module_0086.py:implementation_04341:124-125",
+        "src/module_0073.py:implementation_03671:64-65",
+        "src/module_0170.py:implementation_08510:31-32",
+        "src/module_0188.py:implementation_09419:58-59",
+        "src/module_0060.py:implementation_03022:67-68",
+        "src/module_0056.py:implementation_02849:148-149"
+      ],
+      "dense_max_cosine_error": 3.1593575755550773e-07,
+      "lexical_query": "marker07746",
+      "lexical_ids": [
+        "src/module_0154.py:implementation_07746:139-140"
+      ],
+      "broad_lexical_ids": [
+        "src/module_0000.py:implementation_00000:1-2",
+        "src/module_0000.py:implementation_00001:4-5",
+        "src/module_0000.py:implementation_00002:7-8",
+        "src/module_0000.py:implementation_00003:10-11",
+        "src/module_0000.py:implementation_00004:13-14",
+        "src/module_0000.py:implementation_00005:16-17",
+        "src/module_0000.py:implementation_00006:19-20",
+        "src/module_0000.py:implementation_00007:22-23",
+        "src/module_0000.py:implementation_00008:25-26",
+        "src/module_0000.py:implementation_00009:28-29"
+      ]
+    },
+    {
+      "query_number": 1,
+      "anchor_id": "src/module_0123.py:implementation_06196:139-140",
+      "dense_ids": [
+        "src/module_0123.py:implementation_06196:139-140",
+        "src/module_0080.py:implementation_04016:49-50",
+        "src/module_0105.py:implementation_05293:130-131",
+        "src/module_0084.py:implementation_04224:73-74",
+        "src/module_0082.py:implementation_04141:124-125",
+        "src/module_0075.py:implementation_03785:106-107",
+        "src/module_0066.py:implementation_03338:115-116",
+        "src/module_0170.py:implementation_08527:82-83",
+        "src/module_0076.py:implementation_03849:148-149",
+        "src/module_0151.py:implementation_07587:112-113"
+      ],
+      "expected_numpy_ids": [
+        "src/module_0123.py:implementation_06196:139-140",
+        "src/module_0080.py:implementation_04016:49-50",
+        "src/module_0105.py:implementation_05293:130-131",
+        "src/module_0084.py:implementation_04224:73-74",
+        "src/module_0082.py:implementation_04141:124-125",
+        "src/module_0075.py:implementation_03785:106-107",
+        "src/module_0066.py:implementation_03338:115-116",
+        "src/module_0170.py:implementation_08527:82-83",
+        "src/module_0076.py:implementation_03849:148-149",
+        "src/module_0151.py:implementation_07587:112-113"
+      ],
+      "dense_max_cosine_error": 8.913355585560279e-08,
+      "lexical_query": "marker06196",
+      "lexical_ids": [
+        "src/module_0123.py:implementation_06196:139-140"
+      ],
+      "broad_lexical_ids": [
+        "src/module_0000.py:implementation_00000:1-2",
+        "src/module_0000.py:implementation_00001:4-5",
+        "src/module_0000.py:implementation_00002:7-8",
+        "src/module_0000.py:implementation_00003:10-11",
+        "src/module_0000.py:implementation_00004:13-14",
+        "src/module_0000.py:implementation_00005:16-17",
+        "src/module_0000.py:implementation_00006:19-20",
+        "src/module_0000.py:implementation_00007:22-23",
+        "src/module_0000.py:implementation_00008:25-26",
+        "src/module_0000.py:implementation_00009:28-29"
+      ]
+    },
+    {
+      "query_number": 2,
+      "anchor_id": "src/module_0053.py:implementation_02687:112-113",
+      "dense_ids": [
+        "src/module_0053.py:implementation_02687:112-113",
+        "src/module_0055.py:implementation_02751:4-5",
+        "src/module_0180.py:implementation_09016:49-50",
+        "src/module_0089.py:implementation_04476:79-80",
+        "src/module_0043.py:implementation_02151:4-5",
+        "src/module_0157.py:implementation_07870:61-62",
+        "src/module_0016.py:implementation_00824:73-74",
+        "src/module_0175.py:implementation_08792:127-128",
+        "src/module_0132.py:implementation_06649:148-149",
+        "src/module_0123.py:implementation_06154:13-14"
+      ],
+      "expected_numpy_ids": [
+        "src/module_0053.py:implementation_02687:112-113",
+        "src/module_0055.py:implementation_02751:4-5",
+        "src/module_0180.py:implementation_09016:49-50",
+        "src/module_0089.py:implementation_04476:79-80",
+        "src/module_0043.py:implementation_02151:4-5",
+        "src/module_0157.py:implementation_07870:61-62",
+        "src/module_0016.py:implementation_00824:73-74",
+        "src/module_0175.py:implementation_08792:127-128",
+        "src/module_0132.py:implementation_06649:148-149",
+        "src/module_0123.py:implementation_06154:13-14"
+      ],
+      "dense_max_cosine_error": 1.2564181206542457e-07,
+      "lexical_query": "marker02687",
+      "lexical_ids": [
+        "src/module_0053.py:implementation_02687:112-113"
+      ],
+      "broad_lexical_ids": [
+        "src/module_0000.py:implementation_00000:1-2",
+        "src/module_0000.py:implementation_00001:4-5",
+        "src/module_0000.py:implementation_00002:7-8",
+        "src/module_0000.py:implementation_00003:10-11",
+        "src/module_0000.py:implementation_00004:13-14",
+        "src/module_0000.py:implementation_00005:16-17",
+        "src/module_0000.py:implementation_00006:19-20",
+        "src/module_0000.py:implementation_00007:22-23",
+        "src/module_0000.py:implementation_00008:25-26",
+        "src/module_0000.py:implementation_00009:28-29"
+      ]
+    },
+    {
+      "query_number": 3,
+      "anchor_id": "src/module_0028.py:implementation_01441:124-125",
+      "dense_ids": [
+        "src/module_0028.py:implementation_01441:124-125",
+        "src/module_0112.py:implementation_05631:94-95",
+        "src/module_0124.py:implementation_06248:145-146",
+        "src/module_0192.py:implementation_09646:139-140",
+        "src/module_0100.py:implementation_05046:139-140",
+        "src/module_0173.py:implementation_08672:67-68",
+        "src/module_0017.py:implementation_00854:13-14",
+        "src/module_0027.py:implementation_01359:28-29",
+        "src/module_0095.py:implementation_04755:16-17",
+        "src/module_0121.py:implementation_06070:61-62"
+      ],
+      "expected_numpy_ids": [
+        "src/module_0028.py:implementation_01441:124-125",
+        "src/module_0112.py:implementation_05631:94-95",
+        "src/module_0124.py:implementation_06248:145-146",
+        "src/module_0192.py:implementation_09646:139-140",
+        "src/module_0100.py:implementation_05046:139-140",
+        "src/module_0173.py:implementation_08672:67-68",
+        "src/module_0017.py:implementation_00854:13-14",
+        "src/module_0027.py:implementation_01359:28-29",
+        "src/module_0095.py:implementation_04755:16-17",
+        "src/module_0121.py:implementation_06070:61-62"
+      ],
+      "dense_max_cosine_error": 1.296821928731262e-07,
+      "lexical_query": "marker01441",
+      "lexical_ids": [
+        "src/module_0028.py:implementation_01441:124-125"
+      ],
+      "broad_lexical_ids": [
+        "src/module_0000.py:implementation_00000:1-2",
+        "src/module_0000.py:implementation_00001:4-5",
+        "src/module_0000.py:implementation_00002:7-8",
+        "src/module_0000.py:implementation_00003:10-11",
+        "src/module_0000.py:implementation_00004:13-14",
+        "src/module_0000.py:implementation_00005:16-17",
+        "src/module_0000.py:implementation_00006:19-20",
+        "src/module_0000.py:implementation_00007:22-23",
+        "src/module_0000.py:implementation_00008:25-26",
+        "src/module_0000.py:implementation_00009:28-29"
+      ]
+    },
+    {
+      "query_number": 4,
+      "anchor_id": "src/module_0137.py:implementation_06859:28-29",
+      "dense_ids": [
+        "src/module_0137.py:implementation_06859:28-29",
+        "src/module_0053.py:implementation_02696:139-140",
+        "src/module_0175.py:implementation_08761:34-35",
+        "src/module_0114.py:implementation_05718:55-56",
+        "src/module_0006.py:implementation_00332:97-98",
+        "src/module_0003.py:implementation_00158:25-26",
+        "src/module_0130.py:implementation_06501:4-5",
+        "src/module_0128.py:implementation_06412:37-38",
+        "src/module_0002.py:implementation_00142:127-128",
+        "src/module_0154.py:implementation_07725:76-77"
+      ],
+      "expected_numpy_ids": [
+        "src/module_0137.py:implementation_06859:28-29",
+        "src/module_0053.py:implementation_02696:139-140",
+        "src/module_0175.py:implementation_08761:34-35",
+        "src/module_0114.py:implementation_05718:55-56",
+        "src/module_0006.py:implementation_00332:97-98",
+        "src/module_0003.py:implementation_00158:25-26",
+        "src/module_0130.py:implementation_06501:4-5",
+        "src/module_0128.py:implementation_06412:37-38",
+        "src/module_0002.py:implementation_00142:127-128",
+        "src/module_0154.py:implementation_07725:76-77"
+      ],
+      "dense_max_cosine_error": 1.6451799253469623e-07,
+      "lexical_query": "marker06859",
+      "lexical_ids": [
+        "src/module_0137.py:implementation_06859:28-29"
+      ],
+      "broad_lexical_ids": [
+        "src/module_0000.py:implementation_00000:1-2",
+        "src/module_0000.py:implementation_00001:4-5",
+        "src/module_0000.py:implementation_00002:7-8",
+        "src/module_0000.py:implementation_00003:10-11",
+        "src/module_0000.py:implementation_00004:13-14",
+        "src/module_0000.py:implementation_00005:16-17",
+        "src/module_0000.py:implementation_00006:19-20",
+        "src/module_0000.py:implementation_00007:22-23",
+        "src/module_0000.py:implementation_00008:25-26",
+        "src/module_0000.py:implementation_00009:28-29"
+      ]
+    },
+    {
+      "query_number": 5,
+      "anchor_id": "src/module_0194.py:implementation_09703:10-11",
+      "dense_ids": [
+        "src/module_0194.py:implementation_09703:10-11",
+        "src/module_0146.py:implementation_07301:4-5",
+        "src/module_0108.py:implementation_05438:115-116",
+        "src/module_0174.py:implementation_08749:148-149",
+        "src/module_0078.py:implementation_03911:34-35",
+        "src/module_0055.py:implementation_02790:121-122",
+        "src/module_0182.py:implementation_09125:76-77",
+        "src/module_0154.py:implementation_07718:55-56",
+        "src/module_0143.py:implementation_07199:148-149",
+        "src/module_0167.py:implementation_08354:13-14"
+      ],
+      "expected_numpy_ids": [
+        "src/module_0194.py:implementation_09703:10-11",
+        "src/module_0146.py:implementation_07301:4-5",
+        "src/module_0108.py:implementation_05438:115-116",
+        "src/module_0174.py:implementation_08749:148-149",
+        "src/module_0078.py:implementation_03911:34-35",
+        "src/module_0055.py:implementation_02790:121-122",
+        "src/module_0182.py:implementation_09125:76-77",
+        "src/module_0154.py:implementation_07718:55-56",
+        "src/module_0143.py:implementation_07199:148-149",
+        "src/module_0167.py:implementation_08354:13-14"
+      ],
+      "dense_max_cosine_error": 3.9208241786603537e-07,
+      "lexical_query": "marker09703",
+      "lexical_ids": [
+        "src/module_0194.py:implementation_09703:10-11"
+      ],
+      "broad_lexical_ids": [
+        "src/module_0000.py:implementation_00000:1-2",
+        "src/module_0000.py:implementation_00001:4-5",
+        "src/module_0000.py:implementation_00002:7-8",
+        "src/module_0000.py:implementation_00003:10-11",
+        "src/module_0000.py:implementation_00004:13-14",
+        "src/module_0000.py:implementation_00005:16-17",
+        "src/module_0000.py:implementation_00006:19-20",
+        "src/module_0000.py:implementation_00007:22-23",
+        "src/module_0000.py:implementation_00008:25-26",
+        "src/module_0000.py:implementation_00009:28-29"
+      ]
+    },
+    {
+      "query_number": 6,
+      "anchor_id": "src/module_0042.py:implementation_02135:106-107",
+      "dense_ids": [
+        "src/module_0042.py:implementation_02135:106-107",
+        "src/module_0081.py:implementation_04084:103-104",
+        "src/module_0040.py:implementation_02033:100-101",
+        "src/module_0123.py:implementation_06156:19-20",
+        "src/module_0033.py:implementation_01697:142-143",
+        "src/module_0052.py:implementation_02635:106-107",
+        "src/module_0031.py:implementation_01582:97-98",
+        "src/module_0035.py:implementation_01775:76-77",
+        "src/module_0146.py:implementation_07304:13-14",
+        "src/module_0093.py:implementation_04696:139-140"
+      ],
+      "expected_numpy_ids": [
+        "src/module_0042.py:implementation_02135:106-107",
+        "src/module_0081.py:implementation_04084:103-104",
+        "src/module_0040.py:implementation_02033:100-101",
+        "src/module_0123.py:implementation_06156:19-20",
+        "src/module_0033.py:implementation_01697:142-143",
+        "src/module_0052.py:implementation_02635:106-107",
+        "src/module_0031.py:implementation_01582:97-98",
+        "src/module_0035.py:implementation_01775:76-77",
+        "src/module_0146.py:implementation_07304:13-14",
+        "src/module_0093.py:implementation_04696:139-140"
+      ],
+      "dense_max_cosine_error": 1.7070353464099242e-07,
+      "lexical_query": "marker02135",
+      "lexical_ids": [
+        "src/module_0042.py:implementation_02135:106-107"
+      ],
+      "broad_lexical_ids": [
+        "src/module_0000.py:implementation_00000:1-2",
+        "src/module_0000.py:implementation_00001:4-5",
+        "src/module_0000.py:implementation_00002:7-8",
+        "src/module_0000.py:implementation_00003:10-11",
+        "src/module_0000.py:implementation_00004:13-14",
+        "src/module_0000.py:implementation_00005:16-17",
+        "src/module_0000.py:implementation_00006:19-20",
+        "src/module_0000.py:implementation_00007:22-23",
+        "src/module_0000.py:implementation_00008:25-26",
+        "src/module_0000.py:implementation_00009:28-29"
+      ]
+    },
+    {
+      "query_number": 7,
+      "anchor_id": "src/module_0120.py:implementation_06044:133-134",
+      "dense_ids": [
+        "src/module_0120.py:implementation_06044:133-134",
+        "src/module_0094.py:implementation_04709:28-29",
+        "src/module_0066.py:implementation_03326:79-80",
+        "src/module_0118.py:implementation_05906:19-20",
+        "src/module_0148.py:implementation_07449:148-149",
+        "src/module_0110.py:implementation_05548:145-146",
+        "src/module_0110.py:implementation_05507:22-23",
+        "src/module_0002.py:implementation_00143:130-131",
+        "src/module_0134.py:implementation_06747:142-143",
+        "src/module_0073.py:implementation_03676:79-80"
+      ],
+      "expected_numpy_ids": [
+        "src/module_0120.py:implementation_06044:133-134",
+        "src/module_0094.py:implementation_04709:28-29",
+        "src/module_0066.py:implementation_03326:79-80",
+        "src/module_0118.py:implementation_05906:19-20",
+        "src/module_0148.py:implementation_07449:148-149",
+        "src/module_0110.py:implementation_05548:145-146",
+        "src/module_0110.py:implementation_05507:22-23",
+        "src/module_0002.py:implementation_00143:130-131",
+        "src/module_0134.py:implementation_06747:142-143",
+        "src/module_0073.py:implementation_03676:79-80"
+      ],
+      "dense_max_cosine_error": 8.147210539544147e-07,
+      "lexical_query": "marker06044",
+      "lexical_ids": [
+        "src/module_0120.py:implementation_06044:133-134"
+      ],
+      "broad_lexical_ids": [
+        "src/module_0000.py:implementation_00000:1-2",
+        "src/module_0000.py:implementation_00001:4-5",
+        "src/module_0000.py:implementation_00002:7-8",
+        "src/module_0000.py:implementation_00003:10-11",
+        "src/module_0000.py:implementation_00004:13-14",
+        "src/module_0000.py:implementation_00005:16-17",
+        "src/module_0000.py:implementation_00006:19-20",
+        "src/module_0000.py:implementation_00007:22-23",
+        "src/module_0000.py:implementation_00008:25-26",
+        "src/module_0000.py:implementation_00009:28-29"
+      ]
+    },
+    {
+      "query_number": 8,
+      "anchor_id": "src/module_0002.py:implementation_00120:61-62",
+      "dense_ids": [
+        "src/module_0002.py:implementation_00120:61-62",
+        "src/module_0001.py:implementation_00096:139-140",
+        "src/module_0078.py:implementation_03923:70-71",
+        "src/module_0130.py:implementation_06549:148-149",
+        "src/module_0014.py:implementation_00745:136-137",
+        "src/module_0171.py:implementation_08573:70-71",
+        "src/module_0039.py:implementation_01996:139-140",
+        "src/module_0130.py:implementation_06541:124-125",
+        "src/module_0196.py:implementation_09823:70-71",
+        "src/module_0048.py:implementation_02438:115-116"
+      ],
+      "expected_numpy_ids": [
+        "src/module_0002.py:implementation_00120:61-62",
+        "src/module_0001.py:implementation_00096:139-140",
+        "src/module_0078.py:implementation_03923:70-71",
+        "src/module_0130.py:implementation_06549:148-149",
+        "src/module_0014.py:implementation_00745:136-137",
+        "src/module_0171.py:implementation_08573:70-71",
+        "src/module_0039.py:implementation_01996:139-140",
+        "src/module_0130.py:implementation_06541:124-125",
+        "src/module_0196.py:implementation_09823:70-71",
+        "src/module_0048.py:implementation_02438:115-116"
+      ],
+      "dense_max_cosine_error": 5.07672930361025e-07,
+      "lexical_query": "marker00120",
+      "lexical_ids": [
+        "src/module_0002.py:implementation_00120:61-62"
+      ],
+      "broad_lexical_ids": [
+        "src/module_0000.py:implementation_00000:1-2",
+        "src/module_0000.py:implementation_00001:4-5",
+        "src/module_0000.py:implementation_00002:7-8",
+        "src/module_0000.py:implementation_00003:10-11",
+        "src/module_0000.py:implementation_00004:13-14",
+        "src/module_0000.py:implementation_00005:16-17",
+        "src/module_0000.py:implementation_00006:19-20",
+        "src/module_0000.py:implementation_00007:22-23",
+        "src/module_0000.py:implementation_00008:25-26",
+        "src/module_0000.py:implementation_00009:28-29"
+      ]
+    },
+    {
+      "query_number": 9,
+      "anchor_id": "src/module_0014.py:implementation_00727:82-83",
+      "dense_ids": [
+        "src/module_0014.py:implementation_00727:82-83",
+        "src/module_0029.py:implementation_01461:34-35",
+        "src/module_0190.py:implementation_09545:136-137",
+        "src/module_0196.py:implementation_09834:103-104",
+        "src/module_0053.py:implementation_02685:106-107",
+        "src/module_0149.py:implementation_07461:34-35",
+        "src/module_0054.py:implementation_02732:97-98",
+        "src/module_0051.py:implementation_02563:40-41",
+        "src/module_0151.py:implementation_07573:70-71",
+        "src/module_0033.py:implementation_01694:133-134"
+      ],
+      "expected_numpy_ids": [
+        "src/module_0014.py:implementation_00727:82-83",
+        "src/module_0029.py:implementation_01461:34-35",
+        "src/module_0190.py:implementation_09545:136-137",
+        "src/module_0196.py:implementation_09834:103-104",
+        "src/module_0053.py:implementation_02685:106-107",
+        "src/module_0149.py:implementation_07461:34-35",
+        "src/module_0054.py:implementation_02732:97-98",
+        "src/module_0051.py:implementation_02563:40-41",
+        "src/module_0151.py:implementation_07573:70-71",
+        "src/module_0033.py:implementation_01694:133-134"
+      ],
+      "dense_max_cosine_error": 3.6053836038885123e-07,
+      "lexical_query": "marker00727",
+      "lexical_ids": [
+        "src/module_0014.py:implementation_00727:82-83"
+      ],
+      "broad_lexical_ids": [
+        "src/module_0000.py:implementation_00000:1-2",
+        "src/module_0000.py:implementation_00001:4-5",
+        "src/module_0000.py:implementation_00002:7-8",
+        "src/module_0000.py:implementation_00003:10-11",
+        "src/module_0000.py:implementation_00004:13-14",
+        "src/module_0000.py:implementation_00005:16-17",
+        "src/module_0000.py:implementation_00006:19-20",
+        "src/module_0000.py:implementation_00007:22-23",
+        "src/module_0000.py:implementation_00008:25-26",
+        "src/module_0000.py:implementation_00009:28-29"
+      ]
+    },
+    {
+      "query_number": 10,
+      "anchor_id": "src/module_0128.py:implementation_06442:127-128",
+      "dense_ids": [
+        "src/module_0128.py:implementation_06442:127-128",
+        "src/module_0032.py:implementation_01602:7-8",
+        "src/module_0011.py:implementation_00567:52-53",
+        "src/module_0111.py:implementation_05597:142-143",
+        "src/module_0000.py:implementation_00047:142-143",
+        "src/module_0185.py:implementation_09293:130-131",
+        "src/module_0186.py:implementation_09319:58-59",
+        "src/module_0098.py:implementation_04909:28-29",
+        "src/module_0160.py:implementation_08022:67-68",
+        "src/module_0109.py:implementation_05474:73-74"
+      ],
+      "expected_numpy_ids": [
+        "src/module_0128.py:implementation_06442:127-128",
+        "src/module_0032.py:implementation_01602:7-8",
+        "src/module_0011.py:implementation_00567:52-53",
+        "src/module_0111.py:implementation_05597:142-143",
+        "src/module_0000.py:implementation_00047:142-143",
+        "src/module_0185.py:implementation_09293:130-131",
+        "src/module_0186.py:implementation_09319:58-59",
+        "src/module_0098.py:implementation_04909:28-29",
+        "src/module_0160.py:implementation_08022:67-68",
+        "src/module_0109.py:implementation_05474:73-74"
+      ],
+      "dense_max_cosine_error": 1.1984223008409955e-07,
+      "lexical_query": "marker06442",
+      "lexical_ids": [
+        "src/module_0128.py:implementation_06442:127-128"
+      ],
+      "broad_lexical_ids": [
+        "src/module_0000.py:implementation_00000:1-2",
+        "src/module_0000.py:implementation_00001:4-5",
+        "src/module_0000.py:implementation_00002:7-8",
+        "src/module_0000.py:implementation_00003:10-11",
+        "src/module_0000.py:implementation_00004:13-14",
+        "src/module_0000.py:implementation_00005:16-17",
+        "src/module_0000.py:implementation_00006:19-20",
+        "src/module_0000.py:implementation_00007:22-23",
+        "src/module_0000.py:implementation_00008:25-26",
+        "src/module_0000.py:implementation_00009:28-29"
+      ]
+    },
+    {
+      "query_number": 11,
+      "anchor_id": "src/module_0199.py:implementation_09997:142-143",
+      "dense_ids": [
+        "src/module_0199.py:implementation_09997:142-143",
+        "src/module_0082.py:implementation_04149:148-149",
+        "src/module_0090.py:implementation_04548:145-146",
+        "src/module_0063.py:implementation_03191:124-125",
+        "src/module_0154.py:implementation_07749:148-149",
+        "src/module_0115.py:implementation_05758:25-26",
+        "src/module_0055.py:implementation_02771:64-65",
+        "src/module_0064.py:implementation_03243:130-131",
+        "src/module_0139.py:implementation_06990:121-122",
+        "src/module_0077.py:implementation_03857:22-23"
+      ],
+      "expected_numpy_ids": [
+        "src/module_0199.py:implementation_09997:142-143",
+        "src/module_0082.py:implementation_04149:148-149",
+        "src/module_0090.py:implementation_04548:145-146",
+        "src/module_0063.py:implementation_03191:124-125",
+        "src/module_0154.py:implementation_07749:148-149",
+        "src/module_0115.py:implementation_05758:25-26",
+        "src/module_0055.py:implementation_02771:64-65",
+        "src/module_0064.py:implementation_03243:130-131",
+        "src/module_0139.py:implementation_06990:121-122",
+        "src/module_0077.py:implementation_03857:22-23"
+      ],
+      "dense_max_cosine_error": 2.7048662665229983e-07,
+      "lexical_query": "marker09997",
+      "lexical_ids": [
+        "src/module_0199.py:implementation_09997:142-143"
+      ],
+      "broad_lexical_ids": [
+        "src/module_0000.py:implementation_00000:1-2",
+        "src/module_0000.py:implementation_00001:4-5",
+        "src/module_0000.py:implementation_00002:7-8",
+        "src/module_0000.py:implementation_00003:10-11",
+        "src/module_0000.py:implementation_00004:13-14",
+        "src/module_0000.py:implementation_00005:16-17",
+        "src/module_0000.py:implementation_00006:19-20",
+        "src/module_0000.py:implementation_00007:22-23",
+        "src/module_0000.py:implementation_00008:25-26",
+        "src/module_0000.py:implementation_00009:28-29"
+      ]
+    },
+    {
+      "query_number": 12,
+      "anchor_id": "src/module_0011.py:implementation_00556:19-20",
+      "dense_ids": [
+        "src/module_0011.py:implementation_00556:19-20",
+        "src/module_0141.py:implementation_07086:109-110",
+        "src/module_0065.py:implementation_03251:4-5",
+        "src/module_0199.py:implementation_09972:67-68",
+        "src/module_0186.py:implementation_09305:16-17",
+        "src/module_0136.py:implementation_06834:103-104",
+        "src/module_0172.py:implementation_08641:124-125",
+        "src/module_0054.py:implementation_02710:31-32",
+        "src/module_0197.py:implementation_09889:118-119",
+        "src/module_0193.py:implementation_09655:16-17"
+      ],
+      "expected_numpy_ids": [
+        "src/module_0011.py:implementation_00556:19-20",
+        "src/module_0141.py:implementation_07086:109-110",
+        "src/module_0065.py:implementation_03251:4-5",
+        "src/module_0199.py:implementation_09972:67-68",
+        "src/module_0186.py:implementation_09305:16-17",
+        "src/module_0136.py:implementation_06834:103-104",
+        "src/module_0172.py:implementation_08641:124-125",
+        "src/module_0054.py:implementation_02710:31-32",
+        "src/module_0197.py:implementation_09889:118-119",
+        "src/module_0193.py:implementation_09655:16-17"
+      ],
+      "dense_max_cosine_error": 8.542955232115901e-08,
+      "lexical_query": "marker00556",
+      "lexical_ids": [
+        "src/module_0011.py:implementation_00556:19-20"
+      ],
+      "broad_lexical_ids": [
+        "src/module_0000.py:implementation_00000:1-2",
+        "src/module_0000.py:implementation_00001:4-5",
+        "src/module_0000.py:implementation_00002:7-8",
+        "src/module_0000.py:implementation_00003:10-11",
+        "src/module_0000.py:implementation_00004:13-14",
+        "src/module_0000.py:implementation_00005:16-17",
+        "src/module_0000.py:implementation_00006:19-20",
+        "src/module_0000.py:implementation_00007:22-23",
+        "src/module_0000.py:implementation_00008:25-26",
+        "src/module_0000.py:implementation_00009:28-29"
+      ]
+    },
+    {
+      "query_number": 13,
+      "anchor_id": "src/module_0141.py:implementation_07086:109-110",
+      "dense_ids": [
+        "src/module_0141.py:implementation_07086:109-110",
+        "src/module_0071.py:implementation_03574:73-74",
+        "src/module_0166.py:implementation_08300:1-2",
+        "src/module_0172.py:implementation_08611:34-35",
+        "src/module_0056.py:implementation_02820:61-62",
+        "src/module_0181.py:implementation_09064:43-44",
+        "src/module_0165.py:implementation_08291:124-125",
+        "src/module_0004.py:implementation_00212:37-38",
+        "src/module_0188.py:implementation_09443:130-131",
+        "src/module_0145.py:implementation_07288:115-116"
+      ],
+      "expected_numpy_ids": [
+        "src/module_0141.py:implementation_07086:109-110",
+        "src/module_0071.py:implementation_03574:73-74",
+        "src/module_0166.py:implementation_08300:1-2",
+        "src/module_0172.py:implementation_08611:34-35",
+        "src/module_0056.py:implementation_02820:61-62",
+        "src/module_0181.py:implementation_09064:43-44",
+        "src/module_0165.py:implementation_08291:124-125",
+        "src/module_0004.py:implementation_00212:37-38",
+        "src/module_0188.py:implementation_09443:130-131",
+        "src/module_0145.py:implementation_07288:115-116"
+      ],
+      "dense_max_cosine_error": 3.805860011585338e-07,
+      "lexical_query": "marker07086",
+      "lexical_ids": [
+        "src/module_0141.py:implementation_07086:109-110"
+      ],
+      "broad_lexical_ids": [
+        "src/module_0000.py:implementation_00000:1-2",
+        "src/module_0000.py:implementation_00001:4-5",
+        "src/module_0000.py:implementation_00002:7-8",
+        "src/module_0000.py:implementation_00003:10-11",
+        "src/module_0000.py:implementation_00004:13-14",
+        "src/module_0000.py:implementation_00005:16-17",
+        "src/module_0000.py:implementation_00006:19-20",
+        "src/module_0000.py:implementation_00007:22-23",
+        "src/module_0000.py:implementation_00008:25-26",
+        "src/module_0000.py:implementation_00009:28-29"
+      ]
+    },
+    {
+      "query_number": 14,
+      "anchor_id": "src/module_0129.py:implementation_06463:40-41",
+      "dense_ids": [
+        "src/module_0129.py:implementation_06463:40-41",
+        "src/module_0147.py:implementation_07391:124-125",
+        "src/module_0100.py:implementation_05009:28-29",
+        "src/module_0192.py:implementation_09607:22-23",
+        "src/module_0071.py:implementation_03588:115-116",
+        "src/module_0075.py:implementation_03768:55-56",
+        "src/module_0169.py:implementation_08479:88-89",
+        "src/module_0187.py:implementation_09384:103-104",
+        "src/module_0006.py:implementation_00308:25-26",
+        "src/module_0176.py:implementation_08849:148-149"
+      ],
+      "expected_numpy_ids": [
+        "src/module_0129.py:implementation_06463:40-41",
+        "src/module_0147.py:implementation_07391:124-125",
+        "src/module_0100.py:implementation_05009:28-29",
+        "src/module_0192.py:implementation_09607:22-23",
+        "src/module_0071.py:implementation_03588:115-116",
+        "src/module_0075.py:implementation_03768:55-56",
+        "src/module_0169.py:implementation_08479:88-89",
+        "src/module_0187.py:implementation_09384:103-104",
+        "src/module_0006.py:implementation_00308:25-26",
+        "src/module_0176.py:implementation_08849:148-149"
+      ],
+      "dense_max_cosine_error": 4.463288019174172e-07,
+      "lexical_query": "marker06463",
+      "lexical_ids": [
+        "src/module_0129.py:implementation_06463:40-41"
+      ],
+      "broad_lexical_ids": [
+        "src/module_0000.py:implementation_00000:1-2",
+        "src/module_0000.py:implementation_00001:4-5",
+        "src/module_0000.py:implementation_00002:7-8",
+        "src/module_0000.py:implementation_00003:10-11",
+        "src/module_0000.py:implementation_00004:13-14",
+        "src/module_0000.py:implementation_00005:16-17",
+        "src/module_0000.py:implementation_00006:19-20",
+        "src/module_0000.py:implementation_00007:22-23",
+        "src/module_0000.py:implementation_00008:25-26",
+        "src/module_0000.py:implementation_00009:28-29"
+      ]
+    },
+    {
+      "query_number": 15,
+      "anchor_id": "src/module_0033.py:implementation_01698:145-146",
+      "dense_ids": [
+        "src/module_0033.py:implementation_01698:145-146",
+        "src/module_0013.py:implementation_00688:115-116",
+        "src/module_0028.py:implementation_01440:121-122",
+        "src/module_0044.py:implementation_02242:127-128",
+        "src/module_0090.py:implementation_04528:85-86",
+        "src/module_0129.py:implementation_06464:43-44",
+        "src/module_0038.py:implementation_01938:115-116",
+        "src/module_0093.py:implementation_04655:16-17",
+        "src/module_0090.py:implementation_04510:31-32",
+        "src/module_0146.py:implementation_07313:40-41"
+      ],
+      "expected_numpy_ids": [
+        "src/module_0033.py:implementation_01698:145-146",
+        "src/module_0013.py:implementation_00688:115-116",
+        "src/module_0028.py:implementation_01440:121-122",
+        "src/module_0044.py:implementation_02242:127-128",
+        "src/module_0090.py:implementation_04528:85-86",
+        "src/module_0129.py:implementation_06464:43-44",
+        "src/module_0038.py:implementation_01938:115-116",
+        "src/module_0093.py:implementation_04655:16-17",
+        "src/module_0090.py:implementation_04510:31-32",
+        "src/module_0146.py:implementation_07313:40-41"
+      ],
+      "dense_max_cosine_error": 2.490562371892935e-07,
+      "lexical_query": "marker01698",
+      "lexical_ids": [
+        "src/module_0033.py:implementation_01698:145-146"
+      ],
+      "broad_lexical_ids": [
+        "src/module_0000.py:implementation_00000:1-2",
+        "src/module_0000.py:implementation_00001:4-5",
+        "src/module_0000.py:implementation_00002:7-8",
+        "src/module_0000.py:implementation_00003:10-11",
+        "src/module_0000.py:implementation_00004:13-14",
+        "src/module_0000.py:implementation_00005:16-17",
+        "src/module_0000.py:implementation_00006:19-20",
+        "src/module_0000.py:implementation_00007:22-23",
+        "src/module_0000.py:implementation_00008:25-26",
+        "src/module_0000.py:implementation_00009:28-29"
+      ]
+    },
+    {
+      "query_number": 16,
+      "anchor_id": "src/module_0106.py:implementation_05348:145-146",
+      "dense_ids": [
+        "src/module_0106.py:implementation_05348:145-146",
+        "src/module_0019.py:implementation_00999:148-149",
+        "src/module_0179.py:implementation_08950:1-2",
+        "src/module_0131.py:implementation_06571:64-65",
+        "src/module_0103.py:implementation_05175:76-77",
+        "src/module_0126.py:implementation_06348:145-146",
+        "src/module_0063.py:implementation_03173:70-71",
+        "src/module_0153.py:implementation_07694:133-134",
+        "src/module_0021.py:implementation_01057:22-23",
+        "src/module_0130.py:implementation_06510:31-32"
+      ],
+      "expected_numpy_ids": [
+        "src/module_0106.py:implementation_05348:145-146",
+        "src/module_0019.py:implementation_00999:148-149",
+        "src/module_0179.py:implementation_08950:1-2",
+        "src/module_0131.py:implementation_06571:64-65",
+        "src/module_0103.py:implementation_05175:76-77",
+        "src/module_0126.py:implementation_06348:145-146",
+        "src/module_0063.py:implementation_03173:70-71",
+        "src/module_0153.py:implementation_07694:133-134",
+        "src/module_0021.py:implementation_01057:22-23",
+        "src/module_0130.py:implementation_06510:31-32"
+      ],
+      "dense_max_cosine_error": 2.9228929032676376e-07,
+      "lexical_query": "marker05348",
+      "lexical_ids": [
+        "src/module_0106.py:implementation_05348:145-146"
+      ],
+      "broad_lexical_ids": [
+        "src/module_0000.py:implementation_00000:1-2",
+        "src/module_0000.py:implementation_00001:4-5",
+        "src/module_0000.py:implementation_00002:7-8",
+        "src/module_0000.py:implementation_00003:10-11",
+        "src/module_0000.py:implementation_00004:13-14",
+        "src/module_0000.py:implementation_00005:16-17",
+        "src/module_0000.py:implementation_00006:19-20",
+        "src/module_0000.py:implementation_00007:22-23",
+        "src/module_0000.py:implementation_00008:25-26",
+        "src/module_0000.py:implementation_00009:28-29"
+      ]
+    },
+    {
+      "query_number": 17,
+      "anchor_id": "src/module_0116.py:implementation_05823:70-71",
+      "dense_ids": [
+        "src/module_0116.py:implementation_05823:70-71",
+        "src/module_0131.py:implementation_06554:13-14",
+        "src/module_0171.py:implementation_08577:82-83",
+        "src/module_0025.py:implementation_01267:52-53",
+        "src/module_0101.py:implementation_05057:22-23",
+        "src/module_0130.py:implementation_06523:70-71",
+        "src/module_0032.py:implementation_01636:109-110",
+        "src/module_0038.py:implementation_01930:91-92",
+        "src/module_0151.py:implementation_07576:79-80",
+        "src/module_0160.py:implementation_08020:61-62"
+      ],
+      "expected_numpy_ids": [
+        "src/module_0116.py:implementation_05823:70-71",
+        "src/module_0131.py:implementation_06554:13-14",
+        "src/module_0171.py:implementation_08577:82-83",
+        "src/module_0025.py:implementation_01267:52-53",
+        "src/module_0101.py:implementation_05057:22-23",
+        "src/module_0130.py:implementation_06523:70-71",
+        "src/module_0032.py:implementation_01636:109-110",
+        "src/module_0038.py:implementation_01930:91-92",
+        "src/module_0151.py:implementation_07576:79-80",
+        "src/module_0160.py:implementation_08020:61-62"
+      ],
+      "dense_max_cosine_error": 8.804236126813691e-07,
+      "lexical_query": "marker05823",
+      "lexical_ids": [
+        "src/module_0116.py:implementation_05823:70-71"
+      ],
+      "broad_lexical_ids": [
+        "src/module_0000.py:implementation_00000:1-2",
+        "src/module_0000.py:implementation_00001:4-5",
+        "src/module_0000.py:implementation_00002:7-8",
+        "src/module_0000.py:implementation_00003:10-11",
+        "src/module_0000.py:implementation_00004:13-14",
+        "src/module_0000.py:implementation_00005:16-17",
+        "src/module_0000.py:implementation_00006:19-20",
+        "src/module_0000.py:implementation_00007:22-23",
+        "src/module_0000.py:implementation_00008:25-26",
+        "src/module_0000.py:implementation_00009:28-29"
+      ]
+    },
+    {
+      "query_number": 18,
+      "anchor_id": "src/module_0135.py:implementation_06752:7-8",
+      "dense_ids": [
+        "src/module_0135.py:implementation_06752:7-8",
+        "src/module_0043.py:implementation_02153:10-11",
+        "src/module_0151.py:implementation_07575:76-77",
+        "src/module_0047.py:implementation_02393:130-131",
+        "src/module_0085.py:implementation_04271:64-65",
+        "src/module_0061.py:implementation_03065:46-47",
+        "src/module_0147.py:implementation_07358:25-26",
+        "src/module_0094.py:implementation_04746:139-140",
+        "src/module_0023.py:implementation_01196:139-140",
+        "src/module_0103.py:implementation_05154:13-14"
+      ],
+      "expected_numpy_ids": [
+        "src/module_0135.py:implementation_06752:7-8",
+        "src/module_0043.py:implementation_02153:10-11",
+        "src/module_0151.py:implementation_07575:76-77",
+        "src/module_0047.py:implementation_02393:130-131",
+        "src/module_0085.py:implementation_04271:64-65",
+        "src/module_0061.py:implementation_03065:46-47",
+        "src/module_0147.py:implementation_07358:25-26",
+        "src/module_0094.py:implementation_04746:139-140",
+        "src/module_0023.py:implementation_01196:139-140",
+        "src/module_0103.py:implementation_05154:13-14"
+      ],
+      "dense_max_cosine_error": 1.7077029224044082e-07,
+      "lexical_query": "marker06752",
+      "lexical_ids": [
+        "src/module_0135.py:implementation_06752:7-8"
+      ],
+      "broad_lexical_ids": [
+        "src/module_0000.py:implementation_00000:1-2",
+        "src/module_0000.py:implementation_00001:4-5",
+        "src/module_0000.py:implementation_00002:7-8",
+        "src/module_0000.py:implementation_00003:10-11",
+        "src/module_0000.py:implementation_00004:13-14",
+        "src/module_0000.py:implementation_00005:16-17",
+        "src/module_0000.py:implementation_00006:19-20",
+        "src/module_0000.py:implementation_00007:22-23",
+        "src/module_0000.py:implementation_00008:25-26",
+        "src/module_0000.py:implementation_00009:28-29"
+      ]
+    },
+    {
+      "query_number": 19,
+      "anchor_id": "src/module_0143.py:implementation_07172:67-68",
+      "dense_ids": [
+        "src/module_0143.py:implementation_07172:67-68",
+        "src/module_0142.py:implementation_07136:109-110",
+        "src/module_0130.py:implementation_06516:49-50",
+        "src/module_0029.py:implementation_01493:130-131",
+        "src/module_0121.py:implementation_06053:10-11",
+        "src/module_0138.py:implementation_06931:94-95",
+        "src/module_0138.py:implementation_06945:136-137",
+        "src/module_0044.py:implementation_02218:55-56",
+        "src/module_0157.py:implementation_07898:145-146",
+        "src/module_0160.py:implementation_08029:88-89"
+      ],
+      "expected_numpy_ids": [
+        "src/module_0143.py:implementation_07172:67-68",
+        "src/module_0142.py:implementation_07136:109-110",
+        "src/module_0130.py:implementation_06516:49-50",
+        "src/module_0029.py:implementation_01493:130-131",
+        "src/module_0121.py:implementation_06053:10-11",
+        "src/module_0138.py:implementation_06931:94-95",
+        "src/module_0138.py:implementation_06945:136-137",
+        "src/module_0044.py:implementation_02218:55-56",
+        "src/module_0157.py:implementation_07898:145-146",
+        "src/module_0160.py:implementation_08029:88-89"
+      ],
+      "dense_max_cosine_error": 2.2308979330531997e-07,
+      "lexical_query": "marker07172",
+      "lexical_ids": [
+        "src/module_0143.py:implementation_07172:67-68"
+      ],
+      "broad_lexical_ids": [
+        "src/module_0000.py:implementation_00000:1-2",
+        "src/module_0000.py:implementation_00001:4-5",
+        "src/module_0000.py:implementation_00002:7-8",
+        "src/module_0000.py:implementation_00003:10-11",
+        "src/module_0000.py:implementation_00004:13-14",
+        "src/module_0000.py:implementation_00005:16-17",
+        "src/module_0000.py:implementation_00006:19-20",
+        "src/module_0000.py:implementation_00007:22-23",
+        "src/module_0000.py:implementation_00008:25-26",
+        "src/module_0000.py:implementation_00009:28-29"
+      ]
+    },
+    {
+      "query_number": 20,
+      "anchor_id": "src/module_0087.py:implementation_04384:103-104",
+      "dense_ids": [
+        "src/module_0087.py:implementation_04384:103-104",
+        "src/module_0003.py:implementation_00179:88-89",
+        "src/module_0085.py:implementation_04276:79-80",
+        "src/module_0086.py:implementation_04346:139-140",
+        "src/module_0192.py:implementation_09611:34-35",
+        "src/module_0063.py:implementation_03174:73-74",
+        "src/module_0089.py:implementation_04450:1-2",
+        "src/module_0161.py:implementation_08081:94-95",
+        "src/module_0188.py:implementation_09406:19-20",
+        "src/module_0124.py:implementation_06214:43-44"
+      ],
+      "expected_numpy_ids": [
+        "src/module_0087.py:implementation_04384:103-104",
+        "src/module_0003.py:implementation_00179:88-89",
+        "src/module_0085.py:implementation_04276:79-80",
+        "src/module_0086.py:implementation_04346:139-140",
+        "src/module_0192.py:implementation_09611:34-35",
+        "src/module_0063.py:implementation_03174:73-74",
+        "src/module_0089.py:implementation_04450:1-2",
+        "src/module_0161.py:implementation_08081:94-95",
+        "src/module_0188.py:implementation_09406:19-20",
+        "src/module_0124.py:implementation_06214:43-44"
+      ],
+      "dense_max_cosine_error": 3.468112477200691e-07,
+      "lexical_query": "marker04384",
+      "lexical_ids": [
+        "src/module_0087.py:implementation_04384:103-104"
+      ],
+      "broad_lexical_ids": [
+        "src/module_0000.py:implementation_00000:1-2",
+        "src/module_0000.py:implementation_00001:4-5",
+        "src/module_0000.py:implementation_00002:7-8",
+        "src/module_0000.py:implementation_00003:10-11",
+        "src/module_0000.py:implementation_00004:13-14",
+        "src/module_0000.py:implementation_00005:16-17",
+        "src/module_0000.py:implementation_00006:19-20",
+        "src/module_0000.py:implementation_00007:22-23",
+        "src/module_0000.py:implementation_00008:25-26",
+        "src/module_0000.py:implementation_00009:28-29"
+      ]
+    },
+    {
+      "query_number": 21,
+      "anchor_id": "src/module_0019.py:implementation_00984:103-104",
+      "dense_ids": [
+        "src/module_0019.py:implementation_00984:103-104",
+        "src/module_0003.py:implementation_00171:64-65",
+        "src/module_0171.py:implementation_08556:19-20",
+        "src/module_0120.py:implementation_06014:43-44",
+        "src/module_0004.py:implementation_00222:67-68",
+        "src/module_0007.py:implementation_00376:79-80",
+        "src/module_0074.py:implementation_03724:73-74",
+        "src/module_0110.py:implementation_05500:1-2",
+        "src/module_0113.py:implementation_05670:61-62",
+        "src/module_0147.py:implementation_07378:85-86"
+      ],
+      "expected_numpy_ids": [
+        "src/module_0019.py:implementation_00984:103-104",
+        "src/module_0003.py:implementation_00171:64-65",
+        "src/module_0171.py:implementation_08556:19-20",
+        "src/module_0120.py:implementation_06014:43-44",
+        "src/module_0004.py:implementation_00222:67-68",
+        "src/module_0007.py:implementation_00376:79-80",
+        "src/module_0074.py:implementation_03724:73-74",
+        "src/module_0110.py:implementation_05500:1-2",
+        "src/module_0113.py:implementation_05670:61-62",
+        "src/module_0147.py:implementation_07378:85-86"
+      ],
+      "dense_max_cosine_error": 1.8165609039222375e-07,
+      "lexical_query": "marker00984",
+      "lexical_ids": [
+        "src/module_0019.py:implementation_00984:103-104"
+      ],
+      "broad_lexical_ids": [
+        "src/module_0000.py:implementation_00000:1-2",
+        "src/module_0000.py:implementation_00001:4-5",
+        "src/module_0000.py:implementation_00002:7-8",
+        "src/module_0000.py:implementation_00003:10-11",
+        "src/module_0000.py:implementation_00004:13-14",
+        "src/module_0000.py:implementation_00005:16-17",
+        "src/module_0000.py:implementation_00006:19-20",
+        "src/module_0000.py:implementation_00007:22-23",
+        "src/module_0000.py:implementation_00008:25-26",
+        "src/module_0000.py:implementation_00009:28-29"
+      ]
+    },
+    {
+      "query_number": 22,
+      "anchor_id": "src/module_0147.py:implementation_07354:13-14",
+      "dense_ids": [
+        "src/module_0147.py:implementation_07354:13-14",
+        "src/module_0192.py:implementation_09621:64-65",
+        "src/module_0001.py:implementation_00061:34-35",
+        "src/module_0062.py:implementation_03112:37-38",
+        "src/module_0136.py:implementation_06818:55-56",
+        "src/module_0130.py:implementation_06505:16-17",
+        "src/module_0137.py:implementation_06875:76-77",
+        "src/module_0045.py:implementation_02294:133-134",
+        "src/module_0080.py:implementation_04003:10-11",
+        "src/module_0024.py:implementation_01205:16-17"
+      ],
+      "expected_numpy_ids": [
+        "src/module_0147.py:implementation_07354:13-14",
+        "src/module_0192.py:implementation_09621:64-65",
+        "src/module_0001.py:implementation_00061:34-35",
+        "src/module_0062.py:implementation_03112:37-38",
+        "src/module_0136.py:implementation_06818:55-56",
+        "src/module_0130.py:implementation_06505:16-17",
+        "src/module_0137.py:implementation_06875:76-77",
+        "src/module_0045.py:implementation_02294:133-134",
+        "src/module_0080.py:implementation_04003:10-11",
+        "src/module_0024.py:implementation_01205:16-17"
+      ],
+      "dense_max_cosine_error": 1.1909764356943242e-06,
+      "lexical_query": "marker07354",
+      "lexical_ids": [
+        "src/module_0147.py:implementation_07354:13-14"
+      ],
+      "broad_lexical_ids": [
+        "src/module_0000.py:implementation_00000:1-2",
+        "src/module_0000.py:implementation_00001:4-5",
+        "src/module_0000.py:implementation_00002:7-8",
+        "src/module_0000.py:implementation_00003:10-11",
+        "src/module_0000.py:implementation_00004:13-14",
+        "src/module_0000.py:implementation_00005:16-17",
+        "src/module_0000.py:implementation_00006:19-20",
+        "src/module_0000.py:implementation_00007:22-23",
+        "src/module_0000.py:implementation_00008:25-26",
+        "src/module_0000.py:implementation_00009:28-29"
+      ]
+    },
+    {
+      "query_number": 23,
+      "anchor_id": "src/module_0029.py:implementation_01482:97-98",
+      "dense_ids": [
+        "src/module_0029.py:implementation_01482:97-98",
+        "src/module_0008.py:implementation_00448:145-146",
+        "src/module_0129.py:implementation_06488:115-116",
+        "src/module_0147.py:implementation_07390:121-122",
+        "src/module_0199.py:implementation_09983:100-101",
+        "src/module_0011.py:implementation_00588:115-116",
+        "src/module_0051.py:implementation_02585:106-107",
+        "src/module_0057.py:implementation_02880:91-92",
+        "src/module_0026.py:implementation_01346:139-140",
+        "src/module_0008.py:implementation_00445:136-137"
+      ],
+      "expected_numpy_ids": [
+        "src/module_0029.py:implementation_01482:97-98",
+        "src/module_0008.py:implementation_00448:145-146",
+        "src/module_0129.py:implementation_06488:115-116",
+        "src/module_0147.py:implementation_07390:121-122",
+        "src/module_0199.py:implementation_09983:100-101",
+        "src/module_0011.py:implementation_00588:115-116",
+        "src/module_0051.py:implementation_02585:106-107",
+        "src/module_0057.py:implementation_02880:91-92",
+        "src/module_0026.py:implementation_01346:139-140",
+        "src/module_0008.py:implementation_00445:136-137"
+      ],
+      "dense_max_cosine_error": 6.86765839086334e-07,
+      "lexical_query": "marker01482",
+      "lexical_ids": [
+        "src/module_0029.py:implementation_01482:97-98"
+      ],
+      "broad_lexical_ids": [
+        "src/module_0000.py:implementation_00000:1-2",
+        "src/module_0000.py:implementation_00001:4-5",
+        "src/module_0000.py:implementation_00002:7-8",
+        "src/module_0000.py:implementation_00003:10-11",
+        "src/module_0000.py:implementation_00004:13-14",
+        "src/module_0000.py:implementation_00005:16-17",
+        "src/module_0000.py:implementation_00006:19-20",
+        "src/module_0000.py:implementation_00007:22-23",
+        "src/module_0000.py:implementation_00008:25-26",
+        "src/module_0000.py:implementation_00009:28-29"
+      ]
+    },
+    {
+      "query_number": 24,
+      "anchor_id": "src/module_0156.py:implementation_07834:103-104",
+      "dense_ids": [
+        "src/module_0156.py:implementation_07834:103-104",
+        "src/module_0150.py:implementation_07516:49-50",
+        "src/module_0078.py:implementation_03945:136-137",
+        "src/module_0133.py:implementation_06669:58-59",
+        "src/module_0092.py:implementation_04633:100-101",
+        "src/module_0125.py:implementation_06265:46-47",
+        "src/module_0193.py:implementation_09662:37-38",
+        "src/module_0007.py:implementation_00353:10-11",
+        "src/module_0051.py:implementation_02553:10-11",
+        "src/module_0062.py:implementation_03136:109-110"
+      ],
+      "expected_numpy_ids": [
+        "src/module_0156.py:implementation_07834:103-104",
+        "src/module_0150.py:implementation_07516:49-50",
+        "src/module_0078.py:implementation_03945:136-137",
+        "src/module_0133.py:implementation_06669:58-59",
+        "src/module_0092.py:implementation_04633:100-101",
+        "src/module_0125.py:implementation_06265:46-47",
+        "src/module_0193.py:implementation_09662:37-38",
+        "src/module_0007.py:implementation_00353:10-11",
+        "src/module_0051.py:implementation_02553:10-11",
+        "src/module_0062.py:implementation_03136:109-110"
+      ],
+      "dense_max_cosine_error": 1.3566859058400382e-07,
+      "lexical_query": "marker07834",
+      "lexical_ids": [
+        "src/module_0156.py:implementation_07834:103-104"
+      ],
+      "broad_lexical_ids": [
+        "src/module_0000.py:implementation_00000:1-2",
+        "src/module_0000.py:implementation_00001:4-5",
+        "src/module_0000.py:implementation_00002:7-8",
+        "src/module_0000.py:implementation_00003:10-11",
+        "src/module_0000.py:implementation_00004:13-14",
+        "src/module_0000.py:implementation_00005:16-17",
+        "src/module_0000.py:implementation_00006:19-20",
+        "src/module_0000.py:implementation_00007:22-23",
+        "src/module_0000.py:implementation_00008:25-26",
+        "src/module_0000.py:implementation_00009:28-29"
+      ]
+    },
+    {
+      "query_number": 25,
+      "anchor_id": "src/module_0012.py:implementation_00627:82-83",
+      "dense_ids": [
+        "src/module_0012.py:implementation_00627:82-83",
+        "src/module_0101.py:implementation_05059:28-29",
+        "src/module_0114.py:implementation_05707:22-23",
+        "src/module_0051.py:implementation_02590:121-122",
+        "src/module_0150.py:implementation_07523:70-71",
+        "src/module_0006.py:implementation_00327:82-83",
+        "src/module_0060.py:implementation_03028:85-86",
+        "src/module_0120.py:implementation_06037:112-113",
+        "src/module_0165.py:implementation_08258:25-26",
+        "src/module_0125.py:implementation_06256:19-20"
+      ],
+      "expected_numpy_ids": [
+        "src/module_0012.py:implementation_00627:82-83",
+        "src/module_0101.py:implementation_05059:28-29",
+        "src/module_0114.py:implementation_05707:22-23",
+        "src/module_0051.py:implementation_02590:121-122",
+        "src/module_0150.py:implementation_07523:70-71",
+        "src/module_0006.py:implementation_00327:82-83",
+        "src/module_0060.py:implementation_03028:85-86",
+        "src/module_0120.py:implementation_06037:112-113",
+        "src/module_0165.py:implementation_08258:25-26",
+        "src/module_0125.py:implementation_06256:19-20"
+      ],
+      "dense_max_cosine_error": 1.9009965290806008e-07,
+      "lexical_query": "marker00627",
+      "lexical_ids": [
+        "src/module_0012.py:implementation_00627:82-83"
+      ],
+      "broad_lexical_ids": [
+        "src/module_0000.py:implementation_00000:1-2",
+        "src/module_0000.py:implementation_00001:4-5",
+        "src/module_0000.py:implementation_00002:7-8",
+        "src/module_0000.py:implementation_00003:10-11",
+        "src/module_0000.py:implementation_00004:13-14",
+        "src/module_0000.py:implementation_00005:16-17",
+        "src/module_0000.py:implementation_00006:19-20",
+        "src/module_0000.py:implementation_00007:22-23",
+        "src/module_0000.py:implementation_00008:25-26",
+        "src/module_0000.py:implementation_00009:28-29"
+      ]
+    },
+    {
+      "query_number": 26,
+      "anchor_id": "src/module_0053.py:implementation_02652:7-8",
+      "dense_ids": [
+        "src/module_0053.py:implementation_02652:7-8",
+        "src/module_0150.py:implementation_07527:82-83",
+        "src/module_0009.py:implementation_00451:4-5",
+        "src/module_0184.py:implementation_09237:112-113",
+        "src/module_0092.py:implementation_04621:64-65",
+        "src/module_0089.py:implementation_04478:85-86",
+        "src/module_0098.py:implementation_04907:22-23",
+        "src/module_0056.py:implementation_02842:127-128",
+        "src/module_0103.py:implementation_05190:121-122",
+        "src/module_0144.py:implementation_07242:127-128"
+      ],
+      "expected_numpy_ids": [
+        "src/module_0053.py:implementation_02652:7-8",
+        "src/module_0150.py:implementation_07527:82-83",
+        "src/module_0009.py:implementation_00451:4-5",
+        "src/module_0184.py:implementation_09237:112-113",
+        "src/module_0092.py:implementation_04621:64-65",
+        "src/module_0089.py:implementation_04478:85-86",
+        "src/module_0098.py:implementation_04907:22-23",
+        "src/module_0056.py:implementation_02842:127-128",
+        "src/module_0103.py:implementation_05190:121-122",
+        "src/module_0144.py:implementation_07242:127-128"
+      ],
+      "dense_max_cosine_error": 1.0266203553932485e-07,
+      "lexical_query": "marker02652",
+      "lexical_ids": [
+        "src/module_0053.py:implementation_02652:7-8"
+      ],
+      "broad_lexical_ids": [
+        "src/module_0000.py:implementation_00000:1-2",
+        "src/module_0000.py:implementation_00001:4-5",
+        "src/module_0000.py:implementation_00002:7-8",
+        "src/module_0000.py:implementation_00003:10-11",
+        "src/module_0000.py:implementation_00004:13-14",
+        "src/module_0000.py:implementation_00005:16-17",
+        "src/module_0000.py:implementation_00006:19-20",
+        "src/module_0000.py:implementation_00007:22-23",
+        "src/module_0000.py:implementation_00008:25-26",
+        "src/module_0000.py:implementation_00009:28-29"
+      ]
+    },
+    {
+      "query_number": 27,
+      "anchor_id": "src/module_0123.py:implementation_06173:70-71",
+      "dense_ids": [
+        "src/module_0123.py:implementation_06173:70-71",
+        "src/module_0126.py:implementation_06343:130-131",
+        "src/module_0170.py:implementation_08538:115-116",
+        "src/module_0092.py:implementation_04612:37-38",
+        "src/module_0140.py:implementation_07049:148-149",
+        "src/module_0088.py:implementation_04429:88-89",
+        "src/module_0105.py:implementation_05261:34-35",
+        "src/module_0057.py:implementation_02899:148-149",
+        "src/module_0177.py:implementation_08876:79-80",
+        "src/module_0192.py:implementation_09637:112-113"
+      ],
+      "expected_numpy_ids": [
+        "src/module_0123.py:implementation_06173:70-71",
+        "src/module_0126.py:implementation_06343:130-131",
+        "src/module_0170.py:implementation_08538:115-116",
+        "src/module_0092.py:implementation_04612:37-38",
+        "src/module_0140.py:implementation_07049:148-149",
+        "src/module_0088.py:implementation_04429:88-89",
+        "src/module_0105.py:implementation_05261:34-35",
+        "src/module_0057.py:implementation_02899:148-149",
+        "src/module_0177.py:implementation_08876:79-80",
+        "src/module_0192.py:implementation_09637:112-113"
+      ],
+      "dense_max_cosine_error": 3.8883098396613747e-07,
+      "lexical_query": "marker06173",
+      "lexical_ids": [
+        "src/module_0123.py:implementation_06173:70-71"
+      ],
+      "broad_lexical_ids": [
+        "src/module_0000.py:implementation_00000:1-2",
+        "src/module_0000.py:implementation_00001:4-5",
+        "src/module_0000.py:implementation_00002:7-8",
+        "src/module_0000.py:implementation_00003:10-11",
+        "src/module_0000.py:implementation_00004:13-14",
+        "src/module_0000.py:implementation_00005:16-17",
+        "src/module_0000.py:implementation_00006:19-20",
+        "src/module_0000.py:implementation_00007:22-23",
+        "src/module_0000.py:implementation_00008:25-26",
+        "src/module_0000.py:implementation_00009:28-29"
+      ]
+    },
+    {
+      "query_number": 28,
+      "anchor_id": "src/module_0090.py:implementation_04549:148-149",
+      "dense_ids": [
+        "src/module_0090.py:implementation_04549:148-149",
+        "src/module_0198.py:implementation_09910:31-32",
+        "src/module_0172.py:implementation_08631:94-95",
+        "src/module_0191.py:implementation_09588:115-116",
+        "src/module_0177.py:implementation_08856:19-20",
+        "src/module_0013.py:implementation_00664:43-44",
+        "src/module_0076.py:implementation_03803:10-11",
+        "src/module_0123.py:implementation_06159:28-29",
+        "src/module_0146.py:implementation_07325:76-77",
+        "src/module_0066.py:implementation_03328:85-86"
+      ],
+      "expected_numpy_ids": [
+        "src/module_0090.py:implementation_04549:148-149",
+        "src/module_0198.py:implementation_09910:31-32",
+        "src/module_0172.py:implementation_08631:94-95",
+        "src/module_0191.py:implementation_09588:115-116",
+        "src/module_0177.py:implementation_08856:19-20",
+        "src/module_0013.py:implementation_00664:43-44",
+        "src/module_0076.py:implementation_03803:10-11",
+        "src/module_0123.py:implementation_06159:28-29",
+        "src/module_0146.py:implementation_07325:76-77",
+        "src/module_0066.py:implementation_03328:85-86"
+      ],
+      "dense_max_cosine_error": 3.885635051492642e-07,
+      "lexical_query": "marker04549",
+      "lexical_ids": [
+        "src/module_0090.py:implementation_04549:148-149"
+      ],
+      "broad_lexical_ids": [
+        "src/module_0000.py:implementation_00000:1-2",
+        "src/module_0000.py:implementation_00001:4-5",
+        "src/module_0000.py:implementation_00002:7-8",
+        "src/module_0000.py:implementation_00003:10-11",
+        "src/module_0000.py:implementation_00004:13-14",
+        "src/module_0000.py:implementation_00005:16-17",
+        "src/module_0000.py:implementation_00006:19-20",
+        "src/module_0000.py:implementation_00007:22-23",
+        "src/module_0000.py:implementation_00008:25-26",
+        "src/module_0000.py:implementation_00009:28-29"
+      ]
+    },
+    {
+      "query_number": 29,
+      "anchor_id": "src/module_0030.py:implementation_01505:16-17",
+      "dense_ids": [
+        "src/module_0030.py:implementation_01505:16-17",
+        "src/module_0125.py:implementation_06273:70-71",
+        "src/module_0195.py:implementation_09786:109-110",
+        "src/module_0058.py:implementation_02923:70-71",
+        "src/module_0130.py:implementation_06537:112-113",
+        "src/module_0025.py:implementation_01275:76-77",
+        "src/module_0093.py:implementation_04674:73-74",
+        "src/module_0080.py:implementation_04035:106-107",
+        "src/module_0192.py:implementation_09607:22-23",
+        "src/module_0052.py:implementation_02647:142-143"
+      ],
+      "expected_numpy_ids": [
+        "src/module_0030.py:implementation_01505:16-17",
+        "src/module_0125.py:implementation_06273:70-71",
+        "src/module_0195.py:implementation_09786:109-110",
+        "src/module_0058.py:implementation_02923:70-71",
+        "src/module_0130.py:implementation_06537:112-113",
+        "src/module_0025.py:implementation_01275:76-77",
+        "src/module_0093.py:implementation_04674:73-74",
+        "src/module_0080.py:implementation_04035:106-107",
+        "src/module_0192.py:implementation_09607:22-23",
+        "src/module_0052.py:implementation_02647:142-143"
+      ],
+      "dense_max_cosine_error": 1.1829645507610564e-07,
+      "lexical_query": "marker01505",
+      "lexical_ids": [
+        "src/module_0030.py:implementation_01505:16-17"
+      ],
+      "broad_lexical_ids": [
+        "src/module_0000.py:implementation_00000:1-2",
+        "src/module_0000.py:implementation_00001:4-5",
+        "src/module_0000.py:implementation_00002:7-8",
+        "src/module_0000.py:implementation_00003:10-11",
+        "src/module_0000.py:implementation_00004:13-14",
+        "src/module_0000.py:implementation_00005:16-17",
+        "src/module_0000.py:implementation_00006:19-20",
+        "src/module_0000.py:implementation_00007:22-23",
+        "src/module_0000.py:implementation_00008:25-26",
+        "src/module_0000.py:implementation_00009:28-29"
+      ]
+    }
+  ],
+  "limitations": [
+    "Synthetic Gaussian CPU vectors do not measure Qwen retrieval quality.",
+    "Dense lookup is an exact SQLite cosine scan, not an approximate vector index.",
+    "Preparation and NumPy reference verification are excluded from query timings.",
+    "SQLite query timings include connection creation and extension loading.",
+    "Fixture source and SQLite database remain in the ignored output directory."
+  ]
+}

@@ -10,6 +10,7 @@ import tokenize
 from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
+from semantic_search.source import physical_lines
 
 
 @dataclass(frozen=True)
@@ -179,7 +180,7 @@ def extract_snippets(
             raw = path.read_bytes()
             encoding, _ = tokenize.detect_encoding(io.BytesIO(raw).readline)
             source = raw.decode(encoding)
-        lines = source.splitlines(keepends=True)
+        lines = physical_lines(source)
         definitions = _Definitions()
         definitions.visit(ast.parse(source, filename=str(path)))
         relative_path = path.relative_to(repo).as_posix()

@@ -1,22 +1,24 @@
 # Semantic search engine
 
-Find code implementations by describing their behavior. The planned VS Code
-extension and MCP tool share a local search backend, so developers and coding
+Find code implementations by describing their behavior. The implemented MCP
+tool and planned VS Code extension share a local search backend, so developers and coding
 agents can retrieve source excerpts without sending the whole repository to a
 paid model.
 
-**Current stage: a resident local search service with incremental SQLite indexing,
-Qwen embeddings, BM25/dense/hybrid retrieval, bounded excerpts, and optional
-H2O-Lightning-4B reranking in 8-bit MLX.** Dense retrieval is the fast default.
-The CLI uses the same backend that will support MCP and VS Code. See
-[the project plan](docs/project-plan.md) and [the service API](docs/backend-api.md).
+**Current stage: a resident local search service and MCP adapter with durable
+SQLite FTS5/vector retrieval, saved-file watching, cancellation, budgeted context,
+and optional H2O-Lightning-4B reranking in 8-bit MLX.** Qwen dense retrieval is
+the fast default. The CLI and MCP adapter use the same backend. See
+[the project plan](docs/project-plan.md), [the service API](docs/backend-api.md),
+and [MCP setup](docs/mcp.md).
 
 ## Run on an Apple Silicon Mac
 
 The tested setup is an M4 MacBook Pro, 24 GB RAM, macOS 15.1.1. Python dependencies,
 the runtime source, approximately 4.8 GiB of H2O weights and 1.1 GiB of Qwen weights are stored locally
-under ignored `.venv/` and `.cache/` directories. Nothing in the corpus is sent
-to a hosted inference service.
+under ignored `.venv/` and `.cache/` directories. Retrieval and local scoring do
+not call a hosted inference service. An MCP host receives source excerpts and
+may include them in requests to its chosen coding model.
 
 ```bash
 python3 scripts/setup_mac.py
@@ -49,7 +51,7 @@ another terminal, then pass `--rerank`:
   "Where does an expired or tampered cookie become an empty session?" \
   --server http://127.0.0.1:8750 --rerank --candidates 4
 
-# Fixed BM25 + Qwen reciprocal-rank fusion; score only three windows.
+# Fixed FTS5 + Qwen reciprocal-rank fusion; score only three windows.
 .venv/bin/semantic-search search \
   "Where are application and blueprint template loaders combined?" \
   --server http://127.0.0.1:8750 --retrieval hybrid --rerank --candidates 3
@@ -61,7 +63,7 @@ another terminal, then pass `--rerank`:
 .venv/bin/python scripts/capture_memory.py results/local/flask-run
 ```
 
-Use `--retrieval bm25` to choose the lexical baseline, or `--lexical-only` to skip
+Use `--retrieval bm25` to choose SQLite FTS5 keyword retrieval, or `--lexical-only` to skip
 both models in standalone mode. With `--rerank`, `--candidates` counts windows
 scored by H2O; results contain only that prefix, with at most one window per
 symbol. Without reranking, results follow the retrieval order. `--no-rerank`
@@ -72,24 +74,55 @@ loads Qwen for that invocation. The first version indexes saved, tracked Python
 files; it does not yet handle TypeScript or unsaved editor buffers.
 
 The service preloads Qwen and builds a durable SQLite index under `.cache/indexes/`.
-Each search checks saved file bytes and Git membership. Changes embed only new
+Its polling watcher checks saved Python bytes, tracked membership, Git HEAD and
+branch every second, then refreshes after a 0.5-second debounce. `--watch-interval`
+changes the polling interval; `--no-watch` discovers changes on searches and
+explicit refreshes instead. Every search still verifies the source snapshot.
+Changes embed only new
 document text; unchanged vectors survive process restarts and branch switches.
 Deleted windows leave the active snapshot, and line shifts update locations
 without recomputing identical document embeddings. Model revision and embedding
 settings are part of the cache key. Files changed during indexing or scoring,
 and temporarily invalid Python, produce an error so stale excerpts are not
-delivered. This currently scans source hashes on each request, without a watcher.
+delivered. These checks scan source hashes; they do not lock files against later edits.
 Qwen uses original
 BF16 weights, 1024-dimensional normalized vectors, last-token pooling, and a fixed
 query instruction, with an 8192-token truncation limit. Indexing documents uses
-no instruction. Dense search scans the small vector matrix with cosine similarity;
-hybrid uses equal-weight RRF with constant 60 and a fixed 50-window depth per source.
+no instruction. SQLite FTS5 stores identifier tokens split at snake/camel/acronym
+boundaries. Pinned `sqlite-vec==0.1.9` computes exact cosine distances over the
+active normalized float32 vectors in an exhaustive SQL scan; there is no ANN
+index. Hybrid uses equal-weight RRF with constant 60 and a fixed 50-window depth
+per source. Historical experiments below used Python BM25 and NumPy retrieval;
+FTS5's BM25 scores and float32 near ties can change their rankings.
 
 The service serializes GPU work and keeps Qwen loaded. `--server` calls reuse it;
 the Requests measurements below include the actual HTTP round-trip. Standalone
 `--repo` searches incur additional model startup time. `--source-budget` limits
 returned source characters, with whole-line truncation and accurate excerpt
 line ranges; JSON metadata is additional. It is not a token budget.
+
+The [stdio MCP adapter](docs/mcp.md) exposes `search_code`. Its defaults return up
+to eight excerpts within 12,000 source characters and **4,096 `cl100k_base` tokens
+for the exact compact JSON text**, including query and result metadata. The CLI
+can request the same context cap with `--token-budget 4096`; its diagnostic JSON
+contains additional fields outside that counted representation. The cap is a
+local counting convention, not agent billing or measured paid-token savings.
+
+MCP enables conservative dependency context by default. The CLI opts in with
+`--include-dependencies --max-results 8`: up to five retrieved anchors retain
+their order, and spare slots can contain statically resolved local callees.
+These references are marked `origin: "dependency"`; expansion makes no extra H2O
+calls. A helper already judged in the scored prefix can retain its own H2O score;
+a new helper is unjudged. Its inherited anchor retrieval score is a context
+priority, not helper similarity or proof of a match. Static references do not
+form a complete runtime call graph. Optional `serve --abstention-policy /path/to/policy.json`
+loads a development-calibrated weak-match policy bound to the embedding
+settings; a rejected or budget-empty response does not prove absence.
+
+MCP cancellation is forwarded through request IDs to the service. Cancellation
+checks run while waiting for the model lock, between embedding batches and H2O
+scores, and before snapshot promotion or result delivery. A Metal forward already
+running finishes before the next check. The watcher stops during backend shutdown.
 
 Stop either service with Ctrl-C. The optional H2O launcher runs its official shim on loopback port 8741
 and a community MLX facade on 8743. Its model stays loaded while the server runs.
@@ -99,6 +132,24 @@ Boolean confidence flooring is disabled. Ordinal scores use the shipped
 temperature calibration and are ranking signals, not certainty percentages.
 
 ## Experiments
+
+The [106-query frozen evaluation](results/retrieval-quality-2026-10-12/findings.md)
+covers five repositories, including ten multi-file AND behaviors and a Rich
+repository holdout. Dense context delivers complete evidence for **83/88 positive
+queries overall and 18/20 held-out positives**, with **175 ms held-out HTTP P95**.
+Dense candidate coverage is 87/88 at depth 50; hybrid reaches 88/88 but returns
+less complete evidence in its first five results. Defaults remain fast dense
+retrieval. The optional weak-match policy rejects three of four absent Rich
+queries while falsely rejecting one of twenty present behaviors, so it stays
+opt-in. Raw outputs, independent audits, and failures accompany the report.
+
+The [live MCP/watch test](results/retrieval-quality-2026-10-12/mcp-smoke.json)
+uses real Qwen and the official MCP client: a saved edit independently embeds
+one function and reuses two vectors. Durable retrieval, watching, and cancellation
+also have CPU verification. A [10,000-window synthetic index profile](results/index-profile-2026-10-12/report.md)
+records exact SQLite cosine P95 of 19.63 ms and full durable reuse; it does not
+establish real Qwen indexing performance at that scale. Next is paired-agent
+completion and provider-reported token evaluation, followed by VS Code integration.
 
 The [Requests service experiment](results/requests-service-2026-10-12/report.md)
 tests 20 newly authored queries on a second real codebase: 16 present behaviors
@@ -206,7 +257,9 @@ Apple Silicon omits Metal allocations and understates the model's memory use.
 
 ## Validation
 
-The CPU tests require NumPy but do not import MLX or download models. Run:
+Core CPU tests use NumPy, sqlite-vec, and tiktoken. The full suite also needs the
+optional `[mcp]` dependency described in [MCP setup](docs/mcp.md). Tests use fake
+models and real loopback/subprocess transports without checkpoint inference. Run:
 
 ```bash
 .venv/bin/python -m unittest discover -s tests -v
@@ -229,6 +282,12 @@ runtime commits are pinned in setup and recorded in each report.
 - [Requests](https://github.com/psf/requests), Apache-2.0. The additional frozen
   corpus is downloaded separately; committed excerpts retain its license and
   attribution in [third-party notices](THIRD_PARTY_NOTICES.md).
+- [Click](https://github.com/pallets/click), [Starlette](https://github.com/encode/starlette),
+  and [Rich](https://github.com/Textualize/rich) supply the expanded frozen corpus;
+  their pinned revisions and licenses are in [corpus notices](benchmarks/CORPUS_NOTICES.md).
+- [sqlite-vec](https://github.com/asg017/sqlite-vec), [tiktoken](https://github.com/openai/tiktoken),
+  and the [MCP Python SDK](https://github.com/modelcontextprotocol/python-sdk)
+  provide vector distance, context counting, and the optional stdio adapter.
 
 The scorer does one forward pass per window. Candidate coverage and the quality
 gain per second determine where optional reranking is useful as the project grows.

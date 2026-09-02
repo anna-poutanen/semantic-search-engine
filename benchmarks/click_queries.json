@@ -1,0 +1,429 @@
+{
+  "repo_url": "https://github.com/pallets/click",
+  "revision": "934813e4d421071a1b3db3973c02fe2721359a6e",
+  "release": "8.1.8",
+  "source_root": "src/click",
+  "benchmark_role": "development",
+  "split_policy": "Present topics alternate development/calibration in source-review order; each split has10present and2absent. Assigned before any retrieval outputs.",
+  "target_groups_semantics": "OR within each group, AND across all groups; targets retains legacy OR semantics.",
+  "queries": [
+    {
+      "id": "click_case_preserving_choices",
+      "query": "Where does a case-insensitive command-line choice match normalized input but return the originally declared spelling?",
+      "targets": [
+        {
+          "path": "src/click/types.py",
+          "symbol": "Choice.convert",
+          "evidence_lines": [
+            276,
+            294
+          ]
+        }
+      ],
+      "notes": "The normalized-choice map retains declared values; normalization/casefolding affect keys and lookup only. Reviewed tests/test_options.py::test_case_insensitive_choice and test_case_insensitive_choice_returned_exactly.",
+      "kind": "present",
+      "split": "development"
+    },
+    {
+      "id": "click_date_format_fallback",
+      "query": "Where does a date option try configured input formats in order, accept the first successful parse, and report the accepted formats when none matches?",
+      "targets": [
+        {
+          "path": "src/click/types.py",
+          "symbol": "DateTime.convert",
+          "evidence_lines": [
+            381,
+            399
+          ]
+        }
+      ],
+      "notes": "This method owns format iteration and failure reporting; individual strptime attempts are delegated. Reviewed tests/test_basic.py::test_datetime_option_default and test_datetime_option_custom.",
+      "kind": "present",
+      "split": "calibration"
+    },
+    {
+      "id": "click_numeric_bounds",
+      "query": "Where are open or closed numeric bounds enforced, either clamping an out-of-range value when enabled or reporting a range error?",
+      "targets": [
+        {
+          "path": "src/click/types.py",
+          "symbol": "_NumberRangeBase.convert",
+          "evidence_lines": [
+            454,
+            478
+          ]
+        }
+      ],
+      "notes": "Comparison operators depend on bound openness; clamping invokes the numeric subtype helper. Reviewed tests/test_types.py::test_range and test_range_fail.",
+      "kind": "present",
+      "split": "development"
+    },
+    {
+      "id": "click_boolean_text",
+      "query": "Which code recognizes whitespace-padded, case-insensitive yes/no, on/off, and 1/0 values as booleans and rejects other text?",
+      "targets": [
+        {
+          "path": "src/click/types.py",
+          "symbol": "BoolParamType.convert",
+          "evidence_lines": [
+            600,
+            613
+          ]
+        }
+      ],
+      "notes": "The method strips and lowercases text, checks explicit true/false sets, and fails otherwise. Reviewed tests/test_basic.py::test_boolean_conversion.",
+      "kind": "present",
+      "split": "calibration"
+    },
+    {
+      "id": "click_uuid_validation",
+      "query": "Where does a UUID option preserve an existing UUID object, trim textual input, and turn malformed UUID text into an option-value error?",
+      "targets": [
+        {
+          "path": "src/click/types.py",
+          "symbol": "UUIDParameterType.convert",
+          "evidence_lines": [
+            627,
+            637
+          ]
+        }
+      ],
+      "notes": "The method distinguishes existing UUID objects and wraps ValueError from uuid.UUID. Reviewed the valid/invalid cases around tests/test_basic.py::test_uuid_option.",
+      "kind": "present",
+      "split": "development"
+    },
+    {
+      "id": "click_path_kind_validation",
+      "query": "Where is a command-line path resolved through symlinks when requested and rejected if it is the wrong file-versus-directory kind or is missing when existence is required?",
+      "targets": [
+        {
+          "path": "src/click/types.py",
+          "symbol": "Path.convert",
+          "evidence_lines": [
+            867,
+            903
+          ]
+        }
+      ],
+      "notes": "The method resolves before stat and checks existence/file/directory policies. Reviewed tests/test_types.py::test_path_type and test_path_resolve_symlink. Independent review before inference clarified that a missing path is accepted when exists=False.",
+      "kind": "present",
+      "split": "calibration"
+    },
+    {
+      "id": "click_heterogeneous_tuple",
+      "query": "Where is a fixed-size option tuple checked for the required number of values and each position converted using its own declared type?",
+      "targets": [
+        {
+          "path": "src/click/types.py",
+          "symbol": "Tuple.convert",
+          "evidence_lines": [
+            986,
+            1000
+          ]
+        }
+      ],
+      "notes": "Length validation precedes zipped positional conversions. Source reviewed; no test execution.",
+      "kind": "present",
+      "split": "development"
+    },
+    {
+      "id": "click_command_source_precedence",
+      "query": "When several command collections expose the same subcommand name, where does the first source that supplies it win?",
+      "targets": [
+        {
+          "path": "src/click/core.py",
+          "symbol": "CommandCollection.get_command",
+          "evidence_lines": [
+            1987,
+            1996
+          ]
+        }
+      ],
+      "notes": "The sources loop returns the first non-None command; it does not merge callbacks.",
+      "kind": "present",
+      "split": "calibration"
+    },
+    {
+      "id": "click_parameter_value_precedence",
+      "query": "Where is an option value selected in command-line, environment, default-map, then declared-default order while recording which source supplied it?",
+      "targets": [
+        {
+          "path": "src/click/core.py",
+          "symbol": "Parameter.consume_value",
+          "evidence_lines": [
+            2281,
+            2296
+          ]
+        }
+      ],
+      "notes": "The fallback chain updates ParameterSource only when the preceding value is None. This asks for precedence orchestration, not environment parsing.",
+      "kind": "present",
+      "split": "development"
+    },
+    {
+      "id": "click_repeated_env_tuples",
+      "query": "Where is one environment variable split and regrouped into repeated fixed-length tuples for an option that accepts several occurrences?",
+      "targets": [
+        {
+          "path": "src/click/core.py",
+          "symbol": "Option.value_from_envvar",
+          "evidence_lines": [
+            2921,
+            2934
+          ]
+        }
+      ],
+      "notes": "Type-specific splitting is followed by batch grouping when both multiple and nargs differ from one. Reviewed tests/test_options.py::test_nargs_envvar.",
+      "kind": "present",
+      "split": "calibration"
+    },
+    {
+      "id": "click_long_option_values",
+      "query": "Where does long-option parsing inject a value supplied with an equals sign into the argument queue, while rejecting a value attached to a flag that takes none?",
+      "targets": [
+        {
+          "path": "src/click/parser.py",
+          "symbol": "OptionParser._match_long_opt",
+          "evidence_lines": [
+            402,
+            421
+          ]
+        }
+      ],
+      "notes": "The value-taking branch inserts explicit input, retrieves the value, and processes it; the flag branch rejects explicit_value.",
+      "kind": "present",
+      "split": "development"
+    },
+    {
+      "id": "click_short_option_cluster",
+      "query": "Where are combined short flags scanned character by character, with the rest of the same token becoming the value as soon as a value-taking option is found?",
+      "targets": [
+        {
+          "path": "src/click/parser.py",
+          "symbol": "OptionParser._match_short_opt",
+          "evidence_lines": [
+            429,
+            454
+          ]
+        }
+      ],
+      "notes": "The remainder is prepended to rargs and stop terminates the cluster after processing the value.",
+      "kind": "present",
+      "split": "calibration"
+    },
+    {
+      "id": "click_variadic_positionals",
+      "query": "Where does positional argument unpacking reserve a variable-length middle argument while taking later fixed-size arguments from the end?",
+      "targets": [
+        {
+          "path": "src/click/parser.py",
+          "symbol": "_unpack_args",
+          "evidence_lines": [
+            63,
+            108
+          ]
+        }
+      ],
+      "notes": "After a negative nargs position, _fetch switches to popping from the right, then the remainder fills that wildcard and later values are restored to forward order. One wildcard is permitted.",
+      "kind": "present",
+      "split": "development"
+    },
+    {
+      "id": "click_unwrapped_help_paragraph",
+      "query": "Where does help-text wrapping preserve paragraph breaks and leave a block marked by a backspace-only line unwrapped?",
+      "targets": [
+        {
+          "path": "src/click/formatting.py",
+          "symbol": "wrap_text",
+          "evidence_lines": [
+            70,
+            99
+          ]
+        }
+      ],
+      "notes": "The nested flush marks raw paragraphs and the final loop uses indent_only rather than fill for them. This requires the outer window containing the executable nested helper.",
+      "kind": "present",
+      "split": "calibration"
+    },
+    {
+      "id": "click_binary_console_output",
+      "query": "Where is byte output sent through an available binary stream, flushing the text wrapper before writing and flushing the binary stream afterward?",
+      "targets": [
+        {
+          "path": "src/click/utils.py",
+          "symbol": "echo",
+          "evidence_lines": [
+            296,
+            303
+          ]
+        }
+      ],
+      "notes": "The bytes/bytearray branch directly finds the binary writer and preserves ordering through both flushes. The query does not require the earlier newline logic.",
+      "kind": "present",
+      "split": "development"
+    },
+    {
+      "id": "click_confirmation_retry",
+      "query": "Where does a yes/no prompt retry invalid answers, use a configured default for empty input, and optionally abort after a negative response?",
+      "targets": [
+        {
+          "path": "src/click/termui.py",
+          "symbol": "confirm",
+          "evidence_lines": [
+            226,
+            248
+          ]
+        }
+      ],
+      "notes": "The input loop and abort branch implement all requested cases. Confirmation tests in tests/test_termui.py were located; exact branches verified in source.",
+      "kind": "present",
+      "split": "calibration"
+    },
+    {
+      "id": "click_visible_subcommand_completion",
+      "query": "Where are only subcommands with a matching prefix offered for completion, excluding hidden commands?",
+      "targets": [
+        {
+          "path": "src/click/core.py",
+          "symbol": "_complete_visible_commands",
+          "evidence_lines": [
+            61,
+            66
+          ]
+        }
+      ],
+      "notes": "The helper owns prefix and hidden filtering. Reviewed tests/test_shell_completion.py::test_hidden.",
+      "kind": "present",
+      "split": "development"
+    },
+    {
+      "id": "click_atomic_option_commit",
+      "query": "For an eagerly opened file option using atomic writes, where is a temporary sibling file created, its close scheduled at command-context cleanup, and that temporary file moved over the destination on close?",
+      "target_groups": [
+        [
+          {
+            "path": "src/click/types.py",
+            "symbol": "File.convert",
+            "evidence_lines": [
+              728,
+              743
+            ]
+          }
+        ],
+        [
+          {
+            "path": "src/click/_compat.py",
+            "symbol": "open_stream",
+            "evidence_lines": [
+              418,
+              451
+            ]
+          }
+        ],
+        [
+          {
+            "path": "src/click/_compat.py",
+            "symbol": "_AtomicFile.close",
+            "evidence_lines": [
+              466,
+              470
+            ]
+          }
+        ]
+      ],
+      "notes": "All three groups are required: option resource registration, temporary sibling creation/wrapping, and replacement on close. The eagerly opened case avoids requiring the separate LazyFile.open implementation.",
+      "kind": "present",
+      "split": "calibration"
+    },
+    {
+      "id": "click_pager_input_and_fallback",
+      "query": "Where are string or generated values converted into text chunks for paging, and where is paging routed to plain output when input or output is not a terminal?",
+      "target_groups": [
+        [
+          {
+            "path": "src/click/termui.py",
+            "symbol": "echo_via_pager",
+            "evidence_lines": [
+              268,
+              280
+            ]
+          }
+        ],
+        [
+          {
+            "path": "src/click/_termui_impl.py",
+            "symbol": "pager",
+            "evidence_lines": [
+              364,
+              372
+            ]
+          }
+        ]
+      ],
+      "notes": "The first group normalizes input and appends a newline; the second chooses non-TTY fallback. This asks for routing to plain output, not the null-pager writer itself.",
+      "kind": "present",
+      "split": "development"
+    },
+    {
+      "id": "click_standalone_usage_error",
+      "query": "When a standalone command has a usage error, where is the usage line and help hint printed, and where is the process terminated with that error's exit code?",
+      "target_groups": [
+        [
+          {
+            "path": "src/click/exceptions.py",
+            "symbol": "UsageError.show",
+            "evidence_lines": [
+              76,
+              91
+            ]
+          }
+        ],
+        [
+          {
+            "path": "src/click/core.py",
+            "symbol": "BaseCommand.main",
+            "evidence_lines": [
+              1096,
+              1100
+            ]
+          }
+        ]
+      ],
+      "notes": "Both display and standalone exit are required. Reviewed tests/test_formatting.py::test_formatting_usage_error, which expects usage, help hint, error text, and exit code2.",
+      "kind": "present",
+      "split": "calibration"
+    },
+    {
+      "id": "click_native_async_command",
+      "query": "Where is an async command callback awaited inside a built-in event-loop runner?",
+      "targets": [],
+      "notes": "No native coroutine/event-loop runner is implemented in src/click at this revision; command callbacks are invoked synchronously. External async adapters and user callbacks are outside scope.",
+      "kind": "absent",
+      "split": "development"
+    },
+    {
+      "id": "click_yaml_config_autoload",
+      "query": "Where is a YAML configuration file automatically loaded and mapped to command option defaults without application code?",
+      "targets": [],
+      "notes": "default_map supplies caller-provided defaults, but src/click has no built-in YAML parser or automatic configuration-file loader.",
+      "kind": "absent",
+      "split": "calibration"
+    },
+    {
+      "id": "click_remote_ssh_command",
+      "query": "Where does a command execute on a remote machine over SSH with a built-in retry policy?",
+      "targets": [],
+      "notes": "Click dispatches local callbacks; src/click does not implement an SSH transport or remote retry executor. Launching URLs or application-defined callbacks does not satisfy this behavior.",
+      "kind": "absent",
+      "split": "development"
+    },
+    {
+      "id": "click_persistent_command_history",
+      "query": "Where are completed command invocations and arguments stored in SQLite and replayed from a persistent history database?",
+      "targets": [],
+      "notes": "src/click has no SQLite history storage or replay implementation. Shell history and custom application persistence are excluded.",
+      "kind": "absent",
+      "split": "calibration"
+    }
+  ]
+}

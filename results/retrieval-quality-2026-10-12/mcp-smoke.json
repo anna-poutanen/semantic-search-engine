@@ -1,0 +1,338 @@
+{
+  "kind": "live_mcp_watcher_toy_smoke",
+  "model_inference": true,
+  "semantic_quality_measurement": false,
+  "settings": {
+    "query": "Calculate an exponential retry delay with a maximum wait.",
+    "retrieval": "dense",
+    "rerank": false,
+    "candidates": 4,
+    "max_results": 8,
+    "source_budget": 12000,
+    "token_budget": 4096,
+    "include_dependencies": true
+  },
+  "service_command": [
+    "<project>/.venv/bin/python",
+    "-m",
+    "semantic_search.cli",
+    "serve",
+    "--repo",
+    "<work-dir>/repo",
+    "--source-root",
+    "src",
+    "--index-cache",
+    "<work-dir>/indexes",
+    "--port",
+    "0",
+    "--watch-interval",
+    "0.2"
+  ],
+  "service_startup_s": 1.7712398330040742,
+  "toy_git_revision": "8b157fadedeb70b78696a759b4efdeba45de3c2a",
+  "source_root": "src",
+  "windows": 3,
+  "mcp_protocol": "2025-11-25",
+  "mcp_server": {
+    "name": "semantic-search",
+    "version": "0.1.0"
+  },
+  "runtime": {
+    "mcp": "2.3.0",
+    "mcp-types": "2.3.0",
+    "anyio": "4.15.1",
+    "tiktoken": "0.14.0",
+    "numpy": "2.5.4"
+  },
+  "embedding": {
+    "add_special_tokens": true,
+    "batch_order": "stable ascending token length; restore input order",
+    "batch_size": 4,
+    "checkpoint_validation": "pinned Hub download provenance; original unquantized config",
+    "dimensions": 1024,
+    "document_prompt": null,
+    "id": "Qwen/Qwen3-Embedding-0.6B",
+    "max_tokens": 8192,
+    "normalization": "L2, float32",
+    "packages": {
+      "mlx": "0.32.3",
+      "mlx-embeddings": "0.1.0",
+      "mlx-metal": "0.32.3",
+      "numpy": "2.5.4",
+      "transformers": "5.19.0"
+    },
+    "padding_side": "right",
+    "pooling": "last non-padding token",
+    "quantized": false,
+    "query_instruction": "Given a description of code behavior, retrieve the code implementation that performs it.",
+    "query_prompt": "Instruct: Given a description of code behavior, retrieve the code implementation that performs it.\nQuery:",
+    "revision": "97b0c614be4d77ee51c0cef4e5f07c00f9eb65b3",
+    "runtime": "mlx-embeddings",
+    "runtime_version": "0.1.0",
+    "truncation": "right",
+    "weights_dtype": "bfloat16"
+  },
+  "steps": [
+    {
+      "phase": "initial_index",
+      "status": {
+        "repo": "<work-dir>/repo",
+        "source_root": "src",
+        "closed": false,
+        "ready": true,
+        "source_manifest": "380462cb20923ecfe520c18a3b9f05eef105ecce2433f7cdd7989b1c0ff7a17a",
+        "windows": 3,
+        "embedding_initialized": true,
+        "dense_ready": true,
+        "last_error": null,
+        "indexstats": {
+          "indexed_windows": 3,
+          "reused_windows": 0,
+          "deleted_windows": 0,
+          "total_windows": 3,
+          "elapsed_s": 1.6523804999887943,
+          "model_fingerprint": "2605d7e4c477b8b8dc107f31b02c7fc4e7fc419945e8727c7a5c14a02fe70c45",
+          "memory_cache_hit": false,
+          "source_manifest": "380462cb20923ecfe520c18a3b9f05eef105ecce2433f7cdd7989b1c0ff7a17a",
+          "source_files": 1
+        },
+        "watcher": {
+          "running": true,
+          "pending": false,
+          "refresh_count": 0,
+          "last_error": null,
+          "last_refresh_at": null,
+          "poll_interval_s": 0.2,
+          "debounce_s": 0.5
+        },
+        "abstention_policy": null,
+        "store": {
+          "db_path": "<work-dir>/indexes/5093880be4d20d57cd6c3e1a3eaf2a4ae548f4e165a99bf7265a7c47897c1c76.sqlite3",
+          "schema_version": 2,
+          "total_windows": 3,
+          "dense_windows": 3,
+          "lexical_backend": "sqlite_fts5",
+          "dense_backend": "sqlite_vec_cosine_exact",
+          "sqlite_vec_version": "0.1.9",
+          "dimensions": 1024,
+          "embedding": {
+            "add_special_tokens": true,
+            "batch_order": "stable ascending token length; restore input order",
+            "batch_size": 4,
+            "checkpoint_validation": "pinned Hub download provenance; original unquantized config",
+            "dimensions": 1024,
+            "document_prompt": null,
+            "id": "Qwen/Qwen3-Embedding-0.6B",
+            "max_tokens": 8192,
+            "normalization": "L2, float32",
+            "packages": {
+              "mlx": "0.32.3",
+              "mlx-embeddings": "0.1.0",
+              "mlx-metal": "0.32.3",
+              "numpy": "2.5.4",
+              "transformers": "5.19.0"
+            },
+            "padding_side": "right",
+            "pooling": "last non-padding token",
+            "quantized": false,
+            "query_instruction": "Given a description of code behavior, retrieve the code implementation that performs it.",
+            "query_prompt": "Instruct: Given a description of code behavior, retrieve the code implementation that performs it.\nQuery:",
+            "revision": "97b0c614be4d77ee51c0cef4e5f07c00f9eb65b3",
+            "runtime": "mlx-embeddings",
+            "runtime_version": "0.1.0",
+            "truncation": "right",
+            "weights_dtype": "bfloat16"
+          },
+          "model_fingerprint": "2605d7e4c477b8b8dc107f31b02c7fc4e7fc419945e8727c7a5c14a02fe70c45",
+          "updated_at": "2026-10-13T01:58:20.779498+00:00"
+        }
+      }
+    },
+    {
+      "phase": "initial_mcp_search",
+      "elapsed_s": 0.2818372920010006,
+      "context": {
+        "query": "Calculate an exponential retry delay with a maximum wait.",
+        "match_status": "candidates",
+        "results": [
+          {
+            "path": "src/sample.py",
+            "symbol": "backoff_delay",
+            "start_line": 6,
+            "end_line": 7,
+            "source": "def backoff_delay(attempt):\n    return min(2 ** attempt, 60)\n",
+            "source_hash": "3f2d8bf096c914a3943a3a08a92aa604a54782abb1b890f20afc2a4ad24d2565",
+            "truncated": false,
+            "origin": "retrieval",
+            "related_to": null
+          },
+          {
+            "path": "src/sample.py",
+            "symbol": "decode_response",
+            "start_line": 9,
+            "end_line": 10,
+            "source": "def decode_response(data):\n    return json.loads(data)\n",
+            "source_hash": "b8aed3c5b8d336b9ea93e133b88205a0ddd3401c59fa3c97034e5cffa0210bb6",
+            "truncated": false,
+            "origin": "retrieval",
+            "related_to": null
+          },
+          {
+            "path": "src/sample.py",
+            "symbol": "normalize_path",
+            "start_line": 3,
+            "end_line": 4,
+            "source": "def normalize_path(path):\n    return path.strip().rstrip(\"/\")\n",
+            "source_hash": "567301026e994fc26d2318659632a30382e5a913f0361adf15aea35fb0e6e1e2",
+            "truncated": false,
+            "origin": "retrieval",
+            "related_to": null
+          }
+        ],
+        "budget_exhausted": false,
+        "token_usage": {
+          "encoding": "cl100k_base",
+          "tokens": 346,
+          "budget": 4096,
+          "truncated": false
+        }
+      }
+    },
+    {
+      "phase": "watcher_refreshed_without_search",
+      "elapsed_s": 1.0312265829998069,
+      "status_polls": 10,
+      "trigger_requests": "GET /status only",
+      "status": {
+        "repo": "<work-dir>/repo",
+        "source_root": "src",
+        "closed": false,
+        "ready": true,
+        "source_manifest": "6c2a42a8795a500b0a027fff0a3144955d0be728423f9f7e36844fe0cfc0c5ea",
+        "windows": 3,
+        "embedding_initialized": true,
+        "dense_ready": true,
+        "last_error": null,
+        "indexstats": {
+          "indexed_windows": 1,
+          "reused_windows": 2,
+          "deleted_windows": 0,
+          "total_windows": 3,
+          "elapsed_s": 0.15088112499506678,
+          "model_fingerprint": "2605d7e4c477b8b8dc107f31b02c7fc4e7fc419945e8727c7a5c14a02fe70c45",
+          "memory_cache_hit": false,
+          "source_manifest": "6c2a42a8795a500b0a027fff0a3144955d0be728423f9f7e36844fe0cfc0c5ea",
+          "source_files": 1
+        },
+        "watcher": {
+          "running": true,
+          "pending": false,
+          "refresh_count": 1,
+          "last_error": null,
+          "last_refresh_at": "2026-10-13T01:58:22.479651+00:00",
+          "poll_interval_s": 0.2,
+          "debounce_s": 0.5
+        },
+        "abstention_policy": null,
+        "store": {
+          "db_path": "<work-dir>/indexes/5093880be4d20d57cd6c3e1a3eaf2a4ae548f4e165a99bf7265a7c47897c1c76.sqlite3",
+          "schema_version": 2,
+          "total_windows": 3,
+          "dense_windows": 3,
+          "lexical_backend": "sqlite_fts5",
+          "dense_backend": "sqlite_vec_cosine_exact",
+          "sqlite_vec_version": "0.1.9",
+          "dimensions": 1024,
+          "embedding": {
+            "add_special_tokens": true,
+            "batch_order": "stable ascending token length; restore input order",
+            "batch_size": 4,
+            "checkpoint_validation": "pinned Hub download provenance; original unquantized config",
+            "dimensions": 1024,
+            "document_prompt": null,
+            "id": "Qwen/Qwen3-Embedding-0.6B",
+            "max_tokens": 8192,
+            "normalization": "L2, float32",
+            "packages": {
+              "mlx": "0.32.3",
+              "mlx-embeddings": "0.1.0",
+              "mlx-metal": "0.32.3",
+              "numpy": "2.5.4",
+              "transformers": "5.19.0"
+            },
+            "padding_side": "right",
+            "pooling": "last non-padding token",
+            "quantized": false,
+            "query_instruction": "Given a description of code behavior, retrieve the code implementation that performs it.",
+            "query_prompt": "Instruct: Given a description of code behavior, retrieve the code implementation that performs it.\nQuery:",
+            "revision": "97b0c614be4d77ee51c0cef4e5f07c00f9eb65b3",
+            "runtime": "mlx-embeddings",
+            "runtime_version": "0.1.0",
+            "truncation": "right",
+            "weights_dtype": "bfloat16"
+          },
+          "model_fingerprint": "2605d7e4c477b8b8dc107f31b02c7fc4e7fc419945e8727c7a5c14a02fe70c45",
+          "updated_at": "2026-10-13T01:58:22.426727+00:00"
+        }
+      }
+    },
+    {
+      "phase": "mcp_sees_saved_edit",
+      "elapsed_s": 0.10149470799660776,
+      "previous_source_hash": "3f2d8bf096c914a3943a3a08a92aa604a54782abb1b890f20afc2a4ad24d2565",
+      "new_source_hash": "e53c47269992fbe48624cbe6efd1f6260afc5b98d6c4bf7ea87c57b5e640a291",
+      "context": {
+        "query": "Calculate an exponential retry delay with a maximum wait.",
+        "match_status": "candidates",
+        "results": [
+          {
+            "path": "src/sample.py",
+            "symbol": "backoff_delay",
+            "start_line": 6,
+            "end_line": 7,
+            "source": "def backoff_delay(attempt):\n    return min(2 ** attempt, 90)\n",
+            "source_hash": "e53c47269992fbe48624cbe6efd1f6260afc5b98d6c4bf7ea87c57b5e640a291",
+            "truncated": false,
+            "origin": "retrieval",
+            "related_to": null
+          },
+          {
+            "path": "src/sample.py",
+            "symbol": "decode_response",
+            "start_line": 9,
+            "end_line": 10,
+            "source": "def decode_response(data):\n    return json.loads(data)\n",
+            "source_hash": "b8aed3c5b8d336b9ea93e133b88205a0ddd3401c59fa3c97034e5cffa0210bb6",
+            "truncated": false,
+            "origin": "retrieval",
+            "related_to": null
+          },
+          {
+            "path": "src/sample.py",
+            "symbol": "normalize_path",
+            "start_line": 3,
+            "end_line": 4,
+            "source": "def normalize_path(path):\n    return path.strip().rstrip(\"/\")\n",
+            "source_hash": "567301026e994fc26d2318659632a30382e5a913f0361adf15aea35fb0e6e1e2",
+            "truncated": false,
+            "origin": "retrieval",
+            "related_to": null
+          }
+        ],
+        "budget_exhausted": false,
+        "token_usage": {
+          "encoding": "cl100k_base",
+          "tokens": 345,
+          "budget": 4096,
+          "truncated": false
+        }
+      }
+    }
+  ],
+  "termination": {
+    "signal": "SIGTERM",
+    "returncode": 0,
+    "forced_kill": false
+  },
+  "limitations": "Three toy functions exercise real Qwen, CLI, stdio MCP, saved-edit watcher and shutdown; this is not retrieval quality or paid-token savings evidence."
+}
