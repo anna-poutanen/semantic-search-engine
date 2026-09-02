@@ -1,0 +1,57 @@
+{
+  "status": "passed",
+  "audit_method": "Independent CPU reconstruction from pinned source, raw HTTP outputs, official shim prompt/tokenizer and persisted SQLite vectors; no new inference.",
+  "dataset_sha256": "6120911fce0ad94d42c0cf340e38d397f61454e57faa377298054ca76eb5645c",
+  "corpus_windows": 240,
+  "measured_search_rows": 100,
+  "conditions": 5,
+  "fresh_h2o_judgments": 140,
+  "split_counts": {
+    "all": {
+      "present": 16,
+      "absent": 4,
+      "latency_samples_per_condition": 20
+    },
+    "development": {
+      "present": 8,
+      "absent": 2,
+      "latency_samples_per_condition": 10
+    },
+    "test": {
+      "present": 8,
+      "absent": 2,
+      "latency_samples_per_condition": 10
+    }
+  },
+  "checks": [
+    "Exact returned source bytes, window and excerpt hashes, adjusted inclusive line bounds",
+    "Full executable evidence interval required in actual delivered excerpt",
+    "Every condition/split hit@1, hit@3, hit@5, MRR, counts, medians, nearest-rank p95 and maxima",
+    "All 140 measured raw scoring responses: ordinal probabilities, expected score, confidence, official input-token counts",
+    "Each scored prefix equals first K unique retrieval-only windows; returned order and scores reconstruct correctly",
+    "All source character budgets and truncation flags truthful",
+    "Condition rotation, separate warmup, fresh inference call count, unchanged cached source manifest",
+    "Persisted SQLite active source windows, model metadata and finite document vectors"
+  ],
+  "source_budget": {
+    "characters": 12000,
+    "truncated_excerpts": 10,
+    "budget_constrained_searches": 9
+  },
+  "input_tokens": {
+    "min": 280,
+    "max": 1388
+  },
+  "repeated_exact_input_score_drift": 0.0,
+  "coverage_losses": [
+    {
+      "query_id": "requests_streamed_upload_length",
+      "retrieval": "dense",
+      "k": 4,
+      "retrieval_only_rank": 5,
+      "scored_candidate_has_gold": false
+    }
+  ],
+  "p95_note": "Overall p95 uses the 19th of 20 measured searches; per-split p95 equals the maximum of 10. Latency includes absent cases; quality excludes them.",
+  "evaluation_scope": "Fixed configurations and dataset split were declared before this repository inference. Both splits share one source-reviewed, authored repository dataset; no representative or repository-independent generalization claim."
+}
