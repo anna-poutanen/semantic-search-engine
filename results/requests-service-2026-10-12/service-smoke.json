@@ -1,0 +1,493 @@
+{
+  "steps": [
+    {
+      "phase": "prewarmed",
+      "status": {
+        "repo": "/Users/annapoutanen/personal-projects/semantic-search-engine/.cache/service-smoke/repo",
+        "source_root": "src",
+        "closed": false,
+        "ready": true,
+        "source_manifest": "63e31af315be21b437f012ee3edb7e47ac1cee1384043952388c65671dd2af62",
+        "windows": 3,
+        "embedding_initialized": true,
+        "dense_ready": true,
+        "last_error": null,
+        "indexstats": {
+          "indexed_windows": 3,
+          "reused_windows": 0,
+          "deleted_windows": 0,
+          "total_windows": 3,
+          "elapsed_s": 1.4773934169934364,
+          "model_fingerprint": "2605d7e4c477b8b8dc107f31b02c7fc4e7fc419945e8727c7a5c14a02fe70c45",
+          "memory_cache_hit": false,
+          "source_manifest": "63e31af315be21b437f012ee3edb7e47ac1cee1384043952388c65671dd2af62",
+          "source_files": 1
+        },
+        "store": {
+          "db_path": "/Users/annapoutanen/personal-projects/semantic-search-engine/.cache/service-smoke/indexes/bc73b38e32d4c1d19d0f93fe74baea80bab8886a249e9194a910836ddb519d82.sqlite3",
+          "schema_version": 1,
+          "total_windows": 3,
+          "dimensions": 1024,
+          "embedding": {
+            "add_special_tokens": true,
+            "batch_order": "stable ascending token length; restore input order",
+            "batch_size": 4,
+            "checkpoint_validation": "pinned Hub download provenance; original unquantized config",
+            "dimensions": 1024,
+            "document_prompt": null,
+            "id": "Qwen/Qwen3-Embedding-0.6B",
+            "max_tokens": 8192,
+            "normalization": "L2, float32",
+            "packages": {
+              "mlx": "0.32.3",
+              "mlx-embeddings": "0.1.0",
+              "mlx-metal": "0.32.3",
+              "numpy": "2.5.4",
+              "transformers": "5.19.0"
+            },
+            "padding_side": "right",
+            "pooling": "last non-padding token",
+            "quantized": false,
+            "query_instruction": "Given a description of code behavior, retrieve the code implementation that performs it.",
+            "query_prompt": "Instruct: Given a description of code behavior, retrieve the code implementation that performs it.\nQuery:",
+            "revision": "97b0c614be4d77ee51c0cef4e5f07c00f9eb65b3",
+            "runtime": "mlx-embeddings",
+            "runtime_version": "0.1.0",
+            "truncation": "right",
+            "weights_dtype": "bfloat16"
+          },
+          "model_fingerprint": "2605d7e4c477b8b8dc107f31b02c7fc4e7fc419945e8727c7a5c14a02fe70c45",
+          "updated_at": "2026-10-13T00:48:15.017018+00:00"
+        }
+      },
+      "startup_s": 1.6335089999920456
+    },
+    {
+      "phase": "unchanged",
+      "elapsed_http_s": 0.08122445899061859,
+      "response": {
+        "repo": "/Users/annapoutanen/personal-projects/semantic-search-engine/.cache/service-smoke/repo",
+        "source_root": "src",
+        "query": "Calculate an exponential retry delay with a maximum wait.",
+        "retrieval": "dense",
+        "rerank": false,
+        "results": [
+          {
+            "id": "src/sample.py:backoff_delay:6-7",
+            "path": "src/sample.py",
+            "symbol": "backoff_delay",
+            "start_line": 6,
+            "end_line": 7,
+            "window_end_line": 7,
+            "source": "def backoff_delay(attempt):\n    return min(2 ** attempt, 60)\n",
+            "content_hash": "3f2d8bf096c914a3943a3a08a92aa604a54782abb1b890f20afc2a4ad24d2565",
+            "source_hash": "3f2d8bf096c914a3943a3a08a92aa604a54782abb1b890f20afc2a4ad24d2565",
+            "retrieval_score": 0.6392124779348395,
+            "h2o_score": null,
+            "truncated": false
+          },
+          {
+            "id": "src/sample.py:decode_response:9-10",
+            "path": "src/sample.py",
+            "symbol": "decode_response",
+            "start_line": 9,
+            "end_line": 10,
+            "window_end_line": 10,
+            "source": "def decode_response(data):\n    return json.loads(data)\n",
+            "content_hash": "b8aed3c5b8d336b9ea93e133b88205a0ddd3401c59fa3c97034e5cffa0210bb6",
+            "source_hash": "b8aed3c5b8d336b9ea93e133b88205a0ddd3401c59fa3c97034e5cffa0210bb6",
+            "retrieval_score": 0.17363437243670432,
+            "h2o_score": null,
+            "truncated": false
+          },
+          {
+            "id": "src/sample.py:normalize_path:3-4",
+            "path": "src/sample.py",
+            "symbol": "normalize_path",
+            "start_line": 3,
+            "end_line": 4,
+            "window_end_line": 4,
+            "source": "def normalize_path(path):\n    return path.strip().rstrip(\"/\")\n",
+            "content_hash": "567301026e994fc26d2318659632a30382e5a913f0361adf15aea35fb0e6e1e2",
+            "source_hash": "567301026e994fc26d2318659632a30382e5a913f0361adf15aea35fb0e6e1e2",
+            "retrieval_score": 0.11478405924095553,
+            "h2o_score": null,
+            "truncated": false
+          }
+        ],
+        "candidate_windows": 3,
+        "available_symbols": 3,
+        "source_budget": 12000,
+        "total_source_chars": 178,
+        "budget_exhausted": false,
+        "indexstats": {
+          "indexed_windows": 0,
+          "reused_windows": 0,
+          "deleted_windows": 0,
+          "total_windows": 3,
+          "memory_cache_hit": true,
+          "model_fingerprint": "2605d7e4c477b8b8dc107f31b02c7fc4e7fc419945e8727c7a5c14a02fe70c45",
+          "source_manifest": "63e31af315be21b437f012ee3edb7e47ac1cee1384043952388c65671dd2af62",
+          "source_files": 1,
+          "elapsed_s": 0.026229583003441803
+        },
+        "timings": {
+          "index_s": 0.026229583003441803,
+          "query_embedding_s": 0.03340349999780301,
+          "retrieval_s": 5.149999924469739e-05,
+          "h2o_s": 0.0,
+          "packaging_s": 0.020854834001511335,
+          "total_s": 0.08056120800029021
+        }
+      }
+    },
+    {
+      "phase": "one_saved_edit",
+      "elapsed_http_s": 0.141218624994508,
+      "response": {
+        "repo": "/Users/annapoutanen/personal-projects/semantic-search-engine/.cache/service-smoke/repo",
+        "source_root": "src",
+        "query": "Calculate an exponential retry delay with a maximum wait.",
+        "retrieval": "dense",
+        "rerank": false,
+        "results": [
+          {
+            "id": "src/sample.py:backoff_delay:6-7",
+            "path": "src/sample.py",
+            "symbol": "backoff_delay",
+            "start_line": 6,
+            "end_line": 7,
+            "window_end_line": 7,
+            "source": "def backoff_delay(attempt):\n    return min(2 ** attempt, 90)\n",
+            "content_hash": "e53c47269992fbe48624cbe6efd1f6260afc5b98d6c4bf7ea87c57b5e640a291",
+            "source_hash": "e53c47269992fbe48624cbe6efd1f6260afc5b98d6c4bf7ea87c57b5e640a291",
+            "retrieval_score": 0.6413646611860934,
+            "h2o_score": null,
+            "truncated": false
+          },
+          {
+            "id": "src/sample.py:decode_response:9-10",
+            "path": "src/sample.py",
+            "symbol": "decode_response",
+            "start_line": 9,
+            "end_line": 10,
+            "window_end_line": 10,
+            "source": "def decode_response(data):\n    return json.loads(data)\n",
+            "content_hash": "b8aed3c5b8d336b9ea93e133b88205a0ddd3401c59fa3c97034e5cffa0210bb6",
+            "source_hash": "b8aed3c5b8d336b9ea93e133b88205a0ddd3401c59fa3c97034e5cffa0210bb6",
+            "retrieval_score": 0.17363437243670432,
+            "h2o_score": null,
+            "truncated": false
+          },
+          {
+            "id": "src/sample.py:normalize_path:3-4",
+            "path": "src/sample.py",
+            "symbol": "normalize_path",
+            "start_line": 3,
+            "end_line": 4,
+            "window_end_line": 4,
+            "source": "def normalize_path(path):\n    return path.strip().rstrip(\"/\")\n",
+            "content_hash": "567301026e994fc26d2318659632a30382e5a913f0361adf15aea35fb0e6e1e2",
+            "source_hash": "567301026e994fc26d2318659632a30382e5a913f0361adf15aea35fb0e6e1e2",
+            "retrieval_score": 0.11478405924095553,
+            "h2o_score": null,
+            "truncated": false
+          }
+        ],
+        "candidate_windows": 3,
+        "available_symbols": 3,
+        "source_budget": 12000,
+        "total_source_chars": 178,
+        "budget_exhausted": false,
+        "indexstats": {
+          "indexed_windows": 1,
+          "reused_windows": 2,
+          "deleted_windows": 0,
+          "total_windows": 3,
+          "elapsed_s": 0.10135058299056254,
+          "model_fingerprint": "2605d7e4c477b8b8dc107f31b02c7fc4e7fc419945e8727c7a5c14a02fe70c45",
+          "memory_cache_hit": false,
+          "source_manifest": "392071be2db881277e7f38f7d968429381c7672977db6838c87d7299f97e57d3",
+          "source_files": 1
+        },
+        "timings": {
+          "index_s": 0.10135058299056254,
+          "query_embedding_s": 0.021227625009487383,
+          "retrieval_s": 4.3249994632788e-05,
+          "h2o_s": 0.0,
+          "packaging_s": 0.017892834002850577,
+          "total_s": 0.14052787500259
+        }
+      }
+    },
+    {
+      "phase": "bounded_excerpt",
+      "elapsed_http_s": 0.057824959003482945,
+      "response": {
+        "repo": "/Users/annapoutanen/personal-projects/semantic-search-engine/.cache/service-smoke/repo",
+        "source_root": "src",
+        "query": "Calculate an exponential retry delay with a maximum wait.",
+        "retrieval": "dense",
+        "rerank": false,
+        "results": [
+          {
+            "id": "src/sample.py:backoff_delay:6-7",
+            "path": "src/sample.py",
+            "symbol": "backoff_delay",
+            "start_line": 6,
+            "end_line": 6,
+            "window_end_line": 7,
+            "source": "def backoff_delay(attempt):\n",
+            "content_hash": "e53c47269992fbe48624cbe6efd1f6260afc5b98d6c4bf7ea87c57b5e640a291",
+            "source_hash": "da299e4d36f26f825fe1ff37cdca528923c21b898ae19e8791b17f674f5477e9",
+            "retrieval_score": 0.6413646611860934,
+            "h2o_score": null,
+            "truncated": true
+          },
+          {
+            "id": "src/sample.py:decode_response:9-10",
+            "path": "src/sample.py",
+            "symbol": "decode_response",
+            "start_line": 9,
+            "end_line": 9,
+            "window_end_line": 10,
+            "source": "def decode_response(data):\n",
+            "content_hash": "b8aed3c5b8d336b9ea93e133b88205a0ddd3401c59fa3c97034e5cffa0210bb6",
+            "source_hash": "25f03f4b982ba843fec50443dae755be69f0c9d5b93ff209fe85e3b474e6df76",
+            "retrieval_score": 0.17363437243670432,
+            "h2o_score": null,
+            "truncated": true
+          }
+        ],
+        "candidate_windows": 3,
+        "available_symbols": 3,
+        "source_budget": 60,
+        "total_source_chars": 55,
+        "budget_exhausted": true,
+        "indexstats": {
+          "indexed_windows": 0,
+          "reused_windows": 0,
+          "deleted_windows": 0,
+          "total_windows": 3,
+          "memory_cache_hit": true,
+          "model_fingerprint": "2605d7e4c477b8b8dc107f31b02c7fc4e7fc419945e8727c7a5c14a02fe70c45",
+          "source_manifest": "392071be2db881277e7f38f7d968429381c7672977db6838c87d7299f97e57d3",
+          "source_files": 1,
+          "elapsed_s": 0.01729899999918416
+        },
+        "timings": {
+          "index_s": 0.01729899999918416,
+          "query_embedding_s": 0.020812292001210153,
+          "retrieval_s": 4.0875005652196705e-05,
+          "h2o_s": 0.0,
+          "packaging_s": 0.018949707999126986,
+          "total_s": 0.05711370799690485
+        }
+      }
+    },
+    {
+      "phase": "invalid_source_rejected",
+      "error": "Search service returned HTTP 409: {\"error\": {\"code\": \"source_snapshot\", \"message\": \"Cannot parse saved source src/sample.py: '(' was never closed (sample.py, line 12)\"}}"
+    },
+    {
+      "phase": "deletion_and_line_shift",
+      "elapsed_http_s": 0.13298500000382774,
+      "response": {
+        "repo": "/Users/annapoutanen/personal-projects/semantic-search-engine/.cache/service-smoke/repo",
+        "source_root": "src",
+        "query": "Calculate an exponential retry delay with a maximum wait.",
+        "retrieval": "dense",
+        "rerank": false,
+        "results": [
+          {
+            "id": "src/sample.py:backoff_delay:3-4",
+            "path": "src/sample.py",
+            "symbol": "backoff_delay",
+            "start_line": 3,
+            "end_line": 4,
+            "window_end_line": 4,
+            "source": "def backoff_delay(attempt):\n    return min(2 ** attempt, 90)\n",
+            "content_hash": "e53c47269992fbe48624cbe6efd1f6260afc5b98d6c4bf7ea87c57b5e640a291",
+            "source_hash": "e53c47269992fbe48624cbe6efd1f6260afc5b98d6c4bf7ea87c57b5e640a291",
+            "retrieval_score": 0.6413646611860934,
+            "h2o_score": null,
+            "truncated": false
+          },
+          {
+            "id": "src/sample.py:decode_response:6-7",
+            "path": "src/sample.py",
+            "symbol": "decode_response",
+            "start_line": 6,
+            "end_line": 7,
+            "window_end_line": 7,
+            "source": "def decode_response(data):\n    return json.loads(data)\n",
+            "content_hash": "b8aed3c5b8d336b9ea93e133b88205a0ddd3401c59fa3c97034e5cffa0210bb6",
+            "source_hash": "b8aed3c5b8d336b9ea93e133b88205a0ddd3401c59fa3c97034e5cffa0210bb6",
+            "retrieval_score": 0.17363437243670432,
+            "h2o_score": null,
+            "truncated": false
+          }
+        ],
+        "candidate_windows": 2,
+        "available_symbols": 2,
+        "source_budget": 12000,
+        "total_source_chars": 116,
+        "budget_exhausted": false,
+        "indexstats": {
+          "indexed_windows": 0,
+          "reused_windows": 2,
+          "deleted_windows": 3,
+          "total_windows": 2,
+          "elapsed_s": 0.0755453750025481,
+          "model_fingerprint": "2605d7e4c477b8b8dc107f31b02c7fc4e7fc419945e8727c7a5c14a02fe70c45",
+          "memory_cache_hit": false,
+          "source_manifest": "def58fbfee4d6de9942dd666fa0adc853be606308bfcf3dd03f57ab6258deef1",
+          "source_files": 1
+        },
+        "timings": {
+          "index_s": 0.0755453750025481,
+          "query_embedding_s": 0.039289583000936545,
+          "retrieval_s": 4.116600030101836e-05,
+          "h2o_s": 0.0,
+          "packaging_s": 0.017487916004029103,
+          "total_s": 0.13238529099908192
+        }
+      }
+    },
+    {
+      "phase": "restart_reuses_durable_vectors",
+      "startup_s": 1.2011260419967584,
+      "status": {
+        "repo": "/Users/annapoutanen/personal-projects/semantic-search-engine/.cache/service-smoke/repo",
+        "source_root": "src",
+        "closed": false,
+        "ready": true,
+        "source_manifest": "def58fbfee4d6de9942dd666fa0adc853be606308bfcf3dd03f57ab6258deef1",
+        "windows": 2,
+        "embedding_initialized": true,
+        "dense_ready": true,
+        "last_error": null,
+        "indexstats": {
+          "indexed_windows": 0,
+          "reused_windows": 2,
+          "deleted_windows": 0,
+          "total_windows": 2,
+          "elapsed_s": 0.08577912500186358,
+          "model_fingerprint": "2605d7e4c477b8b8dc107f31b02c7fc4e7fc419945e8727c7a5c14a02fe70c45",
+          "memory_cache_hit": false,
+          "source_manifest": "def58fbfee4d6de9942dd666fa0adc853be606308bfcf3dd03f57ab6258deef1",
+          "source_files": 1
+        },
+        "store": {
+          "db_path": "/Users/annapoutanen/personal-projects/semantic-search-engine/.cache/service-smoke/indexes/bc73b38e32d4c1d19d0f93fe74baea80bab8886a249e9194a910836ddb519d82.sqlite3",
+          "schema_version": 1,
+          "total_windows": 2,
+          "dimensions": 1024,
+          "embedding": {
+            "add_special_tokens": true,
+            "batch_order": "stable ascending token length; restore input order",
+            "batch_size": 4,
+            "checkpoint_validation": "pinned Hub download provenance; original unquantized config",
+            "dimensions": 1024,
+            "document_prompt": null,
+            "id": "Qwen/Qwen3-Embedding-0.6B",
+            "max_tokens": 8192,
+            "normalization": "L2, float32",
+            "packages": {
+              "mlx": "0.32.3",
+              "mlx-embeddings": "0.1.0",
+              "mlx-metal": "0.32.3",
+              "numpy": "2.5.4",
+              "transformers": "5.19.0"
+            },
+            "padding_side": "right",
+            "pooling": "last non-padding token",
+            "quantized": false,
+            "query_instruction": "Given a description of code behavior, retrieve the code implementation that performs it.",
+            "query_prompt": "Instruct: Given a description of code behavior, retrieve the code implementation that performs it.\nQuery:",
+            "revision": "97b0c614be4d77ee51c0cef4e5f07c00f9eb65b3",
+            "runtime": "mlx-embeddings",
+            "runtime_version": "0.1.0",
+            "truncation": "right",
+            "weights_dtype": "bfloat16"
+          },
+          "model_fingerprint": "2605d7e4c477b8b8dc107f31b02c7fc4e7fc419945e8727c7a5c14a02fe70c45",
+          "updated_at": "2026-10-13T00:48:16.274533+00:00"
+        }
+      },
+      "response": {
+        "repo": "/Users/annapoutanen/personal-projects/semantic-search-engine/.cache/service-smoke/repo",
+        "source_root": "src",
+        "query": "Calculate an exponential retry delay with a maximum wait.",
+        "retrieval": "dense",
+        "rerank": false,
+        "results": [
+          {
+            "id": "src/sample.py:backoff_delay:3-4",
+            "path": "src/sample.py",
+            "symbol": "backoff_delay",
+            "start_line": 3,
+            "end_line": 4,
+            "window_end_line": 4,
+            "source": "def backoff_delay(attempt):\n    return min(2 ** attempt, 90)\n",
+            "content_hash": "e53c47269992fbe48624cbe6efd1f6260afc5b98d6c4bf7ea87c57b5e640a291",
+            "source_hash": "e53c47269992fbe48624cbe6efd1f6260afc5b98d6c4bf7ea87c57b5e640a291",
+            "retrieval_score": 0.6413646611860934,
+            "h2o_score": null,
+            "truncated": false
+          },
+          {
+            "id": "src/sample.py:decode_response:6-7",
+            "path": "src/sample.py",
+            "symbol": "decode_response",
+            "start_line": 6,
+            "end_line": 7,
+            "window_end_line": 7,
+            "source": "def decode_response(data):\n    return json.loads(data)\n",
+            "content_hash": "b8aed3c5b8d336b9ea93e133b88205a0ddd3401c59fa3c97034e5cffa0210bb6",
+            "source_hash": "b8aed3c5b8d336b9ea93e133b88205a0ddd3401c59fa3c97034e5cffa0210bb6",
+            "retrieval_score": 0.17363437243670432,
+            "h2o_score": null,
+            "truncated": false
+          }
+        ],
+        "candidate_windows": 2,
+        "available_symbols": 2,
+        "source_budget": 12000,
+        "total_source_chars": 116,
+        "budget_exhausted": false,
+        "indexstats": {
+          "indexed_windows": 0,
+          "reused_windows": 0,
+          "deleted_windows": 0,
+          "total_windows": 2,
+          "memory_cache_hit": true,
+          "model_fingerprint": "2605d7e4c477b8b8dc107f31b02c7fc4e7fc419945e8727c7a5c14a02fe70c45",
+          "source_manifest": "def58fbfee4d6de9942dd666fa0adc853be606308bfcf3dd03f57ab6258deef1",
+          "source_files": 1,
+          "elapsed_s": 0.024946207995526493
+        },
+        "timings": {
+          "index_s": 0.024946207995526493,
+          "query_embedding_s": 0.04295708300196566,
+          "retrieval_s": 5.241700273472816e-05,
+          "h2o_s": 0.0,
+          "packaging_s": 0.022678916997392662,
+          "total_s": 0.09066149999853224
+        }
+      }
+    }
+  ],
+  "memory": {
+    "tool": "macOS vmmap -summary",
+    "processes": {
+      "search_service": {
+        "current": "1.4G",
+        "peak": "1.5G"
+      }
+    },
+    "note": "Includes Metal. Individual rounded peaks since process launch are not a simultaneous combined peak."
+  },
+  "termination": "Both CLI processes handled SIGTERM and exited with status 0.",
+  "limits": "Integration smoke test on three toy implementations; not retrieval-quality evidence."
+}
