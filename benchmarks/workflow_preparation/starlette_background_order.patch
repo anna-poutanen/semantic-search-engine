@@ -1,0 +1,9 @@
+--- a/starlette/background.py
++++ b/starlette/background.py
+@@ -37,5 +37,5 @@
+         self.tasks.append(task)
+ 
+     async def __call__(self) -> None:
+-        for task in self.tasks:
++        for task in reversed(self.tasks):
+             await task()

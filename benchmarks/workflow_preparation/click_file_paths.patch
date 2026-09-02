@@ -1,0 +1,17 @@
+--- a/src/click/types.py
++++ b/src/click/types.py
+@@ -893,14 +893,6 @@
+                     param,
+                     ctx,
+                 )
+-            if not self.dir_okay and stat.S_ISDIR(st.st_mode):
+-                self.fail(
+-                    _("{name} {filename!r} is a directory.").format(
+-                        name=self.name.title(), filename=format_filename(value)
+-                    ),
+-                    param,
+-                    ctx,
+-                )
+ 
+             if self.readable and not os.access(rv, os.R_OK):
+                 self.fail(

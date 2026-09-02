@@ -1,0 +1,12 @@
+--- a/src/click/types.py
++++ b/src/click/types.py
+@@ -719,9 +719,6 @@
+                 lf = LazyFile(
+                     value, self.mode, self.encoding, self.errors, atomic=self.atomic
+                 )
+-
+-                if ctx is not None:
+-                    ctx.call_on_close(lf.close_intelligently)
+ 
+                 return t.cast(t.IO[t.Any], lf)
+ 
