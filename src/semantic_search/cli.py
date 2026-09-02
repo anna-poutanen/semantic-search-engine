@@ -2,6 +2,7 @@
 import argparse
 import hashlib
 import json
+import math
 from pathlib import Path
 import signal
 
@@ -14,6 +15,10 @@ def index_path(repo, source_root, directory):
 
 
 def print_results(response):
+    if response.get("match_status") == "insufficient_evidence":
+        print("No strong implementation match found. Try a more specific query.")
+    elif response.get("match_status") == "no_candidates":
+        print("No indexed candidate matched this query.")
     for result in response["results"]:
         score = result.get("h2o_score")
         suffix = f" relevance={score:.3f}/3" if score is not None else ""
@@ -53,6 +58,11 @@ def main(argv=None):
     serve.add_argument("--host", choices=("127.0.0.1", "localhost"), default="127.0.0.1")
     serve.add_argument("--port", type=int, default=8750)
     serve.add_argument("--url", default="http://127.0.0.1:8741", help="Optional H2O server URL")
+    serve.add_argument("--no-watch", action="store_true", help="Discover changes only on searches/refreshes")
+    serve.add_argument("--watch-interval", type=float, default=1.0)
+    serve.add_argument("--abstention-policy", type=Path, help="Development-calibrated weak-match policy")
+    mcp = subparsers.add_parser("mcp", help="Expose search_code over MCP stdio")
+    mcp.add_argument("--server", default="http://127.0.0.1:8750")
     for name in ("status", "refresh"):
         command = subparsers.add_parser(name)
         command.add_argument("--server", default="http://127.0.0.1:8750")
@@ -66,6 +76,9 @@ def main(argv=None):
     search.add_argument("--max-results", type=int, default=5)
     search.add_argument("--source-budget", type=int, default=12000,
                         help="Maximum returned source characters; metadata is additional")
+    search.add_argument("--token-budget", type=int, help="Maximum compact tool text tokens (cl100k_base)")
+    search.add_argument("--include-dependencies", action="store_true", help="Use spare result slots for static callees")
+    search.add_argument("--abstention-policy", type=Path, help="Standalone weak-match policy")
     reranking = search.add_mutually_exclusive_group()
     reranking.add_argument("--rerank", action="store_true", help="Score the candidate prefix with H2O")
     reranking.add_argument("--no-rerank", action="store_true", help="Compatibility alias for fast search (default)")
@@ -85,6 +98,9 @@ def main(argv=None):
         run_shortlist_experiment(args.repo, args.dataset, args.output,
                                 args.index_cache, args.url, args.prior_run)
         print(f"Shortlist benchmark saved to {args.output}")
+    elif args.command == "mcp":
+        from semantic_search.mcp_server import run_mcp
+        run_mcp(args.server)
     elif args.command in {"status", "refresh"}:
         from semantic_search.client import SearchClient
         client = SearchClient(args.server)
@@ -92,15 +108,20 @@ def main(argv=None):
     elif args.command == "serve":
         if not 0 <= args.port <= 65535:
             parser.error("--port must be between 0 and 65535")
+        if not math.isfinite(args.watch_interval) or args.watch_interval <= 0:
+            parser.error("--watch-interval must be positive and finite")
         from semantic_search.backend import SearchBackend
         from semantic_search.server import create_server
+        extra = {"abstention_policy": args.abstention_policy} if args.abstention_policy else {}
         backend = SearchBackend(args.repo, args.source_root,
-                                index_path(args.repo, args.source_root, args.index_cache), h2o_url=args.url)
+                                index_path(args.repo, args.source_root, args.index_cache), h2o_url=args.url, **extra)
         server = None
         previous_handler = signal.signal(signal.SIGTERM, interrupt_service)
         try:
             backend.search("Find the implementation", max_results=1)
             server = create_server(backend, args.host, args.port)
+            if not args.no_watch:
+                backend.start_watching(poll_interval=args.watch_interval)
             print(f"Ready: http://{args.host}:{server.server_address[1]} (dense search; H2O optional)", flush=True)
             server.serve_forever(poll_interval=0.2)
         except KeyboardInterrupt:
@@ -122,13 +143,18 @@ def main(argv=None):
         settings = {"retrieval": args.retrieval, "rerank": args.rerank,
                     "candidates": args.candidates, "max_results": args.max_results,
                     "source_budget": args.source_budget}
+        if args.token_budget is not None:
+            settings["token_budget"] = args.token_budget
+        if args.include_dependencies:
+            settings["include_dependencies"] = True
         if args.server:
             from semantic_search.client import SearchClient
             response = SearchClient(args.server).search(args.query, **settings)
         else:
             from semantic_search.backend import SearchBackend
+            extra = {"abstention_policy": args.abstention_policy} if args.abstention_policy else {}
             backend = SearchBackend(args.repo, args.source_root,
-                                    index_path(args.repo, args.source_root, args.index_cache), h2o_url=args.url)
+                                    index_path(args.repo, args.source_root, args.index_cache), h2o_url=args.url, **extra)
             try:
                 response = backend.search(args.query, **settings)
             finally:
