@@ -1,0 +1,11 @@
+--- a/starlette/responses.py
++++ b/starlette/responses.py
+@@ -243,7 +243,7 @@
+             }
+         )
+         async for chunk in self.body_iterator:
+-            if not isinstance(chunk, (bytes, memoryview)):
++            if not isinstance(chunk, bytes):
+                 chunk = chunk.encode(self.charset)
+             await send({"type": "http.response.body", "body": chunk, "more_body": True})
+ 
