@@ -1,0 +1,419 @@
+{
+  "repo_url": "https://github.com/encode/starlette",
+  "revision": "4d72fd87ea1c358691a19468168f7217d8ca6a87",
+  "release": "0.45.3",
+  "source_root": "starlette",
+  "benchmark_role": "development",
+  "split_policy": "Present topics alternate development/calibration in source-review order; each split has10present and2absent. Assigned before any retrieval outputs.",
+  "target_groups_semantics": "OR within each group, AND across all groups; targets retains legacy OR semantics.",
+  "queries": [
+    {
+      "id": "starlette_merge_url_query",
+      "query": "Where are new query parameters merged into a URL while preserving unrelated repeated and blank parameters from the existing query?",
+      "targets": [
+        {
+          "path": "starlette/datastructures.py",
+          "symbol": "URL.include_query_params",
+          "evidence_lines": [
+            139,
+            142
+          ]
+        }
+      ],
+      "notes": "Existing query pairs become a MultiDict with keep_blank_values=True; updating supplied keys and encoding multi_items preserves other pairs.",
+      "kind": "present",
+      "split": "development"
+    },
+    {
+      "id": "starlette_repeated_case_insensitive_headers",
+      "query": "Where are all values of a repeated HTTP header retrieved with a case-insensitive key and decoded from the raw header bytes?",
+      "targets": [
+        {
+          "path": "starlette/datastructures.py",
+          "symbol": "Headers.getlist",
+          "evidence_lines": [
+            528,
+            529
+          ]
+        }
+      ],
+      "notes": "Lowercasing the requested key and scanning every raw pair returns all matching Latin-1-decoded values.",
+      "kind": "present",
+      "split": "calibration"
+    },
+    {
+      "id": "starlette_upload_write_offloading",
+      "query": "Where does writing an uploaded file update its known size and choose direct writes for an in-memory file versus worker-thread writes after it has spilled to disk?",
+      "targets": [
+        {
+          "path": "starlette/datastructures.py",
+          "symbol": "UploadFile.write",
+          "evidence_lines": [
+            438,
+            444
+          ]
+        }
+      ],
+      "notes": "The known size is incremented before the _in_memory branch chooses file.write or run_in_threadpool. Disk spooling itself is outside this method.",
+      "kind": "present",
+      "split": "development"
+    },
+    {
+      "id": "starlette_request_stream_disconnect",
+      "query": "Where is an HTTP request body yielded chunk by chunk, with a consumed stream rejected when no cached body exists and a client disconnect raised as an exception?",
+      "targets": [
+        {
+          "path": "starlette/requests.py",
+          "symbol": "Request.stream",
+          "evidence_lines": [
+            223,
+            236
+          ]
+        }
+      ],
+      "notes": "The method marks final http.request messages consumed, yields nonempty chunks, and raises ClientDisconnect on http.disconnect. Reviewed tests/test_requests.py::test_request_disconnect. Independent review before inference clarified that a previously cached _body is replayed before the consumed guard.",
+      "kind": "present",
+      "split": "calibration"
+    },
+    {
+      "id": "starlette_multipart_field_limit",
+      "query": "Where is a non-file multipart field rejected when a newly received chunk would push the accumulated field above its configured size limit?",
+      "targets": [
+        {
+          "path": "starlette/formparsers.py",
+          "symbol": "MultiPartParser.on_part_data",
+          "evidence_lines": [
+            157,
+            161
+          ]
+        }
+      ],
+      "notes": "The limit applies when _current_part.file is None; uploaded-file data instead enters a write queue. Related max-part-size tests were located; source is the exact branch evidence.",
+      "kind": "present",
+      "split": "development"
+    },
+    {
+      "id": "starlette_urlencoded_field_assembly",
+      "query": "Where are streamed URL-encoded form parser events assembled into field names and values, with percent escapes and plus signs decoded when each field ends?",
+      "targets": [
+        {
+          "path": "starlette/formparsers.py",
+          "symbol": "FormParser.parse",
+          "evidence_lines": [
+            108,
+            121
+          ]
+        }
+      ],
+      "notes": "Event fragments accumulate until FIELD_END, then Latin-1 decoding and unquote_plus produce FormData items. The dependency tokenizes the wire bytes; this method owns event assembly.",
+      "kind": "present",
+      "split": "calibration"
+    },
+    {
+      "id": "starlette_byte_range_normalization",
+      "query": "Where is a bytes Range header parsed into end-exclusive intervals, rejecting invalid units or out-of-file starts and merging a range with the first previously collected interval it overlaps?",
+      "targets": [
+        {
+          "path": "starlette/responses.py",
+          "symbol": "FileResponse._parse_range_header",
+          "evidence_lines": [
+            448,
+            494
+          ]
+        }
+      ],
+      "notes": "The parser validates the unit, derives suffix/open-ended ranges, checks starts, and merges intervals. Reviewed file range cases in tests/test_responses.py. This does not require the response sender. Independent review before inference clarified that the algorithm merges only the first intersecting collected interval and does not guarantee coalescing every transitive overlap.",
+      "kind": "present",
+      "split": "development"
+    },
+    {
+      "id": "starlette_file_head_or_chunked_body",
+      "query": "Where does a normal file response send headers but an empty body for a header-only request, otherwise reading and sending the file in chunks until the final chunk?",
+      "targets": [
+        {
+          "path": "starlette/responses.py",
+          "symbol": "FileResponse._handle_simple",
+          "evidence_lines": [
+            377,
+            386
+          ]
+        }
+      ],
+      "notes": "The helper directly sends response start and chooses empty body versus an asynchronous file-read loop. Reviewed tests/test_responses.py::test_file_response_on_head_method.",
+      "kind": "present",
+      "split": "calibration"
+    },
+    {
+      "id": "starlette_streaming_response_messages",
+      "query": "Where are streamed response chunks encoded when necessary and sent with more-body markers, followed by an empty final body message?",
+      "targets": [
+        {
+          "path": "starlette/responses.py",
+          "symbol": "StreamingResponse.stream_response",
+          "evidence_lines": [
+            245,
+            250
+          ]
+        }
+      ],
+      "notes": "Each iterator chunk is converted to bytes unless already bytes/memoryview; the final message sets more_body=False.",
+      "kind": "present",
+      "split": "development"
+    },
+    {
+      "id": "starlette_websocket_send_lifecycle",
+      "query": "Where are outgoing WebSocket messages checked against connection state, with send failures while connected turned into an abnormal disconnect and sends after close rejected?",
+      "targets": [
+        {
+          "path": "starlette/websockets.py",
+          "symbol": "WebSocket.send",
+          "evidence_lines": [
+            62,
+            97
+          ]
+        }
+      ],
+      "notes": "CONNECTING and CONNECTED message types are validated; OSError sets DISCONNECTED and raises code1006; the terminal state rejects further sends. Independent review before inference clarified that OSError conversion is limited to the CONNECTED branch.",
+      "kind": "present",
+      "split": "calibration"
+    },
+    {
+      "id": "starlette_router_match_and_slash_redirect",
+      "query": "Where is the first complete route match preferred over method-only matches, with a changed trailing slash tried as a redirect only after no route match is usable?",
+      "targets": [
+        {
+          "path": "starlette/routing.py",
+          "symbol": "Router.app",
+          "evidence_lines": [
+            729,
+            765
+          ]
+        }
+      ],
+      "notes": "The route loop returns on FULL, retains the first PARTIAL as fallback, and considers slash redirection only afterward.",
+      "kind": "present",
+      "split": "development"
+    },
+    {
+      "id": "starlette_lifespan_state_and_failures",
+      "query": "Where does application lifespan startup merge yielded state into the server scope and distinguish startup failures from shutdown failures in outgoing protocol messages?",
+      "targets": [
+        {
+          "path": "starlette/routing.py",
+          "symbol": "Router.lifespan",
+          "evidence_lines": [
+            689,
+            709
+          ]
+        }
+      ],
+      "notes": "The started flag selects failure message type; successful context entry updates scope state and emits startup completion, while successful exit emits shutdown completion.",
+      "kind": "present",
+      "split": "calibration"
+    },
+    {
+      "id": "starlette_typed_route_matching",
+      "query": "Where are matched URL path captures converted to their declared types and a matching path reported as only a partial match when its HTTP method is unsupported?",
+      "targets": [
+        {
+          "path": "starlette/routing.py",
+          "symbol": "Route.matches",
+          "evidence_lines": [
+            252,
+            266
+          ]
+        }
+      ],
+      "notes": "The method applies param_convertors, merges inherited path_params, and tests self.methods to return PARTIAL or FULL.",
+      "kind": "present",
+      "split": "development"
+    },
+    {
+      "id": "starlette_mounted_root_paths",
+      "query": "Where does a mounted application inherit top-level application-root information while extending its own root path with the prefix that matched the mount?",
+      "targets": [
+        {
+          "path": "starlette/routing.py",
+          "symbol": "Mount.matches",
+          "evidence_lines": [
+            401,
+            429
+          ]
+        }
+      ],
+      "notes": "The matched suffix is removed to form matched_path; child scope retains app_root_path and extends root_path. This query asks for mount scope construction, not URL generation.",
+      "kind": "present",
+      "split": "calibration"
+    },
+    {
+      "id": "starlette_cors_preflight_validation",
+      "query": "Where does a cross-origin preflight request validate origin, method, and requested headers, mirror headers when all are allowed, and return an explanatory400 on failure?",
+      "targets": [
+        {
+          "path": "starlette/middleware/cors.py",
+          "symbol": "CORSMiddleware.preflight_response",
+          "evidence_lines": [
+            112,
+            140
+          ]
+        }
+      ],
+      "notes": "The failure list collects the three checks; allow_all_headers mirrors the requested list. Reviewed tests/middleware/test_cors.py::test_cors_disallowed_preflight.",
+      "kind": "present",
+      "split": "development"
+    },
+    {
+      "id": "starlette_trusted_host_redirect",
+      "query": "Where is a request host checked against exact or wildcard allowlists, redirecting to an allowed www-prefixed host when configured and otherwise rejecting it?",
+      "targets": [
+        {
+          "path": "starlette/middleware/trustedhost.py",
+          "symbol": "TrustedHostMiddleware.__call__",
+          "evidence_lines": [
+            39,
+            60
+          ]
+        }
+      ],
+      "notes": "The host check sets valid/www-redirect flags and selects downstream app, RedirectResponse, or400. Exact matching is verified in source.",
+      "kind": "present",
+      "split": "calibration"
+    },
+    {
+      "id": "starlette_cookie_attribute_serialization",
+      "query": "Where are response-cookie attributes such as expiry, Secure, HttpOnly, and SameSite added, with unsupported SameSite values rejected before appending the Set-Cookie header?",
+      "targets": [
+        {
+          "path": "starlette/responses.py",
+          "symbol": "Response.set_cookie",
+          "evidence_lines": [
+            100,
+            125
+          ]
+        }
+      ],
+      "notes": "The method builds a SimpleCookie morsel, formats datetime expiry, asserts allowed SameSite values, and appends the raw Latin-1 header.",
+      "kind": "present",
+      "split": "development"
+    },
+    {
+      "id": "starlette_sync_endpoint_worker",
+      "query": "For a synchronous HTTP endpoint, where is it adapted into an awaited request/response application and where are its arguments bound before calling it through a worker thread?",
+      "target_groups": [
+        [
+          {
+            "path": "starlette/routing.py",
+            "symbol": "request_response",
+            "evidence_lines": [
+              65,
+              78
+            ]
+          }
+        ],
+        [
+          {
+            "path": "starlette/concurrency.py",
+            "symbol": "run_in_threadpool",
+            "evidence_lines": [
+              36,
+              37
+            ]
+          }
+        ]
+      ],
+      "notes": "Both groups are required: ASGI adaptation selects thread offloading and awaits/sends the response; concurrency binds arguments and delegates to anyio.to_thread.run_sync. Reviewed tests/test_concurrency.py::test_accessing_context_from_threaded_sync_endpoint.",
+      "kind": "present",
+      "split": "calibration"
+    },
+    {
+      "id": "starlette_exception_registration_and_dispatch",
+      "query": "Where are registered exception handlers attached to a request scope, and where is the matching handler selected while refusing to replace a response that has already started?",
+      "target_groups": [
+        [
+          {
+            "path": "starlette/middleware/exceptions.py",
+            "symbol": "ExceptionMiddleware.__call__",
+            "evidence_lines": [
+              51,
+              62
+            ]
+          }
+        ],
+        [
+          {
+            "path": "starlette/_exception_handler.py",
+            "symbol": "wrap_app_handling_exceptions.wrapped_app",
+            "evidence_lines": [
+              34,
+              63
+            ]
+          }
+        ]
+      ],
+      "notes": "The first group publishes status/class maps and wraps the app. The second records response-start state, selects status or class handling, and checks the started guard before invoking a handler. Neither group alone implements both requested stages.",
+      "kind": "present",
+      "split": "development"
+    },
+    {
+      "id": "starlette_lenient_cookie_session_restore",
+      "query": "Where is a Cookie header parsed leniently into key/value pairs, and where does the signed session cookie restore session data or become an empty session if its signature is invalid?",
+      "target_groups": [
+        [
+          {
+            "path": "starlette/requests.py",
+            "symbol": "cookie_parser",
+            "evidence_lines": [
+              51,
+              63
+            ]
+          }
+        ],
+        [
+          {
+            "path": "starlette/middleware/sessions.py",
+            "symbol": "SessionMiddleware.__call__",
+            "evidence_lines": [
+              46,
+              55
+            ]
+          }
+        ]
+      ],
+      "notes": "HTTPConnection.cookies connects the parser to session middleware. The two groups require actual header parsing and session restoration/fallback; cryptographic verification is delegated to itsdangerous. Reviewed tests/test_requests.py::test_cookie_lenient_parsing and tests/middleware/test_session.py::test_invalid_session_cookie.",
+      "kind": "present",
+      "split": "calibration"
+    },
+    {
+      "id": "starlette_orm_schema_migration",
+      "query": "Where are database schema migrations discovered and applied transactionally by the framework's built-in ORM?",
+      "targets": [],
+      "notes": "starlette contains no ORM or schema migration engine. Application integrations and external database packages are outside scope.",
+      "kind": "absent",
+      "split": "development"
+    },
+    {
+      "id": "starlette_redis_distributed_rate_limit",
+      "query": "Where does built-in middleware use Redis to enforce one shared per-user request rate across several server processes?",
+      "targets": [],
+      "notes": "No Redis-backed distributed rate limiter is implemented beneath starlette at this revision. Middleware composition alone is not rate-limit state or enforcement.",
+      "kind": "absent",
+      "split": "calibration"
+    },
+    {
+      "id": "starlette_jwt_token_refresh",
+      "query": "Where are JWT signatures validated against rotating keys and expired access tokens renewed using a built-in refresh-token flow?",
+      "targets": [],
+      "notes": "Authentication abstractions accept application-defined backends; starlette has no built-in JWT key rotation or refresh-token implementation.",
+      "kind": "absent",
+      "split": "development"
+    },
+    {
+      "id": "starlette_tls_client_certificate_handshake",
+      "query": "Where does the application server terminate TLS and verify the connecting client's certificate chain during the handshake?",
+      "targets": [],
+      "notes": "Starlette is an ASGI application framework, not a TLS protocol server. HTTPS redirection and ASGI scope fields do not implement a cryptographic handshake; server/dependency code is excluded.",
+      "kind": "absent",
+      "split": "calibration"
+    }
+  ]
+}

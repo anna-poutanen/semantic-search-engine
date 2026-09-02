@@ -132,7 +132,7 @@ class QwenEmbedder:
         del outputs, pooled
         return vectors
 
-    def _embed_texts(self, texts):
+    def _embed_texts(self, texts, *, cancel_check=None):
         if not isinstance(texts, list) or any(not isinstance(t, str) or not t.strip() for t in texts):
             raise ValueError("Embedding inputs must be a list of nonempty strings")
         if not texts:
@@ -147,6 +147,8 @@ class QwenEmbedder:
         output = np.empty((len(texts), DIMENSIONS), dtype=np.float32)
         reported = 0
         for start in range(0, len(order), self.batch_size):
+            if cancel_check is not None:
+                cancel_check()
             indices = order[start:start + self.batch_size]
             vectors = self._embed_batch([ids[i] for i in indices])
             if vectors.shape != (len(indices), DIMENSIONS):
@@ -156,6 +158,8 @@ class QwenEmbedder:
             # across many shapes. Keep weights resident, release batch buffers.
             if len(texts) > 1 and self._mx is not None:
                 self._mx.clear_cache()
+            if cancel_check is not None:
+                cancel_check()
             completed = start + len(indices)
             if (self.progress and len(texts) > 1
                     and (completed - reported >= 32 or completed == len(texts))):
@@ -163,9 +167,9 @@ class QwenEmbedder:
                 reported = completed
         return output
 
-    def embed_documents(self, texts: list[str]) -> np.ndarray:
+    def embed_documents(self, texts: list[str], *, cancel_check=None) -> np.ndarray:
         try:
-            return self._embed_texts(texts)
+            return self._embed_texts(texts, cancel_check=cancel_check)
         finally:
             if self._mx is not None:
                 self._mx.clear_cache()

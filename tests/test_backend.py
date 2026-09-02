@@ -12,6 +12,7 @@ import numpy as np
 
 from semantic_search.backend import SearchBackend, SourceSnapshotError
 from semantic_search.corpus import extract_snippets
+from semantic_search.cancellation import SearchCancelled
 
 
 class FakeEmbedder:
@@ -255,6 +256,76 @@ class BackendTests(unittest.TestCase):
                     "http://localhost:8741/other", "http://localhost:8741?x=1", "http://localhost:bad"):
             with self.subTest(url=url), self.assertRaisesRegex(ValueError, "loopback"):
                 SearchBackend(self.repo, "src", h2o_url=url)
+
+    def test_token_budget_counts_exact_tool_text_and_physical_unicode_lines(self):
+        from semantic_search.context import compact_result, serialize_context, encoding
+        self.source.write_text("def alpha():\n" + "    value = 'café\\n雪\u2028tail'\n" * 120 + "    return value\n")
+        result = self.backend.search("alpha", token_budget=512, max_results=1)
+        serialized = serialize_context(compact_result(result))
+        tokens = len(encoding().encode(serialized, disallowed_special=()))
+        self.assertEqual(tokens, result["token_usage"]["tokens"])
+        self.assertLessEqual(tokens, 512)
+        self.assertTrue(result["token_usage"]["truncated"])
+        row = result["results"][0]
+        from semantic_search.source import physical_lines
+        self.assertEqual(row["source"], "".join(physical_lines(self.source.read_text())[row["start_line"]-1:row["end_line"]]))
+
+    def test_saved_edit_before_watcher_start_is_not_missed(self):
+        self.backend.refresh()
+        self.source.write_text("def alpha():\n    return 'new saved value'\n")
+        self.backend.start_watching(poll_interval=.01, debounce=.01)
+        deadline = time.monotonic() + 3
+        while self.backend.status()["watcher"]["refresh_count"] == 0 and time.monotonic() < deadline:
+            time.sleep(.01)
+        status = self.backend.status()
+        self.assertGreaterEqual(status["watcher"]["refresh_count"], 1)
+        self.assertEqual(status["windows"], 1)
+        self.assertIn("new saved value", self.backend.search("new value")["results"][0]["source"])
+        self.backend.close()
+        self.assertFalse(self.backend.status()["watcher"]["running"])
+
+    def test_cancelled_index_build_keeps_previous_atomic_snapshot(self):
+        self.backend.refresh()
+        previous = self.backend.status()["store"]
+        self.source.write_text("def gamma():\n    return 'gamma'\n")
+        self.embedder.after_documents = lambda: self.backend.cancel("index-request")
+        with self.assertRaises(SearchCancelled):
+            self.backend.search("gamma", request_id="index-request")
+        self.assertEqual(self.backend.status()["store"], previous)
+        self.embedder.after_documents = None
+        self.assertEqual(self.backend.search("gamma")["results"][0]["symbol"], "gamma")
+
+    def test_queued_request_cancels_before_entering_model_work(self):
+        self.backend.refresh()
+        failures = []
+        with self.backend._lock:
+            def worker():
+                try:
+                    self.backend.search("alpha", request_id="queued")
+                except Exception as error:
+                    failures.append(error)
+            thread = threading.Thread(target=worker)
+            thread.start()
+            deadline = time.monotonic() + 2
+            while "queued" not in self.backend._requests.active and time.monotonic() < deadline:
+                time.sleep(.01)
+            self.backend.cancel("queued")
+            thread.join(1)
+            self.assertFalse(thread.is_alive())
+        self.assertIsInstance(failures[0], SearchCancelled)
+        self.assertEqual(self.embedder.queries, [])
+
+    def test_cross_file_context_is_marked_without_reranker_score(self):
+        self.source.write_text("from helpers import decode\n\ndef alpha():\n    return decode('value')\n")
+        (self.repo / "src/helpers.py").write_text("def decode(value):\n    return value.upper()\n")
+        # Force just one retrieved anchor to exercise expansion independently
+        # of whether the second implementation also matches lexical terms.
+        result = self.backend.search("alpha", retrieval="bm25", include_dependencies=True, max_results=8)
+        dependency = next(row for row in result["results"] if row["origin"] == "dependency")
+        self.assertEqual(dependency["path"], "src/helpers.py")
+        self.assertEqual(dependency["symbol"], "decode")
+        self.assertIsNone(dependency["h2o_score"])
+        self.assertIn("alpha", dependency["related_to"])
 
 
 class SearchBackendForTest(SearchBackend):

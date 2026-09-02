@@ -1,8 +1,8 @@
 # Local behavioral code search
 
 Describe a behavior and receive relevant implementations with verified paths,
-symbols, line numbers, and bounded source excerpts. A VS Code extension and one
-MCP `search_code` tool will share a local Python backend.
+symbols, line numbers, and bounded source excerpts. The CLI and implemented MCP
+`search_code` tool share a local Python backend; a VS Code extension follows.
 
 This follows the agreed plan in **Choose a project for YC roles** on October 12,
 2026. Use existing model weights; training and fine-tuning are outside the plan.
@@ -14,33 +14,68 @@ This follows the agreed plan in **Choose a project for YC roles** on October 12,
    ordering before and after reranking. Publish failures as well as successes.
 2. **Core CLI (complete):** syntax-aware symbols, Qwen3-Embedding-0.6B candidate retrieval,
    lexical retrieval, hybrid ranking, H2O shortlist scoring, exact locations.
-3. **Retrieval quality (in progress):** duplicate removal and source-character
-   budgets are implemented. A frozen Requests development/test split adds a
-   second corpus. Broader coverage, multi-file behavior, token budgets, and
-   absent-feature abstention remain to evaluate.
-4. **Persistent index (in progress):** resident service and SQLite vector cache,
-   incremental embedding updates, deletion/rename/branch handling, source hashes,
-   and stale-snapshot rejection are implemented. SQLite FTS5 and pinned sqlite-vec,
-   file watching, caching at larger scale, and cancellation remain. The current
-   retrievers use in-memory BM25 and a NumPy vector scan.
-5. **MCP:** small stdio adapter, shared service, budgeted excerpts; paired agent
-   tasks with provider-reported tokens and correctness checks.
-6. **VS Code:** search command, result previews, exact navigation, indexing/model
+3. **Retrieval quality (first benchmark complete; known misses remain):** symbol
+   deduplication, whole-line character/token budgets, conservative static
+   dependency context, and an optional calibrated weak-match policy are
+   implemented. The frozen source-reviewed set now has 106 queries across five
+   repositories, including multi-file AND behaviors and a Rich repository
+   holdout. Dense context delivers complete evidence for 83/88 positive queries
+   overall and 18/20 held-out positives, including only 6/10 multi-file behaviors
+   overall. The optional rejection policy rejects 3/4 absent Rich cases and 1/20
+   real behaviors. [Results and failures](../results/retrieval-quality-2026-10-12/findings.md)
+   preserve the [frozen protocol](retrieval-quality-protocol.md).
+4. **Persistent index (core complete; larger real-model profiling remains):**
+   durable SQLite FTS5 keyword retrieval, pinned sqlite-vec exact exhaustive
+   cosine retrieval, reusable document/model vector caching, atomic source
+   snapshots, deletion/rename/branch handling, and stale-source rejection are
+   implemented. A debounced watcher observes saved Python bytes and Git refs;
+   request cancellation stops queued work and checks active model work between
+   batches/scores. Real Qwen/MCP saved-edit verification and a
+   [10,000-window synthetic CPU profile](../results/index-profile-2026-10-12/report.md)
+   pass; large real-codebase
+   indexing/search latency and memory still need measurement with the real model.
+5. **MCP (adapter complete; paired-agent evaluation next):** one stdio
+   `search_code` tool uses the resident service with strict schemas, cancellation,
+   eight-result context, and a default 4,096-token compact `cl100k_base` JSON cap.
+   Measure paired agent tasks with provider-reported tokens and correctness checks;
+   the local context counter does not establish paid-token savings.
+6. **VS Code (planned):** search command, result previews, exact navigation, indexing/model
    status, temporary overlay for unsaved edits.
-7. **Beta/release:** external users, reliable installation, language expansion,
+7. **Beta/release (planned):** external users, reliable installation, language expansion,
    reproducible benchmark and recognizable real-repository demos.
 
-Start with Python and TypeScript/JavaScript. C# and non-Mac deployment follow
-validation of the core. Serialize GPU work and share one model process.
+Python is implemented first; TypeScript/JavaScript is the next language scope.
+C# and non-Mac deployment follow validation of the core. Serialize GPU work and
+reuse resident model processes. Dense retrieval remains the fast default, with
+H2O available as an optional shortlist reranker. Static dependencies are context
+references, and weak-match rejection is not proof that a behavior is absent.
 
 ## Evaluation gates
 
 H2O must improve delivered results enough to justify latency. The first pilot is
-development evidence, not a held-out benchmark. Later, review roughly 100 queries
-across several repositories and reserve a held-out set. Compare lexical,
-embedding, hybrid, and hybrid-plus-H2O retrieval. Measure candidate coverage,
+development evidence, not a held-out benchmark. The expanded 106-query set now
+reserves Rich as a repository holdout. The frozen fast-retrieval conditions meet
+the initial 90% candidate-coverage and sub-five-second warm latency aspirations
+on this authored sample: held-out dense coverage is 19/20 at depth 50, with
+175 ms P95 HTTP for dense context. These are sample-specific outcomes. H2O
+comparisons remain the separate Flask/Requests pilots. Measure candidate coverage,
 useful evidence within the output budget, stale results, memory, and cold/warm
 latency. Initial aspirations: 90% candidate coverage, warm p95 below five seconds,
-30% lower median paid-agent tokens with comparable completion. None is a measured
-claim until demonstrated. Local inference has no API token charge, but tool calls,
+30% lower median paid-agent tokens with comparable completion. The paid-agent
+target remains unmeasured. Local inference has no API token charge, but tool calls,
 returned excerpts, and follow-up reads still consume the agent's tokens.
+
+## Next milestone
+
+Run paired real coding tasks with the same agent/model and starting commit:
+standard file/keyword tools versus those tools plus MCP `search_code`. Freeze
+task prompts and correctness checks before either condition. Record actual
+provider token usage, completion time, tool calls, and tests; include failures
+and retries rather than counting only successful tasks. Keep source gold hidden
+from the agent. Start with Python repositories and small reproducible tasks.
+
+Use those results to decide whether retrieval saves enough work to justify the
+integration. Then implement the VS Code search command, result previews, exact
+navigation, and indexing/model status. Unsaved-buffer overlays and
+TypeScript/JavaScript extraction follow. A portfolio demo and external beta
+come after those workflows are reliable.
