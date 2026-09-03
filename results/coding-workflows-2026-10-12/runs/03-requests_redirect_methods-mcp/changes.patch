@@ -1,0 +1,73 @@
+diff --git a/src/requests/sessions.py b/src/requests/sessions.py
+index a9f5849..d11355b 100644
+--- a/src/requests/sessions.py
++++ b/src/requests/sessions.py
+@@ -386,7 +386,7 @@ class SessionRedirectMixin:
+ 
+         # Second, if a POST is responded to with a 301, turn it into a GET.
+         # This bizarre behaviour is explained in Issue 1704.
+-        if response.status_code == codes.moved and method != "HEAD":
++        if response.status_code == codes.moved and method == "POST":
+             method = "GET"
+ 
+         prepared_request.method = method
+diff --git a/tests/test_requests.py b/tests/test_requests.py
+index 8bcb81d..0593897 100644
+--- a/tests/test_requests.py
++++ b/tests/test_requests.py
+@@ -2646,6 +2646,55 @@ def test_json_encodes_as_bytes():
+     assert isinstance(p.body, bytes)
+ 
+ 
++@pytest.mark.parametrize(
++    "method, expected_301, expected_302_303",
++    (
++        ("GET", "GET", "GET"),
++        ("HEAD", "HEAD", "HEAD"),
++        ("POST", "GET", "GET"),
++        ("PUT", "PUT", "GET"),
++        ("PATCH", "PATCH", "GET"),
++        ("DELETE", "DELETE", "GET"),
++        ("OPTIONS", "OPTIONS", "GET"),
++        ("TRACE", "TRACE", "GET"),
++        ("PROPFIND", "PROPFIND", "GET"),
++    ),
++)
++@pytest.mark.parametrize(
++    "status_code, expected_body",
++    ((301, None), (302, None), (303, None), (307, b"test"), (308, b"test")),
++)
++def test_redirect_method_and_body(
++    method, expected_301, expected_302_303, status_code, expected_body
++):
++    session = RedirectSession([status_code])
++    prep = requests.Request(
++        method,
++        "http://example.test/original",
++        data=b"test",
++        headers={"Content-Type": "text/plain"},
++    ).prepare()
++    response = session.send(prep)
++
++    redirected_responses = list(session.resolve_redirects(response, prep))
++    assert len(redirected_responses) == 1
++    redirected_request = redirected_responses[0].request
++    expected_method = {
++        301: expected_301,
++        302: expected_302_303,
++        303: expected_302_303,
++        307: method,
++        308: method,
++    }[status_code]
++    assert redirected_request.method == expected_method
++    assert redirected_request.body == expected_body
++    for header in ("Content-Length", "Content-Type"):
++        if expected_body is None:
++            assert header not in redirected_request.headers
++        else:
++            assert redirected_request.headers[header] == prep.headers[header]
++
++
+ def test_requests_are_updated_each_time(httpbin):
+     session = RedirectSession([303, 307])
+     prep = requests.Request("POST", httpbin("post")).prepare()

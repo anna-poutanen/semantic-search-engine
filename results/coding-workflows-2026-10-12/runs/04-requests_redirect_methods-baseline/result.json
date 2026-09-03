@@ -1,0 +1,67 @@
+{
+  "agent_elapsed_s": 144.6814519590116,
+  "agent_exit_code": 0,
+  "base_commit": "e144d950ea5d808faf660eba47e0a03ef5ab3cb3",
+  "base_tree_sha256": "7836a2f094cbe609aa34271145cfaf994489d16ad8aa543144dbfd6cc2c1df7b",
+  "changed_files": [
+    "src/requests/sessions.py",
+    "tests/test_requests.py"
+  ],
+  "command_calls": 20,
+  "completed": true,
+  "completed_correct": true,
+  "condition": "baseline",
+  "correct": true,
+  "end_to_end_s": 145.13239487500687,
+  "errors": [],
+  "failed": false,
+  "grade": {
+    "detail": {
+      "errors": 0,
+      "failures": 0,
+      "passed": true,
+      "skipped": 0,
+      "tests_run": 3
+    },
+    "elapsed_s": 0.10304483299842104,
+    "exit_code": 0,
+    "passed": true,
+    "stderr": "test_301_only_rewrites_post (__main__.RedirectMethods.test_301_only_rewrites_post) ... ok\ntest_302_and_303_keep_head_and_rewrite_other_methods (__main__.RedirectMethods.test_302_and_303_keep_head_and_rewrite_other_methods) ... ok\ntest_307_and_308_preserve_method_and_body (__main__.RedirectMethods.test_307_and_308_preserve_method_and_body) ... ok\n\n----------------------------------------------------------------------\nRan 3 tests in 0.002s\n\nOK\n",
+    "stdout": "{\"errors\": 0, \"failures\": 0, \"passed\": true, \"skipped\": 0, \"tests_run\": 3}\n"
+  },
+  "invalid_event_lines": [],
+  "mcp_calls": 0,
+  "mcp_items": [],
+  "patch_sha256": "94b8f7f9fe33d8653f1063f7895fbfae61f082088757a02c1cb79e08b9ab8d90",
+  "prompt_sha256": "f1d061cf95d96c1ca4f737b05b68ea002cc129cca8f432cb55c664e22c2809a0",
+  "published_events_sha256": "158a62660bbad0752cf4f8ebe95dc89035b71b9b940d8eea439415b2983098ae",
+  "raw_events_sha256": "535befed832571e07b6b8bf77e22c7632cdeb4773616733c0dfabd6187f3ac78",
+  "reported_turns": 1,
+  "run_id": "04-requests_redirect_methods-baseline",
+  "seed_grade": {
+    "detail": {
+      "errors": 0,
+      "failures": 4,
+      "passed": false,
+      "skipped": 0,
+      "tests_run": 3
+    },
+    "elapsed_s": 0.07726737500343006,
+    "exit_code": 1,
+    "passed": false,
+    "stderr": "test_301_only_rewrites_post (__main__.RedirectMethods.test_301_only_rewrites_post) ... \n  test_301_only_rewrites_post (__main__.RedirectMethods.test_301_only_rewrites_post) (method='PUT') ... FAIL\n  test_301_only_rewrites_post (__main__.RedirectMethods.test_301_only_rewrites_post) (method='PATCH') ... FAIL\n  test_301_only_rewrites_post (__main__.RedirectMethods.test_301_only_rewrites_post) (method='DELETE') ... FAIL\n  test_301_only_rewrites_post (__main__.RedirectMethods.test_301_only_rewrites_post) (method='OPTIONS') ... FAIL\ntest_302_and_303_keep_head_and_rewrite_other_methods (__main__.RedirectMethods.test_302_and_303_keep_head_and_rewrite_other_methods) ... ok\ntest_307_and_308_preserve_method_and_body (__main__.RedirectMethods.test_307_and_308_preserve_method_and_body) ... ok\n\n======================================================================\nFAIL: test_301_only_rewrites_post (__main__.RedirectMethods.test_301_only_rewrites_post) (method='PUT')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<PROJECT>/benchmarks/workflow_checks/check_requests_redirect_methods.py\", line 50, in test_301_only_rewrites_post\n    self.assertEqual(actual.method, \"GET\" if method == \"POST\" else method)\nAssertionError: 'GET' != 'PUT'\n- GET\n+ PUT\n\n\n======================================================================\nFAIL: test_301_only_rewrites_post (__main__.RedirectMethods.test_301_only_rewrites_post) (method='PATCH')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<PROJECT>/benchmarks/workflow_checks/check_requests_redirect_methods.py\", line 50, in test_301_only_rewrites_post\n    self.assertEqual(actual.method, \"GET\" if method == \"POST\" else method)\nAssertionError: 'GET' != 'PATCH'\n- GET\n+ PATCH\n\n\n======================================================================\nFAIL: test_301_only_rewrites_post (__main__.RedirectMethods.test_301_only_rewrites_post) (method='DELETE')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<PROJECT>/benchmarks/workflow_checks/check_requests_redirect_methods.py\", line 50, in test_301_only_rewrites_post\n    self.assertEqual(actual.method, \"GET\" if method == \"POST\" else method)\nAssertionError: 'GET' != 'DELETE'\n- GET\n+ DELETE\n\n\n======================================================================\nFAIL: test_301_only_rewrites_post (__main__.RedirectMethods.test_301_only_rewrites_post) (method='OPTIONS')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<PROJECT>/benchmarks/workflow_checks/check_requests_redirect_methods.py\", line 50, in test_301_only_rewrites_post\n    self.assertEqual(actual.method, \"GET\" if method == \"POST\" else method)\nAssertionError: 'GET' != 'OPTIONS'\n- GET\n+ OPTIONS\n\n\n----------------------------------------------------------------------\nRan 3 tests in 0.003s\n\nFAILED (failures=4)\n",
+    "stdout": "{\"errors\": 0, \"failures\": 4, \"passed\": false, \"skipped\": 0, \"tests_run\": 3}\n"
+  },
+  "setup_s": 0.3119308750028722,
+  "task_id": "requests_redirect_methods",
+  "timed_out": false,
+  "usage": {
+    "cache_write_input_tokens": 0,
+    "cached_input_tokens": 340864,
+    "input_tokens": 388868,
+    "output_tokens": 2665,
+    "reasoning_output_tokens": 269,
+    "total_tokens": 391533,
+    "uncached_input_tokens": 48004
+  }
+}

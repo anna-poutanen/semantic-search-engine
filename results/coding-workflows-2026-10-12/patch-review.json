@@ -1,0 +1,1142 @@
+{
+  "schema_version": 1,
+  "reviewed_at": "2026-10-13T03:09:41.030725+00:00",
+  "classification": "Post-trial CPU-only supplemental code and regression review; excluded from frozen performance and correctness scores.",
+  "method": {
+    "source_review": "Read each published patch and compare production behavior with the pinned upstream implementation. Check final testing claims against published command outputs.",
+    "regression_reproduction": "Copy each final checkout to ignored evaluator storage. For a second copy, restore changed production files from the initial prepared Git HEAD while retaining added or modified tests. Run the recorded offline pytest node selections with the project interpreter and package imports pointed at the copy.",
+    "context": "No original checkout, frozen task, checker, prompt, configuration, or recorded outcome was modified. No hosted model, retrieval, GPU inference, network service, or dependency installation was used for these reviews. Supplemental checks are outside measured trial time.",
+    "backend_limits": "Starlette cases use the recorded compatible selections and a narrow AnyIO deprecation filter. Trio HTTP TestClient cleanup and ASGI 2.0 cancellation are incompatible with installed AnyIO 4.15.1 and Trio 0.29.0.",
+    "coverage": "New and modified regression selections demonstrate detection of the seeded faults; this does not establish complete upstream or production correctness."
+  },
+  "summary": {
+    "runs_reviewed": 12,
+    "declared_hidden_checks_passed_runs": 12,
+    "fixed_selected_regression_cases_passed": 147,
+    "seed_selected_regression_cases_failed": 50,
+    "seed_control_cases_passed": 97,
+    "every_fixed_regression_selection_passed": true,
+    "every_selection_detected_the_seeded_fault": true,
+    "unsupported_test_claims": 0,
+    "material_behavior_gap_runs": [
+      "05-click_atomic_close-baseline",
+      "06-click_atomic_close-mcp"
+    ],
+    "test_coverage_tradeoff_runs": [
+      "10-starlette_background_order-mcp"
+    ],
+    "interpretation": "All selected regressions pass on the submitted fixes. Both Click atomic-output repairs silently suppress failed commits, confirmed by separate fault injection. Trial 10 replaces an HTTP failure integration test with direct task tests. Passing selected checks is therefore weaker than full correctness."
+  },
+  "fault_injection_artifact": "results/coding-workflows-2026-10-12/close-error-probe.json",
+  "runs": [
+    {
+      "run_id": "01-requests_auth_ports-baseline",
+      "task_id": "requests_auth_ports",
+      "condition": "baseline",
+      "patch_sha256": "2a2f55724d2cb090ca25ab7d4f3c056ed0517ee8b448a1d8a181fdfa0afdd13a",
+      "hidden_checks_passed": true,
+      "changed_files": [
+        "src/requests/sessions.py",
+        "tests/test_requests.py"
+      ],
+      "regression_tests": [
+        {
+          "node_id": "tests/test_requests.py::TestRequests::test_auth_is_retained_for_redirect_between_default_ports",
+          "cases": 4,
+          "coverage": "Both HTTP/HTTPS default ports, both explicit/implicit redirect directions through resolve_redirects."
+        }
+      ],
+      "claim_review": {
+        "unsupported_claims": [],
+        "supported": "Published events support 12 targeted tests, 200 offline authentication safety cases, and a successful diff check."
+      },
+      "limitations": [
+        "Selected behavioral/regression checks; complete upstream Requests suite not run."
+      ],
+      "summary": "Restores same-scheme omitted/default-port equivalence after host and safe-upgrade checks; different hosts, nondefault ports and downgrades still strip credentials. Focused source change matches requested behavior.",
+      "issues": [],
+      "test_checks": [
+        {
+          "variant": "final",
+          "exit_code": 0,
+          "elapsed_s": 0.2875780000031227,
+          "command": [
+            "<PROJECT>/.venv/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "-o",
+            "addopts=",
+            "tests/test_requests.py::TestRequests::test_auth_is_retained_for_redirect_between_default_ports"
+          ],
+          "stdout": "....                                                                     [100%]\n4 passed in 0.10s\n",
+          "stderr": "",
+          "pytest_summary": "4 passed in 0.10s",
+          "case_counts": {
+            "passed": 4
+          }
+        },
+        {
+          "variant": "seed",
+          "exit_code": 1,
+          "elapsed_s": 0.3526093749969732,
+          "command": [
+            "<PROJECT>/.venv/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "-o",
+            "addopts=",
+            "tests/test_requests.py::TestRequests::test_auth_is_retained_for_redirect_between_default_ports"
+          ],
+          "stdout": "FFFF                                                                     [100%]\n=================================== FAILURES ===================================\n_ TestRequests.test_auth_is_retained_for_redirect_between_default_ports[True-http-80] _\n\nself = <tests.test_requests.TestRequests object at 0x104ab4ad0>, scheme = 'http'\nport = 80, explicit_port_first = True\n\n    @pytest.mark.parametrize(\"scheme, port\", ((\"http\", 80), (\"https\", 443)))\n    @pytest.mark.parametrize(\"explicit_port_first\", (True, False))\n    def test_auth_is_retained_for_redirect_between_default_ports(\n        self, scheme, port, explicit_port_first\n    ):\n        old_url = f\"{scheme}://example.com:{port}/\"\n        new_url = f\"{scheme}://example.com/\"\n        if not explicit_port_first:\n            old_url, new_url = new_url, old_url\n    \n        s = requests.Session()\n        s.trust_env = False\n        req = requests.Request(\"GET\", old_url, auth=(\"user\", \"pass\")).prepare()\n        resp = requests.Response()\n        resp.request = req\n        resp.url = req.url\n        resp.status_code = 302\n        resp.headers[\"Location\"] = new_url\n        resp._content = b\"\"\n    \n        redirected = next(s.resolve_redirects(resp, req, yield_requests=True))\n        assert redirected.url == new_url\n>       assert redirected.headers[\"Authorization\"] == req.headers[\"Authorization\"]\n\ntests/test_requests.py:2010: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = {}, key = 'Authorization'\n\n    def __getitem__(self, key: str) -> _VT:\n>       return self._store[key.lower()][1]\nE       KeyError: 'authorization'\n\nsrc/requests/structures.py:65: KeyError\n_ TestRequests.test_auth_is_retained_for_redirect_between_default_ports[True-https-443] _\n\nself = <tests.test_requests.TestRequests object at 0x104ab48c0>\nscheme = 'https', port = 443, explicit_port_first = True\n\n    @pytest.mark.parametrize(\"scheme, port\", ((\"http\", 80), (\"https\", 443)))\n    @pytest.mark.parametrize(\"explicit_port_first\", (True, False))\n    def test_auth_is_retained_for_redirect_between_default_ports(\n        self, scheme, port, explicit_port_first\n    ):\n        old_url = f\"{scheme}://example.com:{port}/\"\n        new_url = f\"{scheme}://example.com/\"\n        if not explicit_port_first:\n            old_url, new_url = new_url, old_url\n    \n        s = requests.Session()\n        s.trust_env = False\n        req = requests.Request(\"GET\", old_url, auth=(\"user\", \"pass\")).prepare()\n        resp = requests.Response()\n        resp.request = req\n        resp.url = req.url\n        resp.status_code = 302\n        resp.headers[\"Location\"] = new_url\n        resp._content = b\"\"\n    \n        redirected = next(s.resolve_redirects(resp, req, yield_requests=True))\n        assert redirected.url == new_url\n>       assert redirected.headers[\"Authorization\"] == req.headers[\"Authorization\"]\n\ntests/test_requests.py:2010: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = {}, key = 'Authorization'\n\n    def __getitem__(self, key: str) -> _VT:\n>       return self._store[key.lower()][1]\nE       KeyError: 'authorization'\n\nsrc/requests/structures.py:65: KeyError\n_ TestRequests.test_auth_is_retained_for_redirect_between_default_ports[False-http-80] _\n\nself = <tests.test_requests.TestRequests object at 0x104ab6e40>, scheme = 'http'\nport = 80, explicit_port_first = False\n\n    @pytest.mark.parametrize(\"scheme, port\", ((\"http\", 80), (\"https\", 443)))\n    @pytest.mark.parametrize(\"explicit_port_first\", (True, False))\n    def test_auth_is_retained_for_redirect_between_default_ports(\n        self, scheme, port, explicit_port_first\n    ):\n        old_url = f\"{scheme}://example.com:{port}/\"\n        new_url = f\"{scheme}://example.com/\"\n        if not explicit_port_first:\n            old_url, new_url = new_url, old_url\n    \n        s = requests.Session()\n        s.trust_env = False\n        req = requests.Request(\"GET\", old_url, auth=(\"user\", \"pass\")).prepare()\n        resp = requests.Response()\n        resp.request = req\n        resp.url = req.url\n        resp.status_code = 302\n        resp.headers[\"Location\"] = new_url\n        resp._content = b\"\"\n    \n        redirected = next(s.resolve_redirects(resp, req, yield_requests=True))\n        assert redirected.url == new_url\n>       assert redirected.headers[\"Authorization\"] == req.headers[\"Authorization\"]\n\ntests/test_requests.py:2010: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = {}, key = 'Authorization'\n\n    def __getitem__(self, key: str) -> _VT:\n>       return self._store[key.lower()][1]\nE       KeyError: 'authorization'\n\nsrc/requests/structures.py:65: KeyError\n_ TestRequests.test_auth_is_retained_for_redirect_between_default_ports[False-https-443] _\n\nself = <tests.test_requests.TestRequests object at 0x104ab5730>\nscheme = 'https', port = 443, explicit_port_first = False\n\n    @pytest.mark.parametrize(\"scheme, port\", ((\"http\", 80), (\"https\", 443)))\n    @pytest.mark.parametrize(\"explicit_port_first\", (True, False))\n    def test_auth_is_retained_for_redirect_between_default_ports(\n        self, scheme, port, explicit_port_first\n    ):\n        old_url = f\"{scheme}://example.com:{port}/\"\n        new_url = f\"{scheme}://example.com/\"\n        if not explicit_port_first:\n            old_url, new_url = new_url, old_url\n    \n        s = requests.Session()\n        s.trust_env = False\n        req = requests.Request(\"GET\", old_url, auth=(\"user\", \"pass\")).prepare()\n        resp = requests.Response()\n        resp.request = req\n        resp.url = req.url\n        resp.status_code = 302\n        resp.headers[\"Location\"] = new_url\n        resp._content = b\"\"\n    \n        redirected = next(s.resolve_redirects(resp, req, yield_requests=True))\n        assert redirected.url == new_url\n>       assert redirected.headers[\"Authorization\"] == req.headers[\"Authorization\"]\n\ntests/test_requests.py:2010: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = {}, key = 'Authorization'\n\n    def __getitem__(self, key: str) -> _VT:\n>       return self._store[key.lower()][1]\nE       KeyError: 'authorization'\n\nsrc/requests/structures.py:65: KeyError\n=========================== short test summary info ============================\nFAILED tests/test_requests.py::TestRequests::test_auth_is_retained_for_redirect_between_default_ports[True-http-80]\nFAILED tests/test_requests.py::TestRequests::test_auth_is_retained_for_redirect_between_default_ports[True-https-443]\nFAILED tests/test_requests.py::TestRequests::test_auth_is_retained_for_redirect_between_default_ports[False-http-80]\nFAILED tests/test_requests.py::TestRequests::test_auth_is_retained_for_redirect_between_default_ports[False-https-443]\n4 failed in 0.16s\n",
+          "stderr": "",
+          "pytest_summary": "4 failed in 0.16s",
+          "case_counts": {
+            "failed": 4
+          }
+        }
+      ]
+    },
+    {
+      "run_id": "02-requests_auth_ports-mcp",
+      "task_id": "requests_auth_ports",
+      "condition": "mcp",
+      "patch_sha256": "d10f1ea8be2f4bbe50803274d811839c831fcade4eb8ae594aebb9151b9974f0",
+      "hidden_checks_passed": true,
+      "changed_files": [
+        "src/requests/sessions.py",
+        "tests/test_requests.py"
+      ],
+      "regression_tests": [
+        {
+          "node_id": "tests/test_requests.py::TestRequests::test_auth_is_retained_for_redirect_with_default_port",
+          "cases": 4,
+          "coverage": "HTTP/HTTPS, both directions, direct rebuild_auth call on an offline prepared request."
+        }
+      ],
+      "claim_review": {
+        "unsupported_claims": [],
+        "supported": "Published events show the new regression failed before repair; 12 targeted tests and 18 boundary checks passed after repair, with a successful diff check."
+      },
+      "limitations": [
+        "Selected checks; complete upstream Requests suite not run.",
+        "New test exercises rebuild_auth directly; baseline test exercises resolve_redirects. Both detect the seeded regression."
+      ],
+      "summary": "Restores same-scheme implicit/default-port equivalence after host and upgrade guards. Production behavior equals baseline repair; variable naming and comment differ.",
+      "issues": [],
+      "test_checks": [
+        {
+          "variant": "final",
+          "exit_code": 0,
+          "elapsed_s": 0.29721058400173206,
+          "command": [
+            "<PROJECT>/.venv/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "-o",
+            "addopts=",
+            "tests/test_requests.py::TestRequests::test_auth_is_retained_for_redirect_with_default_port"
+          ],
+          "environment": {
+            "PYTHONPATH": "<REVIEW_COPIES>/02-requests_auth_ports-mcp/final/src",
+            "PYTHONDONTWRITEBYTECODE": "1",
+            "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+          },
+          "stdout": "....                                                                     [100%]\n4 passed in 0.10s\n",
+          "stderr": "",
+          "pytest_summary": "4 passed in 0.10s",
+          "case_counts": {
+            "passed": 4
+          }
+        },
+        {
+          "variant": "seed",
+          "exit_code": 1,
+          "elapsed_s": 0.35750316600024235,
+          "command": [
+            "<PROJECT>/.venv/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "-o",
+            "addopts=",
+            "tests/test_requests.py::TestRequests::test_auth_is_retained_for_redirect_with_default_port"
+          ],
+          "environment": {
+            "PYTHONPATH": "<REVIEW_COPIES>/02-requests_auth_ports-mcp/seed/src",
+            "PYTHONDONTWRITEBYTECODE": "1",
+            "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+          },
+          "stdout": "FFFF                                                                     [100%]\n=================================== FAILURES ===================================\n_ TestRequests.test_auth_is_retained_for_redirect_with_default_port[False-http-80] _\n\nself = <tests.test_requests.TestRequests object at 0x102964b00>, scheme = 'http'\nport = 80, reverse = False\n\n    @pytest.mark.parametrize(\"scheme, port\", ((\"http\", 80), (\"https\", 443)))\n    @pytest.mark.parametrize(\"reverse\", (False, True))\n    def test_auth_is_retained_for_redirect_with_default_port(self, scheme, port, reverse):\n        old_uri = f\"{scheme}://example.com/foo\"\n        new_uri = f\"{scheme}://example.com:{port}/bar\"\n        if reverse:\n            old_uri, new_uri = new_uri, old_uri\n    \n        s = requests.Session()\n        s.trust_env = False\n        request = requests.Request(\"GET\", old_uri, auth=(\"user\", \"pass\")).prepare()\n        response = requests.Response()\n        response.request = request\n        redirected = request.copy()\n        redirected.url = new_uri\n    \n        s.rebuild_auth(redirected, response)\n    \n>       assert redirected.headers[\"Authorization\"] == request.headers[\"Authorization\"]\n\ntests/test_requests.py:2006: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = {}, key = 'Authorization'\n\n    def __getitem__(self, key: str) -> _VT:\n>       return self._store[key.lower()][1]\nE       KeyError: 'authorization'\n\nsrc/requests/structures.py:65: KeyError\n_ TestRequests.test_auth_is_retained_for_redirect_with_default_port[False-https-443] _\n\nself = <tests.test_requests.TestRequests object at 0x1029648f0>\nscheme = 'https', port = 443, reverse = False\n\n    @pytest.mark.parametrize(\"scheme, port\", ((\"http\", 80), (\"https\", 443)))\n    @pytest.mark.parametrize(\"reverse\", (False, True))\n    def test_auth_is_retained_for_redirect_with_default_port(self, scheme, port, reverse):\n        old_uri = f\"{scheme}://example.com/foo\"\n        new_uri = f\"{scheme}://example.com:{port}/bar\"\n        if reverse:\n            old_uri, new_uri = new_uri, old_uri\n    \n        s = requests.Session()\n        s.trust_env = False\n        request = requests.Request(\"GET\", old_uri, auth=(\"user\", \"pass\")).prepare()\n        response = requests.Response()\n        response.request = request\n        redirected = request.copy()\n        redirected.url = new_uri\n    \n        s.rebuild_auth(redirected, response)\n    \n>       assert redirected.headers[\"Authorization\"] == request.headers[\"Authorization\"]\n\ntests/test_requests.py:2006: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = {}, key = 'Authorization'\n\n    def __getitem__(self, key: str) -> _VT:\n>       return self._store[key.lower()][1]\nE       KeyError: 'authorization'\n\nsrc/requests/structures.py:65: KeyError\n_ TestRequests.test_auth_is_retained_for_redirect_with_default_port[True-http-80] _\n\nself = <tests.test_requests.TestRequests object at 0x102964110>, scheme = 'http'\nport = 80, reverse = True\n\n    @pytest.mark.parametrize(\"scheme, port\", ((\"http\", 80), (\"https\", 443)))\n    @pytest.mark.parametrize(\"reverse\", (False, True))\n    def test_auth_is_retained_for_redirect_with_default_port(self, scheme, port, reverse):\n        old_uri = f\"{scheme}://example.com/foo\"\n        new_uri = f\"{scheme}://example.com:{port}/bar\"\n        if reverse:\n            old_uri, new_uri = new_uri, old_uri\n    \n        s = requests.Session()\n        s.trust_env = False\n        request = requests.Request(\"GET\", old_uri, auth=(\"user\", \"pass\")).prepare()\n        response = requests.Response()\n        response.request = request\n        redirected = request.copy()\n        redirected.url = new_uri\n    \n        s.rebuild_auth(redirected, response)\n    \n>       assert redirected.headers[\"Authorization\"] == request.headers[\"Authorization\"]\n\ntests/test_requests.py:2006: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = {}, key = 'Authorization'\n\n    def __getitem__(self, key: str) -> _VT:\n>       return self._store[key.lower()][1]\nE       KeyError: 'authorization'\n\nsrc/requests/structures.py:65: KeyError\n_ TestRequests.test_auth_is_retained_for_redirect_with_default_port[True-https-443] _\n\nself = <tests.test_requests.TestRequests object at 0x1029652b0>\nscheme = 'https', port = 443, reverse = True\n\n    @pytest.mark.parametrize(\"scheme, port\", ((\"http\", 80), (\"https\", 443)))\n    @pytest.mark.parametrize(\"reverse\", (False, True))\n    def test_auth_is_retained_for_redirect_with_default_port(self, scheme, port, reverse):\n        old_uri = f\"{scheme}://example.com/foo\"\n        new_uri = f\"{scheme}://example.com:{port}/bar\"\n        if reverse:\n            old_uri, new_uri = new_uri, old_uri\n    \n        s = requests.Session()\n        s.trust_env = False\n        request = requests.Request(\"GET\", old_uri, auth=(\"user\", \"pass\")).prepare()\n        response = requests.Response()\n        response.request = request\n        redirected = request.copy()\n        redirected.url = new_uri\n    \n        s.rebuild_auth(redirected, response)\n    \n>       assert redirected.headers[\"Authorization\"] == request.headers[\"Authorization\"]\n\ntests/test_requests.py:2006: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = {}, key = 'Authorization'\n\n    def __getitem__(self, key: str) -> _VT:\n>       return self._store[key.lower()][1]\nE       KeyError: 'authorization'\n\nsrc/requests/structures.py:65: KeyError\n=========================== short test summary info ============================\nFAILED tests/test_requests.py::TestRequests::test_auth_is_retained_for_redirect_with_default_port[False-http-80]\nFAILED tests/test_requests.py::TestRequests::test_auth_is_retained_for_redirect_with_default_port[False-https-443]\nFAILED tests/test_requests.py::TestRequests::test_auth_is_retained_for_redirect_with_default_port[True-http-80]\nFAILED tests/test_requests.py::TestRequests::test_auth_is_retained_for_redirect_with_default_port[True-https-443]\n4 failed in 0.17s\n",
+          "stderr": "",
+          "pytest_summary": "4 failed in 0.17s",
+          "case_counts": {
+            "failed": 4
+          }
+        }
+      ]
+    },
+    {
+      "run_id": "03-requests_redirect_methods-mcp",
+      "task_id": "requests_redirect_methods",
+      "condition": "mcp",
+      "patch_sha256": "da90503c5e3212b66be352580a47a0c8eb0de79c8c85ca55e55ff33f0278b810",
+      "hidden_checks_passed": true,
+      "changed_files": [
+        "src/requests/sessions.py",
+        "tests/test_requests.py"
+      ],
+      "regression_tests": [
+        {
+          "node_id": "tests/test_requests.py::test_redirect_method_and_body",
+          "cases": 45,
+          "coverage": "9 methods x 5 redirect statuses through an existing offline RedirectSession; verifies method, body, and content-header behavior."
+        }
+      ],
+      "claim_review": {
+        "unsupported_claims": [],
+        "supported": "Published events show six seeded failures and 39 passes before repair, all 45 cases passing after repair, and a successful diff check."
+      },
+      "limitations": [
+        "Selected checks; complete upstream Requests suite not run."
+      ],
+      "summary": "Changes only the 301 rewrite predicate from non-HEAD to POST. Existing 302/303 rewrites and 307/308 body/method preservation remain intact.",
+      "issues": [],
+      "test_checks": [
+        {
+          "variant": "final",
+          "exit_code": 0,
+          "elapsed_s": 0.29035212499729823,
+          "command": [
+            "<PROJECT>/.venv/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "-o",
+            "addopts=",
+            "tests/test_requests.py::test_redirect_method_and_body"
+          ],
+          "environment": {
+            "PYTHONPATH": "<REVIEW_COPIES>/03-requests_redirect_methods-mcp/final/src",
+            "PYTHONDONTWRITEBYTECODE": "1",
+            "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+          },
+          "stdout": ".............................................                            [100%]\n45 passed in 0.11s\n",
+          "stderr": "",
+          "pytest_summary": "45 passed in 0.11s",
+          "case_counts": {
+            "passed": 45
+          }
+        },
+        {
+          "variant": "seed",
+          "exit_code": 1,
+          "elapsed_s": 0.38589854100428056,
+          "command": [
+            "<PROJECT>/.venv/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "-o",
+            "addopts=",
+            "tests/test_requests.py::test_redirect_method_and_body"
+          ],
+          "environment": {
+            "PYTHONPATH": "<REVIEW_COPIES>/03-requests_redirect_methods-mcp/seed/src",
+            "PYTHONDONTWRITEBYTECODE": "1",
+            "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+          },
+          "stdout": "...FFFFFF....................................                            [100%]\n=================================== FAILURES ===================================\n_____________ test_redirect_method_and_body[301-None-PUT-PUT-GET] ______________\n\nmethod = 'PUT', expected_301 = 'PUT', expected_302_303 = 'GET'\nstatus_code = 301, expected_body = None\n\n    @pytest.mark.parametrize(\n        \"method, expected_301, expected_302_303\",\n        (\n            (\"GET\", \"GET\", \"GET\"),\n            (\"HEAD\", \"HEAD\", \"HEAD\"),\n            (\"POST\", \"GET\", \"GET\"),\n            (\"PUT\", \"PUT\", \"GET\"),\n            (\"PATCH\", \"PATCH\", \"GET\"),\n            (\"DELETE\", \"DELETE\", \"GET\"),\n            (\"OPTIONS\", \"OPTIONS\", \"GET\"),\n            (\"TRACE\", \"TRACE\", \"GET\"),\n            (\"PROPFIND\", \"PROPFIND\", \"GET\"),\n        ),\n    )\n    @pytest.mark.parametrize(\n        \"status_code, expected_body\",\n        ((301, None), (302, None), (303, None), (307, b\"test\"), (308, b\"test\")),\n    )\n    def test_redirect_method_and_body(\n        method, expected_301, expected_302_303, status_code, expected_body\n    ):\n        session = RedirectSession([status_code])\n        prep = requests.Request(\n            method,\n            \"http://example.test/original\",\n            data=b\"test\",\n            headers={\"Content-Type\": \"text/plain\"},\n        ).prepare()\n        response = session.send(prep)\n    \n        redirected_responses = list(session.resolve_redirects(response, prep))\n        assert len(redirected_responses) == 1\n        redirected_request = redirected_responses[0].request\n        expected_method = {\n            301: expected_301,\n            302: expected_302_303,\n            303: expected_302_303,\n            307: method,\n            308: method,\n        }[status_code]\n>       assert redirected_request.method == expected_method\nE       AssertionError: assert 'GET' == 'PUT'\nE         \nE         - PUT\nE         + GET\n\ntests/test_requests.py:2689: AssertionError\n___________ test_redirect_method_and_body[301-None-PATCH-PATCH-GET] ____________\n\nmethod = 'PATCH', expected_301 = 'PATCH', expected_302_303 = 'GET'\nstatus_code = 301, expected_body = None\n\n    @pytest.mark.parametrize(\n        \"method, expected_301, expected_302_303\",\n        (\n            (\"GET\", \"GET\", \"GET\"),\n            (\"HEAD\", \"HEAD\", \"HEAD\"),\n            (\"POST\", \"GET\", \"GET\"),\n            (\"PUT\", \"PUT\", \"GET\"),\n            (\"PATCH\", \"PATCH\", \"GET\"),\n            (\"DELETE\", \"DELETE\", \"GET\"),\n            (\"OPTIONS\", \"OPTIONS\", \"GET\"),\n            (\"TRACE\", \"TRACE\", \"GET\"),\n            (\"PROPFIND\", \"PROPFIND\", \"GET\"),\n        ),\n    )\n    @pytest.mark.parametrize(\n        \"status_code, expected_body\",\n        ((301, None), (302, None), (303, None), (307, b\"test\"), (308, b\"test\")),\n    )\n    def test_redirect_method_and_body(\n        method, expected_301, expected_302_303, status_code, expected_body\n    ):\n        session = RedirectSession([status_code])\n        prep = requests.Request(\n            method,\n            \"http://example.test/original\",\n            data=b\"test\",\n            headers={\"Content-Type\": \"text/plain\"},\n        ).prepare()\n        response = session.send(prep)\n    \n        redirected_responses = list(session.resolve_redirects(response, prep))\n        assert len(redirected_responses) == 1\n        redirected_request = redirected_responses[0].request\n        expected_method = {\n            301: expected_301,\n            302: expected_302_303,\n            303: expected_302_303,\n            307: method,\n            308: method,\n        }[status_code]\n>       assert redirected_request.method == expected_method\nE       AssertionError: assert 'GET' == 'PATCH'\nE         \nE         - PATCH\nE         + GET\n\ntests/test_requests.py:2689: AssertionError\n__________ test_redirect_method_and_body[301-None-DELETE-DELETE-GET] ___________\n\nmethod = 'DELETE', expected_301 = 'DELETE', expected_302_303 = 'GET'\nstatus_code = 301, expected_body = None\n\n    @pytest.mark.parametrize(\n        \"method, expected_301, expected_302_303\",\n        (\n            (\"GET\", \"GET\", \"GET\"),\n            (\"HEAD\", \"HEAD\", \"HEAD\"),\n            (\"POST\", \"GET\", \"GET\"),\n            (\"PUT\", \"PUT\", \"GET\"),\n            (\"PATCH\", \"PATCH\", \"GET\"),\n            (\"DELETE\", \"DELETE\", \"GET\"),\n            (\"OPTIONS\", \"OPTIONS\", \"GET\"),\n            (\"TRACE\", \"TRACE\", \"GET\"),\n            (\"PROPFIND\", \"PROPFIND\", \"GET\"),\n        ),\n    )\n    @pytest.mark.parametrize(\n        \"status_code, expected_body\",\n        ((301, None), (302, None), (303, None), (307, b\"test\"), (308, b\"test\")),\n    )\n    def test_redirect_method_and_body(\n        method, expected_301, expected_302_303, status_code, expected_body\n    ):\n        session = RedirectSession([status_code])\n        prep = requests.Request(\n            method,\n            \"http://example.test/original\",\n            data=b\"test\",\n            headers={\"Content-Type\": \"text/plain\"},\n        ).prepare()\n        response = session.send(prep)\n    \n        redirected_responses = list(session.resolve_redirects(response, prep))\n        assert len(redirected_responses) == 1\n        redirected_request = redirected_responses[0].request\n        expected_method = {\n            301: expected_301,\n            302: expected_302_303,\n            303: expected_302_303,\n            307: method,\n            308: method,\n        }[status_code]\n>       assert redirected_request.method == expected_method\nE       AssertionError: assert 'GET' == 'DELETE'\nE         \nE         - DELETE\nE         + GET\n\ntests/test_requests.py:2689: AssertionError\n_________ test_redirect_method_and_body[301-None-OPTIONS-OPTIONS-GET] __________\n\nmethod = 'OPTIONS', expected_301 = 'OPTIONS', expected_302_303 = 'GET'\nstatus_code = 301, expected_body = None\n\n    @pytest.mark.parametrize(\n        \"method, expected_301, expected_302_303\",\n        (\n            (\"GET\", \"GET\", \"GET\"),\n            (\"HEAD\", \"HEAD\", \"HEAD\"),\n            (\"POST\", \"GET\", \"GET\"),\n            (\"PUT\", \"PUT\", \"GET\"),\n            (\"PATCH\", \"PATCH\", \"GET\"),\n            (\"DELETE\", \"DELETE\", \"GET\"),\n            (\"OPTIONS\", \"OPTIONS\", \"GET\"),\n            (\"TRACE\", \"TRACE\", \"GET\"),\n            (\"PROPFIND\", \"PROPFIND\", \"GET\"),\n        ),\n    )\n    @pytest.mark.parametrize(\n        \"status_code, expected_body\",\n        ((301, None), (302, None), (303, None), (307, b\"test\"), (308, b\"test\")),\n    )\n    def test_redirect_method_and_body(\n        method, expected_301, expected_302_303, status_code, expected_body\n    ):\n        session = RedirectSession([status_code])\n        prep = requests.Request(\n            method,\n            \"http://example.test/original\",\n            data=b\"test\",\n            headers={\"Content-Type\": \"text/plain\"},\n        ).prepare()\n        response = session.send(prep)\n    \n        redirected_responses = list(session.resolve_redirects(response, prep))\n        assert len(redirected_responses) == 1\n        redirected_request = redirected_responses[0].request\n        expected_method = {\n            301: expected_301,\n            302: expected_302_303,\n            303: expected_302_303,\n            307: method,\n            308: method,\n        }[status_code]\n>       assert redirected_request.method == expected_method\nE       AssertionError: assert 'GET' == 'OPTIONS'\nE         \nE         - OPTIONS\nE         + GET\n\ntests/test_requests.py:2689: AssertionError\n___________ test_redirect_method_and_body[301-None-TRACE-TRACE-GET] ____________\n\nmethod = 'TRACE', expected_301 = 'TRACE', expected_302_303 = 'GET'\nstatus_code = 301, expected_body = None\n\n    @pytest.mark.parametrize(\n        \"method, expected_301, expected_302_303\",\n        (\n            (\"GET\", \"GET\", \"GET\"),\n            (\"HEAD\", \"HEAD\", \"HEAD\"),\n            (\"POST\", \"GET\", \"GET\"),\n            (\"PUT\", \"PUT\", \"GET\"),\n            (\"PATCH\", \"PATCH\", \"GET\"),\n            (\"DELETE\", \"DELETE\", \"GET\"),\n            (\"OPTIONS\", \"OPTIONS\", \"GET\"),\n            (\"TRACE\", \"TRACE\", \"GET\"),\n            (\"PROPFIND\", \"PROPFIND\", \"GET\"),\n        ),\n    )\n    @pytest.mark.parametrize(\n        \"status_code, expected_body\",\n        ((301, None), (302, None), (303, None), (307, b\"test\"), (308, b\"test\")),\n    )\n    def test_redirect_method_and_body(\n        method, expected_301, expected_302_303, status_code, expected_body\n    ):\n        session = RedirectSession([status_code])\n        prep = requests.Request(\n            method,\n            \"http://example.test/original\",\n            data=b\"test\",\n            headers={\"Content-Type\": \"text/plain\"},\n        ).prepare()\n        response = session.send(prep)\n    \n        redirected_responses = list(session.resolve_redirects(response, prep))\n        assert len(redirected_responses) == 1\n        redirected_request = redirected_responses[0].request\n        expected_method = {\n            301: expected_301,\n            302: expected_302_303,\n            303: expected_302_303,\n            307: method,\n            308: method,\n        }[status_code]\n>       assert redirected_request.method == expected_method\nE       AssertionError: assert 'GET' == 'TRACE'\nE         \nE         - TRACE\nE         + GET\n\ntests/test_requests.py:2689: AssertionError\n________ test_redirect_method_and_body[301-None-PROPFIND-PROPFIND-GET] _________\n\nmethod = 'PROPFIND', expected_301 = 'PROPFIND', expected_302_303 = 'GET'\nstatus_code = 301, expected_body = None\n\n    @pytest.mark.parametrize(\n        \"method, expected_301, expected_302_303\",\n        (\n            (\"GET\", \"GET\", \"GET\"),\n            (\"HEAD\", \"HEAD\", \"HEAD\"),\n            (\"POST\", \"GET\", \"GET\"),\n            (\"PUT\", \"PUT\", \"GET\"),\n            (\"PATCH\", \"PATCH\", \"GET\"),\n            (\"DELETE\", \"DELETE\", \"GET\"),\n            (\"OPTIONS\", \"OPTIONS\", \"GET\"),\n            (\"TRACE\", \"TRACE\", \"GET\"),\n            (\"PROPFIND\", \"PROPFIND\", \"GET\"),\n        ),\n    )\n    @pytest.mark.parametrize(\n        \"status_code, expected_body\",\n        ((301, None), (302, None), (303, None), (307, b\"test\"), (308, b\"test\")),\n    )\n    def test_redirect_method_and_body(\n        method, expected_301, expected_302_303, status_code, expected_body\n    ):\n        session = RedirectSession([status_code])\n        prep = requests.Request(\n            method,\n            \"http://example.test/original\",\n            data=b\"test\",\n            headers={\"Content-Type\": \"text/plain\"},\n        ).prepare()\n        response = session.send(prep)\n    \n        redirected_responses = list(session.resolve_redirects(response, prep))\n        assert len(redirected_responses) == 1\n        redirected_request = redirected_responses[0].request\n        expected_method = {\n            301: expected_301,\n            302: expected_302_303,\n            303: expected_302_303,\n            307: method,\n            308: method,\n        }[status_code]\n>       assert redirected_request.method == expected_method\nE       AssertionError: assert 'GET' == 'PROPFIND'\nE         \nE         - PROPFIND\nE         + GET\n\ntests/test_requests.py:2689: AssertionError\n=========================== short test summary info ============================\nFAILED tests/test_requests.py::test_redirect_method_and_body[301-None-PUT-PUT-GET]\nFAILED tests/test_requests.py::test_redirect_method_and_body[301-None-PATCH-PATCH-GET]\nFAILED tests/test_requests.py::test_redirect_method_and_body[301-None-DELETE-DELETE-GET]\nFAILED tests/test_requests.py::test_redirect_method_and_body[301-None-OPTIONS-OPTIONS-GET]\nFAILED tests/test_requests.py::test_redirect_method_and_body[301-None-TRACE-TRACE-GET]\nFAILED tests/test_requests.py::test_redirect_method_and_body[301-None-PROPFIND-PROPFIND-GET]\n6 failed, 39 passed in 0.20s\n",
+          "stderr": "",
+          "pytest_summary": "6 failed, 39 passed in 0.20s",
+          "case_counts": {
+            "failed": 6,
+            "passed": 39
+          }
+        }
+      ]
+    },
+    {
+      "run_id": "04-requests_redirect_methods-baseline",
+      "task_id": "requests_redirect_methods",
+      "condition": "baseline",
+      "patch_sha256": "94b8f7f9fe33d8653f1063f7895fbfae61f082088757a02c1cb79e08b9ab8d90",
+      "hidden_checks_passed": true,
+      "changed_files": [
+        "src/requests/sessions.py",
+        "tests/test_requests.py"
+      ],
+      "regression_tests": [
+        {
+          "node_id": "tests/test_requests.py::test_redirect_method_and_body",
+          "cases": 45,
+          "coverage": "9 methods x5 statuses, includes custom method, method/body/content headers and original prepared-request immutability through offline RedirectSession."
+        }
+      ],
+      "claim_review": {
+        "unsupported_claims": [],
+        "supported": "Published events show six seeded failures and 39 passes before repair, all 45 cases passing after repair, and a successful diff check."
+      },
+      "limitations": [
+        "Selected checks; complete upstream Requests suite not run."
+      ],
+      "summary": "Identical one-predicate production repair to MCP trial: only POST rewrites on301; existing branches retained.",
+      "issues": [],
+      "test_checks": [
+        {
+          "variant": "final",
+          "exit_code": 0,
+          "elapsed_s": 0.2997521249926649,
+          "command": [
+            "<PROJECT>/.venv/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "-o",
+            "addopts=",
+            "tests/test_requests.py::test_redirect_method_and_body"
+          ],
+          "environment": {
+            "PYTHONPATH": "<REVIEW_COPIES>/04-requests_redirect_methods-baseline/final/src",
+            "PYTHONDONTWRITEBYTECODE": "1",
+            "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+          },
+          "stdout": ".............................................                            [100%]\n45 passed in 0.11s\n",
+          "stderr": "",
+          "pytest_summary": "45 passed in 0.11s",
+          "case_counts": {
+            "passed": 45
+          }
+        },
+        {
+          "variant": "seed",
+          "exit_code": 1,
+          "elapsed_s": 0.39120091700169723,
+          "command": [
+            "<PROJECT>/.venv/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "-o",
+            "addopts=",
+            "tests/test_requests.py::test_redirect_method_and_body"
+          ],
+          "environment": {
+            "PYTHONPATH": "<REVIEW_COPIES>/04-requests_redirect_methods-baseline/seed/src",
+            "PYTHONDONTWRITEBYTECODE": "1",
+            "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+          },
+          "stdout": "...............F....F....F....F....F....F....                            [100%]\n=================================== FAILURES ===================================\n________________ test_redirect_method_and_body[PUT-PUT-GET-301] ________________\n\nstatus_code = 301, method = 'PUT', expected_301 = 'PUT'\nexpected_302_303 = 'GET'\n\n    @pytest.mark.parametrize(\"status_code\", (301, 302, 303, 307, 308))\n    @pytest.mark.parametrize(\n        \"method, expected_301, expected_302_303\",\n        (\n            (\"GET\", \"GET\", \"GET\"),\n            (\"HEAD\", \"HEAD\", \"HEAD\"),\n            (\"POST\", \"GET\", \"GET\"),\n            (\"PUT\", \"PUT\", \"GET\"),\n            (\"PATCH\", \"PATCH\", \"GET\"),\n            (\"DELETE\", \"DELETE\", \"GET\"),\n            (\"OPTIONS\", \"OPTIONS\", \"GET\"),\n            (\"TRACE\", \"TRACE\", \"GET\"),\n            (\"CUSTOM\", \"CUSTOM\", \"GET\"),\n        ),\n    )\n    def test_redirect_method_and_body(status_code, method, expected_301, expected_302_303):\n        session = RedirectSession([status_code])\n        body = b\"test body\"\n        prep = requests.Request(\n            method,\n            \"http://example.test/start\",\n            data=body,\n            headers={\"Content-Type\": \"text/plain\"},\n        ).prepare()\n        response = session.send(prep)\n    \n        responses = list(session.resolve_redirects(response, prep))\n        assert len(responses) == 1\n        redirected = responses[0].request\n        expected_method = {\n            301: expected_301,\n            302: expected_302_303,\n            303: expected_302_303,\n            307: method,\n            308: method,\n        }[status_code]\n>       assert redirected.method == expected_method\nE       AssertionError: assert 'GET' == 'PUT'\nE         \nE         - PUT\nE         + GET\n\ntests/test_requests.py:2685: AssertionError\n______________ test_redirect_method_and_body[PATCH-PATCH-GET-301] ______________\n\nstatus_code = 301, method = 'PATCH', expected_301 = 'PATCH'\nexpected_302_303 = 'GET'\n\n    @pytest.mark.parametrize(\"status_code\", (301, 302, 303, 307, 308))\n    @pytest.mark.parametrize(\n        \"method, expected_301, expected_302_303\",\n        (\n            (\"GET\", \"GET\", \"GET\"),\n            (\"HEAD\", \"HEAD\", \"HEAD\"),\n            (\"POST\", \"GET\", \"GET\"),\n            (\"PUT\", \"PUT\", \"GET\"),\n            (\"PATCH\", \"PATCH\", \"GET\"),\n            (\"DELETE\", \"DELETE\", \"GET\"),\n            (\"OPTIONS\", \"OPTIONS\", \"GET\"),\n            (\"TRACE\", \"TRACE\", \"GET\"),\n            (\"CUSTOM\", \"CUSTOM\", \"GET\"),\n        ),\n    )\n    def test_redirect_method_and_body(status_code, method, expected_301, expected_302_303):\n        session = RedirectSession([status_code])\n        body = b\"test body\"\n        prep = requests.Request(\n            method,\n            \"http://example.test/start\",\n            data=body,\n            headers={\"Content-Type\": \"text/plain\"},\n        ).prepare()\n        response = session.send(prep)\n    \n        responses = list(session.resolve_redirects(response, prep))\n        assert len(responses) == 1\n        redirected = responses[0].request\n        expected_method = {\n            301: expected_301,\n            302: expected_302_303,\n            303: expected_302_303,\n            307: method,\n            308: method,\n        }[status_code]\n>       assert redirected.method == expected_method\nE       AssertionError: assert 'GET' == 'PATCH'\nE         \nE         - PATCH\nE         + GET\n\ntests/test_requests.py:2685: AssertionError\n_____________ test_redirect_method_and_body[DELETE-DELETE-GET-301] _____________\n\nstatus_code = 301, method = 'DELETE', expected_301 = 'DELETE'\nexpected_302_303 = 'GET'\n\n    @pytest.mark.parametrize(\"status_code\", (301, 302, 303, 307, 308))\n    @pytest.mark.parametrize(\n        \"method, expected_301, expected_302_303\",\n        (\n            (\"GET\", \"GET\", \"GET\"),\n            (\"HEAD\", \"HEAD\", \"HEAD\"),\n            (\"POST\", \"GET\", \"GET\"),\n            (\"PUT\", \"PUT\", \"GET\"),\n            (\"PATCH\", \"PATCH\", \"GET\"),\n            (\"DELETE\", \"DELETE\", \"GET\"),\n            (\"OPTIONS\", \"OPTIONS\", \"GET\"),\n            (\"TRACE\", \"TRACE\", \"GET\"),\n            (\"CUSTOM\", \"CUSTOM\", \"GET\"),\n        ),\n    )\n    def test_redirect_method_and_body(status_code, method, expected_301, expected_302_303):\n        session = RedirectSession([status_code])\n        body = b\"test body\"\n        prep = requests.Request(\n            method,\n            \"http://example.test/start\",\n            data=body,\n            headers={\"Content-Type\": \"text/plain\"},\n        ).prepare()\n        response = session.send(prep)\n    \n        responses = list(session.resolve_redirects(response, prep))\n        assert len(responses) == 1\n        redirected = responses[0].request\n        expected_method = {\n            301: expected_301,\n            302: expected_302_303,\n            303: expected_302_303,\n            307: method,\n            308: method,\n        }[status_code]\n>       assert redirected.method == expected_method\nE       AssertionError: assert 'GET' == 'DELETE'\nE         \nE         - DELETE\nE         + GET\n\ntests/test_requests.py:2685: AssertionError\n____________ test_redirect_method_and_body[OPTIONS-OPTIONS-GET-301] ____________\n\nstatus_code = 301, method = 'OPTIONS', expected_301 = 'OPTIONS'\nexpected_302_303 = 'GET'\n\n    @pytest.mark.parametrize(\"status_code\", (301, 302, 303, 307, 308))\n    @pytest.mark.parametrize(\n        \"method, expected_301, expected_302_303\",\n        (\n            (\"GET\", \"GET\", \"GET\"),\n            (\"HEAD\", \"HEAD\", \"HEAD\"),\n            (\"POST\", \"GET\", \"GET\"),\n            (\"PUT\", \"PUT\", \"GET\"),\n            (\"PATCH\", \"PATCH\", \"GET\"),\n            (\"DELETE\", \"DELETE\", \"GET\"),\n            (\"OPTIONS\", \"OPTIONS\", \"GET\"),\n            (\"TRACE\", \"TRACE\", \"GET\"),\n            (\"CUSTOM\", \"CUSTOM\", \"GET\"),\n        ),\n    )\n    def test_redirect_method_and_body(status_code, method, expected_301, expected_302_303):\n        session = RedirectSession([status_code])\n        body = b\"test body\"\n        prep = requests.Request(\n            method,\n            \"http://example.test/start\",\n            data=body,\n            headers={\"Content-Type\": \"text/plain\"},\n        ).prepare()\n        response = session.send(prep)\n    \n        responses = list(session.resolve_redirects(response, prep))\n        assert len(responses) == 1\n        redirected = responses[0].request\n        expected_method = {\n            301: expected_301,\n            302: expected_302_303,\n            303: expected_302_303,\n            307: method,\n            308: method,\n        }[status_code]\n>       assert redirected.method == expected_method\nE       AssertionError: assert 'GET' == 'OPTIONS'\nE         \nE         - OPTIONS\nE         + GET\n\ntests/test_requests.py:2685: AssertionError\n______________ test_redirect_method_and_body[TRACE-TRACE-GET-301] ______________\n\nstatus_code = 301, method = 'TRACE', expected_301 = 'TRACE'\nexpected_302_303 = 'GET'\n\n    @pytest.mark.parametrize(\"status_code\", (301, 302, 303, 307, 308))\n    @pytest.mark.parametrize(\n        \"method, expected_301, expected_302_303\",\n        (\n            (\"GET\", \"GET\", \"GET\"),\n            (\"HEAD\", \"HEAD\", \"HEAD\"),\n            (\"POST\", \"GET\", \"GET\"),\n            (\"PUT\", \"PUT\", \"GET\"),\n            (\"PATCH\", \"PATCH\", \"GET\"),\n            (\"DELETE\", \"DELETE\", \"GET\"),\n            (\"OPTIONS\", \"OPTIONS\", \"GET\"),\n            (\"TRACE\", \"TRACE\", \"GET\"),\n            (\"CUSTOM\", \"CUSTOM\", \"GET\"),\n        ),\n    )\n    def test_redirect_method_and_body(status_code, method, expected_301, expected_302_303):\n        session = RedirectSession([status_code])\n        body = b\"test body\"\n        prep = requests.Request(\n            method,\n            \"http://example.test/start\",\n            data=body,\n            headers={\"Content-Type\": \"text/plain\"},\n        ).prepare()\n        response = session.send(prep)\n    \n        responses = list(session.resolve_redirects(response, prep))\n        assert len(responses) == 1\n        redirected = responses[0].request\n        expected_method = {\n            301: expected_301,\n            302: expected_302_303,\n            303: expected_302_303,\n            307: method,\n            308: method,\n        }[status_code]\n>       assert redirected.method == expected_method\nE       AssertionError: assert 'GET' == 'TRACE'\nE         \nE         - TRACE\nE         + GET\n\ntests/test_requests.py:2685: AssertionError\n_____________ test_redirect_method_and_body[CUSTOM-CUSTOM-GET-301] _____________\n\nstatus_code = 301, method = 'CUSTOM', expected_301 = 'CUSTOM'\nexpected_302_303 = 'GET'\n\n    @pytest.mark.parametrize(\"status_code\", (301, 302, 303, 307, 308))\n    @pytest.mark.parametrize(\n        \"method, expected_301, expected_302_303\",\n        (\n            (\"GET\", \"GET\", \"GET\"),\n            (\"HEAD\", \"HEAD\", \"HEAD\"),\n            (\"POST\", \"GET\", \"GET\"),\n            (\"PUT\", \"PUT\", \"GET\"),\n            (\"PATCH\", \"PATCH\", \"GET\"),\n            (\"DELETE\", \"DELETE\", \"GET\"),\n            (\"OPTIONS\", \"OPTIONS\", \"GET\"),\n            (\"TRACE\", \"TRACE\", \"GET\"),\n            (\"CUSTOM\", \"CUSTOM\", \"GET\"),\n        ),\n    )\n    def test_redirect_method_and_body(status_code, method, expected_301, expected_302_303):\n        session = RedirectSession([status_code])\n        body = b\"test body\"\n        prep = requests.Request(\n            method,\n            \"http://example.test/start\",\n            data=body,\n            headers={\"Content-Type\": \"text/plain\"},\n        ).prepare()\n        response = session.send(prep)\n    \n        responses = list(session.resolve_redirects(response, prep))\n        assert len(responses) == 1\n        redirected = responses[0].request\n        expected_method = {\n            301: expected_301,\n            302: expected_302_303,\n            303: expected_302_303,\n            307: method,\n            308: method,\n        }[status_code]\n>       assert redirected.method == expected_method\nE       AssertionError: assert 'GET' == 'CUSTOM'\nE         \nE         - CUSTOM\nE         + GET\n\ntests/test_requests.py:2685: AssertionError\n=========================== short test summary info ============================\nFAILED tests/test_requests.py::test_redirect_method_and_body[PUT-PUT-GET-301]\nFAILED tests/test_requests.py::test_redirect_method_and_body[PATCH-PATCH-GET-301]\nFAILED tests/test_requests.py::test_redirect_method_and_body[DELETE-DELETE-GET-301]\nFAILED tests/test_requests.py::test_redirect_method_and_body[OPTIONS-OPTIONS-GET-301]\nFAILED tests/test_requests.py::test_redirect_method_and_body[TRACE-TRACE-GET-301]\nFAILED tests/test_requests.py::test_redirect_method_and_body[CUSTOM-CUSTOM-GET-301]\n6 failed, 39 passed in 0.20s\n",
+          "stderr": "",
+          "pytest_summary": "6 failed, 39 passed in 0.20s",
+          "case_counts": {
+            "failed": 6,
+            "passed": 39
+          }
+        }
+      ]
+    },
+    {
+      "run_id": "05-click_atomic_close-baseline",
+      "task_id": "click_atomic_close",
+      "condition": "baseline",
+      "patch_sha256": "97a5544bb931f9107586eab5a7e062ebef1cf8cb0fd01868acdc1a9f623d2f4b",
+      "hidden_checks_passed": true,
+      "changed_files": [
+        "src/click/types.py",
+        "tests/test_types.py"
+      ],
+      "regression_tests": [
+        {
+          "node_id": "tests/test_types.py::test_file_lazy_output_cleanup",
+          "cases": 4,
+          "coverage": "Atomic/non-atomic x default/explicit lazy; destination unchanged during atomic callback, closed afterward, replacement contents and temporary-file cleanup."
+        },
+        {
+          "node_id": "tests/test_types.py::test_file_lazy_output_unused",
+          "cases": 4,
+          "coverage": "Same combinations verify unused lazy outputs remain uncreated."
+        }
+      ],
+      "claim_review": {
+        "unsupported_claims": [],
+        "supported": "Published events support 338 passes and one skip across six relevant modules; new regressions showed four seeded failures and four control passes, with a successful diff check."
+      },
+      "limitations": [
+        "Six relevant upstream modules run; complete upstream Click suite not claimed.",
+        "Passing declared success-path checks does not establish production correctness: atomic commit failures are silently suppressed by this repair."
+      ],
+      "summary": "Registers lazy-file cleanup and passes ordinary/atomic/unused-output checks. Both conditions additionally introduce safecall around lazy close, differing from upstream exception propagation; this requires separate error-path validation.",
+      "issues": [
+        {
+          "severity": "material_behavior_gap",
+          "behavior": "Both repairs wrap lazy-file intelligent close in safecall, whereas pinned upstream invokes it directly. This suppresses close/atomic-rename exceptions and may report command success without publishing output.",
+          "status": "Confirmed by independent CPU fault injection after the trials completed.",
+          "comparative_impact": "Same change in both conditions; keep frozen grading unchanged.",
+          "evidence": {
+            "path": "results/coding-workflows-2026-10-12/close-error-probe.json",
+            "sha256": "7c5212e302cdc0f0e1fa999d99bc959eed83fc0626ce0c14e8a453e8b3624d7b",
+            "probe_script": "scripts/probe_workflow_close_errors.py",
+            "pinned_upstream": "FileNotFoundError(errno2), CLIexit1, original destination bytes remain.",
+            "trial_patch": "No exception, CLIexit0, original destination bytes remain; failed atomic commit is reported as successful."
+          }
+        }
+      ],
+      "test_checks": [
+        {
+          "variant": "final",
+          "exit_code": 0,
+          "elapsed_s": 0.23720099999627564,
+          "command": [
+            "<PROJECT>/.venv/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "-o",
+            "addopts=",
+            "tests/test_types.py::test_file_lazy_output_cleanup",
+            "tests/test_types.py::test_file_lazy_output_unused"
+          ],
+          "environment": {
+            "PYTHONPATH": "<REVIEW_COPIES>/05-click_atomic_close-baseline/final/src",
+            "PYTHONDONTWRITEBYTECODE": "1",
+            "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+          },
+          "stdout": "........                                                                 [100%]\n8 passed in 0.02s\n",
+          "stderr": "",
+          "pytest_summary": "8 passed in 0.02s",
+          "case_counts": {
+            "passed": 8
+          }
+        },
+        {
+          "variant": "seed",
+          "exit_code": 1,
+          "elapsed_s": 0.20430083300743718,
+          "command": [
+            "<PROJECT>/.venv/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "-o",
+            "addopts=",
+            "tests/test_types.py::test_file_lazy_output_cleanup",
+            "tests/test_types.py::test_file_lazy_output_unused"
+          ],
+          "environment": {
+            "PYTHONPATH": "<REVIEW_COPIES>/05-click_atomic_close-baseline/seed/src",
+            "PYTHONDONTWRITEBYTECODE": "1",
+            "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+          },
+          "stdout": "FFFF....                                                                 [100%]\n=================================== FAILURES ===================================\n__________________ test_file_lazy_output_cleanup[None-False] ___________________\n\nrunner = <click.testing.CliRunner object at 0x103c1bdd0>\ntmp_path = PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-160/test_file_lazy_output_cleanup_0')\natomic = False, lazy = None\n\n    @pytest.mark.parametrize(\"atomic\", [False, True])\n    @pytest.mark.parametrize(\"lazy\", [None, True])\n    def test_file_lazy_output_cleanup(runner, tmp_path, atomic, lazy):\n        path = tmp_path / \"output.txt\"\n        path.write_text(\"old content\", encoding=\"utf-8\")\n    \n        @click.command()\n        @click.option(\"--output\", type=click.File(\"w\", lazy=lazy, atomic=atomic))\n        def cli(output):\n            output.write(\"new content\")\n    \n            if atomic:\n                assert path.read_text(encoding=\"utf-8\") == \"old content\"\n    \n            return output\n    \n        result = runner.invoke(cli, [\"--output\", str(path)], standalone_mode=False)\n        assert result.exit_code == 0\n>       assert result.return_value.closed\nE       AssertionError: assert False\nE        +  where False = <_io.TextIOWrapper name='/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-160/test_file_lazy_output_cleanup_0/output.txt' mode='w' encoding='utf-8'>.closed\nE        +    where <_io.TextIOWrapper name='/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-160/test_file_lazy_output_cleanup_0/output.txt' mode='w' encoding='utf-8'> = <Result okay>.return_value\n\ntests/test_types.py:237: AssertionError\n___________________ test_file_lazy_output_cleanup[None-True] ___________________\n\nrunner = <click.testing.CliRunner object at 0x103c3a840>\ntmp_path = PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-160/test_file_lazy_output_cleanup_1')\natomic = True, lazy = None\n\n    @pytest.mark.parametrize(\"atomic\", [False, True])\n    @pytest.mark.parametrize(\"lazy\", [None, True])\n    def test_file_lazy_output_cleanup(runner, tmp_path, atomic, lazy):\n        path = tmp_path / \"output.txt\"\n        path.write_text(\"old content\", encoding=\"utf-8\")\n    \n        @click.command()\n        @click.option(\"--output\", type=click.File(\"w\", lazy=lazy, atomic=atomic))\n        def cli(output):\n            output.write(\"new content\")\n    \n            if atomic:\n                assert path.read_text(encoding=\"utf-8\") == \"old content\"\n    \n            return output\n    \n        result = runner.invoke(cli, [\"--output\", str(path)], standalone_mode=False)\n        assert result.exit_code == 0\n>       assert result.return_value.closed\nE       AssertionError: assert False\nE        +  where False = <_io.TextIOWrapper name=12 mode='w' encoding='utf-8'>.closed\nE        +    where <_io.TextIOWrapper name=12 mode='w' encoding='utf-8'> = <Result okay>.return_value\n\ntests/test_types.py:237: AssertionError\n__________________ test_file_lazy_output_cleanup[True-False] ___________________\n\nrunner = <click.testing.CliRunner object at 0x103c3b9e0>\ntmp_path = PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-160/test_file_lazy_output_cleanup_2')\natomic = False, lazy = True\n\n    @pytest.mark.parametrize(\"atomic\", [False, True])\n    @pytest.mark.parametrize(\"lazy\", [None, True])\n    def test_file_lazy_output_cleanup(runner, tmp_path, atomic, lazy):\n        path = tmp_path / \"output.txt\"\n        path.write_text(\"old content\", encoding=\"utf-8\")\n    \n        @click.command()\n        @click.option(\"--output\", type=click.File(\"w\", lazy=lazy, atomic=atomic))\n        def cli(output):\n            output.write(\"new content\")\n    \n            if atomic:\n                assert path.read_text(encoding=\"utf-8\") == \"old content\"\n    \n            return output\n    \n        result = runner.invoke(cli, [\"--output\", str(path)], standalone_mode=False)\n        assert result.exit_code == 0\n>       assert result.return_value.closed\nE       AssertionError: assert False\nE        +  where False = <_io.TextIOWrapper name='/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-160/test_file_lazy_output_cleanup_2/output.txt' mode='w' encoding='utf-8'>.closed\nE        +    where <_io.TextIOWrapper name='/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-160/test_file_lazy_output_cleanup_2/output.txt' mode='w' encoding='utf-8'> = <Result okay>.return_value\n\ntests/test_types.py:237: AssertionError\n___________________ test_file_lazy_output_cleanup[True-True] ___________________\n\nrunner = <click.testing.CliRunner object at 0x103d03380>\ntmp_path = PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-160/test_file_lazy_output_cleanup_3')\natomic = True, lazy = True\n\n    @pytest.mark.parametrize(\"atomic\", [False, True])\n    @pytest.mark.parametrize(\"lazy\", [None, True])\n    def test_file_lazy_output_cleanup(runner, tmp_path, atomic, lazy):\n        path = tmp_path / \"output.txt\"\n        path.write_text(\"old content\", encoding=\"utf-8\")\n    \n        @click.command()\n        @click.option(\"--output\", type=click.File(\"w\", lazy=lazy, atomic=atomic))\n        def cli(output):\n            output.write(\"new content\")\n    \n            if atomic:\n                assert path.read_text(encoding=\"utf-8\") == \"old content\"\n    \n            return output\n    \n        result = runner.invoke(cli, [\"--output\", str(path)], standalone_mode=False)\n        assert result.exit_code == 0\n>       assert result.return_value.closed\nE       AssertionError: assert False\nE        +  where False = <_io.TextIOWrapper name=14 mode='w' encoding='utf-8'>.closed\nE        +    where <_io.TextIOWrapper name=14 mode='w' encoding='utf-8'> = <Result okay>.return_value\n\ntests/test_types.py:237: AssertionError\n=========================== short test summary info ============================\nFAILED tests/test_types.py::test_file_lazy_output_cleanup[None-False] - Asser...\nFAILED tests/test_types.py::test_file_lazy_output_cleanup[None-True] - Assert...\nFAILED tests/test_types.py::test_file_lazy_output_cleanup[True-False] - Asser...\nFAILED tests/test_types.py::test_file_lazy_output_cleanup[True-True] - Assert...\n4 failed, 4 passed in 0.03s\n",
+          "stderr": "",
+          "pytest_summary": "4 failed, 4 passed in 0.03s",
+          "case_counts": {
+            "failed": 4,
+            "passed": 4
+          }
+        }
+      ]
+    },
+    {
+      "run_id": "06-click_atomic_close-mcp",
+      "task_id": "click_atomic_close",
+      "condition": "mcp",
+      "patch_sha256": "9ebc9ae2804fce0347354f87a4751813a15d8346f964f564579fead0fd058fd5",
+      "hidden_checks_passed": true,
+      "changed_files": [
+        "src/click/types.py",
+        "tests/test_options.py"
+      ],
+      "regression_tests": [
+        {
+          "node_id": "tests/test_options.py::test_lazy_file_option_cleanup",
+          "cases": 4,
+          "coverage": "Atomic/non-atomic x used/unused explicit-lazy output; closure, published contents, no creation when unused, no temporary files."
+        }
+      ],
+      "claim_review": {
+        "unsupported_claims": [],
+        "supported": "Published events support 310 passes and one skip across five relevant modules; new regressions showed two seeded failures and two control passes, with a successful diff check."
+      },
+      "limitations": [
+        "Five relevant upstream modules run; complete Click suite not claimed.",
+        "New cases cover explicit lazy=True; baseline additionally covers default lazy=None.",
+        "Passing declared success-path checks does not establish production correctness: atomic commit failures are silently suppressed by this repair."
+      ],
+      "summary": "Registers lazy-file cleanup and passes ordinary/atomic/unused-output checks. Both conditions additionally introduce safecall around lazy close, differing from upstream exception propagation; this requires separate error-path validation.",
+      "issues": [
+        {
+          "severity": "material_behavior_gap",
+          "behavior": "Both repairs wrap lazy-file intelligent close in safecall, whereas pinned upstream invokes it directly. This suppresses close/atomic-rename exceptions and may report command success without publishing output.",
+          "status": "Confirmed by independent CPU fault injection after the trials completed.",
+          "comparative_impact": "Same change in both conditions; keep frozen grading unchanged.",
+          "evidence": {
+            "path": "results/coding-workflows-2026-10-12/close-error-probe.json",
+            "sha256": "7c5212e302cdc0f0e1fa999d99bc959eed83fc0626ce0c14e8a453e8b3624d7b",
+            "probe_script": "scripts/probe_workflow_close_errors.py",
+            "pinned_upstream": "FileNotFoundError(errno2), CLIexit1, original destination bytes remain.",
+            "trial_patch": "No exception, CLIexit0, original destination bytes remain; failed atomic commit is reported as successful."
+          }
+        }
+      ],
+      "test_checks": [
+        {
+          "variant": "final",
+          "exit_code": 0,
+          "elapsed_s": 0.2524646249949001,
+          "command": [
+            "<PROJECT>/.venv/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "-o",
+            "addopts=",
+            "tests/test_options.py::test_lazy_file_option_cleanup"
+          ],
+          "environment": {
+            "PYTHONPATH": "<REVIEW_COPIES>/06-click_atomic_close-mcp/final/src",
+            "PYTHONDONTWRITEBYTECODE": "1",
+            "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+          },
+          "stdout": "....                                                                     [100%]\n4 passed in 0.04s\n",
+          "stderr": "",
+          "pytest_summary": "4 passed in 0.04s",
+          "case_counts": {
+            "passed": 4
+          }
+        },
+        {
+          "variant": "seed",
+          "exit_code": 1,
+          "elapsed_s": 0.2301477500004694,
+          "command": [
+            "<PROJECT>/.venv/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "-o",
+            "addopts=",
+            "tests/test_options.py::test_lazy_file_option_cleanup"
+          ],
+          "environment": {
+            "PYTHONPATH": "<REVIEW_COPIES>/06-click_atomic_close-mcp/seed/src",
+            "PYTHONDONTWRITEBYTECODE": "1",
+            "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+          },
+          "stdout": "..FF                                                                     [100%]\n=================================== FAILURES ===================================\n__________________ test_lazy_file_option_cleanup[True-False] ___________________\n\nrunner = <click.testing.CliRunner object at 0x10671c5f0>\ntmp_path = PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-164/test_lazy_file_option_cleanup_2')\natomic = False, use_output = True\n\n    @pytest.mark.parametrize(\"atomic\", [False, True])\n    @pytest.mark.parametrize(\"use_output\", [False, True])\n    def test_lazy_file_option_cleanup(runner, tmp_path, atomic, use_output):\n        path = tmp_path / \"output.txt\"\n    \n        @click.command()\n        @click.option(\"--output\", type=click.File(\"w\", lazy=True, atomic=atomic))\n        def cli(output):\n            if use_output:\n                output.write(\"Hello!\\n\")\n            return output\n    \n        result = runner.invoke(\n            cli, [\"--output\", str(path)], standalone_mode=False, catch_exceptions=False\n        )\n        assert result.exit_code == 0\n    \n        if use_output:\n>           assert result.return_value.closed\nE           AssertionError: assert False\nE            +  where False = <_io.TextIOWrapper name='/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-164/test_lazy_file_option_cleanup_2/output.txt' mode='w' encoding='utf-8'>.closed\nE            +    where <_io.TextIOWrapper name='/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-164/test_lazy_file_option_cleanup_2/output.txt' mode='w' encoding='utf-8'> = <Result okay>.return_value\n\ntests/test_options.py:379: AssertionError\n___________________ test_lazy_file_option_cleanup[True-True] ___________________\n\nrunner = <click.testing.CliRunner object at 0x10695b950>\ntmp_path = PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-164/test_lazy_file_option_cleanup_3')\natomic = True, use_output = True\n\n    @pytest.mark.parametrize(\"atomic\", [False, True])\n    @pytest.mark.parametrize(\"use_output\", [False, True])\n    def test_lazy_file_option_cleanup(runner, tmp_path, atomic, use_output):\n        path = tmp_path / \"output.txt\"\n    \n        @click.command()\n        @click.option(\"--output\", type=click.File(\"w\", lazy=True, atomic=atomic))\n        def cli(output):\n            if use_output:\n                output.write(\"Hello!\\n\")\n            return output\n    \n        result = runner.invoke(\n            cli, [\"--output\", str(path)], standalone_mode=False, catch_exceptions=False\n        )\n        assert result.exit_code == 0\n    \n        if use_output:\n>           assert result.return_value.closed\nE           AssertionError: assert False\nE            +  where False = <_io.TextIOWrapper name=12 mode='w' encoding='utf-8'>.closed\nE            +    where <_io.TextIOWrapper name=12 mode='w' encoding='utf-8'> = <Result okay>.return_value\n\ntests/test_options.py:379: AssertionError\n=========================== short test summary info ============================\nFAILED tests/test_options.py::test_lazy_file_option_cleanup[True-False] - Ass...\nFAILED tests/test_options.py::test_lazy_file_option_cleanup[True-True] - Asse...\n2 failed, 2 passed in 0.05s\n",
+          "stderr": "",
+          "pytest_summary": "2 failed, 2 passed in 0.05s",
+          "case_counts": {
+            "failed": 2,
+            "passed": 2
+          }
+        }
+      ]
+    },
+    {
+      "run_id": "07-click_file_paths-mcp",
+      "task_id": "click_file_paths",
+      "condition": "mcp",
+      "patch_sha256": "a8dcd16026d0fbc355217bc1708305e53cbdef4471e67c9fa5d4be8695ddd9b4",
+      "hidden_checks_passed": true,
+      "changed_files": [
+        "src/click/types.py",
+        "tests/test_types.py"
+      ],
+      "regression_tests": [
+        {
+          "node_id": "tests/test_types.py::test_path_argument_validation",
+          "cases": 6,
+          "coverage": "Rejected directories for exists=True/False, accepted file/allowed directory/optional missing path, required missing path rejected; checks exit code, usage text and callback suppression."
+        }
+      ],
+      "claim_review": {
+        "unsupported_claims": [],
+        "supported": "Published events show two seeded failures and four control passes; 136 tests passed and one skipped across three relevant modules after repair, with a successful diff check."
+      },
+      "limitations": [
+        "Three relevant upstream modules run; complete upstream Click suite not claimed."
+      ],
+      "summary": "Restores the exact pinned-upstream disallowed-directory guard before access checks, retaining normal self.fail usage error formatting. Callback is suppressed on validation failure.",
+      "issues": [],
+      "test_checks": [
+        {
+          "variant": "final",
+          "exit_code": 0,
+          "elapsed_s": 0.18549212499056011,
+          "command": [
+            "<PROJECT>/.venv/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "-o",
+            "addopts=",
+            "tests/test_types.py::test_path_argument_validation"
+          ],
+          "environment": {
+            "PYTHONPATH": "<REVIEW_COPIES>/07-click_file_paths-mcp/final/src",
+            "PYTHONDONTWRITEBYTECODE": "1",
+            "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+          },
+          "stdout": "......                                                                   [100%]\n6 passed in 0.01s\n",
+          "stderr": "",
+          "pytest_summary": "6 passed in 0.01s",
+          "case_counts": {
+            "passed": 6
+          }
+        },
+        {
+          "variant": "seed",
+          "exit_code": 1,
+          "elapsed_s": 0.19136070797685534,
+          "command": [
+            "<PROJECT>/.venv/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "-o",
+            "addopts=",
+            "tests/test_types.py::test_path_argument_validation"
+          ],
+          "environment": {
+            "PYTHONPATH": "<REVIEW_COPIES>/07-click_file_paths-mcp/seed/src",
+            "PYTHONDONTWRITEBYTECODE": "1",
+            "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+          },
+          "stdout": ".FF...                                                                   [100%]\n=================================== FAILURES ===================================\n______ test_path_argument_validation[True-False-directory-is a directory] ______\n\nrunner = <click.testing.CliRunner object at 0x104273020>\ntmp_path = PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-166/test_path_argument_validation_1')\nexists = True, dir_okay = False, path_kind = 'directory'\nerror = 'is a directory'\n\n    @pytest.mark.parametrize(\n        (\"exists\", \"dir_okay\", \"path_kind\", \"error\"),\n        [\n            (True, False, \"file\", None),\n            (True, False, \"directory\", \"is a directory\"),\n            (False, False, \"directory\", \"is a directory\"),\n            (True, True, \"directory\", None),\n            (False, False, \"missing\", None),\n            (True, False, \"missing\", \"does not exist\"),\n        ],\n    )\n    def test_path_argument_validation(runner, tmp_path, exists, dir_okay, path_kind, error):\n        path = tmp_path / path_kind\n    \n        if path_kind == \"file\":\n            path.touch()\n        elif path_kind == \"directory\":\n            path.mkdir()\n    \n        calls = []\n        cli = click.Command(\n            \"cli\",\n            params=[\n                click.Argument([\"p\"], type=click.Path(exists=exists, dir_okay=dir_okay))\n            ],\n            callback=lambda p: calls.append(p),\n        )\n        result = runner.invoke(cli, [str(path)])\n    \n        if error is not None:\n>           assert result.exit_code == 2\nE           assert 0 == 2\nE            +  where 0 = <Result okay>.exit_code\n\ntests/test_types.py:139: AssertionError\n_____ test_path_argument_validation[False-False-directory-is a directory] ______\n\nrunner = <click.testing.CliRunner object at 0x104273230>\ntmp_path = PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-166/test_path_argument_validation_2')\nexists = False, dir_okay = False, path_kind = 'directory'\nerror = 'is a directory'\n\n    @pytest.mark.parametrize(\n        (\"exists\", \"dir_okay\", \"path_kind\", \"error\"),\n        [\n            (True, False, \"file\", None),\n            (True, False, \"directory\", \"is a directory\"),\n            (False, False, \"directory\", \"is a directory\"),\n            (True, True, \"directory\", None),\n            (False, False, \"missing\", None),\n            (True, False, \"missing\", \"does not exist\"),\n        ],\n    )\n    def test_path_argument_validation(runner, tmp_path, exists, dir_okay, path_kind, error):\n        path = tmp_path / path_kind\n    \n        if path_kind == \"file\":\n            path.touch()\n        elif path_kind == \"directory\":\n            path.mkdir()\n    \n        calls = []\n        cli = click.Command(\n            \"cli\",\n            params=[\n                click.Argument([\"p\"], type=click.Path(exists=exists, dir_okay=dir_okay))\n            ],\n            callback=lambda p: calls.append(p),\n        )\n        result = runner.invoke(cli, [str(path)])\n    \n        if error is not None:\n>           assert result.exit_code == 2\nE           assert 0 == 2\nE            +  where 0 = <Result okay>.exit_code\n\ntests/test_types.py:139: AssertionError\n=========================== short test summary info ============================\nFAILED tests/test_types.py::test_path_argument_validation[True-False-directory-is a directory]\nFAILED tests/test_types.py::test_path_argument_validation[False-False-directory-is a directory]\n2 failed, 4 passed in 0.02s\n",
+          "stderr": "",
+          "pytest_summary": "2 failed, 4 passed in 0.02s",
+          "case_counts": {
+            "failed": 2,
+            "passed": 4
+          }
+        }
+      ]
+    },
+    {
+      "run_id": "08-click_file_paths-baseline",
+      "task_id": "click_file_paths",
+      "condition": "baseline",
+      "patch_sha256": "697524cb8150b8a6c25752eba748076b39799b68dacf2e24e948f76b946a6849",
+      "hidden_checks_passed": true,
+      "changed_files": [
+        "src/click/types.py",
+        "tests/test_types.py"
+      ],
+      "regression_tests": [
+        {
+          "node_id": "tests/test_types.py::test_path_argument_validation",
+          "cases": 5,
+          "coverage": "Disallowed directories whether existence is required or optional; accepted file, explicitly allowed directory and optional missing path; callback suppression and usage error."
+        }
+      ],
+      "claim_review": {
+        "unsupported_claims": [],
+        "supported": "Published events show two seeded failures and three control passes; 79 tests passed and one skipped across two relevant modules after repair, with a successful diff check."
+      },
+      "limitations": [
+        "Two relevant upstream modules run; complete upstream Click suite not claimed.",
+        "MCP new test additionally covers required missing path."
+      ],
+      "summary": "Identical production guard to MCP and pinned upstream: reject existing directories when dir_okay=False before access checks; normal error handling unchanged.",
+      "issues": [],
+      "test_checks": [
+        {
+          "variant": "final",
+          "exit_code": 0,
+          "elapsed_s": 0.18393104200367816,
+          "command": [
+            "<PROJECT>/.venv/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "-o",
+            "addopts=",
+            "tests/test_types.py::test_path_argument_validation"
+          ],
+          "environment": {
+            "PYTHONPATH": "<REVIEW_COPIES>/08-click_file_paths-baseline/final/src",
+            "PYTHONDONTWRITEBYTECODE": "1",
+            "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+          },
+          "stdout": ".....                                                                    [100%]\n5 passed in 0.01s\n",
+          "stderr": "",
+          "pytest_summary": "5 passed in 0.01s",
+          "case_counts": {
+            "passed": 5
+          }
+        },
+        {
+          "variant": "seed",
+          "exit_code": 1,
+          "elapsed_s": 0.19671429099980742,
+          "command": [
+            "<PROJECT>/.venv/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "-o",
+            "addopts=",
+            "tests/test_types.py::test_path_argument_validation"
+          ],
+          "environment": {
+            "PYTHONPATH": "<REVIEW_COPIES>/08-click_file_paths-baseline/seed/src",
+            "PYTHONDONTWRITEBYTECODE": "1",
+            "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+          },
+          "stdout": "FF...                                                                    [100%]\n=================================== FAILURES ===================================\n__________ test_path_argument_validation[directory-True-False-False] ___________\n\nrunner = <click.testing.CliRunner object at 0x1025db4a0>\ntmp_path = PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-170/test_path_argument_validation_0')\nkind = 'directory', exists = True, dir_okay = False, accepted = False\n\n    @pytest.mark.parametrize(\n        (\"kind\", \"exists\", \"dir_okay\", \"accepted\"),\n        [\n            (\"directory\", True, False, False),\n            (\"directory\", False, False, False),\n            (\"file\", True, False, True),\n            (\"directory\", True, True, True),\n            (\"missing\", False, False, True),\n        ],\n    )\n    def test_path_argument_validation(runner, tmp_path, kind, exists, dir_okay, accepted):\n        path = tmp_path / kind\n    \n        if kind == \"directory\":\n            path.mkdir()\n        elif kind == \"file\":\n            path.touch()\n    \n        calls = []\n    \n        @click.command()\n        @click.argument(\"path\", type=click.Path(exists=exists, dir_okay=dir_okay))\n        def cli(path):\n            calls.append(path)\n    \n        path = str(path)\n        result = runner.invoke(cli, [path])\n    \n        if accepted:\n            assert result.exit_code == 0\n            assert calls == [path]\n        else:\n>           assert result.exit_code == 2\nE           assert 0 == 2\nE            +  where 0 = <Result okay>.exit_code\n\ntests/test_types.py:141: AssertionError\n__________ test_path_argument_validation[directory-False-False-False] __________\n\nrunner = <click.testing.CliRunner object at 0x1026b89b0>\ntmp_path = PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-170/test_path_argument_validation_1')\nkind = 'directory', exists = False, dir_okay = False, accepted = False\n\n    @pytest.mark.parametrize(\n        (\"kind\", \"exists\", \"dir_okay\", \"accepted\"),\n        [\n            (\"directory\", True, False, False),\n            (\"directory\", False, False, False),\n            (\"file\", True, False, True),\n            (\"directory\", True, True, True),\n            (\"missing\", False, False, True),\n        ],\n    )\n    def test_path_argument_validation(runner, tmp_path, kind, exists, dir_okay, accepted):\n        path = tmp_path / kind\n    \n        if kind == \"directory\":\n            path.mkdir()\n        elif kind == \"file\":\n            path.touch()\n    \n        calls = []\n    \n        @click.command()\n        @click.argument(\"path\", type=click.Path(exists=exists, dir_okay=dir_okay))\n        def cli(path):\n            calls.append(path)\n    \n        path = str(path)\n        result = runner.invoke(cli, [path])\n    \n        if accepted:\n            assert result.exit_code == 0\n            assert calls == [path]\n        else:\n>           assert result.exit_code == 2\nE           assert 0 == 2\nE            +  where 0 = <Result okay>.exit_code\n\ntests/test_types.py:141: AssertionError\n=========================== short test summary info ============================\nFAILED tests/test_types.py::test_path_argument_validation[directory-True-False-False]\nFAILED tests/test_types.py::test_path_argument_validation[directory-False-False-False]\n2 failed, 3 passed in 0.02s\n",
+          "stderr": "",
+          "pytest_summary": "2 failed, 3 passed in 0.02s",
+          "case_counts": {
+            "failed": 2,
+            "passed": 3
+          }
+        }
+      ]
+    },
+    {
+      "run_id": "09-starlette_background_order-baseline",
+      "task_id": "starlette_background_order",
+      "condition": "baseline",
+      "patch_sha256": "51f6bfb21b1bd63a738118c8392fbc80f646f0ee9fe0954c5d8417ed22ffdc2e",
+      "hidden_checks_passed": true,
+      "changed_files": [
+        "starlette/background.py",
+        "tests/test_background.py"
+      ],
+      "regression_tests": [
+        {
+          "node_id": "tests/test_background.py::test_multiple_tasks_run_in_order",
+          "cases_evaluated": 1,
+          "change": "added",
+          "backend": "asyncio",
+          "coverage": "Mixed sync/async tasks and response-message ordering; async tasks yield before completion, demonstrating awaiting each task."
+        },
+        {
+          "node_id": "tests/test_background.py::test_empty_tasks",
+          "cases_evaluated": 1,
+          "change": "added",
+          "backend": "asyncio",
+          "coverage": "Empty collection valid."
+        },
+        {
+          "node_id": "tests/test_background.py::test_multi_tasks_failure_avoids_next_execution",
+          "cases_evaluated": 2,
+          "change": "expanded_existing",
+          "backend": "asyncio",
+          "coverage": "Synchronous/asynchronous failure preserves completed-first task and suppresses last task."
+        }
+      ],
+      "claim_review": {
+        "unsupported_claims": [],
+        "supported": "Published events support 65 selected asyncio passes; the final background module had 12 passes and two Trio cleanup failures, correctly disclosed. A narrow AnyIO warning filter was needed; diff check passed."
+      },
+      "limitations": [
+        "Independent new/expanded regression reproduction uses asyncio only and targeted deprecation filter.",
+        "Installed AnyIO4.15.1/Trio0.29.0 cleanup incompatibility causes2 background-suite failures; they were not counted as successful tests.",
+        "Full upstream Starlette suite and Ruff not run."
+      ],
+      "environment_versions": {
+        "anyio": "4.15.1",
+        "trio": "0.29.0",
+        "pytest": "8.3.5",
+        "httpx2": "2.13.1"
+      },
+      "summary": "One-line loop repair matches pinned upstream: await registered tasks in insertion order without reordering/mutating the collection. Existing error propagation stops later tasks.",
+      "issues": [],
+      "test_checks": [
+        {
+          "variant": "final",
+          "exit_code": 0,
+          "elapsed_s": 0.3897144589864183,
+          "command": [
+            "<PROJECT>/.venv/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "-o",
+            "addopts=",
+            "-p",
+            "anyio.pytest_plugin",
+            "tests/test_background.py::test_multiple_tasks_run_in_order",
+            "tests/test_background.py::test_empty_tasks",
+            "tests/test_background.py::test_multi_tasks_failure_avoids_next_execution",
+            "-k",
+            "asyncio",
+            "-W",
+            "ignore:The anyio.abc.BlockingPortal alias is deprecated:DeprecationWarning"
+          ],
+          "environment": {
+            "PYTHONPATH": "<REVIEW_COPIES>/09-starlette_background_order-baseline/final",
+            "PYTHONDONTWRITEBYTECODE": "1",
+            "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+          },
+          "stdout": "....                                                                     [100%]\n4 passed, 4 deselected in 0.01s\n",
+          "stderr": "",
+          "pytest_summary": "4 passed, 4 deselected in 0.01s",
+          "case_counts": {
+            "passed": 4,
+            "deselected": 4
+          }
+        },
+        {
+          "variant": "seed",
+          "exit_code": 1,
+          "elapsed_s": 0.3346262499981094,
+          "command": [
+            "<PROJECT>/.venv/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "-o",
+            "addopts=",
+            "-p",
+            "anyio.pytest_plugin",
+            "tests/test_background.py::test_multiple_tasks_run_in_order",
+            "tests/test_background.py::test_empty_tasks",
+            "tests/test_background.py::test_multi_tasks_failure_avoids_next_execution",
+            "-k",
+            "asyncio",
+            "-W",
+            "ignore:The anyio.abc.BlockingPortal alias is deprecated:DeprecationWarning"
+          ],
+          "environment": {
+            "PYTHONPATH": "<REVIEW_COPIES>/09-starlette_background_order-baseline/seed",
+            "PYTHONDONTWRITEBYTECODE": "1",
+            "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+          },
+          "stdout": "F.FF                                                                     [100%]\n=================================== FAILURES ===================================\n__________________ test_multiple_tasks_run_in_order[asyncio] ___________________\n\ntest_client_factory = functools.partial(<class 'starlette.testclient.TestClient'>, backend='asyncio', backend_options={})\n\n    def test_multiple_tasks_run_in_order(test_client_factory: TestClientFactory) -> None:\n        events: list[str] = []\n    \n        def sync_task(name: str) -> None:\n            events.append(f\"{name} started\")\n            events.append(f\"{name} finished\")\n    \n        async def async_task(name: str) -> None:\n            events.append(f\"{name} started\")\n            await anyio.sleep(0)\n            events.append(f\"{name} finished\")\n    \n        async def app(scope: Scope, receive: Receive, send: Send) -> None:\n            async def record_send(message: Message) -> None:\n                await send(message)\n                events.append(message[\"type\"])\n    \n            tasks = BackgroundTasks([BackgroundTask(sync_task, \"first\")])\n            tasks.add_task(async_task, name=\"second\")\n            tasks.add_task(sync_task, \"third\")\n            tasks.add_task(async_task, name=\"fourth\")\n            response = Response(\"tasks initiated\", media_type=\"text/plain\", background=tasks)\n            await response(scope, receive, record_send)\n    \n        client = test_client_factory(app)\n        response = client.get(\"/\")\n        assert response.text == \"tasks initiated\"\n>       assert events == [\n            \"http.response.start\",\n            \"http.response.body\",\n            \"first started\",\n            \"first finished\",\n            \"second started\",\n            \"second finished\",\n            \"third started\",\n            \"third finished\",\n            \"fourth started\",\n            \"fourth finished\",\n        ]\nE       AssertionError: assert ['http.respon...inished', ...] == ['http.respon...inished', ...]\nE         \nE         At index 2 diff: 'fourth started' != 'first started'\nE         Use -v to get more diff\n\ntests/test_background.py:96: AssertionError\n________ test_multi_tasks_failure_avoids_next_execution[asyncio-False] _________\n\ntest_client_factory = functools.partial(<class 'starlette.testclient.TestClient'>, backend='asyncio', backend_options={})\nis_async = False\n\n    @pytest.mark.parametrize(\"is_async\", [False, True])\n    def test_multi_tasks_failure_avoids_next_execution(\n        test_client_factory: TestClientFactory,\n        is_async: bool,\n    ) -> None:\n        events: list[str] = []\n    \n        def record(name: str) -> None:\n            events.append(name)\n    \n        def fail() -> None:\n            events.append(\"failed\")\n            raise RuntimeError(\"task failed\")\n    \n        async def async_fail() -> None:\n            await anyio.sleep(0)\n            fail()\n    \n        async def app(scope: Scope, receive: Receive, send: Send) -> None:\n            tasks = BackgroundTasks()\n            tasks.add_task(record, \"first\")\n            tasks.add_task(async_fail if is_async else fail)\n            tasks.add_task(record, \"last\")\n            response = Response(\"tasks initiated\", media_type=\"text/plain\", background=tasks)\n            await response(scope, receive, send)\n    \n        client = test_client_factory(app)\n        with pytest.raises(RuntimeError, match=\"task failed\"):\n            client.get(\"/\")\n>       assert events == [\"first\", \"failed\"]\nE       AssertionError: assert ['last', 'failed'] == ['first', 'failed']\nE         \nE         At index 0 diff: 'last' != 'first'\nE         Use -v to get more diff\n\ntests/test_background.py:145: AssertionError\n_________ test_multi_tasks_failure_avoids_next_execution[asyncio-True] _________\n\ntest_client_factory = functools.partial(<class 'starlette.testclient.TestClient'>, backend='asyncio', backend_options={})\nis_async = True\n\n    @pytest.mark.parametrize(\"is_async\", [False, True])\n    def test_multi_tasks_failure_avoids_next_execution(\n        test_client_factory: TestClientFactory,\n        is_async: bool,\n    ) -> None:\n        events: list[str] = []\n    \n        def record(name: str) -> None:\n            events.append(name)\n    \n        def fail() -> None:\n            events.append(\"failed\")\n            raise RuntimeError(\"task failed\")\n    \n        async def async_fail() -> None:\n            await anyio.sleep(0)\n            fail()\n    \n        async def app(scope: Scope, receive: Receive, send: Send) -> None:\n            tasks = BackgroundTasks()\n            tasks.add_task(record, \"first\")\n            tasks.add_task(async_fail if is_async else fail)\n            tasks.add_task(record, \"last\")\n            response = Response(\"tasks initiated\", media_type=\"text/plain\", background=tasks)\n            await response(scope, receive, send)\n    \n        client = test_client_factory(app)\n        with pytest.raises(RuntimeError, match=\"task failed\"):\n            client.get(\"/\")\n>       assert events == [\"first\", \"failed\"]\nE       AssertionError: assert ['last', 'failed'] == ['first', 'failed']\nE         \nE         At index 0 diff: 'last' != 'first'\nE         Use -v to get more diff\n\ntests/test_background.py:145: AssertionError\n=========================== short test summary info ============================\nFAILED tests/test_background.py::test_multiple_tasks_run_in_order[asyncio] - ...\nFAILED tests/test_background.py::test_multi_tasks_failure_avoids_next_execution[asyncio-False]\nFAILED tests/test_background.py::test_multi_tasks_failure_avoids_next_execution[asyncio-True]\n3 failed, 1 passed, 4 deselected in 0.03s\n",
+          "stderr": "",
+          "pytest_summary": "3 failed, 1 passed, 4 deselected in 0.03s",
+          "case_counts": {
+            "failed": 3,
+            "passed": 1,
+            "deselected": 4
+          }
+        }
+      ]
+    },
+    {
+      "run_id": "10-starlette_background_order-mcp",
+      "task_id": "starlette_background_order",
+      "condition": "mcp",
+      "patch_sha256": "438901153bbce242860800b7839f505f3e68b78b19faceff1497faba7a339d92",
+      "hidden_checks_passed": true,
+      "changed_files": [
+        "starlette/background.py",
+        "tests/test_background.py"
+      ],
+      "regression_tests": [
+        {
+          "node_id": "tests/test_background.py::test_multiple_tasks_run_in_registration_order",
+          "cases_evaluated": 2,
+          "change": "replaced_existing_with_stronger_assertions",
+          "backend": "asyncio/trio",
+          "coverage": "Response sent before mixed tasks, sequential start/end events, sync and async callbacks yield."
+        },
+        {
+          "node_id": "tests/test_background.py::test_empty_tasks",
+          "cases_evaluated": 4,
+          "change": "added",
+          "backend": "asyncio/trio",
+          "coverage": "Both None and empty-list collections valid."
+        },
+        {
+          "node_id": "tests/test_background.py::test_multi_tasks_failure_avoids_next_execution",
+          "cases_evaluated": 4,
+          "change": "replaced_existing_transport_integration_with_direct_task_test",
+          "backend": "asyncio/trio",
+          "coverage": "Synchronous/asynchronous failure stops later callback. Direct invocation avoids incompatible Trio TestClient error cleanup."
+        }
+      ],
+      "claim_review": {
+        "unsupported_claims": [],
+        "supported": "Two final command outputs show 14 background tests passing across asyncio and Trio after test changes, with a narrow warning filter. Diff check passed; unavailable Ruff was disclosed."
+      },
+      "limitations": [
+        "The installed AnyIO/Trio TestClient cleanup incompatibility remains; replacing the failure test with direct task invocation avoids that failing integration path rather than fixing dependencies.",
+        "Direct task failure tests no longer cover failure propagation through HTTP TestClient.",
+        "Selected background module only; full upstream Starlette suite not run."
+      ],
+      "summary": "Same one-line insertion-order loop as baseline and pinned upstream. Test changes replace earlier commutative sum test with stronger response/callback ordering and replace TestClient failure path with direct BackgroundTasks invocation.",
+      "issues": [
+        {
+          "severity": "test_coverage_tradeoff",
+          "behavior": "Replaces the existing HTTP TestClient failure-propagation test with a direct BackgroundTasks invocation. New assertions are stronger for callback ordering and sync/async failure, but HTTP failure integration coverage is removed.",
+          "status": "Verified in published patch and reproduced changed tests.",
+          "comparative_impact": "Production loop remains identical to baseline; all14 background tests pass because direct invocation avoids the existing Trio TestClient cleanup incompatibility."
+        }
+      ],
+      "test_checks": [
+        {
+          "variant": "final",
+          "exit_code": 0,
+          "elapsed_s": 0.3427272080152761,
+          "command": [
+            "<PROJECT>/.venv/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "-o",
+            "addopts=",
+            "-p",
+            "anyio.pytest_plugin",
+            "tests/test_background.py::test_multiple_tasks_run_in_registration_order",
+            "tests/test_background.py::test_empty_tasks",
+            "tests/test_background.py::test_multi_tasks_failure_avoids_next_execution",
+            "-W",
+            "ignore:The anyio.abc.BlockingPortal alias is deprecated:DeprecationWarning"
+          ],
+          "environment": {
+            "PYTHONPATH": "<REVIEW_COPIES>/10-starlette_background_order-mcp/final",
+            "PYTHONDONTWRITEBYTECODE": "1",
+            "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+          },
+          "stdout": "..........                                                               [100%]\n10 passed in 0.02s\n",
+          "stderr": "",
+          "pytest_summary": "10 passed in 0.02s",
+          "case_counts": {
+            "passed": 10
+          }
+        },
+        {
+          "variant": "seed",
+          "exit_code": 1,
+          "elapsed_s": 0.3614704580104444,
+          "command": [
+            "<PROJECT>/.venv/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "-o",
+            "addopts=",
+            "-p",
+            "anyio.pytest_plugin",
+            "tests/test_background.py::test_multiple_tasks_run_in_registration_order",
+            "tests/test_background.py::test_empty_tasks",
+            "tests/test_background.py::test_multi_tasks_failure_avoids_next_execution",
+            "-W",
+            "ignore:The anyio.abc.BlockingPortal alias is deprecated:DeprecationWarning"
+          ],
+          "environment": {
+            "PYTHONPATH": "<REVIEW_COPIES>/10-starlette_background_order-mcp/seed",
+            "PYTHONDONTWRITEBYTECODE": "1",
+            "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+          },
+          "stdout": "F..FFF..FF                                                               [100%]\n=================================== FAILURES ===================================\n____________ test_multiple_tasks_run_in_registration_order[asyncio] ____________\n\ntest_client_factory = functools.partial(<class 'starlette.testclient.TestClient'>, backend='asyncio', backend_options={})\n\n    def test_multiple_tasks_run_in_registration_order(test_client_factory: TestClientFactory) -> None:\n        events: list[str] = []\n    \n        def sync_task(amount: int) -> None:\n            events.append(f\"start:{amount}\")\n            anyio.from_thread.run(anyio.sleep, 0)\n            events.append(f\"end:{amount}\")\n    \n        async def async_task(amount: int) -> None:\n            events.append(f\"start:{amount}\")\n            await anyio.sleep(0)\n            events.append(f\"end:{amount}\")\n    \n        async def app(scope: Scope, receive: Receive, send: Send) -> None:\n            async def track_send(message: Message) -> None:\n                await send(message)\n                events.append(message[\"type\"])\n    \n            tasks = BackgroundTasks([BackgroundTask(sync_task, amount=1)])\n            tasks.add_task(async_task, amount=2)\n            tasks.add_task(sync_task, amount=3)\n            tasks.add_task(async_task, amount=4)\n            response = Response(\"tasks initiated\", media_type=\"text/plain\", background=tasks)\n            await response(scope, receive, track_send)\n    \n        client = test_client_factory(app)\n        response = client.get(\"/\")\n        assert response.text == \"tasks initiated\"\n>       assert events == [\n            \"http.response.start\",\n            \"http.response.body\",\n            \"start:1\",\n            \"end:1\",\n            \"start:2\",\n            \"end:2\",\n            \"start:3\",\n            \"end:3\",\n            \"start:4\",\n            \"end:4\",\n        ]\nE       AssertionError: assert ['http.respon... 'end:3', ...] == ['http.respon... 'end:2', ...]\nE         \nE         At index 2 diff: 'start:4' != 'start:1'\nE         Use -v to get more diff\n\ntests/test_background.py:78: AssertionError\n________ test_multi_tasks_failure_avoids_next_execution[asyncio-False] _________\n\nis_async = False\n\n    @pytest.mark.anyio\n    @pytest.mark.parametrize(\"is_async\", [False, True])\n    async def test_multi_tasks_failure_avoids_next_execution(is_async: bool) -> None:\n        events: list[str] = []\n    \n        def record(name: str) -> None:\n            events.append(name)\n    \n        def fail() -> None:\n            events.append(\"failed\")\n            raise RuntimeError(\"task failed\")\n    \n        async def async_fail() -> None:\n            await anyio.sleep(0)\n            fail()\n    \n        tasks = BackgroundTasks()\n        tasks.add_task(record, \"first\")\n        tasks.add_task(async_fail if is_async else fail)\n        tasks.add_task(record, \"last\")\n    \n        with pytest.raises(RuntimeError, match=\"task failed\"):\n            await tasks()\n>       assert events == [\"first\", \"failed\"]\nE       AssertionError: assert ['last', 'failed'] == ['first', 'failed']\nE         \nE         At index 0 diff: 'last' != 'first'\nE         Use -v to get more diff\n\ntests/test_background.py:115: AssertionError\n_________ test_multi_tasks_failure_avoids_next_execution[asyncio-True] _________\n\nis_async = True\n\n    @pytest.mark.anyio\n    @pytest.mark.parametrize(\"is_async\", [False, True])\n    async def test_multi_tasks_failure_avoids_next_execution(is_async: bool) -> None:\n        events: list[str] = []\n    \n        def record(name: str) -> None:\n            events.append(name)\n    \n        def fail() -> None:\n            events.append(\"failed\")\n            raise RuntimeError(\"task failed\")\n    \n        async def async_fail() -> None:\n            await anyio.sleep(0)\n            fail()\n    \n        tasks = BackgroundTasks()\n        tasks.add_task(record, \"first\")\n        tasks.add_task(async_fail if is_async else fail)\n        tasks.add_task(record, \"last\")\n    \n        with pytest.raises(RuntimeError, match=\"task failed\"):\n            await tasks()\n>       assert events == [\"first\", \"failed\"]\nE       AssertionError: assert ['last', 'failed'] == ['first', 'failed']\nE         \nE         At index 0 diff: 'last' != 'first'\nE         Use -v to get more diff\n\ntests/test_background.py:115: AssertionError\n_____________ test_multiple_tasks_run_in_registration_order[trio] ______________\n\ntest_client_factory = functools.partial(<class 'starlette.testclient.TestClient'>, backend='trio', backend_options={})\n\n    def test_multiple_tasks_run_in_registration_order(test_client_factory: TestClientFactory) -> None:\n        events: list[str] = []\n    \n        def sync_task(amount: int) -> None:\n            events.append(f\"start:{amount}\")\n            anyio.from_thread.run(anyio.sleep, 0)\n            events.append(f\"end:{amount}\")\n    \n        async def async_task(amount: int) -> None:\n            events.append(f\"start:{amount}\")\n            await anyio.sleep(0)\n            events.append(f\"end:{amount}\")\n    \n        async def app(scope: Scope, receive: Receive, send: Send) -> None:\n            async def track_send(message: Message) -> None:\n                await send(message)\n                events.append(message[\"type\"])\n    \n            tasks = BackgroundTasks([BackgroundTask(sync_task, amount=1)])\n            tasks.add_task(async_task, amount=2)\n            tasks.add_task(sync_task, amount=3)\n            tasks.add_task(async_task, amount=4)\n            response = Response(\"tasks initiated\", media_type=\"text/plain\", background=tasks)\n            await response(scope, receive, track_send)\n    \n        client = test_client_factory(app)\n        response = client.get(\"/\")\n        assert response.text == \"tasks initiated\"\n>       assert events == [\n            \"http.response.start\",\n            \"http.response.body\",\n            \"start:1\",\n            \"end:1\",\n            \"start:2\",\n            \"end:2\",\n            \"start:3\",\n            \"end:3\",\n            \"start:4\",\n            \"end:4\",\n        ]\nE       AssertionError: assert ['http.respon... 'end:3', ...] == ['http.respon... 'end:2', ...]\nE         \nE         At index 2 diff: 'start:4' != 'start:1'\nE         Use -v to get more diff\n\ntests/test_background.py:78: AssertionError\n__________ test_multi_tasks_failure_avoids_next_execution[trio-False] __________\n\nis_async = False\n\n    @pytest.mark.anyio\n    @pytest.mark.parametrize(\"is_async\", [False, True])\n    async def test_multi_tasks_failure_avoids_next_execution(is_async: bool) -> None:\n        events: list[str] = []\n    \n        def record(name: str) -> None:\n            events.append(name)\n    \n        def fail() -> None:\n            events.append(\"failed\")\n            raise RuntimeError(\"task failed\")\n    \n        async def async_fail() -> None:\n            await anyio.sleep(0)\n            fail()\n    \n        tasks = BackgroundTasks()\n        tasks.add_task(record, \"first\")\n        tasks.add_task(async_fail if is_async else fail)\n        tasks.add_task(record, \"last\")\n    \n        with pytest.raises(RuntimeError, match=\"task failed\"):\n            await tasks()\n>       assert events == [\"first\", \"failed\"]\nE       AssertionError: assert ['last', 'failed'] == ['first', 'failed']\nE         \nE         At index 0 diff: 'last' != 'first'\nE         Use -v to get more diff\n\ntests/test_background.py:115: AssertionError\n__________ test_multi_tasks_failure_avoids_next_execution[trio-True] ___________\n\nis_async = True\n\n    @pytest.mark.anyio\n    @pytest.mark.parametrize(\"is_async\", [False, True])\n    async def test_multi_tasks_failure_avoids_next_execution(is_async: bool) -> None:\n        events: list[str] = []\n    \n        def record(name: str) -> None:\n            events.append(name)\n    \n        def fail() -> None:\n            events.append(\"failed\")\n            raise RuntimeError(\"task failed\")\n    \n        async def async_fail() -> None:\n            await anyio.sleep(0)\n            fail()\n    \n        tasks = BackgroundTasks()\n        tasks.add_task(record, \"first\")\n        tasks.add_task(async_fail if is_async else fail)\n        tasks.add_task(record, \"last\")\n    \n        with pytest.raises(RuntimeError, match=\"task failed\"):\n            await tasks()\n>       assert events == [\"first\", \"failed\"]\nE       AssertionError: assert ['last', 'failed'] == ['first', 'failed']\nE         \nE         At index 0 diff: 'last' != 'first'\nE         Use -v to get more diff\n\ntests/test_background.py:115: AssertionError\n=========================== short test summary info ============================\nFAILED tests/test_background.py::test_multiple_tasks_run_in_registration_order[asyncio]\nFAILED tests/test_background.py::test_multi_tasks_failure_avoids_next_execution[asyncio-False]\nFAILED tests/test_background.py::test_multi_tasks_failure_avoids_next_execution[asyncio-True]\nFAILED tests/test_background.py::test_multiple_tasks_run_in_registration_order[trio]\nFAILED tests/test_background.py::test_multi_tasks_failure_avoids_next_execution[trio-False]\nFAILED tests/test_background.py::test_multi_tasks_failure_avoids_next_execution[trio-True]\n6 failed, 4 passed in 0.04s\n",
+          "stderr": "",
+          "pytest_summary": "6 failed, 4 passed in 0.04s",
+          "case_counts": {
+            "failed": 6,
+            "passed": 4
+          }
+        }
+      ]
+    },
+    {
+      "run_id": "11-starlette_streaming_buffers-mcp",
+      "task_id": "starlette_streaming_buffers",
+      "condition": "mcp",
+      "patch_sha256": "d0a37361546fe98aafd8e58b9d556cab7521893ad8c48baeb37044a307ce60c1",
+      "hidden_checks_passed": true,
+      "changed_files": [
+        "starlette/responses.py",
+        "tests/test_responses.py"
+      ],
+      "regression_tests": [
+        {
+          "node_id": "tests/test_responses.py::test_streaming_response_mixed_chunks",
+          "cases_evaluated": 4,
+          "change": "added",
+          "backend": "asyncio",
+          "coverage": "Sync/async iterators xASGI2.0/2.4, mixed memoryview/bytes/Unicode text, full eventsequence and after-stream completion callback."
+        },
+        {
+          "node_id": "tests/test_responses.py::test_streaming_response_on_client_disconnects",
+          "cases_evaluated": 2,
+          "change": "expanded_existing",
+          "backend": "asyncio",
+          "coverage": "Both bytes and memoryview transport-error cases produce ClientDisconnect."
+        }
+      ],
+      "claim_review": {
+        "unsupported_claims": [],
+        "supported": "Published events show four mixed-chunk seeded failures, followed by 70 passing asyncio checks across three relevant modules. Trio exclusion and a narrow warning filter were disclosed; diff check passed."
+      },
+      "limitations": [
+        "Independent reproduction and broad agent checks exclude Trio because installed AnyIO/Trio compatibility fails existing cleanup paths.",
+        "Selected checks; full upstream Starlette suite not run."
+      ],
+      "summary": "One-line binary-chunk predicate matches pinned upstream: memoryview and bytes bypass text encoding; other chunks retain existing charset encoding. Existing final-body, background and disconnect handling unchanged.",
+      "issues": [],
+      "test_checks": [
+        {
+          "variant": "final",
+          "exit_code": 0,
+          "elapsed_s": 0.38360358399222605,
+          "command": [
+            "<PROJECT>/.venv/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "-o",
+            "addopts=",
+            "-p",
+            "anyio.pytest_plugin",
+            "tests/test_responses.py::test_streaming_response_mixed_chunks",
+            "tests/test_responses.py::test_streaming_response_on_client_disconnects",
+            "-k",
+            "asyncio",
+            "-W",
+            "ignore:The anyio.abc.BlockingPortal alias is deprecated:DeprecationWarning"
+          ],
+          "environment": {
+            "PYTHONPATH": "<REVIEW_COPIES>/11-starlette_streaming_buffers-mcp/final",
+            "PYTHONDONTWRITEBYTECODE": "1",
+            "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+          },
+          "stdout": "......                                                                   [100%]\n6 passed, 6 deselected in 0.04s\n",
+          "stderr": "",
+          "pytest_summary": "6 passed, 6 deselected in 0.04s",
+          "case_counts": {
+            "passed": 6,
+            "deselected": 6
+          }
+        },
+        {
+          "variant": "seed",
+          "exit_code": 1,
+          "elapsed_s": 0.41934679201222025,
+          "command": [
+            "<PROJECT>/.venv/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "-o",
+            "addopts=",
+            "-p",
+            "anyio.pytest_plugin",
+            "tests/test_responses.py::test_streaming_response_mixed_chunks",
+            "tests/test_responses.py::test_streaming_response_on_client_disconnects",
+            "-k",
+            "asyncio",
+            "-W",
+            "ignore:The anyio.abc.BlockingPortal alias is deprecated:DeprecationWarning"
+          ],
+          "environment": {
+            "PYTHONPATH": "<REVIEW_COPIES>/11-starlette_streaming_buffers-mcp/seed",
+            "PYTHONDONTWRITEBYTECODE": "1",
+            "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+          },
+          "stdout": "FFFF.F                                                                   [100%]\n=================================== FAILURES ===================================\n____________ test_streaming_response_mixed_chunks[asyncio-2.0-sync] ____________\n  + Exception Group Traceback (most recent call last):\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/_pytest/runner.py\", line 341, in from_call\n  |     result: TResult | None = func()\n  |                              ^^^^^^\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/_pytest/runner.py\", line 242, in <lambda>\n  |     lambda: runtest_hook(item=item, **kwds), when=when, reraise=reraise\n  |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/pluggy/_hooks.py\", line 512, in __call__\n  |     return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)\n  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/pluggy/_manager.py\", line 120, in _hookexec\n  |     return self._inner_hookexec(hook_name, methods, kwargs, firstresult)\n  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/pluggy/_callers.py\", line 167, in _multicall\n  |     raise exception\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/pluggy/_callers.py\", line 139, in _multicall\n  |     teardown.throw(exception)\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/_pytest/threadexception.py\", line 92, in pytest_runtest_call\n  |     yield from thread_exception_runtest_hook()\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/_pytest/threadexception.py\", line 68, in thread_exception_runtest_hook\n  |     yield\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/pluggy/_callers.py\", line 139, in _multicall\n  |     teardown.throw(exception)\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/_pytest/unraisableexception.py\", line 95, in pytest_runtest_call\n  |     yield from unraisable_exception_runtest_hook()\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/_pytest/unraisableexception.py\", line 70, in unraisable_exception_runtest_hook\n  |     yield\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/pluggy/_callers.py\", line 139, in _multicall\n  |     teardown.throw(exception)\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/_pytest/logging.py\", line 846, in pytest_runtest_call\n  |     yield from self._runtest_for(item, \"call\")\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/_pytest/logging.py\", line 829, in _runtest_for\n  |     yield\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/pluggy/_callers.py\", line 139, in _multicall\n  |     teardown.throw(exception)\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/_pytest/capture.py\", line 898, in pytest_runtest_call\n  |     return (yield)\n  |             ^^^^^\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/pluggy/_callers.py\", line 139, in _multicall\n  |     teardown.throw(exception)\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/_pytest/skipping.py\", line 257, in pytest_runtest_call\n  |     return (yield)\n  |             ^^^^^\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/pluggy/_callers.py\", line 121, in _multicall\n  |     res = hook_impl.function(*args)\n  |           ^^^^^^^^^^^^^^^^^^^^^^^^^\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/_pytest/runner.py\", line 174, in pytest_runtest_call\n  |     item.runtest()\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/_pytest/python.py\", line 1627, in runtest\n  |     self.ihook.pytest_pyfunc_call(pyfuncitem=self)\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/pluggy/_hooks.py\", line 512, in __call__\n  |     return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)\n  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/pluggy/_manager.py\", line 120, in _hookexec\n  |     return self._inner_hookexec(hook_name, methods, kwargs, firstresult)\n  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/pluggy/_callers.py\", line 167, in _multicall\n  |     raise exception\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/pluggy/_callers.py\", line 121, in _multicall\n  |     res = hook_impl.function(*args)\n  |           ^^^^^^^^^^^^^^^^^^^^^^^^^\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/anyio/pytest_plugin.py\", line 292, in pytest_pyfunc_call\n  |     runner.run_test(pyfuncitem.obj, testargs)\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py\", line 2494, in run_test\n  |     self._raise_async_exceptions()\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py\", line 2380, in _raise_async_exceptions\n  |     raise exceptions[0]\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py\", line 2473, in run_test\n  |     self.get_loop().run_until_complete(\n  |   File \"<HOME>/.local/share/uv/python/cpython-3.12.15-macos-aarch64-none/lib/python3.12/asyncio/base_events.py\", line 691, in run_until_complete\n  |     return future.result()\n  |            ^^^^^^^^^^^^^^^\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py\", line 2431, in _call_in_runner_task\n  |     return await future\n  |            ^^^^^^^^^^^^\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py\", line 2397, in _run_tests_and_fixtures\n  |     retval = await coro\n  |              ^^^^^^^^^^\n  |   File \"<REVIEW_COPIES>/11-starlette_streaming_buffers-mcp/seed/tests/test_responses.py\", line 572, in test_streaming_response_mixed_chunks\n  |     await response({\"type\": \"http\", \"asgi\": {\"spec_version\": spec_version}}, receive, send)\n  |   File \"<REVIEW_COPIES>/11-starlette_streaming_buffers-mcp/seed/starlette/responses.py\", line 261, in __call__\n  |     async with anyio.create_task_group() as task_group:\n  |                ^^^^^^^^^^^^^^^^^^^^^^^^^\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py\", line 847, in __aexit__\n  |     raise BaseExceptionGroup(\n  | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)\n  +-+---------------- 1 ----------------\n    | Traceback (most recent call last):\n    |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/anyio/_core/_tasks.py\", line 327, in _run_coro\n    |     retval = await self._coro\n    |              ^^^^^^^^^^^^^^^^\n    |   File \"<REVIEW_COPIES>/11-starlette_streaming_buffers-mcp/seed/starlette/responses.py\", line 264, in wrap\n    |     await func()\n    |   File \"<REVIEW_COPIES>/11-starlette_streaming_buffers-mcp/seed/starlette/responses.py\", line 247, in stream_response\n    |     chunk = chunk.encode(self.charset)\n    |             ^^^^^^^^^^^^\n    | AttributeError: 'memoryview' object has no attribute 'encode'\n    +------------------------------------\n___________ test_streaming_response_mixed_chunks[asyncio-2.0-async] ____________\n  + Exception Group Traceback (most recent call last):\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/_pytest/runner.py\", line 341, in from_call\n  |     result: TResult | None = func()\n  |                              ^^^^^^\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/_pytest/runner.py\", line 242, in <lambda>\n  |     lambda: runtest_hook(item=item, **kwds), when=when, reraise=reraise\n  |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/pluggy/_hooks.py\", line 512, in __call__\n  |     return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)\n  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/pluggy/_manager.py\", line 120, in _hookexec\n  |     return self._inner_hookexec(hook_name, methods, kwargs, firstresult)\n  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/pluggy/_callers.py\", line 167, in _multicall\n  |     raise exception\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/pluggy/_callers.py\", line 139, in _multicall\n  |     teardown.throw(exception)\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/_pytest/threadexception.py\", line 92, in pytest_runtest_call\n  |     yield from thread_exception_runtest_hook()\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/_pytest/threadexception.py\", line 68, in thread_exception_runtest_hook\n  |     yield\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/pluggy/_callers.py\", line 139, in _multicall\n  |     teardown.throw(exception)\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/_pytest/unraisableexception.py\", line 95, in pytest_runtest_call\n  |     yield from unraisable_exception_runtest_hook()\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/_pytest/unraisableexception.py\", line 70, in unraisable_exception_runtest_hook\n  |     yield\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/pluggy/_callers.py\", line 139, in _multicall\n  |     teardown.throw(exception)\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/_pytest/logging.py\", line 846, in pytest_runtest_call\n  |     yield from self._runtest_for(item, \"call\")\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/_pytest/logging.py\", line 829, in _runtest_for\n  |     yield\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/pluggy/_callers.py\", line 139, in _multicall\n  |     teardown.throw(exception)\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/_pytest/capture.py\", line 898, in pytest_runtest_call\n  |     return (yield)\n  |             ^^^^^\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/pluggy/_callers.py\", line 139, in _multicall\n  |     teardown.throw(exception)\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/_pytest/skipping.py\", line 257, in pytest_runtest_call\n  |     return (yield)\n  |             ^^^^^\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/pluggy/_callers.py\", line 121, in _multicall\n  |     res = hook_impl.function(*args)\n  |           ^^^^^^^^^^^^^^^^^^^^^^^^^\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/_pytest/runner.py\", line 174, in pytest_runtest_call\n  |     item.runtest()\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/_pytest/python.py\", line 1627, in runtest\n  |     self.ihook.pytest_pyfunc_call(pyfuncitem=self)\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/pluggy/_hooks.py\", line 512, in __call__\n  |     return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)\n  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/pluggy/_manager.py\", line 120, in _hookexec\n  |     return self._inner_hookexec(hook_name, methods, kwargs, firstresult)\n  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/pluggy/_callers.py\", line 167, in _multicall\n  |     raise exception\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/pluggy/_callers.py\", line 121, in _multicall\n  |     res = hook_impl.function(*args)\n  |           ^^^^^^^^^^^^^^^^^^^^^^^^^\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/anyio/pytest_plugin.py\", line 292, in pytest_pyfunc_call\n  |     runner.run_test(pyfuncitem.obj, testargs)\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py\", line 2494, in run_test\n  |     self._raise_async_exceptions()\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py\", line 2380, in _raise_async_exceptions\n  |     raise exceptions[0]\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py\", line 2473, in run_test\n  |     self.get_loop().run_until_complete(\n  |   File \"<HOME>/.local/share/uv/python/cpython-3.12.15-macos-aarch64-none/lib/python3.12/asyncio/base_events.py\", line 691, in run_until_complete\n  |     return future.result()\n  |            ^^^^^^^^^^^^^^^\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py\", line 2431, in _call_in_runner_task\n  |     return await future\n  |            ^^^^^^^^^^^^\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py\", line 2397, in _run_tests_and_fixtures\n  |     retval = await coro\n  |              ^^^^^^^^^^\n  |   File \"<REVIEW_COPIES>/11-starlette_streaming_buffers-mcp/seed/tests/test_responses.py\", line 572, in test_streaming_response_mixed_chunks\n  |     await response({\"type\": \"http\", \"asgi\": {\"spec_version\": spec_version}}, receive, send)\n  |   File \"<REVIEW_COPIES>/11-starlette_streaming_buffers-mcp/seed/starlette/responses.py\", line 261, in __call__\n  |     async with anyio.create_task_group() as task_group:\n  |                ^^^^^^^^^^^^^^^^^^^^^^^^^\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py\", line 847, in __aexit__\n  |     raise BaseExceptionGroup(\n  | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)\n  +-+---------------- 1 ----------------\n    | Traceback (most recent call last):\n    |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/anyio/_core/_tasks.py\", line 327, in _run_coro\n    |     retval = await self._coro\n    |              ^^^^^^^^^^^^^^^^\n    |   File \"<REVIEW_COPIES>/11-starlette_streaming_buffers-mcp/seed/starlette/responses.py\", line 264, in wrap\n    |     await func()\n    |   File \"<REVIEW_COPIES>/11-starlette_streaming_buffers-mcp/seed/starlette/responses.py\", line 247, in stream_response\n    |     chunk = chunk.encode(self.charset)\n    |             ^^^^^^^^^^^^\n    | AttributeError: 'memoryview' object has no attribute 'encode'\n    +------------------------------------\n____________ test_streaming_response_mixed_chunks[asyncio-2.4-sync] ____________\n\nis_async = False, spec_version = '2.4'\n\n    @pytest.mark.anyio\n    @pytest.mark.parametrize(\"is_async\", [False, True], ids=[\"sync\", \"async\"])\n    @pytest.mark.parametrize(\"spec_version\", [\"2.0\", \"2.4\"])\n    async def test_streaming_response_mixed_chunks(is_async: bool, spec_version: str) -> None:\n        chunks: list[str | bytes | memoryview] = [memoryview(b\"\\xc0\"), b\"\\x00\", \"caf\u00e9\", memoryview(b\"\\xf5\")]\n        messages: list[Message] = []\n        background_calls = 0\n    \n        async def async_chunks() -> AsyncIterator[str | bytes | memoryview]:\n            for chunk in chunks:\n                yield chunk\n    \n        async def receive() -> Message:\n            await anyio.sleep_forever()\n            return {\"type\": \"http.disconnect\"}  # pragma: no cover\n    \n        async def send(message: Message) -> None:\n            assert background_calls == 0\n            messages.append(message)\n    \n        async def on_complete() -> None:\n            nonlocal background_calls\n            assert messages[-1] == {\"type\": \"http.response.body\", \"body\": b\"\", \"more_body\": False}\n            background_calls += 1\n    \n        response = StreamingResponse(\n            content=async_chunks() if is_async else iter(chunks), background=BackgroundTask(on_complete)\n        )\n        with anyio.fail_after(1):\n>           await response({\"type\": \"http\", \"asgi\": {\"spec_version\": spec_version}}, receive, send)\n\ntests/test_responses.py:572: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \nstarlette/responses.py:257: in __call__\n    await self.stream_response(send)\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <starlette.responses.StreamingResponse object at 0x104ebf080>\nsend = <function test_streaming_response_mixed_chunks.<locals>.send at 0x104ccdd00>\n\n    async def stream_response(self, send: Send) -> None:\n        await send(\n            {\n                \"type\": \"http.response.start\",\n                \"status\": self.status_code,\n                \"headers\": self.raw_headers,\n            }\n        )\n        async for chunk in self.body_iterator:\n            if not isinstance(chunk, bytes):\n>               chunk = chunk.encode(self.charset)\nE               AttributeError: 'memoryview' object has no attribute 'encode'\n\nstarlette/responses.py:247: AttributeError\n___________ test_streaming_response_mixed_chunks[asyncio-2.4-async] ____________\n\nis_async = True, spec_version = '2.4'\n\n    @pytest.mark.anyio\n    @pytest.mark.parametrize(\"is_async\", [False, True], ids=[\"sync\", \"async\"])\n    @pytest.mark.parametrize(\"spec_version\", [\"2.0\", \"2.4\"])\n    async def test_streaming_response_mixed_chunks(is_async: bool, spec_version: str) -> None:\n        chunks: list[str | bytes | memoryview] = [memoryview(b\"\\xc0\"), b\"\\x00\", \"caf\u00e9\", memoryview(b\"\\xf5\")]\n        messages: list[Message] = []\n        background_calls = 0\n    \n        async def async_chunks() -> AsyncIterator[str | bytes | memoryview]:\n            for chunk in chunks:\n                yield chunk\n    \n        async def receive() -> Message:\n            await anyio.sleep_forever()\n            return {\"type\": \"http.disconnect\"}  # pragma: no cover\n    \n        async def send(message: Message) -> None:\n            assert background_calls == 0\n            messages.append(message)\n    \n        async def on_complete() -> None:\n            nonlocal background_calls\n            assert messages[-1] == {\"type\": \"http.response.body\", \"body\": b\"\", \"more_body\": False}\n            background_calls += 1\n    \n        response = StreamingResponse(\n            content=async_chunks() if is_async else iter(chunks), background=BackgroundTask(on_complete)\n        )\n        with anyio.fail_after(1):\n>           await response({\"type\": \"http\", \"asgi\": {\"spec_version\": spec_version}}, receive, send)\n\ntests/test_responses.py:572: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \nstarlette/responses.py:257: in __call__\n    await self.stream_response(send)\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <starlette.responses.StreamingResponse object at 0x104ebfd10>\nsend = <function test_streaming_response_mixed_chunks.<locals>.send at 0x10536f060>\n\n    async def stream_response(self, send: Send) -> None:\n        await send(\n            {\n                \"type\": \"http.response.start\",\n                \"status\": self.status_code,\n                \"headers\": self.raw_headers,\n            }\n        )\n        async for chunk in self.body_iterator:\n            if not isinstance(chunk, bytes):\n>               chunk = chunk.encode(self.charset)\nE               AttributeError: 'memoryview' object has no attribute 'encode'\n\nstarlette/responses.py:247: AttributeError\n______ test_streaming_response_on_client_disconnects[asyncio-memoryview] _______\n\nchunk = <memory at 0x104e4b4c0>\n\n    @pytest.mark.anyio\n    @pytest.mark.parametrize(\"chunk\", [b\"chunk\", memoryview(b\"chunk\")], ids=[\"bytes\", \"memoryview\"])\n    async def test_streaming_response_on_client_disconnects(chunk: bytes | memoryview) -> None:\n        chunks = bytearray()\n        streamed = False\n    \n        async def receive_disconnect() -> Message:\n            raise NotImplementedError\n    \n        async def send(message: Message) -> None:\n            nonlocal streamed\n            if message[\"type\"] == \"http.response.body\":\n                if not streamed:\n                    chunks.extend(message.get(\"body\", b\"\"))\n                    streamed = True\n                else:\n                    raise OSError\n    \n        async def stream_indefinitely() -> AsyncGenerator[bytes | memoryview, None]:\n            while True:\n                await anyio.sleep(0)\n                yield chunk\n    \n        stream = stream_indefinitely()\n        response = StreamingResponse(content=stream)\n    \n        with anyio.move_on_after(1) as cancel_scope:\n            with pytest.raises(ClientDisconnect):\n>               await response({\"asgi\": {\"spec_version\": \"2.4\"}}, receive_disconnect, send)\n\ntests/test_responses.py:644: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \nstarlette/responses.py:257: in __call__\n    await self.stream_response(send)\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <starlette.responses.StreamingResponse object at 0x104ec0c50>\nsend = <function test_streaming_response_on_client_disconnects.<locals>.send at 0x10536ff60>\n\n    async def stream_response(self, send: Send) -> None:\n        await send(\n            {\n                \"type\": \"http.response.start\",\n                \"status\": self.status_code,\n                \"headers\": self.raw_headers,\n            }\n        )\n        async for chunk in self.body_iterator:\n            if not isinstance(chunk, bytes):\n>               chunk = chunk.encode(self.charset)\nE               AttributeError: 'memoryview' object has no attribute 'encode'\n\nstarlette/responses.py:247: AttributeError\n=========================== short test summary info ============================\nFAILED tests/test_responses.py::test_streaming_response_mixed_chunks[asyncio-2.0-sync]\nFAILED tests/test_responses.py::test_streaming_response_mixed_chunks[asyncio-2.0-async]\nFAILED tests/test_responses.py::test_streaming_response_mixed_chunks[asyncio-2.4-sync]\nFAILED tests/test_responses.py::test_streaming_response_mixed_chunks[asyncio-2.4-async]\nFAILED tests/test_responses.py::test_streaming_response_on_client_disconnects[asyncio-memoryview]\n5 failed, 1 passed, 6 deselected in 0.08s\n",
+          "stderr": "",
+          "pytest_summary": "5 failed, 1 passed, 6 deselected in 0.08s",
+          "case_counts": {
+            "failed": 5,
+            "passed": 1,
+            "deselected": 6
+          }
+        }
+      ]
+    },
+    {
+      "run_id": "12-starlette_streaming_buffers-baseline",
+      "task_id": "starlette_streaming_buffers",
+      "condition": "baseline",
+      "patch_sha256": "29b31ea38463927273cdfbe87aa8dfaec470e6dd0a47aad539b07c2372d5dbee",
+      "hidden_checks_passed": true,
+      "changed_files": [
+        "starlette/responses.py",
+        "tests/test_responses.py"
+      ],
+      "regression_tests": [
+        {
+          "node_id": "tests/test_responses.py::test_streaming_response_mixed_chunks",
+          "cases_evaluated": 6,
+          "change": "added",
+          "backend": "4asyncio+2Trio ASGI2.4",
+          "coverage": "Sync/async iterators, mixed memoryview/bytes/UTF8 text, final empty event and callback ordering. Incompatible Trio ASGI2.0 path excluded from independent reproduction."
+        }
+      ],
+      "claim_review": {
+        "unsupported_claims": [],
+        "supported": "Published events support 60 asyncio passes and three Trio ASGI 2.4 streaming/disconnect passes. The full response module had 107 passes and 12 compatibility failures, correctly disclosed; diff check passed."
+      },
+      "limitations": [
+        "Trio ASGI2.0 task-group cancellation fails due to installed AnyIO/Trio incompatibility; global response suite not fullypassing.",
+        "Selected new regression cases reproduced; complete upstream Starlette suite and Ruff not run."
+      ],
+      "summary": "Production predicate is identical to MCP and pinned upstream: memoryview/bytes remain binary chunks; text encoding and existing streaming lifecycle unchanged.",
+      "issues": [],
+      "test_checks": [
+        {
+          "variant": "final",
+          "exit_code": 0,
+          "elapsed_s": 0.35871729100472294,
+          "command": [
+            "<PROJECT>/.venv/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "-o",
+            "addopts=",
+            "-p",
+            "anyio.pytest_plugin",
+            "tests/test_responses.py::test_streaming_response_mixed_chunks",
+            "-k",
+            "asyncio or 2.4",
+            "-W",
+            "ignore:The anyio.abc.BlockingPortal alias is deprecated:DeprecationWarning"
+          ],
+          "environment": {
+            "PYTHONPATH": "<REVIEW_COPIES>/12-starlette_streaming_buffers-baseline/final",
+            "PYTHONDONTWRITEBYTECODE": "1",
+            "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+          },
+          "stdout": "......                                                                   [100%]\n6 passed, 2 deselected in 0.04s\n",
+          "stderr": "",
+          "pytest_summary": "6 passed, 2 deselected in 0.04s",
+          "case_counts": {
+            "passed": 6,
+            "deselected": 2
+          }
+        },
+        {
+          "variant": "seed",
+          "exit_code": 1,
+          "elapsed_s": 0.3898010829871055,
+          "command": [
+            "<PROJECT>/.venv/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "-o",
+            "addopts=",
+            "-p",
+            "anyio.pytest_plugin",
+            "tests/test_responses.py::test_streaming_response_mixed_chunks",
+            "-k",
+            "asyncio or 2.4",
+            "-W",
+            "ignore:The anyio.abc.BlockingPortal alias is deprecated:DeprecationWarning"
+          ],
+          "environment": {
+            "PYTHONPATH": "<REVIEW_COPIES>/12-starlette_streaming_buffers-baseline/seed",
+            "PYTHONDONTWRITEBYTECODE": "1",
+            "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+          },
+          "stdout": "FFFFFF                                                                   [100%]\n=================================== FAILURES ===================================\n___________ test_streaming_response_mixed_chunks[asyncio-2.0-False] ____________\n  + Exception Group Traceback (most recent call last):\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/_pytest/runner.py\", line 341, in from_call\n  |     result: TResult | None = func()\n  |                              ^^^^^^\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/_pytest/runner.py\", line 242, in <lambda>\n  |     lambda: runtest_hook(item=item, **kwds), when=when, reraise=reraise\n  |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/pluggy/_hooks.py\", line 512, in __call__\n  |     return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)\n  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/pluggy/_manager.py\", line 120, in _hookexec\n  |     return self._inner_hookexec(hook_name, methods, kwargs, firstresult)\n  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/pluggy/_callers.py\", line 167, in _multicall\n  |     raise exception\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/pluggy/_callers.py\", line 139, in _multicall\n  |     teardown.throw(exception)\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/_pytest/threadexception.py\", line 92, in pytest_runtest_call\n  |     yield from thread_exception_runtest_hook()\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/_pytest/threadexception.py\", line 68, in thread_exception_runtest_hook\n  |     yield\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/pluggy/_callers.py\", line 139, in _multicall\n  |     teardown.throw(exception)\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/_pytest/unraisableexception.py\", line 95, in pytest_runtest_call\n  |     yield from unraisable_exception_runtest_hook()\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/_pytest/unraisableexception.py\", line 70, in unraisable_exception_runtest_hook\n  |     yield\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/pluggy/_callers.py\", line 139, in _multicall\n  |     teardown.throw(exception)\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/_pytest/logging.py\", line 846, in pytest_runtest_call\n  |     yield from self._runtest_for(item, \"call\")\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/_pytest/logging.py\", line 829, in _runtest_for\n  |     yield\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/pluggy/_callers.py\", line 139, in _multicall\n  |     teardown.throw(exception)\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/_pytest/capture.py\", line 898, in pytest_runtest_call\n  |     return (yield)\n  |             ^^^^^\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/pluggy/_callers.py\", line 139, in _multicall\n  |     teardown.throw(exception)\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/_pytest/skipping.py\", line 257, in pytest_runtest_call\n  |     return (yield)\n  |             ^^^^^\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/pluggy/_callers.py\", line 121, in _multicall\n  |     res = hook_impl.function(*args)\n  |           ^^^^^^^^^^^^^^^^^^^^^^^^^\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/_pytest/runner.py\", line 174, in pytest_runtest_call\n  |     item.runtest()\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/_pytest/python.py\", line 1627, in runtest\n  |     self.ihook.pytest_pyfunc_call(pyfuncitem=self)\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/pluggy/_hooks.py\", line 512, in __call__\n  |     return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)\n  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/pluggy/_manager.py\", line 120, in _hookexec\n  |     return self._inner_hookexec(hook_name, methods, kwargs, firstresult)\n  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/pluggy/_callers.py\", line 167, in _multicall\n  |     raise exception\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/pluggy/_callers.py\", line 121, in _multicall\n  |     res = hook_impl.function(*args)\n  |           ^^^^^^^^^^^^^^^^^^^^^^^^^\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/anyio/pytest_plugin.py\", line 292, in pytest_pyfunc_call\n  |     runner.run_test(pyfuncitem.obj, testargs)\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py\", line 2494, in run_test\n  |     self._raise_async_exceptions()\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py\", line 2380, in _raise_async_exceptions\n  |     raise exceptions[0]\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py\", line 2473, in run_test\n  |     self.get_loop().run_until_complete(\n  |   File \"<HOME>/.local/share/uv/python/cpython-3.12.15-macos-aarch64-none/lib/python3.12/asyncio/base_events.py\", line 691, in run_until_complete\n  |     return future.result()\n  |            ^^^^^^^^^^^^^^^\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py\", line 2431, in _call_in_runner_task\n  |     return await future\n  |            ^^^^^^^^^^^^\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py\", line 2397, in _run_tests_and_fixtures\n  |     retval = await coro\n  |              ^^^^^^^^^^\n  |   File \"<REVIEW_COPIES>/12-starlette_streaming_buffers-baseline/seed/tests/test_responses.py\", line 568, in test_streaming_response_mixed_chunks\n  |     await response({\"asgi\": {\"spec_version\": spec_version}}, receive, send)\n  |   File \"<REVIEW_COPIES>/12-starlette_streaming_buffers-baseline/seed/starlette/responses.py\", line 261, in __call__\n  |     async with anyio.create_task_group() as task_group:\n  |                ^^^^^^^^^^^^^^^^^^^^^^^^^\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py\", line 847, in __aexit__\n  |     raise BaseExceptionGroup(\n  | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)\n  +-+---------------- 1 ----------------\n    | Traceback (most recent call last):\n    |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/anyio/_core/_tasks.py\", line 327, in _run_coro\n    |     retval = await self._coro\n    |              ^^^^^^^^^^^^^^^^\n    |   File \"<REVIEW_COPIES>/12-starlette_streaming_buffers-baseline/seed/starlette/responses.py\", line 264, in wrap\n    |     await func()\n    |   File \"<REVIEW_COPIES>/12-starlette_streaming_buffers-baseline/seed/starlette/responses.py\", line 247, in stream_response\n    |     chunk = chunk.encode(self.charset)\n    |             ^^^^^^^^^^^^\n    | AttributeError: 'memoryview' object has no attribute 'encode'\n    +------------------------------------\n____________ test_streaming_response_mixed_chunks[asyncio-2.0-True] ____________\n  + Exception Group Traceback (most recent call last):\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/_pytest/runner.py\", line 341, in from_call\n  |     result: TResult | None = func()\n  |                              ^^^^^^\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/_pytest/runner.py\", line 242, in <lambda>\n  |     lambda: runtest_hook(item=item, **kwds), when=when, reraise=reraise\n  |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/pluggy/_hooks.py\", line 512, in __call__\n  |     return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)\n  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/pluggy/_manager.py\", line 120, in _hookexec\n  |     return self._inner_hookexec(hook_name, methods, kwargs, firstresult)\n  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/pluggy/_callers.py\", line 167, in _multicall\n  |     raise exception\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/pluggy/_callers.py\", line 139, in _multicall\n  |     teardown.throw(exception)\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/_pytest/threadexception.py\", line 92, in pytest_runtest_call\n  |     yield from thread_exception_runtest_hook()\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/_pytest/threadexception.py\", line 68, in thread_exception_runtest_hook\n  |     yield\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/pluggy/_callers.py\", line 139, in _multicall\n  |     teardown.throw(exception)\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/_pytest/unraisableexception.py\", line 95, in pytest_runtest_call\n  |     yield from unraisable_exception_runtest_hook()\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/_pytest/unraisableexception.py\", line 70, in unraisable_exception_runtest_hook\n  |     yield\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/pluggy/_callers.py\", line 139, in _multicall\n  |     teardown.throw(exception)\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/_pytest/logging.py\", line 846, in pytest_runtest_call\n  |     yield from self._runtest_for(item, \"call\")\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/_pytest/logging.py\", line 829, in _runtest_for\n  |     yield\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/pluggy/_callers.py\", line 139, in _multicall\n  |     teardown.throw(exception)\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/_pytest/capture.py\", line 898, in pytest_runtest_call\n  |     return (yield)\n  |             ^^^^^\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/pluggy/_callers.py\", line 139, in _multicall\n  |     teardown.throw(exception)\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/_pytest/skipping.py\", line 257, in pytest_runtest_call\n  |     return (yield)\n  |             ^^^^^\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/pluggy/_callers.py\", line 121, in _multicall\n  |     res = hook_impl.function(*args)\n  |           ^^^^^^^^^^^^^^^^^^^^^^^^^\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/_pytest/runner.py\", line 174, in pytest_runtest_call\n  |     item.runtest()\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/_pytest/python.py\", line 1627, in runtest\n  |     self.ihook.pytest_pyfunc_call(pyfuncitem=self)\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/pluggy/_hooks.py\", line 512, in __call__\n  |     return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)\n  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/pluggy/_manager.py\", line 120, in _hookexec\n  |     return self._inner_hookexec(hook_name, methods, kwargs, firstresult)\n  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/pluggy/_callers.py\", line 167, in _multicall\n  |     raise exception\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/pluggy/_callers.py\", line 121, in _multicall\n  |     res = hook_impl.function(*args)\n  |           ^^^^^^^^^^^^^^^^^^^^^^^^^\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/anyio/pytest_plugin.py\", line 292, in pytest_pyfunc_call\n  |     runner.run_test(pyfuncitem.obj, testargs)\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py\", line 2494, in run_test\n  |     self._raise_async_exceptions()\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py\", line 2380, in _raise_async_exceptions\n  |     raise exceptions[0]\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py\", line 2473, in run_test\n  |     self.get_loop().run_until_complete(\n  |   File \"<HOME>/.local/share/uv/python/cpython-3.12.15-macos-aarch64-none/lib/python3.12/asyncio/base_events.py\", line 691, in run_until_complete\n  |     return future.result()\n  |            ^^^^^^^^^^^^^^^\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py\", line 2431, in _call_in_runner_task\n  |     return await future\n  |            ^^^^^^^^^^^^\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py\", line 2397, in _run_tests_and_fixtures\n  |     retval = await coro\n  |              ^^^^^^^^^^\n  |   File \"<REVIEW_COPIES>/12-starlette_streaming_buffers-baseline/seed/tests/test_responses.py\", line 568, in test_streaming_response_mixed_chunks\n  |     await response({\"asgi\": {\"spec_version\": spec_version}}, receive, send)\n  |   File \"<REVIEW_COPIES>/12-starlette_streaming_buffers-baseline/seed/starlette/responses.py\", line 261, in __call__\n  |     async with anyio.create_task_group() as task_group:\n  |                ^^^^^^^^^^^^^^^^^^^^^^^^^\n  |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py\", line 847, in __aexit__\n  |     raise BaseExceptionGroup(\n  | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)\n  +-+---------------- 1 ----------------\n    | Traceback (most recent call last):\n    |   File \"<PROJECT>/.venv/lib/python3.12/site-packages/anyio/_core/_tasks.py\", line 327, in _run_coro\n    |     retval = await self._coro\n    |              ^^^^^^^^^^^^^^^^\n    |   File \"<REVIEW_COPIES>/12-starlette_streaming_buffers-baseline/seed/starlette/responses.py\", line 264, in wrap\n    |     await func()\n    |   File \"<REVIEW_COPIES>/12-starlette_streaming_buffers-baseline/seed/starlette/responses.py\", line 247, in stream_response\n    |     chunk = chunk.encode(self.charset)\n    |             ^^^^^^^^^^^^\n    | AttributeError: 'memoryview' object has no attribute 'encode'\n    +------------------------------------\n___________ test_streaming_response_mixed_chunks[asyncio-2.4-False] ____________\n\nis_async = False, spec_version = '2.4'\n\n    @pytest.mark.anyio\n    @pytest.mark.parametrize(\"is_async\", [False, True])\n    @pytest.mark.parametrize(\"spec_version\", [\"2.0\", \"2.4\"])\n    async def test_streaming_response_mixed_chunks(is_async: bool, spec_version: str) -> None:\n        chunks: list[str | bytes | memoryview] = [memoryview(b\"\\xc0\\xf5\"), b\" bytes \", \"caf\u00e9\"]\n        events: list[Message | str] = []\n    \n        async def async_chunks() -> AsyncIterator[str | bytes | memoryview]:\n            for chunk in chunks:\n                yield chunk\n    \n        async def receive() -> Message:\n            await anyio.sleep_forever()\n            raise AssertionError(\"unreachable\")\n    \n        async def send(message: Message) -> None:\n            events.append(message)\n    \n        async def on_complete() -> None:\n            events.append(\"background\")\n    \n        response = StreamingResponse(\n            async_chunks() if is_async else iter(chunks),\n            background=BackgroundTask(on_complete),\n        )\n>       await response({\"asgi\": {\"spec_version\": spec_version}}, receive, send)\n\ntests/test_responses.py:568: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \nstarlette/responses.py:257: in __call__\n    await self.stream_response(send)\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <starlette.responses.StreamingResponse object at 0x104af6630>\nsend = <function test_streaming_response_mixed_chunks.<locals>.send at 0x1049060c0>\n\n    async def stream_response(self, send: Send) -> None:\n        await send(\n            {\n                \"type\": \"http.response.start\",\n                \"status\": self.status_code,\n                \"headers\": self.raw_headers,\n            }\n        )\n        async for chunk in self.body_iterator:\n            if not isinstance(chunk, bytes):\n>               chunk = chunk.encode(self.charset)\nE               AttributeError: 'memoryview' object has no attribute 'encode'\n\nstarlette/responses.py:247: AttributeError\n____________ test_streaming_response_mixed_chunks[asyncio-2.4-True] ____________\n\nis_async = True, spec_version = '2.4'\n\n    @pytest.mark.anyio\n    @pytest.mark.parametrize(\"is_async\", [False, True])\n    @pytest.mark.parametrize(\"spec_version\", [\"2.0\", \"2.4\"])\n    async def test_streaming_response_mixed_chunks(is_async: bool, spec_version: str) -> None:\n        chunks: list[str | bytes | memoryview] = [memoryview(b\"\\xc0\\xf5\"), b\" bytes \", \"caf\u00e9\"]\n        events: list[Message | str] = []\n    \n        async def async_chunks() -> AsyncIterator[str | bytes | memoryview]:\n            for chunk in chunks:\n                yield chunk\n    \n        async def receive() -> Message:\n            await anyio.sleep_forever()\n            raise AssertionError(\"unreachable\")\n    \n        async def send(message: Message) -> None:\n            events.append(message)\n    \n        async def on_complete() -> None:\n            events.append(\"background\")\n    \n        response = StreamingResponse(\n            async_chunks() if is_async else iter(chunks),\n            background=BackgroundTask(on_complete),\n        )\n>       await response({\"asgi\": {\"spec_version\": spec_version}}, receive, send)\n\ntests/test_responses.py:568: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \nstarlette/responses.py:257: in __call__\n    await self.stream_response(send)\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <starlette.responses.StreamingResponse object at 0x104af7800>\nsend = <function test_streaming_response_mixed_chunks.<locals>.send at 0x104cd6b60>\n\n    async def stream_response(self, send: Send) -> None:\n        await send(\n            {\n                \"type\": \"http.response.start\",\n                \"status\": self.status_code,\n                \"headers\": self.raw_headers,\n            }\n        )\n        async for chunk in self.body_iterator:\n            if not isinstance(chunk, bytes):\n>               chunk = chunk.encode(self.charset)\nE               AttributeError: 'memoryview' object has no attribute 'encode'\n\nstarlette/responses.py:247: AttributeError\n_____________ test_streaming_response_mixed_chunks[trio-2.4-False] _____________\n\nis_async = False, spec_version = '2.4'\n\n    @pytest.mark.anyio\n    @pytest.mark.parametrize(\"is_async\", [False, True])\n    @pytest.mark.parametrize(\"spec_version\", [\"2.0\", \"2.4\"])\n    async def test_streaming_response_mixed_chunks(is_async: bool, spec_version: str) -> None:\n        chunks: list[str | bytes | memoryview] = [memoryview(b\"\\xc0\\xf5\"), b\" bytes \", \"caf\u00e9\"]\n        events: list[Message | str] = []\n    \n        async def async_chunks() -> AsyncIterator[str | bytes | memoryview]:\n            for chunk in chunks:\n                yield chunk\n    \n        async def receive() -> Message:\n            await anyio.sleep_forever()\n            raise AssertionError(\"unreachable\")\n    \n        async def send(message: Message) -> None:\n            events.append(message)\n    \n        async def on_complete() -> None:\n            events.append(\"background\")\n    \n        response = StreamingResponse(\n            async_chunks() if is_async else iter(chunks),\n            background=BackgroundTask(on_complete),\n        )\n>       await response({\"asgi\": {\"spec_version\": spec_version}}, receive, send)\n\ntests/test_responses.py:568: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \nstarlette/responses.py:257: in __call__\n    await self.stream_response(send)\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <starlette.responses.StreamingResponse object at 0x104af83b0>\nsend = <function test_streaming_response_mixed_chunks.<locals>.send at 0x104cd7ec0>\n\n    async def stream_response(self, send: Send) -> None:\n        await send(\n            {\n                \"type\": \"http.response.start\",\n                \"status\": self.status_code,\n                \"headers\": self.raw_headers,\n            }\n        )\n        async for chunk in self.body_iterator:\n            if not isinstance(chunk, bytes):\n>               chunk = chunk.encode(self.charset)\nE               AttributeError: 'memoryview' object has no attribute 'encode'\n\nstarlette/responses.py:247: AttributeError\n_____________ test_streaming_response_mixed_chunks[trio-2.4-True] ______________\n\nis_async = True, spec_version = '2.4'\n\n    @pytest.mark.anyio\n    @pytest.mark.parametrize(\"is_async\", [False, True])\n    @pytest.mark.parametrize(\"spec_version\", [\"2.0\", \"2.4\"])\n    async def test_streaming_response_mixed_chunks(is_async: bool, spec_version: str) -> None:\n        chunks: list[str | bytes | memoryview] = [memoryview(b\"\\xc0\\xf5\"), b\" bytes \", \"caf\u00e9\"]\n        events: list[Message | str] = []\n    \n        async def async_chunks() -> AsyncIterator[str | bytes | memoryview]:\n            for chunk in chunks:\n                yield chunk\n    \n        async def receive() -> Message:\n            await anyio.sleep_forever()\n            raise AssertionError(\"unreachable\")\n    \n        async def send(message: Message) -> None:\n            events.append(message)\n    \n        async def on_complete() -> None:\n            events.append(\"background\")\n    \n        response = StreamingResponse(\n            async_chunks() if is_async else iter(chunks),\n            background=BackgroundTask(on_complete),\n        )\n>       await response({\"asgi\": {\"spec_version\": spec_version}}, receive, send)\n\ntests/test_responses.py:568: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \nstarlette/responses.py:257: in __call__\n    await self.stream_response(send)\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <starlette.responses.StreamingResponse object at 0x104af97f0>\nsend = <function test_streaming_response_mixed_chunks.<locals>.send at 0x104d0ccc0>\n\n    async def stream_response(self, send: Send) -> None:\n        await send(\n            {\n                \"type\": \"http.response.start\",\n                \"status\": self.status_code,\n                \"headers\": self.raw_headers,\n            }\n        )\n        async for chunk in self.body_iterator:\n            if not isinstance(chunk, bytes):\n>               chunk = chunk.encode(self.charset)\nE               AttributeError: 'memoryview' object has no attribute 'encode'\n\nstarlette/responses.py:247: AttributeError\n=========================== short test summary info ============================\nFAILED tests/test_responses.py::test_streaming_response_mixed_chunks[asyncio-2.0-False]\nFAILED tests/test_responses.py::test_streaming_response_mixed_chunks[asyncio-2.0-True]\nFAILED tests/test_responses.py::test_streaming_response_mixed_chunks[asyncio-2.4-False]\nFAILED tests/test_responses.py::test_streaming_response_mixed_chunks[asyncio-2.4-True]\nFAILED tests/test_responses.py::test_streaming_response_mixed_chunks[trio-2.4-False]\nFAILED tests/test_responses.py::test_streaming_response_mixed_chunks[trio-2.4-True]\n6 failed, 2 deselected in 0.08s\n",
+          "stderr": "",
+          "pytest_summary": "6 failed, 2 deselected in 0.08s",
+          "case_counts": {
+            "failed": 6,
+            "deselected": 2
+          }
+        }
+      ]
+    }
+  ]
+}

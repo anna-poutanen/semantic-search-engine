@@ -1,0 +1,140 @@
+diff --git a/starlette/background.py b/starlette/background.py
+index c629136..0430fc0 100644
+--- a/starlette/background.py
++++ b/starlette/background.py
+@@ -37,5 +37,5 @@ class BackgroundTasks(BackgroundTask):
+         self.tasks.append(task)
+ 
+     async def __call__(self) -> None:
+-        for task in reversed(self.tasks):
++        for task in self.tasks:
+             await task()
+diff --git a/tests/test_background.py b/tests/test_background.py
+index 48f3487..676f792 100644
+--- a/tests/test_background.py
++++ b/tests/test_background.py
+@@ -1,8 +1,11 @@
++from __future__ import annotations
++
++import anyio
+ import pytest
+ 
+ from starlette.background import BackgroundTask, BackgroundTasks
+ from starlette.responses import Response
+-from starlette.types import Receive, Scope, Send
++from starlette.types import Message, Receive, Scope, Send
+ from tests.types import TestClientFactory
+ 
+ 
+@@ -44,46 +47,80 @@ def test_sync_task(test_client_factory: TestClientFactory) -> None:
+     assert TASK_COMPLETE
+ 
+ 
+-def test_multiple_tasks(test_client_factory: TestClientFactory) -> None:
+-    TASK_COUNTER = 0
++def test_multiple_tasks_run_in_registration_order(test_client_factory: TestClientFactory) -> None:
++    events: list[str] = []
++
++    def sync_task(amount: int) -> None:
++        events.append(f"start:{amount}")
++        anyio.from_thread.run(anyio.sleep, 0)
++        events.append(f"end:{amount}")
+ 
+-    def increment(amount: int) -> None:
+-        nonlocal TASK_COUNTER
+-        TASK_COUNTER += amount
++    async def async_task(amount: int) -> None:
++        events.append(f"start:{amount}")
++        await anyio.sleep(0)
++        events.append(f"end:{amount}")
+ 
+     async def app(scope: Scope, receive: Receive, send: Send) -> None:
+-        tasks = BackgroundTasks()
+-        tasks.add_task(increment, amount=1)
+-        tasks.add_task(increment, amount=2)
+-        tasks.add_task(increment, amount=3)
++        async def track_send(message: Message) -> None:
++            await send(message)
++            events.append(message["type"])
++
++        tasks = BackgroundTasks([BackgroundTask(sync_task, amount=1)])
++        tasks.add_task(async_task, amount=2)
++        tasks.add_task(sync_task, amount=3)
++        tasks.add_task(async_task, amount=4)
+         response = Response("tasks initiated", media_type="text/plain", background=tasks)
+-        await response(scope, receive, send)
++        await response(scope, receive, track_send)
+ 
+     client = test_client_factory(app)
+     response = client.get("/")
+     assert response.text == "tasks initiated"
+-    assert TASK_COUNTER == 1 + 2 + 3
+-
+-
+-def test_multi_tasks_failure_avoids_next_execution(
+-    test_client_factory: TestClientFactory,
+-) -> None:
+-    TASK_COUNTER = 0
+-
+-    def increment() -> None:
+-        nonlocal TASK_COUNTER
+-        TASK_COUNTER += 1
+-        if TASK_COUNTER == 1:  # pragma: no branch
+-            raise Exception("task failed")
+-
++    assert events == [
++        "http.response.start",
++        "http.response.body",
++        "start:1",
++        "end:1",
++        "start:2",
++        "end:2",
++        "start:3",
++        "end:3",
++        "start:4",
++        "end:4",
++    ]
++
++
++@pytest.mark.anyio
++@pytest.mark.parametrize("is_async", [False, True])
++async def test_multi_tasks_failure_avoids_next_execution(is_async: bool) -> None:
++    events: list[str] = []
++
++    def record(name: str) -> None:
++        events.append(name)
++
++    def fail() -> None:
++        events.append("failed")
++        raise RuntimeError("task failed")
++
++    async def async_fail() -> None:
++        await anyio.sleep(0)
++        fail()
++
++    tasks = BackgroundTasks()
++    tasks.add_task(record, "first")
++    tasks.add_task(async_fail if is_async else fail)
++    tasks.add_task(record, "last")
++
++    with pytest.raises(RuntimeError, match="task failed"):
++        await tasks()
++    assert events == ["first", "failed"]
++
++
++@pytest.mark.parametrize("tasks", [None, []])
++def test_empty_tasks(test_client_factory: TestClientFactory, tasks: list[BackgroundTask] | None) -> None:
+     async def app(scope: Scope, receive: Receive, send: Send) -> None:
+-        tasks = BackgroundTasks()
+-        tasks.add_task(increment)
+-        tasks.add_task(increment)
+-        response = Response("tasks initiated", media_type="text/plain", background=tasks)
++        response = Response("no tasks", media_type="text/plain", background=BackgroundTasks(tasks))
+         await response(scope, receive, send)
+ 
+     client = test_client_factory(app)
+-    with pytest.raises(Exception):
+-        client.get("/")
+-    assert TASK_COUNTER == 1
++    response = client.get("/")
++    assert response.text == "no tasks"

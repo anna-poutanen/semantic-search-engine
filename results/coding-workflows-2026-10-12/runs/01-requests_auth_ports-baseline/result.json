@@ -1,0 +1,67 @@
+{
+  "agent_elapsed_s": 225.65575041700504,
+  "agent_exit_code": 0,
+  "base_commit": "37990f54d03e58d971b16c968f309638482e6136",
+  "base_tree_sha256": "e8a7df3aa13dd06a4122a340f58e6f9d9e6f4c7c880b8d59dd92ceb778eccf01",
+  "changed_files": [
+    "src/requests/sessions.py",
+    "tests/test_requests.py"
+  ],
+  "command_calls": 22,
+  "completed": true,
+  "completed_correct": true,
+  "condition": "baseline",
+  "correct": true,
+  "end_to_end_s": 226.05492279100872,
+  "errors": [],
+  "failed": false,
+  "grade": {
+    "detail": {
+      "errors": 0,
+      "failures": 0,
+      "passed": true,
+      "skipped": 0,
+      "tests_run": 3
+    },
+    "elapsed_s": 0.10144399999990128,
+    "exit_code": 0,
+    "passed": true,
+    "stderr": "test_changed_origin_drops_credentials (__main__.RedirectCredentials.test_changed_origin_drops_credentials) ... ok\ntest_equivalent_default_ports_keep_credentials (__main__.RedirectCredentials.test_equivalent_default_ports_keep_credentials) ... ok\ntest_same_port_and_standard_https_upgrade_keep_credentials (__main__.RedirectCredentials.test_same_port_and_standard_https_upgrade_keep_credentials) ... ok\n\n----------------------------------------------------------------------\nRan 3 tests in 0.001s\n\nOK\n",
+    "stdout": "{\"errors\": 0, \"failures\": 0, \"passed\": true, \"skipped\": 0, \"tests_run\": 3}\n"
+  },
+  "invalid_event_lines": [],
+  "mcp_calls": 0,
+  "mcp_items": [],
+  "patch_sha256": "2a2f55724d2cb090ca25ab7d4f3c056ed0517ee8b448a1d8a181fdfa0afdd13a",
+  "prompt_sha256": "5ef9833f3661e68f2e6aac4ca33f4727bdb75312c927f53f123b83ea59bbb11c",
+  "published_events_sha256": "2e9627e35e98c30864f1c8372cff8c3a74082670fda76c236f219570f7587134",
+  "raw_events_sha256": "43d60ed34a4aaacc98b93749ffb41499d11a5b35154cc9d2d2c2b813b7dad3c3",
+  "reported_turns": 1,
+  "run_id": "01-requests_auth_ports-baseline",
+  "seed_grade": {
+    "detail": {
+      "errors": 0,
+      "failures": 4,
+      "passed": false,
+      "skipped": 0,
+      "tests_run": 3
+    },
+    "elapsed_s": 0.06800966699665878,
+    "exit_code": 1,
+    "passed": false,
+    "stderr": "test_changed_origin_drops_credentials (__main__.RedirectCredentials.test_changed_origin_drops_credentials) ... ok\ntest_equivalent_default_ports_keep_credentials (__main__.RedirectCredentials.test_equivalent_default_ports_keep_credentials) ... \n  test_equivalent_default_ports_keep_credentials (__main__.RedirectCredentials.test_equivalent_default_ports_keep_credentials) (old='http://example.test/a', new='http://example.test:80/b') ... FAIL\n  test_equivalent_default_ports_keep_credentials (__main__.RedirectCredentials.test_equivalent_default_ports_keep_credentials) (old='http://example.test:80/a', new='http://example.test/b') ... FAIL\n  test_equivalent_default_ports_keep_credentials (__main__.RedirectCredentials.test_equivalent_default_ports_keep_credentials) (old='https://example.test/a', new='https://example.test:443/b') ... FAIL\n  test_equivalent_default_ports_keep_credentials (__main__.RedirectCredentials.test_equivalent_default_ports_keep_credentials) (old='https://example.test:443/a', new='https://example.test/b') ... FAIL\ntest_same_port_and_standard_https_upgrade_keep_credentials (__main__.RedirectCredentials.test_same_port_and_standard_https_upgrade_keep_credentials) ... ok\n\n======================================================================\nFAIL: test_equivalent_default_ports_keep_credentials (__main__.RedirectCredentials.test_equivalent_default_ports_keep_credentials) (old='http://example.test/a', new='http://example.test:80/b')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<PROJECT>/benchmarks/workflow_checks/check_requests_auth_ports.py\", line 54, in test_equivalent_default_ports_keep_credentials\n    self.assertEqual(self.redirect(old, new), \"Bearer fixture\")\nAssertionError: None != 'Bearer fixture'\n\n======================================================================\nFAIL: test_equivalent_default_ports_keep_credentials (__main__.RedirectCredentials.test_equivalent_default_ports_keep_credentials) (old='http://example.test:80/a', new='http://example.test/b')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<PROJECT>/benchmarks/workflow_checks/check_requests_auth_ports.py\", line 54, in test_equivalent_default_ports_keep_credentials\n    self.assertEqual(self.redirect(old, new), \"Bearer fixture\")\nAssertionError: None != 'Bearer fixture'\n\n======================================================================\nFAIL: test_equivalent_default_ports_keep_credentials (__main__.RedirectCredentials.test_equivalent_default_ports_keep_credentials) (old='https://example.test/a', new='https://example.test:443/b')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<PROJECT>/benchmarks/workflow_checks/check_requests_auth_ports.py\", line 54, in test_equivalent_default_ports_keep_credentials\n    self.assertEqual(self.redirect(old, new), \"Bearer fixture\")\nAssertionError: None != 'Bearer fixture'\n\n======================================================================\nFAIL: test_equivalent_default_ports_keep_credentials (__main__.RedirectCredentials.test_equivalent_default_ports_keep_credentials) (old='https://example.test:443/a', new='https://example.test/b')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<PROJECT>/benchmarks/workflow_checks/check_requests_auth_ports.py\", line 54, in test_equivalent_default_ports_keep_credentials\n    self.assertEqual(self.redirect(old, new), \"Bearer fixture\")\nAssertionError: None != 'Bearer fixture'\n\n----------------------------------------------------------------------\nRan 3 tests in 0.002s\n\nFAILED (failures=4)\n",
+    "stdout": "{\"errors\": 0, \"failures\": 4, \"passed\": false, \"skipped\": 0, \"tests_run\": 3}\n"
+  },
+  "setup_s": 0.26861783300410025,
+  "task_id": "requests_auth_ports",
+  "timed_out": false,
+  "usage": {
+    "cache_write_input_tokens": 0,
+    "cached_input_tokens": 235904,
+    "input_tokens": 281141,
+    "output_tokens": 4722,
+    "reasoning_output_tokens": 1923,
+    "total_tokens": 285863,
+    "uncached_input_tokens": 45237
+  }
+}
