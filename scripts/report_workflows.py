@@ -225,7 +225,8 @@ def render(config: dict, records: list[dict], summary: dict, artifacts: Path | N
     resource_summary = "Aggregate resource comparisons preserve unavailable measurements and are shown below."
     token_values = [(measurement(b, "total_tokens"), measurement(m, "total_tokens")) for b, m in pairs]
     time_values = [(measurement(b, "agent_elapsed_s"), measurement(m, "agent_elapsed_s")) for b, m in pairs]
-    if all(b is not None and m is not None for b, m in token_values + time_values):
+    if (all(b is not None and m is not None for b, m in token_values + time_values)
+            and sum(b for b, _ in token_values) > 0 and sum(b for b, _ in time_values) > 0):
         baseline_tokens, mcp_tokens = (sum(row[i] for row in token_values) for i in (0, 1))
         baseline_time, mcp_time = (sum(row[i] for row in time_values) for i in (0, 1))
         token_change = reduction(baseline_tokens, mcp_tokens)
@@ -348,7 +349,7 @@ def render(config: dict, records: list[dict], summary: dict, artifacts: Path | N
         parts.append(markdown_table(["Task", "Call", "Successful response", "Match status", "Local excerpt tokens", "Local budget", "Returned source excerpts", "Evidence"], receipt_rows))
         parts.append("These returned excerpts are preserved MCP response payloads, with no independently recorded HTTP receipt in the paired workflow runner. SHA256 checks above verify the returned source bytes are internally consistent with their reported hashes; they do not independently prove relevance or historical saved-file identity. Historical identity requires source reconstruction from the seeded tree and edit trace, while the hidden checks evaluate the final repair. Local excerpt tokens and budgets in this table are separate from actual provider input/output usage reported above.")
         if artifacts is not None and (artifacts / "audit.json").exists():
-            parts.append("See the [independent artifact audit](audit.json) for recorded usage, trace and returned-source checks.")
+            parts.append("See the [independent artifact audit](audit.json) for recorded usage, settings, fixtures and trace checks. Returned excerpt bytes and bounds are checked in the separate MCP source audit below.")
         source_audit_path = artifacts / "mcp-source-audit.json" if artifacts is not None else None
         if source_audit_path is not None and source_audit_path.exists():
             source_audit = json.loads(source_audit_path.read_text())
@@ -483,7 +484,7 @@ def render(config: dict, records: list[dict], summary: dict, artifacts: Path | N
         ] for record in ordered_records]))
     parts.extend([
         "## Practical limits",
-        "The hidden checks establish selected observable behavior and preserve nearby negative controls; they do not prove every repair is idiomatic, every new agent-authored test is adequate, or every upstream behavior remains correct. Manual patch review should accompany broader claims. The tasks are deliberately small seeded repairs in previously evaluated repositories, with no independent task holdout and no repeated stochastic trials. Hosted-model waits, background machine activity, prompt caching and condition order can affect timing and tokens. Warm MCP setup was excluded from agent wall time but published separately. Fresh tasks and repeated runs are needed before claiming production savings or expanding the quality gate.",
+        "The hidden checks establish selected observable behavior and preserve nearby negative controls; they do not prove every repair is idiomatic, every new agent-authored test is adequate, or every upstream behavior remains correct. Manual patch review should accompany broader claims. The tasks are deliberately small seeded repairs in previously evaluated repositories, with no independent task holdout and no repeated stochastic trials. Hosted-model waits, background machine activity, prompt caching and condition order can affect timing and tokens. MCP loading, initial indexing and warmup were excluded from agent wall time and published separately. Fresh tasks and repeated runs are needed before claiming production savings or expanding the quality gate.",
     ])
     return "\n\n".join(parts) + "\n"
 
