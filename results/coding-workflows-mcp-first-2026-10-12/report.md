@@ -116,7 +116,7 @@ Ordinary command calls are completed shell-command items. File-change items coun
 
 These returned excerpts are preserved MCP response payloads, with no independently recorded HTTP receipt in the paired workflow runner. SHA256 checks above verify the returned source bytes are internally consistent with their reported hashes; they do not independently prove relevance or historical saved-file identity. Historical identity requires source reconstruction from the seeded tree and edit trace, while the hidden checks evaluate the final repair. Local excerpt tokens and budgets in this table are separate from actual provider input/output usage reported above.
 
-See the [independent artifact audit](audit.json) for recorded usage, trace and returned-source checks.
+See the [independent artifact audit](audit.json) for recorded usage, settings, fixtures and trace checks. Returned excerpt bytes and bounds are checked in the separate MCP source audit below.
 
 The [independent MCP source audit](mcp-source-audit.json) covers **3/3 observed calls**; recorded audit passed=`True`, errors=0, source-freshness reviews needed=0.
 
@@ -205,4 +205,4 @@ All selected regression cases pass on fixes and detect their seeds. Both atomic-
 
 ## Practical limits
 
-The hidden checks establish selected observable behavior and preserve nearby negative controls; they do not prove every repair is idiomatic, every new agent-authored test is adequate, or every upstream behavior remains correct. Manual patch review should accompany broader claims. The tasks are deliberately small seeded repairs in previously evaluated repositories, with no independent task holdout and no repeated stochastic trials. Hosted-model waits, background machine activity, prompt caching and condition order can affect timing and tokens. Warm MCP setup was excluded from agent wall time but published separately. Fresh tasks and repeated runs are needed before claiming production savings or expanding the quality gate.
+The hidden checks establish selected observable behavior and preserve nearby negative controls; they do not prove every repair is idiomatic, every new agent-authored test is adequate, or every upstream behavior remains correct. Manual patch review should accompany broader claims. The tasks are deliberately small seeded repairs in previously evaluated repositories, with no independent task holdout and no repeated stochastic trials. Hosted-model waits, background machine activity, prompt caching and condition order can affect timing and tokens. MCP loading, initial indexing and warmup were excluded from agent wall time and published separately. Fresh tasks and repeated runs are needed before claiming production savings or expanding the quality gate.
