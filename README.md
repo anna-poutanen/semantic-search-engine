@@ -8,7 +8,9 @@ paid model.
 **Current stage: a resident local search service and MCP adapter with durable
 SQLite FTS5/vector retrieval, saved-file watching, cancellation, budgeted context,
 and optional H2O-Lightning-4B reranking in 8-bit MLX.** Qwen dense retrieval is
-the fast default. The CLI and MCP adapter use the same backend. See
+the fast default. Paired coding repairs now have actual agent timing, provider
+token usage, preserved patches, and independent correctness review. The CLI and
+MCP adapter use the same backend. See
 [the project plan](docs/project-plan.md), [the service API](docs/backend-api.md),
 and [MCP setup](docs/mcp.md).
 
@@ -149,7 +151,44 @@ one function and reuses two vectors. Durable retrieval, watching, and cancellati
 also have CPU verification. A [10,000-window synthetic index profile](results/index-profile-2026-10-12/report.md)
 records exact SQLite cosine P95 of 19.63 ms and full durable reuse; it does not
 establish real Qwen indexing performance at that scale. Next is paired-agent
-completion and provider-reported token evaluation, followed by VS Code integration.
+evaluation on fresh, broader tasks, followed by VS Code integration.
+
+The [coding workflow availability pilot](results/coding-workflows-2026-10-12/report.md)
+runs six paired seeded repairs in real Requests, Click, and Starlette checkouts
+with the same agent, prompt, and starting source. All twelve runs pass the
+selected hidden checks, with actual provider usage available for each. **None
+of the six MCP-assigned runs called `search_code`**, so their time and token
+differences cannot be attributed to retrieval. Independent review also finds
+both Click fixes can silently swallow an atomic commit failure; selected-check
+success does not establish complete correctness. The frozen configuration,
+patches, event streams, and supplemental fault injection are published.
+
+A [separate MCP-first follow-up](results/coding-workflows-mcp-first-2026-10-12/report.md)
+reuses three tasks with the same conditional search-first instruction in both
+conditions. All three MCP agents use `search_code`: Requests and Click use Qwen
+dense retrieval; Starlette chooses lexical retrieval. Independent review
+matches their excerpts to the seeded source. Both conditions pass the ten
+declared check methods, while both Click fixes still suppress commit errors.
+
+| Three paired tasks | Without MCP | With MCP |
+| --- | ---: | ---: |
+| Selected-check passes | 3/3 | 3/3 |
+| Total agent wall time | 426.78 s | 489.87 s |
+| Total setup time (including indexing/warmup) | 0.79 s | 62.22 s |
+| Full evaluator time (including setup and grading) | 427.94 s | 553.48 s |
+| Actual total tokens (input + output) | 578,218 | 618,537 |
+| Uncached input tokens | 115,984 | 144,935 |
+| Median total tokens per task | 213,682 | 199,162 |
+
+MCP uses **7.0% more total tokens and 14.8% more agent time** over this workload,
+despite a 6.8% lower condition median token count. These are different statistics.
+Requests uses fewer tokens with MCP; Click and Starlette use more. Index loading
+and warmup are additional setup costs; including setup and grading, evaluator
+time is 29.3% higher. Each trial builds a separate index; a resident service can
+reuse an existing index. This small reused
+development sample does not establish savings or the 30% median-token target.
+The original availability pilot and follow-up remain separate studies, with
+every attempt retained and no selected retries.
 
 The [Requests service experiment](results/requests-service-2026-10-12/report.md)
 tests 20 newly authored queries on a second real codebase: 16 present behaviors

@@ -1,0 +1,3 @@
+Fixed callbacks to run in registration order, awaiting each before starting the next. Regression tests cover sync, async, mixed, and empty collections, execution after response delivery, and stopping on failure.
+
+Checks: 18 background tests and 59 response/concurrency tests passed; `git diff --check` passed. Tests used a narrow AnyIO warning filter. Broader Trio checks hit an existing dependency incompatibility; Ruff was unavailable.

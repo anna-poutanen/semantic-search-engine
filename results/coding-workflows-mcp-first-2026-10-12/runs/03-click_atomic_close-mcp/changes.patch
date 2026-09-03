@@ -1,0 +1,68 @@
+diff --git a/src/click/types.py b/src/click/types.py
+index fc12526..5b035b3 100644
+--- a/src/click/types.py
++++ b/src/click/types.py
+@@ -720,6 +720,9 @@ class File(ParamType):
+                     value, self.mode, self.encoding, self.errors, atomic=self.atomic
+                 )
+ 
++                if ctx is not None:
++                    ctx.call_on_close(safecall(lf.close_intelligently))
++
+                 return t.cast(t.IO[t.Any], lf)
+ 
+             f, should_close = open_stream(
+diff --git a/tests/test_basic.py b/tests/test_basic.py
+index d68b962..b5caa26 100644
+--- a/tests/test_basic.py
++++ b/tests/test_basic.py
+@@ -275,6 +275,49 @@ def test_file_option(runner):
+     assert result_out.output == "Hello World!\n\n"
+ 
+ 
++@pytest.mark.parametrize("atomic", [False, True])
++@pytest.mark.parametrize("lazy", [None, True])
++def test_file_lazy_close(runner, tmp_path, atomic, lazy):
++    path = tmp_path / "output.txt"
++    path.write_text("original")
++    files = []
++
++    @click.command()
++    @click.option("--output", type=click.File("w", lazy=lazy, atomic=atomic))
++    def cli(output):
++        files.append(output)
++        output.write("updated")
++        if atomic:
++            output.flush()
++            assert path.read_text() == "original"
++
++    try:
++        result = runner.invoke(cli, ["--output", str(path)], catch_exceptions=False)
++        assert result.exit_code == 0
++        assert path.read_text() == "updated"
++        assert files[0].closed
++        assert list(tmp_path.iterdir()) == [path]
++    finally:
++        for file in files:
++            file.close()
++
++
++@pytest.mark.parametrize("atomic", [False, True])
++@pytest.mark.parametrize("lazy", [None, True])
++def test_file_lazy_unused(runner, tmp_path, atomic, lazy):
++    path = tmp_path / "output.txt"
++
++    @click.command()
++    @click.option("--output", type=click.File("w", lazy=lazy, atomic=atomic))
++    def cli(output):
++        pass
++
++    result = runner.invoke(cli, ["--output", str(path)], catch_exceptions=False)
++    assert result.exit_code == 0
++    assert not path.exists()
++    assert not list(tmp_path.iterdir())
++
++
+ def test_file_lazy_mode(runner):
+     do_io = False
+ 

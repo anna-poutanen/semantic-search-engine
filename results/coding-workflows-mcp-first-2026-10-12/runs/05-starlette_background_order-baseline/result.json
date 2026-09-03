@@ -1,0 +1,67 @@
+{
+  "agent_elapsed_s": 177.7461800420133,
+  "agent_exit_code": 0,
+  "base_commit": "78f8f608e77e59ef1511ee76ce62fd124de34a1e",
+  "base_tree_sha256": "3cec2aee6969f2a4d38d79950d5dd7043930c962e5ac1ad6e345d1dfe3ad8768",
+  "changed_files": [
+    "starlette/background.py",
+    "tests/test_background.py"
+  ],
+  "command_calls": 22,
+  "completed": true,
+  "completed_correct": true,
+  "condition": "baseline",
+  "correct": true,
+  "end_to_end_s": 178.1599676250189,
+  "errors": [],
+  "failed": false,
+  "grade": {
+    "detail": {
+      "errors": 0,
+      "failures": 0,
+      "passed": true,
+      "skipped": 0,
+      "tests_run": 3
+    },
+    "elapsed_s": 0.09277766701416112,
+    "exit_code": 0,
+    "passed": true,
+    "stderr": "test_constructor_tasks_keep_order_and_empty_sequence_is_valid (__main__.OrderedBackground.test_constructor_tasks_keep_order_and_empty_sequence_is_valid) ... ok\ntest_failure_does_not_run_later_callbacks (__main__.OrderedBackground.test_failure_does_not_run_later_callbacks) ... ok\ntest_mixed_callbacks_run_in_registration_order_after_response (__main__.OrderedBackground.test_mixed_callbacks_run_in_registration_order_after_response) ... ok\n\n----------------------------------------------------------------------\nRan 3 tests in 0.011s\n\nOK\n",
+    "stdout": "{\"errors\": 0, \"failures\": 0, \"passed\": true, \"skipped\": 0, \"tests_run\": 3}\n"
+  },
+  "invalid_event_lines": [],
+  "mcp_calls": 0,
+  "mcp_items": [],
+  "patch_sha256": "3d94e050eb912f07b447b10aec391a328d24778fba733e4854eeccfa82fcbc09",
+  "prompt_sha256": "ae019f603ccdf485e37ef59e7c2d44ac06f6f996af164ce35ce14448b1fb0fda",
+  "published_events_sha256": "c462e6f3f6ed537197c64c3b106aa1ac1654181b5a7a4c9594398919715c7ad1",
+  "raw_events_sha256": "c07fe6fa9e5f11b67c05663fbab197012f6c7b687d2bbf7868768a3135e8c7f9",
+  "reported_turns": 1,
+  "run_id": "05-starlette_background_order-baseline",
+  "seed_grade": {
+    "detail": {
+      "errors": 0,
+      "failures": 3,
+      "passed": false,
+      "skipped": 0,
+      "tests_run": 3
+    },
+    "elapsed_s": 0.07068274999619462,
+    "exit_code": 1,
+    "passed": false,
+    "stderr": "test_constructor_tasks_keep_order_and_empty_sequence_is_valid (__main__.OrderedBackground.test_constructor_tasks_keep_order_and_empty_sequence_is_valid) ... FAIL\ntest_failure_does_not_run_later_callbacks (__main__.OrderedBackground.test_failure_does_not_run_later_callbacks) ... FAIL\ntest_mixed_callbacks_run_in_registration_order_after_response (__main__.OrderedBackground.test_mixed_callbacks_run_in_registration_order_after_response) ... FAIL\n\n======================================================================\nFAIL: test_constructor_tasks_keep_order_and_empty_sequence_is_valid (__main__.OrderedBackground.test_constructor_tasks_keep_order_and_empty_sequence_is_valid)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<HOME>/.local/share/uv/python/cpython-3.12.15-macos-aarch64-none/lib/python3.12/asyncio/runners.py\", line 118, in run\n    return self._loop.run_until_complete(task)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<HOME>/.local/share/uv/python/cpython-3.12.15-macos-aarch64-none/lib/python3.12/asyncio/base_events.py\", line 691, in run_until_complete\n    return future.result()\n           ^^^^^^^^^^^^^^^\n  File \"<PROJECT>/benchmarks/workflow_checks/check_starlette_background_order.py\", line 61, in test_constructor_tasks_keep_order_and_empty_sequence_is_valid\n    self.assertEqual(events, [\"a\", \"b\"])\nAssertionError: Lists differ: ['b', 'a'] != ['a', 'b']\n\nFirst differing element 0:\n'b'\n'a'\n\n- ['b', 'a']\n+ ['a', 'b']\n\n======================================================================\nFAIL: test_failure_does_not_run_later_callbacks (__main__.OrderedBackground.test_failure_does_not_run_later_callbacks)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<HOME>/.local/share/uv/python/cpython-3.12.15-macos-aarch64-none/lib/python3.12/asyncio/runners.py\", line 118, in run\n    return self._loop.run_until_complete(task)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<HOME>/.local/share/uv/python/cpython-3.12.15-macos-aarch64-none/lib/python3.12/asyncio/base_events.py\", line 691, in run_until_complete\n    return future.result()\n           ^^^^^^^^^^^^^^^\n  File \"<PROJECT>/benchmarks/workflow_checks/check_starlette_background_order.py\", line 56, in test_failure_does_not_run_later_callbacks\n    self.assertEqual(events, [\"earlier\", \"failing\"])\nAssertionError: Lists differ: ['later', 'failing'] != ['earlier', 'failing']\n\nFirst differing element 0:\n'later'\n'earlier'\n\n- ['later', 'failing']\n?    ^^\n\n+ ['earlier', 'failing']\n?   +++ ^\n\n\n======================================================================\nFAIL: test_mixed_callbacks_run_in_registration_order_after_response (__main__.OrderedBackground.test_mixed_callbacks_run_in_registration_order_after_response)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<HOME>/.local/share/uv/python/cpython-3.12.15-macos-aarch64-none/lib/python3.12/asyncio/runners.py\", line 118, in run\n    return self._loop.run_until_complete(task)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<HOME>/.local/share/uv/python/cpython-3.12.15-macos-aarch64-none/lib/python3.12/asyncio/base_events.py\", line 691, in run_until_complete\n    return future.result()\n           ^^^^^^^^^^^^^^^\n  File \"<PROJECT>/benchmarks/workflow_checks/check_starlette_background_order.py\", line 35, in test_mixed_callbacks_run_in_registration_order_after_response\n    self.assertEqual(events, [\"http.response.start\", \"http.response.body\", \"first-done\", \"second-done\", \"third-done\"])\nAssertionError: Lists differ: ['htt[20 chars]http.response.body', 'third-done', 'second-done', 'first-done'] != ['htt[20 chars]http.response.body', 'first-done', 'second-done', 'third-done']\n\nFirst differing element 2:\n'third-done'\n'first-done'\n\n  ['http.response.start',\n   'http.response.body',\n-  'third-done',\n?   ^^  ^\n\n+  'first-done',\n?   ^  ^^\n\n   'second-done',\n-  'first-done']\n?   ^  ^^\n\n+  'third-done']\n?   ^^  ^\n\n\n----------------------------------------------------------------------\nRan 3 tests in 0.015s\n\nFAILED (failures=3)\n",
+    "stdout": "{\"errors\": 0, \"failures\": 3, \"passed\": false, \"skipped\": 0, \"tests_run\": 3}\n"
+  },
+  "setup_s": 0.28402954200282693,
+  "task_id": "starlette_background_order",
+  "timed_out": false,
+  "usage": {
+    "cache_write_input_tokens": 0,
+    "cached_input_tokens": 161664,
+    "input_tokens": 208516,
+    "output_tokens": 5166,
+    "reasoning_output_tokens": 2219,
+    "total_tokens": 213682,
+    "uncached_input_tokens": 46852
+  }
+}
