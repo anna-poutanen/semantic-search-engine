@@ -1,0 +1,98 @@
+{
+  "classification": "Supplemental CPU fault-injection diagnostic predefined from original-pilot patch review, excluded from frozen correctness and performance metrics",
+  "declared_verifier_methods": 10,
+  "frozen_config_sha256": "cca195527a601b46b3a1ccd9ce782853517602ade11f00039511dc9be29e36e1",
+  "interpretation": "Expected failure is the pinned upstream public-API behavior. This supplemental probe was planned from original-pilot review before follow-up agent outputs. It is not an additional formal correctness gate.",
+  "original_destination_bytes_hex": "6f726967696e616c2064657374696e6174696f6e2062797465730a",
+  "original_destination_bytes_utf8": "original destination bytes\n",
+  "paired_run_ids": [
+    "03-click_atomic_close-mcp",
+    "04-click_atomic_close-baseline"
+  ],
+  "pinned_upstream_revision": "934813e4d421071a1b3db3973c02fe2721359a6e",
+  "probe_script_sha256": "a45e51e42c0123479c89123f2c7fcfcc01f054c572804f11c9bd1970593599fe",
+  "results": [
+    {
+      "checkout_initial_commit": "934813e4d421071a1b3db3973c02fe2721359a6e",
+      "checkout_tracked_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "checkout_tracked_source_unchanged": true,
+      "declared_verifier_passed": null,
+      "observed": {
+        "actual_exception_errno": 2,
+        "actual_exception_type": "FileNotFoundError",
+        "cli_exit_code": 1,
+        "destination_bytes_hex": "6f726967696e616c2064657374696e6174696f6e2062797465730a",
+        "destination_bytes_utf8": "original destination bytes\n",
+        "destination_exists": true,
+        "destination_old_bytes_during_callback": true,
+        "destination_old_bytes_preserved": true,
+        "expected_cli_exit_code": 1,
+        "expected_exception_type": "FileNotFoundError",
+        "matches_pinned_upstream_error_behavior": true,
+        "temporary_sources_removed": 1
+      },
+      "source": "pinned_upstream",
+      "source_sha256": {
+        "src/click/testing.py": "dd103c6a709fed367cfb94401798add937be6965c100be552dab109cc882d994",
+        "src/click/types.py": "043e50aaae21fbc91ac0198e2332659aae31cd38407f8c02bda38b652043371d",
+        "src/click/utils.py": "71ef88acef6294823be8b1a4537e78a4e7476dea4cf147ed7cd1fb49f314ff6f"
+      }
+    },
+    {
+      "checkout_initial_commit": "10a988fca62590d5b4ff44cc3d73e2a321a5954a",
+      "checkout_tracked_diff_sha256": "71149bb83f580ffc12bf72cdb457872ff673dc93ba4c9bff8101f95746d086c7",
+      "checkout_tracked_source_unchanged": true,
+      "declared_verifier_passed": true,
+      "observed": {
+        "actual_exception_errno": null,
+        "actual_exception_type": null,
+        "cli_exit_code": 0,
+        "destination_bytes_hex": "6f726967696e616c2064657374696e6174696f6e2062797465730a",
+        "destination_bytes_utf8": "original destination bytes\n",
+        "destination_exists": true,
+        "destination_old_bytes_during_callback": true,
+        "destination_old_bytes_preserved": true,
+        "expected_cli_exit_code": 1,
+        "expected_exception_type": "FileNotFoundError",
+        "matches_pinned_upstream_error_behavior": false,
+        "temporary_sources_removed": 1
+      },
+      "source": "03-click_atomic_close-mcp",
+      "source_sha256": {
+        "src/click/testing.py": "dd103c6a709fed367cfb94401798add937be6965c100be552dab109cc882d994",
+        "src/click/types.py": "6ba2f3f75db25a11cc194b585da4819acf27eec2ddee94435107e32f0ef67f76",
+        "src/click/utils.py": "71ef88acef6294823be8b1a4537e78a4e7476dea4cf147ed7cd1fb49f314ff6f"
+      }
+    },
+    {
+      "checkout_initial_commit": "10a988fca62590d5b4ff44cc3d73e2a321a5954a",
+      "checkout_tracked_diff_sha256": "f70c391f67fbdd6e1b52217c3a817432343497a5f62b051bc45bc84448036031",
+      "checkout_tracked_source_unchanged": true,
+      "declared_verifier_passed": true,
+      "observed": {
+        "actual_exception_errno": null,
+        "actual_exception_type": null,
+        "cli_exit_code": 0,
+        "destination_bytes_hex": "6f726967696e616c2064657374696e6174696f6e2062797465730a",
+        "destination_bytes_utf8": "original destination bytes\n",
+        "destination_exists": true,
+        "destination_old_bytes_during_callback": true,
+        "destination_old_bytes_preserved": true,
+        "expected_cli_exit_code": 1,
+        "expected_exception_type": "FileNotFoundError",
+        "matches_pinned_upstream_error_behavior": false,
+        "temporary_sources_removed": 1
+      },
+      "source": "04-click_atomic_close-baseline",
+      "source_sha256": {
+        "src/click/testing.py": "dd103c6a709fed367cfb94401798add937be6965c100be552dab109cc882d994",
+        "src/click/types.py": "6ba2f3f75db25a11cc194b585da4819acf27eec2ddee94435107e32f0ef67f76",
+        "src/click/utils.py": "71ef88acef6294823be8b1a4537e78a4e7476dea4cf147ed7cd1fb49f314ff6f"
+      }
+    }
+  ],
+  "scenario": "An existing destination contains original bytes. The callback writes and flushes a lazy atomic output, then removes its sole atomic temporary source before context cleanup tries to commit it.",
+  "schema_version": 1,
+  "scope": "No checkout edits, agent feedback, retrieval, GPU inference, or hosted model calls. The 10 declared verifier methods and their recorded results remain unchanged.",
+  "started_at": "2026-10-13T03:25:57.961700+00:00"
+}

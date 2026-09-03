@@ -34,11 +34,22 @@ This follows the agreed plan in **Choose a project for YC roles** on October 12,
    [10,000-window synthetic CPU profile](../results/index-profile-2026-10-12/report.md)
    pass; large real-codebase
    indexing/search latency and memory still need measurement with the real model.
-5. **MCP (adapter complete; paired-agent evaluation next):** one stdio
+5. **MCP (adapter and first paired coding pilot complete):** one stdio
    `search_code` tool uses the resident service with strict schemas, cancellation,
    eight-result context, and a default 4,096-token compact `cl100k_base` JSON cap.
-   Measure paired agent tasks with provider-reported tokens and correctness checks;
-   the local context counter does not establish paid-token savings.
+   Six paired repairs now have provider-reported usage, completion time, frozen
+   checks, patches, and independent review. All selected checks pass, but none
+   of the MCP-assigned agents used the tool. Both Click fixes suppress atomic
+   commit failures in a supplemental probe. The
+   [availability pilot](../results/coding-workflows-2026-10-12/report.md) therefore
+   does not demonstrate a retrieval benefit; the local context counter remains
+   separate from actual agent usage.
+   A [separate MCP-first follow-up](../results/coding-workflows-mcp-first-2026-10-12/report.md)
+   runs three more pairs with identical conditional search-first prompts.
+   All three MCP agents use retrieval; both conditions pass the ten-method gate,
+   and both Click patches retain the commit-error defect. MCP uses 7.0% more
+   total tokens and 14.8% more agent time over these reused tasks. Its condition
+   median token count is 6.8% lower; that is not the aggregate workload change.
 6. **VS Code (planned):** search command, result previews, exact navigation, indexing/model
    status, temporary overlay for unsaved edits.
 7. **Beta/release (planned):** external users, reliable installation, language expansion,
@@ -61,18 +72,24 @@ on this authored sample: held-out dense coverage is 19/20 at depth 50, with
 comparisons remain the separate Flask/Requests pilots. Measure candidate coverage,
 useful evidence within the output budget, stale results, memory, and cold/warm
 latency. Initial aspirations: 90% candidate coverage, warm p95 below five seconds,
-30% lower median paid-agent tokens with comparable completion. The paid-agent
-target remains unmeasured. Local inference has no API token charge, but tool calls,
+30% lower median paid-agent tokens with comparable completion. Actual usage is
+now measured, but this target is not established. Local inference has no API token charge, but tool calls,
 returned excerpts, and follow-up reads still consume the agent's tokens.
 
 ## Next milestone
 
-Run paired real coding tasks with the same agent/model and starting commit:
-standard file/keyword tools versus those tools plus MCP `search_code`. Freeze
-task prompts and correctness checks before either condition. Record actual
-provider token usage, completion time, tool calls, and tests; include failures
-and retries rather than counting only successful tasks. Keep source gold hidden
-from the agent. Start with Python repositories and small reproducible tasks.
+Extend the paired coding evaluation to fresh tasks with larger changes and
+multi-file behavior. The first pilot exposes a tool-uptake issue and a gap in
+selected correctness checks. Verify actual tool calls, broaden error-path
+checks before new runs, and repeat pairs to measure agent variance. Keep model,
+prompts, starting bytes, and runtime settings identical within pairs, freeze
+checks before outputs, and retain every attempt. Keep source gold hidden from
+the agent. Reused tasks and any MCP-first workflow instruction need separate
+follow-up results rather than replacing the availability pilot.
+Resolve the observed alpha CLI's failed collaboration-spawn warnings and the
+Starlette test runtime's AnyIO/Trio compatibility problems before the next
+freeze, so unrelated integration work does not dominate small repairs. Expand
+the coding tasks and error-path gates before tuning from these results.
 
 Use those results to decide whether retrieval saves enough work to justify the
 integration. Then implement the VS Code search command, result previews, exact
