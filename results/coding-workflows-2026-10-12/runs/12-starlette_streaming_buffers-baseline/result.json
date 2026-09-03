@@ -1,0 +1,67 @@
+{
+  "agent_elapsed_s": 182.74765708300401,
+  "agent_exit_code": 0,
+  "base_commit": "b19e7ba82d5d58a227eb36e33c33b6cd174e9152",
+  "base_tree_sha256": "eeed0e082785602890bf59696a84fefbfac97dea16159d080df628e6979ef8cb",
+  "changed_files": [
+    "starlette/responses.py",
+    "tests/test_responses.py"
+  ],
+  "command_calls": 18,
+  "completed": true,
+  "completed_correct": true,
+  "condition": "baseline",
+  "correct": true,
+  "end_to_end_s": 183.19446795800468,
+  "errors": [],
+  "failed": false,
+  "grade": {
+    "detail": {
+      "errors": 0,
+      "failures": 0,
+      "passed": true,
+      "skipped": 0,
+      "tests_run": 4
+    },
+    "elapsed_s": 0.1045900419994723,
+    "exit_code": 0,
+    "passed": true,
+    "stderr": "test_async_memoryview_chunks (__main__.StreamingBuffers.test_async_memoryview_chunks) ... ok\ntest_plain_bytes_text_and_empty_iterators_remain_valid (__main__.StreamingBuffers.test_plain_bytes_text_and_empty_iterators_remain_valid) ... ok\ntest_sync_memoryview_and_bytes_are_binary_chunks (__main__.StreamingBuffers.test_sync_memoryview_and_bytes_are_binary_chunks) ... ok\ntest_transport_error_remains_a_client_disconnect (__main__.StreamingBuffers.test_transport_error_remains_a_client_disconnect) ... ok\n\n----------------------------------------------------------------------\nRan 4 tests in 0.015s\n\nOK\n",
+    "stdout": "{\"errors\": 0, \"failures\": 0, \"passed\": true, \"skipped\": 0, \"tests_run\": 4}\n"
+  },
+  "invalid_event_lines": [],
+  "mcp_calls": 0,
+  "mcp_items": [],
+  "patch_sha256": "29b31ea38463927273cdfbe87aa8dfaec470e6dd0a47aad539b07c2372d5dbee",
+  "prompt_sha256": "7aa2e41064614bc8824fe3a436c55d848e375c5356fdd97c0de4f8a712128a16",
+  "published_events_sha256": "f0a9e75b8c09ae4573c3587d865913a4eda34442b49f42751555157f8d4517f3",
+  "raw_events_sha256": "280fc9d8cab1770574949676f41dab9206ab24010e002b93e6d777ad1317daa0",
+  "reported_turns": 1,
+  "run_id": "12-starlette_streaming_buffers-baseline",
+  "seed_grade": {
+    "detail": {
+      "errors": 2,
+      "failures": 0,
+      "passed": false,
+      "skipped": 0,
+      "tests_run": 4
+    },
+    "elapsed_s": 0.072406791994581,
+    "exit_code": 1,
+    "passed": false,
+    "stderr": "test_async_memoryview_chunks (__main__.StreamingBuffers.test_async_memoryview_chunks) ... ERROR\ntest_plain_bytes_text_and_empty_iterators_remain_valid (__main__.StreamingBuffers.test_plain_bytes_text_and_empty_iterators_remain_valid) ... ok\ntest_sync_memoryview_and_bytes_are_binary_chunks (__main__.StreamingBuffers.test_sync_memoryview_and_bytes_are_binary_chunks) ... ERROR\ntest_transport_error_remains_a_client_disconnect (__main__.StreamingBuffers.test_transport_error_remains_a_client_disconnect) ... ok\n\n======================================================================\nERROR: test_async_memoryview_chunks (__main__.StreamingBuffers.test_async_memoryview_chunks)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<HOME>/.local/share/uv/python/cpython-3.12.15-macos-aarch64-none/lib/python3.12/asyncio/runners.py\", line 118, in run\n    return self._loop.run_until_complete(task)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<HOME>/.local/share/uv/python/cpython-3.12.15-macos-aarch64-none/lib/python3.12/asyncio/base_events.py\", line 691, in run_until_complete\n    return future.result()\n           ^^^^^^^^^^^^^^^\n  File \"<PROJECT>/benchmarks/workflow_checks/check_starlette_streaming_buffers.py\", line 43, in test_async_memoryview_chunks\n    messages = await self.stream(chunks())\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<PROJECT>/benchmarks/workflow_checks/check_starlette_streaming_buffers.py\", line 24, in stream\n    await StreamingResponse(content, background=BackgroundTask(completed.append, \"done\"))(\n  File \"<WORKSPACE>/starlette/responses.py\", line 257, in __call__\n    await self.stream_response(send)\n  File \"<WORKSPACE>/starlette/responses.py\", line 247, in stream_response\n    chunk = chunk.encode(self.charset)\n            ^^^^^^^^^^^^\nAttributeError: 'memoryview' object has no attribute 'encode'\n\n======================================================================\nERROR: test_sync_memoryview_and_bytes_are_binary_chunks (__main__.StreamingBuffers.test_sync_memoryview_and_bytes_are_binary_chunks)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<HOME>/.local/share/uv/python/cpython-3.12.15-macos-aarch64-none/lib/python3.12/asyncio/runners.py\", line 118, in run\n    return self._loop.run_until_complete(task)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<HOME>/.local/share/uv/python/cpython-3.12.15-macos-aarch64-none/lib/python3.12/asyncio/base_events.py\", line 691, in run_until_complete\n    return future.result()\n           ^^^^^^^^^^^^^^^\n  File \"<PROJECT>/benchmarks/workflow_checks/check_starlette_streaming_buffers.py\", line 35, in test_sync_memoryview_and_bytes_are_binary_chunks\n    messages = await self.stream(iter([b\"prefix\", view, \"caf\u00e9\"]))\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<PROJECT>/benchmarks/workflow_checks/check_starlette_streaming_buffers.py\", line 24, in stream\n    await StreamingResponse(content, background=BackgroundTask(completed.append, \"done\"))(\n  File \"<WORKSPACE>/starlette/responses.py\", line 257, in __call__\n    await self.stream_response(send)\n  File \"<WORKSPACE>/starlette/responses.py\", line 247, in stream_response\n    chunk = chunk.encode(self.charset)\n            ^^^^^^^^^^^^\nAttributeError: 'memoryview' object has no attribute 'encode'\n\n----------------------------------------------------------------------\nRan 4 tests in 0.014s\n\nFAILED (errors=2)\n",
+    "stdout": "{\"errors\": 2, \"failures\": 0, \"passed\": false, \"skipped\": 0, \"tests_run\": 4}\n"
+  },
+  "setup_s": 0.2969815410033334,
+  "task_id": "starlette_streaming_buffers",
+  "timed_out": false,
+  "usage": {
+    "cache_write_input_tokens": 0,
+    "cached_input_tokens": 205696,
+    "input_tokens": 264896,
+    "output_tokens": 4038,
+    "reasoning_output_tokens": 1381,
+    "total_tokens": 268934,
+    "uncached_input_tokens": 59200
+  }
+}

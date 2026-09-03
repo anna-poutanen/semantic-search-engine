@@ -1,0 +1,202 @@
+{
+  "agent_elapsed_s": 16.61143779201666,
+  "agent_exit_code": 0,
+  "classification": "Post-pilot explicit tool-exposure diagnostic; excluded from paired performance estimates",
+  "cli_version": "codex-cli 0.162.0-alpha.17.2",
+  "command_calls": 0,
+  "common_config": {
+    "approval_policy": "never",
+    "features.apps": false,
+    "features.browser_use": false,
+    "features.browser_use_external": false,
+    "features.computer_use": false,
+    "features.hooks": false,
+    "features.image_generation": false,
+    "features.memories": false,
+    "features.multi_agent": false,
+    "features.multi_agent_v2": false,
+    "features.plugins": false,
+    "features.remote_plugin": false,
+    "features.skill_search": false,
+    "features.skip_host_skill_discovery": true,
+    "features.tool_suggest": false,
+    "features.workspace_dependencies": false,
+    "model_reasoning_effort": "ultra",
+    "project_doc_max_bytes": 0,
+    "service_tier": "default",
+    "skills.bundled.enabled": false,
+    "skills.include_instructions": false,
+    "suppress_unstable_features_warning": true,
+    "web_search": "disabled"
+  },
+  "completed": true,
+  "diagnostic_script_sha256": "9b439549bef79df8e9466bef16697a691f315a3b8645c4199b33d6956fc385c0",
+  "errors": [],
+  "failed": false,
+  "forbidden_embedding_attempts": 0,
+  "forbidden_h2o_attempts": 0,
+  "frozen_pilot_config_sha256": "679ca55260aa75d24e7edf5e588a43d2cc79e727423f9a8ca6fcec9f9f91826d",
+  "http_search_calls": [
+    {
+      "arguments": {
+        "candidates": 4,
+        "include_dependencies": false,
+        "max_results": 3,
+        "request_id": "9429fa4d736b4f1da0248c69ac4c1834",
+        "rerank": false,
+        "retrieval": "bm25",
+        "source_budget": 12000,
+        "token_budget": 4096
+      },
+      "elapsed_s": 0.057089292007731274,
+      "query": "encoded hex checksum",
+      "response": {
+        "available_symbols": 1,
+        "budget_exhausted": false,
+        "candidate_windows": 1,
+        "indexstats": {
+          "deleted_windows": 0,
+          "elapsed_s": 0.018452624994097278,
+          "indexed_windows": 0,
+          "memory_cache_hit": true,
+          "model_fingerprint": null,
+          "reused_windows": 0,
+          "source_files": 1,
+          "source_manifest": "06421975be821e9525c557a07a709eff74311b9567331f1458c6326a4977da47",
+          "total_windows": 3
+        },
+        "match_evidence": {
+          "meaning": "Candidate relevance is not proof that a behavior exists or is absent.",
+          "threshold": null,
+          "top_cosine": null
+        },
+        "match_status": "candidates",
+        "query": "encoded hex checksum",
+        "repo": "<WORKSPACE>",
+        "rerank": false,
+        "results": [
+          {
+            "content_hash": "6f7e414703777c721feb5703e73653a3c54e1058b5e469e1f0004b214d172bca",
+            "end_line": 5,
+            "h2o_score": null,
+            "id": "src/sample.py:encoded_hex_checksum:4-5",
+            "origin": "retrieval",
+            "path": "src/sample.py",
+            "related_to": null,
+            "retrieval_score": 2.1677299850045215,
+            "source": "def encoded_hex_checksum(data):\n    return bytes(data).hex()\n",
+            "source_hash": "6f7e414703777c721feb5703e73653a3c54e1058b5e469e1f0004b214d172bca",
+            "start_line": 4,
+            "symbol": "encoded_hex_checksum",
+            "truncated": false,
+            "window_end_line": 5
+          }
+        ],
+        "retrieval": "bm25",
+        "source_budget": 12000,
+        "source_root": "src",
+        "timings": {
+          "h2o_s": 0.0,
+          "index_s": 0.018452624994097278,
+          "packaging_s": 0.03772900000330992,
+          "query_embedding_s": 0.0,
+          "retrieval_s": 0.0007510829891543835,
+          "total_s": 0.05704741601948626
+        },
+        "token_usage": {
+          "budget": 4096,
+          "encoding": "cl100k_base",
+          "tokens": 143,
+          "truncated": false
+        },
+        "total_source_chars": 61
+      }
+    }
+  ],
+  "invalid_event_lines": [],
+  "local_models": "Embedding and H2O providers replaced with rejecting stubs; lexical-only fixture",
+  "mcp_calls": 1,
+  "mcp_items": [
+    {
+      "arguments": {
+        "include_dependencies": false,
+        "max_results": 3,
+        "query": "encoded hex checksum",
+        "rerank": false,
+        "retrieval": "bm25",
+        "token_budget": 4096
+      },
+      "error": null,
+      "id": "item_1",
+      "result": {
+        "content": [
+          {
+            "text": "{\"query\":\"encoded hex checksum\",\"match_status\":\"candidates\",\"results\":[{\"path\":\"src/sample.py\",\"symbol\":\"encoded_hex_checksum\",\"start_line\":4,\"end_line\":5,\"source\":\"def encoded_hex_checksum(data):\\n    return bytes(data).hex()\\n\",\"source_hash\":\"6f7e414703777c721feb5703e73653a3c54e1058b5e469e1f0004b214d172bca\",\"truncated\":false,\"origin\":\"retrieval\",\"related_to\":null}],\"budget_exhausted\":false,\"token_usage\":{\"encoding\":\"cl100k_base\",\"tokens\":143,\"budget\":4096,\"truncated\":false}}",
+            "type": "text"
+          }
+        ],
+        "structured_content": {
+          "budget_exhausted": false,
+          "match_status": "candidates",
+          "query": "encoded hex checksum",
+          "results": [
+            {
+              "end_line": 5,
+              "origin": "retrieval",
+              "path": "src/sample.py",
+              "related_to": null,
+              "source": "def encoded_hex_checksum(data):\n    return bytes(data).hex()\n",
+              "source_hash": "6f7e414703777c721feb5703e73653a3c54e1058b5e469e1f0004b214d172bca",
+              "start_line": 4,
+              "symbol": "encoded_hex_checksum",
+              "truncated": false
+            }
+          ],
+          "token_usage": {
+            "budget": 4096,
+            "encoding": "cl100k_base",
+            "tokens": 143,
+            "truncated": false
+          }
+        }
+      },
+      "server": "semantic_search",
+      "status": "completed",
+      "tool": "search_code",
+      "type": "mcp_tool_call"
+    }
+  ],
+  "model": "gpt-6.1-sol",
+  "published_events_sha256": "724f892ac0e19971a5ab62fd269c57c01a40cafa065a339bf5617834752235d4",
+  "raw_events_sha256": "fcf9c16416317a4754bbcc83f11e4451822790df2e9569b0662ee7cffec18fa2",
+  "reported_turns": 1,
+  "requested_tool_arguments": {
+    "include_dependencies": false,
+    "max_results": 3,
+    "query": "encoded hex checksum",
+    "rerank": false,
+    "retrieval": "bm25",
+    "token_budget": 4096
+  },
+  "retry_policy": "None",
+  "runtime_collaboration_spawn_failures": 0,
+  "runtime_subagent_hook_warnings": 0,
+  "schema_version": 1,
+  "setup_s": 0.18094754198682494,
+  "started_at": "2026-10-13T03:08:03.336340+00:00",
+  "successful_expected_http_calls": 1,
+  "successful_expected_tool_calls": 1,
+  "timed_out": false,
+  "timeout_s": 180,
+  "tool_exposure_confirmed": true,
+  "usage": {
+    "cache_write_input_tokens": 0,
+    "cached_input_tokens": 29440,
+    "input_tokens": 34142,
+    "output_tokens": 262,
+    "reasoning_output_tokens": 0,
+    "total_tokens": 34404,
+    "uncached_input_tokens": 4702
+  },
+  "working_tree_unchanged": true
+}

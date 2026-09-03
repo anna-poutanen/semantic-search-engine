@@ -1,0 +1,5 @@
+Fixed background callbacks to run in registration order, awaiting each before starting the next.
+
+Regression tests cover mixed sync/async callbacks, execution after response sending, stopping on failure, and empty collections.
+
+Checks: 14 tests passed on asyncio and Trio; `git diff --check` passed. Tests required filtering an existing AnyIO deprecation warning. Ruff was unavailable.
