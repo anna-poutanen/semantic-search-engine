@@ -18,6 +18,7 @@ ROOT = workflows.ROOT
 MANIFEST = Path("benchmarks/coding_workflows_mcp_first.json")
 PROTOCOL = Path("docs/coding-workflow-mcp-first-protocol.md")
 WRAPPER = Path("scripts/run_workflow_followup.py")
+SUPPLEMENTAL_PROBE = Path("scripts/probe_workflow_close_errors.py")
 SOURCE_MANIFEST = Path("benchmarks/coding_workflows.json")
 EXPECTED_TASKS = ("requests_auth_ports", "click_atomic_close", "starlette_background_order")
 IDENTICAL_FIELDS = (
@@ -108,8 +109,10 @@ def freeze(output, work_root, source_config, diagnostic_path):
     for key in IDENTICAL_FIELDS:
         if config.get(key) != source.get(key):
             raise ValueError(f"Follow-up must preserve original configuration field: {key}")
-    artifact_names = [str(WRAPPER), str(PROTOCOL), str(SOURCE_MANIFEST),
-                      relative_artifact(source_config), relative_artifact(diagnostic_path)]
+    original_close_probe = Path(source_config).parent / "close-error-probe.json"
+    artifact_names = [str(WRAPPER), str(PROTOCOL), str(SOURCE_MANIFEST), str(SUPPLEMENTAL_PROBE),
+                      relative_artifact(source_config), relative_artifact(diagnostic_path),
+                      relative_artifact(original_close_probe)]
     config["artifact_sha256"].update({name: workflows.digest(ROOT / name) for name in artifact_names})
     config["followup"] = {
         "classification": "Separate exploratory MCP-first workflow follow-up; do not pool with original pilot or exposure diagnostic",
@@ -123,6 +126,13 @@ def freeze(output, work_root, source_config, diagnostic_path):
         "declared_verifier_methods_per_condition": sum(task["seed_validation"]["reference"]["tests_run"] for task in manifest["tasks"]),
         "reuse": "Original development tasks and check preflight; amended prompts frozen before six new executions",
         "baseline_first_pairs": 2, "mcp_first_pairs": 1,
+        "supplemental_diagnostic": {
+            "script": str(SUPPLEMENTAL_PROBE),
+            "script_sha256": workflows.digest(ROOT / SUPPLEMENTAL_PROBE),
+            "original_evidence": relative_artifact(original_close_probe),
+            "original_evidence_sha256": workflows.digest(original_close_probe),
+            "classification": "Predefined from the original pilot's post-hoc patch review; separate from frozen selected-check labels and performance metrics",
+        },
     }
     workflows.write_json(config_path, config)
     print(f"Follow-up provenance finalized before runs: {config_path}")
