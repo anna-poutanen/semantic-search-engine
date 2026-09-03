@@ -1,0 +1,50 @@
+test_arguments_rejected_without_stream_reads (__main__.NDJSON.test_arguments_rejected_without_stream_reads) ... ok
+test_blank_policy_and_no_phantom_trailing_line (__main__.NDJSON.test_blank_policy_and_no_phantom_trailing_line) ... ERROR
+test_cached_response_and_existing_methods_unchanged (__main__.NDJSON.test_cached_response_and_existing_methods_unchanged) ... ok
+test_crlf_bom_unicode_and_json_primitives (__main__.NDJSON.test_crlf_bom_unicode_and_json_primitives) ... ok
+test_invalid_utf8_and_noninitial_bom_are_contextual_errors (__main__.NDJSON.test_invalid_utf8_and_noninitial_bom_are_contextual_errors) ... ERROR
+test_laziness_and_late_error (__main__.NDJSON.test_laziness_and_late_error) ... ERROR
+test_ordinary_response_methods_are_unchanged_without_new_api (__main__.NDJSON.test_ordinary_response_methods_are_unchanged_without_new_api) ... ok
+test_public_error_identity_and_context (__main__.NDJSON.test_public_error_identity_and_context) ... ERROR
+test_real_session_http_streaming (__main__.NDJSON.test_real_session_http_streaming) ... ok
+
+======================================================================
+ERROR: test_blank_policy_and_no_phantom_trailing_line (__main__.NDJSON.test_blank_policy_and_no_phantom_trailing_line)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/annapoutanen/personal-projects/semantic-search-engine/benchmarks/multifile_checks/check_requests_ndjson.py", line 107, in test_blank_policy_and_no_phantom_trailing_line
+    with self.assertRaises(requests.JSONLineDecodeError) as raised:
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'requests' has no attribute 'JSONLineDecodeError'. Did you mean: 'JSONDecodeError'?
+
+======================================================================
+ERROR: test_invalid_utf8_and_noninitial_bom_are_contextual_errors (__main__.NDJSON.test_invalid_utf8_and_noninitial_bom_are_contextual_errors)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/annapoutanen/personal-projects/semantic-search-engine/benchmarks/multifile_checks/check_requests_ndjson.py", line 117, in test_invalid_utf8_and_noninitial_bom_are_contextual_errors
+    with self.assertRaises(requests.JSONLineDecodeError) as raised:
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'requests' has no attribute 'JSONLineDecodeError'. Did you mean: 'JSONDecodeError'?
+
+======================================================================
+ERROR: test_laziness_and_late_error (__main__.NDJSON.test_laziness_and_late_error)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/annapoutanen/personal-projects/semantic-search-engine/benchmarks/multifile_checks/check_requests_ndjson.py", line 87, in test_laziness_and_late_error
+    with self.assertRaises(requests.JSONLineDecodeError):
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'requests' has no attribute 'JSONLineDecodeError'. Did you mean: 'JSONDecodeError'?
+
+======================================================================
+ERROR: test_public_error_identity_and_context (__main__.NDJSON.test_public_error_identity_and_context)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/annapoutanen/personal-projects/semantic-search-engine/benchmarks/multifile_checks/check_requests_ndjson.py", line 64, in test_public_error_identity_and_context
+    self.assertIs(requests.JSONLineDecodeError, exceptions.JSONLineDecodeError)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'requests' has no attribute 'JSONLineDecodeError'. Did you mean: 'JSONDecodeError'?
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.506s
+
+FAILED (errors=4)
