@@ -63,6 +63,8 @@ def main(argv=None):
     serve.add_argument("--abstention-policy", type=Path, help="Development-calibrated weak-match policy")
     mcp = subparsers.add_parser("mcp", help="Expose search_code over MCP stdio")
     mcp.add_argument("--server", default="http://127.0.0.1:8750")
+    mcp.add_argument("--agent-text-only", action="store_true",
+                     help="Send one compact JSON text copy without structured output")
     for name in ("status", "refresh"):
         command = subparsers.add_parser(name)
         command.add_argument("--server", default="http://127.0.0.1:8750")
@@ -100,7 +102,7 @@ def main(argv=None):
         print(f"Shortlist benchmark saved to {args.output}")
     elif args.command == "mcp":
         from semantic_search.mcp_server import run_mcp
-        run_mcp(args.server)
+        run_mcp(args.server, agent_text_only=args.agent_text_only)
     elif args.command in {"status", "refresh"}:
         from semantic_search.client import SearchClient
         client = SearchClient(args.server)

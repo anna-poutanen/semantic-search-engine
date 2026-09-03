@@ -61,7 +61,12 @@ class CLITests(unittest.TestCase):
     def test_mcp_command_reuses_service_url(self):
         with patch("semantic_search.mcp_server.run_mcp") as run:
             self.call("mcp", "--server", "http://127.0.0.1:9123")
-        run.assert_called_once_with("http://127.0.0.1:9123")
+        run.assert_called_once_with("http://127.0.0.1:9123", agent_text_only=False)
+
+    def test_mcp_command_can_request_one_text_copy(self):
+        with patch("semantic_search.mcp_server.run_mcp") as run:
+            self.call("mcp", "--server", "http://127.0.0.1:9123", "--agent-text-only")
+        run.assert_called_once_with("http://127.0.0.1:9123", agent_text_only=True)
 
     def test_server_search_does_not_create_local_backend_and_transmits_budget(self):
         client = Mock()
