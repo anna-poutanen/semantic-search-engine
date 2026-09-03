@@ -1,0 +1,11 @@
+--- a/src/requests/sessions.py
++++ b/src/requests/sessions.py
+@@ -386,7 +386,7 @@
+ 
+         # Second, if a POST is responded to with a 301, turn it into a GET.
+         # This bizarre behaviour is explained in Issue 1704.
+-        if response.status_code == codes.moved and method == "POST":
++        if response.status_code == codes.moved and method != "HEAD":
+             method = "GET"
+ 
+         prepared_request.method = method

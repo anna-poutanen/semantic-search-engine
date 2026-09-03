@@ -1,0 +1,279 @@
+{
+  "version": 1,
+  "name": "paired MCP coding workflow pilot",
+  "task_kind": "authored_seeded_regression_in_real_pinned_codebase",
+  "selection": "Six source-authored tasks frozen before paired agent runs; existing development corpora, not a held-out generalization sample.",
+  "verification": "External hidden behavioral checks run only after the agent exits; selected regression and negative-control checks, not complete upstream suites.",
+  "tasks": [
+    {
+      "id": "requests_auth_ports",
+      "corpus_id": "requests",
+      "corpus": ".cache/corpora/requests",
+      "repo_url": "https://github.com/psf/requests",
+      "revision": "611c6162cbc4ac2020a2f91c7cfa4f3abf9bbb60",
+      "source_root": "src/requests",
+      "license_path": "benchmarks/REQUESTS_LICENSE.txt",
+      "prompt": "Fix a redirect regression in Requests: an Authorization header is lost when a redirect on the same host switches between an implicit default port and the same explicit default port. Treat HTTP port 80 and HTTPS port 443 as equivalent to their omitted ports, in either direction. Preserve the existing safe standard HTTP-to-HTTPS upgrade behavior. Continue stripping credentials for a different host, a genuinely different port, or an HTTPS-to-HTTP downgrade. Make the smallest focused code fix and add a regression test.",
+      "preparation_patch": "benchmarks/workflow_preparation/requests_auth_ports.patch",
+      "preparation_patch_sha256": "e40626798676c286fe387ee6131177def2f28b9717c359f0b8dcd2d8d869440d",
+      "verification": {
+        "script": "benchmarks/workflow_checks/check_requests_auth_ports.py",
+        "args": [
+          "--repo",
+          "{workspace}"
+        ],
+        "sha256": "bf25470a5bd0f8fd18a474b628d933ba1923fe1f5b6f48ea0719c67a3f84bac7",
+        "shared_helper": "benchmarks/workflow_checks/common.py",
+        "shared_helper_sha256": "493179a43f158d301eaba27469f4143fe3f3328cb69b8864989101b1928c1cd2",
+        "timeout_s": 60
+      },
+      "reference_patch_sha256": "a2d1b0c5d0d4cf399ae432ce94e1635682804d47790bb16970eedebfd1ab0db9",
+      "reference_patch_storage": "ignored evaluator cache; never copied into agent checkout",
+      "seed_validation": {
+        "base": {
+          "errors": 0,
+          "failures": 4,
+          "passed": false,
+          "skipped": 0,
+          "tests_run": 3
+        },
+        "reference": {
+          "errors": 0,
+          "failures": 0,
+          "passed": true,
+          "skipped": 0,
+          "tests_run": 3
+        }
+      },
+      "seed_changes": {
+        "file_count": 1,
+        "description": "Controlled deletion or expression change; reverting the seed restores the pinned upstream behavior."
+      }
+    },
+    {
+      "id": "requests_redirect_methods",
+      "corpus_id": "requests",
+      "corpus": ".cache/corpora/requests",
+      "repo_url": "https://github.com/psf/requests",
+      "revision": "611c6162cbc4ac2020a2f91c7cfa4f3abf9bbb60",
+      "source_root": "src/requests",
+      "license_path": "benchmarks/REQUESTS_LICENSE.txt",
+      "prompt": "Fix a Requests redirect regression: after a 301 response, PUT, PATCH, DELETE, and other non-POST requests are incorrectly resent as GET. For 301, only POST should change to GET; other methods should remain unchanged. Keep the existing 302/303 behavior (rewrite non-HEAD methods to GET), and preserve methods and request bodies for 307/308. Make a focused fix and add a regression test without using live network services.",
+      "preparation_patch": "benchmarks/workflow_preparation/requests_redirect_methods.patch",
+      "preparation_patch_sha256": "1cfefa51a88fdfa72bc5e7b927a2a015eba13e0948bacfc12f2f9765c6737359",
+      "verification": {
+        "script": "benchmarks/workflow_checks/check_requests_redirect_methods.py",
+        "args": [
+          "--repo",
+          "{workspace}"
+        ],
+        "sha256": "f6f672553f0a1895aac1c21cab320d541a3f571cfa28c9655973eb313f0f22d7",
+        "shared_helper": "benchmarks/workflow_checks/common.py",
+        "shared_helper_sha256": "493179a43f158d301eaba27469f4143fe3f3328cb69b8864989101b1928c1cd2",
+        "timeout_s": 60
+      },
+      "reference_patch_sha256": "5211ee727b2fc1f1d2c0828f6578db39a5cfd1e67db1d3982fcef77d6bb54d0e",
+      "reference_patch_storage": "ignored evaluator cache; never copied into agent checkout",
+      "seed_validation": {
+        "base": {
+          "errors": 0,
+          "failures": 4,
+          "passed": false,
+          "skipped": 0,
+          "tests_run": 3
+        },
+        "reference": {
+          "errors": 0,
+          "failures": 0,
+          "passed": true,
+          "skipped": 0,
+          "tests_run": 3
+        }
+      },
+      "seed_changes": {
+        "file_count": 1,
+        "description": "Controlled deletion or expression change; reverting the seed restores the pinned upstream behavior."
+      }
+    },
+    {
+      "id": "click_atomic_close",
+      "corpus_id": "click",
+      "corpus": ".cache/corpora/click",
+      "repo_url": "https://github.com/pallets/click",
+      "revision": "934813e4d421071a1b3db3973c02fe2721359a6e",
+      "source_root": "src/click",
+      "license_path": "benchmarks/CLICK_LICENSE.txt",
+      "prompt": "Fix a Click regression in command output handling: when an output option uses lazy opening and atomic writes, a successful command writes to a temporary file but the destination is never replaced when the command finishes. Ensure command cleanup closes output files that Click opened so atomic writes become visible after the command completes. Preserve lazy behavior: an output that the callback never uses should not be created. Ordinary lazy output files should also be closed. Make a focused fix and add a regression test.",
+      "preparation_patch": "benchmarks/workflow_preparation/click_atomic_close.patch",
+      "preparation_patch_sha256": "b2c8927ae6ffb430a1c871f7d53f1616f14cfbd4ec225335f62c7ef9b5202e52",
+      "verification": {
+        "script": "benchmarks/workflow_checks/check_click_atomic_close.py",
+        "args": [
+          "--repo",
+          "{workspace}"
+        ],
+        "sha256": "22b109b0786f0f983ae6a935e2bd5950b8aed291bf0443597fbe71eda5f9c5b8",
+        "shared_helper": "benchmarks/workflow_checks/common.py",
+        "shared_helper_sha256": "493179a43f158d301eaba27469f4143fe3f3328cb69b8864989101b1928c1cd2",
+        "timeout_s": 60
+      },
+      "reference_patch_sha256": "704216a367c18e730e51aea5768a3dc9d09f9e18cfd2b9c869c2454904530898",
+      "reference_patch_storage": "ignored evaluator cache; never copied into agent checkout",
+      "seed_validation": {
+        "base": {
+          "errors": 1,
+          "failures": 2,
+          "passed": false,
+          "skipped": 0,
+          "tests_run": 4
+        },
+        "reference": {
+          "errors": 0,
+          "failures": 0,
+          "passed": true,
+          "skipped": 0,
+          "tests_run": 4
+        }
+      },
+      "seed_changes": {
+        "file_count": 1,
+        "description": "Controlled deletion or expression change; reverting the seed restores the pinned upstream behavior."
+      }
+    },
+    {
+      "id": "click_file_paths",
+      "corpus_id": "click",
+      "corpus": ".cache/corpora/click",
+      "repo_url": "https://github.com/pallets/click",
+      "revision": "934813e4d421071a1b3db3973c02fe2721359a6e",
+      "source_root": "src/click",
+      "license_path": "benchmarks/CLICK_LICENSE.txt",
+      "prompt": "Fix a Click path-validation regression: a command argument configured to accept an existing file and disallow directories currently accepts an existing directory and runs the callback. Reject such a directory with the normal usage error before running the callback. Keep accepting existing files, directories when they are explicitly allowed, and missing paths when existence is optional. Make a focused fix and add a regression test.",
+      "preparation_patch": "benchmarks/workflow_preparation/click_file_paths.patch",
+      "preparation_patch_sha256": "18d6558a08eb28bd2b799c8c524e78ee100387a3d5fe8b00c06a459a74e4a25c",
+      "verification": {
+        "script": "benchmarks/workflow_checks/check_click_file_paths.py",
+        "args": [
+          "--repo",
+          "{workspace}"
+        ],
+        "sha256": "a0d0829c7acc4cb08f3d1de946803d0e07ba07d91932b19162552dd18a4281ca",
+        "shared_helper": "benchmarks/workflow_checks/common.py",
+        "shared_helper_sha256": "493179a43f158d301eaba27469f4143fe3f3328cb69b8864989101b1928c1cd2",
+        "timeout_s": 60
+      },
+      "reference_patch_sha256": "81c2d8e4fc4f5c05f2d0dcc4af928e6374c20ef38b7606881d144c3a1140599b",
+      "reference_patch_storage": "ignored evaluator cache; never copied into agent checkout",
+      "seed_validation": {
+        "base": {
+          "errors": 0,
+          "failures": 1,
+          "passed": false,
+          "skipped": 0,
+          "tests_run": 4
+        },
+        "reference": {
+          "errors": 0,
+          "failures": 0,
+          "passed": true,
+          "skipped": 0,
+          "tests_run": 4
+        }
+      },
+      "seed_changes": {
+        "file_count": 1,
+        "description": "Controlled deletion or expression change; reverting the seed restores the pinned upstream behavior."
+      }
+    },
+    {
+      "id": "starlette_background_order",
+      "corpus_id": "starlette",
+      "corpus": ".cache/corpora/starlette",
+      "repo_url": "https://github.com/encode/starlette",
+      "revision": "4d72fd87ea1c358691a19468168f7217d8ca6a87",
+      "source_root": "starlette",
+      "license_path": "benchmarks/STARLETTE_LICENSE.txt",
+      "prompt": "Fix a Starlette regression: multiple callbacks scheduled after a response are running in reverse registration order. Run them in the order they were added, awaiting each callback before starting the next, for both synchronous and asynchronous callbacks. They must still run after the response is sent, and if one fails, later callbacks should not run. Keep an empty callback collection valid. Make a focused fix and add a regression test.",
+      "preparation_patch": "benchmarks/workflow_preparation/starlette_background_order.patch",
+      "preparation_patch_sha256": "46f27cd2b12bb7cd7794cb71b02d26455b23c481c71af7fe6ecc6c3638d72be8",
+      "verification": {
+        "script": "benchmarks/workflow_checks/check_starlette_background_order.py",
+        "args": [
+          "--repo",
+          "{workspace}"
+        ],
+        "sha256": "8eecfbd28049c5b5e1987401f95beb9d6f3a2bd210a65c38e86994a95bef3c6f",
+        "shared_helper": "benchmarks/workflow_checks/common.py",
+        "shared_helper_sha256": "493179a43f158d301eaba27469f4143fe3f3328cb69b8864989101b1928c1cd2",
+        "timeout_s": 60
+      },
+      "reference_patch_sha256": "f4d65a880a0a8d718ecf5ef70a2574f876683ca5b52a3f327bebe87b8f909131",
+      "reference_patch_storage": "ignored evaluator cache; never copied into agent checkout",
+      "seed_validation": {
+        "base": {
+          "errors": 0,
+          "failures": 3,
+          "passed": false,
+          "skipped": 0,
+          "tests_run": 3
+        },
+        "reference": {
+          "errors": 0,
+          "failures": 0,
+          "passed": true,
+          "skipped": 0,
+          "tests_run": 3
+        }
+      },
+      "seed_changes": {
+        "file_count": 1,
+        "description": "Controlled deletion or expression change; reverting the seed restores the pinned upstream behavior."
+      }
+    },
+    {
+      "id": "starlette_streaming_buffers",
+      "corpus_id": "starlette",
+      "corpus": ".cache/corpora/starlette",
+      "repo_url": "https://github.com/encode/starlette",
+      "revision": "4d72fd87ea1c358691a19468168f7217d8ca6a87",
+      "source_root": "starlette",
+      "license_path": "benchmarks/STARLETTE_LICENSE.txt",
+      "prompt": "Fix a Starlette streaming regression: an iterator that yields memoryview chunks crashes instead of delivering its binary contents. Support memoryview chunks from both synchronous and asynchronous iterators, while continuing to accept bytes and encode text as UTF-8. Preserve the final empty response-body event and run the response's completion callback after streaming finishes. Keep transport errors reported as client disconnects. Make a focused fix and add a regression test.",
+      "preparation_patch": "benchmarks/workflow_preparation/starlette_streaming_buffers.patch",
+      "preparation_patch_sha256": "18a324ca702bd54c8cde15dd9f37fcc36e90cf7d51cabb02c4c749598ca32c08",
+      "verification": {
+        "script": "benchmarks/workflow_checks/check_starlette_streaming_buffers.py",
+        "args": [
+          "--repo",
+          "{workspace}"
+        ],
+        "sha256": "c686edaa4cd399ccadf265630b3be98ba954bba8a406ecdad3e06b9484ebaf5b",
+        "shared_helper": "benchmarks/workflow_checks/common.py",
+        "shared_helper_sha256": "493179a43f158d301eaba27469f4143fe3f3328cb69b8864989101b1928c1cd2",
+        "timeout_s": 60
+      },
+      "reference_patch_sha256": "e5cbc306b2a736d47b66d0a412b21c6a382ebf17de38986a89b5d7d1dfac2f44",
+      "reference_patch_storage": "ignored evaluator cache; never copied into agent checkout",
+      "seed_validation": {
+        "base": {
+          "errors": 2,
+          "failures": 0,
+          "passed": false,
+          "skipped": 0,
+          "tests_run": 4
+        },
+        "reference": {
+          "errors": 0,
+          "failures": 0,
+          "passed": true,
+          "skipped": 0,
+          "tests_run": 4
+        }
+      },
+      "seed_changes": {
+        "file_count": 1,
+        "description": "Controlled deletion or expression change; reverting the seed restores the pinned upstream behavior."
+      }
+    }
+  ]
+}
