@@ -1,0 +1,117 @@
+diff --git a/starlette/background.py b/starlette/background.py
+index c629136..0430fc0 100644
+--- a/starlette/background.py
++++ b/starlette/background.py
+@@ -37,5 +37,5 @@ class BackgroundTasks(BackgroundTask):
+         self.tasks.append(task)
+ 
+     async def __call__(self) -> None:
+-        for task in reversed(self.tasks):
++        for task in self.tasks:
+             await task()
+diff --git a/tests/test_background.py b/tests/test_background.py
+index 48f3487..aeccf5d 100644
+--- a/tests/test_background.py
++++ b/tests/test_background.py
+@@ -1,8 +1,9 @@
++import anyio
+ import pytest
+ 
+ from starlette.background import BackgroundTask, BackgroundTasks
+ from starlette.responses import Response
+-from starlette.types import Receive, Scope, Send
++from starlette.types import Message, Receive, Scope, Send
+ from tests.types import TestClientFactory
+ 
+ 
+@@ -65,25 +66,80 @@ def test_multiple_tasks(test_client_factory: TestClientFactory) -> None:
+     assert TASK_COUNTER == 1 + 2 + 3
+ 
+ 
++def test_multiple_tasks_run_in_order(test_client_factory: TestClientFactory) -> None:
++    events: list[str] = []
++
++    def sync_task(name: str) -> None:
++        events.append(f"{name} started")
++        events.append(f"{name} finished")
++
++    async def async_task(name: str) -> None:
++        events.append(f"{name} started")
++        await anyio.sleep(0)
++        events.append(f"{name} finished")
++
++    async def app(scope: Scope, receive: Receive, send: Send) -> None:
++        async def record_send(message: Message) -> None:
++            await send(message)
++            events.append(message["type"])
++
++        tasks = BackgroundTasks([BackgroundTask(sync_task, "first")])
++        tasks.add_task(async_task, name="second")
++        tasks.add_task(sync_task, "third")
++        tasks.add_task(async_task, name="fourth")
++        response = Response("tasks initiated", media_type="text/plain", background=tasks)
++        await response(scope, receive, record_send)
++
++    client = test_client_factory(app)
++    response = client.get("/")
++    assert response.text == "tasks initiated"
++    assert events == [
++        "http.response.start",
++        "http.response.body",
++        "first started",
++        "first finished",
++        "second started",
++        "second finished",
++        "third started",
++        "third finished",
++        "fourth started",
++        "fourth finished",
++    ]
++
++
++def test_empty_tasks(test_client_factory: TestClientFactory) -> None:
++    response = Response("no tasks", media_type="text/plain", background=BackgroundTasks())
++    client = test_client_factory(response)
++    assert client.get("/").text == "no tasks"
++
++
++@pytest.mark.parametrize("is_async", [False, True])
+ def test_multi_tasks_failure_avoids_next_execution(
+     test_client_factory: TestClientFactory,
++    is_async: bool,
+ ) -> None:
+-    TASK_COUNTER = 0
++    events: list[str] = []
+ 
+-    def increment() -> None:
+-        nonlocal TASK_COUNTER
+-        TASK_COUNTER += 1
+-        if TASK_COUNTER == 1:  # pragma: no branch
+-            raise Exception("task failed")
++    def record(name: str) -> None:
++        events.append(name)
++
++    def fail() -> None:
++        events.append("failed")
++        raise RuntimeError("task failed")
++
++    async def async_fail() -> None:
++        await anyio.sleep(0)
++        fail()
+ 
+     async def app(scope: Scope, receive: Receive, send: Send) -> None:
+         tasks = BackgroundTasks()
+-        tasks.add_task(increment)
+-        tasks.add_task(increment)
++        tasks.add_task(record, "first")
++        tasks.add_task(async_fail if is_async else fail)
++        tasks.add_task(record, "last")
+         response = Response("tasks initiated", media_type="text/plain", background=tasks)
+         await response(scope, receive, send)
+ 
+     client = test_client_factory(app)
+-    with pytest.raises(Exception):
++    with pytest.raises(RuntimeError, match="task failed"):
+         client.get("/")
+-    assert TASK_COUNTER == 1
++    assert events == ["first", "failed"]

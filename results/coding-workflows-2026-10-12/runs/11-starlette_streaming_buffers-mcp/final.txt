@@ -1,0 +1,5 @@
+Fixed streaming responses to accept `memoryview` chunks from synchronous and asynchronous iterators, while preserving bytes and UTF-8 text encoding.
+
+Added regression coverage for the final empty body event, completion callback ordering, and transport errors becoming `ClientDisconnect`.
+
+Checks: 70 relevant tests passed on asyncio; `git diff --check` passed. Trio was excluded due to an existing AnyIO/Trio incompatibility, and an unrelated dependency deprecation warning was narrowly filtered.

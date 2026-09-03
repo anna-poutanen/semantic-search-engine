@@ -1,0 +1,89 @@
+diff --git a/starlette/responses.py b/starlette/responses.py
+index 3eda4ef..31874f6 100644
+--- a/starlette/responses.py
++++ b/starlette/responses.py
+@@ -243,7 +243,7 @@ class StreamingResponse(Response):
+             }
+         )
+         async for chunk in self.body_iterator:
+-            if not isinstance(chunk, bytes):
++            if not isinstance(chunk, (bytes, memoryview)):
+                 chunk = chunk.encode(self.charset)
+             await send({"type": "http.response.body", "body": chunk, "more_body": True})
+ 
+diff --git a/tests/test_responses.py b/tests/test_responses.py
+index d5ed834..af6e2f3 100644
+--- a/tests/test_responses.py
++++ b/tests/test_responses.py
+@@ -540,6 +540,48 @@ def test_streaming_response_memoryview(test_client_factory: TestClientFactory) -
+     assert response.content == b"\xc0\xf5"
+ 
+ 
++@pytest.mark.anyio
++@pytest.mark.parametrize("is_async", [False, True], ids=["sync", "async"])
++@pytest.mark.parametrize("spec_version", ["2.0", "2.4"])
++async def test_streaming_response_mixed_chunks(is_async: bool, spec_version: str) -> None:
++    chunks: list[str | bytes | memoryview] = [memoryview(b"\xc0"), b"\x00", "café", memoryview(b"\xf5")]
++    messages: list[Message] = []
++    background_calls = 0
++
++    async def async_chunks() -> AsyncIterator[str | bytes | memoryview]:
++        for chunk in chunks:
++            yield chunk
++
++    async def receive() -> Message:
++        await anyio.sleep_forever()
++        return {"type": "http.disconnect"}  # pragma: no cover
++
++    async def send(message: Message) -> None:
++        assert background_calls == 0
++        messages.append(message)
++
++    async def on_complete() -> None:
++        nonlocal background_calls
++        assert messages[-1] == {"type": "http.response.body", "body": b"", "more_body": False}
++        background_calls += 1
++
++    response = StreamingResponse(
++        content=async_chunks() if is_async else iter(chunks), background=BackgroundTask(on_complete)
++    )
++    with anyio.fail_after(1):
++        await response({"type": "http", "asgi": {"spec_version": spec_version}}, receive, send)
++
++    assert messages == [
++        {"type": "http.response.start", "status": 200, "headers": []},
++        {"type": "http.response.body", "body": b"\xc0", "more_body": True},
++        {"type": "http.response.body", "body": b"\x00", "more_body": True},
++        {"type": "http.response.body", "body": b"caf\xc3\xa9", "more_body": True},
++        {"type": "http.response.body", "body": b"\xf5", "more_body": True},
++        {"type": "http.response.body", "body": b"", "more_body": False},
++    ]
++    assert background_calls == 1
++
++
+ @pytest.mark.anyio
+ async def test_streaming_response_stops_if_receiving_http_disconnect() -> None:
+     streamed = 0
+@@ -572,7 +614,8 @@ async def test_streaming_response_stops_if_receiving_http_disconnect() -> None:
+ 
+ 
+ @pytest.mark.anyio
+-async def test_streaming_response_on_client_disconnects() -> None:
++@pytest.mark.parametrize("chunk", [b"chunk", memoryview(b"chunk")], ids=["bytes", "memoryview"])
++async def test_streaming_response_on_client_disconnects(chunk: bytes | memoryview) -> None:
+     chunks = bytearray()
+     streamed = False
+ 
+@@ -588,10 +631,10 @@ async def test_streaming_response_on_client_disconnects() -> None:
+             else:
+                 raise OSError
+ 
+-    async def stream_indefinitely() -> AsyncGenerator[bytes, None]:
++    async def stream_indefinitely() -> AsyncGenerator[bytes | memoryview, None]:
+         while True:
+             await anyio.sleep(0)
+-            yield b"chunk"
++            yield chunk
+ 
+     stream = stream_indefinitely()
+     response = StreamingResponse(content=stream)

@@ -1,0 +1,51 @@
+diff --git a/src/click/types.py b/src/click/types.py
+index fc12526..5b035b3 100644
+--- a/src/click/types.py
++++ b/src/click/types.py
+@@ -720,6 +720,9 @@ class File(ParamType):
+                     value, self.mode, self.encoding, self.errors, atomic=self.atomic
+                 )
+ 
++                if ctx is not None:
++                    ctx.call_on_close(safecall(lf.close_intelligently))
++
+                 return t.cast(t.IO[t.Any], lf)
+ 
+             f, should_close = open_stream(
+diff --git a/tests/test_options.py b/tests/test_options.py
+index 7397f36..7e78ba7 100644
+--- a/tests/test_options.py
++++ b/tests/test_options.py
+@@ -358,6 +358,32 @@ def test_file_type_help_default():
+     assert __file__ in result
+ 
+ 
++@pytest.mark.parametrize("atomic", [False, True])
++@pytest.mark.parametrize("use_output", [False, True])
++def test_lazy_file_option_cleanup(runner, tmp_path, atomic, use_output):
++    path = tmp_path / "output.txt"
++
++    @click.command()
++    @click.option("--output", type=click.File("w", lazy=True, atomic=atomic))
++    def cli(output):
++        if use_output:
++            output.write("Hello!\n")
++        return output
++
++    result = runner.invoke(
++        cli, ["--output", str(path)], standalone_mode=False, catch_exceptions=False
++    )
++    assert result.exit_code == 0
++
++    if use_output:
++        assert result.return_value.closed
++        assert path.read_text() == "Hello!\n"
++    else:
++        assert not path.exists()
++
++    assert not list(tmp_path.glob(".__atomic-write*"))
++
++
+ def test_toupper_envvar_prefix(runner):
+     @click.command()
+     @click.option("--arg")
