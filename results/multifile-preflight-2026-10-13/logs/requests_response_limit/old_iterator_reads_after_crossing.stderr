@@ -1,0 +1,36 @@
+test_inheritance_override_disable_and_exact_boundary (__main__.ResponseLimits.test_inheritance_override_disable_and_exact_boundary) ... ok
+test_invalid_values_fail_before_transport (__main__.ResponseLimits.test_invalid_values_fail_before_transport) ... ok
+test_legacy_default_session_remains_unbounded (__main__.ResponseLimits.test_legacy_default_session_remains_unbounded) ... ok
+test_limit_error_survives_cleanup_failure_with_diagnostics (__main__.ResponseLimits.test_limit_error_survives_cleanup_failure_with_diagnostics) ... ok
+test_live_budget_cannot_be_reset_by_another_iterator_or_content (__main__.ResponseLimits.test_live_budget_cannot_be_reset_by_another_iterator_or_content) ... 
+  test_live_budget_cannot_be_reset_by_another_iterator_or_content (__main__.ResponseLimits.test_live_budget_cannot_be_reset_by_another_iterator_or_content) (second_read='iterator') ... FAIL
+  test_live_budget_cannot_be_reset_by_another_iterator_or_content (__main__.ResponseLimits.test_live_budget_cannot_be_reset_by_another_iterator_or_content) (second_read='content') ... FAIL
+test_module_helpers_and_legacy_default_sessions (__main__.ResponseLimits.test_module_helpers_and_legacy_default_sessions) ... ok
+test_prepared_send_and_session_pickle_preserve_setting (__main__.ResponseLimits.test_prepared_send_and_session_pickle_preserve_setting) ... ok
+test_public_error_and_eager_session_context (__main__.ResponseLimits.test_public_error_and_eager_session_context) ... ok
+test_real_http_gzip_limit_counts_decoded_bytes (__main__.ResponseLimits.test_real_http_gzip_limit_counts_decoded_bytes) ... ok
+test_redirect_responses_each_receive_the_same_budget (__main__.ResponseLimits.test_redirect_responses_each_receive_the_same_budget) ... ok
+test_response_hooks_and_cached_content_do_not_bypass_limit (__main__.ResponseLimits.test_response_hooks_and_cached_content_do_not_bypass_limit) ... ok
+test_stream_never_delivers_the_crossing_chunk (__main__.ResponseLimits.test_stream_never_delivers_the_crossing_chunk) ... ok
+test_zero_rejects_nonempty_and_header_is_not_a_size_oracle (__main__.ResponseLimits.test_zero_rejects_nonempty_and_header_is_not_a_size_oracle) ... ok
+
+======================================================================
+FAIL: test_live_budget_cannot_be_reset_by_another_iterator_or_content (__main__.ResponseLimits.test_live_budget_cannot_be_reset_by_another_iterator_or_content) (second_read='iterator')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/annapoutanen/personal-projects/semantic-search-engine/benchmarks/multifile_checks/check_requests_response_limit.py", line 153, in test_live_budget_cannot_be_reset_by_another_iterator_or_content
+    self.assertEqual(r.raw.reads, 2)
+AssertionError: 3 != 2
+
+======================================================================
+FAIL: test_live_budget_cannot_be_reset_by_another_iterator_or_content (__main__.ResponseLimits.test_live_budget_cannot_be_reset_by_another_iterator_or_content) (second_read='content')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/annapoutanen/personal-projects/semantic-search-engine/benchmarks/multifile_checks/check_requests_response_limit.py", line 153, in test_live_budget_cannot_be_reset_by_another_iterator_or_content
+    self.assertEqual(r.raw.reads, 2)
+AssertionError: 3 != 2
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.508s
+
+FAILED (failures=2)

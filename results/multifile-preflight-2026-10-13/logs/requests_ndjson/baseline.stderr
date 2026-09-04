@@ -1,0 +1,138 @@
+test_arguments_rejected_without_stream_reads (__main__.NDJSON.test_arguments_rejected_without_stream_reads) ... 
+  test_arguments_rejected_without_stream_reads (__main__.NDJSON.test_arguments_rejected_without_stream_reads) (kwargs={'chunk_size': 0}) ... ERROR
+  test_arguments_rejected_without_stream_reads (__main__.NDJSON.test_arguments_rejected_without_stream_reads) (kwargs={'chunk_size': -1}) ... ERROR
+  test_arguments_rejected_without_stream_reads (__main__.NDJSON.test_arguments_rejected_without_stream_reads) (kwargs={'chunk_size': True}) ... ERROR
+  test_arguments_rejected_without_stream_reads (__main__.NDJSON.test_arguments_rejected_without_stream_reads) (kwargs={'chunk_size': 1.5}) ... ERROR
+  test_arguments_rejected_without_stream_reads (__main__.NDJSON.test_arguments_rejected_without_stream_reads) (kwargs={'skip_blank': 0}) ... ERROR
+test_blank_policy_and_no_phantom_trailing_line (__main__.NDJSON.test_blank_policy_and_no_phantom_trailing_line) ... ERROR
+test_cached_response_and_existing_methods_unchanged (__main__.NDJSON.test_cached_response_and_existing_methods_unchanged) ... ERROR
+test_crlf_bom_unicode_and_json_primitives (__main__.NDJSON.test_crlf_bom_unicode_and_json_primitives) ... 
+  test_crlf_bom_unicode_and_json_primitives (__main__.NDJSON.test_crlf_bom_unicode_and_json_primitives) (chunks=1) ... ERROR
+  test_crlf_bom_unicode_and_json_primitives (__main__.NDJSON.test_crlf_bom_unicode_and_json_primitives) (chunks=40) ... ERROR
+test_invalid_utf8_and_noninitial_bom_are_contextual_errors (__main__.NDJSON.test_invalid_utf8_and_noninitial_bom_are_contextual_errors) ... ERROR
+test_laziness_and_late_error (__main__.NDJSON.test_laziness_and_late_error) ... ERROR
+test_ordinary_response_methods_are_unchanged_without_new_api (__main__.NDJSON.test_ordinary_response_methods_are_unchanged_without_new_api) ... ok
+test_public_error_identity_and_context (__main__.NDJSON.test_public_error_identity_and_context) ... ERROR
+test_real_session_http_streaming (__main__.NDJSON.test_real_session_http_streaming) ... ERROR
+
+======================================================================
+ERROR: test_arguments_rejected_without_stream_reads (__main__.NDJSON.test_arguments_rejected_without_stream_reads) (kwargs={'chunk_size': 0})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/annapoutanen/personal-projects/semantic-search-engine/benchmarks/multifile_checks/check_requests_ndjson.py", line 133, in test_arguments_rejected_without_stream_reads
+    list(r.iter_json_lines(**kwargs))
+         ^^^^^^^^^^^^^^^^^
+AttributeError: 'Response' object has no attribute 'iter_json_lines'
+
+======================================================================
+ERROR: test_arguments_rejected_without_stream_reads (__main__.NDJSON.test_arguments_rejected_without_stream_reads) (kwargs={'chunk_size': -1})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/annapoutanen/personal-projects/semantic-search-engine/benchmarks/multifile_checks/check_requests_ndjson.py", line 133, in test_arguments_rejected_without_stream_reads
+    list(r.iter_json_lines(**kwargs))
+         ^^^^^^^^^^^^^^^^^
+AttributeError: 'Response' object has no attribute 'iter_json_lines'
+
+======================================================================
+ERROR: test_arguments_rejected_without_stream_reads (__main__.NDJSON.test_arguments_rejected_without_stream_reads) (kwargs={'chunk_size': True})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/annapoutanen/personal-projects/semantic-search-engine/benchmarks/multifile_checks/check_requests_ndjson.py", line 133, in test_arguments_rejected_without_stream_reads
+    list(r.iter_json_lines(**kwargs))
+         ^^^^^^^^^^^^^^^^^
+AttributeError: 'Response' object has no attribute 'iter_json_lines'
+
+======================================================================
+ERROR: test_arguments_rejected_without_stream_reads (__main__.NDJSON.test_arguments_rejected_without_stream_reads) (kwargs={'chunk_size': 1.5})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/annapoutanen/personal-projects/semantic-search-engine/benchmarks/multifile_checks/check_requests_ndjson.py", line 133, in test_arguments_rejected_without_stream_reads
+    list(r.iter_json_lines(**kwargs))
+         ^^^^^^^^^^^^^^^^^
+AttributeError: 'Response' object has no attribute 'iter_json_lines'
+
+======================================================================
+ERROR: test_arguments_rejected_without_stream_reads (__main__.NDJSON.test_arguments_rejected_without_stream_reads) (kwargs={'skip_blank': 0})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/annapoutanen/personal-projects/semantic-search-engine/benchmarks/multifile_checks/check_requests_ndjson.py", line 133, in test_arguments_rejected_without_stream_reads
+    list(r.iter_json_lines(**kwargs))
+         ^^^^^^^^^^^^^^^^^
+AttributeError: 'Response' object has no attribute 'iter_json_lines'
+
+======================================================================
+ERROR: test_blank_policy_and_no_phantom_trailing_line (__main__.NDJSON.test_blank_policy_and_no_phantom_trailing_line)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/annapoutanen/personal-projects/semantic-search-engine/benchmarks/multifile_checks/check_requests_ndjson.py", line 101, in test_blank_policy_and_no_phantom_trailing_line
+    list(response([b"1\n"]).iter_json_lines(skip_blank=False)), [1]
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'Response' object has no attribute 'iter_json_lines'
+
+======================================================================
+ERROR: test_cached_response_and_existing_methods_unchanged (__main__.NDJSON.test_cached_response_and_existing_methods_unchanged)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/annapoutanen/personal-projects/semantic-search-engine/benchmarks/multifile_checks/check_requests_ndjson.py", line 140, in test_cached_response_and_existing_methods_unchanged
+    self.assertEqual(list(r.iter_json_lines(chunk_size=1)), [1, 2])
+                          ^^^^^^^^^^^^^^^^^
+AttributeError: 'Response' object has no attribute 'iter_json_lines'
+
+======================================================================
+ERROR: test_crlf_bom_unicode_and_json_primitives (__main__.NDJSON.test_crlf_bom_unicode_and_json_primitives) (chunks=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/annapoutanen/personal-projects/semantic-search-engine/benchmarks/multifile_checks/check_requests_ndjson.py", line 95, in test_crlf_bom_unicode_and_json_primitives
+    list(response(chunks).iter_json_lines()),
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'Response' object has no attribute 'iter_json_lines'
+
+======================================================================
+ERROR: test_crlf_bom_unicode_and_json_primitives (__main__.NDJSON.test_crlf_bom_unicode_and_json_primitives) (chunks=40)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/annapoutanen/personal-projects/semantic-search-engine/benchmarks/multifile_checks/check_requests_ndjson.py", line 95, in test_crlf_bom_unicode_and_json_primitives
+    list(response(chunks).iter_json_lines()),
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'Response' object has no attribute 'iter_json_lines'
+
+======================================================================
+ERROR: test_invalid_utf8_and_noninitial_bom_are_contextual_errors (__main__.NDJSON.test_invalid_utf8_and_noninitial_bom_are_contextual_errors)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/annapoutanen/personal-projects/semantic-search-engine/benchmarks/multifile_checks/check_requests_ndjson.py", line 115, in test_invalid_utf8_and_noninitial_bom_are_contextual_errors
+    it = r.iter_json_lines()
+         ^^^^^^^^^^^^^^^^^
+AttributeError: 'Response' object has no attribute 'iter_json_lines'
+
+======================================================================
+ERROR: test_laziness_and_late_error (__main__.NDJSON.test_laziness_and_late_error)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/annapoutanen/personal-projects/semantic-search-engine/benchmarks/multifile_checks/check_requests_ndjson.py", line 82, in test_laziness_and_late_error
+    it = r.iter_json_lines(chunk_size=2)
+         ^^^^^^^^^^^^^^^^^
+AttributeError: 'Response' object has no attribute 'iter_json_lines'
+
+======================================================================
+ERROR: test_public_error_identity_and_context (__main__.NDJSON.test_public_error_identity_and_context)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/annapoutanen/personal-projects/semantic-search-engine/benchmarks/multifile_checks/check_requests_ndjson.py", line 64, in test_public_error_identity_and_context
+    self.assertIs(requests.JSONLineDecodeError, exceptions.JSONLineDecodeError)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'requests' has no attribute 'JSONLineDecodeError'. Did you mean: 'JSONDecodeError'?
+
+======================================================================
+ERROR: test_real_session_http_streaming (__main__.NDJSON.test_real_session_http_streaming)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/annapoutanen/personal-projects/semantic-search-engine/benchmarks/multifile_checks/check_requests_ndjson.py", line 164, in test_real_session_http_streaming
+    self.assertEqual(list(r.iter_json_lines(chunk_size=1)), [{"x": "ø"}, 2])
+                          ^^^^^^^^^^^^^^^^^
+AttributeError: 'Response' object has no attribute 'iter_json_lines'
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.508s
+
+FAILED (errors=13)
