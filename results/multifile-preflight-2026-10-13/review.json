@@ -1,30 +1,31 @@
 {
-  "schema_version": 1,
-  "scope": "Independent pre-freeze contract/oracle review, CPU only",
   "audit_artifact": "results/multifile-preflight-2026-10-13/audit.json",
-  "audit_sha256": "aca0d00f4e38a805515501e5f3f32174d61f4f1a22aece5679b558dfab5dcb3f",
-  "manifest_sha256": "e2274eae067bb4c13bd5730fdf84f34adc8ff04bd9d9dc8e76be48dfa189acac",
-  "prompts_reviewed_against_all_four_checkers": true,
-  "hidden_implementation_shape_requirement_found_and_removed": "Starlette replay must preserve bytes, not force coalescing. Valid alternate replay independently accepted.",
-  "remaining_review_blockers": [],
-  "original_test_integrity": "All four task inventories (149 entries, including duplicated Requests inventory) match pinned upstream before/after checks; no original test or test-configuration edits.",
+  "audit_sha256": "912dcb45d2ef8bfc2887f3ac1b6dad050c104acd1d5f3e0b63f4056891056935",
   "baseline_failure_review": "All baseline contract failures were intended absent public APIs/classes or Click rollback/exception cleanup behavior. All selected original upstream suites separately pass on pristine and reference implementations with exact expected counts.",
+  "hidden_implementation_shape_requirement_found_and_removed": "Starlette replay must preserve bytes, not force coalescing. Valid alternate replay independently accepted.",
+  "hidden_implementation_shape_requirements_found_and_removed": [
+    "Starlette replay chunk coalescing",
+    "Click private temporary filename prefix and deletion API choice"
+  ],
   "import_origin_review": "Fresh process checks and checker common.checkout both select each explicit evaluated checkout; no global package fallback.",
-  "partial_mutant_review": {
-    "single_or_omit_file_rejections": 28,
-    "behavioral_oracle_rejections": 20,
-    "incomplete_module_import_rejections": 8,
-    "semantic_rejections": 5,
-    "valid_alternative_accepted": 3
-  },
   "limitations": [
     "Authored features in existing development repositories; no independent repository holdout.",
     "Selected explicit-contract methods and original upstream selections do not prove all library behavior.",
     "Import-failing partial repairs establish required layer linkage; they are reported separately from behavioral mutant failures."
   ],
+  "manifest_sha256": "e2274eae067bb4c13bd5730fdf84f34adc8ff04bd9d9dc8e76be48dfa189acac",
+  "original_audit_sha256": "aca0d00f4e38a805515501e5f3f32174d61f4f1a22aece5679b558dfab5dcb3f",
+  "original_test_integrity": "All four task inventories (149 entries, including duplicated Requests inventory) match pinned upstream before/after checks; no original test or test-configuration edits.",
+  "partial_mutant_review": {
+    "behavioral_oracle_rejections": 20,
+    "incomplete_module_import_rejections": 8,
+    "semantic_rejections": 5,
+    "single_or_omit_file_rejections": 28,
+    "valid_alternative_accepted": 3
+  },
+  "prompts_reviewed_against_all_four_checkers": true,
   "reference_storage": "Only ignored evaluator copies; never copied into coding fixtures or MCP indexes.",
-  "hidden_implementation_shape_requirements_found_and_removed": [
-    "Starlette replay chunk coalescing",
-    "Click private temporary filename prefix and deletion API choice"
-  ]
+  "remaining_review_blockers": [],
+  "schema_version": 1,
+  "scope": "Independent pre-freeze contract/oracle review, CPU only"
 }
