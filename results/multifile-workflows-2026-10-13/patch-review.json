@@ -1,0 +1,611 @@
+{
+  "classification": "Post-output qualitative correctness and regression-quality review; frozen formal grades unchanged",
+  "independent_supplemental_scope_review": "Root accepted response terminal-read/cleanup requirements, including notes or implicit/explicit exception chaining, and rare Click suppressing-resource rollback violation; see supplemental-probe-revisions.json",
+  "method": "Read completed public production/test patches and final claims; exercise added tests in fresh pinned-archive candidate copies and after restoring only production source. No feedback to agents, hosted calls, or models.",
+  "runs": [
+    {
+      "claim_review": {
+        "evidence": "155 new tests;13+6 existing tests passed with1 pre-existing expected failure. Final recorded lint and formatting checks pass after correcting two earlier new-test lint findings.",
+        "unsupported_claims": []
+      },
+      "condition": "baseline",
+      "issues": [],
+      "limitations": [
+        "Selected external/original suites and added tests do not prove all Requests behavior. This qualitative review does not modify formal grades."
+      ],
+      "original_upstream_checks_passed": true,
+      "patch_sha256": "b30f15ad339d66525ed86e71d65d0269968784c71319025db8ef4592b63493b8",
+      "regression_tests": {
+        "changed_or_deleted_original_tests": [],
+        "coverage_review": "Meaningful new regression cases and actual local HTTP tests; no existing tests or configuration weakened.",
+        "new_files": [
+          "tests/test_json_lines.py"
+        ]
+      },
+      "repetition": 1,
+      "run_id": "01-r1-requests_ndjson-baseline",
+      "selected_check_detail": {
+        "errors": 0,
+        "failures": 0,
+        "passed": true,
+        "skipped": 0,
+        "tests_run": 9
+      },
+      "selected_hidden_checks_passed": true,
+      "summary": "No material contract defect found. Three coordinated source edits implement incremental NDJSON with UTF-8/BOM handling and contextual errors. New tests cover chunk boundaries, caching, argument validation, malformed late lines and real chunked/gzip HTTP consumption.",
+      "task_id": "requests_ndjson",
+      "test_checks": {
+        "artifact": "patch-review-checks/01-r1-requests_ndjson-baseline.json",
+        "candidate": {
+          "deselected": 0,
+          "errors": 0,
+          "failed": 0,
+          "passed": 155,
+          "skipped": 0,
+          "xfailed": 0,
+          "xpassed": 0
+        },
+        "restored_production": {
+          "deselected": 0,
+          "errors": 0,
+          "failed": 155,
+          "passed": 0,
+          "skipped": 0,
+          "xfailed": 0,
+          "xpassed": 0
+        }
+      }
+    },
+    {
+      "claim_review": {
+        "evidence": "Final commands reproduce170 new tests and14 existing tests with1 pre-existing expected failure; earlier new-test lint findings corrected and final lint/format/diff clean.",
+        "unsupported_claims": []
+      },
+      "condition": "mcp",
+      "issues": [],
+      "limitations": [
+        "No full-library correctness claim; restored-production run demonstrates missing-feature collection failure rather than170 independent failing cases. Supplemental review does not modify frozen grades."
+      ],
+      "original_upstream_checks_passed": true,
+      "patch_sha256": "3cc8bbb4a20f726a51eae4eff83a34557859f6b8640e7f8b709dc0448c720c5b",
+      "regression_tests": {
+        "changed_or_deleted_original_tests": [],
+        "coverage_review": "Meaningful feature and local HTTP coverage; original tests/configuration preserved.",
+        "new_files": [
+          "tests/test_json_lines.py",
+          "tests/test_json_lines_http.py"
+        ]
+      },
+      "repetition": 1,
+      "run_id": "02-r1-requests_ndjson-mcp",
+      "selected_check_detail": {
+        "errors": 0,
+        "failures": 0,
+        "passed": true,
+        "skipped": 0,
+        "tests_run": 9
+      },
+      "selected_hidden_checks_passed": true,
+      "summary": "No material contract defect found. Three coordinated source edits provide lazy UTF-8 NDJSON records and contextual errors. Two new test files cover incremental chunks, long records, final CR bytes, BOM placement, cached replay, decoder value semantics and real gzip/chunked HTTP.",
+      "task_id": "requests_ndjson",
+      "test_checks": {
+        "artifact": "patch-review-checks/02-r1-requests_ndjson-mcp.json",
+        "candidate": {
+          "deselected": 0,
+          "errors": 0,
+          "failed": 0,
+          "passed": 170,
+          "skipped": 0,
+          "xfailed": 0,
+          "xpassed": 0
+        },
+        "restored_limit": "Original source lacks the new exception imported by tests, causing one collection error;170 individual restored cases therefore did not execute.",
+        "restored_production": {
+          "deselected": 0,
+          "errors": 1,
+          "failed": 0,
+          "passed": 0,
+          "skipped": 0,
+          "xfailed": 0,
+          "xpassed": 0
+        }
+      }
+    },
+    {
+      "claim_review": {
+        "evidence": "Final claims match preserved command outcomes:128 new tests;49 selected original Requests cases plus26 lowlevel/testserver/hooks/adapters cases, with1 skipped and1 expected failure. An earlier76-failure/52-pass new-test execution was corrected before final128-pass reruns. Final Ruff lint/format and diff checks pass. Independent candidate clone reproduces128 new passes.",
+        "unsupported_claims": []
+      },
+      "condition": "mcp",
+      "issues": [
+        {
+          "case": "buffered_iter_lines_after_breach",
+          "classification": "Confirmed supplemental contract defect",
+          "contract": "Stop subsequent reads: later read APIs must raise ResponseTooLarge without reading further.",
+          "detail": "iter_lines(chunk_size=4) over a\\nb\\ncdef first yields a. content then raises ResponseTooLarge at8 bytes over5. next(existing_lines) yields b instead of raising; raw read count stays2.",
+          "evidence": "supplemental-response-edges/03-r1-requests_response_limit-mcp.json",
+          "shared_reference_failure": true
+        },
+        {
+          "case": "context_manager_cleanup_preserves_size_error",
+          "classification": "Confirmed supplemental contract defect",
+          "contract": "If close itself fails, preserve ResponseTooLarge and expose cleanup failure through notes or chaining.",
+          "detail": "A response context invokes close again after size-check cleanup fails. Outer error becomes OSError rather than ResponseTooLarge; two close attempts.",
+          "evidence": "supplemental-response-edges/03-r1-requests_response_limit-mcp.json",
+          "shared_reference_failure": true
+        }
+      ],
+      "limitations": [
+        "Seven changed production paths include exports, type declarations and documentation; deep implementation coordination is concentrated in models, sessions, hooks and exceptions.",
+        "Selected hidden/original suites and new tests do not prove all Requests behavior. Restored production demonstrates missing-feature collection failure rather than128 independent failures. Supplemental review does not modify formal grades."
+      ],
+      "original_upstream_checks_passed": true,
+      "patch_sha256": "c24656ed6ea4d2ecfbd44e374c0ba261a227e351d306222455c682e51afc40da",
+      "production_files_changed": 7,
+      "regression_tests": {
+        "changed_or_deleted_original_tests": [],
+        "coverage_review": "Meaningful feature/state-transition and loopback HTTP tests; no original tests or configuration changed or weakened.",
+        "new_files": [
+          "tests/test_response_limits.py",
+          "tests/test_response_limits_integration.py"
+        ]
+      },
+      "repetition": 1,
+      "run_id": "03-r1-requests_response_limit-mcp",
+      "selected_check_detail": {
+        "errors": 0,
+        "failures": 0,
+        "passed": true,
+        "skipped": 0,
+        "tests_run": 13
+      },
+      "selected_hidden_checks_passed": true,
+      "summary": "Two supplemental prompt-contract defects confirmed despite both frozen gates passing. Buffered iter_lines can deliver an old line after another read breaches the budget; a response context can mask ResponseTooLarge with a second failing close. The withheld reference fails both same probes, exposing gaps in the selected checker. The remaining cumulative-budget, redirect, hook, decompression and public API implementation passed its selected/original suites and128 authored tests.",
+      "supplemental_probes": {
+        "buffered_iter_lines_after_breach": false,
+        "cached_iterator_after_lower_limit_breach": true,
+        "context_manager_cleanup_preserves_size_error": false
+      },
+      "task_id": "requests_response_limit",
+      "test_checks": {
+        "artifact": "patch-review-checks/03-r1-requests_response_limit-mcp.json",
+        "candidate": {
+          "deselected": 0,
+          "errors": 0,
+          "failed": 0,
+          "passed": 128,
+          "skipped": 0,
+          "xfailed": 0,
+          "xpassed": 0
+        },
+        "restored_limit": "Original source lacks the newly imported ResponseTooLarge exception, causing two collection errors. The 128 individual cases did not execute on restored production.",
+        "restored_production": {
+          "deselected": 0,
+          "errors": 2,
+          "failed": 0,
+          "passed": 0,
+          "skipped": 0,
+          "xfailed": 0,
+          "xpassed": 0
+        }
+      }
+    },
+    {
+      "claim_review": {
+        "evidence": "No final agent message was emitted before the900-second timeout. Preserved terminal patch and independently cloned tests provide the review evidence.",
+        "final_claim_available": false,
+        "unsupported_claims": []
+      },
+      "condition": "baseline",
+      "frozen_completed_correct": false,
+      "frozen_correct": true,
+      "issues": [
+        {
+          "case": "buffered_iter_lines_after_breach",
+          "classification": "Confirmed supplemental contract defect",
+          "contract": "Later read APIs must raise ResponseTooLarge after crossing.",
+          "detail": "A suspended iter_lines reader yields a buffered line after another API breaches the response budget. The candidate own added regression also fails.",
+          "evidence": "supplemental-response-edges/04-r1-requests_response_limit-baseline.json",
+          "shared_reference_failure": true
+        },
+        {
+          "case": "cached_iterator_after_lower_limit_breach",
+          "classification": "Confirmed supplemental contract defect",
+          "contract": "Subsequent reads must stop after first crossing.",
+          "detail": "A cached iter_content iterator created before a later lower-budget request returns the same response yields a byte after that request breaches the budget. The candidate own added regression also fails.",
+          "evidence": "supplemental-response-edges/04-r1-requests_response_limit-baseline.json",
+          "shared_reference_failure": false
+        }
+      ],
+      "limitations": [
+        "Formal source gates pass but the attempt did not finish and reports no turn.completed actual usage. Do not impute zero tokens or present it as completed-correct.",
+        "Supplemental probes were selected after first outputs, applied unchanged to reference and all applicable retained attempts; formal grades and study subsets remain unchanged."
+      ],
+      "original_upstream_checks_passed": true,
+      "patch_sha256": "975151790f43b6c6f3a94ec015151f60e1a2d8d551a2e460272c38e9ea5807b3",
+      "production_files_changed": 7,
+      "regression_tests": {
+        "changed_or_deleted_original_tests": [],
+        "coverage_review": "Meaningful state-transition and local HTTP regressions. Two deliberately stricter terminal-reader tests remain failing at timeout; no tests weakened or skipped to conceal them.",
+        "new_files": [
+          "tests/test_response_limits.py",
+          "tests/test_response_limits_http.py"
+        ]
+      },
+      "repetition": 1,
+      "run_id": "04-r1-requests_response_limit-baseline",
+      "selected_check_detail": {
+        "errors": 0,
+        "failures": 0,
+        "passed": true,
+        "skipped": 0,
+        "tests_run": 13
+      },
+      "selected_hidden_checks_passed": true,
+      "summary": "Retained timed-out attempt passes both frozen source grades, but completed_correct=false and reported usage is unavailable. Its two new test files contain129 cases:127 pass and2 fail on the terminal patch. Supplemental probes confirm buffered-line and already-created cached-iterator terminal failures; response-context cleanup preservation passes. All original tests and configuration remain unchanged.",
+      "supplemental_probes": {
+        "buffered_iter_lines_after_breach": false,
+        "cached_iterator_after_lower_limit_breach": false,
+        "context_manager_cleanup_preserves_size_error": true
+      },
+      "task_id": "requests_response_limit",
+      "test_checks": {
+        "artifact": "patch-review-checks/04-r1-requests_response_limit-baseline.json",
+        "candidate": {
+          "deselected": 0,
+          "errors": 0,
+          "failed": 2,
+          "passed": 127,
+          "skipped": 0,
+          "xfailed": 0,
+          "xpassed": 0
+        },
+        "restored_limit": "Original source lacks ResponseTooLarge, causing one collection error;129 individual cases did not execute on restored production.",
+        "restored_production": {
+          "deselected": 0,
+          "errors": 1,
+          "failed": 0,
+          "passed": 0,
+          "skipped": 0,
+          "xfailed": 0,
+          "xpassed": 0
+        }
+      }
+    },
+    {
+      "claim_review": {
+        "evidence": "No final agent testing claim was emitted before the900-second timeout. Independent fresh candidate clone reproduces240 authored passes; frozen restored-original suite passes307/1.",
+        "final_claim_available": false,
+        "unsupported_claims": []
+      },
+      "condition": "baseline",
+      "frozen_completed_correct": false,
+      "frozen_correct": true,
+      "issues": [
+        {
+          "case": "suppressing_registered_resource",
+          "classification": "Confirmed supplemental contract defect; narrow suppressing-resource interaction accepted by independent root scope review",
+          "detail": "For eager/lazy/default-lazy files, callback registers contextlib.suppress(ValueError), writes updated, and raises ValueError. CLI preserves that exception and exits1, but destination becomes updated rather than original.",
+          "evidence": "supplemental-click-resources/05-r1-click_atomic_transactions-baseline.json",
+          "scope": "The callback exception remains primary and CLI exits1, so explicit failed-callback rollback applies. Another truthy suppressing resource clears ExitStack state before the atomic file exits; this is a rare interaction, not ordinary callback failure behavior.",
+          "shared_reference_failure": true
+        }
+      ],
+      "limitations": [
+        "All observed selected/original/authored checks passing does not prove every Click resource interaction. The agent did not finish, and actual terminal usage is unavailable.",
+        "Supplemental qualitative review does not amend formal grades or impute missing usage."
+      ],
+      "original_upstream_checks_passed": true,
+      "patch_sha256": "0be768f35181f70160205970be8632f40f1f745341032dab4dc9079eeae94ebe",
+      "production_files_changed": 4,
+      "regression_tests": {
+        "changed_or_deleted_original_tests": [],
+        "coverage_review": "Broad parameterized direct/CLI, text/binary, eager/default/lazy, existing/new destinations, exit-code, permission and cleanup tests; separate nested context-resource checks. No existing tests/configuration weakened.",
+        "new_files": [
+          "tests/test_atomic_transactions.py",
+          "tests/test_context_resources.py"
+        ]
+      },
+      "repetition": 1,
+      "run_id": "05-r1-click_atomic_transactions-baseline",
+      "selected_check_detail": {
+        "errors": 0,
+        "failures": 0,
+        "passed": true,
+        "skipped": 0,
+        "tests_run": 9
+      },
+      "selected_hidden_checks_passed": true,
+      "summary": "Four coordinated source edits and240 authored tests pass both frozen source grades; agent nonetheless timed out at900seconds without final message or reported usage. A supplemental public-resource interaction is confirmed: registering a contextlib.suppress resource makes the atomic file commit even though the callback exception remains primary and CLI exits1. Withheld reference shows the same behavior; independent root scope review accepts the narrow interaction as a failed-callback rollback violation.",
+      "supplemental_probes": {
+        "artifact": "supplemental-click-resources.json",
+        "default_lazy": false,
+        "eager": false,
+        "lazy": false
+      },
+      "task_id": "click_atomic_transactions",
+      "test_checks": {
+        "artifact": "patch-review-checks/05-r1-click_atomic_transactions-baseline.json",
+        "candidate": {
+          "deselected": 0,
+          "errors": 0,
+          "failed": 0,
+          "passed": 240,
+          "skipped": 0,
+          "xfailed": 0,
+          "xpassed": 0
+        },
+        "restored_limit": "153 restored-production failures and87 passes show many new transactional/context behaviors are absent upstream while control behavior is retained.",
+        "restored_production": {
+          "deselected": 0,
+          "errors": 0,
+          "failed": 153,
+          "passed": 87,
+          "skipped": 0,
+          "xfailed": 0,
+          "xpassed": 0
+        }
+      }
+    },
+    {
+      "claim_review": {
+        "evidence": "Final full-suite claim879passed22skipped1expectedfailure matches preserved command output; separate252new-case reruns and354selected original passes are recorded. Final Ruff/diff pass. Independent fresh clone reproduces252 authored passes.",
+        "final_claim_available": true,
+        "unsupported_claims": []
+      },
+      "condition": "mcp",
+      "frozen_completed_correct": true,
+      "frozen_correct": true,
+      "issues": [
+        {
+          "case": "suppressing_registered_resource",
+          "classification": "Confirmed supplemental contract defect; narrow interaction accepted by independent root scope review",
+          "detail": "Across eager/lazy/default-lazy files, a newly registered contextlib.suppress(ValueError) clears ExitStack error state before the older atomic resource exits. CLI still exits1 with the original callback exception, but destination becomes updated.",
+          "evidence": "supplemental-click-resources/06-r1-click_atomic_transactions-mcp.json",
+          "scope": "Explicit rollback on a failing callback applies because the command still fails. This does not imply ordinary callback failures commit.",
+          "shared_reference_failure": true
+        }
+      ],
+      "limitations": [
+        "Full observed upstream suite plus authored tests still misses the newly demonstrated suppressing-resource interaction. Supplemental checks do not modify frozen source grades.",
+        "Recorded resource probe examines a specific rare combination, not every Click context/exception ordering."
+      ],
+      "original_upstream_checks_passed": true,
+      "patch_sha256": "1b11100b4de9a96d4c5d8311fd3e7d39892c5a971ff6fc804a9a0bbb666f99dd",
+      "production_files_changed": 4,
+      "regression_tests": {
+        "changed_or_deleted_original_tests": [],
+        "coverage_review": "Meaningful direct/CLI, argument/option, text/binary, permission, descriptor closure, lazy-unused, commit/abort/cleanup, non-atomic and nested-resource coverage. No original tests or configuration changed.",
+        "new_files": [
+          "tests/test_atomic_transactions.py",
+          "tests/test_context_transactions.py"
+        ]
+      },
+      "repetition": 1,
+      "run_id": "06-r1-click_atomic_transactions-mcp",
+      "selected_check_detail": {
+        "errors": 0,
+        "failures": 0,
+        "passed": true,
+        "skipped": 0,
+        "tests_run": 9
+      },
+      "selected_hidden_checks_passed": true,
+      "summary": "Four coordinated source edits implement direct/lazy/CLI atomic transactions, public zero-code exit success, cleanup diagnostics and context-stack restoration. Both frozen source grades and252 authored tests pass; normal completion and reported usage are present. The fixed supplemental suppressing-resource probe nevertheless confirms the same rare failed-callback commit as05 and the withheld reference.",
+      "supplemental_probes": {
+        "artifact": "supplemental-click-resources.json",
+        "default_lazy": false,
+        "eager": false,
+        "lazy": false
+      },
+      "task_id": "click_atomic_transactions",
+      "test_checks": {
+        "artifact": "patch-review-checks/06-r1-click_atomic_transactions-mcp.json",
+        "candidate": {
+          "deselected": 0,
+          "errors": 0,
+          "failed": 0,
+          "passed": 252,
+          "skipped": 0,
+          "xfailed": 0,
+          "xpassed": 0
+        },
+        "restored_limit": "142 failures and110 passes under restored production show changed feature behavior against retained control cases.",
+        "restored_production": {
+          "deselected": 0,
+          "errors": 0,
+          "failed": 142,
+          "passed": 110,
+          "skipped": 0,
+          "xfailed": 0,
+          "xpassed": 0
+        }
+      }
+    },
+    {
+      "claim_review": {
+        "evidence": "Final claim113new and213existing passes with2skip/2expectedfailures matches preserved testing commands; Ruff/diff pass. Independent candidate clone reproduces113 new passes. Frozen original-restoration suite separately passes269/2.",
+        "final_claim_available": true,
+        "unsupported_claims": []
+      },
+      "condition": "mcp",
+      "frozen_completed_correct": true,
+      "frozen_correct": true,
+      "issues": [],
+      "limitations": [
+        "Neither the selected/original suites nor authored examples establish exhaustive ASGI correctness. Rejected partial-body rereads are explicitly outside this task contract.",
+        "Supplemental qualitative review does not modify frozen grades or provider usage."
+      ],
+      "original_upstream_checks_passed": true,
+      "patch_sha256": "52663fe171abb32df89cc97cc2b49eef7d8b06b1849a1c67feda6609a6384dc8",
+      "production_files_changed": 3,
+      "regression_tests": {
+        "changed_or_deleted_original_tests": [],
+        "coverage_review": "Meaningful observed-byte/header decoys, zero/exact limits, cached stricter bounds, validation, disconnect, receive ordering, replay, disabled limits, scopes and endpoint-error integration; all original tests/configuration preserved.",
+        "new_files": [
+          "tests/middleware/test_body_limit.py",
+          "tests/test_request_body_limits.py"
+        ]
+      },
+      "repetition": 1,
+      "run_id": "07-r1-starlette_body_limits-mcp",
+      "selected_check_detail": {
+        "errors": 0,
+        "failures": 0,
+        "passed": true,
+        "skipped": 0,
+        "tests_run": 10
+      },
+      "selected_hidden_checks_passed": true,
+      "summary": "No material prompt-contract defect found. Three source edits add observed-byte limits to body caching, a public413 error with first-crossing counts, and middleware that buffers bounded HTTP bodies before downstream invocation, replays accepted bytes then delegates receives, and bypasses disabled/non-HTTP requests.113 new cases include direct receive streams and original HTTPTestClient integration across asyncio/Trio.",
+      "task_id": "starlette_body_limits",
+      "test_checks": {
+        "artifact": "patch-review-checks/07-r1-starlette_body_limits-mcp.json",
+        "candidate": {
+          "deselected": 0,
+          "errors": 0,
+          "failed": 0,
+          "passed": 113,
+          "skipped": 0,
+          "xfailed": 0,
+          "xpassed": 0
+        },
+        "restored_limit": "Two missing-feature collection errors on restored production, rather than113 independently executed failing cases.",
+        "restored_production": {
+          "deselected": 0,
+          "errors": 2,
+          "failed": 0,
+          "passed": 0,
+          "skipped": 0,
+          "xfailed": 0,
+          "xpassed": 0
+        }
+      }
+    },
+    {
+      "claim_review": {
+        "evidence": "No final agent claim emitted. Retained patch is empty; provider/runtime failure details remain in run events/stderr and independent receipt/runtime audit.",
+        "final_claim_available": false,
+        "unsupported_claims": []
+      },
+      "condition": "baseline",
+      "frozen_completed_correct": false,
+      "frozen_correct": false,
+      "issues": [],
+      "limitations": [
+        "Missing-feature grade after a no-edit infrastructure failure is not an implementation correctness diagnosis or evidence that baseline retrieval could not locate code.",
+        "No usage reported; preserve this failed attempt and do not assign zero tokens or silently replace it."
+      ],
+      "original_upstream_checks_passed": true,
+      "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "production_files_changed": 0,
+      "regression_tests": {
+        "changed_or_deleted_original_tests": [],
+        "coverage_review": "No changes to source, tests or configuration.",
+        "new_files": []
+      },
+      "repetition": 1,
+      "run_id": "08-r1-starlette_body_limits-baseline",
+      "selected_check_detail": {
+        "errors": 16,
+        "failures": 0,
+        "passed": false,
+        "skipped": 0,
+        "tests_run": 10
+      },
+      "selected_hidden_checks_passed": false,
+      "summary": "Attempt ended with agent exit1 after about32seconds and made no source/test changes. Selected feature checks fail because the new API, exception and middleware are absent; original compatibility checks pass on pristine upstream. No patch or authored test exists to review, no final claim or actual terminal usage is available.",
+      "task_id": "starlette_body_limits",
+      "test_checks": {
+        "artifact": "patch-review-checks/08-r1-starlette_body_limits-baseline.json",
+        "not_executed": "No added Python test files or candidate production edits"
+      }
+    },
+    {
+      "claim_review": {
+        "evidence": "Final108new+16existing pass claim with1 expectedfailure matches retained commands; final Ruff/diff pass. Independent fresh clone reproduces108 new passes, selected9 and restored-original257/13 checks pass.",
+        "final_claim_available": true,
+        "unsupported_claims": []
+      },
+      "condition": "mcp",
+      "frozen_completed_correct": true,
+      "frozen_correct": true,
+      "issues": [],
+      "limitations": [
+        "No full Requests correctness claim is inferred from selected or authored tests. Restored production missing-feature collection failure is not108 independent behavioral failures."
+      ],
+      "original_upstream_checks_passed": true,
+      "patch_sha256": "55d2fed1144fc6b39cecda44d279486ef55e1cd846b7162cf0b9b1316078a669",
+      "production_files_changed": 3,
+      "regression_tests": {
+        "changed_or_deleted_original_tests": [],
+        "coverage_review": "Meaningful decoder, laziness, transport and compatibility tests; originals/configuration preserved.",
+        "new_files": [
+          "tests/test_json_lines.py",
+          "tests/test_json_lines_integration.py"
+        ]
+      },
+      "repetition": 2,
+      "run_id": "09-r2-requests_ndjson-mcp",
+      "selected_check_detail": {
+        "errors": 0,
+        "failures": 0,
+        "passed": true,
+        "skipped": 0,
+        "tests_run": 9
+      },
+      "selected_hidden_checks_passed": true,
+      "summary": "No material prompt-contract defect found. Three source edits add lazy physical-line NDJSON decoding with UTF-8/BOM/delimiter handling, immediate argument validation and contextual public errors; ordinary response methods retain source implementation. Two new regression files cover chunks, Unicode, cached reads, malformed late records, real gzip/chunked HTTP and a first record available before the server finishes its body.",
+      "task_id": "requests_ndjson",
+      "test_checks": {
+        "artifact": "patch-review-checks/09-r2-requests_ndjson-mcp.json",
+        "candidate": {
+          "deselected": 0,
+          "errors": 0,
+          "failed": 0,
+          "passed": 108,
+          "skipped": 0,
+          "xfailed": 0,
+          "xpassed": 0
+        },
+        "restored_limit": "Restored upstream lacks the new exception imported by one test file; one collection error prevents individual108-case execution.",
+        "restored_production": {
+          "deselected": 0,
+          "errors": 1,
+          "failed": 0,
+          "passed": 0,
+          "skipped": 0,
+          "xfailed": 0,
+          "xpassed": 0
+        }
+      }
+    }
+  ],
+  "schema_version": 1,
+  "status": "partial",
+  "summary": {
+    "attempts_with_confirmed_supplemental_defects": 4,
+    "attempts_without_candidate_edits": 1,
+    "candidate_added_tests_failed": 2,
+    "candidate_added_tests_passed": 1293,
+    "confirmed_interactions_pending_contract_scope_review": 0,
+    "material_issues": 6,
+    "original_test_weakening": 0,
+    "restored_production_added_tests_failed": 450,
+    "restored_production_collection_errors": 7,
+    "reviewed_attempts": 9,
+    "scheduled_attempts": 16,
+    "supplemental_reference_distinct_behaviors": 3,
+    "supplemental_reference_failure_cases_by_task": {
+      "click_atomic_transactions": 3,
+      "requests_response_limit": 2
+    },
+    "supplemental_reference_failures": 5,
+    "unsupported_test_claims": 0
+  },
+  "supplemental_artifact": "supplemental-response-edges.json",
+  "supplemental_artifacts": [
+    "supplemental-response-edges.json",
+    "supplemental-click-resources.json"
+  ]
+}
