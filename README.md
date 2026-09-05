@@ -304,7 +304,7 @@ models and real loopback/subprocess transports without checkpoint inference. Run
 
 ```bash
 .cache/bootstrap/bin/uv pip install --python .venv/bin/python -e '.[mcp,test]'
-.venv/bin/python -m unittest discover -s tests -v
+.venv/bin/python -m pytest -q
 ```
 
 The actual model experiment needs the Mac runtime. Runtime package versions are

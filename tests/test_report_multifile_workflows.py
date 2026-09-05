@@ -276,6 +276,40 @@ class MultifileReportTests(unittest.TestCase):
             self.assertEqual(row["status"], "incorrect_or_incomplete")
             self.assertEqual(row["flags"], [])
 
+    def test_capacity_failure_keeps_failed_attempt_and_missing_usage(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            study, _ = fixture(Path(temporary), timeout=True)
+            records = reporter.read_json(study / "results.json")
+            record = next(row for row in records if row["timed_out"])
+            record.update(timed_out=False, failed=True, agent_exit_code=1, changed_files=[])
+            directory = study / "runs" / record["run_id"]
+            message = "Selected model is at capacity. Please try a different model."
+            events = [{"type": "error", "message": message}, {"type": "turn.failed", "error": {"message": message}}]
+            (directory / "events.jsonl").write_text("".join(json.dumps(event) + "\n" for event in events))
+            record.update(command_calls=0, mcp_calls=0)
+            record["artifact_sha256"]["published"]["events.jsonl"] = reporter.digest(directory / "events.jsonl")
+            save(study / "results.json", records)
+            result = reporter.build_report(study)
+            row = next(row for row in result["runs"] if row.get("run_id") == record["run_id"])
+            self.assertEqual(row["status"], "provider_capacity_failure")
+            self.assertEqual(row["failure_messages"], [message])
+            self.assertIsNone(row["usage"])
+            self.assertFalse(row["completed_correct"])
+            self.assertEqual(result["scheduled_attempts"], 16)
+            self.assertEqual(len(result["pairs"]), 8)
+
+    def test_supplemental_defects_do_not_rewrite_frozen_pair_qualifications(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            study, _ = fixture(Path(temporary))
+            record = reporter.read_json(study / "results.json")[0]
+            save(study / "patch-review.json", {"runs": [{"run_id": record["run_id"], "summary": "A later probe found a defect.",
+                "issues": [{"classification": "Confirmed supplemental contract defect", "case": "terminal_read", "shared_reference_failure": True}]}]})
+            result = reporter.build_report(study)
+            self.assertEqual(result["confirmed_supplemental_defects"]["affected_formally_completed_correct_attempts"], 1)
+            self.assertEqual(result["confirmed_supplemental_defects"]["shared_reference_issue_instances"], 1)
+            self.assertTrue(all(pair["correctness_qualified"] for pair in result["pairs"]))
+            self.assertIn("Frozen green gates", reporter.render_markdown(result))
+
 
 if __name__ == "__main__":
     unittest.main()
