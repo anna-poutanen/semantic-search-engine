@@ -1,0 +1,68 @@
+{
+  "version": 1,
+  "name": "Source-authored JavaScript and TypeScript retrieval labels",
+  "freeze_status": "Independent source semantic review recorded; actual extractor/source-byte eligibility and runtime freeze required before inference",
+  "selection": "Express development and Zod repository/language holdout assigned before retrieval outputs; neither corpus is a paired coding-workflow task.",
+  "datasets": [
+    {
+      "id": "express",
+      "role": "development",
+      "language": "javascript",
+      "dataset": "benchmarks/express_language_queries.json",
+      "sha256": "9147af679d20774952023b81987c5e57bcfaf945b607760b3b464ce0ebadf633",
+      "corpus": ".cache/corpora/express",
+      "repo_url": "https://github.com/expressjs/express",
+      "revision": "cf6722bf89a86905281d9160b6482e08166b5ef0",
+      "release": "v5.3.0",
+      "source_root": "lib",
+      "source_exclusions": [],
+      "license_path": "benchmarks/EXPRESS_LICENSE.txt",
+      "license_sha256": "95a5762890e5c1c9808921cef095661fc482c5e1f0bba31446ac85595df6237c",
+      "queries": 15,
+      "present_queries": 12,
+      "absent_queries": 3,
+      "multi_file_and_queries": 4,
+      "required_evidence_groups": 19,
+      "gold_target_rows": 20
+    },
+    {
+      "id": "zod",
+      "role": "repository_holdout",
+      "language": "typescript",
+      "dataset": "benchmarks/zod_language_queries.json",
+      "sha256": "ddd2ca006c97a47aac89cf3f9b18a0563fa79afc5a528186653d42fd3b98b1ba",
+      "corpus": ".cache/corpora/zod",
+      "repo_url": "https://github.com/colinhacks/zod",
+      "revision": "b500a2ee95134f81d74da7911d7378dd2853d042",
+      "release": "v4.6.7",
+      "source_root": "packages/zod/src/v4",
+      "source_exclusions": [
+        "**/tests/**",
+        "**/*.test.ts",
+        "**/*.test.tsx",
+        "**/*.d.ts"
+      ],
+      "license_path": "benchmarks/ZOD_LICENSE.txt",
+      "license_sha256": "3f1189b28e3866e0d979968d466b78f813f76827cfdca1fbb124cc0a5c8841f8",
+      "queries": 15,
+      "present_queries": 12,
+      "absent_queries": 3,
+      "multi_file_and_queries": 4,
+      "required_evidence_groups": 19,
+      "gold_target_rows": 21
+    }
+  ],
+  "totals": {
+    "queries": 30,
+    "present_queries": 24,
+    "absent_queries": 6,
+    "multi_file_and_queries": 8,
+    "required_evidence_groups": 38,
+    "gold_target_rows": 41
+  },
+  "notice_files": {
+    "benchmarks/CORPUS_NOTICES.md": "f03fee0d37c345757b487391e86d7a19a4b446b87825e77f6ab1d772d585d9e6",
+    "THIRD_PARTY_NOTICES.md": "fad1cce95ec5a2de562f11283fd23c80cc58b09d2d77b6c5b57111146be130c8"
+  },
+  "source_evidence_scoring": "A group is covered by any verified source window from the pinned file whose actual source bytes include the complete executable evidence span. Enclosing/nested/file windows are eligible irrespective of symbol label. One window can cover multiple required groups. Symbols alone never establish a hit."
+}

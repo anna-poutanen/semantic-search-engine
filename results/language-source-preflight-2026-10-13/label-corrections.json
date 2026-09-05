@@ -1,0 +1,89 @@
+{
+  "author": "patch_quality_review",
+  "classification": "Source-only pre-inference corrections prompted by independent semantic review; no parser, ranking or model output used",
+  "corrections": [
+    {
+      "change": "Added required visit.run executable ordering group",
+      "definition_lines": [
+        42,
+        57
+      ],
+      "evidence_lines": [
+        52,
+        56
+      ],
+      "query_id": "zod_nested_deep_partial",
+      "reason": "mapInner performs recursion but only run proves children are mapped before the object handler executes",
+      "source": "packages/zod/src/v4/core/visit.ts"
+    },
+    {
+      "change": "Added required $ZodRegistry class-initializer group",
+      "definition_lines": [
+        27,
+        77
+      ],
+      "evidence_lines": [
+        30,
+        31
+      ],
+      "query_id": "zod_metadata_attachment_registry",
+      "reason": "add shows writes but only class initializers prove the storage objects are WeakMap and Map",
+      "source": "packages/zod/src/v4/core/registries.ts"
+    },
+    {
+      "change": "Added _parse.fn as complete-executable OR alternative",
+      "definition_lines": [
+        23,
+        35
+      ],
+      "evidence_lines": [
+        25,
+        35
+      ],
+      "query_id": "zod_sync_rejects_async",
+      "reason": "The same required executable lines belong to the directly executable nested callback as well as its factory wrapper",
+      "source": "packages/zod/src/v4/core/parse.ts"
+    },
+    {
+      "change": "Added treeifyError.processError as complete-executable OR alternative",
+      "definition_lines": [
+        425,
+        477
+      ],
+      "evidence_lines": [
+        426,
+        471
+      ],
+      "query_id": "zod_tree_error_paths",
+      "reason": "The same required executable lines belong to the directly executable nested walker as well as its wrapper",
+      "source": "packages/zod/src/v4/core/errors.ts"
+    }
+  ],
+  "current_hashes": {
+    "THIRD_PARTY_NOTICES.md": "fad1cce95ec5a2de562f11283fd23c80cc58b09d2d77b6c5b57111146be130c8",
+    "benchmarks/CORPUS_NOTICES.md": "f03fee0d37c345757b487391e86d7a19a4b446b87825e77f6ab1d772d585d9e6",
+    "benchmarks/express_language_queries.json": "9147af679d20774952023b81987c5e57bcfaf945b607760b3b464ce0ebadf633",
+    "benchmarks/language_quality_manifest.json": "1f9033e4efa407f0c7613f5b46bbd9d7857ba2344e304214fea82f286cdd4611",
+    "benchmarks/zod_language_queries.json": "ddd2ca006c97a47aac89cf3f9b18a0563fa79afc5a528186653d42fd3b98b1ba",
+    "docs/language-retrieval-protocol.md": "156723944c3634d5de7e27c2a2f8fd785ece3a34a3d7b1e724b753bb3d35bf71",
+    "scripts/audit_language_labels.py": "ac08b75e00c11d15145c5edf8d449f3631675662dc1ec60520b419627f10d774"
+  },
+  "inventory": {
+    "absent_queries": 6,
+    "gold_target_rows": 41,
+    "multi_file_and_queries": 8,
+    "present_queries": 24,
+    "queries": 30,
+    "required_evidence_groups": 38
+  },
+  "model_or_retrieval_calls": 0,
+  "notice_correction": "Added pinned Express and Zod provenance/license entries, preserved original Zod visit.ts Jaen mapOnSchema Apache-2.0 source attribution; external gist is not indexed",
+  "previous_zod_dataset_sha256": "7591bde01d9618bb63c4cd7e2257e3ff74f3c7037c1a11cf6873b36489c9600c",
+  "remaining_gate": "Actual extractor/source-snippet eligibility and future runtime freeze before retrieval; independent semantic re-review recorded separately",
+  "reviewer": "cli_probe",
+  "scoring_contract_correction": {
+    "reason": "Independent source review identified complete enclosing windows as statically equivalent to named nested/method targets, without any extractor or retrieval observation",
+    "rule": "A group is covered by any verified source window from the pinned file whose actual source bytes include the complete executable evidence span. Enclosing/nested/file windows are eligible irrespective of symbol label. One window can cover multiple required groups. Symbols alone never establish a hit."
+  },
+  "version": 1
+}
