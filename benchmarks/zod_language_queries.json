@@ -1,0 +1,537 @@
+{
+  "version": 1,
+  "repo_url": "https://github.com/colinhacks/zod",
+  "revision": "b500a2ee95134f81d74da7911d7378dd2853d042",
+  "release": "v4.6.7",
+  "source_root": "packages/zod/src/v4",
+  "source_exclusions": [
+    "**/tests/**",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.d.ts"
+  ],
+  "language": "typescript",
+  "benchmark_role": "repository_holdout",
+  "authoring": "Source-reviewed before any extractor/retrieval/model outputs; independent semantic review required before inference.",
+  "target_groups_semantics": "OR within each group, AND across all groups. Assigned-function/member symbols use their assignment name; named callbacks use their source name; nested names use dot qualification.",
+  "queries": [
+    {
+      "id": "zod_sync_rejects_async",
+      "query": "Where does synchronous schema parsing reject a promise-returning validation and otherwise return the parsed value or throw a finalized validation error?",
+      "kind": "present",
+      "notes": "The returned parser runs with async:false, rejects Promise, maps raw issues, captures its stack, and returns result.value. The enclosing assigned factory contains the behavior. The directly executable nested _parse.fn is an equivalent OR target to its factory wrapper.",
+      "targets": [
+        {
+          "path": "packages/zod/src/v4/core/parse.ts",
+          "symbol": "_parse",
+          "evidence_lines": [
+            25,
+            35
+          ],
+          "definition_lines": [
+            22,
+            37
+          ],
+          "declaration_anchor": "export const _parse:",
+          "evidence_sha256": "7703e13582612ef09cb167cf5daf5e7ffee009c34e4a94bc4ad71efafaf26f32",
+          "source_file_sha256": "855bda0c95d79be1562fb1f48db4eefb7697276675b7debeb389aaba1b61e9e6"
+        },
+        {
+          "path": "packages/zod/src/v4/core/parse.ts",
+          "symbol": "_parse.fn",
+          "evidence_lines": [
+            25,
+            35
+          ],
+          "definition_lines": [
+            23,
+            35
+          ],
+          "declaration_anchor": "const fn: $Parse =",
+          "evidence_sha256": "7703e13582612ef09cb167cf5daf5e7ffee009c34e4a94bc4ad71efafaf26f32",
+          "source_file_sha256": "855bda0c95d79be1562fb1f48db4eefb7697276675b7debeb389aaba1b61e9e6"
+        }
+      ],
+      "split": "holdout"
+    },
+    {
+      "id": "zod_flatten_errors",
+      "query": "Where are validation errors split into top-level form messages and field messages grouped only by the first path segment?",
+      "kind": "present",
+      "notes": "The implemented overload iterates issues, uses the first path component for fieldErrors, and otherwise appends formErrors. Its declaration-only overloads are decoys.",
+      "targets": [
+        {
+          "path": "packages/zod/src/v4/core/errors.ts",
+          "symbol": "flattenError",
+          "evidence_lines": [
+            325,
+            335
+          ],
+          "definition_lines": [
+            324,
+            335
+          ],
+          "declaration_anchor": "export function flattenError<T, U>(error: $ZodError<T>, mapper =",
+          "evidence_sha256": "f1b9ca81d6c41e2ca3b6659ee806afca9fa649a05ca2d4cba2e573042d230d49",
+          "source_file_sha256": "ad19a7ec2af7abc5ed11a0ba279a015272adff8d2548ac531fc9216b0a37112a"
+        }
+      ],
+      "split": "holdout"
+    },
+    {
+      "id": "zod_tree_error_paths",
+      "query": "Where are nested validation failures converted into an error tree that uses properties for string path segments and items for numeric segments, recursively expanding union, key, and element errors?",
+      "kind": "present",
+      "notes": "processError recursively expands embedded failures; string keys use safe own properties, while numeric keys enter items. The older _errors format is a related decoy. The directly executable nested treeifyError.processError is an equivalent OR target to its wrapper.",
+      "targets": [
+        {
+          "path": "packages/zod/src/v4/core/errors.ts",
+          "symbol": "treeifyError",
+          "evidence_lines": [
+            426,
+            471
+          ],
+          "definition_lines": [
+            423,
+            480
+          ],
+          "declaration_anchor": "export function treeifyError<T, U>(error: $ZodError<T>, mapper =",
+          "evidence_sha256": "4cfbb7e5f8f0d5a591e5653f546ec3d9438b94c58a741af38a9b8b85923ceb00",
+          "source_file_sha256": "ad19a7ec2af7abc5ed11a0ba279a015272adff8d2548ac531fc9216b0a37112a"
+        },
+        {
+          "path": "packages/zod/src/v4/core/errors.ts",
+          "symbol": "treeifyError.processError",
+          "evidence_lines": [
+            426,
+            471
+          ],
+          "definition_lines": [
+            425,
+            477
+          ],
+          "declaration_anchor": "const processError =",
+          "evidence_sha256": "4cfbb7e5f8f0d5a591e5653f546ec3d9438b94c58a741af38a9b8b85923ceb00",
+          "source_file_sha256": "ad19a7ec2af7abc5ed11a0ba279a015272adff8d2548ac531fc9216b0a37112a"
+        }
+      ],
+      "split": "holdout"
+    },
+    {
+      "id": "zod_decimal_multiple_tolerance",
+      "query": "Where is a floating-point multiple-of check protected against rounding by comparing the quotient with the nearest integer using a magnitude-scaled epsilon tolerance?",
+      "kind": "present",
+      "notes": "This helper returns zero within 4*EPSILON*max(abs(ratio),1), otherwise the quotient difference; it is not integer modulo arithmetic.",
+      "targets": [
+        {
+          "path": "packages/zod/src/v4/core/util.ts",
+          "symbol": "floatSafeRemainder",
+          "evidence_lines": [
+            328,
+            334
+          ],
+          "definition_lines": [
+            327,
+            334
+          ],
+          "declaration_anchor": "export function floatSafeRemainder(",
+          "evidence_sha256": "855264dfdf75f0540abd314214584095ce71e039b297179bef5bd85fd36310e9",
+          "source_file_sha256": "e0ce7d4abc5e43373c59db83cad29f918edf6965df1bb8e54157a4f04d224863"
+        }
+      ],
+      "split": "holdout"
+    },
+    {
+      "id": "zod_error_parameter_normalization",
+      "query": "Where are string error parameters turned into callbacks, a legacy message parameter migrated, and supplying both message and error rejected?",
+      "kind": "present",
+      "notes": "The helper accepts falsy/no params, wraps strings, rejects simultaneous message/error, deletes message, and wraps string-valued error.",
+      "targets": [
+        {
+          "path": "packages/zod/src/v4/core/util.ts",
+          "symbol": "normalizeParams",
+          "evidence_lines": [
+            672,
+            680
+          ],
+          "definition_lines": [
+            669,
+            681
+          ],
+          "declaration_anchor": "export function normalizeParams<T>(",
+          "evidence_sha256": "651efd6914008455000b27da0c5bf290960b8ebbc36655a77b4a71a589e5f878",
+          "source_file_sha256": "e0ce7d4abc5e43373c59db83cad29f918edf6965df1bb8e54157a4f04d224863"
+        }
+      ],
+      "split": "holdout"
+    },
+    {
+      "id": "zod_numeric_enum_reverse_entries",
+      "query": "Where are numeric enum reverse-mapping entries filtered out so the returned enum values retain the original string and numeric members?",
+      "kind": "present",
+      "notes": "Numeric values identify the reverse-map keys; filter compares +key against that numeric set before mapping values. cleanEnum is related but uses a different rule.",
+      "targets": [
+        {
+          "path": "packages/zod/src/v4/core/util.ts",
+          "symbol": "getEnumValues",
+          "evidence_lines": [
+            277,
+            282
+          ],
+          "definition_lines": [
+            276,
+            282
+          ],
+          "declaration_anchor": "export function getEnumValues(",
+          "evidence_sha256": "6c66e38ff4120cf56d47b5e91539df65e8a75f52a02b491e77bb1541419edc21",
+          "source_file_sha256": "e0ce7d4abc5e43373c59db83cad29f918edf6965df1bb8e54157a4f04d224863"
+        }
+      ],
+      "split": "holdout"
+    },
+    {
+      "id": "zod_urlsafe_base64_bytes",
+      "query": "Where is URL-safe base64 decoded to bytes by restoring the standard alphabet and adding the required padding before decoding?",
+      "kind": "present",
+      "notes": "The wrapper substitutes -/_ and computes modulo-four padding before delegating to base64ToUint8Array; the inverse encoding helper is a decoy.",
+      "targets": [
+        {
+          "path": "packages/zod/src/v4/core/util.ts",
+          "symbol": "base64urlToUint8Array",
+          "evidence_lines": [
+            1092,
+            1095
+          ],
+          "definition_lines": [
+            1091,
+            1095
+          ],
+          "declaration_anchor": "export function base64urlToUint8Array(",
+          "evidence_sha256": "8fb6c3d54304dbecbba18f18353756dd83753f67aa4f61921940933be5e86d64",
+          "source_file_sha256": "e0ce7d4abc5e43373c59db83cad29f918edf6965df1bb8e54157a4f04d224863"
+        }
+      ],
+      "split": "holdout"
+    },
+    {
+      "id": "zod_local_json_schema_refs",
+      "query": "Where are root and top-level definition references in JSON Schema resolved, decoding escaped names and rejecting external references or unknown definition names?",
+      "kind": "present",
+      "notes": "Only # refs are supported; root returns rootSchema; draft version selects $defs/definitions and the decoded key must exist. The pointer decoder is nearby, but this resolver owns dispatch and rejection.",
+      "targets": [
+        {
+          "path": "packages/zod/src/v4/classic/from-json-schema.ts",
+          "symbol": "resolveRef",
+          "evidence_lines": [
+            133,
+            154
+          ],
+          "definition_lines": [
+            132,
+            155
+          ],
+          "declaration_anchor": "function resolveRef(",
+          "evidence_sha256": "58635ef5e7579c7938ce3f2aaab737376d2071ea4c4a2c2593a122858973f1ee",
+          "source_file_sha256": "1b27140e0709c0cc65786808c2f929289c980bc6c3142264860bdffac8b0cdf6"
+        }
+      ],
+      "split": "holdout"
+    },
+    {
+      "id": "zod_safe_parse_lazy_error_redaction",
+      "query": "Where does nonthrowing schema parsing return a failure whose error is built only when accessed, and where are messages chosen and raw input removed unless input reporting was requested?",
+      "kind": "present",
+      "notes": "All three groups are required: safe-parse failure dispatch, lazy cached error construction/capture release, and message precedence/input redaction.",
+      "target_groups": [
+        [
+          {
+            "path": "packages/zod/src/v4/core/parse.ts",
+            "symbol": "_safeParse",
+            "evidence_lines": [
+              72,
+              78
+            ],
+            "definition_lines": [
+              71,
+              79
+            ],
+            "declaration_anchor": "export const _safeParse:",
+            "evidence_sha256": "056d4bd2a7919d45df6c175e098431074cd4fdc4e1d8161f3f94a89b8f6db357",
+            "source_file_sha256": "855bda0c95d79be1562fb1f48db4eefb7697276675b7debeb389aaba1b61e9e6"
+          }
+        ],
+        [
+          {
+            "path": "packages/zod/src/v4/core/parse.ts",
+            "symbol": "failure",
+            "evidence_lines": [
+              84,
+              100
+            ],
+            "definition_lines": [
+              83,
+              103
+            ],
+            "declaration_anchor": "function failure(",
+            "evidence_sha256": "1c1e4df01f8330a2edbfc4c1a73e92754b3f377323f8172eca5c20092b92a130",
+            "source_file_sha256": "855bda0c95d79be1562fb1f48db4eefb7697276675b7debeb389aaba1b61e9e6"
+          }
+        ],
+        [
+          {
+            "path": "packages/zod/src/v4/core/util.ts",
+            "symbol": "finalizeIssue",
+            "evidence_lines": [
+              970,
+              991
+            ],
+            "definition_lines": [
+              957,
+              992
+            ],
+            "declaration_anchor": "export function finalizeIssue(",
+            "evidence_sha256": "6eaa1a88b29b7a1df7c15aca04fc8175e143be8b8209c97c71ff5b1712cf1be0",
+            "source_file_sha256": "e0ce7d4abc5e43373c59db83cad29f918edf6965df1bb8e54157a4f04d224863"
+          }
+        ]
+      ],
+      "split": "holdout"
+    },
+    {
+      "id": "zod_custom_refinement_issue_context",
+      "query": "Where is the public custom-refinement helper connected to the collector that adds issues with default code, original input, and continuation behavior while retaining fatal failures?",
+      "kind": "present",
+      "notes": "The public wrapper delegates to core; core injects addIssue, supports strings and structured issues, turns fatal into continue:false, and invokes the callback.",
+      "target_groups": [
+        [
+          {
+            "path": "packages/zod/src/v4/classic/schemas.ts",
+            "symbol": "superRefine",
+            "evidence_lines": [
+              2829,
+              2829
+            ],
+            "definition_lines": [
+              2825,
+              2830
+            ],
+            "declaration_anchor": "export function superRefine<T>(",
+            "evidence_sha256": "9d7dd48fc2b2dc74977b0103d41e8034c6571c7158f502e467f5c13d1a6e8d62",
+            "source_file_sha256": "95b134b255f29fe5ac4dda3f64f85eaabd73a6476910abb175e59de1440fc16e"
+          }
+        ],
+        [
+          {
+            "path": "packages/zod/src/v4/core/api.ts",
+            "symbol": "_superRefine",
+            "evidence_lines": [
+              1712,
+              1728
+            ],
+            "definition_lines": [
+              1708,
+              1731
+            ],
+            "declaration_anchor": "export function _superRefine<T>(",
+            "evidence_sha256": "8317f26b0ef76333b37a3e56a73d386997fdf25bec86d2e9e5ebd0d8ff9f1a2e",
+            "source_file_sha256": "9ad4da853ced907f2e5764e5a390f087c0bc8633638a993c50699f0827a5bf5d"
+          }
+        ]
+      ],
+      "split": "holdout"
+    },
+    {
+      "id": "zod_nested_deep_partial",
+      "query": "Where are nested object properties made optional while recursively rewriting child schemas and catchall schemas before applying the object-specific transformation?",
+      "kind": "present",
+      "notes": "deepPartial selects partial() for object nodes; visit.mapInner recursively maps shape and catchall children, cloning only changed branches. The separate visit.run ordering group proves that mapInner finishes before the object handler executes. All three evidence groups are required.",
+      "target_groups": [
+        [
+          {
+            "path": "packages/zod/src/v4/classic/deep-partial.ts",
+            "symbol": "deepPartial",
+            "evidence_lines": [
+              68,
+              75
+            ],
+            "definition_lines": [
+              67,
+              76
+            ],
+            "declaration_anchor": "export function deepPartial<T extends core.SomeType>(",
+            "evidence_sha256": "3e0c1fbdd79797a8837869bc6bc6c9c701c717c1d74e18b09c1795ce8b16953e",
+            "source_file_sha256": "1062f37dcd0689481c69d6af005eb05299818f1383e8c524fdd877d3b12dd6bd"
+          }
+        ],
+        [
+          {
+            "path": "packages/zod/src/v4/core/visit.ts",
+            "symbol": "visit.mapInner",
+            "evidence_lines": [
+              63,
+              78
+            ],
+            "definition_lines": [
+              59,
+              190
+            ],
+            "declaration_anchor": "function mapInner(",
+            "evidence_sha256": "0142be2af86575a0ce0291db2d45cf5154a5d2318a8b8356c8dba19d15e5757a",
+            "source_file_sha256": "04108723a4a821de6f420a6adfe8e5dbca08e68bf30e7d9b079fab23d701ad69"
+          }
+        ],
+        [
+          {
+            "path": "packages/zod/src/v4/core/visit.ts",
+            "symbol": "visit.run",
+            "evidence_lines": [
+              52,
+              56
+            ],
+            "definition_lines": [
+              42,
+              57
+            ],
+            "declaration_anchor": "function run(s: AnyZod)",
+            "evidence_sha256": "7dbf9658dff94e654465e8867b5a7dd270befc6eecf9dffcc22f90ae918e40aa",
+            "source_file_sha256": "04108723a4a821de6f420a6adfe8e5dbca08e68bf30e7d9b079fab23d701ad69"
+          }
+        ]
+      ],
+      "split": "holdout"
+    },
+    {
+      "id": "zod_metadata_attachment_registry",
+      "query": "Where is newly attached schema metadata merged with existing metadata and stored in a weak schema registry, with supplied IDs also mapped back to schemas?",
+      "kind": "present",
+      "notes": "meta schedules an onattach merge into globalRegistry; add stores metadata and string-ID associations. The separate class-initializer group establishes runtime WeakMap and Map storage. All three evidence groups are required.",
+      "target_groups": [
+        [
+          {
+            "path": "packages/zod/src/v4/core/api.ts",
+            "symbol": "meta",
+            "evidence_lines": [
+              1759,
+              1768
+            ],
+            "definition_lines": [
+              1758,
+              1768
+            ],
+            "declaration_anchor": "export function meta<T>(",
+            "evidence_sha256": "8d8a8d07b9dc1a9b1c82630f45c494bf757f04a849c922451269ff92c803eca5",
+            "source_file_sha256": "9ad4da853ced907f2e5764e5a390f087c0bc8633638a993c50699f0827a5bf5d"
+          }
+        ],
+        [
+          {
+            "path": "packages/zod/src/v4/core/registries.ts",
+            "symbol": "$ZodRegistry.add",
+            "evidence_lines": [
+              37,
+              42
+            ],
+            "definition_lines": [
+              33,
+              43
+            ],
+            "declaration_anchor": "add<S extends Schema>(",
+            "evidence_sha256": "0d862818dacda83404dd257bf1f72b18dab53e2dc5e08f95ace36645d207c0e4",
+            "source_file_sha256": "699d7991cefa6282b97537b67e7a701465e50107b02d216b8da271a95672c47f"
+          }
+        ],
+        [
+          {
+            "path": "packages/zod/src/v4/core/registries.ts",
+            "symbol": "$ZodRegistry",
+            "evidence_lines": [
+              30,
+              31
+            ],
+            "definition_lines": [
+              27,
+              77
+            ],
+            "declaration_anchor": "export class $ZodRegistry<",
+            "evidence_sha256": "e033e2bba6188958bdf2a7043b47e94eae37097b8b9007091e3a091241019ab5",
+            "source_file_sha256": "699d7991cefa6282b97537b67e7a701465e50107b02d216b8da271a95672c47f"
+          }
+        ]
+      ],
+      "split": "holdout"
+    },
+    {
+      "id": "zod_absent_remote_ref_fetch",
+      "query": "Where does converting a JSON Schema fetch and cache external HTTP references before resolving validators?",
+      "kind": "absent",
+      "targets": [],
+      "notes": "Scoped absent: resolveRef explicitly rejects non-# refs; conversion has no network fetching implementation.",
+      "absence_review": {
+        "scope": "All pinned production source within declared source_root and exclusions; dependencies, examples, tests, and user plugins are outside this claim.",
+        "searches": [
+          "fetch",
+          "https?",
+          "External \\$ref",
+          "resolveRef"
+        ],
+        "closest_decoys": [
+          {
+            "path": "packages/zod/src/v4/classic/from-json-schema.ts",
+            "symbol": "resolveRef",
+            "reason": "Rejects external references rather than downloading them."
+          }
+        ]
+      },
+      "split": "holdout"
+    },
+    {
+      "id": "zod_absent_async_retry_backoff",
+      "query": "Where are failed asynchronous validations automatically retried with exponential backoff until a retry limit is reached?",
+      "kind": "absent",
+      "targets": [],
+      "notes": "Scoped absent: async parsing awaits a validation result once; custom user callbacks may implement retries but no automatic retry/backoff engine exists in this production source.",
+      "absence_review": {
+        "scope": "All pinned production source within declared source_root and exclusions; dependencies, examples, tests, and user plugins are outside this claim.",
+        "searches": [
+          "retry",
+          "backoff",
+          "setTimeout",
+          "safeParseAsync"
+        ],
+        "closest_decoys": [
+          {
+            "path": "packages/zod/src/v4/core/parse.ts",
+            "symbol": "_safeParseAsync",
+            "reason": "Awaits one result without a retry loop."
+          }
+        ]
+      },
+      "split": "holdout"
+    },
+    {
+      "id": "zod_absent_issue_encryption",
+      "query": "Where is rejected input encrypted with a rotating key before it is included in validation error reports?",
+      "kind": "absent",
+      "targets": [],
+      "notes": "Scoped absent: issue finalization omits input by default or copies it when reportInput is requested; there is no encryption/key-rotation implementation.",
+      "absence_review": {
+        "scope": "All pinned production source within declared source_root and exclusions; dependencies, examples, tests, and user plugins are outside this claim.",
+        "searches": [
+          "encrypt",
+          "decrypt",
+          "rotation",
+          "reportInput"
+        ],
+        "closest_decoys": [
+          {
+            "path": "packages/zod/src/v4/core/util.ts",
+            "symbol": "finalizeIssue",
+            "reason": "Omits or copies input; does not encrypt it."
+          }
+        ]
+      },
+      "split": "holdout"
+    }
+  ],
+  "source_evidence_scoring": "A group is covered by any verified source window from the pinned file whose actual source bytes include the complete executable evidence span. Enclosing/nested/file windows are eligible irrespective of symbol label. One window can cover multiple required groups. Symbols alone never establish a hit."
+}
