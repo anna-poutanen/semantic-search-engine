@@ -1,0 +1,62 @@
+{
+  "base_revision": "934813e4d421071a1b3db3973c02fe2721359a6e",
+  "cases": {
+    "default_lazy": {
+      "destination": "updated",
+      "exception_type": "ValueError",
+      "exit_code": 1,
+      "passed": false,
+      "primary_exception_preserved": true,
+      "remaining_temporary_files": 0
+    },
+    "eager": {
+      "destination": "updated",
+      "exception_type": "ValueError",
+      "exit_code": 1,
+      "passed": false,
+      "primary_exception_preserved": true,
+      "remaining_temporary_files": 0
+    },
+    "lazy": {
+      "destination": "updated",
+      "exception_type": "ValueError",
+      "exit_code": 1,
+      "passed": false,
+      "primary_exception_preserved": true,
+      "remaining_temporary_files": 0
+    },
+    "registered_callback_cleanup_preserves_primary": {
+      "cleanup_diagnostic_on_primary": true,
+      "context_stack_restored": true,
+      "destination": "original",
+      "exception_type": "ValueError",
+      "exit_code": 1,
+      "passed": true,
+      "primary_exception_preserved": true
+    },
+    "registered_resource_cleanup_preserves_primary": {
+      "cleanup_diagnostic_on_primary": true,
+      "context_stack_restored": true,
+      "destination": "original",
+      "exception_type": "ValueError",
+      "exit_code": 1,
+      "passed": true,
+      "primary_exception_preserved": true
+    }
+  },
+  "classification": "Post-output supplemental resource interactions; frozen formal grades unchanged",
+  "command": [
+    "<PROJECT>/.venv/bin/python",
+    "<PROJECT>/scripts/probe_click_atomic_resource_edges.py",
+    "--repo",
+    "<PROJECT>/.cache/click-atomic-edge-review/14-r2-click_atomic_transactions-baseline"
+  ],
+  "contract": "A failing callback must preserve its primary exception and roll back the atomic destination, even when another resource returns a truthy suppression result",
+  "exit_code": 0,
+  "identity": "14-r2-click_atomic_transactions-baseline",
+  "implementation_neutral": "Real CliRunner command, public atomic File parameter and with_resource(contextlib.suppress); no private field names or source mutation",
+  "patch_sha256": "32ae50d34659baac3f56c3486ad290cdce5801054f6ec6efc9a1a7379136653c",
+  "probe_sha256": "84432c5daf6c7d36ee863b81b29929d80129c71c20750c992cae4dd731e0350a",
+  "revision": "All case inputs unchanged from v2; after independent scope review accept bounded recursive cleanup cause/context/ExceptionGroup chains or notes, still requiring the original outer primary exception",
+  "version": 3
+}

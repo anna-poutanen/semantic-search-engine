@@ -1,0 +1,109 @@
+--- a/src/click/_compat.py
++++ b/src/click/_compat.py
+@@ -465,9 +465,17 @@
+     def close(self, delete: bool = False) -> None:
+         if self.closed:
+             return
+-        self._f.close()
+-        os.replace(self._tmp_filename, self._real_filename)
+-        self.closed = True
++        try:
++            self._f.close()
++            if delete:
++                try:
++                    os.unlink(self._tmp_filename)
++                except FileNotFoundError:
++                    pass
++            else:
++                os.replace(self._tmp_filename, self._real_filename)
++        finally:
++            self.closed = True
+ 
+     def __getattr__(self, name: str) -> t.Any:
+         return getattr(self._f, name)
+@@ -476,7 +484,20 @@
+         return self
+ 
+     def __exit__(self, exc_type: t.Optional[t.Type[BaseException]], *_: t.Any) -> None:
+-        self.close(delete=exc_type is not None)
++        if exc_type is not None:
++            try:
++                self.close(delete=True)
++            except OSError as error:
++                exc_value = _[0] if _ else None
++                if exc_value is not None:
++                    if hasattr(exc_value, "add_note"):
++                        exc_value.add_note(f"Atomic output cleanup failed: {error}")
++                    else:
++                        exc_value.__context__ = error
++                else:
++                    raise
++        else:
++            self.close()
+ 
+     def __repr__(self) -> str:
+         return repr(self._f)
+--- a/src/click/core.py
++++ b/src/click/core.py
+@@ -471,9 +471,17 @@
+         tb: t.Optional[TracebackType],
+     ) -> None:
+         self._depth -= 1
+-        if self._depth == 0:
+-            self.close()
+-        pop_context()
++        try:
++            if self._depth == 0:
++                stack, self._exit_stack = self._exit_stack, ExitStack()
++                successful_exit = (isinstance(exc_value, Exit) and exc_value.exit_code == 0) or (
++                    isinstance(exc_value, SystemExit) and exc_value.code in (None, 0)
++                )
++                stack.__exit__(None if successful_exit else exc_type,
++                               None if successful_exit else exc_value,
++                               None if successful_exit else tb)
++        finally:
++            pop_context()
+ 
+     @contextmanager
+     def scope(self, cleanup: bool = True) -> t.Iterator["Context"]:
+--- a/src/click/types.py
++++ b/src/click/types.py
+@@ -721,7 +721,10 @@
+                 )
+ 
+                 if ctx is not None:
+-                    ctx.call_on_close(lf.close_intelligently)
++                    if self.atomic:
++                        ctx.with_resource(lf)
++                    else:
++                        ctx.call_on_close(lf.close_intelligently)
+ 
+                 return t.cast(t.IO[t.Any], lf)
+ 
+@@ -736,7 +739,10 @@
+             # type is used with prompts.
+             if ctx is not None:
+                 if should_close:
+-                    ctx.call_on_close(safecall(f.close))
++                    if self.atomic:
++                        ctx.with_resource(f)
++                    else:
++                        ctx.call_on_close(safecall(f.close))
+                 else:
+                     ctx.call_on_close(safecall(f.flush))
+ 
+--- a/src/click/utils.py
++++ b/src/click/utils.py
+@@ -184,7 +184,11 @@
+         exc_value: t.Optional[BaseException],
+         tb: t.Optional[TracebackType],
+     ) -> None:
+-        self.close_intelligently()
++        if self.should_close and self._f is not None:
++            if self.atomic:
++                self._f.__exit__(exc_type, exc_value, tb)
++            else:
++                self.close()
+ 
+     def __iter__(self) -> t.Iterator[t.AnyStr]:
+         self.open()

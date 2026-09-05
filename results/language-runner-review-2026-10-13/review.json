@@ -1,0 +1,85 @@
+{
+  "checks_passed": true,
+  "classification": "Independent CPU review of prospective retrieval runner",
+  "cpu_fixture": {
+    "conditions": [
+      {
+        "candidate_count": 2,
+        "candidate_diagnostic_embedding_calls": 0,
+        "condition": "bm25",
+        "identical_request_and_diagnostic_vectors": null,
+        "observed_dense_vectors": [],
+        "request_query_embedding_calls": 0,
+        "result_count": 2
+      },
+      {
+        "candidate_count": 2,
+        "candidate_diagnostic_embedding_calls": 0,
+        "condition": "dense",
+        "identical_request_and_diagnostic_vectors": true,
+        "observed_dense_vectors": [
+          {
+            "phase": "request",
+            "sha256": "ca5d20c2bb4ae4fcace4439106f4bdea977c449a9a1b1cdb36f55b253a3f73dc"
+          },
+          {
+            "phase": "candidate_diagnostic",
+            "sha256": "ca5d20c2bb4ae4fcace4439106f4bdea977c449a9a1b1cdb36f55b253a3f73dc"
+          }
+        ],
+        "request_query_embedding_calls": 1,
+        "result_count": 2
+      },
+      {
+        "candidate_count": 2,
+        "candidate_diagnostic_embedding_calls": 0,
+        "condition": "hybrid",
+        "identical_request_and_diagnostic_vectors": true,
+        "observed_dense_vectors": [
+          {
+            "phase": "request",
+            "sha256": "ca5d20c2bb4ae4fcace4439106f4bdea977c449a9a1b1cdb36f55b253a3f73dc"
+          },
+          {
+            "phase": "request",
+            "sha256": "ca5d20c2bb4ae4fcace4439106f4bdea977c449a9a1b1cdb36f55b253a3f73dc"
+          },
+          {
+            "phase": "candidate_diagnostic",
+            "sha256": "ca5d20c2bb4ae4fcace4439106f4bdea977c449a9a1b1cdb36f55b253a3f73dc"
+          }
+        ],
+        "request_query_embedding_calls": 1,
+        "result_count": 2
+      }
+    ],
+    "persistent_reopen": {
+      "document_embedding_calls": 0,
+      "indexed_windows": 0,
+      "reused_windows": 2
+    }
+  },
+  "gold_files_read_by_this_script": 0,
+  "inference_gate": "This mechanics review does not establish real-model quality or actual gold eligibility.",
+  "limitations": [
+    "Artificial CPU vectors prove call/vector reuse mechanics, not Qwen quality or latency.",
+    "Actual model/checkpoint and completed real request inventory still require inference-time verification."
+  ],
+  "manual_review": [
+    "Scoring verifies exact pinned file window bytes/hash before any full-evidence hit; symbols are diagnostic.",
+    "OR alternatives and separate AND groups score independently; one complete window may satisfy several groups.",
+    "Only repetition1 supplies quality denominators; three repetitions supply warm latency samples and coverage stability.",
+    "Candidate reconstruction uses the current recorded numerical vector in a serialized request sequence.",
+    "Source membership/window hashes and runtime source/package/model metadata are rechecked against the freeze.",
+    "HTTP timing excludes deterministic candidate diagnostics and independent source/token verification."
+  ],
+  "real_model_calls": 0,
+  "recommendations": [],
+  "resolved_before_freeze": [
+    "Root added candidate_groups alongside delivered_groups.",
+    "Root added returned/candidate depth guards and observed completed inference counts.",
+    "Root added bounded per-source physical-line caching after the failed CPU gate.",
+    "Root freezes and verifies the exact dataset/query/condition/repetition request matrix."
+  ],
+  "runner_sha256": "824daf7410d7046323f6f6e753a3ab0ad399ab8b9a534da2cb58c79b1657c979"
+}

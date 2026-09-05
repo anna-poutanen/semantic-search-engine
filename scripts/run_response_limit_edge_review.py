@@ -41,7 +41,7 @@ def evaluate(task, identity, patch, work, artifact, base_files=None, probe=PROBE
         for name, expected in base_files.items():
             if digest(repo / name) != expected:
                 raise ValueError(f"Pinned archive differs from recorded base: {name}")
-    if patch:
+    if patch and patch.stat().st_size:
         git(repo, "init", "--quiet")
         git(repo, "apply", "--binary", "-", input=patch.read_bytes())
     command = [sys.executable, str(probe), "--repo", str(repo)]

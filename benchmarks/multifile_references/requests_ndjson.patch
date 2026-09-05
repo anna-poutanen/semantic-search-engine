@@ -1,0 +1,87 @@
+--- a/src/requests/__init__.py
++++ b/src/requests/__init__.py
+@@ -175,6 +175,7 @@
+     FileModeWarning,
+     HTTPError,
+     JSONDecodeError,
++    JSONLineDecodeError,
+     ReadTimeout,
+     RequestException,
+     Timeout,
+@@ -190,6 +191,7 @@
+     "ConnectTimeout",
+     "HTTPError",
+     "JSONDecodeError",
++    "JSONLineDecodeError",
+     "PreparedRequest",
+     "ReadTimeout",
+     "Request",
+--- a/src/requests/exceptions.py
++++ b/src/requests/exceptions.py
+@@ -61,6 +61,14 @@
+         __reduce__ method from the IOError due to the inheritance order.
+         """
+         return CompatJSONDecodeError.__reduce__(self)
++
++
++class JSONLineDecodeError(InvalidJSONError):
++    """Invalid UTF-8 or JSON at a physical NDJSON line."""
++    def __init__(self, message, *, line_number, line, response=None, request=None):
++        super().__init__(message, response=response, request=request)
++        self.line_number = line_number
++        self.line = line
+ 
+ 
+ class HTTPError(RequestException):
+--- a/src/requests/models.py
++++ b/src/requests/models.py
+@@ -60,6 +60,7 @@
+     ContentDecodingError,
+     HTTPError,
+     InvalidJSONError,
++    JSONLineDecodeError,
+     InvalidURL,
+     MissingSchema,
+     StreamConsumedError,
+@@ -1031,6 +1032,41 @@
+         if pending is not None:
+             yield pending
+ 
++    def iter_json_lines(self, chunk_size=512, *, skip_blank=True):
++        """Lazily consume UTF-8 NDJSON, preserving physical line context."""
++        if type(chunk_size) is not int or chunk_size <= 0:
++            raise ValueError("chunk_size must be a positive integer")
++        if type(skip_blank) is not bool:
++            raise ValueError("skip_blank must be a boolean")
++        def decoded():
++            pending = b""
++            line_number = 0
++            def parse(line, number):
++                try:
++                    text = line.decode("utf-8-sig" if number == 1 else "utf-8")
++                    if skip_blank and not text.strip():
++                        return False, None
++                    return True, complexjson.loads(text)
++                except (UnicodeDecodeError, JSONDecodeError) as error:
++                    raise JSONLineDecodeError(str(error), line_number=number,
++                                              line=line, response=self) from error
++            for chunk in self.iter_content(chunk_size=chunk_size, decode_unicode=False):
++                pending += chunk
++                while b"\n" in pending:
++                    line, pending = pending.split(b"\n", 1)
++                    if line.endswith(b"\r"):
++                        line = line[:-1]
++                    line_number += 1
++                    present, value = parse(line, line_number)
++                    if present:
++                        yield value
++            if pending:
++                line_number += 1
++                present, value = parse(pending, line_number)
++                if present:
++                    yield value
++        return decoded()
++
+     @property
+     def content(self) -> bytes:
+         """Content of the response, in bytes."""
