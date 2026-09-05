@@ -7,7 +7,7 @@ The implemented backend keeps Qwen resident and queries a durable SQLite active 
 Run these setup commands from the project directory on an Apple Silicon Mac if the environment and checkpoints have not already been installed:
 
 ```sh
-python3 scripts/setup_mac.py
+python3 scripts/setup_mac.py --runtime-only
 .venv/bin/python scripts/setup_embeddings.py
 .venv/bin/python scripts/fetch_corpus.py \
   --dataset benchmarks/new_requests_queries.json \
@@ -42,7 +42,7 @@ In another terminal:
   --include-dependencies --token-budget 4096 --json
 ```
 
-For optional H2O scoring, keep `.venv/bin/python scripts/serve_mac.py` running in another terminal, then add `--rerank --candidates 4` to a search. The search daemon's `--url` selects the H2O base URL; it defaults to `http://127.0.0.1:8741`. Dense searches work without that process. Use `--retrieval bm25` or `--retrieval hybrid` to select the other retrievers. `--lexical-only` forces BM25 and disables reranking; `--no-rerank` is an alias for the default fast mode.
+For optional H2O scoring, first install its pinned source and checkpoint with `python3 scripts/setup_mac.py`. Keep `.venv/bin/python scripts/serve_mac.py` running in another terminal, then add `--rerank --candidates 4` to a search. The search daemon's `--url` selects the H2O base URL; it defaults to `http://127.0.0.1:8741`. Dense searches work without that process. Use `--retrieval bm25` or `--retrieval hybrid` to select the other retrievers. `--lexical-only` forces BM25 and disables reranking; `--no-rerank` is an alias for the default fast mode.
 
 Standalone search uses `--repo /path/to/repo --source-root src` instead of `--server`. It loads and closes its backend for each invocation. A server search always uses the repository/source root configured by `serve`.
 
