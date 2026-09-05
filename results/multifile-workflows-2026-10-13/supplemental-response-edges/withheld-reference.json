@@ -1,0 +1,67 @@
+{
+  "base_revision": "611c6162cbc4ac2020a2f91c7cfa4f3abf9bbb60",
+  "cases": {
+    "buffered_iter_lines_after_breach": {
+      "crossing": {
+        "cause_type": null,
+        "context_type": null,
+        "message": "Response exceeded 5 decoded bytes (8 received)",
+        "notes": [],
+        "type": "ResponseTooLarge"
+      },
+      "first_line": "a",
+      "later_error": null,
+      "later_yield": "b",
+      "passed": false,
+      "raw_reads_after_crossing": 2,
+      "raw_reads_after_later": 2
+    },
+    "cached_iterator_after_lower_limit_breach": {
+      "crossing": {
+        "cause_type": null,
+        "context_type": null,
+        "message": "Response exceeded 3 decoded bytes (4 received)",
+        "notes": [],
+        "type": "ResponseTooLarge"
+      },
+      "later_error": {
+        "cause_type": null,
+        "context_type": null,
+        "message": "Response exceeded 3 decoded bytes (4 received)",
+        "notes": [],
+        "type": "ResponseTooLarge"
+      },
+      "later_yield": null,
+      "passed": true,
+      "raw_reads_after_crossing": 2,
+      "raw_reads_after_later": 2
+    },
+    "context_manager_cleanup_preserves_size_error": {
+      "close_attempts": 2,
+      "outer_error": {
+        "cause_type": null,
+        "context_type": "ResponseTooLarge",
+        "message": "controlled cleanup failure",
+        "notes": [],
+        "type": "OSError"
+      },
+      "passed": false,
+      "raw_reads": 1
+    }
+  },
+  "classification": "Post-output supplemental edge checks; frozen formal grades unchanged",
+  "command": [
+    "<PROJECT>/.venv/bin/python",
+    "<PROJECT>/scripts/probe_response_limit_edges.py",
+    "--repo",
+    "<PROJECT>/.cache/response-limit-edge-review/withheld-reference"
+  ],
+  "exit_code": 0,
+  "feature_available": true,
+  "identity": "withheld-reference",
+  "implementation_neutral": "Public Session/read APIs with one deterministic in-memory adapter; no private budget names or edits to candidate source",
+  "patch_sha256": "693079bef728f3ec5d9e405f06b93086bb0d2b24510651eaf526c9f65a5b7fab",
+  "probe_sha256": "b77165448761cb19fd65921a5cfcaed23387b461e56150122b14e1f8d98418df",
+  "revision": "After independent scope review, accept implicit cleanup exception context as well as explicit cause or notes; neutral case inputs unchanged",
+  "version": 2
+}

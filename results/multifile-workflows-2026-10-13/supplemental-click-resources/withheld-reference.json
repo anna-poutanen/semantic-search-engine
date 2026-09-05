@@ -1,0 +1,43 @@
+{
+  "base_revision": "934813e4d421071a1b3db3973c02fe2721359a6e",
+  "cases": {
+    "default_lazy": {
+      "destination": "updated",
+      "exception_type": "ValueError",
+      "exit_code": 1,
+      "passed": false,
+      "primary_exception_preserved": true,
+      "remaining_temporary_files": 0
+    },
+    "eager": {
+      "destination": "updated",
+      "exception_type": "ValueError",
+      "exit_code": 1,
+      "passed": false,
+      "primary_exception_preserved": true,
+      "remaining_temporary_files": 0
+    },
+    "lazy": {
+      "destination": "updated",
+      "exception_type": "ValueError",
+      "exit_code": 1,
+      "passed": false,
+      "primary_exception_preserved": true,
+      "remaining_temporary_files": 0
+    }
+  },
+  "classification": "Post-output supplemental resource interaction; frozen formal grades unchanged",
+  "command": [
+    "<PROJECT>/.venv/bin/python",
+    "<PROJECT>/scripts/probe_click_atomic_resource_edges.py",
+    "--repo",
+    "<PROJECT>/.cache/click-atomic-edge-review/withheld-reference"
+  ],
+  "contract": "A failing callback must preserve its primary exception and roll back the atomic destination, even when another resource returns a truthy suppression result",
+  "exit_code": 0,
+  "identity": "withheld-reference",
+  "implementation_neutral": "Real CliRunner command, public atomic File parameter and with_resource(contextlib.suppress); no private field names or source mutation",
+  "patch_sha256": "75284f4f5d9136f0ef77a60af6fa00e2391f7e8aeafe5a5de36b857670502002",
+  "probe_sha256": "9ce0633640fa153dab71650d64fdcffc22bb990f06381485be74febccd600aeb",
+  "version": 1
+}

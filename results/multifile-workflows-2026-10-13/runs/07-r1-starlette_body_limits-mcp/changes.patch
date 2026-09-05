@@ -1,0 +1,497 @@
+diff --git a/docs/middleware.md b/docs/middleware.md
+index 9e56018..5ee9fd0 100644
+--- a/docs/middleware.md
++++ b/docs/middleware.md
+@@ -200,6 +200,32 @@ The following arguments are supported:
+ 
+ The middleware won't GZip responses that already have a `Content-Encoding` set, to prevent them from being encoded twice.
+ 
++## RequestBodyLimitMiddleware
++
++Buffers HTTP request bodies before calling the application and rejects bodies
++that exceed a configured limit. The limit counts received bytes, regardless of
++`Content-Length`. Oversized requests receive a plain-text `413` response with
++the body `Request body too large`; the application is not called and later
++chunks are not read.
++
++```python
++from starlette.applications import Starlette
++from starlette.middleware import Middleware
++from starlette.middleware.body_limit import RequestBodyLimitMiddleware
++
++
++app = Starlette(middleware=[Middleware(RequestBodyLimitMiddleware, max_bytes=1024)])
++```
++
++`max_bytes` must be `None` or a non-negative integer. Invalid values, including
++booleans, raise `ValueError` at construction. `None` disables buffering and the
++limit. A zero limit accepts empty bodies. WebSocket and lifespan scopes pass
++through without buffering.
++
++Accepted bodies are replayed to the application, so request body and JSON
++helpers work normally, including repeated cached reads. Subsequent receive
++calls are delegated to the original receive channel.
++
+ ## BaseHTTPMiddleware
+ 
+ An abstract class that allows you to write ASGI middleware against a request/response
+diff --git a/docs/requests.md b/docs/requests.md
+index d630555..838ef2b 100644
+--- a/docs/requests.md
++++ b/docs/requests.md
+@@ -84,6 +84,19 @@ The request body, parsed as form data or multipart: `async with request.form() a
+ 
+ The request body, parsed as JSON: `await request.json()`
+ 
++To limit buffering, use `await request.body(max_bytes=1024)`. The limit must be
++`None` (the default, unlimited) or a non-negative integer; booleans and other
++values raise `ValueError` before reading the body. The limit counts actual bytes
++received, regardless of `Content-Length`. A body exactly at the limit is accepted,
++including an empty body with a zero limit.
++
++If the body exceeds the limit, `starlette.exceptions.RequestBodyTooLarge` is
++raised. This `HTTPException` has status code `413`, a `limit` attribute, and a
++`received` attribute giving the cumulative bytes at the first crossing. Reading
++stops at that chunk and no partial body is cached. A stricter limit also checks
++an already cached body without reading again. A rejected partial stream cannot
++be relied on for subsequent body reads.
++
+ You can also access the request body as a stream, using the `async for` syntax:
+ 
+ ```python
+diff --git a/starlette/exceptions.py b/starlette/exceptions.py
+index 9ad3527..3df0c88 100644
+--- a/starlette/exceptions.py
++++ b/starlette/exceptions.py
+@@ -20,6 +20,13 @@ class HTTPException(Exception):
+         return f"{class_name}(status_code={self.status_code!r}, detail={self.detail!r})"
+ 
+ 
++class RequestBodyTooLarge(HTTPException):
++    def __init__(self, limit: int, received: int) -> None:
++        self.limit = limit
++        self.received = received
++        super().__init__(status_code=413, detail="Request body too large")
++
++
+ class WebSocketException(Exception):
+     def __init__(self, code: int, reason: str | None = None) -> None:
+         self.code = code
+diff --git a/starlette/middleware/body_limit.py b/starlette/middleware/body_limit.py
+new file mode 100644
+index 0000000..3a52809
+--- /dev/null
++++ b/starlette/middleware/body_limit.py
+@@ -0,0 +1,37 @@
++from __future__ import annotations
++
++from starlette.exceptions import RequestBodyTooLarge
++from starlette.requests import Request, _validate_max_bytes
++from starlette.responses import PlainTextResponse
++from starlette.types import ASGIApp, Message, Receive, Scope, Send
++
++
++class RequestBodyLimitMiddleware:
++    def __init__(self, app: ASGIApp, max_bytes: int | None) -> None:
++        _validate_max_bytes(max_bytes)
++        self.app = app
++        self.max_bytes = max_bytes
++
++    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
++        if scope["type"] != "http" or self.max_bytes is None:
++            await self.app(scope, receive, send)
++            return
++
++        request = Request(scope, receive)
++        try:
++            body = await request.body(max_bytes=self.max_bytes)
++        except RequestBodyTooLarge as exc:
++            response = PlainTextResponse(exc.detail, status_code=exc.status_code)
++            await response(scope, receive, send)
++            return
++
++        replayed = False
++
++        async def replay_receive() -> Message:
++            nonlocal replayed
++            if not replayed:
++                replayed = True
++                return {"type": "http.request", "body": body, "more_body": False}
++            return await receive()
++
++        await self.app(scope, replay_receive, send)
+diff --git a/starlette/requests.py b/starlette/requests.py
+index 369f632..75e2ed7 100644
+--- a/starlette/requests.py
++++ b/starlette/requests.py
+@@ -8,7 +8,7 @@ import anyio
+ 
+ from starlette._utils import AwaitableOrContextManager, AwaitableOrContextManagerWrapper
+ from starlette.datastructures import URL, Address, FormData, Headers, QueryParams, State
+-from starlette.exceptions import HTTPException
++from starlette.exceptions import HTTPException, RequestBodyTooLarge
+ from starlette.formparsers import FormParser, MultiPartException, MultiPartParser
+ from starlette.types import Message, Receive, Scope, Send
+ 
+@@ -195,6 +195,11 @@ async def empty_send(message: Message) -> typing.NoReturn:
+     raise RuntimeError("Send channel has not been made available")
+ 
+ 
++def _validate_max_bytes(max_bytes: int | None) -> None:
++    if max_bytes is not None and (isinstance(max_bytes, bool) or not isinstance(max_bytes, int) or max_bytes < 0):
++        raise ValueError("max_bytes must be None or a non-negative integer")
++
++
+ class Request(HTTPConnection):
+     _form: FormData | None
+ 
+@@ -235,12 +240,19 @@ class Request(HTTPConnection):
+                 raise ClientDisconnect()
+         yield b""
+ 
+-    async def body(self) -> bytes:
++    async def body(self, max_bytes: int | None = None) -> bytes:
++        _validate_max_bytes(max_bytes)
+         if not hasattr(self, "_body"):
+             chunks: list[bytes] = []
++            received = 0
+             async for chunk in self.stream():
++                received += len(chunk)
++                if max_bytes is not None and received > max_bytes:
++                    raise RequestBodyTooLarge(limit=max_bytes, received=received)
+                 chunks.append(chunk)
+             self._body = b"".join(chunks)
++        elif max_bytes is not None and len(self._body) > max_bytes:
++            raise RequestBodyTooLarge(limit=max_bytes, received=len(self._body))
+         return self._body
+ 
+     async def json(self) -> typing.Any:
+diff --git a/tests/middleware/test_body_limit.py b/tests/middleware/test_body_limit.py
+new file mode 100644
+index 0000000..c1aecb3
+--- /dev/null
++++ b/tests/middleware/test_body_limit.py
+@@ -0,0 +1,176 @@
++from __future__ import annotations
++
++from typing import Any
++
++import pytest
++
++from starlette.applications import Starlette
++from starlette.middleware import Middleware
++from starlette.middleware.body_limit import RequestBodyLimitMiddleware
++from starlette.requests import ClientDisconnect, Request
++from starlette.responses import JSONResponse, PlainTextResponse
++from starlette.routing import Route
++from starlette.types import Message, Receive, Scope, Send
++from tests.types import TestClientFactory
++
++
++async def unreachable_app(scope: Scope, receive: Receive, send: Send) -> None:
++    raise AssertionError("Downstream app must not be called")
++
++
++@pytest.mark.parametrize("max_bytes", [-1, True, False, 1.0, "1", b"1", [], {}, object()])
++def test_invalid_middleware_limit(max_bytes: Any) -> None:
++    with pytest.raises(ValueError):
++        RequestBodyLimitMiddleware(unreachable_app, max_bytes=max_bytes)
++
++
++@pytest.mark.anyio
++@pytest.mark.parametrize("headers", [[], [(b"content-length", b"1")], [(b"content-length", b"1000")]])
++@pytest.mark.parametrize("max_bytes, chunks", [(3, [b"ab", b"cd", b"later"]), (0, [b"x", b"later"])])
++async def test_middleware_rejects_observed_bytes_without_reading_later_chunks(
++    headers: list[tuple[bytes, bytes]], max_bytes: int, chunks: list[bytes]
++) -> None:
++    messages: list[Message] = [{"type": "http.request", "body": chunk, "more_body": True} for chunk in chunks]
++    sent: list[Message] = []
++
++    async def receive() -> Message:
++        return messages.pop(0)
++
++    async def send(message: Message) -> None:
++        sent.append(message)
++
++    middleware = RequestBodyLimitMiddleware(unreachable_app, max_bytes=max_bytes)
++    await middleware({"type": "http", "headers": headers}, receive, send)
++
++    assert messages == [{"type": "http.request", "body": b"later", "more_body": True}]
++    assert len(sent) == 2
++    assert sent[0]["type"] == "http.response.start"
++    assert sent[0]["status"] == 413
++    assert (b"content-type", b"text/plain; charset=utf-8") in sent[0]["headers"]
++    assert sent[1] == {"type": "http.response.body", "body": b"Request body too large"}
++
++
++@pytest.mark.anyio
++@pytest.mark.parametrize(
++    "max_bytes, chunks",
++    [(4, [b"ab", b"", b"cd"]), (5, [b"ab", b"cd"]), (0, [b"", b""]), (0, [b""])],
++)
++async def test_middleware_buffers_then_replays_body_and_delegates_disconnect(
++    max_bytes: int, chunks: list[bytes]
++) -> None:
++    disconnect: Message = {"type": "http.disconnect"}
++    messages: list[Message] = [
++        {"type": "http.request", "body": chunk, "more_body": i < len(chunks) - 1} for i, chunk in enumerate(chunks)
++    ] + [disconnect]
++    expected = b"".join(chunks)
++    called = False
++
++    async def receive() -> Message:
++        return messages.pop(0)
++
++    async def send(message: Message) -> None:
++        pass
++
++    async def app(scope: Scope, downstream_receive: Receive, downstream_send: Send) -> None:
++        nonlocal called
++        called = True
++        assert messages == [disconnect]
++        replay = await downstream_receive()
++        assert replay == {"type": "http.request", "body": expected, "more_body": False}
++        assert await downstream_receive() is disconnect
++        assert downstream_send is send
++
++    middleware = RequestBodyLimitMiddleware(app, max_bytes=max_bytes)
++    # An overstated Content-Length must not reject an accepted body.
++    await middleware({"type": "http", "headers": [(b"content-length", b"1000")]}, receive, send)
++
++    assert called
++    assert messages == []
++
++
++@pytest.mark.anyio
++@pytest.mark.parametrize("scope_type, max_bytes", [("http", None), ("websocket", 0), ("lifespan", 0)])
++async def test_middleware_passes_through_without_buffering(scope_type: str, max_bytes: int | None) -> None:
++    scope: Scope = {"type": scope_type}
++    called = False
++
++    async def receive() -> Message:
++        raise AssertionError("Pass-through must not read")
++
++    async def send(message: Message) -> None:
++        pass
++
++    async def app(downstream_scope: Scope, downstream_receive: Receive, downstream_send: Send) -> None:
++        nonlocal called
++        called = True
++        assert downstream_scope is scope
++        assert downstream_receive is receive
++        assert downstream_send is send
++
++    await RequestBodyLimitMiddleware(app, max_bytes=max_bytes)(scope, receive, send)
++    assert called
++
++
++@pytest.mark.anyio
++async def test_middleware_preserves_client_disconnect_while_buffering() -> None:
++    messages: list[Message] = [
++        {"type": "http.request", "body": b"ab", "more_body": True},
++        {"type": "http.disconnect"},
++    ]
++
++    async def receive() -> Message:
++        return messages.pop(0)
++
++    async def send(message: Message) -> None:
++        raise AssertionError("Disconnected request must not send")
++
++    middleware = RequestBodyLimitMiddleware(unreachable_app, max_bytes=2)
++    with pytest.raises(ClientDisconnect):
++        await middleware({"type": "http"}, receive, send)
++    assert messages == []
++
++
++@pytest.mark.parametrize("max_bytes, body", [(None, b'{"value": 1}'), (2, b"{}"), (0, b"")])
++def test_middleware_body_and_json_caching(
++    test_client_factory: TestClientFactory, max_bytes: int | None, body: bytes
++) -> None:
++    async def endpoint(request: Request) -> JSONResponse:
++        buffered = await request.body()
++        assert buffered == body
++        assert await request.body() is buffered
++        assert await request.body(max_bytes=len(body)) is buffered
++        if body:
++            parsed = await request.json()
++            assert await request.json() is parsed
++        else:
++            parsed = None
++        return JSONResponse(parsed)
++
++    app = Starlette(
++        routes=[Route("/", endpoint, methods=["POST"])],
++        middleware=[Middleware(RequestBodyLimitMiddleware, max_bytes=max_bytes)],
++    )
++    response = test_client_factory(app).post("/", content=body)
++    assert response.status_code == 200
++    assert response.json() == ({"value": 1} if max_bytes is None else {} if body else None)
++
++
++@pytest.mark.parametrize("max_bytes", [None, 2])
++def test_middleware_preserves_endpoint_failures(test_client_factory: TestClientFactory, max_bytes: int | None) -> None:
++    error = RuntimeError("Endpoint failed")
++
++    async def endpoint(request: Request) -> PlainTextResponse:
++        assert await request.body() == b"ab"
++        raise error
++
++    app = Starlette(
++        routes=[Route("/", endpoint, methods=["POST"])],
++        middleware=[Middleware(RequestBodyLimitMiddleware, max_bytes=max_bytes)],
++    )
++    with pytest.raises(RuntimeError, match="Endpoint failed") as caught:
++        test_client_factory(app).post("/", content=b"ab")
++    assert caught.value is error
++
++    response = test_client_factory(app, raise_server_exceptions=False).post("/", content=b"ab")
++    assert response.status_code == 500
++    assert response.text == "Internal Server Error"
+diff --git a/tests/test_request_body_limits.py b/tests/test_request_body_limits.py
+new file mode 100644
+index 0000000..c0f203d
+--- /dev/null
++++ b/tests/test_request_body_limits.py
+@@ -0,0 +1,141 @@
++from __future__ import annotations
++
++from typing import Any
++
++import pytest
++
++from starlette.applications import Starlette
++from starlette.exceptions import HTTPException, RequestBodyTooLarge
++from starlette.requests import ClientDisconnect, Request
++from starlette.responses import PlainTextResponse
++from starlette.routing import Route
++from starlette.types import Message
++from tests.types import TestClientFactory
++
++
++def make_request(messages: list[Message]) -> Request:
++    async def receive() -> Message:
++        return messages.pop(0)
++
++    return Request({"type": "http", "headers": [(b"content-length", b"0")]}, receive)
++
++
++@pytest.mark.anyio
++@pytest.mark.parametrize(
++    "max_bytes, chunks",
++    [(None, [b"ab", b"cd"]), (4, [b"ab", b"", b"cd"]), (0, [b"", b""]), (0, [b""])],
++)
++async def test_body_limit_accepts_complete_body(max_bytes: int | None, chunks: list[bytes]) -> None:
++    messages: list[Message] = [
++        {"type": "http.request", "body": chunk, "more_body": i < len(chunks) - 1} for i, chunk in enumerate(chunks)
++    ]
++    request = make_request(messages)
++    body = await request.body(max_bytes=max_bytes)
++
++    assert body == b"".join(chunks)
++    assert messages == []
++    assert await request.body() is body
++    assert await request.body(max_bytes=None) is body
++    assert await request.body(max_bytes=len(body)) is body
++    assert [chunk async for chunk in request.stream()] == [body, b""]
++
++
++@pytest.mark.anyio
++@pytest.mark.parametrize(
++    "max_bytes, chunks, received, read_count",
++    [
++        (0, [b"x", b"later"], 1, 1),
++        (3, [b"ab", b"", b"cd", b"later"], 4, 3),
++        (3, [b"abcd"], 4, 1),
++        (1, ["é".encode(), b"later"], 2, 1),
++    ],
++)
++async def test_body_limit_stops_at_first_crossing(
++    max_bytes: int, chunks: list[bytes], received: int, read_count: int
++) -> None:
++    messages: list[Message] = [
++        {"type": "http.request", "body": chunk, "more_body": i < len(chunks) - 1} for i, chunk in enumerate(chunks)
++    ]
++    remaining = messages[read_count:]
++    request = make_request(messages)
++
++    with pytest.raises(RequestBodyTooLarge) as caught:
++        await request.body(max_bytes=max_bytes)
++
++    assert isinstance(caught.value, HTTPException)
++    assert caught.value.status_code == 413
++    assert caught.value.detail == "Request body too large"
++    assert caught.value.limit == max_bytes
++    assert caught.value.received == received
++    assert messages == remaining
++    assert not hasattr(request, "_body")
++
++
++@pytest.mark.anyio
++@pytest.mark.parametrize("max_bytes", [-1, True, False, 1.0, "1", b"1", [], {}, object()])
++@pytest.mark.parametrize("cached", [False, True])
++async def test_invalid_body_limit_does_not_receive(max_bytes: Any, cached: bool) -> None:
++    messages: list[Message] = [{"type": "http.request", "body": b"body"}]
++    request = make_request(messages)
++    if cached:
++        assert await request.body() == b"body"
++    remaining = messages.copy()
++
++    with pytest.raises(ValueError):
++        await request.body(max_bytes=max_bytes)
++
++    assert messages == remaining
++    assert hasattr(request, "_body") is cached
++
++
++@pytest.mark.anyio
++@pytest.mark.parametrize("json_first", [False, True])
++async def test_stricter_limit_checks_cached_body_without_receiving(json_first: bool) -> None:
++    body = b'{"value": 1}'
++    messages: list[Message] = [{"type": "http.request", "body": body}]
++    request = make_request(messages)
++    if json_first:
++        assert await request.json() == {"value": 1}
++    else:
++        assert await request.body(max_bytes=len(body)) == body
++
++    with pytest.raises(RequestBodyTooLarge) as caught:
++        await request.body(max_bytes=len(body) - 1)
++
++    assert caught.value.limit == len(body) - 1
++    assert caught.value.received == len(body)
++    assert await request.body() is request._body
++    parsed = await request.json()
++    assert parsed == {"value": 1}
++    assert await request.json() is parsed
++    assert messages == []
++
++
++@pytest.mark.anyio
++@pytest.mark.parametrize("max_bytes", [None, 2])
++@pytest.mark.parametrize("partial_body", [b"", b"ab"])
++async def test_body_limit_preserves_client_disconnect(max_bytes: int | None, partial_body: bytes) -> None:
++    messages: list[Message] = [
++        {"type": "http.request", "body": partial_body, "more_body": True},
++        {"type": "http.disconnect"},
++    ]
++    request = make_request(messages)
++
++    with pytest.raises(ClientDisconnect):
++        await request.body(max_bytes=max_bytes)
++
++    assert not hasattr(request, "_body")
++    assert await request.is_disconnected()
++    assert messages == []
++
++
++def test_body_limit_uses_http_exception_handler(test_client_factory: TestClientFactory) -> None:
++    async def endpoint(request: Request) -> PlainTextResponse:
++        return PlainTextResponse(await request.body(max_bytes=2))
++
++    app = Starlette(routes=[Route("/", endpoint, methods=["POST"])])
++    client = test_client_factory(app)
++    assert client.post("/", content=b"ab").content == b"ab"
++    response = client.post("/", content=b"abc")
++    assert response.status_code == 413
++    assert response.content == b"Request body too large"
