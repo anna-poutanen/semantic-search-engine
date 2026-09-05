@@ -1,0 +1,486 @@
+diff --git a/src/requests/__init__.py b/src/requests/__init__.py
+index 1093ff8..7f7f3d1 100644
+--- a/src/requests/__init__.py
++++ b/src/requests/__init__.py
+@@ -175,6 +175,7 @@ from .exceptions import (
+     FileModeWarning,
+     HTTPError,
+     JSONDecodeError,
++    JSONLineDecodeError,
+     ReadTimeout,
+     RequestException,
+     Timeout,
+@@ -190,6 +191,7 @@ __all__ = (
+     "ConnectTimeout",
+     "HTTPError",
+     "JSONDecodeError",
++    "JSONLineDecodeError",
+     "PreparedRequest",
+     "ReadTimeout",
+     "Request",
+diff --git a/src/requests/exceptions.py b/src/requests/exceptions.py
+index cb5e951..568be02 100644
+--- a/src/requests/exceptions.py
++++ b/src/requests/exceptions.py
+@@ -39,6 +39,21 @@ class InvalidJSONError(RequestException):
+     """A JSON error occurred."""
+ 
+ 
++class JSONLineDecodeError(InvalidJSONError):
++    """Couldn't decode a UTF-8 JSON line from a response.
++
++    ``line_number`` is the one-based physical line number, including blank
++    lines. ``line`` contains the original bytes without the LF/CRLF delimiter.
++    """
++
++    def __init__(
++        self, message: str, line_number: int, line: bytes, **kwargs: Any
++    ) -> None:
++        self.line_number = line_number
++        self.line = line
++        super().__init__(message, **kwargs)
++
++
+ class JSONDecodeError(InvalidJSONError, CompatJSONDecodeError):
+     """Couldn't decode the text into json"""
+ 
+diff --git a/src/requests/models.py b/src/requests/models.py
+index 17b39cd..ac029d7 100644
+--- a/src/requests/models.py
++++ b/src/requests/models.py
+@@ -61,6 +61,7 @@ from .exceptions import (
+     HTTPError,
+     InvalidJSONError,
+     InvalidURL,
++    JSONLineDecodeError,
+     MissingSchema,
+     StreamConsumedError,
+ )
+@@ -1031,6 +1032,74 @@ class Response:
+         if pending is not None:
+             yield pending
+ 
++    def iter_json_lines(
++        self, chunk_size: int = ITER_CHUNK_SIZE, skip_blank: bool = True
++    ) -> Iterator[Any]:
++        """Lazily decode newline-delimited JSON values from the response.
++
++        Lines are separated by LF or CRLF and decoded as UTF-8 regardless of
++        :attr:`encoding`. A UTF-8 BOM is accepted only at the start of the
++        first physical line. With ``stream=True``, only the current line and
++        chunk are buffered. Cached response content is also supported.
++
++        :param chunk_size: Positive, non-boolean integer byte chunk size.
++        :param skip_blank: Whether to skip whitespace-only lines.
++        :raises ValueError: If either argument is invalid.
++        :raises requests.exceptions.JSONLineDecodeError: If a line contains
++            malformed JSON or UTF-8. The error includes the physical line
++            number and original bytes, and chains the decoding exception.
++
++        .. note:: This method is not reentrant safe.
++        """
++        if (
++            isinstance(chunk_size, bool)
++            or not isinstance(chunk_size, int)
++            or chunk_size <= 0
++        ):
++            raise ValueError("chunk_size must be a positive, non-boolean integer")
++        if not isinstance(skip_blank, bool):
++            raise ValueError("skip_blank must be a boolean")
++
++        def decode_line(line: bytes, line_number: int) -> Iterator[Any]:
++            try:
++                text = line.decode("utf-8-sig" if line_number == 1 else "utf-8")
++                if text.startswith("\ufeff"):
++                    raise JSONDecodeError("Unexpected UTF-8 BOM", text, 0)
++                if skip_blank and not text.strip():
++                    return
++                value = complexjson.loads(text)
++            except (UnicodeDecodeError, JSONDecodeError) as e:
++                raise JSONLineDecodeError(
++                    f"Failed to decode JSON on line {line_number}: {e}",
++                    line_number=line_number,
++                    line=line,
++                    response=self,
++                ) from e
++            yield value
++
++        def generate() -> Iterator[Any]:
++            pending = bytearray()
++            line_number = 0
++            for chunk in self.iter_content(chunk_size=chunk_size):
++                start = 0
++                while True:
++                    end = chunk.find(b"\n", start)
++                    if end < 0:
++                        pending.extend(chunk[start:])
++                        break
++                    pending.extend(chunk[start:end])
++                    line = bytes(pending)
++                    pending.clear()
++                    if line.endswith(b"\r"):
++                        line = line[:-1]
++                    line_number += 1
++                    yield from decode_line(line, line_number)
++                    start = end + 1
++            if pending:
++                yield from decode_line(bytes(pending), line_number + 1)
++
++        return generate()
++
+     @property
+     def content(self) -> bytes:
+         """Content of the response, in bytes."""
+diff --git a/tests/test_json_lines.py b/tests/test_json_lines.py
+new file mode 100644
+index 0000000..049470c
+--- /dev/null
++++ b/tests/test_json_lines.py
+@@ -0,0 +1,253 @@
++"""Regression tests for incremental newline-delimited JSON decoding."""
++
++import io
++
++import pytest
++
++import requests
++from requests.compat import JSONDecodeError, json
++from requests.exceptions import InvalidJSONError, JSONLineDecodeError
++
++
++def make_response(body, cached=False):
++    response = requests.Response()
++    response.status_code = 200
++    response.raw = io.BytesIO(body)
++    response.request = requests.Request("GET", "http://localhost/ndjson").prepare()
++    if cached:
++        assert response.content == body
++    return response
++
++
++@pytest.mark.parametrize("cached", [False, True])
++@pytest.mark.parametrize("chunk_size", [1, 2, 3, 4, 7, 512])
++@pytest.mark.parametrize("bom", [b"", b"\xef\xbb\xbf"])
++def test_utf8_values_and_mixed_delimiters(cached, chunk_size, bom):
++    body = (
++        bom
++        + (
++            '{"text":"雪😀"}\r\n\n \t\r\n[1,"é"]\n42\r\n-1.25\ntrue\nfalse\r\nnull\n"last"'
++        ).encode()
++    )
++    response = make_response(body, cached)
++    response.encoding = "iso-8859-1"
++
++    assert list(response.iter_json_lines(chunk_size)) == [
++        {"text": "雪😀"},
++        [1, "é"],
++        42,
++        -1.25,
++        True,
++        False,
++        None,
++        "last",
++    ]
++    assert response.encoding == "iso-8859-1"
++    if cached:
++        assert response.content == body
++    else:
++        assert response._content is False
++
++
++@pytest.mark.parametrize("cached", [False, True])
++@pytest.mark.parametrize("skip_blank", [False, True])
++@pytest.mark.parametrize(
++    "body, expected", [(b"", []), (b"1", [1]), (b"1\n", [1]), (b"1\r\n", [1])]
++)
++def test_empty_and_final_records(cached, skip_blank, body, expected):
++    response = make_response(body, cached)
++    assert list(response.iter_json_lines(1, skip_blank)) == expected
++
++
++@pytest.mark.parametrize(
++    "blank", [b"\n", b"\r\n", b" \t\r\n", b" \t", "\u2003\n".encode()]
++)
++def test_blank_lines_are_optional(blank):
++    assert list(make_response(blank).iter_json_lines(1)) == []
++    response = make_response(blank)
++    with pytest.raises(JSONLineDecodeError) as caught:
++        list(response.iter_json_lines(1, skip_blank=False))
++    line = blank[:-1] if blank.endswith(b"\n") else blank
++    if blank.endswith(b"\r\n"):
++        line = line[:-1]
++    assert caught.value.line == line
++    assert caught.value.line_number == 1
++    assert isinstance(caught.value.__cause__, JSONDecodeError)
++
++
++@pytest.mark.parametrize(
++    "chunk_size", [0, -1, True, False, None, 1.0, "2", b"2", object()]
++)
++def test_invalid_chunk_size_is_rejected_before_iteration(chunk_size):
++    response = make_response(b"1\n")
++    with pytest.raises(ValueError, match="chunk_size"):
++        response.iter_json_lines(chunk_size)
++    assert response.raw.tell() == 0
++
++
++@pytest.mark.parametrize("skip_blank", [0, 1, None, "false", [], object()])
++def test_invalid_skip_blank_is_rejected_before_iteration(skip_blank):
++    response = make_response(b"1\n")
++    with pytest.raises(ValueError, match="skip_blank"):
++        response.iter_json_lines(skip_blank=skip_blank)
++    assert response.raw.tell() == 0
++
++
++def test_positive_integer_subclasses_are_accepted():
++    class ChunkSize(int):
++        pass
++
++    assert list(make_response(b"1\n").iter_json_lines(ChunkSize(1))) == [1]
++
++
++@pytest.mark.parametrize("cached", [False, True])
++@pytest.mark.parametrize("chunk_size", [1, 512])
++@pytest.mark.parametrize(
++    "record, line, cause_type",
++    [
++        (b'{"a": }\r\n', b'{"a": }', JSONDecodeError),
++        (b'"\xff"\n', b'"\xff"', UnicodeDecodeError),
++        (b'"\xe2\x82', b'"\xe2\x82', UnicodeDecodeError),
++        (b"bad\r", b"bad\r", JSONDecodeError),
++        (b"1 2\n", b"1 2", JSONDecodeError),
++    ],
++)
++def test_later_error_keeps_physical_line_and_context(
++    cached, chunk_size, record, line, cause_type
++):
++    response = make_response(b"\n \r\nnull\r\n" + record, cached)
++    values = response.iter_json_lines(chunk_size)
++    assert next(values) is None
++    with pytest.raises(JSONLineDecodeError) as caught:
++        next(values)
++
++    error = caught.value
++    assert isinstance(error, InvalidJSONError)
++    assert error.line_number == 4
++    assert error.line == line
++    assert error.response is response
++    assert error.request is response.request
++    assert isinstance(error.__cause__, cause_type)
++    assert "line 4" in str(error)
++
++
++@pytest.mark.parametrize(
++    "body, line_number, line",
++    [
++        (b"\n\xef\xbb\xbf1\n", 2, b"\xef\xbb\xbf1"),
++        (b" \xef\xbb\xbf1\n", 1, b" \xef\xbb\xbf1"),
++        (b"\xef\xbb\xbf\xef\xbb\xbf1\n", 1, b"\xef\xbb\xbf\xef\xbb\xbf1"),
++        (b"\xef\xbb\xbfbad\r\n", 1, b"\xef\xbb\xbfbad"),
++    ],
++)
++def test_bom_is_only_accepted_at_start_of_first_physical_line(body, line_number, line):
++    response = make_response(body)
++    with pytest.raises(JSONLineDecodeError) as caught:
++        list(response.iter_json_lines(1))
++    assert caught.value.line_number == line_number
++    assert caught.value.line == line
++    assert isinstance(caught.value.__cause__, JSONDecodeError)
++
++
++def test_bom_on_blank_first_line_does_not_move_line_number():
++    response = make_response(b"\xef\xbb\xbf\r\n1\ninvalid\n")
++    values = response.iter_json_lines(1)
++    assert next(values) == 1
++    with pytest.raises(JSONLineDecodeError) as caught:
++        next(values)
++    assert caught.value.line_number == 3
++
++
++def test_only_lf_and_crlf_split_records():
++    response = make_response(b"1\r2\n")
++    with pytest.raises(JSONLineDecodeError) as caught:
++        list(response.iter_json_lines(1))
++    assert caught.value.line == b"1\r2"
++    assert caught.value.line_number == 1
++
++
++@pytest.mark.parametrize("chunk_size", [2, 512])
++def test_iteration_is_lazy_and_never_reads_content(monkeypatch, chunk_size):
++    response = make_response(b'1\n"\xff"\n')
++
++    def forbidden_content(self):
++        pytest.fail("iter_json_lines must not access Response.content")
++
++    monkeypatch.setattr(requests.Response, "content", property(forbidden_content))
++    values = response.iter_json_lines(chunk_size)
++    assert response.raw.tell() == 0
++    assert next(values) == 1
++    assert response.raw.tell() == min(chunk_size, 6)
++    assert response._content is False
++    with pytest.raises(JSONLineDecodeError) as caught:
++        next(values)
++    assert isinstance(caught.value.__cause__, UnicodeDecodeError)
++
++
++def test_default_chunk_size_uses_decoded_stream_without_reading_ahead():
++    reads = []
++
++    class RawStream:
++        def stream(self, chunk_size, decode_content):
++            assert chunk_size == 512
++            assert decode_content is True
++            for chunk in [b"1\n", b"", b"2\r", b"\n"]:
++                reads.append(chunk)
++                yield chunk
++
++    response = requests.Response()
++    response.raw = RawStream()
++    values = response.iter_json_lines()
++    assert reads == []
++    assert next(values) == 1
++    assert reads == [b"1\n"]
++    assert list(values) == [2]
++    assert response._content_consumed
++    assert response._content is False
++
++
++@pytest.mark.parametrize(
++    "text",
++    ['{"key":1,"key":2}', "123456789012345678901234567890", "1e100", '"\\ufeff"'],
++)
++def test_values_match_existing_json_decoder(text):
++    response = make_response(text.encode() + b"\n")
++    assert list(response.iter_json_lines(1)) == [json.loads(text)]
++
++
++@pytest.mark.parametrize("text", ["NaN", "Infinity", "-Infinity"])
++def test_nonfinite_values_follow_existing_json_decoder(text):
++    response = make_response(text.encode() + b"\n")
++    try:
++        expected = json.loads(text)
++    except JSONDecodeError:
++        with pytest.raises(JSONLineDecodeError) as caught:
++            list(response.iter_json_lines())
++        assert isinstance(caught.value.__cause__, JSONDecodeError)
++    else:
++        value = next(response.iter_json_lines())
++        assert repr(value) == repr(expected)
++
++
++def test_public_exception_is_the_same_class():
++    assert requests.JSONLineDecodeError is JSONLineDecodeError
++    assert requests.exceptions.JSONLineDecodeError is JSONLineDecodeError
++    assert issubclass(JSONLineDecodeError, InvalidJSONError)
++    assert "JSONLineDecodeError" in requests.__all__
++
++
++def test_cached_json_and_streaming_methods_keep_existing_behavior():
++    body = b'{"text":"\xc3\xa9"}\r\n'
++    response = make_response(body, cached=True)
++    response.encoding = "iso-8859-1"
++    original_json = response.json()
++    original_lines = list(response.iter_lines(chunk_size=3, decode_unicode=True))
++    original_chunks = list(response.iter_content(chunk_size=2))
++
++    assert list(response.iter_json_lines(1)) == [{"text": "é"}]
++    assert response.json() == original_json == {"text": "Ã©"}
++    assert (
++        list(response.iter_lines(chunk_size=3, decode_unicode=True)) == original_lines
++    )
++    assert list(response.iter_content(chunk_size=2)) == original_chunks
++    assert response.content == body
+diff --git a/tests/test_json_lines_integration.py b/tests/test_json_lines_integration.py
+new file mode 100644
+index 0000000..2fff8d4
+--- /dev/null
++++ b/tests/test_json_lines_integration.py
+@@ -0,0 +1,88 @@
++"""Loopback HTTP coverage for newline-delimited JSON responses."""
++
++import gzip
++import threading
++
++import pytest
++
++import requests
++from requests.compat import JSONDecodeError
++from tests.testserver.server import Server, consume_socket_content
++
++
++@pytest.mark.parametrize("stream", [False, True])
++@pytest.mark.parametrize("compressed", [False, True])
++@pytest.mark.parametrize("chunk_size", [1, 512])
++def test_chunked_http_json_lines(stream, compressed, chunk_size):
++    body = b"\xef\xbb\xbf" + '{"text":"雪😀"}\r\n \t\nnull\n\n'.encode()
++    bad_line = b'{"broken": }'
++    body += bad_line + b"\r\n"
++    wire_body = gzip.compress(body) if compressed else body
++
++    def handler(sock):
++        consume_socket_content(sock, timeout=0.05)
++        headers = (
++            b"HTTP/1.1 200 OK\r\n"
++            b"Content-Type: application/x-ndjson; charset=iso-8859-1\r\n"
++            b"Transfer-Encoding: chunked\r\n"
++        )
++        if compressed:
++            headers += b"Content-Encoding: gzip\r\n"
++        chunked_body = bytearray()
++        for start in range(0, len(wire_body), 3):
++            chunk = wire_body[start : start + 3]
++            chunked_body.extend(f"{len(chunk):x}\r\n".encode() + chunk + b"\r\n")
++        sock.sendall(headers + b"\r\n" + chunked_body + b"0\r\n\r\n")
++
++    with Server(handler, host="127.0.0.1") as (host, port):
++        with requests.Session() as session:
++            session.trust_env = False
++            with session.get(
++                f"http://{host}:{port}/", stream=stream, timeout=5
++            ) as response:
++                assert response.encoding == "iso-8859-1"
++                values = response.iter_json_lines(chunk_size)
++                assert next(values) == {"text": "雪😀"}
++                assert next(values) is None
++                with pytest.raises(requests.JSONLineDecodeError) as caught:
++                    next(values)
++                assert caught.value.line_number == 5
++                assert caught.value.line == bad_line
++                assert caught.value.response is response
++                assert caught.value.request is response.request
++                assert isinstance(caught.value.__cause__, JSONDecodeError)
++                if stream:
++                    assert response._content is False
++                else:
++                    assert response.content == body
++
++
++def test_first_record_is_available_before_http_body_finishes():
++    finish_body = threading.Event()
++
++    def handler(sock):
++        consume_socket_content(sock, timeout=0.05)
++        sock.sendall(
++            b"HTTP/1.1 200 OK\r\n"
++            b"Content-Type: application/x-ndjson\r\n"
++            b"Transfer-Encoding: chunked\r\n\r\n"
++            b"2\r\n1\n\r\n"
++        )
++        if finish_body.wait(5):
++            sock.sendall(b"2\r\n2\n\r\n0\r\n\r\n")
++
++    with Server(handler, host="127.0.0.1") as (host, port):
++        with requests.Session() as session:
++            session.trust_env = False
++            try:
++                with session.get(
++                    f"http://{host}:{port}/", stream=True, timeout=2
++                ) as response:
++                    values = response.iter_json_lines()
++                    assert next(values) == 1
++                    assert response._content is False
++                    assert not finish_body.is_set()
++                    finish_body.set()
++                    assert list(values) == [2]
++            finally:
++                finish_body.set()

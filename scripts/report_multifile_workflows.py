@@ -561,6 +561,7 @@ def build_report(study, *, encoder=None, raw_root=None, allow_partial=False):
         "definitions": {"gross_tokens": "Reported input + output; cached/cache-write input and reasoning output are subsets, never added to gross.",
             "uncached_input": "Input minus cached input only where both are reported; cache writes are separately reported and not subtracted.",
             "missing_usage": "No completed-turn receipt means unavailable usage, including potentially charged work before a timeout; it is never treated as zero.",
+            "timeout_time": "A timed-out CLI duration measures observed resource time to cutoff, not a successful completion time; its completion time is censored at that limit.",
             "output_proxies": "UTF-8 bytes and optional cached cl100k counts of published path-redacted completed tool output strings; not provider input, billed tokens, or exact model-visible history.",
             "structured_fields": "CLI normalization can add null structured fields; structured_payload_present requires a non-null value. A null field is not a duplicate payload or billing evidence.",
             "rereads": "Exact full delivered excerpt substring seen in later command stdout; not complete evidence or phase attribution.",
@@ -677,6 +678,7 @@ def render_markdown(report):
         "Edits are review flags, not automatic proof of weakening; newly added regression tests remain in candidate patches. "
         "The JSON includes exact selected-check outcomes, frozen versus observed upstream counts, receipt/source validation, hash checks, call settings, changed files, and unavailable measurements.", "",
         "## Measurement limits", "",
+        "A timeout's CLI duration measures time spent up to the cutoff. Successful completion time is unknown beyond that limit; it is not a completed task in exactly 900 seconds. Timeout usage without a provider receipt stays unavailable.", "",
         "Published stdout and MCP text produce UTF-8 byte and cl100k token proxies. They measure received strings, not provider billing or exact model-visible history. "
         "The history cap can affect what reaches the model; no token-saving claim follows from output bytes alone.", "",
         "Source overlap and repeated context are descriptive diagnostics: same-call containment and exact excerpts in later same-path results/stdout. "
