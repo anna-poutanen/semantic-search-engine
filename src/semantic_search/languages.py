@@ -18,7 +18,7 @@ from pathlib import PurePath
 PARSER_PINS = {"tree-sitter": "0.26.0", "tree-sitter-javascript": "0.25.0",
                "tree-sitter-typescript": "0.23.2"}
 # Bump when extraction, naming, validation, relations, or membership changes.
-EXTRACTION_POLICY = "saved-implementations-v1"
+EXTRACTION_POLICY = "saved-implementations-v2"
 JS_EXCLUDED_DIRECTORIES = frozenset({"node_modules", "bower_components", "dist", "build",
                                     "coverage", ".next", ".nuxt", ".svelte-kit", "out"})
 

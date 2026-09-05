@@ -41,10 +41,75 @@ def parser_for(path):
     return Parser(language)
 
 
+def _variance_repairs(tree, raw):
+    """Pad only TS declaration type-parameter modifiers unsupported by the pin.
+
+    The grammar still supplies the declaration/list boundaries. Direct commas
+    delimit parameters, so commas in nested constraints cannot start a repair.
+    The replacement tree must parse cleanly; executable bytes are never changed.
+    """
+    owners = {"interface_declaration", "type_alias_declaration", "class_declaration",
+              "abstract_class_declaration", "class"}
+    repairs = []
+    pending = [tree.root_node]
+    while pending:
+        node = pending.pop()
+        pending.extend(node.named_children)
+        if (node.type != "type_parameters" or node.parent.type not in owners
+                or node.parent.child_by_field_name("type_parameters") != node):
+            continue
+        leaves = []
+        stack = [node]
+        while stack:
+            item = stack.pop()
+            if item.type == "comment":
+                continue
+            if item.children:
+                stack.extend(reversed(item.children))
+            elif item.end_byte > item.start_byte:
+                leaves.append(item)
+        boundaries = [child for child in node.children if child.type in {"<", ",", ">"}]
+        for begin, end in zip(boundaries, boundaries[1:]):
+            tokens = [item for item in leaves if begin.end_byte <= item.start_byte
+                      and item.end_byte <= end.start_byte]
+            if len(tokens) == 1 and node_text(tokens[0], raw) == "in":
+                raise SyntaxError("Type parameter variance requires an identifier")
+            if len(tokens) < 2 or node_text(tokens[0], raw) not in {"in", "out"}:
+                continue
+            # A plain parameter named `out` remains valid. Only an adjacent
+            # identifier token makes the first contextual keyword a modifier.
+            if tokens[1].type not in {"identifier", "type_identifier"}:
+                continue
+            modifiers = [tokens[0]]
+            if (len(tokens) > 2 and node_text(tokens[1], raw) in {"in", "out"}
+                    and tokens[2].type in {"identifier", "type_identifier"}):
+                if [node_text(item, raw) for item in tokens[:2]] != ["in", "out"]:
+                    raise SyntaxError("Type parameter variance permits only in, out, or in out")
+                modifiers.append(tokens[1])
+            name = tokens[len(modifiers)]
+            if node_text(name, raw) == "in":
+                raise SyntaxError("Type parameter variance requires an identifier")
+            for modifier, following in zip(modifiers, tokens[1:]):
+                gap = raw[modifier.end_byte:following.start_byte].decode("utf-8")
+                if any(char in gap for char in "\r\n\u2028\u2029"):
+                    raise SyntaxError("Type parameter variance cannot cross a line terminator")
+                repairs.append((modifier.start_byte, modifier.end_byte))
+    return repairs
+
+
 def parse_source(path, source):
     parser = parser_for(path)
     raw = source.encode("utf-8")
-    tree = parser.parse(raw)
+    parsed_raw = raw
+    tree = parser.parse(parsed_raw)
+    if extractor_for(path).language == "typescript":
+        repairs = _variance_repairs(tree, raw)
+        if repairs:
+            parsed = bytearray(raw)
+            for start, end in repairs:
+                parsed[start:end] = b" " * (end - start)
+            parsed_raw = bytes(parsed)
+            tree = parser.parse(parsed_raw)
     if not tree.root_node.has_error:
         # The pinned grammars can parse `export\nconst/function/...` as an
         # identifier followed by an unexported declaration. ECMAScript permits
@@ -93,7 +158,7 @@ def parse_source(path, source):
                 repairs.append((token.end_byte, following.start_byte))
             pending.extend(node.named_children)
         if repairs:
-            parsed = bytearray(raw)
+            parsed = bytearray(parsed_raw)
             for start, end in repairs:
                 parsed[start:end] = b" " * (end - start)
             tree = parser.parse(bytes(parsed))
