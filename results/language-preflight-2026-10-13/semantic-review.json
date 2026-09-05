@@ -1,0 +1,936 @@
+{
+  "checks": {
+    "all_source_supported": true,
+    "all_thirty_queries_reviewed": true,
+    "notice_hashes": true,
+    "verbatim_zod_source_attribution_in_notices": true
+  },
+  "classification": "Independent semantic/source-byte review before language inference",
+  "corrections": "Added bottom-up ordering and runtime WeakMap evidence, static-equivalent nested OR targets, complete enclosing-window coverage semantics and corpus/source-level notices before any extraction/ranking output.",
+  "datasets": [
+    {
+      "checks": {
+        "clean_checkout": true,
+        "dataset_hash": true,
+        "exact_license_bytes": true,
+        "inventory_counts": true,
+        "metadata_and_role": true,
+        "pinned_head": true,
+        "release_tag": true,
+        "shared_full_evidence_scoring_contract": true
+      },
+      "id": "express",
+      "passed": true,
+      "queries": [
+        {
+          "absence_scope_reviewed": null,
+          "judgment": "source_supported",
+          "kind": "present",
+          "query_id": "express_case_insensitive_header_alias",
+          "reason": "The same chained get/header implementation validates a nonempty string, lowercases it and special-cases referer/referrer.",
+          "required_groups": 1,
+          "split": "development",
+          "target_rows": [
+            {
+              "declared_160_40_feasible": true,
+              "definition_lines": [
+                63,
+                83
+              ],
+              "evidence_lines": [
+                65,
+                81
+              ],
+              "path": "lib/request.js",
+              "symbol": "req.header"
+            },
+            {
+              "declared_160_40_feasible": true,
+              "definition_lines": [
+                63,
+                83
+              ],
+              "evidence_lines": [
+                65,
+                81
+              ],
+              "path": "lib/request.js",
+              "symbol": "req.get"
+            }
+          ]
+        },
+        {
+          "absence_scope_reviewed": null,
+          "judgment": "source_supported",
+          "kind": "present",
+          "query_id": "express_jsonp_callback_safety",
+          "reason": "The nonempty-string branch sanitizes callback characters, escapes U+2028/U+2029 and builds a guarded callback invocation before send.",
+          "required_groups": 1,
+          "split": "calibration",
+          "target_rows": [
+            {
+              "declared_160_40_feasible": true,
+              "definition_lines": [
+                264,
+                308
+              ],
+              "evidence_lines": [
+                282,
+                307
+              ],
+              "path": "lib/response.js",
+              "symbol": "res.jsonp"
+            }
+          ]
+        },
+        {
+          "absence_scope_reviewed": null,
+          "judgment": "source_supported",
+          "kind": "present",
+          "query_id": "express_cookie_signing_and_age",
+          "reason": "cookie copies options, requires the signing secret, serializes object/scalar values and converts milliseconds with Date.now and Math.floor(age/1000).",
+          "required_groups": 1,
+          "split": "development",
+          "target_rows": [
+            {
+              "declared_160_40_feasible": true,
+              "definition_lines": [
+                748,
+                781
+              ],
+              "evidence_lines": [
+                749,
+                781
+              ],
+              "path": "lib/response.js",
+              "symbol": "res.cookie"
+            }
+          ]
+        },
+        {
+          "absence_scope_reviewed": null,
+          "judgment": "source_supported",
+          "kind": "present",
+          "query_id": "express_clear_cookie_ignores_age",
+          "reason": "clearCookie overrides expires with Date(1), deletes maxAge and emits an empty cookie through the ordinary helper.",
+          "required_groups": 1,
+          "split": "calibration",
+          "target_rows": [
+            {
+              "declared_160_40_feasible": true,
+              "definition_lines": [
+                715,
+                722
+              ],
+              "evidence_lines": [
+                716,
+                721
+              ],
+              "path": "lib/response.js",
+              "symbol": "res.clearCookie"
+            }
+          ]
+        },
+        {
+          "absence_scope_reviewed": null,
+          "judgment": "source_supported",
+          "kind": "present",
+          "query_id": "express_append_preserves_headers",
+          "reason": "append reads the previous header and concatenates scalar/array combinations before set.",
+          "required_groups": 1,
+          "split": "development",
+          "target_rows": [
+            {
+              "declared_160_40_feasible": true,
+              "definition_lines": [
+                635,
+                647
+              ],
+              "evidence_lines": [
+                636,
+                647
+              ],
+              "path": "lib/response.js",
+              "symbol": "res.append"
+            }
+          ]
+        },
+        {
+          "absence_scope_reviewed": null,
+          "judgment": "source_supported",
+          "kind": "present",
+          "query_id": "express_content_negotiation_fallback",
+          "reason": "format excludes default from negotiable keys, varies Accept, dispatches a match/default or forwards a406 error.",
+          "required_groups": 1,
+          "split": "calibration",
+          "target_rows": [
+            {
+              "declared_160_40_feasible": true,
+              "definition_lines": [
+                574,
+                599
+              ],
+              "evidence_lines": [
+                578,
+                599
+              ],
+              "path": "lib/response.js",
+              "symbol": "res.format"
+            }
+          ]
+        },
+        {
+          "absence_scope_reviewed": null,
+          "judgment": "source_supported",
+          "kind": "present",
+          "query_id": "express_redirect_html_and_head",
+          "reason": "redirect chooses text or escaped HTML, sets byte length and sends no body for HEAD.",
+          "required_groups": 1,
+          "split": "development",
+          "target_rows": [
+            {
+              "declared_160_40_feasible": true,
+              "definition_lines": [
+                815,
+                867
+              ],
+              "evidence_lines": [
+                838,
+                867
+              ],
+              "path": "lib/response.js",
+              "symbol": "res.redirect"
+            }
+          ]
+        },
+        {
+          "absence_scope_reviewed": null,
+          "judgment": "source_supported",
+          "kind": "present",
+          "query_id": "express_mounted_app_prototype_restore",
+          "reason": "use's app-like branch mounts the child and restores the parent request/response prototypes before next(err).",
+          "required_groups": 1,
+          "split": "calibration",
+          "target_rows": [
+            {
+              "declared_160_40_feasible": true,
+              "definition_lines": [
+                190,
+                244
+              ],
+              "evidence_lines": [
+                222,
+                244
+              ],
+              "path": "lib/application.js",
+              "symbol": "app.use"
+            }
+          ]
+        },
+        {
+          "absence_scope_reviewed": null,
+          "judgment": "source_supported",
+          "kind": "present",
+          "query_id": "express_configured_query_parser",
+          "reason": "set compiles the setting, compileQueryParser selects custom/simple/extended/disabled mode, and the query getter invokes it or returns a null-prototype empty object.",
+          "required_groups": 3,
+          "split": "development",
+          "target_rows": [
+            {
+              "declared_160_40_feasible": true,
+              "definition_lines": [
+                351,
+                383
+              ],
+              "evidence_lines": [
+                360,
+                370
+              ],
+              "path": "lib/application.js",
+              "symbol": "app.set"
+            },
+            {
+              "declared_160_40_feasible": true,
+              "definition_lines": [
+                162,
+                184
+              ],
+              "evidence_lines": [
+                165,
+                184
+              ],
+              "path": "lib/utils.js",
+              "symbol": "exports.compileQueryParser"
+            },
+            {
+              "declared_160_40_feasible": true,
+              "definition_lines": [
+                230,
+                241
+              ],
+              "evidence_lines": [
+                231,
+                241
+              ],
+              "path": "lib/request.js",
+              "symbol": "query"
+            }
+          ]
+        },
+        {
+          "absence_scope_reviewed": null,
+          "judgment": "source_supported",
+          "kind": "present",
+          "query_id": "express_trusted_forwarded_protocol",
+          "reason": "set/compileTrust construct a trust predicate; protocol checks socket remoteAddress before using the first forwarded protocol token.",
+          "required_groups": 3,
+          "split": "calibration",
+          "target_rows": [
+            {
+              "declared_160_40_feasible": true,
+              "definition_lines": [
+                351,
+                383
+              ],
+              "evidence_lines": [
+                371,
+                379
+              ],
+              "path": "lib/application.js",
+              "symbol": "app.set"
+            },
+            {
+              "declared_160_40_feasible": true,
+              "definition_lines": [
+                194,
+                214
+              ],
+              "evidence_lines": [
+                195,
+                213
+              ],
+              "path": "lib/utils.js",
+              "symbol": "exports.compileTrust"
+            },
+            {
+              "declared_160_40_feasible": true,
+              "definition_lines": [
+                297,
+                315
+              ],
+              "evidence_lines": [
+                298,
+                314
+              ],
+              "path": "lib/request.js",
+              "symbol": "protocol"
+            }
+          ]
+        },
+        {
+          "absence_scope_reviewed": null,
+          "judgment": "source_supported",
+          "kind": "present",
+          "query_id": "express_view_cache_and_lookup",
+          "reason": "render merges options and reuses/populates cache; lookup searches roots and resolve tries direct file then index.ext.",
+          "required_groups": 3,
+          "split": "development",
+          "target_rows": [
+            {
+              "declared_160_40_feasible": true,
+              "definition_lines": [
+                522,
+                575
+              ],
+              "evidence_lines": [
+                535,
+                575
+              ],
+              "path": "lib/application.js",
+              "symbol": "app.render"
+            },
+            {
+              "declared_160_40_feasible": true,
+              "definition_lines": [
+                104,
+                123
+              ],
+              "evidence_lines": [
+                107,
+                123
+              ],
+              "path": "lib/view.js",
+              "symbol": "View.prototype.lookup"
+            },
+            {
+              "declared_160_40_feasible": true,
+              "definition_lines": [
+                169,
+                187
+              ],
+              "evidence_lines": [
+                170,
+                184
+              ],
+              "path": "lib/view.js",
+              "symbol": "View.prototype.resolve"
+            }
+          ]
+        },
+        {
+          "absence_scope_reviewed": null,
+          "judgment": "source_supported",
+          "kind": "present",
+          "query_id": "express_callable_app_dispatch_context",
+          "reason": "createApplication creates a callable listener and app-specific prototypes; handle installs them, cross-links req/res and initializes response locals before routing.",
+          "required_groups": 2,
+          "split": "calibration",
+          "target_rows": [
+            {
+              "declared_160_40_feasible": true,
+              "definition_lines": [
+                36,
+                56
+              ],
+              "evidence_lines": [
+                37,
+                54
+              ],
+              "path": "lib/express.js",
+              "symbol": "createApplication"
+            },
+            {
+              "declared_160_40_feasible": true,
+              "definition_lines": [
+                152,
+                178
+              ],
+              "evidence_lines": [
+                165,
+                178
+              ],
+              "path": "lib/application.js",
+              "symbol": "app.handle"
+            }
+          ]
+        },
+        {
+          "absence_scope_reviewed": "All pinned production source within declared source_root and exclusions; dependencies, examples, tests, and user plugins are outside this claim.",
+          "judgment": "source_supported",
+          "kind": "absent",
+          "query_id": "express_absent_builtin_rate_limit",
+          "reason": "All six production lib files contain middleware registration and proxy policies, with no built-in token-bucket store/enforcement or retry-after path. User middleware is outside scope.",
+          "required_groups": 0,
+          "split": "development",
+          "target_rows": []
+        },
+        {
+          "absence_scope_reviewed": "All pinned production source within declared source_root and exclusions; dependencies, examples, tests, and user plugins are outside this claim.",
+          "judgment": "source_supported",
+          "kind": "absent",
+          "query_id": "express_absent_outbound_retry",
+          "reason": "The production core creates an inbound server and dispatches requests; it does not implement an outbound retry/backoff client. Dependencies/applications are outside scope.",
+          "required_groups": 0,
+          "split": "calibration",
+          "target_rows": []
+        },
+        {
+          "absence_scope_reviewed": "All pinned production source within declared source_root and exclusions; dependencies, examples, tests, and user plugins are outside this claim.",
+          "judgment": "source_supported",
+          "kind": "absent",
+          "query_id": "express_absent_cookie_encryption_rotation",
+          "reason": "cookie delegates optional signing using the supplied secret. No production encryption or automatic rotating-key machinery implements the queried behavior.",
+          "required_groups": 0,
+          "split": "development",
+          "target_rows": []
+        }
+      ],
+      "required_groups": 19,
+      "role": "development",
+      "source_files": 6,
+      "source_membership_sha256": "884dd24c6c1a38da36479db680d38ec1db86310a5e73433407960886fc5cd216",
+      "target_rows": 20
+    },
+    {
+      "checks": {
+        "clean_checkout": true,
+        "dataset_hash": true,
+        "exact_license_bytes": true,
+        "inventory_counts": true,
+        "metadata_and_role": true,
+        "pinned_head": true,
+        "release_tag": true,
+        "shared_full_evidence_scoring_contract": true
+      },
+      "id": "zod",
+      "passed": true,
+      "queries": [
+        {
+          "absence_scope_reviewed": null,
+          "judgment": "source_supported",
+          "kind": "present",
+          "query_id": "zod_sync_rejects_async",
+          "reason": "The nested parser runs validation with async:false, rejects native Promise results, finalizes raw issues/stack or returns the parsed value; factory and nested fn cover the same required body.",
+          "required_groups": 1,
+          "split": "holdout",
+          "target_rows": [
+            {
+              "declared_160_40_feasible": true,
+              "definition_lines": [
+                22,
+                37
+              ],
+              "evidence_lines": [
+                25,
+                35
+              ],
+              "path": "packages/zod/src/v4/core/parse.ts",
+              "symbol": "_parse"
+            },
+            {
+              "declared_160_40_feasible": true,
+              "definition_lines": [
+                23,
+                35
+              ],
+              "evidence_lines": [
+                25,
+                35
+              ],
+              "path": "packages/zod/src/v4/core/parse.ts",
+              "symbol": "_parse.fn"
+            }
+          ]
+        },
+        {
+          "absence_scope_reviewed": null,
+          "judgment": "source_supported",
+          "kind": "present",
+          "query_id": "zod_flatten_errors",
+          "reason": "The concrete overload groups messages by the first nonempty path segment, otherwise into formErrors. Declaration-only overloads contain no required loop.",
+          "required_groups": 1,
+          "split": "holdout",
+          "target_rows": [
+            {
+              "declared_160_40_feasible": true,
+              "definition_lines": [
+                324,
+                335
+              ],
+              "evidence_lines": [
+                325,
+                335
+              ],
+              "path": "packages/zod/src/v4/core/errors.ts",
+              "symbol": "flattenError"
+            }
+          ]
+        },
+        {
+          "absence_scope_reviewed": null,
+          "judgment": "source_supported",
+          "kind": "present",
+          "query_id": "zod_tree_error_paths",
+          "reason": "The walker recursively expands union/key/element errors and builds properties/items nodes. Parent and nested walker both contain the required executable loops.",
+          "required_groups": 1,
+          "split": "holdout",
+          "target_rows": [
+            {
+              "declared_160_40_feasible": true,
+              "definition_lines": [
+                423,
+                480
+              ],
+              "evidence_lines": [
+                426,
+                471
+              ],
+              "path": "packages/zod/src/v4/core/errors.ts",
+              "symbol": "treeifyError"
+            },
+            {
+              "declared_160_40_feasible": true,
+              "definition_lines": [
+                425,
+                477
+              ],
+              "evidence_lines": [
+                426,
+                471
+              ],
+              "path": "packages/zod/src/v4/core/errors.ts",
+              "symbol": "treeifyError.processError"
+            }
+          ]
+        },
+        {
+          "absence_scope_reviewed": null,
+          "judgment": "source_supported",
+          "kind": "present",
+          "query_id": "zod_decimal_multiple_tolerance",
+          "reason": "floatSafeRemainder compares the quotient to its rounded integer using4*EPSILON*max(abs(ratio),1), returning zero inside that tolerance.",
+          "required_groups": 1,
+          "split": "holdout",
+          "target_rows": [
+            {
+              "declared_160_40_feasible": true,
+              "definition_lines": [
+                327,
+                334
+              ],
+              "evidence_lines": [
+                328,
+                334
+              ],
+              "path": "packages/zod/src/v4/core/util.ts",
+              "symbol": "floatSafeRemainder"
+            }
+          ]
+        },
+        {
+          "absence_scope_reviewed": null,
+          "judgment": "source_supported",
+          "kind": "present",
+          "query_id": "zod_error_parameter_normalization",
+          "reason": "normalizeParams wraps strings, migrates/deletes legacy message, rejects simultaneous message/error and wraps a string-valued error.",
+          "required_groups": 1,
+          "split": "holdout",
+          "target_rows": [
+            {
+              "declared_160_40_feasible": true,
+              "definition_lines": [
+                669,
+                681
+              ],
+              "evidence_lines": [
+                672,
+                680
+              ],
+              "path": "packages/zod/src/v4/core/util.ts",
+              "symbol": "normalizeParams"
+            }
+          ]
+        },
+        {
+          "absence_scope_reviewed": null,
+          "judgment": "source_supported",
+          "kind": "present",
+          "query_id": "zod_numeric_enum_reverse_entries",
+          "reason": "getEnumValues collects numeric values and filters their numeric reverse-map keys before returning remaining values.",
+          "required_groups": 1,
+          "split": "holdout",
+          "target_rows": [
+            {
+              "declared_160_40_feasible": true,
+              "definition_lines": [
+                276,
+                282
+              ],
+              "evidence_lines": [
+                277,
+                282
+              ],
+              "path": "packages/zod/src/v4/core/util.ts",
+              "symbol": "getEnumValues"
+            }
+          ]
+        },
+        {
+          "absence_scope_reviewed": null,
+          "judgment": "source_supported",
+          "kind": "present",
+          "query_id": "zod_urlsafe_base64_bytes",
+          "reason": "base64urlToUint8Array restores the alphabet and modulo-four padding before the byte decoder call.",
+          "required_groups": 1,
+          "split": "holdout",
+          "target_rows": [
+            {
+              "declared_160_40_feasible": true,
+              "definition_lines": [
+                1091,
+                1095
+              ],
+              "evidence_lines": [
+                1092,
+                1095
+              ],
+              "path": "packages/zod/src/v4/core/util.ts",
+              "symbol": "base64urlToUint8Array"
+            }
+          ]
+        },
+        {
+          "absence_scope_reviewed": null,
+          "judgment": "source_supported",
+          "kind": "present",
+          "query_id": "zod_local_json_schema_refs",
+          "reason": "resolveRef rejects external refs, dispatches root or version-specific definition namespace, decodes the selected pointer segment and rejects failed definition lookup; nearby decoder handles~1 then~0.",
+          "required_groups": 1,
+          "split": "holdout",
+          "target_rows": [
+            {
+              "declared_160_40_feasible": true,
+              "definition_lines": [
+                132,
+                155
+              ],
+              "evidence_lines": [
+                133,
+                154
+              ],
+              "path": "packages/zod/src/v4/classic/from-json-schema.ts",
+              "symbol": "resolveRef"
+            }
+          ]
+        },
+        {
+          "absence_scope_reviewed": null,
+          "judgment": "source_supported",
+          "kind": "present",
+          "query_id": "zod_safe_parse_lazy_error_redaction",
+          "reason": "safeParse dispatches failure; the error getter constructs/caches lazily and releases captured raw issues/context; finalizeIssue chooses message precedence and copies input only when reportInput is requested.",
+          "required_groups": 3,
+          "split": "holdout",
+          "target_rows": [
+            {
+              "declared_160_40_feasible": true,
+              "definition_lines": [
+                71,
+                79
+              ],
+              "evidence_lines": [
+                72,
+                78
+              ],
+              "path": "packages/zod/src/v4/core/parse.ts",
+              "symbol": "_safeParse"
+            },
+            {
+              "declared_160_40_feasible": true,
+              "definition_lines": [
+                83,
+                103
+              ],
+              "evidence_lines": [
+                84,
+                100
+              ],
+              "path": "packages/zod/src/v4/core/parse.ts",
+              "symbol": "failure"
+            },
+            {
+              "declared_160_40_feasible": true,
+              "definition_lines": [
+                957,
+                992
+              ],
+              "evidence_lines": [
+                970,
+                991
+              ],
+              "path": "packages/zod/src/v4/core/util.ts",
+              "symbol": "finalizeIssue"
+            }
+          ]
+        },
+        {
+          "absence_scope_reviewed": null,
+          "judgment": "source_supported",
+          "kind": "present",
+          "query_id": "zod_custom_refinement_issue_context",
+          "reason": "The public wrapper delegates to the collector; addIssue supports string/structured issues, default custom code/input and fatal continuation behavior before invoking the callback.",
+          "required_groups": 2,
+          "split": "holdout",
+          "target_rows": [
+            {
+              "declared_160_40_feasible": true,
+              "definition_lines": [
+                2825,
+                2830
+              ],
+              "evidence_lines": [
+                2829,
+                2829
+              ],
+              "path": "packages/zod/src/v4/classic/schemas.ts",
+              "symbol": "superRefine"
+            },
+            {
+              "declared_160_40_feasible": true,
+              "definition_lines": [
+                1708,
+                1731
+              ],
+              "evidence_lines": [
+                1712,
+                1728
+              ],
+              "path": "packages/zod/src/v4/core/api.ts",
+              "symbol": "_superRefine"
+            }
+          ]
+        },
+        {
+          "absence_scope_reviewed": null,
+          "judgment": "source_supported",
+          "kind": "present",
+          "query_id": "zod_nested_deep_partial",
+          "reason": "deepPartial supplies the object handler; mapInner rewrites shape/catchall children, and run explicitly calls mapInner before the handler. All three required groups now show the promised ordering.",
+          "required_groups": 3,
+          "split": "holdout",
+          "target_rows": [
+            {
+              "declared_160_40_feasible": true,
+              "definition_lines": [
+                67,
+                76
+              ],
+              "evidence_lines": [
+                68,
+                75
+              ],
+              "path": "packages/zod/src/v4/classic/deep-partial.ts",
+              "symbol": "deepPartial"
+            },
+            {
+              "declared_160_40_feasible": true,
+              "definition_lines": [
+                59,
+                190
+              ],
+              "evidence_lines": [
+                63,
+                78
+              ],
+              "path": "packages/zod/src/v4/core/visit.ts",
+              "symbol": "visit.mapInner"
+            },
+            {
+              "declared_160_40_feasible": true,
+              "definition_lines": [
+                42,
+                57
+              ],
+              "evidence_lines": [
+                52,
+                56
+              ],
+              "path": "packages/zod/src/v4/core/visit.ts",
+              "symbol": "visit.run"
+            }
+          ]
+        },
+        {
+          "absence_scope_reviewed": null,
+          "judgment": "source_supported",
+          "kind": "present",
+          "query_id": "zod_metadata_attachment_registry",
+          "reason": "meta merges attached metadata; add stores metadata and ID associations. Class field initializers explicitly create WeakMap and Map, so the weak-storage requirement is executable evidence.",
+          "required_groups": 3,
+          "split": "holdout",
+          "target_rows": [
+            {
+              "declared_160_40_feasible": true,
+              "definition_lines": [
+                1758,
+                1768
+              ],
+              "evidence_lines": [
+                1759,
+                1768
+              ],
+              "path": "packages/zod/src/v4/core/api.ts",
+              "symbol": "meta"
+            },
+            {
+              "declared_160_40_feasible": true,
+              "definition_lines": [
+                33,
+                43
+              ],
+              "evidence_lines": [
+                37,
+                42
+              ],
+              "path": "packages/zod/src/v4/core/registries.ts",
+              "symbol": "$ZodRegistry.add"
+            },
+            {
+              "declared_160_40_feasible": true,
+              "definition_lines": [
+                27,
+                77
+              ],
+              "evidence_lines": [
+                30,
+                31
+              ],
+              "path": "packages/zod/src/v4/core/registries.ts",
+              "symbol": "$ZodRegistry"
+            }
+          ]
+        },
+        {
+          "absence_scope_reviewed": "All pinned production source within declared source_root and exclusions; dependencies, examples, tests, and user plugins are outside this claim.",
+          "judgment": "source_supported",
+          "kind": "absent",
+          "query_id": "zod_absent_remote_ref_fetch",
+          "reason": "The converter's resolver explicitly rejects nonlocal references, and indexed production source has no external HTTP reference-fetch/cache implementation.",
+          "required_groups": 0,
+          "split": "holdout",
+          "target_rows": []
+        },
+        {
+          "absence_scope_reviewed": "All pinned production source within declared source_root and exclusions; dependencies, examples, tests, and user plugins are outside this claim.",
+          "judgment": "source_supported",
+          "kind": "absent",
+          "query_id": "zod_absent_async_retry_backoff",
+          "reason": "Async parsers await one result. The separate numeric-string key fallback retries a transformed key once; it is not asynchronous exponential backoff with an attempt limit.",
+          "required_groups": 0,
+          "split": "holdout",
+          "target_rows": []
+        },
+        {
+          "absence_scope_reviewed": "All pinned production source within declared source_root and exclusions; dependencies, examples, tests, and user plugins are outside this claim.",
+          "judgment": "source_supported",
+          "kind": "absent",
+          "query_id": "zod_absent_issue_encryption",
+          "reason": "finalizeIssue omits input or copies it under reportInput; no production encryption/key-rotation machinery implements the queried error-reporting behavior.",
+          "required_groups": 0,
+          "split": "holdout",
+          "target_rows": []
+        }
+      ],
+      "required_groups": 19,
+      "role": "repository_holdout",
+      "source_files": 107,
+      "source_membership_sha256": "f69cd74acb41986eda4ba8177b664cf2307e15fae758d8640d6599af6c9b280e",
+      "target_rows": 21
+    }
+  ],
+  "limits": "Source-supported labels and scoped negatives are not exhaustive runtime/library correctness proofs. Absence excludes unindexed dependencies, examples, tests and user callbacks/plugins.",
+  "manifest_sha256": "1f9033e4efa407f0c7613f5b46bbd9d7857ba2344e304214fea82f286cdd4611",
+  "model_parser_retrieval_calls": 0,
+  "notice_sha256": {
+    "THIRD_PARTY_NOTICES.md": "fad1cce95ec5a2de562f11283fd23c80cc58b09d2d77b6c5b57111146be130c8",
+    "benchmarks/CORPUS_NOTICES.md": "f03fee0d37c345757b487391e86d7a19a4b446b87825e77f6ab1d772d585d9e6"
+  },
+  "passed": true,
+  "remaining_gates": [
+    "Actual generic extractor must independently return exact saved-source snippets with gold evidence eligibility, overload omission and exclusion policy.",
+    "Freeze extractor/grammar/index fingerprint, model/runtime settings, complete budgets/schedule and all labels before retrieval.",
+    "Calibrate only designated Express cases; do not tune ranking/thresholds from Zod holdout outcomes."
+  ],
+  "review_method": "Read each executable gold definition and nearby callers/helpers, compare scoped negative decoys, then independently reconcile pinned Git blobs, licenses, metadata, byte ranges and declared window feasibility.",
+  "schema_version": 1,
+  "script_sha256": "4eb55f713213cef49962c271904554f88907d4e24dd6a5487c0fc9403cffbb59",
+  "source_evidence_scoring": "A group is covered by any verified source window from the pinned file whose actual source bytes include the complete executable evidence span. Enclosing/nested/file windows are eligible irrespective of symbol label. One window can cover multiple required groups. Symbols alone never establish a hit.",
+  "summary": {
+    "absent": 6,
+    "multi_file_and_queries": 8,
+    "present": 24,
+    "queries": 30,
+    "required_groups": 38,
+    "target_rows": 41
+  }
+}

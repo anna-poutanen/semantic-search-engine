@@ -39,9 +39,15 @@ Their source licenses, copyright notices, and exact revisions are preserved in
 | [Click](https://github.com/pallets/click) | 8.1.8, `934813e4d421071a1b3db3973c02fe2721359a6e` | BSD-3-Clause, [CLICK_LICENSE.txt](benchmarks/CLICK_LICENSE.txt) |
 | [Starlette](https://github.com/encode/starlette) | 0.45.3, `4d72fd87ea1c358691a19468168f7217d8ca6a87` | BSD-3-Clause, [STARLETTE_LICENSE.txt](benchmarks/STARLETTE_LICENSE.txt) |
 | [Rich](https://github.com/Textualize/rich) | 13.9.4, `43d3b04725ab9731727fb1126e35980c62f32377` | MIT, [RICH_LICENSE.txt](benchmarks/RICH_LICENSE.txt) |
+| [Express](https://github.com/expressjs/express) | v5.3.0, `cf6722bf89a86905281d9160b6482e08166b5ef0` | MIT, [EXPRESS_LICENSE.txt](benchmarks/EXPRESS_LICENSE.txt) |
+| [Zod](https://github.com/colinhacks/zod) | v4.6.7, `b500a2ee95134f81d74da7911d7378dd2853d042` | MIT, [ZOD_LICENSE.txt](benchmarks/ZOD_LICENSE.txt) |
 
 No separate upstream `NOTICE` file is present in these pinned releases. The
 ignored corpus checkouts are not redistributed as additional source trees.
+
+Zod's `packages/zod/src/v4/core/visit.ts` credits a traversal pattern adapted
+from Jaen's v3 `mapOnSchema` under Apache-2.0, with the original source link.
+That source-level notice is retained in [the corpus notices](benchmarks/CORPUS_NOTICES.md).
 
 ## H2O-Lightning and the community MLX runtime
 
