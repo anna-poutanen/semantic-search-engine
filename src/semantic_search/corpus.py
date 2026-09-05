@@ -1,16 +1,16 @@
-"""Extract location-preserving Python implementation snippets from a repository."""
+"""Extract location-preserving implementation snippets from saved repository source."""
 
 from __future__ import annotations
 
 import ast
 import hashlib
-import io
 import subprocess
-import tokenize
 from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
 from semantic_search.source import physical_lines
+from semantic_search.languages import (EXTRACTORS, decode_source, extractor_for,
+                                      path_excluded, source_eligible, validate_exclusions)
 
 
 @dataclass(frozen=True)
@@ -24,7 +24,7 @@ class Snippet:
     content_hash: str
 
 
-def _source_files(repo: Path, source_root: Path) -> list[Path]:
+def _source_files(repo: Path, source_root: Path, source_exclusions=()) -> list[Path]:
     """Prefer tracked files, falling back to the supplied directory outside Git."""
     relative_root = source_root.relative_to(repo)
     try:
@@ -40,10 +40,11 @@ def _source_files(repo: Path, source_root: Path) -> list[Path]:
         candidates = [repo / name.decode("utf-8", "surrogateescape")
                       for name in result.stdout.split(b"\0") if name]
     else:
-        candidates = list(source_root.rglob("*.py"))
+        candidates = list(source_root.rglob("*"))
     return sorted(
         path for path in candidates
-        if path.suffix == ".py" and path.is_file()
+        if source_eligible(path.relative_to(repo)) and path.is_file()
+        and not path_excluded(path.relative_to(repo).as_posix(), source_exclusions)
         and path.resolve().is_relative_to(source_root)
     )
 
@@ -140,6 +141,7 @@ def extract_snippets(
     overlap_lines: int = 20,
     *,
     sources: Mapping[str, str] | None = None,
+    source_exclusions=(),
 ) -> list[Snippet]:
     """Return functions and methods, windowing long bodies without changing source.
 
@@ -153,13 +155,14 @@ def extract_snippets(
     if max_lines < 1 or not 0 <= overlap_lines < max_lines:
         raise ValueError("Require max_lines > 0 and 0 <= overlap_lines < max_lines")
     repo = Path(repo).resolve()
+    source_exclusions = validate_exclusions(source_exclusions)
     root = (repo / source_root).resolve()
     if not root.is_relative_to(repo):
         raise ValueError("source_root must be inside the repository")
     if sources is None and not root.is_dir():
         raise FileNotFoundError(f"Source directory does not exist: {root}")
     if sources is None:
-        entries = ((path, None) for path in _source_files(repo, root))
+        entries = ((path, None) for path in _source_files(repo, root, source_exclusions))
     else:
         if not isinstance(sources, Mapping):
             raise ValueError("sources must map repository-relative paths to source strings")
@@ -169,21 +172,27 @@ def extract_snippets(
                 raise ValueError("Captured source paths and contents must be strings")
             relative = Path(relative_path)
             path = repo / relative
-            if (relative.is_absolute() or ".." in relative.parts or path.suffix != ".py"
+            if (relative.is_absolute() or ".." in relative.parts or path.suffix not in EXTRACTORS
                     or not path.is_relative_to(root) or not path.resolve().is_relative_to(root)):
-                raise ValueError("Captured source paths must be Python files inside source_root")
+                raise ValueError("Captured source paths must be supported files inside source_root")
+            if (path_excluded(relative.as_posix(), source_exclusions)
+                    or not source_eligible(relative.as_posix())):
+                continue
             captured.append((path, source))
         entries = sorted(captured)
     snippets: list[Snippet] = []
     for path, source in entries:
         if source is None:
             raw = path.read_bytes()
-            encoding, _ = tokenize.detect_encoding(io.BytesIO(raw).readline)
-            source = raw.decode(encoding)
+            source = decode_source(path, raw)
+        relative_path = path.relative_to(repo).as_posix()
+        if extractor_for(path).language != "python":
+            from semantic_search.javascript import extract_javascript
+            snippets.extend(extract_javascript(relative_path, source, max_lines, overlap_lines))
+            continue
         lines = physical_lines(source)
         definitions = _Definitions()
         definitions.visit(ast.parse(source, filename=str(path)))
-        relative_path = path.relative_to(repo).as_posix()
         for symbol, node in definitions.functions:
             implementation_lines = _implementation_lines(node, definitions.docstrings)
             first_line = min([node.lineno, *(item.lineno for item in node.decorator_list)])

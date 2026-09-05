@@ -41,6 +41,27 @@ class CLITests(unittest.TestCase):
                 self.call("search", "query", "--repo", "repo")
         backend.close.assert_called_once()
 
+    def test_saved_source_exclusions_are_constructor_config_and_namespaced(self):
+        backend = Mock()
+        backend.search.return_value = RESPONSE
+        exclusions = ["*.test.ts", "*/fixtures/*"]
+        with patch("semantic_search.backend.SearchBackend", return_value=backend) as factory:
+            self.call("search", "query", "--repo", "repo", "--source-root", "src",
+                      "--exclude-source", exclusions[0], "--exclude-source", exclusions[1])
+        self.assertEqual(factory.call_args.kwargs["source_exclusions"], exclusions)
+        self.assertEqual(factory.call_args.args[2], cli.index_path(Path("repo"), "src", Path(".cache/indexes"), exclusions))
+        self.assertNotIn("source_exclusions", backend.search.call_args.kwargs)
+        self.assertEqual(cli.index_path(Path("repo"), "src", Path("cache"), exclusions),
+                         cli.index_path(Path("repo"), "src", Path("cache"), list(reversed(exclusions))))
+        self.assertNotEqual(cli.index_path(Path("repo"), "src", Path("cache"), exclusions),
+                            cli.index_path(Path("repo"), "src", Path("cache")))
+
+    def test_server_search_cannot_change_saved_source_membership(self):
+        with patch("semantic_search.client.SearchClient") as client, contextlib.redirect_stderr(io.StringIO()):
+            with self.assertRaises(SystemExit):
+                self.call("search", "query", "--server", "http://localhost:8750", "--exclude-source", "*.ts")
+        client.assert_not_called()
+
     def test_service_termination_closes_backend_and_restores_signal_handler(self):
         backend, server = Mock(), Mock()
         server.server_address = ("127.0.0.1", 8750)
