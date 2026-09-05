@@ -17,13 +17,13 @@ and [MCP setup](docs/mcp.md).
 ## Run on an Apple Silicon Mac
 
 The tested setup is an M4 MacBook Pro, 24 GB RAM, macOS 15.1.1. Python dependencies,
-the runtime source, approximately 4.8 GiB of H2O weights and 1.1 GiB of Qwen weights are stored locally
+approximately 1.1 GiB of Qwen weights and the optional 4.8 GiB H2O checkpoint are stored locally
 under ignored `.venv/` and `.cache/` directories. Retrieval and local scoring do
 not call a hosted inference service. An MCP host receives source excerpts and
 may include them in requests to its chosen coding model.
 
 ```bash
-python3 scripts/setup_mac.py
+python3 scripts/setup_mac.py --runtime-only
 .venv/bin/python scripts/setup_embeddings.py
 .venv/bin/python scripts/fetch_corpus.py
 .venv/bin/semantic-search serve --repo .cache/corpora/flask
@@ -45,7 +45,8 @@ The final command stays running in a terminal. In a second terminal:
 .venv/bin/semantic-search refresh
 ```
 
-For optional H2O reranking, start `.venv/bin/python scripts/serve_mac.py` in
+For optional H2O reranking, install its pinned runtime and weights with
+`python3 scripts/setup_mac.py`, start `.venv/bin/python scripts/serve_mac.py` in
 another terminal, then pass `--rerank`:
 
 ```bash
