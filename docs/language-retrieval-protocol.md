@@ -150,3 +150,15 @@ Every miss and absent-query decoy is retained. Cold model/index setup is separat
 from warm HTTP timing, and a fresh backend must reuse every unchanged persistent
 document vector. Saved edits and actual editor workflows receive separate
 integration checks.
+
+Pre-inference source gates found and preserved two implementation gaps: the
+pinned grammar rejected legal TypeScript variance annotations, and consecutive
+class registry field initializers were available only as separate excerpts.
+Generic source-neutral repairs keep original byte offsets and add explicitly
+named initialization context; the exact labels and ranking settings are
+unchanged. The recorded failures and independent source checks are in
+`results/language-extractor-preflight-2026-10-13/`.
+Zod's holdout role concerns retrieval parameter selection. Its syntax and
+executable-evidence eligibility were inspected during these CPU source gates;
+the parser/extractor implementation was adapted before inference. This scope
+must accompany the eventual retrieval results.

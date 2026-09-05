@@ -188,6 +188,24 @@ and warmup are additional setup costs; including setup and grading, evaluator
 time is 29.3% higher. Each trial builds a separate index; a resident service can
 reuse an existing index. This small reused
 development sample does not establish savings or the 30% median-token target.
+
+The [larger repeated study](results/multifile-workflows-2026-10-13/findings.md)
+adds four fresh multi-file features, two repetitions, 41 frozen behavioral methods
+and restored original integration checks. All sixteen attempts are retained and
+independently audited. Seven of eight MCP-assigned attempts use retrieval.
+Three timeouts and three provider-capacity failures leave six usage receipts
+unavailable. Full-workload token savings are unknown.
+
+Only three pairs have both normal completion and frozen-gate passes. Their
+actual total tokens rise **9.23%** with MCP, uncached input rises **18.62%**, agent
+time falls **2.20%**, and full trial time rises **1.59%**. This outcome-selected
+subset contains two NDJSON repetitions and one Starlette body-limit pair;
+individual results vary substantially. Separate
+[patch review](results/multifile-workflows-2026-10-13/patch-review.md) finds six
+scoped defects across seven attempts, including holes in the frozen references.
+Those findings supplement the formal grades. The token-saving target remains
+unmet; [scope visibility and product integration](docs/project-plan.md) follow
+without implying a measured coding benefit.
 The original availability pilot and follow-up remain separate studies, with
 every attempt retained and no selected retries.
 

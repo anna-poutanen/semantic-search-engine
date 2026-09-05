@@ -133,6 +133,42 @@ def context_cleanup(requests):
         session.close()
 
 
+def hook_chain(requests, cached):
+    original, session = setup(requests, b"", 4)
+    replacement = requests.Response()
+    replacement.status_code = 200
+    replacement.raw = Body(b"abcdefgh")
+    replacement.encoding = "utf-8"
+    if cached:
+        replacement.content
+    seen = []
+    calls = []
+
+    def replace(response, **kwargs):
+        calls.append("replace")
+        replacement.request = response.request
+        return replacement
+
+    def consume(response, **kwargs):
+        calls.append("consume")
+        for chunk in response.iter_content(4):
+            seen.append(chunk.decode())
+
+    try:
+        _, error = observed(lambda: session.get("http://fixture.invalid/", stream=True,
+                                               hooks={"response": [replace, consume]}))
+        expected = [] if cached else ["abcd"]
+        return {"passed": isinstance(error, requests.ResponseTooLarge) and seen == expected,
+                "cached_before_hook": cached, "yielded_in_second_hook": seen,
+                "expected_yielded_in_second_hook": expected,
+                "hook_calls": calls, "error": error_info(error),
+                "received": getattr(error, "received", None)}
+    finally:
+        replacement.raw.close()
+        original.raw.close()
+        session.close()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--repo", type=Path, required=True)
@@ -143,15 +179,17 @@ def main():
     expected = repo / "src/requests/__init__.py"
     if Path(requests.__file__).resolve() != expected:
         raise RuntimeError("Probe imported a different Requests checkout")
-    result = {"version": 2, "classification": "Post-output supplemental edge checks; frozen formal grades unchanged",
-              "revision": "After independent scope review, accept implicit cleanup exception context as well as explicit cause or notes; neutral case inputs unchanged",
+    result = {"version": 3, "classification": "Post-output supplemental edge checks; frozen formal grades unchanged",
+              "revision": "Original three v2 cases unchanged; add live/cached hook-chain variants selected after terminal11 source inspection. All applicable retained candidates and reference receive the same added cases, without feedback to coding trials",
               "probe_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
               "feature_available": hasattr(requests, "ResponseTooLarge"),
               "implementation_neutral": "Public Session/read APIs with one deterministic in-memory adapter; no private budget names or edits to candidate source",
               "cases": {}}
     for name, probe in (("buffered_iter_lines_after_breach", buffered_lines),
                         ("cached_iterator_after_lower_limit_breach", cached_iterator),
-                        ("context_manager_cleanup_preserves_size_error", context_cleanup)):
+                        ("context_manager_cleanup_preserves_size_error", context_cleanup),
+                        ("hook_chain_live_replacement", lambda r: hook_chain(r, False)),
+                        ("hook_chain_cached_replacement", lambda r: hook_chain(r, True))):
         if not result["feature_available"]:
             result["cases"][name] = {"passed": False, "setup_unavailable": "Pinned upstream has no response-limit feature; behavioral probe is inapplicable"}
             continue

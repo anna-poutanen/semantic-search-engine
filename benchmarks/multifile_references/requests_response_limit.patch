@@ -1,0 +1,194 @@
+--- a/src/requests/__init__.py
++++ b/src/requests/__init__.py
+@@ -177,6 +177,7 @@
+     JSONDecodeError,
+     ReadTimeout,
+     RequestException,
++    ResponseTooLarge,
+     Timeout,
+     TooManyRedirects,
+     URLRequired,
+@@ -194,6 +195,7 @@
+     "ReadTimeout",
+     "Request",
+     "RequestException",
++    "ResponseTooLarge",
+     "Response",
+     "Session",
+     "Timeout",
+--- a/src/requests/exceptions.py
++++ b/src/requests/exceptions.py
+@@ -61,6 +61,14 @@
+         __reduce__ method from the IOError due to the inheritance order.
+         """
+         return CompatJSONDecodeError.__reduce__(self)
++
++
++class ResponseTooLarge(RequestException):
++    """Decoded response bytes exceed an explicitly configured limit."""
++    def __init__(self, limit, received, *, response=None):
++        super().__init__(f"Response exceeded {limit} decoded bytes ({received} received)", response=response)
++        self.limit = limit
++        self.received = received
+ 
+ 
+ class HTTPError(RequestException):
+--- a/src/requests/models.py
++++ b/src/requests/models.py
+@@ -62,6 +62,7 @@
+     InvalidJSONError,
+     InvalidURL,
+     MissingSchema,
++    ResponseTooLarge,
+     StreamConsumedError,
+ )
+ from .exceptions import JSONDecodeError as RequestsJSONDecodeError
+@@ -932,6 +933,9 @@
+         `encoding` on the response.
+         """
+ 
++        if getattr(self, "_response_limit_error", None) is not None:
++            raise self._response_limit_error
++
+         def generate() -> Generator[bytes, None, None]:
+             # Special case for urllib3.
+             if hasattr(self.raw, "stream"):
+@@ -971,6 +975,32 @@
+         else:
+             chunks = generate()
+ 
++        limit = getattr(self, "max_response_bytes", None)
++        if limit is not None:
++            original_chunks = chunks
++            live_stream = not self._content_consumed
++            def checked(original=original_chunks):
++                received = 0
++                while True:
++                    if getattr(self, "_response_limit_error", None) is not None:
++                        raise self._response_limit_error
++                    try:
++                        chunk = next(original)
++                    except StopIteration:
++                        return
++                    received = (getattr(self, "_decoded_bytes_received", 0) if live_stream else received) + len(chunk)
++                    if live_stream:
++                        self._decoded_bytes_received = received
++                    if received > limit:
++                        error = ResponseTooLarge(limit, received, response=self)
++                        self._response_limit_error = error
++                        try:
++                            self.close()
++                        except Exception as cleanup_error:
++                            raise error from cleanup_error
++                        raise error
++                    yield chunk
++            chunks = checked()
+         if decode_unicode:
+             chunks = stream_decode_response_unicode(chunks, self)
+ 
+@@ -1035,6 +1065,8 @@
+     def content(self) -> bytes:
+         """Content of the response, in bytes."""
+ 
++        if getattr(self, "_response_limit_error", None) is not None:
++            raise self._response_limit_error
+         if self._content is False:
+             # Read the contents.
+             if self._content_consumed:
+@@ -1046,6 +1078,15 @@
+                 self._content = b"".join(self.iter_content(CONTENT_CHUNK_SIZE)) or b""
+ 
+         self._content_consumed = True
++        limit = getattr(self, "max_response_bytes", None)
++        if limit is not None and isinstance(self._content, bytes) and len(self._content) > limit:
++            error = ResponseTooLarge(limit, len(self._content), response=self)
++            self._response_limit_error = error
++            try:
++                self.close()
++            except Exception as cleanup_error:
++                raise error from cleanup_error
++            raise error
+         # don't need to release the connection; that's been handled by urllib3
+         # since we exhausted the data.
+         return self._content  # type: ignore[return-value]
+--- a/src/requests/sessions.py
++++ b/src/requests/sessions.py
+@@ -124,6 +124,15 @@
+     return merge_setting(request_hooks, session_hooks, dict_class)
+ 
+ 
++_RESPONSE_LIMIT_UNSET = object()
++
++
++def _response_limit(value):
++    if value is not None and (type(value) is not int or value < 0):
++        raise ValueError("max_response_bytes must be None or a non-negative integer")
++    return value
++
++
+ class SessionRedirectMixin:
+     max_redirects: int
+     trust_env: bool
+@@ -437,9 +446,11 @@
+         "stream",
+         "trust_env",
+         "max_redirects",
++        "max_response_bytes",
+     ]
+ 
+-    def __init__(self) -> None:
++    def __init__(self, *, max_response_bytes=None) -> None:
++        self.max_response_bytes = _response_limit(max_response_bytes)
+         #: A case-insensitive dictionary of headers to be sent on each
+         #: :class:`Request <Request>` sent from this
+         #: :class:`Session <Session>`.
+@@ -572,6 +583,7 @@
+         verify: _t.VerifyType | None = None,
+         cert: _t.CertType = None,
+         json: _t.JsonType = None,
++        max_response_bytes=_RESPONSE_LIMIT_UNSET,
+     ) -> Response:
+         """Constructs a :class:`Request <Request>`, prepares it and sends it.
+         Returns :class:`Response <Response>` object.
+@@ -643,10 +655,14 @@
+         )
+ 
+         # Send the request.
++        limit = self.max_response_bytes if max_response_bytes is _RESPONSE_LIMIT_UNSET else max_response_bytes
++        limit = _response_limit(limit)
+         send_kwargs = {
+             "timeout": timeout,
+             "allow_redirects": allow_redirects,
+         }
++        if max_response_bytes is not _RESPONSE_LIMIT_UNSET or self.max_response_bytes is not None:
++            send_kwargs["max_response_bytes"] = limit
+         send_kwargs.update(settings)
+         resp = self.send(prep, **send_kwargs)
+ 
+@@ -754,6 +770,8 @@
+ 
+         :rtype: requests.Response
+         """
++        limit_supplied = "max_response_bytes" in kwargs
++        limit = _response_limit(kwargs.pop("max_response_bytes", self.max_response_bytes))
+         # Set defaults that the hooks can utilize to ensure they always have
+         # the correct parameters to reproduce the previous request.
+         kwargs.setdefault("stream", self.stream)
+@@ -782,6 +800,7 @@
+ 
+         # Send the request
+         r = adapter.send(request, **kwargs)
++        r.max_response_bytes = limit
+ 
+         # Total elapsed time of the request (approximately)
+         elapsed = preferred_clock() - start
+@@ -789,6 +808,9 @@
+ 
+         # Response manipulation hooks
+         r = dispatch_hook("response", hooks, r, **kwargs)
++        r.max_response_bytes = limit
++        if limit_supplied or self.max_response_bytes is not None:
++            kwargs["max_response_bytes"] = limit
+ 
+         # Persist cookies
+         if r.history:
