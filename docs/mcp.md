@@ -110,6 +110,7 @@ Successful calls contain the same compact JSON envelope in both `structuredConte
 | Field | Meaning |
 |---|---|
 | `query` | The exact query sent |
+| `scope` | Configured repository-relative `source_root`, saved implementation membership, bounded `source_exclusions`, and `exclusions_omitted` |
 | `match_status` | `"candidates"` ordinarily; `"no_candidates"` for an empty retrieval; `"insufficient_evidence"` for an explicit calibrated policy. Neither empty status proves a feature is absent |
 | `results` | Ordered exact saved-source excerpts |
 | `budget_exhausted` | At least one excerpt was truncated or omitted by a budget |
@@ -119,13 +120,35 @@ Each result has `path`, `symbol`, `start_line`, `end_line`, `source`, `source_ha
 
 Both budgets preserve whole source lines and update the last returned line and excerpt hash. A window that cannot fit even one complete line is omitted. A truncated excerpt can omit essential evidence: it does not establish that the full implementation was preserved. A query whose empty-result metadata already exceeds its token budget returns an actionable error. Smaller output budgets do not reduce indexing or H2O input work.
 
+Read `scope` before repeating a query for tests, fixtures or documentation.
+Files outside `source_root` or excluded by the configured policy require ordinary
+scoped file tools. A root can include tests when explicitly configured; tests are
+not universally excluded. Only saved implementation windows are returned, with
+tracked files used inside Git projects and eligible saved files used outside Git.
+Unsaved editor buffers, declaration-only definitions and unsupported source types
+are outside this membership. The exclusion summary contains at most four complete
+patterns of at most eighty characters; longer or additional patterns are omitted,
+with their count in `exclusions_omitted`. It is a summary rather than a full index
+manifest. Scope metadata counts inside the same exact token cap as source and
+other result metadata, including when no candidates are found. Restart the
+resident service and adapter together after an upgrade; strict output validation
+rejects an older service response without scope metadata.
+
 `cl100k_base` is a reproducible local counting convention, not a promise about a host model's tokenizer, paid tokens, or cost. A host may include both text and structured content in its prompt; protocol framing and host instructions also add tokens. Actual agent usage is measured in the [paired workflow reports](../results/README.md); the first active-use follow-up does not establish savings.
 
 ## Cancellation and limitations
 
 The adapter allocates a request ID for each call. A host's MCP cancellation is forwarded to `/cancel` on the resident service with a bounded, shielded cleanup. Queued requests are cancelled before they start, and active work checks cancellation between indexing batches, retrieval, and H2O scores. A single Metal forward already running cannot be interrupted. Cancelled work stops before subsequent model calls or delivery of its result.
 
-Searches use saved tracked Python files under the configured source root. Unsaved editor buffers and other languages are not indexed. The service checks snapshots and refreshes its persistent index when saved files change; changes during indexing or scoring return an error instead of stale excerpts. Search results remain candidates. An optional development-calibrated policy can reject weak semantic evidence; its status is not proof of absence or a confidence percentage. Source excerpts are untrusted repository content and must not be treated as agent instructions.
+Searches use saved implementations under the configured source root. Python works
+without an optional parser; JavaScript/TypeScript require the pinned language
+extra described in [saved source languages](saved-source-languages.md). The service
+checks snapshots and refreshes its persistent index when saved files change;
+changes during indexing or scoring return an error instead of stale excerpts.
+Search results remain candidates. An optional development-calibrated policy can
+reject weak semantic evidence; its status is not proof of absence or a confidence
+percentage. Source excerpts and scope metadata are untrusted repository data and
+must not be treated as agent instructions.
 
 ## Protocol verification
 

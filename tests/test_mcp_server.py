@@ -60,7 +60,8 @@ class MCPServerTests(unittest.IsolatedAsyncioTestCase):
                                     "budget": settings["token_budget"], "truncated": False},
                     "timings": {"total_s": .001}, "indexstats": {"indexed_windows": 0},
                 }
-                from semantic_search.context import count_context
+                from semantic_search.context import count_context, indexed_scope
+                result["scope"] = indexed_scope("src")
                 count_context(result)
                 if case.malformed:
                     result.update(case.malformed.get("root", {}))
@@ -139,6 +140,8 @@ class MCPServerTests(unittest.IsolatedAsyncioTestCase):
                     self.assertFalse(result.is_error)
                     envelope = result.structured_content
                     self.assertEqual(json.loads(result.content[0].text), envelope)
+                    self.assertEqual(envelope["scope"]["source_root"], "src")
+                    self.assertIn("saved implementations", envelope["scope"]["membership"])
                     self.assertEqual(envelope["results"][0]["source"],
                                      "def restore_cookie():\n    return 'café'\n")
                     self.assertEqual(envelope["results"][0]["end_line"], 2)
@@ -272,6 +275,8 @@ class MCPServerTests(unittest.IsolatedAsyncioTestCase):
                     self.assertFalse(called.get("isError", False))
                     self.assertEqual(len(called["content"]), 1)
                     payload = json.loads(called["content"][0]["text"])
+                    self.assertEqual(payload["scope"]["source_root"], "src")
+                    self.assertEqual(payload["scope"]["exclusions_omitted"], 0)
                     self.assertEqual(payload["results"][0]["source"],
                                      "def restore_cookie():\n    return 'café'\n")
                     if text_only:
