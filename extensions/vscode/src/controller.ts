@@ -43,7 +43,7 @@ export class SearchController {
       if (status.closed) { throw new ValidationError('The local service is closed'); }
       if (!this.current(op.generation)) { return false; }
       this.api = api; this.binding = binding; this.operation = null;
-      this.publish({ phase: 'ready', status, message: status.last_error ?? (status.ready ? 'Saved tracked Python source' : 'Connected; index is not ready yet') });
+      this.publish({ phase: 'ready', status, message: status.last_error ?? (status.ready ? 'Saved tracked source' : 'Connected; index is not ready yet') });
       return true;
     } catch (error) { this.failure(error, op.generation); return false; }
   }
@@ -58,13 +58,13 @@ export class SearchController {
       if (echoed.sourceRoot !== binding.sourceRoot || status.closed) { throw new ValidationError('Service scope changed or closed; reconnect'); }
       if (!this.current(op.generation)) { return; } this.operation = null;
       for (const entry of this.state.entries) { entry.generation = op.generation; }
-      this.publish({ phase: 'ready', status, message: status.last_error ?? 'Saved tracked Python source' });
+      this.publish({ phase: 'ready', status, message: status.last_error ?? 'Saved tracked source' });
     } catch (error) { this.failure(error, op.generation); }
   }
   async refresh(): Promise<void> {
     this.allowed(); if (!this.api || !this.binding) { throw new ValidationError('Connect to the local service first'); }
     const api = this.api, op = this.begin(null);
-    this.publish({ phase: 'refreshing', entries: [], response: null, message: 'Refreshing saved tracked Python source…' });
+    this.publish({ phase: 'refreshing', entries: [], response: null, message: 'Refreshing saved tracked source…' });
     try {
       const windows = await api.refresh(op.controller.signal);
       if (!this.current(op.generation)) { return; } this.operation = null;
@@ -76,7 +76,7 @@ export class SearchController {
     this.allowed(); validateQuery(query); validateOptions(options);
     if (!this.api || !this.binding) { throw new ValidationError('Connect to the local service first'); }
     const api = this.api, binding = this.binding, requestId = randomUUID(), op = this.begin(requestId);
-    this.publish({ phase: 'searching', entries: [], response: null, message: 'Searching saved Python source…' });
+    this.publish({ phase: 'searching', entries: [], response: null, message: 'Searching saved source…' });
     try {
       const response = await api.search(query, options, requestId, op.controller.signal);
       if (!this.current(op.generation)) { return; }
@@ -92,9 +92,9 @@ export class SearchController {
         entries.push({ result, generation: op.generation, saved, staleReason });
       }
       if (!this.current(op.generation)) { return; } this.operation = null;
-      const message = response.match_status === 'no_candidates' ? 'No candidates returned in this saved Python scope'
+      const message = response.match_status === 'no_candidates' ? 'No candidates returned in this saved source scope'
         : response.match_status === 'insufficient_evidence' ? 'The configured policy found insufficient evidence; this is not proof of absence'
-        : !entries.length ? 'No excerpt fit the requested output budgets' : 'Saved Python results; previews contain captured source';
+        : !entries.length ? 'No excerpt fit the requested output budgets' : 'Saved results; previews contain captured source';
       this.publish({ phase: 'ready', entries, response, message, status: this.state.status ? { ...this.state.status,
         windows: response.indexstats.total_windows, source_manifest: response.indexstats.source_manifest, ready: true, last_error: null } : null });
     } catch (error) { this.failure(error, op.generation); }
