@@ -1,7 +1,7 @@
 # Semantic search engine
 
 Find code implementations by describing their behavior. The implemented MCP
-tool and planned VS Code extension share a local search backend, so developers and coding
+tool and VS Code extension share a local search backend, so developers and coding
 agents can retrieve source excerpts without sending the whole repository to a
 paid model.
 
@@ -77,7 +77,10 @@ loads Qwen for that invocation. The backend indexes saved, tracked Python files
 and optional JavaScript/TypeScript with the pinned `languages` extra. See
 [saved-source languages](docs/saved-source-languages.md) for implementation,
 membership, and `--exclude-source` rules. JS/TS extraction and persistence have
-CPU fixture coverage; real-model language quality and latency remain unmeasured.
+CPU fixture coverage and a frozen real-Qwen Express/Zod evaluation. Dense search
+delivers complete evidence for 10/12 Express and 8/12 Zod behaviors; Zod multi-file
+coverage remains incomplete. The saved mixed-language editor workflow also
+[passes in an actual VS Code host](results/editor-workflows-2026-10-13/findings.md).
 Unsaved editor buffers are not indexed.
 
 The service preloads Qwen and builds a durable SQLite index under `.cache/indexes/`.
