@@ -5,6 +5,94 @@ logic; they do not validate the actual VS Code command/view wiring. Do not claim
 this smoke or real-model behavior passed until its evidence has been recorded.
 Run after the frozen multifile study finishes and its artifacts are secured.
 
+## Automated host smoke prepared, not yet executed
+
+The [official extension testing guide](https://code.visualstudio.com/api/working-with-extensions/testing-extension)
+supports a custom `run(): Promise<void>` test runner through
+`--extensionDevelopmentPath` and `--extensionTestsPath`. This checkout pins
+`@vscode/test-electron` 3.1.0 for download/unzip and the official macOS arm64
+VS Code 1.141.0 build (product commit
+`2a59476c9bfcb90b3ddc372c36762471b7dfad1c`). The verified archive SHA-256 is
+`9b4ae386e3cf738d7ba990237ddf0a18092c924a1bcae465ed4697964745f42d`;
+the extracted executable SHA-256 is
+`e9760eca0a62d96ff2bb334ef5c8d3b677a6275a2dd0cf5a63c356b7a19435a2`.
+No installed VS Code app was found. The downloaded test copy stays under ignored
+`.cache/vscode-host`, outside the user's applications, settings and extensions.
+
+`npm run host:prepare` downloads and verifies that copy without executing it.
+`npm run host:fixture -- /absolute/new-fixture-directory` creates a fresh Git
+repository with three generic Python functions. It starts no backend or model.
+Both preparation steps are CPU/setup work; the host smoke below remains pending.
+
+After the study is secured, start the actual backend explicitly in another
+terminal using the project's existing Python runtime:
+
+```sh
+/absolute/project/.venv/bin/python -m semantic_search.cli serve \
+  --repo /absolute/new-fixture-directory --source-root src --port 8765 \
+  --index-cache /absolute/editor-checkout/extensions/vscode/.cache/indexes
+```
+
+Then, from this extension directory, run:
+
+```sh
+npm run host:smoke -- --run \
+  --repo /absolute/new-fixture-directory \
+  --url http://127.0.0.1:8765 \
+  --output /absolute/editor-checkout/extensions/vscode/.cache/host-acceptance.json
+```
+
+The explicit `--run` starts the isolated Development Host. A fresh user-data
+directory disables updates and telemetry and loads the development extension
+with other installed extensions disabled. Workspace Trust is disabled only for
+this deliberate fixture run, following the official trusted-path test recipe.
+This does **not** test Restricted Mode; that remains a separate acceptance case.
+The launcher owns and terminates only this test-host process group, with a
+five-minute timeout. The externally started backend remains owned by its caller.
+
+The actual-host runner executes the registered connect, status, find, refresh,
+preview, open and cancel commands. It checks that the known fixture behavior ranks
+first, captured virtual documents are plaintext (including literal HTML source),
+the current saved-file selection matches the returned hash and physical bounds,
+and cancelled results cannot replace a fresh search. A test-only loopback receipt
+relay records the forwarded request IDs and source proofs separately from editor
+state. One cancellation query's response may wait at that relay until cancel
+arrives, making the UI case deterministic. Receipt timings include this observer;
+they are not model latency measurements, and no running Metal forward is claimed
+to have been interrupted. The shipped extension contains no receipt/source log.
+
+The JSON artifact retains failures, timeout/exit status, actual host version,
+backend model metadata, command checks, HTTP receipts and before/after source
+hashes. User/worktree paths are replaced with explicit placeholders; HTTP hashes
+refer to original bytes, and a separate hash covers redacted JSON. Require both
+the host assertions and nonempty independent source/cancellation checks to pass.
+No real-host or real-model result has been recorded yet.
+
+## Programmatic commands
+
+Trusted local automation can call the same command handlers without input boxes:
+
+```ts
+await vscode.commands.executeCommand('semanticSearch.connect', {
+  workspacePath: openFolder.uri.fsPath,
+  serviceUrl: 'http://127.0.0.1:8750'
+});
+await vscode.commands.executeCommand('semanticSearch.find', {
+  query: 'Describe a behavior',
+  options: { max_results: 5, token_budget: 2000 }
+});
+await vscode.commands.executeCommand('semanticSearch.preview', 0);
+await vscode.commands.executeCommand('semanticSearch.open', 0);
+```
+
+Connect arguments must select an already open local workspace folder; source
+verification, loopback transport and trust guards still apply. Find requires an
+existing connection and validates overrides using normal search settings.
+Result indices refer to current results, and programmatic stale navigation throws
+instead of opening a notification prompt. Calls without arguments retain the
+normal palette flow. The activation API exposes cloned in-memory `getState()`
+snapshots and `onDidChangeState()` for assertions; it persists no query or source.
+
 ## Launch and verify the local service workflow
 
 1. Build with `npm ci --ignore-scripts --no-audit --no-fund` and `npm test` inside
@@ -70,3 +158,8 @@ buffers and late responses with CPU mocks. They are not a real-model evaluation.
 Once these cases pass, package/install the VSIX locally and repeat one fresh
 service search. Explicit owned process startup/shutdown, unsaved overlays, TS/JS
 retrieval, remote workspaces and Marketplace publication are later milestones.
+
+The current extension still explicitly verifies Python paths/encodings. After
+the reviewed language branch integrates, expand suffix eligibility, UTF-8 JS/TS
+verification and Python-only UI text together, with generic saved-source tests.
+This draft does not claim JS/TS editor support.

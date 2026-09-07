@@ -4,6 +4,12 @@ import { randomUUID } from 'node:crypto';
 import { Entry, SearchController, ViewState } from './controller';
 import { hash, physicalLines, SearchOptions, ValidationError } from './schema';
 import { StaleEvidenceError } from './evidence';
+import { parseConnectRequest, parseFindRequest, resultIndex } from './commands';
+
+export interface ExtensionApi {
+  getState(): Readonly<ViewState>;
+  onDidChangeState(listener: (state: Readonly<ViewState>) => unknown): vscode.Disposable;
+}
 
 class ResultsView implements vscode.TreeDataProvider<Entry | string> {
   private readonly emitter = new vscode.EventEmitter<void>();
@@ -41,8 +47,9 @@ class CapturedPreviews implements vscode.TextDocumentContentProvider {
 }
 let active: SearchController | undefined;
 
-export function activate(context: vscode.ExtensionContext): void {
+export function activate(context: vscode.ExtensionContext): ExtensionApi {
   const view = new ResultsView(), previews = new CapturedPreviews();
+  const states = new vscode.EventEmitter<Readonly<ViewState>>();
   const status = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 10);
   let folder: vscode.WorkspaceFolder | undefined;
   const controller = new SearchController(() => vscode.workspace.isTrusted && !vscode.env.remoteName, state => {
@@ -53,6 +60,7 @@ export function activate(context: vscode.ExtensionContext): void {
     status.tooltip = `${state.message}\nSaved tracked Python only; unsaved editors and untracked files are excluded.\nWatcher: ${watcher ? watcher.running ? 'running' : 'stopped' : 'unavailable'}${watcher?.pending ? ' (pending)' : ''}${watcher?.last_error ? `\nWatcher error: ${watcher.last_error}` : ''}`;
     status.command = 'semanticSearch.status';
     status.show();
+    states.fire(structuredClone(state));
   });
   active = controller; view.update(controller.state);
   const guard = () => {
@@ -63,7 +71,13 @@ export function activate(context: vscode.ExtensionContext): void {
   };
   const wrap = (action: (...args: unknown[]) => Promise<unknown> | unknown) => async (...args: unknown[]) => {
     try { guard(); return await action(...args); }
-    catch (error) { await vscode.window.showErrorMessage(error instanceof Error ? error.message : 'Semantic Search failed'); return undefined; }
+    catch (error) {
+      // Supplied command arguments support trusted automation without waiting
+      // for a notification dismissal. Palette and tree actions keep normal UI.
+      const argument = args[0];
+      if (typeof argument === 'number' || (argument && typeof argument === 'object' && !('result' in argument))) { throw error; }
+      await vscode.window.showErrorMessage(error instanceof Error ? error.message : 'Semantic Search failed'); return undefined;
+    }
   };
   const chooseFolder = async (): Promise<vscode.WorkspaceFolder | undefined> => {
     const folders = vscode.workspace.workspaceFolders?.filter(candidate => candidate.uri.scheme === 'file') ?? [];
@@ -73,12 +87,16 @@ export function activate(context: vscode.ExtensionContext): void {
       { placeHolder: 'Select the repository indexed by your local service' });
     return chosen?.folder;
   };
-  const connect = async () => {
-    const selected = await chooseFolder(); if (!selected) { return; }
+  const connect = async (argument?: unknown) => {
+    const request = parseConnectRequest(argument);
+    const selected = request ? (vscode.workspace.workspaceFolders ?? []).find(candidate =>
+      candidate.uri.scheme === 'file' && candidate.uri.fsPath === request.workspacePath) : await chooseFolder();
+    if (!selected) { if (request) { throw new ValidationError('Command workspace path must name an open local workspace folder'); } return; }
     const configured = vscode.workspace.getConfiguration('semanticSearch', selected.uri).get<string>('serviceUrl', 'http://127.0.0.1:8750');
-    const url = await vscode.window.showInputBox({ prompt: 'Local service URL; repository must match the selected folder', value: configured, ignoreFocusOut: true });
+    const url = request?.serviceUrl ?? await vscode.window.showInputBox({ prompt: 'Local service URL; repository must match the selected folder', value: configured, ignoreFocusOut: true });
     if (url === undefined) { return; }
     if (await controller.connect(selected.uri.fsPath, url)) { folder = selected; }
+    return structuredClone(controller.state);
   };
   const options = (): SearchOptions => {
     if (!folder) { throw new ValidationError('Connect to the selected repository first'); }
@@ -87,12 +105,17 @@ export function activate(context: vscode.ExtensionContext): void {
       max_results: cfg.get('maxResults', 8), source_budget: cfg.get('sourceBudget', 12000), token_budget: cfg.get('tokenBudget', 4096),
       include_dependencies: cfg.get('includeDependencies', true) };
   };
-  const preview = async (row: unknown) => {
-    const entry = row as Entry;
+  const resolveEntry = (row: unknown): Entry => {
+    const entry = typeof row === 'number' ? controller.state.entries[resultIndex(row, controller.state.entries.length)] : row as Entry;
     if (!entry?.result || !controller.state.entries.includes(entry)) { throw new ValidationError('Select a current search result'); }
+    return entry;
+  };
+  const preview = async (row: unknown) => {
+    const entry = resolveEntry(row);
     const document = await vscode.workspace.openTextDocument(previews.add(entry));
     await vscode.languages.setTextDocumentLanguage(document, 'plaintext');
     await vscode.window.showTextDocument(document, { preview: true, viewColumn: vscode.ViewColumn.Beside });
+    return document.uri;
   };
   const dirty = async (canonical: string): Promise<boolean> => {
     for (const document of vscode.workspace.textDocuments) {
@@ -102,7 +125,7 @@ export function activate(context: vscode.ExtensionContext): void {
     return false;
   };
   const open = async (row: unknown) => {
-    const entry = row as Entry;
+    const entry = resolveEntry(row);
     try {
       if (!entry?.result) { throw new ValidationError('Select a current result'); }
       const filename = await controller.navigation(entry, dirty);
@@ -117,14 +140,16 @@ export function activate(context: vscode.ExtensionContext): void {
         document.lineAt(entry.result.end_line - 1).text.length);
       editor.selection = new vscode.Selection(range.start, range.end);
       editor.revealRange(range, vscode.TextEditorRevealType.InCenter);
+      return document.uri;
     } catch (error) {
       if (!(error instanceof StaleEvidenceError)) { throw error; }
+      if (typeof row === 'number') { throw error; }
       const choice = await vscode.window.showWarningMessage(error.message, 'Captured Preview', 'New Search');
       if (choice === 'Captured Preview') { await preview(entry); }
       else if (choice === 'New Search') { await vscode.commands.executeCommand('semanticSearch.find'); }
     }
   };
-  context.subscriptions.push(view, previews, status, { dispose: () => controller.dispose() },
+  context.subscriptions.push(view, previews, states, status, { dispose: () => controller.dispose() },
     vscode.window.registerTreeDataProvider('semanticSearch.results', view),
     vscode.workspace.registerTextDocumentContentProvider('semantic-search-preview', previews),
     vscode.workspace.onDidCloseTextDocument(document => { if (document.uri.scheme === 'semantic-search-preview') { previews.close(document.uri); } }),
@@ -134,16 +159,26 @@ export function activate(context: vscode.ExtensionContext): void {
       }
     }),
     vscode.commands.registerCommand('semanticSearch.connect', wrap(connect)),
-    vscode.commands.registerCommand('semanticSearch.find', wrap(async () => {
-      if (!controller.repository) { await connect(); } if (!controller.repository) { return; }
-      const query = await vscode.window.showInputBox({ prompt: 'Describe the implementation behavior in saved Python source', ignoreFocusOut: true });
-      if (query !== undefined) { await controller.search(query, options()); }
+    vscode.commands.registerCommand('semanticSearch.find', wrap(async (argument?: unknown) => {
+      if (!controller.repository) {
+        if (argument !== undefined) { throw new ValidationError('Connect to the selected repository before running a programmatic search'); }
+        await connect();
+      }
+      if (!controller.repository) { return; }
+      const request = parseFindRequest(argument, options());
+      const query = request?.query ?? await vscode.window.showInputBox({ prompt: 'Describe the implementation behavior in saved Python source', ignoreFocusOut: true });
+      if (query !== undefined) { await controller.search(query, request?.options ?? options()); }
+      return structuredClone(controller.state);
     })),
-    vscode.commands.registerCommand('semanticSearch.status', wrap(async () => { if (!controller.repository) { await connect(); } else { await controller.status(); } })),
-    vscode.commands.registerCommand('semanticSearch.refresh', wrap(async () => { await controller.refresh(); })),
+    vscode.commands.registerCommand('semanticSearch.status', wrap(async () => { if (!controller.repository) { await connect(); } else { await controller.status(); } return structuredClone(controller.state); })),
+    vscode.commands.registerCommand('semanticSearch.refresh', wrap(async () => { await controller.refresh(); return structuredClone(controller.state); })),
     vscode.commands.registerCommand('semanticSearch.cancel', wrap(() => controller.cancel())),
     vscode.commands.registerCommand('semanticSearch.preview', wrap(preview)),
     vscode.commands.registerCommand('semanticSearch.open', wrap(open)));
   status.text = '$(search) Semantic Search: Disconnected'; status.command = 'semanticSearch.connect'; status.show();
+  return {
+    getState: () => { guard(); return structuredClone(controller.state); },
+    onDidChangeState: listener => { guard(); return states.event(listener); }
+  };
 }
 export function deactivate(): void { active?.dispose(); active = undefined; }
