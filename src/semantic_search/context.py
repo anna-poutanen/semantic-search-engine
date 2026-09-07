@@ -11,6 +11,9 @@ from pathlib import Path
 from semantic_search.source import physical_lines
 
 ENCODING = "cl100k_base"
+INDEX_MEMBERSHIP = "saved implementations; Git-tracked files only in Git projects"
+MAX_SCOPE_EXCLUSIONS = 4
+MAX_SCOPE_EXCLUSION_CHARS = 80
 
 
 def serialize_context(envelope):
@@ -25,15 +28,27 @@ def encoding():
     return tiktoken.get_encoding(ENCODING)
 
 
+def indexed_scope(source_root, source_exclusions=()):
+    """Bound the scope summary without turning shortened text into new globs."""
+    displayed = [pattern for pattern in source_exclusions
+                 if len(pattern) <= MAX_SCOPE_EXCLUSION_CHARS][:MAX_SCOPE_EXCLUSIONS]
+    return {"source_root": source_root, "membership": INDEX_MEMBERSHIP,
+            "source_exclusions": displayed,
+            "exclusions_omitted": len(source_exclusions) - len(displayed)}
+
+
 def compact_result(response):
     fields = ("path", "symbol", "start_line", "end_line", "source", "source_hash", "truncated")
     rows = [{**{key: row[key] for key in fields},
              "origin": row.get("origin", "retrieval"), "related_to": row.get("related_to")}
             for row in response["results"]]
-    return {"query": response["query"], "match_status": response.get("match_status", "candidates"),
-            "results": rows, "budget_exhausted": response.get("budget_exhausted", False),
-            "token_usage": response.get("token_usage", {"encoding": ENCODING, "tokens": None,
-                                                        "budget": None, "truncated": False})}
+    result = {"query": response["query"], "match_status": response.get("match_status", "candidates"),
+              "results": rows, "budget_exhausted": response.get("budget_exhausted", False),
+              "token_usage": response.get("token_usage", {"encoding": ENCODING, "tokens": None,
+                                                          "budget": None, "truncated": False})}
+    if "scope" in response:
+        result["scope"] = response["scope"]
+    return result
 
 
 def count_context(response):
