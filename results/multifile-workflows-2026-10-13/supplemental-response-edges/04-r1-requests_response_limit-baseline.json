@@ -41,6 +41,45 @@
       },
       "passed": true,
       "raw_reads": 1
+    },
+    "hook_chain_cached_replacement": {
+      "cached_before_hook": true,
+      "error": {
+        "cause_type": null,
+        "context_type": null,
+        "message": "Response body exceeded 4 bytes (8 bytes received)",
+        "notes": [],
+        "type": "ResponseTooLarge"
+      },
+      "expected_yielded_in_second_hook": [],
+      "hook_calls": [
+        "replace"
+      ],
+      "passed": true,
+      "received": 8,
+      "yielded_in_second_hook": []
+    },
+    "hook_chain_live_replacement": {
+      "cached_before_hook": false,
+      "error": {
+        "cause_type": null,
+        "context_type": null,
+        "message": "Response body exceeded 4 bytes (8 bytes received)",
+        "notes": [],
+        "type": "ResponseTooLarge"
+      },
+      "expected_yielded_in_second_hook": [
+        "abcd"
+      ],
+      "hook_calls": [
+        "replace",
+        "consume"
+      ],
+      "passed": true,
+      "received": 8,
+      "yielded_in_second_hook": [
+        "abcd"
+      ]
     }
   },
   "classification": "Post-output supplemental edge checks; frozen formal grades unchanged",
@@ -55,7 +94,7 @@
   "identity": "04-r1-requests_response_limit-baseline",
   "implementation_neutral": "Public Session/read APIs with one deterministic in-memory adapter; no private budget names or edits to candidate source",
   "patch_sha256": "975151790f43b6c6f3a94ec015151f60e1a2d8d551a2e460272c38e9ea5807b3",
-  "probe_sha256": "b77165448761cb19fd65921a5cfcaed23387b461e56150122b14e1f8d98418df",
-  "revision": "After independent scope review, accept implicit cleanup exception context as well as explicit cause or notes; neutral case inputs unchanged",
-  "version": 2
+  "probe_sha256": "17f4e45e37d39d2a5f89c14fc11cc3a99af80b71312d987bea79406c465dc810",
+  "revision": "Original three v2 cases unchanged; add live/cached hook-chain variants selected after terminal11 source inspection. All applicable retained candidates and reference receive the same added cases, without feedback to coding trials",
+  "version": 3
 }

@@ -70,6 +70,18 @@ def test_repetitions_are_latency_samples_without_inflating_quality_denominator()
     assert summary["present_queries"] == summary["absent_queries"] == 1
     assert summary["candidate_complete"] == 1 and summary["delivered_complete"] == 0
     assert summary["required_groups"] == 2 and summary["delivered_groups"] == 1
+    assert summary["candidate_groups"] == 2
     assert summary["latency_samples"] == 6 and summary["repeat_coverage_mismatches"] == []
     rows[-2]["evidence_ranks"] = [1, 2]
     assert module.summarize(rows)["zod"]["dense"]["repeat_coverage_mismatches"] == ["present"]
+
+
+def test_schedule_freezes_every_unique_identity_and_rotates_without_retry():
+    preflight = {"datasets": [{"id": "express", "queries": [{"query_id": "a"}, {"query_id": "b"}]},
+                              {"id": "zod", "queries": [{"query_id": "a"}]}]}
+    schedule = module.request_schedule(preflight)
+    assert len(schedule) == len({tuple(row.values()) for row in schedule}) == 27
+    assert schedule[0] == {"dataset": "express", "query_id": "a", "condition": "bm25", "repetition": 1}
+    assert schedule[3]["condition"] == schedule[6]["condition"] == "dense"
+    assert all(row["dataset"] == "express" for row in schedule[:18])
+    assert all(row["dataset"] == "zod" for row in schedule[18:])

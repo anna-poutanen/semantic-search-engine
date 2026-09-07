@@ -1,0 +1,501 @@
+{
+  "agent_elapsed_s": 900.0331237089995,
+  "agent_end": {
+    "monotonic_s": 151373.893144375,
+    "utc": "2026-10-13T08:30:22.345294+00:00"
+  },
+  "agent_exit_code": -15,
+  "agent_start": {
+    "monotonic_s": 150473.860020666,
+    "utc": "2026-10-13T08:15:22.312184+00:00"
+  },
+  "artifact_sha256": {
+    "published": {
+      "command.json": "dd6022302737959c52360f11a08410221205f1046bf218fe9c10daf07cd19a52",
+      "event-timestamps.json": "6d8022c66478e1158e3c07aa13c8b7b0134862f96018755dd9c535496a44363d",
+      "events.jsonl": "7cf187f068efddc04f555d6a452d2095c7c05eb8e7e5c4ce2f2ca0d2e8a2c00f",
+      "stderr.txt": "15603e925e630e33a3395b057369db911ea9f6267f8df205cf4062aa82ef1e85"
+    },
+    "raw": {
+      "command.json": "7c2709ccfbe606beb1a2553acc9a1c672386b753bb2a8f8f6fea22d137ad37e1",
+      "events.jsonl": "694581f03e06569925512ae1740981c1b0b6f5842738b5f60b22e82bdbb1c54a",
+      "observed-events.json": "57b8695088772fbf106783741e89a9468f3a5531846b82babdca1bdf4c64c78a",
+      "stderr.txt": "15603e925e630e33a3395b057369db911ea9f6267f8df205cf4062aa82ef1e85"
+    }
+  },
+  "base_commit": "6c133c65355b59f183e7022493b3090a44050f35",
+  "base_tree_sha256": "3f49d26c31b46d4c77385684d3969a4d395bba6d74dad84aa6835e33460eabcb",
+  "changed_files": [
+    "src/requests/__init__.py",
+    "src/requests/_types.py",
+    "src/requests/api.py",
+    "src/requests/exceptions.py",
+    "src/requests/models.py",
+    "src/requests/sessions.py",
+    "tests/test_response_limit.py"
+  ],
+  "command_calls": 20,
+  "compatibility": {
+    "added_configuration_removed_for_grading": [],
+    "changed_or_deleted_original_tests": [],
+    "commands": [
+      {
+        "actual_summary": {
+          "deselected": 0,
+          "errors": 0,
+          "failed": 0,
+          "passed": 257,
+          "skipped": 13,
+          "xfailed": 0,
+          "xpassed": 0
+        },
+        "command": [
+          "<PROJECT>/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-q",
+          "-o",
+          "addopts=",
+          "tests/test_hooks.py",
+          "tests/test_structures.py",
+          "tests/test_utils.py",
+          "tests/test_requests.py::TestRequests::test_response_is_iterable",
+          "tests/test_requests.py::TestRequests::test_response_decode_unicode",
+          "tests/test_requests.py::TestRequests::test_response_chunk_size_type",
+          "tests/test_requests.py::test_json_decode_errors_are_serializable_deserializable",
+          "tests/test_requests.py::TestRequests::test_HTTP_200_OK_GET_ALTERNATIVE",
+          "tests/test_requests.py::TestRequests::test_HTTP_302_ALLOW_REDIRECT_GET",
+          "tests/test_requests.py::TestRequests::test_HTTP_307_ALLOW_REDIRECT_POST",
+          "tests/test_requests.py::TestRequests::test_http_301_changes_post_to_get",
+          "tests/test_requests.py::TestRequests::test_header_and_body_removal_on_redirect",
+          "tests/test_requests.py::TestRequests::test_auth_is_retained_for_redirect_on_host",
+          "tests/test_requests.py::TestRequests::test_response_iter_lines",
+          "tests/test_requests.py::TestRequests::test_response_context_manager",
+          "tests/test_requests.py::TestRequests::test_unconsumed_session_response_closes_connection",
+          "tests/test_requests.py::TestRequests::test_request_and_response_are_pickleable"
+        ],
+        "end": {
+          "monotonic_s": 151375.911068333,
+          "utc": "2026-10-13T08:30:24.363232+00:00"
+        },
+        "exit_code": 0,
+        "expected_summary": {
+          "deselected": 0,
+          "errors": 0,
+          "failed": 0,
+          "passed": 257,
+          "skipped": 13,
+          "xfailed": 0,
+          "xpassed": 0
+        },
+        "passed": true,
+        "start": {
+          "monotonic_s": 151374.929088583,
+          "utc": "2026-10-13T08:30:23.381254+00:00"
+        },
+        "stderr": "127.0.0.1 - - [13/Oct/2026 04:30:23] \"GET /stream/4 HTTP/1.1\" 200 1008\n",
+        "stdout": ".............................s.......................................... [ 26%]\n........................................................................ [ 53%]\n........................................................................ [ 80%]\n.......................sssssssssss.....s..............                   [100%]\n=============================== warnings summary ===============================\ntests/test_utils.py::TestContentEncodingDetection::test_none\ntests/test_utils.py::TestContentEncodingDetection::test_pragmas[<meta charset=\"UTF-8\">]\ntests/test_utils.py::TestContentEncodingDetection::test_pragmas[<meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\">]\ntests/test_utils.py::TestContentEncodingDetection::test_pragmas[<meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" />]\ntests/test_utils.py::TestContentEncodingDetection::test_pragmas[<?xml version=\"1.0\" encoding=\"UTF-8\"?>]\ntests/test_utils.py::TestContentEncodingDetection::test_precedence\n  <EVALUATOR_LOG>/original-upstream-checkout/src/requests/utils.py:527: DeprecationWarning: In requests 3.0, get_encodings_from_content will be removed. For more information, please see the discussion on issue #2266. (This warning should only appear once.)\n    warnings.warn(\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n257 passed, 13 skipped, 6 warnings in 0.71s\n"
+      }
+    ],
+    "grading_method": "Candidate sources; original pinned tracked tests and test configuration restored in evaluator-only copy",
+    "original_test_and_config_hashes": {
+      "pyproject.toml": "345f26b9f691435e39d0eb6f7f4150a390f43175b22f8d61ac95e7f2827f0a77",
+      "tests/__init__.py": "ac7f253daae0905f9b3dec647cae736bb3c090185aa373b30b3e851599e5342c",
+      "tests/certs/README.md": "a902fe53d4cc6224b59532e47d94fc42726b2227462e801538aa50a7888d38f3",
+      "tests/certs/expired/Makefile": "a33636d6474f1e94a1de61c4e1fbd2efb5c55aa86061ab3ce2d2ad9fb5aeb457",
+      "tests/certs/expired/README.md": "80690554d2353ab1c348bee8df833bdf7b3cd1cb8d728b4380221f34b5881eeb",
+      "tests/certs/expired/ca/Makefile": "09ab0ff83129203660d5ad489618764524f6af7fa4d9586ca5bdb0f68d1ca822",
+      "tests/certs/expired/ca/ca-private.key": "9a36bafea981da2dcd9a218b7ce23c778acdbee0009c0720531dd4e4d0549548",
+      "tests/certs/expired/ca/ca.cnf": "238414b5b06448a4d2f37fcf2e0e771e49e84a172a1c6dc3efec5866d24da3fe",
+      "tests/certs/expired/ca/ca.crt": "1407cb9c2502bf453ffa3f54cb846022f161a46b73fe4caf436157d95ad93367",
+      "tests/certs/expired/ca/ca.srl": "c80a955513b5fed04be2ee78804153be8cf070c4145b83c9dbb6331c2e6c2013",
+      "tests/certs/expired/server/Makefile": "1c8cf9d72554a803d3b267d9df9c5e54db2e05d2fbd6b16d745f140bfcf74a24",
+      "tests/certs/expired/server/cert.cnf": "3b70317a294d4ac19e055ccb7316c4b3d9cca685d7bdc40be98cdfa9994ff081",
+      "tests/certs/expired/server/server.csr": "5d4683e2db14cf6f47d57ea6e45647a29b5693f3f723a891b2ef188c333de694",
+      "tests/certs/expired/server/server.key": "acce64eae44a4073909c97e5929a1a319c947f4f37e4b933c1dcd805e59c8516",
+      "tests/certs/expired/server/server.pem": "232cc4e13f97688281a03e6a555e93c3a7bd6cfda4604fdee085f4ac2556f2c2",
+      "tests/certs/mtls/Makefile": "aa1f5be6bde49113304ba145736bc3a3d23d45dfaa81e0d977fd52378f30b314",
+      "tests/certs/mtls/README.md": "57dd4ec5bd44f1d2e1bc2de7e6cb292eb62f2236d34fd889a46d81a19dbde9f7",
+      "tests/certs/mtls/client/Makefile": "ec153d8d19a0987a41977094bc8b01cbca1a8b5adc589f1bd8d9bec562bdb9d8",
+      "tests/certs/mtls/client/cert.cnf": "b7cbb0ae5934dd229cba5cbf60869a33d352bf9c2799705f99f74e0685148acf",
+      "tests/certs/mtls/client/client.csr": "5fc31e8e331f1fdbf7f80c4840b4e70fa81f6dc46ecab811bb03134d21ab4004",
+      "tests/certs/mtls/client/client.key": "98ed2a33896438a77175ee8ecebe0a8bf57d39c24a18ba4ebf87d9bc8abf6711",
+      "tests/certs/mtls/client/client.pem": "d8601d058cf8958fff16250037b38a83e5eb93cc0507b4e083860ca9214023ea",
+      "tests/certs/valid/server/Makefile": "68541e2b167a72cf00a57c0978750b11ff830dc85bdda99eebe50f7791768a03",
+      "tests/certs/valid/server/cert.cnf": "605014e20661c4d3e5ff5869e5453018e09329a3b7a987d26c8b785db3ee7479",
+      "tests/certs/valid/server/server.csr": "e880392e855c00d84c06daa45000a624950fc2da0dde1ae92f2a9f91370a578e",
+      "tests/certs/valid/server/server.key": "5457b89bc1af7de6829d78c9baa639ddea79b4e9dffe7933166c12836f9345c2",
+      "tests/certs/valid/server/server.pem": "d0b55dbe152874f2d7bce3513d52a8e5f587566186dfd7a88d14ad41367133d1",
+      "tests/compat.py": "d58ff5e3167de0140a667cc51427f809c552e485875c95b9dad43ce13ba15083",
+      "tests/conftest.py": "6d65ffb582519f80a66c5d1ef571e3c33395a199f9e67fcb500c6ad2d7800e0a",
+      "tests/test_adapters.py": "102494aa704f8505fb22fa476452f6aa3aae756da82fe2d5b2a2a3f366b38bf4",
+      "tests/test_help.py": "1c2ac8ca9f4986429717791df766122b23e1fe90aa621318380ccf1f8e83d0f6",
+      "tests/test_hooks.py": "a9e5163f538543a660be3b06650cd0b803ff0c503f5948f66b6fc50ede38109c",
+      "tests/test_lowlevel.py": "db5fac7340c49c49551e3e41679a8ee6e385c56054f84073932354a8da87df65",
+      "tests/test_packages.py": "90875423db059d65b39416d7b6d01b18938851b8071279877400beb506e08676",
+      "tests/test_requests.py": "5eacf6341d236e225ce6a37a592f3b410f20e69ec17641f0e2c99b03a79b904d",
+      "tests/test_structures.py": "f984b7fc68fb2bd6ec82463b0cf5b6bd2ac773293cac6629fc3361f9f66947e9",
+      "tests/test_testserver.py": "90ac39d6cb9c0fbaa94c5aa59646bf6097829ae73e50ac284a41135188f95d33",
+      "tests/test_utils.py": "00d027432443a1aa9539c00a09550de9439cdd696d2e6acf2dc997de3a416946",
+      "tests/testserver/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "tests/testserver/server.py": "15a9092cc5edb005af6732097555515c4b82093d9394f6463c966259f83068c3",
+      "tests/utils.py": "cfaec86690eba62573c8c730a121332837809333fb2b1006a20e2e8f4d34d4de",
+      "tox.ini": "65aeb46c94fc5723a9764bb029fdb448539658fe47d3a39550a829b2383804fd"
+    },
+    "passed": true,
+    "test_edits_require_review": false
+  },
+  "completed": false,
+  "completed_correct": false,
+  "condition": "baseline",
+  "correct": true,
+  "errors": [],
+  "failed": false,
+  "grade": {
+    "detail": {
+      "errors": 0,
+      "failures": 0,
+      "passed": true,
+      "skipped": 0,
+      "tests_run": 13
+    },
+    "end": {
+      "monotonic_s": 151374.541992208,
+      "utc": "2026-10-13T08:30:22.994127+00:00"
+    },
+    "exit_code": 0,
+    "passed": true,
+    "start": {
+      "monotonic_s": 151373.9150235,
+      "utc": "2026-10-13T08:30:22.367201+00:00"
+    },
+    "stderr": "test_inheritance_override_disable_and_exact_boundary (__main__.ResponseLimits.test_inheritance_override_disable_and_exact_boundary) ... ok\ntest_invalid_values_fail_before_transport (__main__.ResponseLimits.test_invalid_values_fail_before_transport) ... ok\ntest_legacy_default_session_remains_unbounded (__main__.ResponseLimits.test_legacy_default_session_remains_unbounded) ... ok\ntest_limit_error_survives_cleanup_failure_with_diagnostics (__main__.ResponseLimits.test_limit_error_survives_cleanup_failure_with_diagnostics) ... ok\ntest_live_budget_cannot_be_reset_by_another_iterator_or_content (__main__.ResponseLimits.test_live_budget_cannot_be_reset_by_another_iterator_or_content) ... ok\ntest_module_helpers_and_legacy_default_sessions (__main__.ResponseLimits.test_module_helpers_and_legacy_default_sessions) ... ok\ntest_prepared_send_and_session_pickle_preserve_setting (__main__.ResponseLimits.test_prepared_send_and_session_pickle_preserve_setting) ... ok\ntest_public_error_and_eager_session_context (__main__.ResponseLimits.test_public_error_and_eager_session_context) ... ok\ntest_real_http_gzip_limit_counts_decoded_bytes (__main__.ResponseLimits.test_real_http_gzip_limit_counts_decoded_bytes) ... ok\ntest_redirect_responses_each_receive_the_same_budget (__main__.ResponseLimits.test_redirect_responses_each_receive_the_same_budget) ... ok\ntest_response_hooks_and_cached_content_do_not_bypass_limit (__main__.ResponseLimits.test_response_hooks_and_cached_content_do_not_bypass_limit) ... ok\ntest_stream_never_delivers_the_crossing_chunk (__main__.ResponseLimits.test_stream_never_delivers_the_crossing_chunk) ... ok\ntest_zero_rejects_nonempty_and_header_is_not_a_size_oracle (__main__.ResponseLimits.test_zero_rejects_nonempty_and_header_is_not_a_size_oracle) ... ok\n\n----------------------------------------------------------------------\nRan 13 tests in 0.509s\n\nOK\n",
+    "stdout": "{\"errors\": 0, \"failures\": 0, \"passed\": true, \"skipped\": 0, \"tests_run\": 13}\n"
+  },
+  "invalid_event_lines": [],
+  "mcp_calls": 0,
+  "mcp_items": [],
+  "patch_sha256": "30cba059ae33da0b3afbdd7b9f2479d075d99a9368cf60dbff4103eb73616c55",
+  "per_model_call_usage": null,
+  "per_model_call_usage_reason": "Not emitted by exec --json",
+  "phase_timestamps": {
+    "fixture_end": {
+      "monotonic_s": 150473.858714416,
+      "utc": "2026-10-13T08:15:22.310881+00:00"
+    },
+    "fixture_start": {
+      "monotonic_s": 150473.026626583,
+      "utc": "2026-10-13T08:15:21.478790+00:00"
+    },
+    "grading_end": {
+      "monotonic_s": 151375.912781416,
+      "utc": "2026-10-13T08:30:24.364959+00:00"
+    },
+    "grading_start": {
+      "monotonic_s": 151373.9149905,
+      "utc": "2026-10-13T08:30:22.367157+00:00"
+    },
+    "shutdown_end": {
+      "monotonic_s": 151373.896646,
+      "utc": "2026-10-13T08:30:22.348825+00:00"
+    },
+    "shutdown_start": {
+      "monotonic_s": 151373.896641708,
+      "utc": "2026-10-13T08:30:22.348805+00:00"
+    },
+    "trial_end": {
+      "monotonic_s": 151375.948449458,
+      "utc": "2026-10-13T08:30:24.400616+00:00"
+    }
+  },
+  "prompt_sha256": "47b42a30239238a6dd6f099273fb7004840d3178e755c8acfd6bd34e5ecfa07f",
+  "repetition": 2,
+  "reported_turns": 0,
+  "run_id": "11-r2-requests_response_limit-baseline",
+  "seed_grade": {
+    "detail": {
+      "errors": 19,
+      "failures": 0,
+      "passed": false,
+      "skipped": 0,
+      "tests_run": 13
+    },
+    "end": {
+      "monotonic_s": 150473.858690666,
+      "utc": "2026-10-13T08:15:22.310816+00:00"
+    },
+    "exit_code": 1,
+    "passed": false,
+    "start": {
+      "monotonic_s": 150473.248732291,
+      "utc": "2026-10-13T08:15:21.700885+00:00"
+    },
+    "stderr": "test_inheritance_override_disable_and_exact_boundary (__main__.ResponseLimits.test_inheritance_override_disable_and_exact_boundary) ... \n  test_inheritance_override_disable_and_exact_boundary (__main__.ResponseLimits.test_inheritance_override_disable_and_exact_boundary) (default=3, override={}) ... ERROR\n  test_inheritance_override_disable_and_exact_boundary (__main__.ResponseLimits.test_inheritance_override_disable_and_exact_boundary) (default=1, override={'max_response_bytes': 3}) ... ERROR\n  test_inheritance_override_disable_and_exact_boundary (__main__.ResponseLimits.test_inheritance_override_disable_and_exact_boundary) (default=1, override={'max_response_bytes': None}) ... ERROR\n  test_inheritance_override_disable_and_exact_boundary (__main__.ResponseLimits.test_inheritance_override_disable_and_exact_boundary) (default=None, override={}) ... ERROR\n  test_inheritance_override_disable_and_exact_boundary (__main__.ResponseLimits.test_inheritance_override_disable_and_exact_boundary) (default=0, override={}) ... ERROR\ntest_invalid_values_fail_before_transport (__main__.ResponseLimits.test_invalid_values_fail_before_transport) ... \n  test_invalid_values_fail_before_transport (__main__.ResponseLimits.test_invalid_values_fail_before_transport) (value=-1) ... ERROR\ntest_invalid_values_fail_before_transport (__main__.ResponseLimits.test_invalid_values_fail_before_transport) ... ERROR\ntest_legacy_default_session_remains_unbounded (__main__.ResponseLimits.test_legacy_default_session_remains_unbounded) ... ok\ntest_limit_error_survives_cleanup_failure_with_diagnostics (__main__.ResponseLimits.test_limit_error_survives_cleanup_failure_with_diagnostics) ... ERROR\ntest_live_budget_cannot_be_reset_by_another_iterator_or_content (__main__.ResponseLimits.test_live_budget_cannot_be_reset_by_another_iterator_or_content) ... \n  test_live_budget_cannot_be_reset_by_another_iterator_or_content (__main__.ResponseLimits.test_live_budget_cannot_be_reset_by_another_iterator_or_content) (second_read='iterator') ... ERROR\n  test_live_budget_cannot_be_reset_by_another_iterator_or_content (__main__.ResponseLimits.test_live_budget_cannot_be_reset_by_another_iterator_or_content) (second_read='content') ... ERROR\ntest_live_budget_cannot_be_reset_by_another_iterator_or_content (__main__.ResponseLimits.test_live_budget_cannot_be_reset_by_another_iterator_or_content) ... ERROR\ntest_module_helpers_and_legacy_default_sessions (__main__.ResponseLimits.test_module_helpers_and_legacy_default_sessions) ... ERROR\ntest_prepared_send_and_session_pickle_preserve_setting (__main__.ResponseLimits.test_prepared_send_and_session_pickle_preserve_setting) ... ERROR\ntest_public_error_and_eager_session_context (__main__.ResponseLimits.test_public_error_and_eager_session_context) ... ERROR\ntest_real_http_gzip_limit_counts_decoded_bytes (__main__.ResponseLimits.test_real_http_gzip_limit_counts_decoded_bytes) ... ERROR\ntest_redirect_responses_each_receive_the_same_budget (__main__.ResponseLimits.test_redirect_responses_each_receive_the_same_budget) ... ERROR\ntest_response_hooks_and_cached_content_do_not_bypass_limit (__main__.ResponseLimits.test_response_hooks_and_cached_content_do_not_bypass_limit) ... ERROR\ntest_stream_never_delivers_the_crossing_chunk (__main__.ResponseLimits.test_stream_never_delivers_the_crossing_chunk) ... ERROR\ntest_zero_rejects_nonempty_and_header_is_not_a_size_oracle (__main__.ResponseLimits.test_zero_rejects_nonempty_and_header_is_not_a_size_oracle) ... ERROR\n\n======================================================================\nERROR: test_inheritance_override_disable_and_exact_boundary (__main__.ResponseLimits.test_inheritance_override_disable_and_exact_boundary) (default=3, override={})\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<PROJECT>/benchmarks/multifile_checks/check_requests_response_limit.py\", line 192, in test_inheritance_override_disable_and_exact_boundary\n    s, _ = session([[body]], limit=default)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<PROJECT>/benchmarks/multifile_checks/check_requests_response_limit.py\", line 59, in session\n    s = requests.Session(max_response_bytes=limit)\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: Session.__init__() got an unexpected keyword argument 'max_response_bytes'\n\n======================================================================\nERROR: test_inheritance_override_disable_and_exact_boundary (__main__.ResponseLimits.test_inheritance_override_disable_and_exact_boundary) (default=1, override={'max_response_bytes': 3})\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<PROJECT>/benchmarks/multifile_checks/check_requests_response_limit.py\", line 192, in test_inheritance_override_disable_and_exact_boundary\n    s, _ = session([[body]], limit=default)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<PROJECT>/benchmarks/multifile_checks/check_requests_response_limit.py\", line 59, in session\n    s = requests.Session(max_response_bytes=limit)\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: Session.__init__() got an unexpected keyword argument 'max_response_bytes'\n\n======================================================================\nERROR: test_inheritance_override_disable_and_exact_boundary (__main__.ResponseLimits.test_inheritance_override_disable_and_exact_boundary) (default=1, override={'max_response_bytes': None})\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<PROJECT>/benchmarks/multifile_checks/check_requests_response_limit.py\", line 192, in test_inheritance_override_disable_and_exact_boundary\n    s, _ = session([[body]], limit=default)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<PROJECT>/benchmarks/multifile_checks/check_requests_response_limit.py\", line 59, in session\n    s = requests.Session(max_response_bytes=limit)\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: Session.__init__() got an unexpected keyword argument 'max_response_bytes'\n\n======================================================================\nERROR: test_inheritance_override_disable_and_exact_boundary (__main__.ResponseLimits.test_inheritance_override_disable_and_exact_boundary) (default=None, override={})\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<PROJECT>/benchmarks/multifile_checks/check_requests_response_limit.py\", line 192, in test_inheritance_override_disable_and_exact_boundary\n    s, _ = session([[body]], limit=default)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<PROJECT>/benchmarks/multifile_checks/check_requests_response_limit.py\", line 59, in session\n    s = requests.Session(max_response_bytes=limit)\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: Session.__init__() got an unexpected keyword argument 'max_response_bytes'\n\n======================================================================\nERROR: test_inheritance_override_disable_and_exact_boundary (__main__.ResponseLimits.test_inheritance_override_disable_and_exact_boundary) (default=0, override={})\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<PROJECT>/benchmarks/multifile_checks/check_requests_response_limit.py\", line 192, in test_inheritance_override_disable_and_exact_boundary\n    s, _ = session([[body]], limit=default)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<PROJECT>/benchmarks/multifile_checks/check_requests_response_limit.py\", line 59, in session\n    s = requests.Session(max_response_bytes=limit)\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: Session.__init__() got an unexpected keyword argument 'max_response_bytes'\n\n======================================================================\nERROR: test_invalid_values_fail_before_transport (__main__.ResponseLimits.test_invalid_values_fail_before_transport) (value=-1)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<PROJECT>/benchmarks/multifile_checks/check_requests_response_limit.py\", line 201, in test_invalid_values_fail_before_transport\n    requests.Session(max_response_bytes=bad)\nTypeError: Session.__init__() got an unexpected keyword argument 'max_response_bytes'\n\n======================================================================\nERROR: test_invalid_values_fail_before_transport (__main__.ResponseLimits.test_invalid_values_fail_before_transport)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<PROJECT>/benchmarks/multifile_checks/check_requests_response_limit.py\", line 202, in test_invalid_values_fail_before_transport\n    s, a = session([[b\"1\"]])\n           ^^^^^^^^^^^^^^^^^\n  File \"<PROJECT>/benchmarks/multifile_checks/check_requests_response_limit.py\", line 59, in session\n    s = requests.Session(max_response_bytes=limit)\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: Session.__init__() got an unexpected keyword argument 'max_response_bytes'\n\n======================================================================\nERROR: test_limit_error_survives_cleanup_failure_with_diagnostics (__main__.ResponseLimits.test_limit_error_survives_cleanup_failure_with_diagnostics)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<PROJECT>/benchmarks/multifile_checks/check_requests_response_limit.py\", line 166, in test_limit_error_survives_cleanup_failure_with_diagnostics\n    s, _ = session([[b\"placeholder\"]], limit=2)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<PROJECT>/benchmarks/multifile_checks/check_requests_response_limit.py\", line 59, in session\n    s = requests.Session(max_response_bytes=limit)\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: Session.__init__() got an unexpected keyword argument 'max_response_bytes'\n\n======================================================================\nERROR: test_live_budget_cannot_be_reset_by_another_iterator_or_content (__main__.ResponseLimits.test_live_budget_cannot_be_reset_by_another_iterator_or_content) (second_read='iterator')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<PROJECT>/benchmarks/multifile_checks/check_requests_response_limit.py\", line 133, in test_live_budget_cannot_be_reset_by_another_iterator_or_content\n    s, a = session([[b\"placeholder\"]], limit=4)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<PROJECT>/benchmarks/multifile_checks/check_requests_response_limit.py\", line 59, in session\n    s = requests.Session(max_response_bytes=limit)\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: Session.__init__() got an unexpected keyword argument 'max_response_bytes'\n\n======================================================================\nERROR: test_live_budget_cannot_be_reset_by_another_iterator_or_content (__main__.ResponseLimits.test_live_budget_cannot_be_reset_by_another_iterator_or_content) (second_read='content')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<PROJECT>/benchmarks/multifile_checks/check_requests_response_limit.py\", line 133, in test_live_budget_cannot_be_reset_by_another_iterator_or_content\n    s, a = session([[b\"placeholder\"]], limit=4)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<PROJECT>/benchmarks/multifile_checks/check_requests_response_limit.py\", line 59, in session\n    s = requests.Session(max_response_bytes=limit)\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: Session.__init__() got an unexpected keyword argument 'max_response_bytes'\n\n======================================================================\nERROR: test_live_budget_cannot_be_reset_by_another_iterator_or_content (__main__.ResponseLimits.test_live_budget_cannot_be_reset_by_another_iterator_or_content)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<PROJECT>/benchmarks/multifile_checks/check_requests_response_limit.py\", line 154, in test_live_budget_cannot_be_reset_by_another_iterator_or_content\n    s, _ = session([[b\"123\"]], limit=3)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<PROJECT>/benchmarks/multifile_checks/check_requests_response_limit.py\", line 59, in session\n    s = requests.Session(max_response_bytes=limit)\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: Session.__init__() got an unexpected keyword argument 'max_response_bytes'\n\n======================================================================\nERROR: test_module_helpers_and_legacy_default_sessions (__main__.ResponseLimits.test_module_helpers_and_legacy_default_sessions)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<PROJECT>/benchmarks/multifile_checks/check_requests_response_limit.py\", line 265, in test_module_helpers_and_legacy_default_sessions\n    s, _ = session([[b\"123\"]], limit=None)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<PROJECT>/benchmarks/multifile_checks/check_requests_response_limit.py\", line 59, in session\n    s = requests.Session(max_response_bytes=limit)\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: Session.__init__() got an unexpected keyword argument 'max_response_bytes'\n\n======================================================================\nERROR: test_prepared_send_and_session_pickle_preserve_setting (__main__.ResponseLimits.test_prepared_send_and_session_pickle_preserve_setting)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<PROJECT>/benchmarks/multifile_checks/check_requests_response_limit.py\", line 227, in test_prepared_send_and_session_pickle_preserve_setting\n    s, _ = session([[b\"123\"]], limit=2)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<PROJECT>/benchmarks/multifile_checks/check_requests_response_limit.py\", line 59, in session\n    s = requests.Session(max_response_bytes=limit)\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: Session.__init__() got an unexpected keyword argument 'max_response_bytes'\n\n======================================================================\nERROR: test_public_error_and_eager_session_context (__main__.ResponseLimits.test_public_error_and_eager_session_context)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<PROJECT>/benchmarks/multifile_checks/check_requests_response_limit.py\", line 95, in test_public_error_and_eager_session_context\n    self.assertIs(requests.ResponseTooLarge, exceptions.ResponseTooLarge)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: module 'requests' has no attribute 'ResponseTooLarge'\n\n======================================================================\nERROR: test_real_http_gzip_limit_counts_decoded_bytes (__main__.ResponseLimits.test_real_http_gzip_limit_counts_decoded_bytes)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<PROJECT>/benchmarks/multifile_checks/check_requests_response_limit.py\", line 253, in test_real_http_gzip_limit_counts_decoded_bytes\n    requests.Session(max_response_bytes=50) as s,\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: Session.__init__() got an unexpected keyword argument 'max_response_bytes'\n\n======================================================================\nERROR: test_redirect_responses_each_receive_the_same_budget (__main__.ResponseLimits.test_redirect_responses_each_receive_the_same_budget)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<PROJECT>/benchmarks/multifile_checks/check_requests_response_limit.py\", line 216, in test_redirect_responses_each_receive_the_same_budget\n    s, a = session([[b\"ok\"], [b\"1234\"]], limit=3, statuses=[302, 200])\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<PROJECT>/benchmarks/multifile_checks/check_requests_response_limit.py\", line 59, in session\n    s = requests.Session(max_response_bytes=limit)\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: Session.__init__() got an unexpected keyword argument 'max_response_bytes'\n\n======================================================================\nERROR: test_response_hooks_and_cached_content_do_not_bypass_limit (__main__.ResponseLimits.test_response_hooks_and_cached_content_do_not_bypass_limit)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<PROJECT>/benchmarks/multifile_checks/check_requests_response_limit.py\", line 236, in test_response_hooks_and_cached_content_do_not_bypass_limit\n    s, a = session([[b\"x\"]], limit=2)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<PROJECT>/benchmarks/multifile_checks/check_requests_response_limit.py\", line 59, in session\n    s = requests.Session(max_response_bytes=limit)\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: Session.__init__() got an unexpected keyword argument 'max_response_bytes'\n\n======================================================================\nERROR: test_stream_never_delivers_the_crossing_chunk (__main__.ResponseLimits.test_stream_never_delivers_the_crossing_chunk)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<PROJECT>/benchmarks/multifile_checks/check_requests_response_limit.py\", line 109, in test_stream_never_delivers_the_crossing_chunk\n    s, a = session([[b\"12\", b\"345\", b\"ignored\"]], limit=4)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<PROJECT>/benchmarks/multifile_checks/check_requests_response_limit.py\", line 59, in session\n    s = requests.Session(max_response_bytes=limit)\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: Session.__init__() got an unexpected keyword argument 'max_response_bytes'\n\n======================================================================\nERROR: test_zero_rejects_nonempty_and_header_is_not_a_size_oracle (__main__.ResponseLimits.test_zero_rejects_nonempty_and_header_is_not_a_size_oracle)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<PROJECT>/benchmarks/multifile_checks/check_requests_response_limit.py\", line 208, in test_zero_rejects_nonempty_and_header_is_not_a_size_oracle\n    s, _ = session([[b\"1\"]], limit=0)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<PROJECT>/benchmarks/multifile_checks/check_requests_response_limit.py\", line 59, in session\n    s = requests.Session(max_response_bytes=limit)\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: Session.__init__() got an unexpected keyword argument 'max_response_bytes'\n\n----------------------------------------------------------------------\nRan 13 tests in 0.506s\n\nFAILED (errors=19)\n",
+    "stdout": "{\"errors\": 19, \"failures\": 0, \"passed\": false, \"skipped\": 0, \"tests_run\": 13}\n"
+  },
+  "task_id": "requests_response_limit",
+  "timed_out": true,
+  "tool_intervals": [
+    {
+      "end": {
+        "monotonic_s": 150486.830732875,
+        "utc": "2026-10-13T08:15:35.282881+00:00"
+      },
+      "item_id": "item_1",
+      "observed_duration_s": 5.299999611452222e-05,
+      "start": {
+        "monotonic_s": 150486.830679875,
+        "utc": "2026-10-13T08:15:35.282836+00:00"
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 150504.511903166,
+        "utc": "2026-10-13T08:15:52.964068+00:00"
+      },
+      "item_id": "item_2",
+      "observed_duration_s": 4.9708003643900156e-05,
+      "start": {
+        "monotonic_s": 150504.511853458,
+        "utc": "2026-10-13T08:15:52.964013+00:00"
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 150504.511930958,
+        "utc": "2026-10-13T08:15:52.964098+00:00"
+      },
+      "item_id": "item_3",
+      "observed_duration_s": 5.5541982874274254e-05,
+      "start": {
+        "monotonic_s": 150504.511875416,
+        "utc": "2026-10-13T08:15:52.964042+00:00"
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 150504.513324125,
+        "utc": "2026-10-13T08:15:52.965490+00:00"
+      },
+      "item_id": "item_4",
+      "observed_duration_s": 2.3458997020497918e-05,
+      "start": {
+        "monotonic_s": 150504.513300666,
+        "utc": "2026-10-13T08:15:52.965468+00:00"
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 150528.088292458,
+        "utc": "2026-10-13T08:16:16.540458+00:00"
+      },
+      "item_id": "item_6",
+      "observed_duration_s": 5.649999366141856e-05,
+      "start": {
+        "monotonic_s": 150528.088235958,
+        "utc": "2026-10-13T08:16:16.540401+00:00"
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 150528.088361083,
+        "utc": "2026-10-13T08:16:16.540529+00:00"
+      },
+      "item_id": "item_5",
+      "observed_duration_s": 0.0001580420066602528,
+      "start": {
+        "monotonic_s": 150528.088203041,
+        "utc": "2026-10-13T08:16:16.540359+00:00"
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 150528.093141958,
+        "utc": "2026-10-13T08:16:16.545310+00:00"
+      },
+      "item_id": "item_7",
+      "observed_duration_s": 1.9291997887194157e-05,
+      "start": {
+        "monotonic_s": 150528.093122666,
+        "utc": "2026-10-13T08:16:16.545290+00:00"
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 150537.016502208,
+        "utc": "2026-10-13T08:16:25.468670+00:00"
+      },
+      "item_id": "item_8",
+      "observed_duration_s": 5.187498754821718e-05,
+      "start": {
+        "monotonic_s": 150537.016450333,
+        "utc": "2026-10-13T08:16:25.468610+00:00"
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 150546.881521583,
+        "utc": "2026-10-13T08:16:35.333689+00:00"
+      },
+      "item_id": "item_9",
+      "observed_duration_s": 4.0292012272402644e-05,
+      "start": {
+        "monotonic_s": 150546.881481291,
+        "utc": "2026-10-13T08:16:35.333636+00:00"
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 150640.492038708,
+        "utc": "2026-10-13T08:18:08.944206+00:00"
+      },
+      "item_id": "item_11",
+      "observed_duration_s": 4.15419926866889e-05,
+      "start": {
+        "monotonic_s": 150640.491997166,
+        "utc": "2026-10-13T08:18:08.944159+00:00"
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 150640.546071583,
+        "utc": "2026-10-13T08:18:08.998241+00:00"
+      },
+      "item_id": "item_12",
+      "observed_duration_s": 2.7458008844405413e-05,
+      "start": {
+        "monotonic_s": 150640.546044125,
+        "utc": "2026-10-13T08:18:08.998208+00:00"
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 150777.892946958,
+        "utc": "2026-10-13T08:20:26.345116+00:00"
+      },
+      "item_id": "item_14",
+      "observed_duration_s": 4.7124980483204126e-05,
+      "start": {
+        "monotonic_s": 150777.892899833,
+        "utc": "2026-10-13T08:20:26.345062+00:00"
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 151087.233797291,
+        "utc": "2026-10-13T08:25:35.685962+00:00"
+      },
+      "item_id": "item_17",
+      "observed_duration_s": 0.7666742909932509,
+      "start": {
+        "monotonic_s": 151086.467123,
+        "utc": "2026-10-13T08:25:34.919290+00:00"
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 151143.298093458,
+        "utc": "2026-10-13T08:26:31.750269+00:00"
+      },
+      "item_id": "item_18",
+      "observed_duration_s": 3.200001083314419e-05,
+      "start": {
+        "monotonic_s": 151143.298061458,
+        "utc": "2026-10-13T08:26:31.750231+00:00"
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 151143.309455291,
+        "utc": "2026-10-13T08:26:31.761628+00:00"
+      },
+      "item_id": "item_19",
+      "observed_duration_s": 0.0001237079850398004,
+      "start": {
+        "monotonic_s": 151143.309331583,
+        "utc": "2026-10-13T08:26:31.761504+00:00"
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 151156.916313791,
+        "utc": "2026-10-13T08:26:45.368490+00:00"
+      },
+      "item_id": "item_20",
+      "observed_duration_s": 5.750000127591193e-05,
+      "start": {
+        "monotonic_s": 151156.916256291,
+        "utc": "2026-10-13T08:26:45.368420+00:00"
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 151186.171973291,
+        "utc": "2026-10-13T08:27:14.624149+00:00"
+      },
+      "item_id": "item_21",
+      "observed_duration_s": 2.62079993262887e-05,
+      "start": {
+        "monotonic_s": 151186.171947083,
+        "utc": "2026-10-13T08:27:14.624112+00:00"
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 151187.070013333,
+        "utc": "2026-10-13T08:27:15.522179+00:00"
+      },
+      "item_id": "item_22",
+      "observed_duration_s": 0.8762383330031298,
+      "start": {
+        "monotonic_s": 151186.193775,
+        "utc": "2026-10-13T08:27:14.645943+00:00"
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 151202.104912375,
+        "utc": "2026-10-13T08:27:30.557080+00:00"
+      },
+      "item_id": "item_23",
+      "observed_duration_s": 15.902854209009092,
+      "start": {
+        "monotonic_s": 151186.202058166,
+        "utc": "2026-10-13T08:27:14.654232+00:00"
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 151274.657064958,
+        "utc": "2026-10-13T08:28:43.109238+00:00"
+      },
+      "item_id": "item_25",
+      "observed_duration_s": 6.641700747422874e-05,
+      "start": {
+        "monotonic_s": 151274.656998541,
+        "utc": "2026-10-13T08:28:43.109163+00:00"
+      },
+      "type": "command_execution"
+    }
+  ],
+  "usage": null
+}

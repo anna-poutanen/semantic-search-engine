@@ -596,10 +596,17 @@ def fmt(value, decimals=1):
 
 
 def render_markdown(report):
+    defects = report.get("confirmed_supplemental_defects", {})
+    qualified = report["correctness_qualified_pair_comparisons"]
     rows = ["# Repeated multifile coding workflows", "",
         f"{report['finalized_attempts']}/16 scheduled attempts are finalized; all eight task/repetition pairs remain listed. "
         "This report excludes the earlier pilots and the separate transport diagnostic.", "",
         "Completed-correct means normal agent completion plus the frozen external behavior checks and restored original upstream integration gates; it does not use the agent's test-pass claim.", "",
+        f"Supplemental review confirms defects in {defects.get('affected_attempts', 0)} attempts, including "
+        f"{defects.get('affected_formally_completed_correct_attempts', 0)} formally completed-correct attempts. "
+        "The reference implementations share several holes. These findings remain separate from the frozen grades.", "",
+        f"Only {qualified['declared_pairs']}/8 pairs have both normal completion and frozen-gate passes. "
+        "Their performance comparison selects on outcomes; full-workload token totals remain unavailable when receipts are missing.", "",
         f"Both conditions use `{report.get('model')}` with `{report.get('model_reasoning_effort')}` reasoning. "
         "Differences describe the improved search workflow package under the common frozen runtime.", "",
         "## All scheduled attempts", "",

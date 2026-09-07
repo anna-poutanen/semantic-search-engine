@@ -9,12 +9,15 @@
         "unsupported_claims": []
       },
       "condition": "baseline",
+      "frozen_completed_correct": true,
+      "frozen_correct": true,
       "issues": [],
       "limitations": [
         "Selected external/original suites and added tests do not prove all Requests behavior. This qualitative review does not modify formal grades."
       ],
       "original_upstream_checks_passed": true,
       "patch_sha256": "b30f15ad339d66525ed86e71d65d0269968784c71319025db8ef4592b63493b8",
+      "production_files_changed": 3,
       "regression_tests": {
         "changed_or_deleted_original_tests": [],
         "coverage_review": "Meaningful new regression cases and actual local HTTP tests; no existing tests or configuration weakened.",
@@ -62,12 +65,15 @@
         "unsupported_claims": []
       },
       "condition": "mcp",
+      "frozen_completed_correct": true,
+      "frozen_correct": true,
       "issues": [],
       "limitations": [
         "No full-library correctness claim; restored-production run demonstrates missing-feature collection failure rather than170 independent failing cases. Supplemental review does not modify frozen grades."
       ],
       "original_upstream_checks_passed": true,
       "patch_sha256": "3cc8bbb4a20f726a51eae4eff83a34557859f6b8640e7f8b709dc0448c720c5b",
+      "production_files_changed": 3,
       "regression_tests": {
         "changed_or_deleted_original_tests": [],
         "coverage_review": "Meaningful feature and local HTTP coverage; original tests/configuration preserved.",
@@ -117,6 +123,8 @@
         "unsupported_claims": []
       },
       "condition": "mcp",
+      "frozen_completed_correct": true,
+      "frozen_correct": true,
       "issues": [
         {
           "case": "buffered_iter_lines_after_breach",
@@ -164,7 +172,9 @@
       "supplemental_probes": {
         "buffered_iter_lines_after_breach": false,
         "cached_iterator_after_lower_limit_breach": true,
-        "context_manager_cleanup_preserves_size_error": false
+        "context_manager_cleanup_preserves_size_error": false,
+        "hook_chain_cached_replacement": true,
+        "hook_chain_live_replacement": true
       },
       "task_id": "requests_response_limit",
       "test_checks": {
@@ -246,7 +256,9 @@
       "supplemental_probes": {
         "buffered_iter_lines_after_breach": false,
         "cached_iterator_after_lower_limit_breach": false,
-        "context_manager_cleanup_preserves_size_error": true
+        "context_manager_cleanup_preserves_size_error": true,
+        "hook_chain_cached_replacement": true,
+        "hook_chain_live_replacement": true
       },
       "task_id": "requests_response_limit",
       "test_checks": {
@@ -284,7 +296,7 @@
       "issues": [
         {
           "case": "suppressing_registered_resource",
-          "classification": "Confirmed supplemental contract defect; narrow suppressing-resource interaction accepted by independent root scope review",
+          "classification": "Confirmed supplemental contract defect",
           "detail": "For eager/lazy/default-lazy files, callback registers contextlib.suppress(ValueError), writes updated, and raises ValueError. CLI preserves that exception and exits1, but destination becomes updated rather than original.",
           "evidence": "supplemental-click-resources/05-r1-click_atomic_transactions-baseline.json",
           "scope": "The callback exception remains primary and CLI exits1, so explicit failed-callback rollback applies. Another truthy suppressing resource clears ExitStack state before the atomic file exits; this is a rare interaction, not ordinary callback failure behavior.",
@@ -321,7 +333,9 @@
         "artifact": "supplemental-click-resources.json",
         "default_lazy": false,
         "eager": false,
-        "lazy": false
+        "lazy": false,
+        "registered_callback_cleanup_preserves_primary": true,
+        "registered_resource_cleanup_preserves_primary": true
       },
       "task_id": "click_atomic_transactions",
       "test_checks": {
@@ -359,7 +373,7 @@
       "issues": [
         {
           "case": "suppressing_registered_resource",
-          "classification": "Confirmed supplemental contract defect; narrow interaction accepted by independent root scope review",
+          "classification": "Confirmed supplemental contract defect",
           "detail": "Across eager/lazy/default-lazy files, a newly registered contextlib.suppress(ValueError) clears ExitStack error state before the older atomic resource exits. CLI still exits1 with the original callback exception, but destination becomes updated.",
           "evidence": "supplemental-click-resources/06-r1-click_atomic_transactions-mcp.json",
           "scope": "Explicit rollback on a failing callback applies because the command still fails. This does not imply ordinary callback failures commit.",
@@ -396,7 +410,9 @@
         "artifact": "supplemental-click-resources.json",
         "default_lazy": false,
         "eager": false,
-        "lazy": false
+        "lazy": false,
+        "registered_callback_cleanup_preserves_primary": true,
+        "registered_resource_cleanup_preserves_primary": true
       },
       "task_id": "click_atomic_transactions",
       "test_checks": {
@@ -579,28 +595,498 @@
           "xpassed": 0
         }
       }
+    },
+    {
+      "claim_review": {
+        "evidence": "239 new and46 selected existing passes with1skip/1expectedfailure match preserved commands; final Ruff/diff pass. Independent candidate clone reproduces239new cases and frozen9+257/13 gates pass.",
+        "final_claim_available": true,
+        "unsupported_claims": []
+      },
+      "condition": "baseline",
+      "frozen_completed_correct": true,
+      "frozen_correct": true,
+      "issues": [],
+      "limitations": [
+        "Selected and authored checks are evidence for this feature contract, not exhaustive Requests behavior. No supplemental NDJSON defect found in source review."
+      ],
+      "original_upstream_checks_passed": true,
+      "patch_sha256": "6973fe0f1964d6636c8c6935c11d447e667572a8f84444df59931f56b2ab813b",
+      "production_files_changed": 3,
+      "regression_tests": {
+        "changed_or_deleted_original_tests": [],
+        "coverage_review": "Meaningful highly parameterized decoder and transport coverage; no original tests/configuration changed.",
+        "new_files": [
+          "tests/test_json_lines.py"
+        ]
+      },
+      "repetition": 2,
+      "run_id": "10-r2-requests_ndjson-baseline",
+      "selected_check_detail": {
+        "errors": 0,
+        "failures": 0,
+        "passed": true,
+        "skipped": 0,
+        "tests_run": 9
+      },
+      "selected_hidden_checks_passed": true,
+      "summary": "No material prompt-contract defect found. Three coordinated source edits implement lazy byte-line splitting and UTF-8 JSON decoding with public contextual errors; validation precedes iteration, and cached response consumers remain unchanged. A new239-case file exercises decoder/value semantics, physical bytes, boundaries, gzip HTTP and a streamed record before the remaining response arrives.",
+      "task_id": "requests_ndjson",
+      "test_checks": {
+        "artifact": "patch-review-checks/10-r2-requests_ndjson-baseline.json",
+        "candidate": {
+          "deselected": 0,
+          "errors": 0,
+          "failed": 0,
+          "passed": 239,
+          "skipped": 0,
+          "xfailed": 0,
+          "xpassed": 0
+        },
+        "restored_limit": "One missing-feature collection error after restoring original source;239 individual cases did not execute.",
+        "restored_production": {
+          "deselected": 0,
+          "errors": 1,
+          "failed": 0,
+          "passed": 0,
+          "skipped": 0,
+          "xfailed": 0,
+          "xpassed": 0
+        }
+      }
+    },
+    {
+      "claim_review": {
+        "evidence": "No finalclaim emitted before900-second timeout. Independent cloned authored cases pass116, frozen source checks pass.",
+        "final_claim_available": false,
+        "unsupported_claims": []
+      },
+      "condition": "baseline",
+      "frozen_completed_correct": false,
+      "frozen_correct": true,
+      "issues": [
+        {
+          "case": "buffered_iter_lines_after_breach",
+          "classification": "Confirmed supplemental contract defect",
+          "detail": "A buffered line is yielded after another reader crosses the response limit.",
+          "evidence": "supplemental-response-edges/11-r2-requests_response_limit-baseline.json",
+          "shared_reference_failure": true
+        },
+        {
+          "case": "context_manager_cleanup_preserves_size_error",
+          "classification": "Confirmed supplemental contract defect",
+          "detail": "Response-context second close masks primary size error with OSError.",
+          "evidence": "supplemental-response-edges/11-r2-requests_response_limit-baseline.json",
+          "shared_reference_failure": true
+        },
+        {
+          "case": "hook_chain_replacement_before_subsequent_read",
+          "classification": "Confirmed supplemental contract defect",
+          "contract": "Apply budget to responses including cached hook replacements, and raise before yielding a crossing chunk.",
+          "detail": "The first response hook returns a live or publicly pre-cached8-byte replacement. The second hook receives both4-byte chunks under a4-byte request limit before eventual ResponseTooLarge.",
+          "evidence": "supplemental-response-edges/11-r2-requests_response_limit-baseline.json",
+          "independent_scope_review": "Root accepted response-hook replacement budget and raise-before-yield requirements as explicit frozen-contract path",
+          "shared_reference_failure": true
+        }
+      ],
+      "limitations": [
+        "Correct=true under frozen gates does not imply full contract correctness or completed attempt. Actual usage absent, not zero.",
+        "Hook-chain cases were selected after terminal11;12 became terminal before the replay finished. They are exploratory post-output checks on all applicable retained outputs, not a prospective12 grade."
+      ],
+      "original_upstream_checks_passed": true,
+      "patch_sha256": "30cba059ae33da0b3afbdd7b9f2479d075d99a9368cf60dbff4103eb73616c55",
+      "production_files_changed": 6,
+      "regression_tests": {
+        "changed_or_deleted_original_tests": [],
+        "coverage_review": "Meaningful strict-transport, validation, inherited/unlimited, cumulative iteration/cache, hooks, cleanup, realHTTP/gzip/redirect regressions; no originals or configuration changed.",
+        "new_files": [
+          "tests/test_response_limit.py"
+        ]
+      },
+      "repetition": 2,
+      "run_id": "11-r2-requests_response_limit-baseline",
+      "selected_check_detail": {
+        "errors": 0,
+        "failures": 0,
+        "passed": true,
+        "skipped": 0,
+        "tests_run": 13
+      },
+      "selected_hidden_checks_passed": true,
+      "summary": "Retained900-second timeout passes frozen13+257/13 source gates and116 authored cases; no finalclaim or actual terminal usage. Fixed v2 probes confirm the shared buffered-line and response-context cleanup defects, while cached iterator terminal checking passes. Newly selected v3 hook-chain variants additionally deliver oversized replacement bytes to a later hook before budget attachment; independent root scope review accepts that added case as an explicit replacement-response budget violation.",
+      "supplemental_probes": {
+        "buffered_iter_lines_after_breach": false,
+        "cached_iterator_after_lower_limit_breach": true,
+        "context_manager_cleanup_preserves_size_error": false,
+        "hook_chain_cached_replacement": false,
+        "hook_chain_live_replacement": false
+      },
+      "task_id": "requests_response_limit",
+      "test_checks": {
+        "artifact": "patch-review-checks/11-r2-requests_response_limit-baseline.json",
+        "candidate": {
+          "deselected": 0,
+          "errors": 0,
+          "failed": 0,
+          "passed": 116,
+          "skipped": 0,
+          "xfailed": 0,
+          "xpassed": 0
+        },
+        "restored_limit": "Original public exception absent, causing one collection error rather than116 independent case failures.",
+        "restored_production": {
+          "deselected": 0,
+          "errors": 1,
+          "failed": 0,
+          "passed": 0,
+          "skipped": 0,
+          "xfailed": 0,
+          "xpassed": 0
+        }
+      }
+    },
+    {
+      "claim_review": {
+        "evidence": "Retained turn.failed explicitly identifies selected model atcapacity. Captured patch is empty.",
+        "final_claim_available": false,
+        "unsupported_claims": []
+      },
+      "condition": "mcp",
+      "frozen_completed_correct": false,
+      "frozen_correct": false,
+      "issues": [],
+      "limitations": [
+        "No implementation was produced, so no retrieval or coding-quality causal claim follows from the missing-feature grade.",
+        "Preserve operational failure and unavailableusage; no replacement attempt or zero-token imputation."
+      ],
+      "original_upstream_checks_passed": true,
+      "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "production_files_changed": 0,
+      "regression_tests": {
+        "changed_or_deleted_original_tests": [],
+        "coverage_review": "No candidate source, tests or configuration changed.",
+        "new_files": []
+      },
+      "repetition": 2,
+      "run_id": "12-r2-requests_response_limit-mcp",
+      "selected_check_detail": {
+        "errors": 19,
+        "failures": 0,
+        "passed": false,
+        "skipped": 0,
+        "tests_run": 13
+      },
+      "selected_hidden_checks_passed": false,
+      "summary": "Provider-capacity failure exited1 after5seconds without source or test changes, finalclaim or actual terminal usage. Selected feature grading fails on absent new API, while original compatibility passes pristine upstream.",
+      "supplemental_probes": {
+        "classification": "Feature absent, all edge cases inapplicable; false passed flags are not failed implementation behavior"
+      },
+      "task_id": "requests_response_limit",
+      "test_checks": {
+        "artifact": "patch-review-checks/12-r2-requests_response_limit-mcp.json",
+        "not_executed": "No new test files or implementation"
+      }
+    },
+    {
+      "claim_review": {
+        "evidence": "No finalclaim or terminal usage before provider-capacity failure. Independent fresh clone148passes; source gates pass9+307/1.",
+        "final_claim_available": false,
+        "unsupported_claims": []
+      },
+      "condition": "mcp",
+      "frozen_completed_correct": false,
+      "frozen_correct": true,
+      "issues": [
+        {
+          "case": "suppressing_registered_resource",
+          "classification": "Confirmed supplemental contract defect",
+          "detail": "CLI preserves its callback error and exits1 but a newer truthy suppressing resource makes the older atomic file commit in all three lazy modes.",
+          "evidence": "supplemental-click-resources/13-r2-click_atomic_transactions-mcp.json",
+          "shared_reference_failure": true
+        },
+        {
+          "case": "registered_cleanup_masks_primary_callback",
+          "classification": "Confirmed supplemental contract defect",
+          "contract": "Preserve callback exceptions and expose abort cleanup failures through notes or chaining.",
+          "detail": "With an atomic file parameter, a separate call_on_close callback or with_resource exit raises OSError during cleanup after the command raises ValueError. CLI outer exception becomes OSError rather than original ValueError; destination rollback still occurs.",
+          "evidence": "supplemental-click-resources/13-r2-click_atomic_transactions-mcp.json",
+          "independent_scope_review": "Root accepted the explicit callback preservation requirement, with valid bounded recursive cause/context/ExceptionGroup and notes diagnostics accepted",
+          "shared_reference_failure": true
+        }
+      ],
+      "limitations": [
+        "Operational provider failure occurred after a substantive implementation was retained. This differs from no-edit capacity failures08/12 and from normal completed coding.",
+        "New generic cleanup cases were selected after13 source output and do not amend frozen grading or influence later14 task inputs."
+      ],
+      "original_upstream_checks_passed": true,
+      "patch_sha256": "cd21879bc99a01c87b52dab48bdfc8e8be0716020cf720e38ed3aef8f207573e",
+      "production_files_changed": 4,
+      "regression_tests": {
+        "changed_or_deleted_original_tests": [],
+        "coverage_review": "Meaningful direct/CLI text/binary, lazy/default, permissions, rollback, exits, abort/commit failure, nested context and ownership checks. New permission skip only applies on Windows; this Mac run executes those cases. No original tests/configuration changed.",
+        "new_files": [
+          "tests/test_atomic_transactions.py",
+          "tests/test_context_transactions.py"
+        ]
+      },
+      "repetition": 2,
+      "run_id": "13-r2-click_atomic_transactions-mcp",
+      "selected_check_detail": {
+        "errors": 0,
+        "failures": 0,
+        "passed": true,
+        "skipped": 0,
+        "tests_run": 9
+      },
+      "selected_hidden_checks_passed": true,
+      "summary": "Four coordinated source edits and148 authored cases pass both frozen source grades. Agent exits1 with provider-capacity failure after retaining this patch, without finalclaim/usage; completed_correct=false. The previously fixed suppressing-resource probe fails. Separate new callback/resource cleanup probes confirm generic Context cleanup masks primary callback exceptions; independent root scope review accepts the added behavior as an explicit primary-callback preservation violation.",
+      "supplemental_probes": {
+        "artifact": "supplemental-click-resources.json",
+        "default_lazy": false,
+        "eager": false,
+        "lazy": false,
+        "registered_callback_cleanup_preserves_primary": false,
+        "registered_resource_cleanup_preserves_primary": false
+      },
+      "task_id": "click_atomic_transactions",
+      "test_checks": {
+        "artifact": "patch-review-checks/13-r2-click_atomic_transactions-mcp.json",
+        "candidate": {
+          "deselected": 0,
+          "errors": 0,
+          "failed": 0,
+          "passed": 148,
+          "skipped": 0,
+          "xfailed": 0,
+          "xpassed": 0
+        },
+        "restored_limit": "75 new transactional failures and73 retained control passes on restored production.",
+        "restored_production": {
+          "deselected": 0,
+          "errors": 0,
+          "failed": 75,
+          "passed": 73,
+          "skipped": 0,
+          "xfailed": 0,
+          "xpassed": 0
+        }
+      }
+    },
+    {
+      "claim_review": {
+        "evidence": "Final210new+394existing pass and22skip claim matches preserved commands; final Ruff/diff pass. Independent new-test clone reproduces210 passes.",
+        "final_claim_available": true,
+        "unsupported_claims": []
+      },
+      "condition": "baseline",
+      "frozen_completed_correct": true,
+      "frozen_correct": true,
+      "issues": [
+        {
+          "case": "suppressing_registered_resource",
+          "classification": "Confirmed supplemental contract defect",
+          "detail": "A newer contextlib.suppress(ValueError) clears error state before the older atomic-file exit. CLI still fails with the original callback error, while the destination becomes updated; all three lazy modes fail.",
+          "evidence": "supplemental-click-resources/14-r2-click_atomic_transactions-baseline.json",
+          "shared_reference_failure": true
+        }
+      ],
+      "limitations": [
+        "Same rare resource-suppression defect remains despite selected, original and authored checks. Ordinary callback failure rollback passes.",
+        "Formatter also changes several unrelated assertions/strings in core.py, without an observed semantic change; these are unnecessary diff churn, not a confirmed defect."
+      ],
+      "original_upstream_checks_passed": true,
+      "patch_sha256": "32ae50d34659baac3f56c3486ad290cdce5801054f6ec6efc9a1a7379136653c",
+      "production_files_changed": 4,
+      "regression_tests": {
+        "changed_or_deleted_original_tests": [],
+        "coverage_review": "Meaningful direct/CLI, group/subcommand, text/binary, default/eager/lazy, exit-code, permission, abort/commit/cleanup, non-atomic and context-resource tests. Only new permission checks conditionally skip Windows; Mac executes them. Originals/configuration preserved.",
+        "new_files": [
+          "tests/test_atomic_transactions.py",
+          "tests/test_context_resource_transactions.py"
+        ]
+      },
+      "repetition": 2,
+      "run_id": "14-r2-click_atomic_transactions-baseline",
+      "selected_check_detail": {
+        "errors": 0,
+        "failures": 0,
+        "passed": true,
+        "skipped": 0,
+        "tests_run": 9
+      },
+      "selected_hidden_checks_passed": true,
+      "summary": "Four coordinated source edits and210 authored cases pass frozen9+307/1 gates with normal completion and actual usage. Generic context cleanup preserves callback exceptions with diagnostics; that fixed supplemental case passes. The same previously selected truthy suppressing-resource interaction still commits a failed command output, despite CLIexit1 and preserved primarycallback.",
+      "supplemental_probes": {
+        "artifact": "supplemental-click-resources.json",
+        "default_lazy": false,
+        "eager": false,
+        "lazy": false,
+        "registered_callback_cleanup_preserves_primary": true,
+        "registered_resource_cleanup_preserves_primary": true
+      },
+      "task_id": "click_atomic_transactions",
+      "test_checks": {
+        "artifact": "patch-review-checks/14-r2-click_atomic_transactions-baseline.json",
+        "candidate": {
+          "deselected": 0,
+          "errors": 0,
+          "failed": 0,
+          "passed": 210,
+          "skipped": 0,
+          "xfailed": 0,
+          "xpassed": 0
+        },
+        "restored_production": {
+          "deselected": 0,
+          "errors": 0,
+          "failed": 102,
+          "passed": 108,
+          "skipped": 0,
+          "xfailed": 0,
+          "xpassed": 0
+        }
+      }
+    },
+    {
+      "claim_review": {
+        "evidence": "Final167new+383existing+2skip/2expectedfailure claim matches recorded commands; Ruff/diff pass. Independent candidate clone reproduces167 newpasses; frozen10+269/2 gates pass.",
+        "final_claim_available": true,
+        "unsupported_claims": []
+      },
+      "condition": "baseline",
+      "frozen_completed_correct": true,
+      "frozen_correct": true,
+      "issues": [],
+      "limitations": [
+        "Disconnect handling in middleware differs from07 by replaying disconnect to downstream; the explicit helper-preservation and receive-replay contract allows that source-neutral alternative.",
+        "No exhaustiveASGI correctness claim; rejected partial-stream reread behavior is expressly unpromised."
+      ],
+      "original_upstream_checks_passed": true,
+      "patch_sha256": "0902c0d66a19b7abb339497a241b88e41a153a6a6e8da41189349729ca9906fc",
+      "production_files_changed": 4,
+      "regression_tests": {
+        "changed_or_deleted_original_tests": [],
+        "coverage_review": "Meaningful headers-as-decoys, chunk/zero/exact limits, validation, cachedstricter bounds, replay/delegation, disconnect and actualHTTPendpoint failure coverage acrossasyncio/Trio. All originals/configuration remain unchanged.",
+        "new_files": [
+          "tests/middleware/test_body_limit.py",
+          "tests/test_request_body_limits.py"
+        ]
+      },
+      "repetition": 2,
+      "run_id": "15-r2-starlette_body_limits-baseline",
+      "selected_check_detail": {
+        "errors": 0,
+        "failures": 0,
+        "passed": true,
+        "skipped": 0,
+        "tests_run": 10
+      },
+      "selected_hidden_checks_passed": true,
+      "summary": "No material prompt-contract defect found. Shared validation, public413 exception, bounded/cached body helper and message-preserving buffering middleware span four production files. Middleware checks actual bytes before downstream invocation, preserves accepted message bytes and disconnect for downstream receive, and bypasses disabled/non-HTTP scopes.167 new cases and frozen source grades pass with normal completion.",
+      "task_id": "starlette_body_limits",
+      "test_checks": {
+        "artifact": "patch-review-checks/15-r2-starlette_body_limits-baseline.json",
+        "candidate": {
+          "deselected": 0,
+          "errors": 0,
+          "failed": 0,
+          "passed": 167,
+          "skipped": 0,
+          "xfailed": 0,
+          "xpassed": 0
+        },
+        "restored_limit": "Two missing-feature collection errors after production restoration;167 cases did not individually execute upstream.",
+        "restored_production": {
+          "deselected": 0,
+          "errors": 2,
+          "failed": 0,
+          "passed": 0,
+          "skipped": 0,
+          "xfailed": 0,
+          "xpassed": 0
+        }
+      }
+    },
+    {
+      "claim_review": {
+        "evidence": "Final146new+213existing pass+2skip/2expectedfailure claim matchescommands; Ruff/diff pass. Independent clone146passes and frozen10+269/2 gates pass.",
+        "final_claim_available": true,
+        "unsupported_claims": []
+      },
+      "condition": "mcp",
+      "frozen_completed_correct": true,
+      "frozen_correct": true,
+      "issues": [],
+      "limitations": [
+        "Selected/original/authored checks and source inspection do not establish allASGI behavior. Rejected partial-body rereads explicitly remain unpromised."
+      ],
+      "original_upstream_checks_passed": true,
+      "patch_sha256": "ea035b52e35116b6e4459848f1052b1eb5400eb43e4cada6e04cb03afb7eb9dd",
+      "production_files_changed": 3,
+      "regression_tests": {
+        "changed_or_deleted_original_tests": [],
+        "coverage_review": "Meaningful body boundaries/cache, invalid limits, misleadingheaders, replay/delegation, disconnect, scopebypass, realHTTP413 and endpointfailure tests acrossasyncio/Trio. Originals/configuration preserved.",
+        "new_files": [
+          "tests/middleware/test_body_limit.py",
+          "tests/test_request_body_limits.py"
+        ]
+      },
+      "repetition": 2,
+      "run_id": "16-r2-starlette_body_limits-mcp",
+      "selected_check_detail": {
+        "errors": 0,
+        "failures": 0,
+        "passed": true,
+        "skipped": 0,
+        "tests_run": 10
+      },
+      "selected_hidden_checks_passed": true,
+      "summary": "No material prompt-contract defect found. Public limit error, bounded/cached Request.body and HTTP middleware span three source files. Middleware uses the bounded helper, rejects before downstream invocation, coalesces accepted body bytes for one replay then delegates receives, and preserves disconnected-body error propagation and disabled/non-HTTP bypass.146 new cases and both frozen source gates pass with normal completion and reportedusage.",
+      "task_id": "starlette_body_limits",
+      "test_checks": {
+        "artifact": "patch-review-checks/16-r2-starlette_body_limits-mcp.json",
+        "candidate": {
+          "deselected": 0,
+          "errors": 0,
+          "failed": 0,
+          "passed": 146,
+          "skipped": 0,
+          "xfailed": 0,
+          "xpassed": 0
+        },
+        "restored_limit": "Two missing-feature collection errors upstream;146 individual cases did not execute on restored production.",
+        "restored_production": {
+          "deselected": 0,
+          "errors": 2,
+          "failed": 0,
+          "passed": 0,
+          "skipped": 0,
+          "xfailed": 0,
+          "xpassed": 0
+        }
+      }
     }
   ],
   "schema_version": 1,
-  "status": "partial",
+  "status": "complete",
   "summary": {
-    "attempts_with_confirmed_supplemental_defects": 4,
-    "attempts_without_candidate_edits": 1,
+    "attempts_with_confirmed_supplemental_defects": 7,
+    "attempts_without_candidate_edits": 2,
     "candidate_added_tests_failed": 2,
-    "candidate_added_tests_passed": 1293,
+    "candidate_added_tests_passed": 2319,
     "confirmed_interactions_pending_contract_scope_review": 0,
-    "material_issues": 6,
+    "distinct_confirmed_supplemental_behaviors": 6,
+    "material_issues": 12,
     "original_test_weakening": 0,
-    "restored_production_added_tests_failed": 450,
-    "restored_production_collection_errors": 7,
-    "reviewed_attempts": 9,
+    "restored_production_added_tests_failed": 627,
+    "restored_production_collection_errors": 13,
+    "reviewed_attempts": 16,
     "scheduled_attempts": 16,
-    "supplemental_reference_distinct_behaviors": 3,
+    "supplemental_reference_distinct_behaviors": 5,
     "supplemental_reference_failure_cases_by_task": {
-      "click_atomic_transactions": 3,
-      "requests_response_limit": 2
+      "click_atomic_transactions": 5,
+      "requests_response_limit": 4
     },
-    "supplemental_reference_failures": 5,
+    "supplemental_reference_failures": 9,
     "unsupported_test_claims": 0
   },
   "supplemental_artifact": "supplemental-response-edges.json",
