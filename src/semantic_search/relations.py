@@ -109,10 +109,12 @@ class ReferenceGraph:
         self.windows = defaultdict(list)
         for snippet in snippets:
             self.windows[(snippet.path, snippet.symbol)].append(snippet)
-        names = {f"{module_name(path)}.{symbol}": (path, symbol) for path, symbol in self.windows}
+        names = {f"{module_name(path)}.{symbol}": (path, symbol) for path, symbol in self.windows
+                 if PurePosixPath(path).suffix == ".py"}
         self.edges = defaultdict(list)
         classes, functions, module_scopes = set(), [], {}
-        trees = {path: ast.parse(source, filename=path) for path, source in sources.items()}
+        trees = {path: ast.parse(source, filename=path) for path, source in sources.items()
+                 if PurePosixPath(path).suffix == ".py"}
         for path, tree in trees.items():
             module = module_name(path)
             package = module.split(".") if PurePosixPath(path).name == "__init__.py" else module.split(".")[:-1]
@@ -175,6 +177,12 @@ class ReferenceGraph:
                 target = names.get(resolved)
                 if target is not None and target != key and target not in self.edges[key]:
                     self.edges[key].append(target)
+        javascript_sources = {path: source for path, source in sources.items()
+                              if PurePosixPath(path).suffix != ".py"}
+        if javascript_sources:
+            from semantic_search.javascript_relations import reference_edges
+            for key, targets in reference_edges(javascript_sources, self.windows).items():
+                self.edges[key].extend(targets)
 
     def dependencies(self, snippet, limit=1):
         if type(limit) is not int or limit < 0:
