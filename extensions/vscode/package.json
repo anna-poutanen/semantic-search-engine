@@ -1,0 +1,57 @@
+{
+  "name": "semantic-search-local",
+  "displayName": "Semantic Search (Local)",
+  "description": "Find saved Python implementations through your resident local semantic search service.",
+  "version": "0.1.0",
+  "publisher": "anna-poutanen",
+  "license": "UNLICENSED",
+  "preview": true,
+  "repository": {"type": "git", "url": "https://github.com/anna-poutanen/semantic-search-engine.git", "directory": "extensions/vscode"},
+  "engines": {"vscode": "^1.95.0"},
+  "extensionKind": ["ui"],
+  "main": "./dist/src/extension.js",
+  "activationEvents": ["onView:semanticSearch.results"],
+  "capabilities": {"untrustedWorkspaces": {"supported": false, "description": "Local service connections and workspace source verification require a trusted workspace."}, "virtualWorkspaces": {"supported": false}},
+  "categories": ["Other"],
+  "contributes": {
+    "commands": [
+      {"command": "semanticSearch.connect", "title": "Semantic Search: Connect / Check Service", "enablement": "isWorkspaceTrusted"},
+      {"command": "semanticSearch.find", "title": "Semantic Search: Find Implementation", "enablement": "isWorkspaceTrusted"},
+      {"command": "semanticSearch.status", "title": "Semantic Search: Show Service Status", "enablement": "isWorkspaceTrusted"},
+      {"command": "semanticSearch.refresh", "title": "Semantic Search: Refresh Index", "enablement": "isWorkspaceTrusted"},
+      {"command": "semanticSearch.cancel", "title": "Semantic Search: Cancel Search", "enablement": "isWorkspaceTrusted"},
+      {"command": "semanticSearch.preview", "title": "Semantic Search: Preview Captured Source", "enablement": "isWorkspaceTrusted"},
+      {"command": "semanticSearch.open", "title": "Semantic Search: Open Verified Source", "enablement": "isWorkspaceTrusted"}
+    ],
+    "views": {"explorer": [{"id": "semanticSearch.results", "name": "Semantic Search", "when": "isWorkspaceTrusted"}]},
+    "menus": {
+      "view/title": [
+        {"command": "semanticSearch.find", "when": "view == semanticSearch.results && isWorkspaceTrusted", "group": "navigation@1"},
+        {"command": "semanticSearch.cancel", "when": "view == semanticSearch.results && isWorkspaceTrusted", "group": "navigation@2"}
+      ],
+      "view/item/context": [
+        {"command": "semanticSearch.open", "when": "view == semanticSearch.results && viewItem == semanticSearch.result", "group": "inline@1"}
+      ]
+    },
+    "configuration": {
+      "title": "Semantic Search",
+      "properties": {
+        "semanticSearch.serviceUrl": {"type": "string", "default": "http://127.0.0.1:8750", "scope": "resource", "description": "Explicit loopback HTTP service. It must index the selected workspace repository. No service is started automatically."},
+        "semanticSearch.retrieval": {"type": "string", "enum": ["dense", "bm25", "hybrid"], "default": "dense", "scope": "resource"},
+        "semanticSearch.rerank": {"type": "boolean", "default": false, "scope": "resource", "description": "Optional H2O reranking requires its separately running local service."},
+        "semanticSearch.candidates": {"type": "integer", "minimum": 1, "maximum": 50, "default": 4, "scope": "resource"},
+        "semanticSearch.maxResults": {"type": "integer", "minimum": 1, "maximum": 20, "default": 8, "scope": "resource"},
+        "semanticSearch.sourceBudget": {"type": "integer", "minimum": 1, "maximum": 100000, "default": 12000, "scope": "resource", "description": "Maximum returned source characters; separate from the compact text token budget."},
+        "semanticSearch.tokenBudget": {"type": "integer", "minimum": 512, "maximum": 32000, "default": 4096, "scope": "resource", "description": "Backend cl100k compact-context cap; not model billing."},
+        "semanticSearch.includeDependencies": {"type": "boolean", "default": true, "scope": "resource", "description": "Use spare result slots for explicitly marked static context references."}
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p .",
+    "test": "npm run compile && node --test dist/test/*.test.js",
+    "vscode:prepublish": "npm run compile",
+    "package": "vsce package --no-dependencies --skip-license --baseContentUrl https://github.com/anna-poutanen/semantic-search-engine/blob/main/extensions/vscode --out semantic-search-local-0.1.0.vsix"
+  },
+  "devDependencies": {"@types/node": "22.20.5", "@types/vscode": "1.95.0", "@vscode/vsce": "4.0.0", "typescript": "5.9.3"}
+}
