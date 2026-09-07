@@ -15,7 +15,7 @@ from semantic_search.corpus import _source_files, extract_snippets
 from semantic_search.model import H2OClient
 from semantic_search.retrieval import HybridRetriever
 from semantic_search.cancellation import CancellationRegistry, SearchCancelled
-from semantic_search.context import apply_token_budget
+from semantic_search.context import apply_token_budget, indexed_scope
 from semantic_search.source import physical_lines
 from semantic_search.languages import decode_source, extractor_fingerprint, validate_exclusions, validate_source
 
@@ -409,6 +409,7 @@ class SearchBackend:
                 self._confirm_snapshot(self._manifest)
                 packaging_s = time.perf_counter() - phase
                 response = {"repo": str(self.repo), "source_root": self.source_root,
+                        "scope": indexed_scope(self.source_root, self.source_exclusions),
                         "query": query, "retrieval": retrieval, "rerank": rerank,
                         "results": results, "candidate_windows": len(pairs),
                         "available_symbols": len(selected), "source_budget": source_budget,

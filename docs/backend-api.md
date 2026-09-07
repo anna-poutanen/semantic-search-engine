@@ -84,6 +84,7 @@ Search responses contain these fields:
 | Field | Meaning |
 |---|---|
 | `repo`, `source_root`, `query`, `retrieval`, `rerank` | Absolute repository path, repository-relative root, and applied query/options |
+| `scope` | Compact source root/membership policy, up to four complete exclusion globs of at most eighty characters, and omitted-pattern count; included inside the compact token budget |
 | `results` | Ordered result objects with the exact fields listed below |
 | `candidate_windows` | Number of retrieved windows, including same-symbol duplicates |
 | `available_symbols` | Distinct `(path, symbol)` pairs after ranking, before the result/budget limits |
