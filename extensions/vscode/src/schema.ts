@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { supportedSourcePath } from './source';
 
 export class ValidationError extends Error {}
 export type Retrieval = 'dense' | 'bm25' | 'hybrid';
@@ -107,12 +108,12 @@ export function parseResult(value: unknown): Result {
     retrieval_score: score(row.retrieval_score), h2o_score: score(row.h2o_score), truncated: bool(row.truncated),
     origin: row.origin === 'retrieval' ? 'retrieval' : row.origin === 'dependency' ? 'dependency' : (() => { throw new ValidationError('Invalid context origin'); })(),
     related_to: nullableText(row.related_to) };
-  if (!result.path.endsWith('.py') || !result.id || !result.symbol || !result.source
+  if (!supportedSourcePath(result.path) || !result.id || !result.symbol || !result.source
       || result.end_line < result.start_line || result.window_end_line < result.end_line
       || result.end_line !== result.start_line + physicalLines(result.source).length - 1
       || hash(result.source) !== result.source_hash
       || (!result.truncated && (result.window_end_line !== result.end_line || result.content_hash !== result.source_hash))) {
-    throw new ValidationError('Service returned inconsistent Python source evidence');
+    throw new ValidationError('Service returned inconsistent saved source evidence');
   }
   return result;
 }

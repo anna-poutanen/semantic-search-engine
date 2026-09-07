@@ -21,7 +21,9 @@ No installed VS Code app was found. The downloaded test copy stays under ignored
 
 `npm run host:prepare` downloads and verifies that copy without executing it.
 `npm run host:fixture -- /absolute/new-fixture-directory` creates a fresh Git
-repository with three generic Python functions. It starts no backend or model.
+repository with three generic Python functions. Add `--mixed` to include a
+JavaScript BOM/CRLF implementation and a typed TypeScript implementation (five
+functions across three files). It starts no backend or model.
 Both preparation steps are CPU/setup work; the host smoke below remains pending.
 
 After the study is secured, start the actual backend explicitly in another
@@ -61,6 +63,16 @@ arrives, making the UI case deterministic. Receipt timings include this observer
 they are not model latency measurements, and no running Metal forward is claimed
 to have been interrupted. The shipped extension contains no receipt/source log.
 
+With the mixed fixture, the runner additionally exercises JS/TS preview and exact
+saved-source selection, preserving BOM/CRLF source hashes. The tiny fixture
+delivers all five functions under the selected cap; each language's observed
+returned position is diagnostic, not a retrieval-quality benchmark or a default
+setting selection. No held-out language query labels are used. The exact captured
+string stays in the provider/data. VS Code's
+[pinned text-buffer builder](https://github.com/microsoft/vscode/blob/1.141.0/src/vs/editor/common/model/pieceTreeTextBuffer/pieceTreeTextBufferBuilder.ts)
+separates a leading BOM even in virtual documents; assertions restore that one
+marker to compare the original source hash, without changing editor text.
+
 The JSON artifact retains failures, timeout/exit status, actual host version,
 backend model metadata, command checks, HTTP receipts and before/after source
 hashes. User/worktree paths are replaced with explicit placeholders; HTTP hashes
@@ -97,7 +109,7 @@ snapshots and `onDidChangeState()` for assertions; it persists no query or sourc
 
 1. Build with `npm ci --ignore-scripts --no-audit --no-fund` and `npm test` inside
    `extensions/vscode`. Record commit, Node/npm/VS Code versions and package-lock
-   SHA. Use a fresh local Python Git fixture or an explicitly selected repository.
+   SHA. Use a fresh local Python or mixed-language Git fixture, or an explicitly selected repository.
 2. Start the existing resident service yourself with its configured Python
    executable and explicit `--repo` and `--source-root`. Keep H2O off for the
    default dense workflow. Capture readiness/settings/model revision separately;
@@ -157,9 +169,11 @@ buffers and late responses with CPU mocks. They are not a real-model evaluation.
 
 Once these cases pass, package/install the VSIX locally and repeat one fresh
 service search. Explicit owned process startup/shutdown, unsaved overlays, TS/JS
-retrieval, remote workspaces and Marketplace publication are later milestones.
+retrieval-quality measurement, remote workspaces and Marketplace publication are later milestones.
 
-The current extension still explicitly verifies Python paths/encodings. After
-the reviewed language branch integrates, expand suffix eligibility, UTF-8 JS/TS
-verification and Python-only UI text together, with generic saved-source tests.
-This draft does not claim JS/TS editor support.
+This editor draft supports the nine explicit Python/JS/TS suffixes. JS/TS source
+uses strict UTF-8 with BOM retained; Python keeps its cookie/BOM decoding rules.
+The actual mixed-language host run remains pending until the reviewed backend
+language branch integrates and the frozen study is secured. CPU source-neutral
+verification tests have passed; no language ranking or real-host outcome is
+claimed from them.

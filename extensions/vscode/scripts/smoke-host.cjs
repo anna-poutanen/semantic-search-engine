@@ -7,7 +7,7 @@ const { spawn } = require('node:child_process');
 const config = require('./host-config.cjs');
 const { prepareHost } = require('./prepare-host.cjs');
 const { startRelay, snapshot, forward } = require('./host-relay.cjs');
-const { query, source } = require('./host-fixture.cjs');
+const { query, source, mixedSources, cases } = require('./host-fixture.cjs');
 const sha = value => crypto.createHash('sha256').update(value).digest('hex');
 function argumentsFrom(argv) {
   if (!argv.includes('--run')) { throw new Error('Explicit --run is required to launch Electron; prepare/download is a separate command'); }
@@ -31,11 +31,13 @@ async function smoke(options) {
   const repo = await fs.realpath(options.repo), output = path.resolve(options.output);
   const before = await snapshot(repo);
   if (before.source !== source) { throw new Error('Smoke requires the fresh three-function host-fixture.cjs repository'); }
-  const entries = await fs.readdir(path.join(repo, 'src'));
-  if (entries.length !== 1 || entries[0] !== 'inventory.py') { throw new Error('Smoke fixture source scope must contain only inventory.py'); }
+  const entries = before.entries;
+  const mixed = entries.length === 3 && Object.keys(mixedSources).every(filename => entries.includes(path.basename(filename))
+    && before.files[filename]?.source === mixedSources[filename]);
+  if (!mixed && (entries.length !== 1 || entries[0] !== 'inventory.py')) { throw new Error('Smoke must use the exact Python-only or mixed-language host-fixture.cjs scope'); }
   const preflight = await forward(options.url, '/status', 'GET', Buffer.alloc(0));
   const backend = JSON.parse(preflight.body.toString('utf8'));
-  if (preflight.status !== 200 || await fs.realpath(backend.repo) !== repo || backend.source_root !== 'src' || backend.windows !== 3 || !backend.ready || backend.closed) { throw new Error('Start a ready local backend indexing this exact three-window fixture before launching the host'); }
+  if (preflight.status !== 200 || await fs.realpath(backend.repo) !== repo || backend.source_root !== 'src' || backend.windows !== (mixed ? 5 : 3) || !backend.ready || backend.closed) { throw new Error('Start a ready local backend indexing this exact fixture before launching the host'); }
   const prepared = await prepareHost();
   const directory = await fs.mkdtemp(path.join(config.cache, 'run-'));
   const userData = path.join(directory, 'user-data'), extensions = path.join(directory, 'extensions');
@@ -54,7 +56,8 @@ async function smoke(options) {
   const replacements = [[repo, '<fixture>'], [directory, '<host-run>'], [config.root, '<extension>'], [os.homedir(), '<home>']];
   const record = { protocol: 'explicit editor fixture integration smoke, not a ranking benchmark',
     started_utc: new Date().toISOString(), host_preparation: prepared.record,
-    backend_status: backend, source_before_sha256: before.sha256,
+    backend_status: backend, fixture_mode: mixed ? 'mixed' : 'python',
+    source_before_sha256: before.sha256, source_before_manifest_sha256: before.source_manifest_sha256,
     launch_arguments: args, node_version: process.version, passed: false,
     limits: ['Fresh fixture only; no private repository or query.', 'Trusted-path host disables Workspace Trust only in isolated user data; Restricted Mode is not proven.',
       'One test query response is held at the receipt relay until cancel arrives; cancellation receipts/view suppression do not prove interruption of a running Metal forward.',
@@ -65,7 +68,8 @@ async function smoke(options) {
       child = spawn(prepared.executable, args, { detached: true, env: { ...process.env,
         SEMANTIC_SEARCH_HOST_REPO: repo, SEMANTIC_SEARCH_HOST_URL: relay.url,
         SEMANTIC_SEARCH_HOST_RESULT: hostResult, SEMANTIC_SEARCH_HOST_QUERY: query,
-        SEMANTIC_SEARCH_HOST_RECEIPT_STARTS: receiptStarts }, stdio: ['ignore', 'pipe', 'pipe'] });
+        SEMANTIC_SEARCH_HOST_RECEIPT_STARTS: receiptStarts,
+        SEMANTIC_SEARCH_HOST_CASES: JSON.stringify(mixed ? cases : cases.slice(0, 1)) }, stdio: ['ignore', 'pipe', 'pipe'] });
       const stop = signal => { try { process.kill(-child.pid, signal); } catch {} };
       timeout = setTimeout(() => { timedOut = true; stop('SIGTERM'); killTimer = setTimeout(() => stop('SIGKILL'), 3000); }, 300000);
       child.on('error', reject); child.on('close', (code, signal) => resolve({ code, signal }));
@@ -75,6 +79,7 @@ async function smoke(options) {
     record.exit = ended; record.timed_out = timedOut;
     record.host = JSON.parse(await fs.readFile(hostResult, 'utf8'));
     const after = await snapshot(repo); record.source_after_sha256 = after.sha256;
+    record.source_after_manifest_sha256 = after.source_manifest_sha256;
     // Cancel travels on a separate connection; wait for its receipt to finish.
     await new Promise(resolve => setTimeout(resolve, 250));
     const searches = relay.records.filter(row => row.endpoint === '/search' && row.status === 200);
@@ -84,10 +89,10 @@ async function smoke(options) {
       && search.request?.request_id === cancel.request?.request_id));
     record.independent_receipt_checks = { searches_with_results: searches.filter(row => row.returned_source_checks.length).length,
       nonempty_exact_source_checks: sourceChecks.length > 0 && sourceChecks.every(row => row.exact_saved_source),
-      cancelled_request_linked_to_search: cancelLinked, source_unchanged: before.sha256 === after.sha256,
+      cancelled_request_linked_to_search: cancelLinked, source_unchanged: before.source_manifest_sha256 === after.source_manifest_sha256,
       receipts_without_transport_error: relay.records.every(row => !row.transport_error) };
     record.passed = ended.code === 0 && !timedOut && record.host.passed === true && searches.length >= 2 && cancelLinked
-      && sourceChecks.length > 0 && sourceChecks.every(row => row.exact_saved_source) && before.sha256 === after.sha256
+      && sourceChecks.length > 0 && sourceChecks.every(row => row.exact_saved_source) && before.source_manifest_sha256 === after.source_manifest_sha256
       && relay.records.every(row => !row.transport_error);
     if (!record.passed) { process.exitCode = 1; }
   } catch (error) { record.error = error.message; process.exitCode = 1; }
