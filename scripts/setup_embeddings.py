@@ -3,11 +3,14 @@
 
 No model conversion or GPU inference is performed by this setup script.
 """
+import argparse
 import json
 import platform
 import subprocess
 import sys
 from pathlib import Path
+
+from setup_mac import venv_directory
 
 ROOT = Path(__file__).resolve().parents[1]
 MODEL_ID = "Qwen/Qwen3-Embedding-0.6B"
@@ -20,17 +23,25 @@ def run(*args):
     subprocess.run([str(arg) for arg in args], cwd=ROOT, check=True)
 
 
-def main():
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--venv-path", type=Path, default=Path(".venv"),
+                        help="Virtual environment directory, absolute or relative to the project (default: .venv)")
+    args = parser.parse_args(argv)
     if platform.system() != "Darwin" or platform.machine() != "arm64":
         raise SystemExit("The embedding runtime requires an Apple Silicon Mac.")
-    python = ROOT / ".venv/bin/python"
+    try:
+        environment = venv_directory(args.venv_path, ROOT)
+    except ValueError as error:
+        parser.error(str(error))
+    python = environment / "bin/python"
     uv = ROOT / ".cache/bootstrap/bin/uv"
     if not python.exists() or not uv.exists():
         raise SystemExit("Run python3 scripts/setup_mac.py first.")
     # Existing pinned Mac runtime supplies MLX, mlx-vlm and Transformers.
     run(uv, "pip", "install", "--python", python, "--no-deps",
         f"mlx-embeddings=={RUNTIME_VERSION}")
-    run(ROOT / ".venv/bin/hf", "download", MODEL_ID, "--revision", MODEL_REVISION,
+    run(environment / "bin/hf", "download", MODEL_ID, "--revision", MODEL_REVISION,
         "--local-dir", MODEL_PATH)
     metadata = MODEL_PATH / ".cache/huggingface/download/model.safetensors.metadata"
     if not metadata.is_file() or metadata.read_text().splitlines()[0] != MODEL_REVISION:
