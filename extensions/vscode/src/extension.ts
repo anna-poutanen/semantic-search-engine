@@ -6,6 +6,7 @@ import { hash, physicalLines, SearchOptions, ValidationError } from './schema';
 import { StaleEvidenceError } from './evidence';
 import { parseConnectRequest, parseFindRequest, resultIndex } from './commands';
 import { sourceTextFromEditor } from './source';
+import { EditorBuffer, verifyEditorBuffer } from './overlays';
 
 export interface ExtensionApi {
   getState(): Readonly<ViewState>;
@@ -21,8 +22,8 @@ class ResultsView implements vscode.TreeDataProvider<Entry | string> {
   getTreeItem(row: Entry | string): vscode.TreeItem {
     if (typeof row === 'string') { return new vscode.TreeItem(row); }
     const result = row.result, item = new vscode.TreeItem(result.symbol);
-    item.description = `${result.path}:${result.start_line}–${result.end_line}${result.truncated ? ' · truncated' : ''}${result.origin === 'dependency' ? ' · context reference' : ''}${row.staleReason ? ' · preview only' : ''}`;
-    item.tooltip = result.origin === 'dependency' ? 'Static related context, not a verified query match' : 'Preview the captured saved source excerpt';
+    item.description = `${result.path}:${result.start_line}–${result.end_line}${result.source_origin === 'overlay' ? ' · dirty buffer' : ''}${result.truncated ? ' · truncated' : ''}${result.origin === 'dependency' ? ' · context reference' : ''}${row.staleReason ? ' · preview only' : ''}`;
+    item.tooltip = result.origin === 'dependency' ? 'Static related context, not a verified query match' : 'Preview the captured source excerpt';
     item.contextValue = 'semanticSearch.result';
     item.command = { command: 'semanticSearch.preview', title: 'Preview Captured Source', arguments: [row] };
     return item;
@@ -53,16 +54,23 @@ export function activate(context: vscode.ExtensionContext): ExtensionApi {
   const states = new vscode.EventEmitter<Readonly<ViewState>>();
   const status = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 10);
   let folder: vscode.WorkspaceFolder | undefined;
+  const bufferKeys = new WeakMap<vscode.TextDocument, string>();
+  const snapshot = (document: vscode.TextDocument): EditorBuffer => {
+    let key = bufferKeys.get(document); if (!key) { key = randomUUID(); bufferKeys.set(document, key); }
+    return { key, path: document.uri.scheme === 'file' ? document.uri.fsPath : document.uri.toString(),
+      version: document.version, text: document.getText(), dirty: document.isDirty, closed: document.isClosed };
+  };
+  const buffers = () => vscode.workspace.textDocuments.filter(document => document.isDirty).map(snapshot);
   const controller = new SearchController(() => vscode.workspace.isTrusted && !vscode.env.remoteName, state => {
     view.update(state);
     const loading = ['checking', 'searching', 'refreshing'].includes(state.phase);
     status.text = `${loading ? '$(loading~spin)' : '$(search)'} Semantic Search: ${state.status ? `${state.status.windows} windows` : state.phase}`;
     const watcher = state.status?.watcher;
-    status.tooltip = `${state.message}\nSaved tracked source within the service scope; unsaved editors and untracked files are excluded.\nWatcher: ${watcher ? watcher.running ? 'running' : 'stopped' : 'unavailable'}${watcher?.pending ? ' (pending)' : ''}${watcher?.last_error ? `\nWatcher error: ${watcher.last_error}` : ''}`;
+    status.tooltip = `${state.message}\nSaved searches use tracked source. Explicit dirty-buffer searches use disposable request overrides.\nWatcher: ${watcher ? watcher.running ? 'running' : 'stopped' : 'unavailable'}${watcher?.pending ? ' (pending)' : ''}${watcher?.last_error ? `\nWatcher error: ${watcher.last_error}` : ''}`;
     status.command = 'semanticSearch.status';
     status.show();
     states.fire(structuredClone(state));
-  });
+  }, undefined, buffers);
   active = controller; view.update(controller.state);
   const guard = () => {
     if (!vscode.workspace.isTrusted || vscode.env.remoteName) { throw new ValidationError('Use a trusted local desktop workspace for the local service'); }
@@ -130,12 +138,15 @@ export function activate(context: vscode.ExtensionContext): ExtensionApi {
     try {
       if (!entry?.result) { throw new ValidationError('Select a current result'); }
       const filename = await controller.navigation(entry, dirty);
-      const document = await vscode.workspace.openTextDocument(vscode.Uri.file(filename));
+      const document = entry.overlay ? vscode.workspace.textDocuments.find(candidate => bufferKeys.get(candidate) === entry.overlay?.bufferKey)
+        : await vscode.workspace.openTextDocument(vscode.Uri.file(filename));
+      if (!document) { throw new StaleEvidenceError('Captured dirty editor was closed; run a new search'); }
       const editor = await vscode.window.showTextDocument(document, { preview: true });
       await controller.navigation(entry, dirty);
-      const source = physicalLines(sourceTextFromEditor(entry.saved!, document.getText())).slice(entry.result.start_line - 1, entry.result.end_line).join('');
-      if (document.isDirty || source !== entry.result.source || hash(source) !== entry.result.source_hash) {
-        throw new StaleEvidenceError('The editor text changed; save and run a new search');
+      const fullText = entry.overlay ? verifyEditorBuffer(entry.overlay, snapshot(document)) : sourceTextFromEditor(entry.saved!, document.getText());
+      const source = physicalLines(fullText).slice(entry.result.start_line - 1, entry.result.end_line).join('');
+      if ((!entry.overlay && document.isDirty) || source !== entry.result.source || hash(source) !== entry.result.source_hash) {
+        throw new StaleEvidenceError('The editor text changed; run a new search');
       }
       const range = new vscode.Range(entry.result.start_line - 1, 0, entry.result.end_line - 1,
         document.lineAt(entry.result.end_line - 1).text.length);
@@ -153,7 +164,13 @@ export function activate(context: vscode.ExtensionContext): ExtensionApi {
   context.subscriptions.push(view, previews, states, status, { dispose: () => controller.dispose() },
     vscode.window.registerTreeDataProvider('semanticSearch.results', view),
     vscode.workspace.registerTextDocumentContentProvider('semantic-search-preview', previews),
-    vscode.workspace.onDidCloseTextDocument(document => { if (document.uri.scheme === 'semantic-search-preview') { previews.close(document.uri); } }),
+    vscode.workspace.onDidCloseTextDocument(document => {
+      if (document.uri.scheme === 'semantic-search-preview') { previews.close(document.uri); }
+      else if (document.uri.scheme === 'file' && (document.isDirty || bufferKeys.has(document))) { controller.buffersChanged(); }
+    }),
+    vscode.workspace.onDidChangeTextDocument(event => { if (event.document.uri.scheme === 'file') { controller.buffersChanged(); } }),
+    vscode.workspace.onDidSaveTextDocument(document => { if (document.uri.scheme === 'file') { controller.buffersChanged(); } }),
+    vscode.workspace.onDidOpenTextDocument(document => { if (document.isDirty) { controller.buffersChanged(); } }),
     vscode.workspace.onDidChangeWorkspaceFolders(() => {
       if (folder && !vscode.workspace.workspaceFolders?.some(candidate => candidate.uri.toString() === folder?.uri.toString())) {
         controller.disconnect(); folder = undefined;
@@ -167,8 +184,16 @@ export function activate(context: vscode.ExtensionContext): ExtensionApi {
       }
       if (!controller.repository) { return; }
       const request = parseFindRequest(argument, options());
-      const query = request?.query ?? await vscode.window.showInputBox({ prompt: 'Describe the implementation behavior in saved source', ignoreFocusOut: true });
-      if (query !== undefined) { await controller.search(query, request?.options ?? options()); }
+      const query = request?.query ?? await vscode.window.showInputBox({ prompt: 'Describe the implementation behavior', ignoreFocusOut: true });
+      let includeUnsaved = request?.includeUnsaved ?? false;
+      if (query !== undefined && !request && buffers().length) {
+        const choice = await vscode.window.showQuickPick([
+          { label: 'Saved tracked source', includeUnsaved: false },
+          { label: 'Include eligible dirty tracked buffers', description: 'Request only; no files are saved', includeUnsaved: true },
+        ], { placeHolder: 'Choose this search source scope' });
+        if (!choice) { return; } includeUnsaved = choice.includeUnsaved;
+      }
+      if (query !== undefined) { await controller.search(query, request?.options ?? options(), includeUnsaved); }
       return structuredClone(controller.state);
     })),
     vscode.commands.registerCommand('semanticSearch.status', wrap(async () => { if (!controller.repository) { await connect(); } else { await controller.status(); } return structuredClone(controller.state); })),

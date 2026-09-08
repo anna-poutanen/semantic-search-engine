@@ -133,7 +133,19 @@ again immediately before preview/navigation, because the editor can change after
 delivery. Check every input buffer even if retrieval returned only saved rows.
 The server cannot prove that an editor version is still current.
 
-The ordinary CLI and MCP tool continue to search saved source. This draft adds
-backend/HTTP/Python-client overlay support; editor integration and real-model
-quality/latency measurement are separate work. CPU verification uses temporary
-Git/source/SQLite fixtures and fake embedders, with no weights or held-out labels.
+The ordinary CLI and MCP tool continue to search saved source. The isolated VS
+Code draft adds explicit request selection through `semanticSearch.find` with
+`{query, includeUnsaved: true, options}` or its palette scope choice. It discovers
+source root/exclusions from status, captures every eligible dirty tracked file,
+and rechecks Git membership, saved full-file bytes, editor identity, version and
+full literal UTF-8 hash at delivery and navigation. Saved mode remains the
+default. Excluded dirty documents have concise reason counts; caps reject a
+whole request. Dirty results navigate to the same open editor and retain their
+captured previews when stale. Editor events conservatively invalidate dirty
+searches, including some unrelated file changes.
+
+See [the extension guide](../extensions/vscode/README.md) for its source proof
+and BOM details. This draft's CPU gates are separate from actual unsaved
+Extension Development Host and real-model acceptance. CPU verification uses
+temporary Git/source/SQLite fixtures and fake embedders, with no weights or
+held-out labels.
