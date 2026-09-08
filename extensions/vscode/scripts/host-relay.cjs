@@ -7,12 +7,22 @@ const crypto = require('node:crypto');
 const { TextDecoder } = require('node:util');
 const { localAddress } = require('../dist/src/client.js');
 const { physicalLines, parseStrictJson, relativePath } = require('../dist/src/schema.js');
+const { decodeSavedSource } = require('../dist/src/source.js');
+const { contained } = require('../dist/src/evidence.js');
+const { mixedSources } = require('./host-fixture.cjs');
 const sha = value => crypto.createHash('sha256').update(value).digest('hex');
 const MAX = 1024 * 1024;
 async function snapshot(repo) {
-  const filename = path.join(repo, 'src', 'inventory.py');
-  const bytes = await fs.readFile(filename);
-  return { source: new TextDecoder('utf-8', { fatal: true }).decode(bytes), sha256: sha(bytes) };
+  const files = {}, entries = (await fs.readdir(path.join(repo, 'src'))).sort();
+  for (const filename of Object.keys(mixedSources).sort()) {
+    if (!entries.includes(path.basename(filename))) { continue; }
+    const bytes = await fs.readFile(path.join(repo, filename));
+    files[filename] = { source: decodeSavedSource(filename, bytes), sha256: sha(bytes) };
+  }
+  const inventory = files['src/inventory.py'];
+  if (!inventory) { throw new Error('Expected inventory fixture source'); }
+  return { source: inventory.source, sha256: inventory.sha256, files, entries,
+    source_manifest_sha256: sha(JSON.stringify({ entries, files: Object.fromEntries(Object.entries(files).map(([filename, data]) => [filename, data.sha256])) })) };
 }
 async function sourceChecks(repo, response, before, after) {
   if (!response || !Array.isArray(response.results)) { return []; }
@@ -22,12 +32,14 @@ async function sourceChecks(repo, response, before, after) {
     try {
       relativePath(row.path);
       const target = await fs.realpath(path.resolve(repo, row.path));
-      const expected = await fs.realpath(path.join(repo, 'src', 'inventory.py'));
-      const lines = physicalLines(after.source);
+      const expected = await fs.realpath(path.join(repo, row.path));
+      const saved = after.files[row.path], previous = before.files[row.path];
+      const lines = physicalLines(saved.source);
       const excerpt = lines.slice(row.start_line - 1, row.end_line).join('');
       const window = lines.slice(row.start_line - 1, row.window_end_line).join('');
-      valid = target === expected && row.path === 'src/inventory.py'
-        && before.sha256 === after.sha256 && Number.isSafeInteger(row.start_line) && row.start_line >= 1
+      valid = target === expected && contained(repo, target) && contained(path.join(repo, 'src'), target)
+        && previous.sha256 === saved.sha256 && before.source_manifest_sha256 === after.source_manifest_sha256
+        && Number.isSafeInteger(row.start_line) && row.start_line >= 1
         && Number.isSafeInteger(row.end_line) && row.end_line >= row.start_line
         && Number.isSafeInteger(row.window_end_line) && row.window_end_line >= row.end_line && row.window_end_line <= lines.length
         && row.source === excerpt && sha(excerpt) === row.source_hash && sha(window) === row.content_hash;
@@ -62,6 +74,7 @@ function forward(url, endpoint, method, body) {
 }
 async function startRelay(url, repo, options = {}) {
   localAddress(url);
+  repo = await fs.realpath(repo);
   const records = [], startedSearches = [], cancellationWaiters = new Map(), cancelled = new Set(); let port;
   const server = http.createServer(async (request, response) => {
     const reject = (code, message) => { response.writeHead(code, { 'Content-Type': 'application/json' }); response.end(JSON.stringify({ error: { code: 'test_relay', message } })); };
@@ -94,6 +107,8 @@ async function startRelay(url, repo, options = {}) {
         backend_finished_utc: backendFinished, response_held_for_cancel_test: !!hold,
         status: result.status, request: input, request_sha256: sha(body), response_sha256: sha(result.body),
         response: parsed, before_source_sha256: before?.sha256 ?? null, after_source_sha256: after?.sha256 ?? null,
+        before_source_manifest_sha256: before?.source_manifest_sha256 ?? null,
+        after_source_manifest_sha256: after?.source_manifest_sha256 ?? null,
         returned_source_checks: before ? await sourceChecks(repo, parsed, before, after) : [] });
       if (!response.destroyed) { response.writeHead(result.status, { 'Content-Type': result.contentType }); response.end(result.body); }
     } catch (error) {

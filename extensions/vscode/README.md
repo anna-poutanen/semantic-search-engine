@@ -1,6 +1,6 @@
 # Semantic Search for VS Code — local draft
 
-Search saved Python implementations through the project's already running local
+Search saved Python, JavaScript and TypeScript implementations through the project's already running local
 service. Enter a behavior, inspect ranked results in the Explorer, preview an
 exact captured excerpt, and open its verified current source range. Dependency
 rows are marked **context reference**; they are not verified query matches.
@@ -15,7 +15,7 @@ real-model validation; see [the acceptance recipe](docs/development-host.md).
    [backend guide](https://github.com/anna-poutanen/semantic-search-engine/blob/main/docs/backend-api.md). The extension installs no models
    or dependencies and starts no Python process.
 2. Start the service in your own terminal, choosing the repository you open in
-   VS Code and its Python root:
+   VS Code and its source root:
 
    ```sh
    /absolute/project/.venv/bin/semantic-search serve \
@@ -39,11 +39,15 @@ be interrupted, and cancellation acknowledgement does not prove that work had
 not already completed. Refresh uses `/index`; aborting an HTTP wait does not
 cancel that endpoint's model work.
 
-The first version searches saved, tracked `.py` files under the service's
+Search uses saved, tracked files under the service's
 configured `source_root`. It excludes unsaved editors and new untracked files;
-`git add` makes a new saved Python file eligible. A query mentioning tests cannot
+`git add` makes a new saved source file eligible. The client supports `.py`, `.js`,
+`.jsx`, `.mjs`, `.cjs`, `.ts`, `.tsx`, `.mts` and `.cts` results. JS/TS retrieval
+requires the reviewed language-capable backend and its pinned `languages` extra;
+the extension installs neither parser packages nor weights. Backend discovery
+excludes declaration files and configured/default generated directories. A query mentioning tests cannot
 search the tests tree when the service indexes only `src`. The current backend
-does not index TypeScript or JavaScript. Neither `no_candidates` nor a calibrated
+scope determines which files are searched. Neither `no_candidates` nor a calibrated
 `insufficient_evidence` response proves that a behavior is absent.
 
 ## Source verification
@@ -65,7 +69,11 @@ Verification does not lock a file against edits after the final check.
 
 UTF-8/BOM, ASCII and Latin-1 are covered by CPU fixtures. Other Node-supported
 Python encoding labels must decode to the exact returned text or navigation
-fails closed. Files exceeding 8 MiB can still be previewed as captured source but
+fails closed. JS/TS uses strict UTF-8 and retains its BOM in returned/provider
+source. VS Code separates a leading BOM from editor text; verification restores
+that one saved marker for comparison, without editing the document. Mixed line
+endings that the editor normalizes can prevent exact navigation verification;
+the original captured data remains available. Files exceeding 8 MiB can still be previewed as captured source but
 are not read for navigation verification. Previews are plaintext virtual
 documents, with a bounded in-memory cache; no HTML or webview is used.
 
@@ -104,7 +112,7 @@ dependencies. Dev packages and all transitive integrity hashes are locked.
 
 Pinned development packages were checked against the official npm registry on
 October 13, 2026: TypeScript 5.9.3, `@types/vscode` 1.95.0, `@types/node` 22.20.5,
-and `@vscode/vsce` 4.0.0. The TypeScript/API pins target the declared VS Code
+`@vscode/vsce` 4.0.0 and `@vscode/test-electron` 3.1.0. The TypeScript/API pins target the declared VS Code
 minimum rather than assuming the latest API. Packaging's Node requirement is
 separate from the extension host's runtime.
 

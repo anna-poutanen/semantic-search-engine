@@ -1,12 +1,12 @@
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import { createHash } from 'node:crypto';
-import { TextDecoder } from 'node:util';
 import { hash, physicalLines, relativePath, Result, ValidationError } from './schema';
+import { decodeSavedSource, editorBom, SourceEncodingError } from './source';
 
 const MAX_FILE_BYTES = 8 * 1024 * 1024;
 export class StaleEvidenceError extends Error {}
-export interface SavedEvidence { canonicalPath: string; fileHash: string; }
+export interface SavedEvidence { canonicalPath: string; fileHash: string; editorUtf8Bom: boolean; }
 export interface RepositoryBinding { root: string; sourceRoot: string; }
 export function contained(root: string, candidate: string): boolean {
   const relative = path.relative(root, candidate);
@@ -20,19 +20,6 @@ export async function bindRepository(workspace: string, reportedRepo: string, so
   const scope = await fs.realpath(path.resolve(root, sourceRoot));
   if (!contained(root, scope) || !(await fs.stat(scope)).isDirectory()) { throw new ValidationError('Service source root leaves the selected workspace'); }
   return { root, sourceRoot: scope };
-}
-function decodePython(bytes: Buffer): string {
-  // PEP 263 comments are ASCII-compatible. Unsupported encodings fail closed.
-  const first = bytes.subarray(0, 4096).toString('latin1').split(/\r\n|\r|\n/).slice(0, 2);
-  const match = first.map(line => /^\s*#.*?coding[:=]\s*([-\w.]+)/.exec(line)).find(Boolean);
-  const encoding = (match?.[1] ?? 'utf-8').toLowerCase().replaceAll('_', '-');
-  if (['latin-1', 'latin1', 'iso-8859-1'].includes(encoding)) { return bytes.toString('latin1'); }
-  if (['ascii', 'us-ascii'].includes(encoding)) {
-    if (bytes.some(byte => byte > 127)) { throw new StaleEvidenceError('Saved Python encoding cannot be verified'); }
-    return bytes.toString('ascii');
-  }
-  try { return new TextDecoder(encoding, { fatal: true }).decode(bytes); }
-  catch { throw new StaleEvidenceError('Saved Python encoding cannot be verified; captured preview remains available'); }
 }
 export async function verifySavedResult(binding: RepositoryBinding, result: Result, previous?: SavedEvidence): Promise<SavedEvidence> {
   relativePath(result.path);
@@ -53,12 +40,15 @@ export async function verifySavedResult(binding: RepositoryBinding, result: Resu
   if (previous && (previous.canonicalPath !== canonical || previous.fileHash !== fileHash)) {
     throw new StaleEvidenceError('This file changed after the result was captured; run a new search');
   }
-  const lines = physicalLines(decodePython(bytes));
+  let decoded: string;
+  try { decoded = decodeSavedSource(result.path, bytes); }
+  catch (error) { if (error instanceof SourceEncodingError) { throw new StaleEvidenceError(error.message); } throw error; }
+  const lines = physicalLines(decoded);
   if (result.window_end_line > lines.length || result.start_line < 1 || result.end_line > result.window_end_line
       || hash(lines.slice(result.start_line - 1, result.end_line).join('')) !== result.source_hash
       || lines.slice(result.start_line - 1, result.end_line).join('') !== result.source
       || hash(lines.slice(result.start_line - 1, result.window_end_line).join('')) !== result.content_hash) {
     throw new StaleEvidenceError('The current saved implementation no longer matches the captured result');
   }
-  return { canonicalPath: canonical, fileHash };
+  return { canonicalPath: canonical, fileHash, editorUtf8Bom: editorBom(result.path, bytes) };
 }

@@ -5,6 +5,7 @@ import * as vscode from 'vscode';
 import { ExtensionApi } from '../../src/extension';
 import { hash, physicalLines } from '../../src/schema';
 import { ViewState } from '../../src/controller';
+import { sourceTextFromEditor, sourceTextFromPreview } from '../../src/source';
 
 function required(name: string): string {
   const value = process.env[name]; if (!value) { throw new Error(`Missing test-runner environment: ${name}`); } return value;
@@ -70,6 +71,34 @@ export async function run(): Promise<void> {
     const excerpt = physicalLines(editor.document.getText()).slice(entry.result.start_line - 1, entry.result.end_line).join('');
     assert.equal(excerpt, entry.result.source); assert.equal(hash(excerpt), entry.result.source_hash);
     checks.verified_navigation = true; checks.exact_selection = true;
+    const languageCases: { language: string; path: string; symbol: string; query: string }[] = JSON.parse(required('SEMANTIC_SEARCH_HOST_CASES'));
+    const languageResults: Record<string, unknown>[] = [{ language: 'python', path: entry.result.path,
+      symbol: entry.result.symbol, returned_position: 1, source_hash: entry.result.source_hash }];
+    for (const testCase of languageCases.slice(1)) {
+      const state = await limit(vscode.commands.executeCommand<ViewState>('semanticSearch.find', { query: testCase.query,
+        options: { retrieval: 'dense', rerank: false, max_results: 5, token_budget: 2000, include_dependencies: false }
+      }), `${testCase.language} fixture search`);
+      assert.equal(state.phase, 'ready');
+      const index = state.entries.findIndex(row => row.result.path === testCase.path && row.result.symbol === testCase.symbol);
+      assert.ok(index >= 0); const selected = state.entries[index]; assert.ok(selected?.saved);
+      assert.equal(selected.staleReason, null);
+      const uri = await vscode.commands.executeCommand<vscode.Uri>('semanticSearch.preview', index);
+      const document = await vscode.workspace.openTextDocument(uri); assert.equal(document.languageId, 'plaintext');
+      const captured = sourceTextFromPreview(selected.result.source, document.getText());
+      assert.equal(captured, selected.result.source); assert.equal(hash(captured), selected.result.source_hash);
+      await vscode.commands.executeCommand('semanticSearch.open', index);
+      const target = vscode.window.activeTextEditor; assert.ok(target);
+      assert.equal(await fs.realpath(target.document.uri.fsPath), selected.saved.canonicalPath);
+      assert.equal(target.selection.start.line, selected.result.start_line - 1);
+      assert.equal(target.selection.end.line, selected.result.end_line - 1);
+      const savedText = physicalLines(sourceTextFromEditor(selected.saved, target.document.getText()))
+        .slice(selected.result.start_line - 1, selected.result.end_line).join('');
+      assert.equal(savedText, selected.result.source); assert.equal(hash(savedText), selected.result.source_hash);
+      languageResults.push({ language: testCase.language, path: selected.result.path, symbol: selected.result.symbol,
+        returned_position: index + 1, source_hash: selected.result.source_hash, editor_utf8_bom_restored: selected.saved.editorUtf8Bom });
+    }
+    record.language_fixtures = languageResults;
+    checks.language_fixture_navigation = languageResults.length === languageCases.length;
     await vscode.commands.executeCommand('workbench.view.explorer');
     await vscode.commands.executeCommand('semanticSearch.results.focus');
     checks.results_view_focus = true;
@@ -114,6 +143,7 @@ export async function run(): Promise<void> {
       token_usage: response.response?.token_usage, returned_results: response.entries.length,
       store_windows: connected.status.windows, watcher_running: connected.status.watcher?.running ?? null };
     record.cancellation_note = 'Command/transport and late-result suppression only; a running Metal forward is not proven interrupted.';
+    record.editor_bom_note = 'Exact returned JS/TS BOM stays in provider/data; VS Code separates a leading BOM from getText(), so comparisons restore that verified marker without edits.';
     record.passed = true;
   } catch (error) {
     record.error = error instanceof Error ? error.message : String(error);
