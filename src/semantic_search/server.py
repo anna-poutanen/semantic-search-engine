@@ -8,6 +8,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 from semantic_search.backend import SourceSnapshotError
 from semantic_search.cancellation import SearchCancelled
+from semantic_search.overlays import MAX_OVERLAY_BODY_BYTES
 
 MAX_BODY_BYTES = 64 * 1024
 MAX_RESPONSE_BYTES = 1024 * 1024
@@ -100,8 +101,9 @@ class BackendHandler(BaseHTTPRequestHandler):
             self._error(413, "body_limit", "Content-Length exceeds size limit")
             return None
         size = int(lengths[0])
-        if size > MAX_BODY_BYTES:
-            self._error(413, "body_limit", "JSON body exceeds 65536 bytes")
+        transport_limit = MAX_OVERLAY_BODY_BYTES if self.path == "/search" else MAX_BODY_BYTES
+        if size > transport_limit:
+            self._error(413, "body_limit", f"JSON body exceeds {transport_limit} bytes")
             return None
         types = self.headers.get_all("Content-Type", [])
         if len(types) != 1 or types[0].split(";", 1)[0].strip().lower() != "application/json":
@@ -115,9 +117,16 @@ class BackendHandler(BaseHTTPRequestHandler):
                               parse_constant=self._constant)
             if not isinstance(data, dict):
                 raise ValueError("JSON body must be an object")
+            if size > MAX_BODY_BYTES and not (self.path == "/search" and isinstance(data.get("overlays"), list)
+                                             and data["overlays"]):
+                self._error(413, "body_limit", "Saved-source JSON body exceeds 65536 bytes")
+                return None
             return data
         except (ValueError, UnicodeError, TimeoutError, RecursionError) as error:
-            self._error(400, "invalid_json", str(error))
+            if size > MAX_BODY_BYTES:
+                self._error(413, "body_limit", "Oversized body must contain an overlay search")
+            else:
+                self._error(400, "invalid_json", str(error))
             return None
 
     def do_GET(self):
@@ -155,7 +164,7 @@ class BackendHandler(BaseHTTPRequestHandler):
                 result = {"indexstats": self.server.backend.refresh()}
             else:
                 allowed = {"query", "retrieval", "rerank", "candidates", "max_results", "source_budget",
-                           "token_budget", "include_dependencies", "request_id"}
+                           "token_budget", "include_dependencies", "request_id", "overlays"}
                 if set(data) - allowed:
                     raise ValueError("Unknown search option")
                 if "query" not in data:
