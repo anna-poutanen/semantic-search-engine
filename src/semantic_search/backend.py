@@ -292,9 +292,15 @@ class SearchBackend:
                     "abstention_policy": self._policy.record if self._policy else None,
                     "store": self._index.status() if self._index is not None and not self._closed else None}
 
+    def _source_provenance(self, path):
+        return {}
+
+    def _search_scope(self):
+        return indexed_scope(self.source_root, self.source_exclusions)
+
     def search(self, query, retrieval="dense", rerank=False, candidates=4,
                max_results=5, source_budget=12000, token_budget=None,
-               include_dependencies=False, request_id=None):
+               include_dependencies=False, request_id=None, overlays=None):
         if not isinstance(query, str) or not query.strip() or len(query) > MAX_QUERY_CHARS:
             raise ValueError(f"query must be nonempty and at most {MAX_QUERY_CHARS} characters")
         try:
@@ -312,9 +318,20 @@ class SearchBackend:
             _integer(token_budget, "token_budget", 512, 32000)
         if type(include_dependencies) is not bool:
             raise ValueError("include_dependencies must be a boolean")
+        from semantic_search.overlays import normalize_overlays
+        entries = normalize_overlays(overlays)
         started = time.perf_counter()
         with self._request_lock(request_id) as check:
             self._check_open()
+            if entries:
+                from semantic_search.overlays import search_overlay
+                settings = {"query": query, "retrieval": retrieval, "rerank": rerank,
+                            "candidates": candidates, "max_results": max_results,
+                            "source_budget": source_budget, "token_budget": token_budget,
+                            "include_dependencies": include_dependencies}
+                response = search_overlay(self, entries, settings, check)
+                response["timings"]["total_s"] = time.perf_counter() - started
+                return response
             try:
                 stats = self._refresh(require_vectors=retrieval != "bm25", cancel_check=check)
                 phase = time.perf_counter()
@@ -405,11 +422,12 @@ class SearchBackend:
                                     "h2o_score": judgments[snippet.id].score if snippet.id in judgments else None,
                                     "origin": origins.get(snippet.id, ("retrieval", None))[0],
                                     "related_to": origins.get(snippet.id, ("retrieval", None))[1],
+                                    **self._source_provenance(snippet.path),
                                     "truncated": truncated})
                 self._confirm_snapshot(self._manifest)
                 packaging_s = time.perf_counter() - phase
                 response = {"repo": str(self.repo), "source_root": self.source_root,
-                        "scope": indexed_scope(self.source_root, self.source_exclusions),
+                        "scope": self._search_scope(),
                         "query": query, "retrieval": retrieval, "rerank": rerank,
                         "results": results, "candidate_windows": len(pairs),
                         "available_symbols": len(selected), "source_budget": source_budget,
