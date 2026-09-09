@@ -1,0 +1,25 @@
+................F....................................................... [ 63%]
+.........................................                                [100%]
+=================================== FAILURES ===================================
+__________________ test_fresh_runtime_distribution_inventory ___________________
+
+    @pytest.mark.skipif(os.environ.get("SEMANTIC_INSTALLER_VERIFY_MAC") != "1", reason="Explicit fresh Apple Silicon environment inventory only")
+    def test_fresh_runtime_distribution_inventory():
+        # Enable only after an authorized installation into the declared destination.
+        expected = os.environ.get("SEMANTIC_INSTALLATION_VENV")
+        assert expected and Path(sys.prefix).resolve() == Path(expected).resolve()
+        assert platform.system() == "Darwin" and platform.machine() == "arm64"
+        assert sys.version_info[:2] == (3, 12)
+        pins = pinned_requirements(ROOT / "requirements-mac.lock") | pinned_requirements(ROOT / "requirements-languages.lock")
+        for name, version in pins.items():
+            assert importlib.metadata.version(name) == version, name
+>       assert subprocess.check_output([ROOT / ".cache/bootstrap/bin/uv", "--version"], text=True).strip() == "uv 0.13.0"
+E       AssertionError: assert 'uv 0.13.0 (4...apple-darwin)' == 'uv 0.13.0'
+E         
+E         - uv 0.13.0
+E         + uv 0.13.0 (4ecd0eff2 2026-10-09 aarch64-apple-darwin)
+
+tests/test_installation_contract.py:190: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_installation_contract.py::test_fresh_runtime_distribution_inventory
+1 failed, 112 passed in 15.48s

@@ -1,9 +1,12 @@
 # Fresh Mac installation validation
 
-This is an isolated installer draft. Mocked command tests have run; a fresh Mac
-installation, fresh checkpoint download, and real-model smoke test remain
-pending. These are separate gates. Existing project environments and cached
-model tests do not establish that a new user can install successfully.
+The isolated dependency-only installation passed on the tested Apple Silicon
+Mac in a new virtual environment, using existing user-level package/Python
+caches. All 72 declared runtime/parser pins matched and 118 CPU checks passed.
+The initial audit rejected uv's valid build-metadata suffix; that failed log is
+retained alongside the corrected audit. A fresh-machine download, checkpoint
+download, and real-model smoke in this environment remain separate pending
+gates. See [the recorded validation](../results/install-validation-2026-10-13/report.md).
 
 The intended fast path installs the pinned Python runtime, MCP adapter, and
 saved Python/JavaScript/TypeScript parsers. It downloads the tokenizer cache and
@@ -54,7 +57,11 @@ project build uses `setuptools>=75`, not an exact build-backend pin, and the
 Python patch version is selected within 3.12. An already cached bootstrap uv is
 reused. This is not a fully hash-locked supply-chain or bit-identical build. The
 post-install inventory gate checks every declared runtime/parser version and
-the bootstrap uv version so resolver changes are visible.
+the bootstrap uv version so resolver changes are visible. Fresh validation also
+found `protobuf==7.36.2` outside the initial lock: the selected
+`transformers[sentencepiece]` dependency requires it. The initial artifact keeps
+that incomplete closure visible; a separate follow-up pin and reuse validation
+will be reviewed without replacing those original results.
 
 ## Dependency-only validation
 
@@ -67,8 +74,9 @@ paths resolve against the checkout; absolute destinations are supported. The
 project directory, its ancestors, and existing regular files are rejected.
 The destination is not deleted or cleared automatically.
 
-These commands are a validation recipe and have **not** been executed for this
-draft. Choose an unused destination; do not reuse a developer environment.
+These commands reproduce the completed dependency-only gate in an unused
+destination. Choose a new path; do not reuse a developer environment. The
+recorded first run's package caches were warm, which limits its timing claim.
 
 ```bash
 validation_venv="$PWD/.cache/install-validation/.venv"
@@ -111,8 +119,8 @@ is required and is not restricted to loopback.
 ## Later real-model gates
 
 Model download and inference checks follow dependency validation as separate
-steps. They remain pending while the active language evaluation runs. Use the
-chosen Python environment throughout:
+steps. They remain pending for this isolated environment. Use the chosen Python
+environment throughout:
 
 ```bash
 "$validation_venv/bin/python" scripts/setup_embeddings.py \
