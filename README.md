@@ -81,7 +81,9 @@ CPU fixture coverage and a frozen real-Qwen Express/Zod evaluation. Dense search
 delivers complete evidence for 10/12 Express and 8/12 Zod behaviors; Zod multi-file
 coverage remains incomplete. The saved mixed-language editor workflow also
 [passes in an actual VS Code host](results/editor-workflows-2026-10-13/findings.md).
-Unsaved editor buffers are not indexed.
+The ordinary CLI/MCP workflow searches saved source. Backend/HTTP callers can
+provide explicit [request-only editor text overlays](docs/unsaved-overlays.md);
+editor integration and real-model overlay measurements remain separate work.
 
 The service preloads Qwen and builds a durable SQLite index under `.cache/indexes/`.
 Its polling watcher checks eligible saved bytes, tracked membership, Git HEAD,

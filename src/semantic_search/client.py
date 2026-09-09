@@ -9,6 +9,41 @@ from urllib.parse import urlsplit
 MAX_RESPONSE_BYTES = 1024 * 1024
 
 
+class StaleBufferError(RuntimeError):
+    """A response's overlay inputs no longer match the editor's current buffers."""
+
+
+def ensure_overlay_current(response, current_buffers):
+    """Check all input buffers, even when results contain only saved source.
+
+    current_buffers maps paths to {version, content_hash}. Call again immediately
+    before editor navigation; a transport callback checks only response delivery.
+    """
+    scope = response.get("scope")
+    if not isinstance(scope, dict) or scope.get("source_state") != "overlay":
+        raise RuntimeError("Search response lacks overlay provenance")
+    bindings = scope.get("overlays")
+    if not isinstance(bindings, list) or not isinstance(current_buffers, dict):
+        raise RuntimeError("Overlay response/current buffer bindings are invalid")
+    from semantic_search.overlays import HASH_PATTERN, MAX_OVERLAY_FILES
+    if not 1 <= len(bindings) <= MAX_OVERLAY_FILES:
+        raise RuntimeError("Overlay response has invalid buffer bindings")
+    seen = set()
+    for binding in bindings:
+        if (not isinstance(binding, dict) or set(binding) != {"path", "version", "content_hash"}
+                or not isinstance(binding["path"], str) or binding["path"] in seen
+                or type(binding["version"]) is not int or binding["version"] < 0
+                or not isinstance(binding["content_hash"], str) or not HASH_PATTERN.fullmatch(binding["content_hash"])):
+            raise RuntimeError("Overlay response has invalid buffer bindings")
+        seen.add(binding["path"])
+        current = current_buffers.get(binding["path"])
+        if (not isinstance(current, dict) or type(current.get("version")) is not int
+                or current.get("version") != binding["version"]
+                or current.get("content_hash") != binding["content_hash"]):
+            raise StaleBufferError(f"Overlay result is stale for {binding['path']}; issue a new search")
+    return response
+
+
 def _object(pairs):
     result = {}
     for key, value in pairs:
@@ -50,6 +85,14 @@ def _valid_result(row):
                     return False
             except OverflowError:
                 return False
+    if "source_origin" in row:
+        if not isinstance(row["source_origin"], str) or row["source_origin"] not in {"saved", "overlay"}:
+            return False
+        if row["source_origin"] == "overlay":
+            from semantic_search.overlays import HASH_PATTERN
+            if (type(row.get("buffer_version")) is not int or row["buffer_version"] < 0
+                    or not isinstance(row.get("buffer_hash"), str) or not HASH_PATTERN.fullmatch(row["buffer_hash"])):
+                return False
     return "truncated" not in row or type(row["truncated"]) is bool
 
 
@@ -73,7 +116,7 @@ class SearchClient:
         self._opener = urllib.request.build_opener(urllib.request.ProxyHandler({}), NoRedirect())
 
     def _request(self, path, payload=None):
-        data = None if payload is None else json.dumps(payload, allow_nan=False).encode()
+        data = None if payload is None else json.dumps(payload, ensure_ascii=False, allow_nan=False).encode("utf-8")
         request = urllib.request.Request(self.url + path, data=data,
                                          headers={"Content-Type": "application/json"} if data else {})
         try:
@@ -114,8 +157,32 @@ class SearchClient:
         except (OSError, HTTPException) as error:
             raise RuntimeError(f"Could not read the search service response: {error}") from error
 
-    def search(self, query, **settings):
-        return self._request("/search", {"query": query, **settings})
+    def search(self, query, *, overlays=None, current_buffers=None, **settings):
+        from semantic_search.overlays import normalize_overlays
+        entries = normalize_overlays(overlays)
+        if current_buffers is not None and (not callable(current_buffers) or not entries):
+            raise ValueError("current_buffers must be a callback for a nonempty overlay request")
+        payload = {"query": query, **settings}
+        if overlays is not None:
+            payload["overlays"] = [{**entry.binding, "text": entry.text} for entry in entries]
+        response = self._request("/search", payload)
+        if entries:
+            expected = {entry.path: {"version": entry.version, "content_hash": entry.content_hash} for entry in entries}
+            ensure_overlay_current(response, expected)
+            bindings = response["scope"]["overlays"]
+            if {item["path"] for item in bindings} != set(expected):
+                raise RuntimeError("Overlay response did not bind every request buffer")
+            for row in response["results"]:
+                entry = expected.get(row["path"])
+                if entry is not None:
+                    if (row.get("source_origin") != "overlay" or row.get("buffer_version") != entry["version"]
+                            or row.get("buffer_hash") != entry["content_hash"]):
+                        raise RuntimeError("Overlay response has inconsistent source provenance")
+                elif row.get("source_origin") != "saved":
+                    raise RuntimeError("Overlay response has inconsistent saved provenance")
+            if current_buffers is not None:
+                ensure_overlay_current(response, current_buffers())
+        return response
 
     def status(self):
         return self._request("/status")

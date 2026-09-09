@@ -50,7 +50,7 @@ Standalone search uses `--repo /path/to/repo --source-root src` instead of `--se
 
 ## Endpoints
 
-Paths are exact; extra query strings or trailing slashes are unsupported. Native clients send one `Host` header identifying the server and port. POST requests require one valid `Content-Length` and `Content-Type: application/json`, containing a UTF-8 JSON object. Request bodies are limited to 65,536 bytes; duplicate JSON keys, nonfinite numbers, and transfer encoding are rejected. Responses are JSON, have `Cache-Control: no-store`, and close the connection; the response limit is 1 MiB.
+Paths are exact; extra query strings or trailing slashes are unsupported. Native clients send one `Host` header identifying the server and port. POST requests require one valid `Content-Length` and `Content-Type: application/json`, containing a UTF-8 JSON object. Saved-source, index, and cancel request bodies are limited to 65,536 bytes. A nonempty overlay search can use at most 2 MiB of encoded JSON, with separate bounded text/entry limits in [request-only overlays](unsaved-overlays.md). Duplicate JSON keys, nonfinite numbers, and transfer encoding are rejected. Responses are JSON, have `Cache-Control: no-store`, and close the connection; the response limit is 1 MiB.
 
 | Endpoint | Request | Successful response |
 |---|---|---|
@@ -75,7 +75,7 @@ Example search body with the HTTP defaults; `request_id` is optional:
 }
 ```
 
-Only `query` is required. It must be nonblank valid Unicode text of at most 8,192 characters. `retrieval` accepts `dense`, `bm25`, or `hybrid`; `rerank` must be a boolean. Integer bounds are `candidates` 1–50, `max_results` 1–20, and `source_budget` 0–100,000. The CLI requires a positive source budget. Unknown options return HTTP 400.
+Only `query` is required. It must be nonblank valid Unicode text of at most 8,192 characters. `retrieval` accepts `dense`, `bm25`, or `hybrid`; `rerank` must be a boolean. Integer bounds are `candidates` 1–50, `max_results` 1–20, and `source_budget` 0–100,000. The CLI requires a positive source budget. Optional `overlays` explicitly overrides eligible saved tracked files for one request with full editor text, version, and UTF-8 content hash; see [request-only overlays](unsaved-overlays.md) for bounds, provenance, cache isolation, and client freshness checks. Unknown options return HTTP 400.
 
 `token_budget`, when supplied instead of `null`, must be an integer from 512–32,000. `include_dependencies` must be a boolean. A non-null `request_id` must contain 1–64 ASCII letters, digits, underscores, or hyphens and cannot already belong to an active request. Assign it before sending a search to make that request cancellable through `/cancel`. The MCP adapter assigns IDs itself. HTTP/CLI defaults are five results with dependencies disabled and no token cap; MCP defaults are eight results, dependencies enabled, and a 4,096-token compact text cap.
 
@@ -130,7 +130,7 @@ The polling watcher refreshes after saved bytes/membership/ref changes remain st
 
 One backend lock serializes model work, refreshes, searches, and status. Cancellation signalling uses a separate registry, so `/cancel` can stop queued requests and signal an active search. Checks occur while waiting for the lock, between embedding batches/retrieval/H2O scores, immediately before snapshot promotion, and before result delivery. A single Metal forward already running cannot be interrupted. A cancellation caught before promotion leaves the previous SQLite snapshot intact; the HTTP acknowledgement is not a guarantee that work had not already completed.
 
-Ctrl-C signals active requests, stops and joins the watcher outside the model lock, releases the embedding model, and closes the index while preserving its cache. The separate H2O process remains running until stopped in its own terminal. MCP and optional saved JS/TS indexing are implemented; unsaved editor buffers and the VS Code extension remain pending. JS/TS extraction and persistence are CPU-tested; language-specific real-model quality and latency evaluation remain pending.
+Ctrl-C signals active requests, stops and joins the watcher outside the model lock, releases the embedding model, and closes the index while preserving its cache. The separate H2O process remains running until stopped in its own terminal. MCP, optional saved JS/TS indexing, and explicit backend/HTTP editor text overlays are implemented. The ordinary CLI/MCP workflow remains saved-source only; overlay editor integration and the VS Code extension remain separate work. JS/TS extraction and persistence are CPU-tested; language-specific real-model quality and latency evaluation remain pending.
 
 ## Persistence and scale verification
 
