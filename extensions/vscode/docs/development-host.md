@@ -1,12 +1,12 @@
 # Extension Development Host acceptance recipe
 
-**Saved mixed-language smoke passed on October 13, 2026.** The actual VS Code
+**Saved, dirty-buffer and saved-edit mixed-language workflows passed on October 13, 2026.** The actual VS Code
 host used the resident Qwen backend and verified command/view wiring, exact
 Python/JS/TS previews and navigation, refresh and cancellation. The
 [receipts and limitations](../../../results/editor-workflows-2026-10-13/findings.md)
 retain both the initial socket-path failure and successful second attempt.
-CPU mocks remain separate from this actual-host proof; broader acceptance cases
-below are still pending.
+CPU mocks remain separate from actual-host proof. Restricted Mode, multi-root
+and disconnected-service acceptance below remain pending.
 
 ## Reproduce the automated host smoke
 
@@ -83,7 +83,14 @@ backend model metadata, command checks, HTTP receipts and before/after source
 hashes. User/worktree paths are replaced with explicit placeholders; HTTP hashes
 refer to original bytes, and a separate hash covers redacted JSON. Require both
 the host assertions and nonempty independent source/cancellation checks to pass.
-The first actual-host result is recorded in the linked artifact above.
+The actual-host phases and independent audits are recorded in the linked artifacts above.
+
+For a mixed fixture, add `--overlays` to exercise explicit dirty-buffer searches.
+Add `--saved-edits` for controlled saved edits, watcher-before-query, Git rename,
+deletion and invalid-source checks. The latter requires a clean authored fixture
+and restores its original bytes and Git status in a `finally` block. Run these
+only on the deliberately prepared fixture. Each phase records its own runtime
+source hashes and proof; observer timings are not performance measurements.
 
 ## Programmatic commands
 
@@ -173,8 +180,9 @@ responses, proxy bypass, Unicode/CRLF/encoding, traversal/symlink boundaries, di
 buffers and late responses with CPU mocks. They are not a real-model evaluation.
 
 Once these cases pass, package/install the VSIX locally and repeat one fresh
-service search. Explicit owned process startup/shutdown, unsaved overlays, TS/JS
-retrieval-quality measurement, remote workspaces and Marketplace publication are later milestones.
+service search. Remote workspaces and Marketplace publication are later milestones. Unsaved overlays
+and the separate frozen TS/JS retrieval-quality measurements are implemented;
+their known misses are retained in the results.
 
 This editor draft supports the nine explicit Python/JS/TS suffixes. JS/TS source
 uses strict UTF-8 with BOM retained; Python keeps its cookie/BOM decoding rules.
