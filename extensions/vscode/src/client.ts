@@ -2,6 +2,7 @@ import * as http from 'node:http';
 import { TextDecoder } from 'node:util';
 import { bool, integer, object, parseSearch, parseStatus, parseStrictJson, SearchOptions, SearchResponse, Status,
   string, validateOptions, validateQuery, ValidationError } from './schema';
+import { BufferOverride, MAX_OVERLAY_BODY_BYTES, validateOverrides } from './overlays';
 
 export const MAX_RESPONSE_BYTES = 1024 * 1024;
 export class ServiceError extends Error {
@@ -10,7 +11,7 @@ export class ServiceError extends Error {
 export interface SearchApi {
   status(signal?: AbortSignal): Promise<Status>;
   refresh(signal?: AbortSignal): Promise<number>;
-  search(query: string, options: SearchOptions, requestId: string, signal?: AbortSignal): Promise<SearchResponse>;
+  search(query: string, options: SearchOptions, requestId: string, signal?: AbortSignal, overlays?: readonly BufferOverride[]): Promise<SearchResponse>;
   cancel(requestId: string): Promise<boolean>;
 }
 export function localAddress(url: string): { hostname: string; port: number; base: string } {
@@ -24,9 +25,9 @@ export class ServiceClient implements SearchApi {
   private readonly address;
   constructor(url: string, private readonly timeoutMs = 180000) { this.address = localAddress(url); }
 
-  private async request(endpoint: string, payload?: unknown, signal?: AbortSignal, timeout = this.timeoutMs): Promise<unknown> {
+  private async request(endpoint: string, payload?: unknown, signal?: AbortSignal, timeout = this.timeoutMs, cap = 65536): Promise<unknown> {
     const body = payload === undefined ? undefined : Buffer.from(JSON.stringify(payload), 'utf8');
-    if (body && body.length > 65536) { throw new ValidationError('Search request exceeds service size limit'); }
+    if (body && body.length > cap) { throw new ValidationError('Encoded JSON search request exceeds service size limit'); }
     if (signal?.aborted) { throw new ServiceError('Request cancelled', 'request_cancelled'); }
     return new Promise((resolve, reject) => {
       // A private agent uses no environment proxy, including NODE_USE_ENV_PROXY.
@@ -82,10 +83,12 @@ export class ServiceClient implements SearchApi {
     const result = object(await this.request('/index', {}, signal));
     return integer(object(result.indexstats).total_windows, 0);
   }
-  async search(query: string, options: SearchOptions, requestId: string, signal?: AbortSignal): Promise<SearchResponse> {
+  async search(query: string, options: SearchOptions, requestId: string, signal?: AbortSignal, overlays: readonly BufferOverride[] = []): Promise<SearchResponse> {
     validateQuery(query); validateOptions(options);
     if (!/^[A-Za-z0-9_-]{1,64}$/.test(requestId)) { throw new ValidationError('Invalid request ID'); }
-    return parseSearch(await this.request('/search', { query, ...options, request_id: requestId }, signal), query, options);
+    validateOverrides(overlays);
+    const payload = { query, ...options, request_id: requestId, ...(overlays.length ? { overlays } : {}) };
+    return parseSearch(await this.request('/search', payload, signal, this.timeoutMs, overlays.length ? MAX_OVERLAY_BODY_BYTES : 65536), query, options, overlays);
   }
   async cancel(requestId: string): Promise<boolean> {
     if (!/^[A-Za-z0-9_-]{1,64}$/.test(requestId)) { throw new ValidationError('Invalid request ID'); }

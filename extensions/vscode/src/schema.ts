@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import { supportedSourcePath } from './source';
+import type { BufferOverride, BufferBinding } from './overlays';
 
 export class ValidationError extends Error {}
 export type Retrieval = 'dense' | 'bm25' | 'hybrid';
@@ -16,11 +17,13 @@ export interface Result {
   window_end_line: number; source: string; content_hash: string; source_hash: string;
   retrieval_score: number | null; h2o_score: number | null; truncated: boolean;
   origin: 'retrieval' | 'dependency'; related_to: string | null;
+  source_origin?: 'saved' | 'overlay'; buffer_version?: number; buffer_hash?: string;
 }
 export interface Status {
   repo: string; source_root: string; closed: boolean; ready: boolean; windows: number;
   last_error: string | null; source_manifest: string | null;
   watcher: { running: boolean; pending: boolean; last_error: string | null } | null;
+  source_exclusions?: string[];
 }
 export interface SearchResponse {
   repo: string; source_root: string; query: string; retrieval: Retrieval; rerank: boolean;
@@ -28,6 +31,7 @@ export interface SearchResponse {
   source_budget: number; total_source_chars: number; budget_exhausted: boolean;
   token_usage: { encoding: 'cl100k_base'; tokens: number; budget: number; truncated: boolean };
   indexstats: { total_windows: number; source_manifest: string };
+  scope?: { source_state: 'overlay'; saved_source_manifest: string; overlays: BufferBinding[] };
 }
 
 export function unicode(value: string): boolean {
@@ -96,7 +100,11 @@ export function parseStatus(value: unknown): Status {
     const w = object(row.watcher);
     watcher = { running: bool(w.running), pending: bool(w.pending), last_error: nullableText(w.last_error) };
   }
-  return { repo: string(row.repo, 4096), source_root: relativePath(row.source_root, true),
+  if (row.source_exclusions !== undefined && (!Array.isArray(row.source_exclusions) || row.source_exclusions.length > 1024)) {
+    throw new ValidationError('Invalid source exclusions');
+  }
+  return { ...(row.source_exclusions === undefined ? {} : { source_exclusions: (row.source_exclusions as unknown[]).map(value => string(value, 4096)) }),
+    repo: string(row.repo, 4096), source_root: relativePath(row.source_root, true),
     closed: bool(row.closed), ready: bool(row.ready), windows: integer(row.windows, 0),
     last_error: nullableText(row.last_error), source_manifest: row.source_manifest === null ? null : sha(row.source_manifest), watcher };
 }
@@ -108,6 +116,12 @@ export function parseResult(value: unknown): Result {
     retrieval_score: score(row.retrieval_score), h2o_score: score(row.h2o_score), truncated: bool(row.truncated),
     origin: row.origin === 'retrieval' ? 'retrieval' : row.origin === 'dependency' ? 'dependency' : (() => { throw new ValidationError('Invalid context origin'); })(),
     related_to: nullableText(row.related_to) };
+  if (row.source_origin !== undefined) {
+    if (row.source_origin !== 'saved' && row.source_origin !== 'overlay') { throw new ValidationError('Invalid source origin'); }
+    result.source_origin = row.source_origin;
+  }
+  if (row.buffer_version !== undefined) { result.buffer_version = integer(row.buffer_version, 0); }
+  if (row.buffer_hash !== undefined) { result.buffer_hash = sha(row.buffer_hash); }
   if (!supportedSourcePath(result.path) || !result.id || !result.symbol || !result.source
       || result.end_line < result.start_line || result.window_end_line < result.end_line
       || result.end_line !== result.start_line + physicalLines(result.source).length - 1
@@ -117,7 +131,32 @@ export function parseResult(value: unknown): Result {
   }
   return result;
 }
-export function parseSearch(value: unknown, query: string, options: SearchOptions): SearchResponse {
+export function validateResponseBindings(response: SearchResponse, overrides: readonly BufferOverride[] = []): void {
+  if (!overrides.length) {
+    if (response.scope || response.results.some(result => result.source_origin === 'overlay' || result.buffer_version !== undefined || result.buffer_hash !== undefined)) {
+      throw new ValidationError('Unexpected overlay response to a saved search');
+    }
+    return;
+  }
+  const expected = new Map(overrides.map(item => [item.path, item]));
+  if (!response.scope || response.scope.overlays.length !== expected.size) { throw new ValidationError('Service omitted dirty buffer bindings'); }
+  const seen = new Set<string>();
+  for (const item of response.scope.overlays) {
+    const sent = expected.get(item.path);
+    if (!sent || seen.has(item.path) || sent.version !== item.version || sent.content_hash !== item.content_hash) {
+      throw new ValidationError('Service returned a different dirty buffer version or hash');
+    }
+    seen.add(item.path);
+  }
+  for (const result of response.results) {
+    const sent = expected.get(result.path);
+    if (sent ? result.source_origin !== 'overlay' || result.buffer_version !== sent.version || result.buffer_hash !== sent.content_hash
+      : result.source_origin !== 'saved' || result.buffer_version !== undefined || result.buffer_hash !== undefined) {
+      throw new ValidationError('Service result origin differs from requested buffer scope');
+    }
+  }
+}
+export function parseSearch(value: unknown, query: string, options: SearchOptions, overrides: readonly BufferOverride[] = []): SearchResponse {
   const row = object(value);
   if (!Array.isArray(row.results) || row.results.length > options.max_results) { throw new ValidationError('Invalid result count'); }
   const results = row.results.map(parseResult);
@@ -129,11 +168,20 @@ export function parseSearch(value: unknown, query: string, options: SearchOption
   }
   const total = integer(row.total_source_chars, 0, options.source_budget);
   if (total !== results.reduce((sum, result) => sum + [...result.source].length, 0)) { throw new ValidationError('Invalid source budget accounting'); }
-  return { repo: string(row.repo, 4096), source_root: relativePath(row.source_root, true), query,
+  let scope: SearchResponse['scope'];
+  if (row.scope !== undefined && object(row.scope).source_state === 'overlay') {
+    const source = object(row.scope);
+    if (!Array.isArray(source.overlays) || source.overlays.length > 16) { throw new ValidationError('Invalid dirty buffer bindings'); }
+    scope = { source_state: 'overlay', saved_source_manifest: sha(source.saved_source_manifest), overlays: source.overlays.map(value => {
+      const buffer = object(value); return { path: relativePath(buffer.path), version: integer(buffer.version, 0), content_hash: sha(buffer.content_hash) };
+    }) };
+  }
+  const response: SearchResponse = { ...(scope ? { scope } : {}), repo: string(row.repo, 4096), source_root: relativePath(row.source_root, true), query,
     retrieval: options.retrieval, rerank: options.rerank, results, match_status: row.match_status as SearchResponse['match_status'],
     source_budget: options.source_budget, total_source_chars: total, budget_exhausted: bool(row.budget_exhausted),
     token_usage: { encoding: 'cl100k_base', tokens: integer(token.tokens, 0, options.token_budget), budget: options.token_budget, truncated: bool(token.truncated) },
     indexstats: { total_windows: integer(index.total_windows, 0), source_manifest: sha(index.source_manifest) } };
+  validateResponseBindings(response, overrides); return response;
 }
 
 /** Reject duplicate keys, nonfinite numbers, invalid Unicode and excessive depth. */
