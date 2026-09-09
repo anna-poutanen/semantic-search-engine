@@ -1,0 +1,752 @@
+{
+  "checks": {
+    "client_delivery_callback_rejects_changed_buffer": true,
+    "later_saved_search_uses_saved_source": true,
+    "literal_unicode_cookie_bom_crlf_and_saved_context": true,
+    "parent_status_unchanged": true,
+    "provenance_in_small_token_and_source_caps": true,
+    "real_qwen_three_language_overlays": true,
+    "saved_database_sidecars_bytes_mtime_membership_unchanged": true,
+    "saved_restart_reuses_all_vectors_without_inference": true,
+    "saved_sources_unchanged": true,
+    "unreturned_buffer_change_invalidates_response": true
+  },
+  "classification": "Real Qwen and HTTP authored-buffer integration, not retrieval quality or performance",
+  "embedding": {
+    "add_special_tokens": true,
+    "batch_order": "stable ascending token length; restore input order",
+    "batch_size": 4,
+    "checkpoint_validation": "pinned Hub download provenance; original unquantized config",
+    "dimensions": 1024,
+    "document_prompt": null,
+    "id": "Qwen/Qwen3-Embedding-0.6B",
+    "max_tokens": 8192,
+    "normalization": "L2, float32",
+    "packages": {
+      "mlx": "0.32.3",
+      "mlx-embeddings": "0.1.0",
+      "mlx-metal": "0.32.3",
+      "numpy": "2.5.4",
+      "transformers": "5.19.0"
+    },
+    "padding_side": "right",
+    "pooling": "last non-padding token",
+    "quantized": false,
+    "query_instruction": "Given a description of code behavior, retrieve the code implementation that performs it.",
+    "query_prompt": "Instruct: Given a description of code behavior, retrieve the code implementation that performs it.\nQuery:",
+    "revision": "97b0c614be4d77ee51c0cef4e5f07c00f9eb65b3",
+    "runtime": "mlx-embeddings",
+    "runtime_version": "0.1.0",
+    "truncation": "right",
+    "weights_dtype": "bfloat16"
+  },
+  "embedding_after_overlay_requests": {
+    "completed_document_calls": 6,
+    "completed_query_calls": 6,
+    "document_texts": 19
+  },
+  "embedding_after_saved_warm": {
+    "completed_document_calls": 1,
+    "completed_query_calls": 1,
+    "document_texts": 4
+  },
+  "finished_utc": "2026-10-13T09:52:57.902788+00:00",
+  "implementation_sha256": {
+    "scripts/verify_live_overlays.py": "01b859026352e340e5b35869068043ad97ae69c79a8d60becac8df9af702e7c0",
+    "src/semantic_search/__init__.py": "f914fe9eba74600e07dbd60c41d5278062001a4b1d08bde7efe8931f45321a59",
+    "src/semantic_search/backend.py": "6d90e948f31f89929bb93c99dffa84446d3a0d621f6eeaf95078706173c30d9b",
+    "src/semantic_search/cancellation.py": "98421411d994a4e770183273f87f2587fc4673d0501a15361effff3863ead8b2",
+    "src/semantic_search/cli.py": "c77a8478863a7df5818e3c3109034d236222601fbbde4b3648897179e9e3e2fa",
+    "src/semantic_search/client.py": "d0a08964732571b501d90a9ad919890476dc700491c0da8b05ce54a1669d8339",
+    "src/semantic_search/context.py": "fb9ce00075272d0e0ca9064d5c79e8ca45abc94c60b95c2cabf1c3b98ee2cb85",
+    "src/semantic_search/corpus.py": "feae67386ad0b6551c3391d4d1e5dd49656e9a90c6c313d640ea5399eb8a8d6a",
+    "src/semantic_search/embeddings.py": "29b0059ba5061d84254bc077d0c8e5ce112e679f61b122a95337a44435094c9f",
+    "src/semantic_search/experiment.py": "bc071bb658009c2e4d56cb66f171b4169c7345a09c1fa3afad3c3241809a98d1",
+    "src/semantic_search/index.py": "ec5702ae408a6cce30f0e36bd21412dc97c5a61314a6814b81a31287c03f08b5",
+    "src/semantic_search/javascript.py": "ebf4a40819f7e79bab25e2cc5787c70e9fb6aff2ba7331ec244029258d8d3360",
+    "src/semantic_search/javascript_relations.py": "7e35c117c659b513144f3d54770286a7737e7b1e2ede24f8397807cda5330645",
+    "src/semantic_search/languages.py": "aab5dfe8247ed1f30662cf6f0f442289d9459ebb30d099e259475a1911c88399",
+    "src/semantic_search/matching.py": "44bc74f06e729c96234e6b2f2ec5740e16b523ab3fe3a72e403b112780b4c976",
+    "src/semantic_search/mcp_server.py": "aa5d8165b2919a4bdaff86d6e68cd8eda90aba8c9c8dec5e3140f63c71c6dd77",
+    "src/semantic_search/model.py": "3b07f4539f025b6e305392dafc70f32a8c37290926dd29071fffa16332c66208",
+    "src/semantic_search/overlays.py": "848f5cb669e7ab1409f8389e3c60443c507713d6107368919f92012874b30378",
+    "src/semantic_search/persistent_retrieval.py": "4597d1b0de5f977e4fab966500f063ae923b66dde1809a9c88cf1723ae44e6e2",
+    "src/semantic_search/quality.py": "034a60cec77427b5f57104b75eddb872d3c290519ebdc07f2344071062f8da4e",
+    "src/semantic_search/relations.py": "6cb5c247382de356c1a3080ee0ca8f7130f63640eb86483dda55c081a6ae1636",
+    "src/semantic_search/retrieval.py": "21bb25d259916ce1d0aa876b2d0cd355fa907a60c019b99de0ccfd90c6a9ab88",
+    "src/semantic_search/server.py": "f0e40018465bedb6eacdc800d94e07a5067c74c19251bf806cdd5ce8f9fc568f",
+    "src/semantic_search/service_experiment.py": "f6f8fbb7ff526822d817c9c0b98c0aba79ef2d226f3af5924d4e6fa91771dd87",
+    "src/semantic_search/shortlist.py": "a0e606310da7f1b780996bc73ed6a30b4c65871084a7397009cfe9189d16e4a9",
+    "src/semantic_search/source.py": "eb8dc397d95bb82bee8941dc3ff62ad3af911439f63d014af2e4b5a5f06036d4",
+    "src/semantic_search/store.py": "89cb5508cc7116314405ad36b288136186c12a86e97e856c70822dad708129e5",
+    "src/semantic_search/watcher.py": "f46e82641f519d56a53f7b919b898ce9d438a5e9de1990133740c8c3634cdad6",
+    "src/semantic_search/workflows.py": "18254a136db45978fe2018d9b97f6a8c7f89dc81166df94694d55da1fe8e89b8"
+  },
+  "limits": [
+    "Four-function fixture does not establish general relevance or coding correctness.",
+    "Counts observe completed embed_documents/embed_query calls, not individual Metal forwards.",
+    "Request-only overlays re-embed changed text on later requests; no session cache.",
+    "No cross-process SQLite lock or interruption of an active Metal forward is established."
+  ],
+  "passed": true,
+  "persistent_reopen": {
+    "embedding_calls": {
+      "completed_document_calls": 0,
+      "completed_query_calls": 0,
+      "document_texts": 0
+    },
+    "indexstats": {
+      "deleted_windows": 0,
+      "elapsed_s": 0.09753941697999835,
+      "indexed_windows": 0,
+      "memory_cache_hit": false,
+      "model_fingerprint": "2605d7e4c477b8b8dc107f31b02c7fc4e7fc419945e8727c7a5c14a02fe70c45",
+      "reused_windows": 4,
+      "source_files": 4,
+      "source_manifest": "55d97c2351e995256a81039e4a5c977c2353d1b85b73bc8ed06c895941da7ee6",
+      "total_windows": 4
+    }
+  },
+  "responses": [
+    {
+      "available_symbols": 4,
+      "budget_exhausted": false,
+      "candidate_windows": 4,
+      "indexstats": {
+        "deleted_windows": 3,
+        "elapsed_s": 0.20047958299983293,
+        "indexed_windows": 3,
+        "memory_cache_hit": false,
+        "model_fingerprint": "2605d7e4c477b8b8dc107f31b02c7fc4e7fc419945e8727c7a5c14a02fe70c45",
+        "reused_windows": 1,
+        "source_files": 4,
+        "source_manifest": "3e34cff373aba66ea3c256e3775b79c5aac432f42d4b69a7409ef0ba21e571d5",
+        "total_windows": 4
+      },
+      "match_evidence": {
+        "meaning": "Candidate relevance is not proof that a behavior exists or is absent.",
+        "threshold": null,
+        "top_cosine": 0.6207512617111206
+      },
+      "match_status": "candidates",
+      "query": "Return the café test-tube literal and shared label",
+      "repo": "<fixture>",
+      "rerank": false,
+      "results": [
+        {
+          "content_hash": "7ceafe1abadd4ab0c749d826aa5fc7d5660b08f57fc140eced6e887a01c8393c",
+          "end_line": 2,
+          "h2o_score": null,
+          "id": "src/helper.py:label:1-2",
+          "origin": "retrieval",
+          "path": "src/helper.py",
+          "related_to": null,
+          "retrieval_score": 0.6207512617111206,
+          "source": "def label():\n    return 'shared'\n",
+          "source_hash": "7ceafe1abadd4ab0c749d826aa5fc7d5660b08f57fc140eced6e887a01c8393c",
+          "source_origin": "saved",
+          "start_line": 1,
+          "symbol": "label",
+          "truncated": false,
+          "window_end_line": 2
+        },
+        {
+          "buffer_hash": "5781d66124976f700d5e87c3d10abd6081f014728d2c29437bcb0f4ef1dc4300",
+          "buffer_version": 7,
+          "content_hash": "98da60ccc04aabf8b742a63b4095c8c18c2c8c27d707b53f91cf7fce661a7a67",
+          "end_line": 5,
+          "h2o_score": null,
+          "id": "src/value.py:overlay_value:4-5",
+          "origin": "retrieval",
+          "path": "src/value.py",
+          "related_to": null,
+          "retrieval_score": 0.5552831590175629,
+          "source": "def overlay_value():\n    return 'café🧪 ' + label()\n",
+          "source_hash": "98da60ccc04aabf8b742a63b4095c8c18c2c8c27d707b53f91cf7fce661a7a67",
+          "source_origin": "overlay",
+          "start_line": 4,
+          "symbol": "overlay_value",
+          "truncated": false,
+          "window_end_line": 5
+        },
+        {
+          "buffer_hash": "336e964bcadabcaa0e8fb2e67246ec754a9b2108ab6202ce51b2ae8b66d32d36",
+          "buffer_version": 8,
+          "content_hash": "336e964bcadabcaa0e8fb2e67246ec754a9b2108ab6202ce51b2ae8b66d32d36",
+          "end_line": 3,
+          "h2o_score": null,
+          "id": "src/math.js:overlayJavascript:1-3",
+          "origin": "retrieval",
+          "path": "src/math.js",
+          "related_to": null,
+          "retrieval_score": 0.3281375765800476,
+          "source": "﻿export function overlayJavascript(value) {\r\n  return value - 3;\r\n}\r\n",
+          "source_hash": "336e964bcadabcaa0e8fb2e67246ec754a9b2108ab6202ce51b2ae8b66d32d36",
+          "source_origin": "overlay",
+          "start_line": 1,
+          "symbol": "overlayJavascript",
+          "truncated": false,
+          "window_end_line": 3
+        },
+        {
+          "buffer_hash": "26b6a55fc26c13ab12feb4491a14638a6ead5e5152492f487e71d5a14ce1fd1e",
+          "buffer_version": 9,
+          "content_hash": "26b6a55fc26c13ab12feb4491a14638a6ead5e5152492f487e71d5a14ce1fd1e",
+          "end_line": 3,
+          "h2o_score": null,
+          "id": "src/math.ts:overlayTypeScript:1-3",
+          "origin": "retrieval",
+          "path": "src/math.ts",
+          "related_to": null,
+          "retrieval_score": 0.2845526933670044,
+          "source": "export function overlayTypeScript(value: number): number {\n  return value / 2;\n}\n",
+          "source_hash": "26b6a55fc26c13ab12feb4491a14638a6ead5e5152492f487e71d5a14ce1fd1e",
+          "source_origin": "overlay",
+          "start_line": 1,
+          "symbol": "overlayTypeScript",
+          "truncated": false,
+          "window_end_line": 3
+        }
+      ],
+      "retrieval": "dense",
+      "scope": {
+        "exclusions_omitted": 0,
+        "membership": "tracked implementations with request-only editor text overrides",
+        "overlays": [
+          {
+            "content_hash": "336e964bcadabcaa0e8fb2e67246ec754a9b2108ab6202ce51b2ae8b66d32d36",
+            "path": "src/math.js",
+            "version": 8
+          },
+          {
+            "content_hash": "26b6a55fc26c13ab12feb4491a14638a6ead5e5152492f487e71d5a14ce1fd1e",
+            "path": "src/math.ts",
+            "version": 9
+          },
+          {
+            "content_hash": "5781d66124976f700d5e87c3d10abd6081f014728d2c29437bcb0f4ef1dc4300",
+            "path": "src/value.py",
+            "version": 7
+          }
+        ],
+        "saved_source_manifest": "55d97c2351e995256a81039e4a5c977c2353d1b85b73bc8ed06c895941da7ee6",
+        "source_exclusions": [],
+        "source_root": "src",
+        "source_state": "overlay"
+      },
+      "source_budget": 12000,
+      "source_root": "src",
+      "timings": {
+        "h2o_s": 0.0,
+        "index_s": 0.20047958299983293,
+        "packaging_s": 0.0418661670119036,
+        "query_embedding_s": 0.031122334010433406,
+        "retrieval_s": 0.0011912909976672381,
+        "total_s": 0.2749504999956116
+      },
+      "token_usage": {
+        "budget": 4096,
+        "encoding": "cl100k_base",
+        "tokens": 850,
+        "truncated": false
+      },
+      "total_source_chars": 234
+    },
+    {
+      "available_symbols": 4,
+      "budget_exhausted": false,
+      "candidate_windows": 4,
+      "indexstats": {
+        "deleted_windows": 3,
+        "elapsed_s": 0.1825070409977343,
+        "indexed_windows": 3,
+        "memory_cache_hit": false,
+        "model_fingerprint": "2605d7e4c477b8b8dc107f31b02c7fc4e7fc419945e8727c7a5c14a02fe70c45",
+        "reused_windows": 1,
+        "source_files": 4,
+        "source_manifest": "3e34cff373aba66ea3c256e3775b79c5aac432f42d4b69a7409ef0ba21e571d5",
+        "total_windows": 4
+      },
+      "match_evidence": {
+        "meaning": "Candidate relevance is not proof that a behavior exists or is absent.",
+        "threshold": null,
+        "top_cosine": 0.4928792119026184
+      },
+      "match_status": "candidates",
+      "query": "Subtract three from the input",
+      "repo": "<fixture>",
+      "rerank": false,
+      "results": [
+        {
+          "buffer_hash": "336e964bcadabcaa0e8fb2e67246ec754a9b2108ab6202ce51b2ae8b66d32d36",
+          "buffer_version": 8,
+          "content_hash": "336e964bcadabcaa0e8fb2e67246ec754a9b2108ab6202ce51b2ae8b66d32d36",
+          "end_line": 3,
+          "h2o_score": null,
+          "id": "src/math.js:overlayJavascript:1-3",
+          "origin": "retrieval",
+          "path": "src/math.js",
+          "related_to": null,
+          "retrieval_score": 0.4928792119026184,
+          "source": "﻿export function overlayJavascript(value) {\r\n  return value - 3;\r\n}\r\n",
+          "source_hash": "336e964bcadabcaa0e8fb2e67246ec754a9b2108ab6202ce51b2ae8b66d32d36",
+          "source_origin": "overlay",
+          "start_line": 1,
+          "symbol": "overlayJavascript",
+          "truncated": false,
+          "window_end_line": 3
+        },
+        {
+          "buffer_hash": "26b6a55fc26c13ab12feb4491a14638a6ead5e5152492f487e71d5a14ce1fd1e",
+          "buffer_version": 9,
+          "content_hash": "26b6a55fc26c13ab12feb4491a14638a6ead5e5152492f487e71d5a14ce1fd1e",
+          "end_line": 3,
+          "h2o_score": null,
+          "id": "src/math.ts:overlayTypeScript:1-3",
+          "origin": "retrieval",
+          "path": "src/math.ts",
+          "related_to": null,
+          "retrieval_score": 0.3142750859260559,
+          "source": "export function overlayTypeScript(value: number): number {\n  return value / 2;\n}\n",
+          "source_hash": "26b6a55fc26c13ab12feb4491a14638a6ead5e5152492f487e71d5a14ce1fd1e",
+          "source_origin": "overlay",
+          "start_line": 1,
+          "symbol": "overlayTypeScript",
+          "truncated": false,
+          "window_end_line": 3
+        },
+        {
+          "content_hash": "7ceafe1abadd4ab0c749d826aa5fc7d5660b08f57fc140eced6e887a01c8393c",
+          "end_line": 2,
+          "h2o_score": null,
+          "id": "src/helper.py:label:1-2",
+          "origin": "retrieval",
+          "path": "src/helper.py",
+          "related_to": null,
+          "retrieval_score": 0.3042038679122925,
+          "source": "def label():\n    return 'shared'\n",
+          "source_hash": "7ceafe1abadd4ab0c749d826aa5fc7d5660b08f57fc140eced6e887a01c8393c",
+          "source_origin": "saved",
+          "start_line": 1,
+          "symbol": "label",
+          "truncated": false,
+          "window_end_line": 2
+        },
+        {
+          "buffer_hash": "5781d66124976f700d5e87c3d10abd6081f014728d2c29437bcb0f4ef1dc4300",
+          "buffer_version": 7,
+          "content_hash": "98da60ccc04aabf8b742a63b4095c8c18c2c8c27d707b53f91cf7fce661a7a67",
+          "end_line": 5,
+          "h2o_score": null,
+          "id": "src/value.py:overlay_value:4-5",
+          "origin": "retrieval",
+          "path": "src/value.py",
+          "related_to": null,
+          "retrieval_score": 0.2903183102607727,
+          "source": "def overlay_value():\n    return 'café🧪 ' + label()\n",
+          "source_hash": "98da60ccc04aabf8b742a63b4095c8c18c2c8c27d707b53f91cf7fce661a7a67",
+          "source_origin": "overlay",
+          "start_line": 4,
+          "symbol": "overlay_value",
+          "truncated": false,
+          "window_end_line": 5
+        }
+      ],
+      "retrieval": "dense",
+      "scope": {
+        "exclusions_omitted": 0,
+        "membership": "tracked implementations with request-only editor text overrides",
+        "overlays": [
+          {
+            "content_hash": "336e964bcadabcaa0e8fb2e67246ec754a9b2108ab6202ce51b2ae8b66d32d36",
+            "path": "src/math.js",
+            "version": 8
+          },
+          {
+            "content_hash": "26b6a55fc26c13ab12feb4491a14638a6ead5e5152492f487e71d5a14ce1fd1e",
+            "path": "src/math.ts",
+            "version": 9
+          },
+          {
+            "content_hash": "5781d66124976f700d5e87c3d10abd6081f014728d2c29437bcb0f4ef1dc4300",
+            "path": "src/value.py",
+            "version": 7
+          }
+        ],
+        "saved_source_manifest": "55d97c2351e995256a81039e4a5c977c2353d1b85b73bc8ed06c895941da7ee6",
+        "source_exclusions": [],
+        "source_root": "src",
+        "source_state": "overlay"
+      },
+      "source_budget": 12000,
+      "source_root": "src",
+      "timings": {
+        "h2o_s": 0.0,
+        "index_s": 0.1825070409977343,
+        "packaging_s": 0.042715666990261525,
+        "query_embedding_s": 0.03625887501402758,
+        "retrieval_s": 0.0012985829962417483,
+        "total_s": 0.2630350830149837
+      },
+      "token_usage": {
+        "budget": 4096,
+        "encoding": "cl100k_base",
+        "tokens": 846,
+        "truncated": false
+      },
+      "total_source_chars": 234
+    },
+    {
+      "available_symbols": 4,
+      "budget_exhausted": false,
+      "candidate_windows": 4,
+      "indexstats": {
+        "deleted_windows": 3,
+        "elapsed_s": 0.18140458298148587,
+        "indexed_windows": 3,
+        "memory_cache_hit": false,
+        "model_fingerprint": "2605d7e4c477b8b8dc107f31b02c7fc4e7fc419945e8727c7a5c14a02fe70c45",
+        "reused_windows": 1,
+        "source_files": 4,
+        "source_manifest": "3e34cff373aba66ea3c256e3775b79c5aac432f42d4b69a7409ef0ba21e571d5",
+        "total_windows": 4
+      },
+      "match_evidence": {
+        "meaning": "Candidate relevance is not proof that a behavior exists or is absent.",
+        "threshold": null,
+        "top_cosine": 0.5677149593830109
+      },
+      "match_status": "candidates",
+      "query": "Divide a typed number by two",
+      "repo": "<fixture>",
+      "rerank": false,
+      "results": [
+        {
+          "buffer_hash": "26b6a55fc26c13ab12feb4491a14638a6ead5e5152492f487e71d5a14ce1fd1e",
+          "buffer_version": 9,
+          "content_hash": "26b6a55fc26c13ab12feb4491a14638a6ead5e5152492f487e71d5a14ce1fd1e",
+          "end_line": 3,
+          "h2o_score": null,
+          "id": "src/math.ts:overlayTypeScript:1-3",
+          "origin": "retrieval",
+          "path": "src/math.ts",
+          "related_to": null,
+          "retrieval_score": 0.5677149593830109,
+          "source": "export function overlayTypeScript(value: number): number {\n  return value / 2;\n}\n",
+          "source_hash": "26b6a55fc26c13ab12feb4491a14638a6ead5e5152492f487e71d5a14ce1fd1e",
+          "source_origin": "overlay",
+          "start_line": 1,
+          "symbol": "overlayTypeScript",
+          "truncated": false,
+          "window_end_line": 3
+        },
+        {
+          "buffer_hash": "336e964bcadabcaa0e8fb2e67246ec754a9b2108ab6202ce51b2ae8b66d32d36",
+          "buffer_version": 8,
+          "content_hash": "336e964bcadabcaa0e8fb2e67246ec754a9b2108ab6202ce51b2ae8b66d32d36",
+          "end_line": 3,
+          "h2o_score": null,
+          "id": "src/math.js:overlayJavascript:1-3",
+          "origin": "retrieval",
+          "path": "src/math.js",
+          "related_to": null,
+          "retrieval_score": 0.40744954347610474,
+          "source": "﻿export function overlayJavascript(value) {\r\n  return value - 3;\r\n}\r\n",
+          "source_hash": "336e964bcadabcaa0e8fb2e67246ec754a9b2108ab6202ce51b2ae8b66d32d36",
+          "source_origin": "overlay",
+          "start_line": 1,
+          "symbol": "overlayJavascript",
+          "truncated": false,
+          "window_end_line": 3
+        },
+        {
+          "content_hash": "7ceafe1abadd4ab0c749d826aa5fc7d5660b08f57fc140eced6e887a01c8393c",
+          "end_line": 2,
+          "h2o_score": null,
+          "id": "src/helper.py:label:1-2",
+          "origin": "retrieval",
+          "path": "src/helper.py",
+          "related_to": null,
+          "retrieval_score": 0.255614697933197,
+          "source": "def label():\n    return 'shared'\n",
+          "source_hash": "7ceafe1abadd4ab0c749d826aa5fc7d5660b08f57fc140eced6e887a01c8393c",
+          "source_origin": "saved",
+          "start_line": 1,
+          "symbol": "label",
+          "truncated": false,
+          "window_end_line": 2
+        },
+        {
+          "buffer_hash": "5781d66124976f700d5e87c3d10abd6081f014728d2c29437bcb0f4ef1dc4300",
+          "buffer_version": 7,
+          "content_hash": "98da60ccc04aabf8b742a63b4095c8c18c2c8c27d707b53f91cf7fce661a7a67",
+          "end_line": 5,
+          "h2o_score": null,
+          "id": "src/value.py:overlay_value:4-5",
+          "origin": "retrieval",
+          "path": "src/value.py",
+          "related_to": null,
+          "retrieval_score": 0.24294614791870117,
+          "source": "def overlay_value():\n    return 'café🧪 ' + label()\n",
+          "source_hash": "98da60ccc04aabf8b742a63b4095c8c18c2c8c27d707b53f91cf7fce661a7a67",
+          "source_origin": "overlay",
+          "start_line": 4,
+          "symbol": "overlay_value",
+          "truncated": false,
+          "window_end_line": 5
+        }
+      ],
+      "retrieval": "dense",
+      "scope": {
+        "exclusions_omitted": 0,
+        "membership": "tracked implementations with request-only editor text overrides",
+        "overlays": [
+          {
+            "content_hash": "336e964bcadabcaa0e8fb2e67246ec754a9b2108ab6202ce51b2ae8b66d32d36",
+            "path": "src/math.js",
+            "version": 8
+          },
+          {
+            "content_hash": "26b6a55fc26c13ab12feb4491a14638a6ead5e5152492f487e71d5a14ce1fd1e",
+            "path": "src/math.ts",
+            "version": 9
+          },
+          {
+            "content_hash": "5781d66124976f700d5e87c3d10abd6081f014728d2c29437bcb0f4ef1dc4300",
+            "path": "src/value.py",
+            "version": 7
+          }
+        ],
+        "saved_source_manifest": "55d97c2351e995256a81039e4a5c977c2353d1b85b73bc8ed06c895941da7ee6",
+        "source_exclusions": [],
+        "source_root": "src",
+        "source_state": "overlay"
+      },
+      "source_budget": 12000,
+      "source_root": "src",
+      "timings": {
+        "h2o_s": 0.0,
+        "index_s": 0.18140458298148587,
+        "packaging_s": 0.04432783302036114,
+        "query_embedding_s": 0.030367208004463464,
+        "retrieval_s": 0.0012678329949267209,
+        "total_s": 0.2576204580254853
+      },
+      "token_usage": {
+        "budget": 4096,
+        "encoding": "cl100k_base",
+        "tokens": 847,
+        "truncated": false
+      },
+      "total_source_chars": 234
+    },
+    {
+      "available_symbols": 3,
+      "budget_exhausted": false,
+      "candidate_windows": 3,
+      "indexstats": {
+        "deleted_windows": 3,
+        "elapsed_s": 0.11734716600039974,
+        "indexed_windows": 3,
+        "memory_cache_hit": false,
+        "model_fingerprint": null,
+        "reused_windows": 1,
+        "source_files": 4,
+        "source_manifest": "3e34cff373aba66ea3c256e3775b79c5aac432f42d4b69a7409ef0ba21e571d5",
+        "total_windows": 4
+      },
+      "match_evidence": {
+        "meaning": "Candidate relevance is not proof that a behavior exists or is absent.",
+        "threshold": null,
+        "top_cosine": null
+      },
+      "match_status": "candidates",
+      "query": "overlayTypeScript",
+      "repo": "<fixture>",
+      "rerank": false,
+      "results": [
+        {
+          "buffer_hash": "26b6a55fc26c13ab12feb4491a14638a6ead5e5152492f487e71d5a14ce1fd1e",
+          "buffer_version": 9,
+          "content_hash": "26b6a55fc26c13ab12feb4491a14638a6ead5e5152492f487e71d5a14ce1fd1e",
+          "end_line": 3,
+          "h2o_score": null,
+          "id": "src/math.ts:overlayTypeScript:1-3",
+          "origin": "retrieval",
+          "path": "src/math.ts",
+          "related_to": null,
+          "retrieval_score": 2.1009491259284774,
+          "source": "export function overlayTypeScript(value: number): number {\n  return value / 2;\n}\n",
+          "source_hash": "26b6a55fc26c13ab12feb4491a14638a6ead5e5152492f487e71d5a14ce1fd1e",
+          "source_origin": "overlay",
+          "start_line": 1,
+          "symbol": "overlayTypeScript",
+          "truncated": false,
+          "window_end_line": 3
+        }
+      ],
+      "retrieval": "bm25",
+      "scope": {
+        "exclusions_omitted": 0,
+        "membership": "tracked implementations with request-only editor text overrides",
+        "overlays": [
+          {
+            "content_hash": "336e964bcadabcaa0e8fb2e67246ec754a9b2108ab6202ce51b2ae8b66d32d36",
+            "path": "src/math.js",
+            "version": 8
+          },
+          {
+            "content_hash": "26b6a55fc26c13ab12feb4491a14638a6ead5e5152492f487e71d5a14ce1fd1e",
+            "path": "src/math.ts",
+            "version": 9
+          },
+          {
+            "content_hash": "5781d66124976f700d5e87c3d10abd6081f014728d2c29437bcb0f4ef1dc4300",
+            "path": "src/value.py",
+            "version": 7
+          }
+        ],
+        "saved_source_manifest": "55d97c2351e995256a81039e4a5c977c2353d1b85b73bc8ed06c895941da7ee6",
+        "source_exclusions": [],
+        "source_root": "src",
+        "source_state": "overlay"
+      },
+      "source_budget": 12000,
+      "source_root": "src",
+      "timings": {
+        "h2o_s": 0.0,
+        "index_s": 0.11734716600039974,
+        "packaging_s": 0.04123466700548306,
+        "query_embedding_s": 0.0,
+        "retrieval_s": 0.000651542010018602,
+        "total_s": 0.15944979098276235
+      },
+      "token_usage": {
+        "budget": 4096,
+        "encoding": "cl100k_base",
+        "tokens": 441,
+        "truncated": false
+      },
+      "total_source_chars": 81
+    },
+    {
+      "available_symbols": 4,
+      "budget_exhausted": true,
+      "candidate_windows": 4,
+      "indexstats": {
+        "deleted_windows": 3,
+        "elapsed_s": 0.17634066598839127,
+        "indexed_windows": 3,
+        "memory_cache_hit": false,
+        "model_fingerprint": "2605d7e4c477b8b8dc107f31b02c7fc4e7fc419945e8727c7a5c14a02fe70c45",
+        "reused_windows": 1,
+        "source_files": 4,
+        "source_manifest": "3e34cff373aba66ea3c256e3775b79c5aac432f42d4b69a7409ef0ba21e571d5",
+        "total_windows": 4
+      },
+      "match_evidence": {
+        "meaning": "Candidate relevance is not proof that a behavior exists or is absent.",
+        "threshold": null,
+        "top_cosine": 0.5677149593830109
+      },
+      "match_status": "candidates",
+      "query": "Divide a typed number by two",
+      "repo": "<fixture>",
+      "rerank": false,
+      "results": [
+        {
+          "buffer_hash": "26b6a55fc26c13ab12feb4491a14638a6ead5e5152492f487e71d5a14ce1fd1e",
+          "buffer_version": 9,
+          "content_hash": "26b6a55fc26c13ab12feb4491a14638a6ead5e5152492f487e71d5a14ce1fd1e",
+          "end_line": 2,
+          "h2o_score": null,
+          "id": "src/math.ts:overlayTypeScript:1-3",
+          "origin": "retrieval",
+          "path": "src/math.ts",
+          "related_to": null,
+          "retrieval_score": 0.5677149593830109,
+          "source": "export function overlayTypeScript(value: number): number {\n  return value / 2;\n",
+          "source_hash": "55af2e0647a52d1ee2037db885b2a3516eb6d6db13af7de5722750f4552d742b",
+          "source_origin": "overlay",
+          "start_line": 1,
+          "symbol": "overlayTypeScript",
+          "truncated": true,
+          "window_end_line": 3
+        }
+      ],
+      "retrieval": "dense",
+      "scope": {
+        "exclusions_omitted": 0,
+        "membership": "tracked implementations with request-only editor text overrides",
+        "overlays": [
+          {
+            "content_hash": "336e964bcadabcaa0e8fb2e67246ec754a9b2108ab6202ce51b2ae8b66d32d36",
+            "path": "src/math.js",
+            "version": 8
+          },
+          {
+            "content_hash": "26b6a55fc26c13ab12feb4491a14638a6ead5e5152492f487e71d5a14ce1fd1e",
+            "path": "src/math.ts",
+            "version": 9
+          },
+          {
+            "content_hash": "5781d66124976f700d5e87c3d10abd6081f014728d2c29437bcb0f4ef1dc4300",
+            "path": "src/value.py",
+            "version": 7
+          }
+        ],
+        "saved_source_manifest": "55d97c2351e995256a81039e4a5c977c2353d1b85b73bc8ed06c895941da7ee6",
+        "source_exclusions": [],
+        "source_root": "src",
+        "source_state": "overlay"
+      },
+      "source_budget": 80,
+      "source_root": "src",
+      "timings": {
+        "h2o_s": 0.0,
+        "index_s": 0.17634066598839127,
+        "packaging_s": 0.042652083007851616,
+        "query_embedding_s": 0.032113583001773804,
+        "retrieval_s": 0.0012651659781113267,
+        "total_s": 0.25263670799904503
+      },
+      "token_usage": {
+        "budget": 512,
+        "encoding": "cl100k_base",
+        "tokens": 442,
+        "truncated": false
+      },
+      "total_source_chars": 79
+    }
+  ],
+  "saved_cache_after": {
+    "saved.sqlite3": {
+      "bytes": 110592,
+      "inode": 45404283,
+      "mtime_ns": 1791885176003394166,
+      "sha256": "398fa53c860a529c4d0d262374f7fd71b318677343403e02ed9560e4b3fbdd34"
+    }
+  },
+  "saved_cache_before": {
+    "saved.sqlite3": {
+      "bytes": 110592,
+      "inode": 45404283,
+      "mtime_ns": 1791885176003394166,
+      "sha256": "398fa53c860a529c4d0d262374f7fd71b318677343403e02ed9560e4b3fbdd34"
+    }
+  },
+  "source_after_sha256": {
+    "src/helper.py": "7ceafe1abadd4ab0c749d826aa5fc7d5660b08f57fc140eced6e887a01c8393c",
+    "src/math.js": "249250084c654698998550ee5ab222591645ba9974088b6b6f4de4a16fbee7f4",
+    "src/math.ts": "2f4c1901dc7de83eb294dcab59422ff5f2c482279940c4912ddb2ed0f3a53bed",
+    "src/value.py": "0a89492acadc6b8d6550063559468d087fbc7c473ab9d5686bda936de77b7dca"
+  },
+  "source_before_sha256": {
+    "src/helper.py": "7ceafe1abadd4ab0c749d826aa5fc7d5660b08f57fc140eced6e887a01c8393c",
+    "src/math.js": "249250084c654698998550ee5ab222591645ba9974088b6b6f4de4a16fbee7f4",
+    "src/math.ts": "2f4c1901dc7de83eb294dcab59422ff5f2c482279940c4912ddb2ed0f3a53bed",
+    "src/value.py": "0a89492acadc6b8d6550063559468d087fbc7c473ab9d5686bda936de77b7dca"
+  },
+  "started_utc": "2026-10-13T09:52:54.268911+00:00",
+  "weights": "Existing pinned checkpoint; no fresh download"
+}

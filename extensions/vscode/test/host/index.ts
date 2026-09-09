@@ -6,6 +6,8 @@ import { ExtensionApi } from '../../src/extension';
 import { hash, physicalLines } from '../../src/schema';
 import { ViewState } from '../../src/controller';
 import { sourceTextFromEditor, sourceTextFromPreview } from '../../src/source';
+import { verifyOverlays } from './overlays';
+import { verifySavedEdits } from './saved-edits';
 
 function required(name: string): string {
   const value = process.env[name]; if (!value) { throw new Error(`Missing test-runner environment: ${name}`); } return value;
@@ -144,6 +146,14 @@ export async function run(): Promise<void> {
       store_windows: connected.status.windows, watcher_running: connected.status.watcher?.running ?? null };
     record.cancellation_note = 'Command/transport and late-result suppression only; a running Metal forward is not proven interrupted.';
     record.editor_bom_note = 'Exact returned JS/TS BOM stays in provider/data; VS Code separates a leading BOM from getText(), so comparisons restore that verified marker without edits.';
+    if (process.env.SEMANTIC_SEARCH_HOST_SAVED_EDITS === '1') {
+      record.saved_edits = await verifySavedEdits(folder.uri.fsPath);
+      checks.actual_saved_edit_workflow = (record.saved_edits as { passed: boolean }).passed;
+    }
+    if (process.env.SEMANTIC_SEARCH_HOST_OVERLAYS === '1') {
+      record.overlays = await verifyOverlays(api, folder.uri.fsPath);
+      checks.actual_dirty_buffer_workflow = (record.overlays as { passed: boolean }).passed;
+    }
     record.passed = true;
   } catch (error) {
     record.error = error instanceof Error ? error.message : String(error);
