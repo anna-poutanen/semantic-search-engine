@@ -5,9 +5,9 @@ service. Enter a behavior, inspect ranked results in the Explorer, preview an
 exact captured excerpt, and open its verified current source range. Dependency
 rows are marked **context reference**; they are not verified query matches.
 
-This draft is prepared separately from the frozen coding study. CPU tests and
-VSIX packaging are distinct from an actual Extension Development Host smoke or
-real-model validation; see [the acceptance recipe](docs/development-host.md).
+The saved mixed-language workflow has passed in an actual VS Code Development
+Host with the resident Qwen backend. CPU tests, VSIX packaging and that fixture
+check are separate evidence; see [receipts and remaining acceptance cases](docs/development-host.md).
 
 ## Connect
 
