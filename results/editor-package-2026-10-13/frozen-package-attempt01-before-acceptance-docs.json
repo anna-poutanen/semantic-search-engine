@@ -1,0 +1,229 @@
+{
+  "classification": "Prospective local preview package integration; not retrieval quality or Marketplace publication",
+  "base_commit": "6282e50173c5ff7374f909d4b9b53a2f8b74cc60",
+  "vsix_name": "semantic-search-local-0.1.0.vsix",
+  "vsix_bytes": 51444,
+  "vsix_sha256": "969729973e9a84862fb6400f536f98545ab4e64c02f82768c7b4d8ba5839a98d",
+  "members_sha256": {
+    "extension.vsixmanifest": "e4e31c88cd8b8067396527b26d83b47ce5c24eb4719eb7e22109bf63b34c2871",
+    "[Content_Types].xml": "6901717042ed99d08a1cec765ab687380a51c3a9d7cc2cfbfc19094bc8cbd6e9",
+    "extension/readme.md": "4816138c2b1aa6b8a4cdc430029e51e2601a4e4bfd2cdcc4d021ffdc2b83112b",
+    "extension/package.json": "53b9a5afcbf04e1c5edfe53d2666f30a7afdb7b459ab8b5fcba8d31301838a2e",
+    "extension/docs/development-host.md": "8f3283ade4273a04d8e91413322f7f43a43adb2f9cf16b75359d71663c478d07",
+    "extension/dist/src/client.js": "b71511daf69a0a3116c3cf32a934beb2518caa249567cff1bf4ff3ac8e805421",
+    "extension/dist/src/client.js.map": "3fd51f7bb130ca5568476ba1ccd0366e9eddae417211e2db1ec446e19f8f42b8",
+    "extension/dist/src/commands.js": "d68d5622906cca4d1cc46221a0b6203c307e3cd7a2d9d6965ddacf2b58c02187",
+    "extension/dist/src/commands.js.map": "f34e252633b028d5eda3c863cf1572de94dae67e423b04108e4d75a578d8389a",
+    "extension/dist/src/controller.js": "126de25683db1860199dfc0cd2538693f3cc22fbc548a8bd902be25273b637ee",
+    "extension/dist/src/controller.js.map": "687f1a47598b4816b0ac37661eb74c3e3b3bce3c804af9ed1e6d685c403ce4e8",
+    "extension/dist/src/evidence.js": "ebfc390f07dbb6cd275178826d6827ce46186f8e0349165b10834b5a431347bc",
+    "extension/dist/src/evidence.js.map": "fb151c2d22ec5d27e29b8a1e5278a9a5cbb086c89da19faa6c7e6d54cb1f3d75",
+    "extension/dist/src/extension.js": "3fa8a75f1e30b2569d53eb23afa6ae00420bbc31ec3a11c4b3bd7d8571008520",
+    "extension/dist/src/extension.js.map": "81319d8549eee58ed11c00728033f6e3c858701b29c4e6047caa44b3b7c9a4ab",
+    "extension/dist/src/overlays.js": "8dd2a80ad97506fffccde6d2527b19dc3029ef736ddc6609d559f115496b475a",
+    "extension/dist/src/overlays.js.map": "c87882889c1ffae05f2219137cfba6fc122b705db0bf9bbc85c2262cb46377af",
+    "extension/dist/src/schema.js": "adb28ba765a1cb36823852bfdbcfe128e840f10e98936b5de2a282bceda9e1a9",
+    "extension/dist/src/schema.js.map": "ee8a7b91ba1a2a2b163245832e2728b35e4970ba3c50ae93e9ff70dea8fbf3ec",
+    "extension/dist/src/source.js": "01411b101806bc8e0fcc557dcb49e6101310c45715b4cab13d8666b827294f5d",
+    "extension/dist/src/source.js.map": "0a820961beefd8dba038f8d3f749e36fa2190d6c9765f4471548dffac4bdfa8c"
+  },
+  "extension_manifest": {
+    "name": "semantic-search-local",
+    "displayName": "Semantic Search (Local)",
+    "description": "Find saved Python, JavaScript and TypeScript implementations through your resident local semantic search service.",
+    "version": "0.1.0",
+    "publisher": "anna-poutanen",
+    "license": "UNLICENSED",
+    "preview": true,
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/anna-poutanen/semantic-search-engine.git",
+      "directory": "extensions/vscode"
+    },
+    "engines": {
+      "vscode": "^1.95.0"
+    },
+    "extensionKind": [
+      "ui"
+    ],
+    "main": "./dist/src/extension.js",
+    "activationEvents": [
+      "onView:semanticSearch.results"
+    ],
+    "capabilities": {
+      "untrustedWorkspaces": {
+        "supported": false,
+        "description": "Local service connections and workspace source verification require a trusted workspace."
+      },
+      "virtualWorkspaces": {
+        "supported": false
+      }
+    },
+    "categories": [
+      "Other"
+    ],
+    "contributes": {
+      "commands": [
+        {
+          "command": "semanticSearch.connect",
+          "title": "Semantic Search: Connect / Check Service",
+          "enablement": "isWorkspaceTrusted"
+        },
+        {
+          "command": "semanticSearch.find",
+          "title": "Semantic Search: Find Implementation",
+          "enablement": "isWorkspaceTrusted"
+        },
+        {
+          "command": "semanticSearch.status",
+          "title": "Semantic Search: Show Service Status",
+          "enablement": "isWorkspaceTrusted"
+        },
+        {
+          "command": "semanticSearch.refresh",
+          "title": "Semantic Search: Refresh Index",
+          "enablement": "isWorkspaceTrusted"
+        },
+        {
+          "command": "semanticSearch.cancel",
+          "title": "Semantic Search: Cancel Search",
+          "enablement": "isWorkspaceTrusted"
+        },
+        {
+          "command": "semanticSearch.preview",
+          "title": "Semantic Search: Preview Captured Source",
+          "enablement": "isWorkspaceTrusted"
+        },
+        {
+          "command": "semanticSearch.open",
+          "title": "Semantic Search: Open Verified Source",
+          "enablement": "isWorkspaceTrusted"
+        }
+      ],
+      "views": {
+        "explorer": [
+          {
+            "id": "semanticSearch.results",
+            "name": "Semantic Search",
+            "when": "isWorkspaceTrusted"
+          }
+        ]
+      },
+      "menus": {
+        "view/title": [
+          {
+            "command": "semanticSearch.find",
+            "when": "view == semanticSearch.results && isWorkspaceTrusted",
+            "group": "navigation@1"
+          },
+          {
+            "command": "semanticSearch.cancel",
+            "when": "view == semanticSearch.results && isWorkspaceTrusted",
+            "group": "navigation@2"
+          }
+        ],
+        "view/item/context": [
+          {
+            "command": "semanticSearch.open",
+            "when": "view == semanticSearch.results && viewItem == semanticSearch.result",
+            "group": "inline@1"
+          }
+        ]
+      },
+      "configuration": {
+        "title": "Semantic Search",
+        "properties": {
+          "semanticSearch.serviceUrl": {
+            "type": "string",
+            "default": "http://127.0.0.1:8750",
+            "scope": "resource",
+            "description": "Explicit loopback HTTP service. It must index the selected workspace repository. No service is started automatically."
+          },
+          "semanticSearch.retrieval": {
+            "type": "string",
+            "enum": [
+              "dense",
+              "bm25",
+              "hybrid"
+            ],
+            "default": "dense",
+            "scope": "resource"
+          },
+          "semanticSearch.rerank": {
+            "type": "boolean",
+            "default": false,
+            "scope": "resource",
+            "description": "Optional H2O reranking requires its separately running local service."
+          },
+          "semanticSearch.candidates": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "default": 4,
+            "scope": "resource"
+          },
+          "semanticSearch.maxResults": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20,
+            "default": 8,
+            "scope": "resource"
+          },
+          "semanticSearch.sourceBudget": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100000,
+            "default": 12000,
+            "scope": "resource",
+            "description": "Maximum returned source characters; separate from the compact text token budget."
+          },
+          "semanticSearch.tokenBudget": {
+            "type": "integer",
+            "minimum": 512,
+            "maximum": 32000,
+            "default": 4096,
+            "scope": "resource",
+            "description": "Backend cl100k compact-context cap; not model billing."
+          },
+          "semanticSearch.includeDependencies": {
+            "type": "boolean",
+            "default": true,
+            "scope": "resource",
+            "description": "Use spare result slots for explicitly marked static context references."
+          }
+        }
+      }
+    },
+    "scripts": {
+      "compile": "tsc -p .",
+      "test": "npm run compile && node --test dist/test/*.test.js",
+      "host:prepare": "node scripts/prepare-host.cjs",
+      "host:fixture": "node scripts/host-fixture.cjs",
+      "host:smoke": "npm run compile && node scripts/smoke-host.cjs",
+      "vscode:prepublish": "npm run compile",
+      "package": "vsce package --no-dependencies --skip-license --baseContentUrl https://github.com/anna-poutanen/semantic-search-engine/blob/main/extensions/vscode --out semantic-search-local-0.1.0.vsix"
+    },
+    "devDependencies": {
+      "@types/node": "22.20.5",
+      "@types/vscode": "1.95.0",
+      "@vscode/test-electron": "3.1.0",
+      "@vscode/vsce": "4.0.0",
+      "typescript": "5.9.3"
+    }
+  },
+  "expected_host": "VS Code 1.141.0/macOS-arm64 isolated Development Host executing the installed package payload",
+  "expected_backend": "Pinned Qwen3-Embedding-0.6B BF16, resident loopback service, H2O disabled",
+  "planned_fixture": "Reviewed three-file/five-implementation authored Python/JS/TS fixture",
+  "planned_checks": [
+    "CLI installation into owned temporary user-data/extensions only",
+    "Installed compiled payload equals VSIX member hashes",
+    "Actual saved and dirty search, preview, navigation, status and cancellation",
+    "Exact source receipts and unchanged saved source"
+  ],
+  "limits": [
+    "Development Host is launched against installed package path; no ordinary user-profile activation claim",
+    "Small authored fixture; no unseen-task correctness or inference performance claim",
+    "Current license field UNLICENSED; no new licensing grant",
+    "Root owns actual GPU/Electron execution; CPU reviewers do not execute them"
+  ]
+}
