@@ -2,11 +2,14 @@
 
 The isolated dependency-only installation passed on the tested Apple Silicon
 Mac in a new virtual environment, using existing user-level package/Python
-caches. All 72 declared runtime/parser pins matched and 118 CPU checks passed.
+caches. All 72 initial declared runtime/parser pins matched and 118 CPU checks passed.
 The initial audit rejected uv's valid build-metadata suffix; that failed log is
 retained alongside the corrected audit. A fresh-machine download, checkpoint
 download, and real-model smoke in this environment remain separate pending
-gates. See [the recorded validation](../results/install-validation-2026-10-13/report.md).
+gates. A separate follow-up pinned the previously resolved protobuf dependency;
+the reused environment now matches all 73 runtime/parser pins with no unlisted
+runtime distributions. See [the initial validation](../results/install-validation-2026-10-13/report.md)
+and [the pin follow-up](../results/install-validation-2026-10-13/pin-followup.md).
 
 The intended fast path installs the pinned Python runtime, MCP adapter, and
 saved Python/JavaScript/TypeScript parsers. It downloads the tokenizer cache and
@@ -59,9 +62,9 @@ reused. This is not a fully hash-locked supply-chain or bit-identical build. The
 post-install inventory gate checks every declared runtime/parser version and
 the bootstrap uv version so resolver changes are visible. Fresh validation also
 found `protobuf==7.36.2` outside the initial lock: the selected
-`transformers[sentencepiece]` dependency requires it. The initial artifact keeps
-that incomplete closure visible; a separate follow-up pin and reuse validation
-will be reviewed without replacing those original results.
+`transformers[sentencepiece]` dependency requires it. The updated lock pins this
+observed version. The separate follow-up reused the validated environment and
+verified closure without changing any installed versions or original artifacts.
 
 ## Dependency-only validation
 
