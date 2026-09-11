@@ -39,8 +39,16 @@ be interrupted, and cancellation acknowledgement does not prove that work had
 not already completed. Refresh uses `/index`; aborting an HTTP wait does not
 cancel that endpoint's model work.
 
-Search uses saved, tracked files under the service's
-configured `source_root`. It excludes unsaved editors and new untracked files;
+Saved search is the default. If dirty editors are open, the search palette offers
+an explicit **Include eligible dirty tracked buffers** choice for that request.
+Programmatic calls use `semanticSearch.find` with
+`{ query, includeUnsaved: true, options }`; omitting the flag retains saved search.
+The extension never saves a document. Dirty mode requires an overlay-capable
+backend advertising `source_exclusions` in `/status`.
+
+Search uses tracked files under the service's configured `source_root`. New
+untracked, deleted, untitled, unsupported and excluded dirty files are omitted,
+with concise reason counts in the result status;
 `git add` makes a new saved source file eligible. The client supports `.py`, `.js`,
 `.jsx`, `.mjs`, `.cjs`, `.ts`, `.tsx`, `.mts` and `.cts` results. JS/TS retrieval
 requires the reviewed language-capable backend and its pinned `languages` extra;
@@ -66,6 +74,32 @@ captured preview or a new search. There is an unavoidable interval between the
 backend's final snapshot check and the extension's first file capture; it verifies
 the exact current window, not an unprovided whole-file hash from query time.
 Verification does not lock a file against edits after the final check.
+
+Explicit dirty searches send all eligible dirty documents as one bounded request:
+at most 16 files, 512 UTF-8 bytes per repository path, 256 KiB of literal UTF-8 text
+per file and 1 MiB total text. Encoded UTF-8 JSON is separately limited to 2 MiB
+because escaping expands some text. Limits reject the whole request rather than
+silently selecting buffers. Multiple dirty aliases of one physical file reject
+the request. Git membership and disk evidence are rechecked around delivery and
+navigation. Selected workspace and source-root aliases must still resolve to
+the connected repository/scope. Every input document is bound to its editor identity, version and
+full literal UTF-8 hash, including inputs omitted from hits. An edit, save, close,
+reopen, newly eligible dirty document, disk change or membership change expires
+navigation. File editor events also cancel an active dirty search and retain
+already captured previews. This event invalidation is conservative: an unrelated
+file editor change can require a new dirty search.
+
+Dirty rows are labeled **dirty buffer** and navigate to that same open document.
+The final editor check verifies its version, full text and exact excerpt after
+the editor is shown. Saved rows keep saved verification and remain bound to the
+complete dirty request. Source origin differs from the existing retrieval versus
+dependency context label. Backend overlays use a disposable index and the
+resident model; neither disk source nor the saved persistent index/status is
+updated. Literal Python editor Unicode bypasses file coding-cookie decoding.
+Known saved JavaScript/TypeScript encoding BOMs are restored for transport and
+comparison. No session cache or persistent extension buffer state is created.
+CPU tests cover this integration; actual unsaved Extension Development Host and
+real-model acceptance remain separate gates.
 
 UTF-8/BOM, ASCII and Latin-1 are covered by CPU fixtures. Other Node-supported
 Python encoding labels must decode to the exact returned text or navigation
