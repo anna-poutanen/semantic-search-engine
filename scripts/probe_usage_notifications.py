@@ -21,6 +21,7 @@ import threading
 import time
 
 ROOT = Path(__file__).resolve().parents[1]
+OWNED_TEMP_PARENT = Path("/tmp").resolve()
 MODEL, EFFORT, TIER = "gpt-6.1-sol", "ultra", "default"
 PROMPTS = ("Reply exactly ALPHA. Do not use tools, files, browsing, or other agents.",
            "Reply exactly BETA. Do not use tools, files, browsing, or other agents.")
@@ -279,7 +280,7 @@ def thread_gate(result, fixture):
 
 
 def fixture_gate(fixture):
-    checks = {"owned_private_tmp_parent": fixture.parent == Path("/private/tmp").resolve(),
+    checks = {"owned_tmp_parent": fixture.parent == OWNED_TEMP_PARENT,
               "outside_home": not fixture.is_relative_to(Path.home().resolve()),
               "outside_project": not fixture.is_relative_to(ROOT.resolve()),
               "no_git_ancestor": not any((ancestor / ".git").exists() for ancestor in (fixture, *fixture.parents)),
@@ -487,7 +488,7 @@ def plan(schema_root, codex):
             "script_sha256": sha(Path(__file__).read_bytes()),
             "protocol_sha256": sha((ROOT / "docs/usage-observability-protocol.md").read_bytes()),
             "removed_environment_names": list(REMOVED_ENV), "home_auth_retained": True,
-            "fixture_policy": "Owned empty /private/tmp directory outside Git/home ancestors; own directory removed in finally",
+            "fixture_policy": "Owned empty directory under canonical /tmp outside Git/home ancestors; own directory removed in finally",
             "probe_reads_auth_or_user_config_files": False,
             "ignore_user_config_supported": False, "ignore_rules_supported": False,
             "requires_reviewed_config_limitations": True, "inference_executed": False}
@@ -497,7 +498,7 @@ def execute(output, raw_root, prospective):
     require(not output.exists() and not raw_root.exists(), "Refusing to overwrite/retry a diagnostic attempt")
     output.mkdir(parents=True)
     raw_root.mkdir(parents=True)
-    owned_temporary = tempfile.TemporaryDirectory(prefix="semantic-usage-diagnostic-", dir="/private/tmp")
+    owned_temporary = tempfile.TemporaryDirectory(prefix="semantic-usage-diagnostic-", dir=OWNED_TEMP_PARENT)
     fixture = Path(owned_temporary.name).resolve()
     stream = None
     turns = [{"ordinal": index + 1, "expected_word": word, "attempted": False,

@@ -164,7 +164,7 @@ def test_fake_rpc_startup_gate_blocks_both_prompts_and_preserves_missing_usage(t
     assert [request["method"] for request in requests] == ["initialize", "initialized", "config/read"]
     private_fixture = json.loads((tmp_path / "raw/fixture-private.json").read_text())["owned_fixture_path"]
     fixture = Path(private_fixture)
-    assert fixture.parent == Path("/private/tmp").resolve() and not fixture.exists()
+    assert fixture.parent == probe.OWNED_TEMP_PARENT and not fixture.exists()
     assert result["fixture_gate"]["passed"] is True and result["owned_fixture_cleaned"] is True
     assert not (tmp_path / "raw/empty-fixture").exists()
     assert private_fixture not in (tmp_path / "published/events.jsonl").read_text()
@@ -267,11 +267,11 @@ def test_startup_error_removes_only_owned_fixture_and_keeps_artifacts(tmp_path, 
     def fail(*args, **kwargs):
         observed.append(kwargs["cwd"])
         assert not any(kwargs["cwd"].iterdir())
-        assert kwargs["cwd"].parent == Path("/private/tmp").resolve()
+        assert kwargs["cwd"].parent == probe.OWNED_TEMP_PARENT
         raise OSError("fake private startup error")
 
     monkeypatch.setattr(probe.subprocess, "Popen", fail)
-    with tempfile.TemporaryDirectory(prefix="usage-unrelated-test-", dir="/private/tmp") as neighbor:
+    with tempfile.TemporaryDirectory(prefix="usage-unrelated-test-", dir=probe.OWNED_TEMP_PARENT) as neighbor:
         marker = Path(neighbor) / "preserve.txt"
         marker.write_text("unrelated directory")
         result = probe.execute(tmp_path / "published", tmp_path / "raw", {"command": ["fake"], "turn_timeout_s": 120})
@@ -284,9 +284,49 @@ def test_startup_error_removes_only_owned_fixture_and_keeps_artifacts(tmp_path, 
 
 
 def test_fixture_gate_rejects_any_git_marker_before_native_start():
-    with tempfile.TemporaryDirectory(prefix="usage-git-test-", dir="/private/tmp") as directory:
+    with tempfile.TemporaryDirectory(prefix="usage-git-test-", dir=probe.OWNED_TEMP_PARENT) as directory:
         fixture = Path(directory).resolve()
         assert probe.fixture_gate(fixture)["passed"] is True
         (fixture / ".git").write_text("gitdir: ignored-external-root")
         gate = probe.fixture_gate(fixture)
         assert gate["passed"] is False and gate["checks"]["no_git_ancestor"] is False
+
+
+def test_canonical_tmp_parent_is_portable_and_does_not_follow_user_tempdir():
+    assert probe.OWNED_TEMP_PARENT == Path("/tmp").resolve()
+
+
+def test_linux_shaped_external_parent_override_uses_same_gate_and_removes_only_owned_fixture(tmp_path, monkeypatch):
+    # Model a Linux /tmp separate from /home/project without depending on the
+    # machine's real platform or native CLI. TemporaryDirectory cleanup is real.
+    linux_tmp, home = tmp_path / "linux/tmp", tmp_path / "linux/home"
+    project = home / "project"
+    linux_tmp.mkdir(parents=True)
+    project.mkdir(parents=True)
+    (project / ".git").mkdir()
+    sibling = linux_tmp / "unrelated"
+    sibling.mkdir()
+    sentinel = sibling / "preserve.txt"
+    sentinel.write_text("keep neighboring data")
+    monkeypatch.setattr(probe, "OWNED_TEMP_PARENT", linux_tmp.resolve())
+    monkeypatch.setattr(probe, "ROOT", project.resolve())
+    monkeypatch.setattr(probe.Path, "home", lambda: home)
+    observed = []
+
+    def fail(*args, **kwargs):
+        fixture = kwargs["cwd"]
+        observed.append(fixture)
+        assert fixture.parent == linux_tmp.resolve()
+        assert probe.fixture_gate(fixture)["checks"]["owned_tmp_parent"] is True
+        assert probe.fixture_gate(fixture)["passed"] is True
+        raise OSError("CPU-only startup refusal")
+
+    monkeypatch.setattr(probe.subprocess, "Popen", fail)
+    result = probe.execute(project / "published", project / "raw", {"command": ["never-native"], "turn_timeout_s": 120})
+    assert len(observed) == 1 and not observed[0].exists()
+    assert result["owned_fixture_cleaned"] is True
+    assert result["diagnostic_model_turns_attempted"] == 0
+    assert result["fixture_gate"]["passed"] is True
+    assert sentinel.read_text() == "keep neighboring data"
+    assert (project / "published/result.json").is_file()
+    assert (project / "raw/fixture-private.json").is_file()
