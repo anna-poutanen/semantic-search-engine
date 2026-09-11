@@ -4,9 +4,10 @@ The isolated dependency-only installation passed on the tested Apple Silicon
 Mac in a new virtual environment, using existing user-level package/Python
 caches. All 72 initial declared runtime/parser pins matched and 118 CPU checks passed.
 The initial audit rejected uv's valid build-metadata suffix; that failed log is
-retained alongside the corrected audit. A fresh-machine download, checkpoint
-download, and real-model smoke in this environment remain separate pending
-gates. A separate follow-up pinned the previously resolved protobuf dependency;
+retained alongside the corrected audit. A separate checkpoint download populated
+a new local model directory and real Qwen overlay inference passed in this
+environment. User-level caches were available; a fresh-machine download remains
+unmeasured. A separate follow-up pinned the previously resolved protobuf dependency;
 the reused environment now matches all 73 runtime/parser pins with no unlisted
 runtime distributions. See [the initial validation](../results/install-validation-2026-10-13/report.md)
 and [the pin follow-up](../results/install-validation-2026-10-13/pin-followup.md).
@@ -119,11 +120,20 @@ absence. Bootstrap, editable package metadata, and tokenizer-cache files are
 expected setup writes within that checkout. Network access during installation
 is required and is not restricted to loopback.
 
-## Later real-model gates
+## Separate real-model validation
 
 Model download and inference checks follow dependency validation as separate
-steps. They remain pending for this isolated environment. Use the chosen Python
-environment throughout:
+steps. The completed [real-model proof](../results/install-validation-2026-10-13/fresh-model-overlays.json)
+and [independent audit](../results/install-validation-2026-10-13/fresh-model-audit.json)
+verify literal Python/JS/TS overlays, exact source hashes and bounded context.
+The checkpoint contains 1,191,586,416 weight bytes with SHA-256
+`0437e45c94563b09e13cb7a64478fc406947a93cb34a7e05870fc8dcd48e23fd`.
+The runtime companion records Python 3.12.15, 77 installed distributions and
+resolved module paths after inference. The launch explicitly selected current
+main source through `PYTHONPATH`; editable metadata still pointed to the
+installer checkout. This is a post-inference identity check, rather than paths
+captured inside the probe. No clean-machine or performance claim follows.
+Use the chosen Python environment throughout when reproducing:
 
 ```bash
 "$validation_venv/bin/python" scripts/setup_embeddings.py \
