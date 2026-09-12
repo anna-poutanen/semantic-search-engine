@@ -5,6 +5,7 @@ import importlib.util
 import json
 from pathlib import Path
 
+import numpy as np
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -51,10 +52,12 @@ def fixture(condition="clause_rrf"):
                 "threshold": None, "ranking_score_kind": kind}}
     for _ in range(6):
         response["token_usage"]["tokens"] = len(audit.evidence.compact_text(response))
+    vector = np.asarray([1.0] + [0.0] * 1023, dtype=np.float32)
     row = {"status": "completed", "query": query, "query_inputs": inputs,
            "counts_before": counters(), "counts_after": counters(inputs),
            "query_vectors": [{"input": text, "shape": [1024], "dtype": "float32",
-                              "sha256": "a" * 64, "l2_norm": 1.0} for text in inputs],
+                              "sha256": audit.sha(vector.tobytes()), "l2_norm": 1.0,
+                              "values": vector.tolist()} for text in inputs],
            "raw_ranked_source_lists": [{"input": text, "score_kind": "cosine", "windows": windows}
                                        for text, windows in zip(inputs, rankings)],
            "merged_candidates": merged, "score_kind": kind, "source_and_shared_caps_verified": True,
@@ -95,7 +98,7 @@ def test_exact_source_budget_vector_counter_and_fusion_audit_is_read_only(condit
 
 @pytest.mark.parametrize("change", ["split", "input_log", "doc_call", "attempt_count", "rank_order", "duplicate_rank",
                                   "source", "fusion", "priority", "raw_cosine", "origin", "line", "tokens", "chars",
-                                  "vectors", "time"])
+                                  "vectors", "vector_hash", "vector_values", "time"])
 def test_corrupted_receipt_is_rejected_before_gold_scoring(change):
     row, query, inventory, sources = fixture()
     if change == "split":
@@ -130,6 +133,10 @@ def test_corrupted_receipt_is_rejected_before_gold_scoring(change):
         row["response"]["total_source_chars"] += 1
     elif change == "vectors":
         row["query_vectors"][0]["l2_norm"] = .1
+    elif change == "vector_hash":
+        row["query_vectors"][0]["sha256"] = "a" * 64
+    elif change == "vector_values":
+        row["query_vectors"][0]["values"][1] = .1
     else:
         row["packing_s"] = -1
     with pytest.raises(ValueError):
