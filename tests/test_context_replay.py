@@ -1,8 +1,11 @@
 """Generic CPU fixtures for prospective replay; no study labels or model calls."""
 import hashlib
 import importlib.util
+import os
 from pathlib import Path
 from unittest.mock import patch
+
+import pytest
 
 from semantic_search import context
 from semantic_search.corpus import Snippet
@@ -126,3 +129,27 @@ def test_plan_freezes_both_controls_code_inputs_and_pinned_source_hashes(tmp_pat
     assert plan["sources"] == frozen["sources"]
     assert (tmp_path / "new/plan.json").is_file()
     assert not (tmp_path / "new/replay.jsonl").exists()
+
+
+def test_unrelated_or_corrupt_cache_cannot_trigger_tokenizer_download(tmp_path):
+    (tmp_path / "unrelated").write_bytes(b"sentinel")
+    with patch.dict(os.environ, TIKTOKEN_CACHE_DIR=str(tmp_path)):
+        with pytest.raises(ValueError, match="Pinned cl100k tokenizer cache missing/corrupt"):
+            replay.runtime_bindings(tmp_path)
+        (tmp_path / replay.CACHE_KEY).write_bytes(b"corrupt")
+        with pytest.raises(ValueError, match="Pinned cl100k tokenizer cache missing/corrupt"):
+            replay.runtime_bindings(tmp_path)
+    assert (tmp_path / "unrelated").read_bytes() == b"sentinel"
+    assert (tmp_path / replay.CACHE_KEY).read_bytes() == b"corrupt"
+
+
+def test_pinned_loader_uses_captured_bytes_and_refuses_other_urls(tmp_path):
+    import tiktoken.load
+    raw = b"immutable fixture"
+    (tmp_path / replay.CACHE_KEY).write_bytes(raw)
+    with patch.object(tiktoken.load, "read_file_cached"), patch.object(replay, "CACHE_SHA256", replay.sha(raw)), patch.dict(os.environ, TIKTOKEN_CACHE_DIR=str(tmp_path)):
+        replay.pin_tokenizer_cache()
+        (tmp_path / replay.CACHE_KEY).unlink()
+        assert tiktoken.load.read_file_cached(replay.CACHE_URL, replay.sha(raw)) == raw
+        with pytest.raises(ValueError, match="downloads are forbidden"):
+            tiktoken.load.read_file_cached("https://example.com/new", replay.sha(raw))

@@ -12,7 +12,17 @@ The plan is committed before `--run`. The run checks those bindings and loads
 only the frozen source/context/extraction/static-reference Python modules from
 the recorded Git revision into a private temporary directory. It reconstructs
 snippets from the frozen window inventory and verifies literal saved-source
-bytes. It never opens the persistent vector index.
+bytes. It never opens the persistent vector index. The required `cl100k_base`
+cache entry must match the URL-derived filename and SHA256 from installed
+`tiktoken0.14.0` primary source. Encoding reads a captured immutable copy of those
+bytes; unexpected tokenizer data requests fail without downloads or cache writes.
+
+The initial prospective commit `b35d4ea` was superseded before any baseline or
+control output because independent review found its cache-presence check too
+broad. The original plan is retained in
+`results/context-packing-prospective-v1-2026-10-13/plan-v1.json`; the final plan
+adds the strict offline guard. The packing algorithm and both controls are
+unchanged, and no outcome informed that repair.
 
 The mandatory baseline gate reconstructs the original packing procedure:
 first raw window per path/symbol, first eight symbols, first five anchors with
