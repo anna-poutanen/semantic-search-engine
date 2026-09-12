@@ -21,6 +21,8 @@ saved source/index. Default searches continue to use saved files.
 | [Actual editor runs](../results/editor-workflows-2026-10-13/findings.md) | Saved/dirty Python–JS–TS search, previews/navigation, Unicode/BOM/CRLF, stale-input rejection, cancellation/replacement, watcher updates, rename/delete and malformed saved-source errors | VS Code 1.141.0 Development Host and a small authored fixture |
 | [Overlay/cache proof](../results/live-overlays-2026-10-13/findings.md) | Literal editor text and unchanged saved parent index; later saved/reopened vector reuse | Authored real-Qwen probe plus separate CPU live-WAL tests; no atomic cross-process SQLite lock |
 | [Installer validation](installer-validation.md) | Pinned Mac dependency setup and separate fresh-environment checks | One existing Apple Silicon Mac; cached setup timing is not cold-install/download timing |
+| [Installed package](../results/editor-package-2026-10-13/findings.md) | Exact installed VSIX payload, seven real Qwen saved/dirty searches, navigation and cancellation | Isolated Extension Development Host; ordinary profile activation remains untested |
+| [Editor guard acceptance](../results/editor-acceptance-2026-10-13/findings.md) | Actual false trust with zero product HTTP; wrong repository, connected-folder removal and offline errors | Separate Development Hosts with an authored HTTP fixture, no model |
 
 The demo's public receipt contains verified summaries. Its CPU companion checks
 all 18 against saved lines/hashes and records source/package identity after
@@ -30,8 +32,14 @@ reconstructed from public summaries.
 
 ## Try it locally
 
-From the project on an Apple Silicon Mac, install the runtime and Qwen only if
-needed:
+Use a Git checkout on an Apple Silicon Mac. If the project is not already cloned:
+
+```sh
+git clone https://github.com/anna-poutanen/semantic-search-engine.git
+cd semantic-search-engine
+```
+
+Install the runtime and Qwen only if needed:
 
 ```sh
 python3 scripts/setup_mac.py --runtime-only
@@ -45,23 +53,36 @@ python3 scripts/demo_mac.py
 ```
 
 The script prints shell-quoted foreground service, CLI, native HTTP, MCP and
-VS Code steps, including the exact persistent index location. To run the real
+VS Code steps, including the exact persistent index location. For the editor
+walkthrough, keep its printed foreground `serve` command running, open the exact
+printed toy folder, and connect to its printed loopback URL.
+
+To run a separate automatic real
 HTTP/MCP integration explicitly:
 
 ```sh
 .venv/bin/python scripts/demo_mac.py --run
 ```
 
+Automatic mode creates another toy and stops its service when finished. It does
+not leave a service running for the editor walkthrough.
+
 See [the demo guide](demo.md) for custom paths, runtime selection and cleanup.
 The backend remains a separately started local process; the extension installs
 no model or Python environment.
 
-**GitHub preview release / VSIX download: PREVIEW_RELEASE_LINK_PENDING.**
-The planned preview will provide the VSIX for manual **Extensions: Install from
-VSIX** installation. Connect it to the service indexing the same trusted local
-workspace folder. Actual Restricted Mode, multi-root and disconnected/offline
-service acceptance still remain separate gates. CPU coverage and the successful
-single-workspace Development Host runs do not complete those gates.
+Download the verified VSIX from the
+[GitHub preview release](https://github.com/anna-poutanen/semantic-search-engine/releases/tag/v0.1.0-preview.1),
+then use **Extensions: Install from VSIX**. Connect it to the separately started
+service indexing the same trusted local workspace folder. The 51,493-byte asset
+has SHA-256 `be4f32bdb58e45693244a933dbfd2effc35fdaaa4cc3f3bb44237bb1c3b9da9b`;
+GitHub's uploaded asset digest matches the tested local package.
+
+Separate native acceptance checks observed actual false Workspace Trust,
+multi-folder selection/removal and offline failure handling. These exercised
+product guards in a Development Host with an authored HTTP fixture. Development
+extensions can bypass ordinary enablement rules, so ordinary-profile Restricted
+Mode activation remains a distinct untested behavior.
 
 ## Quality and measurement limits
 
@@ -93,4 +114,4 @@ lock files against changes after the final check.
 
 This is a GitHub portfolio preview, with no Marketplace publication. The
 extension package remains `UNLICENSED`; no distribution license grant is implied
-by the planned preview artifact.
+by the published preview artifact.

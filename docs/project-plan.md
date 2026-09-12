@@ -59,13 +59,18 @@ This follows the agreed plan in **Choose a project for YC roles** on October 12,
    bind all supplied buffers and reject navigation after any input changes;
    ordinary searches remain saved-source searches. Request-only overlay indexes
    leave the saved index unchanged. The [host receipts](../results/editor-workflows-2026-10-13/findings.md)
-   separate integration checks from retrieval quality. Actual Restricted Mode,
-   multi-root and disconnected-service checks remain broader acceptance work.
-7. **Beta/release (in preparation):** the fast Mac installer omits optional H2O;
+   separate integration checks from retrieval quality. Separate
+   [native guard checks](../results/editor-acceptance-2026-10-13/findings.md)
+   observe actual false trust, multi-folder removal and offline errors with an
+   authored HTTP fixture. Ordinary editor-profile activation remains untested.
+7. **Portfolio preview (published; external beta remains):** the fast Mac installer omits optional H2O;
    a new environment passed dependency checks and real Qwen inference. These
    runs used available user-level caches, rather than a clean machine. Python,
-   JavaScript and TypeScript are integrated. A reproducible demo and packaged
-   preview are next; external beta users and a licensing decision remain.
+   JavaScript and TypeScript are integrated. The
+   [real HTTP/MCP demo](../results/demo-2026-10-13/findings.md) passes, and the
+   [GitHub preview](https://github.com/anna-poutanen/semantic-search-engine/releases/tag/v0.1.0-preview.1)
+   ships the exact installed and tested VSIX. External beta users and a licensing
+   decision remain.
 
 Python, TypeScript and JavaScript are implemented.
 C# and non-Mac deployment follow validation of the core. Serialize GPU work and
@@ -121,8 +126,13 @@ multi-file behaviors under the fixed eight-excerpt budget. Express is developmen
 evidence; Zod holds out retrieval parameter selection, after parser eligibility
 was inspected. All absent queries return decoys without an abstention policy.
 
-Finish the reproducible portfolio demo, package and verify a local preview,
-then use fresh development queries to improve evidence delivery and a new
+The reproducible demo and verified local preview are published. An offline
+[packing experiment](../results/context-packing-development-2026-10-13/gold-scoring.md)
+skipped contained excerpts and backfilled spare capacity. It changed 28/90
+delivered outputs and improved three evidence ranks, but recovered no complete
+behavior and lost none. The default packing policy remains unchanged.
+
+Use fresh development queries to improve evidence delivery and a new
 untouched holdout to assess those changes. The observed Zod misses are now
 development evidence for future tuning. Broader coding tasks and external beta
 feedback follow. Token savings remain unestablished; product integration does

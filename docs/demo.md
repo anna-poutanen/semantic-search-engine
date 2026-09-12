@@ -8,7 +8,15 @@ accuracy. The queries and implementations are deliberately visible together.
 
 ## Prepare without models
 
-From the project directory, run:
+Use a Git checkout, rather than GitHub's Source ZIP, for the default ignored
+destination. If needed, clone the project first:
+
+```sh
+git clone https://github.com/anna-poutanen/semantic-search-engine.git
+cd semantic-search-engine
+```
+
+From that project directory, run:
 
 ```sh
 python3 scripts/demo_mac.py
