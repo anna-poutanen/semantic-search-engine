@@ -54,6 +54,7 @@ def fixture(condition="clause_rrf"):
         response["token_usage"]["tokens"] = len(audit.evidence.compact_text(response))
     vector = np.asarray([1.0] + [0.0] * 1023, dtype=np.float32)
     row = {"status": "completed", "query": query, "query_inputs": inputs,
+           "active_phase": "complete",
            "counts_before": counters(), "counts_after": counters(inputs),
            "query_vectors": [{"input": text, "shape": [1024], "dtype": "float32",
                               "sha256": audit.sha(vector.tobytes()), "l2_norm": 1.0,
@@ -215,3 +216,53 @@ def test_partial_failures_and_pending_conditions_are_never_imputed_as_quality_mi
     assert result["retained_status_counts"] == {"failed": 1}
     assert result["failed_identities"] == [schedule[0]] and result["pending_identities"] == [schedule[1]]
     assert "metrics" not in result
+
+
+@pytest.mark.parametrize("change", [None, "calls", "phase", "timeout", "cleanup"])
+def test_preserved_pre_model_gate_is_distinct_from_any_semantic_outcome(change):
+    plan = {"model_calls_in_freeze": 0, "weights_loaded_in_freeze": False,
+            "frozen_at_utc": "2026-10-13T12:00:00+00:00"}
+    preflight = {"model_calls": 0, "checks_passed": True}
+    failure = {"attempted_conditions": 0, "error": "Exact frozen invariant differs: source_sha256",
+               "error_type": "ValueError", "model_calls": 0, "phase": "pre-model setup gate", "retry": False}
+    supervisor = {"exit_code": 1, "timed_out": False, "forced_kill": False, "owned_process_group_stopped": True,
+                  "owned_session": True, "elapsed_seconds": .6, "timeout_seconds": 480,
+                  "started_utc": "2026-10-13T12:01:00+00:00", "finished_utc": "2026-10-13T12:01:01+00:00"}
+    start = {"started_at_utc": "2026-10-13T12:01:00.2+00:00"}
+    if change == "calls":
+        failure["model_calls"] = 1
+    elif change == "phase":
+        failure["phase"] = "query embedding"
+    elif change == "timeout":
+        supervisor["timed_out"] = True
+    elif change == "cleanup":
+        supervisor["owned_process_group_stopped"] = False
+    if change is None:
+        audit.verify_gate_record(plan, preflight, failure, supervisor, start)
+    else:
+        with pytest.raises(ValueError):
+            audit.verify_gate_record(plan, preflight, failure, supervisor, start)
+
+
+@pytest.mark.parametrize("change", [None, "query", "budget", "runtime", "labels"])
+def test_corrected_version_cannot_change_any_selection_invariant_after_gate_failure(change):
+    initial = {"frozen_at_utc": "first", "source_commit": "a" * 40,
+               "source_sha256": {"scripts/run_clause_fusion.py": "a" * 64, "src/semantic_search/backend.py": "b" * 64},
+               "queries": ["literal"], "settings": {"token_budget": 4096}, "dataset_sha256": {"toy": "c" * 64}}
+    corrected = copy.deepcopy(initial)
+    corrected["frozen_at_utc"] = "second"
+    corrected["source_commit"] = "d" * 40
+    corrected["source_sha256"]["scripts/run_clause_fusion.py"] = "e" * 64
+    if change == "query":
+        corrected["queries"] = ["edited literal"]
+    elif change == "budget":
+        corrected["settings"]["token_budget"] = 8192
+    elif change == "runtime":
+        corrected["source_sha256"]["src/semantic_search/backend.py"] = "f" * 64
+    elif change == "labels":
+        corrected["dataset_sha256"]["toy"] = "f" * 64
+    if change is None:
+        assert audit.compare_prospective_plans(initial, corrected)["unchanged_selection_runtime_and_corpora"] is True
+    else:
+        with pytest.raises(ValueError):
+            audit.compare_prospective_plans(initial, corrected)
