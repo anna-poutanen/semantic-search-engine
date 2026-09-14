@@ -1,0 +1,108 @@
+"""Root-owned bounded launcher for the frozen two-process local experiment."""
+from datetime import datetime, timezone
+import hashlib
+import json
+import os
+from pathlib import Path
+import secrets
+import signal
+import subprocess
+import sys
+import time
+
+root = Path.cwd()
+output = root / "results/qwen-reranker-full-2026-10-13"
+private = root / ".cache/qwen-reranker-full-2026-10-13"
+checkpoint = root / ".cache/models/qwen3-reranker-0.6b-original"
+interpreter = root / ".cache/reranker-experiment/.venv/bin/python"
+private.mkdir(exist_ok=False)
+token = private / "token.secret"
+token.write_text(secrets.token_urlsafe(48))
+token.chmod(0o600)
+ready = private / "ready.json"
+started = time.monotonic()
+limit = 10800
+record = {"started_utc": datetime.now(timezone.utc).isoformat(),
+          "timeout_seconds": limit, "timed_out": False, "forced_kill": False,
+          "frozen_plan_sha256": hashlib.sha256((output / "frozen-plan.json").read_bytes()).hexdigest(),
+          "supervisor_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+          "owned_sessions": True}
+
+
+def save(name, value):
+    (output / name).write_text(json.dumps(value, indent=2) + "\n")
+
+
+def stop(process, label):
+    if process is None:
+        return
+    if process.poll() is None:
+        os.killpg(process.pid, signal.SIGTERM)
+        try:
+            process.wait(timeout=30)
+        except subprocess.TimeoutExpired:
+            record["forced_kill"] = True
+            os.killpg(process.pid, signal.SIGKILL)
+            process.wait(timeout=10)
+    record[label + "_exit_code"] = process.returncode
+    try:
+        os.killpg(process.pid, 0)
+    except ProcessLookupError:
+        record[label + "_owned_group_stopped"] = True
+    else:
+        os.killpg(process.pid, signal.SIGKILL)
+        record["forced_kill"] = True
+        time.sleep(.25)
+        try:
+            os.killpg(process.pid, 0)
+        except ProcessLookupError:
+            record[label + "_owned_group_stopped"] = True
+        else:
+            record[label + "_owned_group_stopped"] = False
+
+
+server = main = None
+with (private / "resident.log").open("x") as resident_log, (private / "main.log").open("x") as main_log:
+    try:
+        server = subprocess.Popen([str(interpreter), str(root / "scripts/resident_qwen_reranker.py"),
+            "--run", "--checkpoint", str(checkpoint), "--output", str(output),
+            "--ready", str(ready), "--token-file", str(token),
+            "--frozen-plan", str(output / "frozen-plan.json")], cwd=root,
+            stdout=resident_log, stderr=subprocess.STDOUT, start_new_session=True)
+        record["resident_pid"] = server.pid
+        save("supervisor-start.json", record)
+        print(json.dumps({"resident_pid": server.pid, "starting": True}), flush=True)
+        ready_deadline = time.monotonic() + 180
+        while not ready.exists():
+            if server.poll() is not None:
+                raise RuntimeError("Resident exited before readiness")
+            if time.monotonic() >= ready_deadline:
+                raise TimeoutError("Resident readiness timed out")
+            time.sleep(.25)
+        main = subprocess.Popen([str(root / ".venv/bin/python"), str(root / "scripts/run_qwen_reranker_benchmark.py"),
+            "--run", "--output", str(output), "--reranker-python", str(interpreter),
+            "--checkpoint", str(checkpoint), "--ready", str(ready), "--token-file", str(token)],
+            cwd=root, stdout=main_log, stderr=subprocess.STDOUT, start_new_session=True)
+        record["main_pid"] = main.pid
+        save("supervisor-start.json", record)
+        print(json.dumps({"main_pid": main.pid, "resident_ready": True}), flush=True)
+        main.wait(timeout=max(1, limit - (time.monotonic() - started)))
+        if main.returncode != 0:
+            raise RuntimeError("Main benchmark exited unsuccessfully")
+    except BaseException as error:
+        record["error_type"] = type(error).__name__
+        record["error"] = str(error)
+        record["timed_out"] = isinstance(error, (TimeoutError, subprocess.TimeoutExpired))
+    finally:
+        stop(main, "main")
+        stop(server, "resident")
+        token.unlink(missing_ok=True)
+        record["private_auth_token_removed"] = not token.exists()
+        record["elapsed_seconds"] = time.monotonic() - started
+        record["finished_utc"] = datetime.now(timezone.utc).isoformat()
+        save("supervisor.json", record)
+        print(json.dumps(record), flush=True)
+ok = ("error" not in record and not record["forced_kill"] and not record["timed_out"]
+      and record.get("main_exit_code") == record.get("resident_exit_code") == 0
+      and record.get("main_owned_group_stopped") and record.get("resident_owned_group_stopped"))
+sys.exit(0 if ok else 1)
