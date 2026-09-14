@@ -14,6 +14,10 @@ MCP adapter use the same backend. See
 [the project plan](docs/project-plan.md), [the service API](docs/backend-api.md),
 and [MCP setup](docs/mcp.md).
 
+The [GitHub preview release](https://github.com/anna-poutanen/semantic-search-engine/releases/tag/v0.1.0-preview.1)
+includes the verified VS Code package. See [the preview guide](docs/release-preview.md)
+for installation, demonstrations and measured limits.
+
 For a small reproducible walkthrough, see [the demo guide](docs/demo.md).
 After the runtime and Qwen setup below, run:
 
@@ -177,7 +181,11 @@ records exact SQLite cosine P95 of 19.63 ms and full durable reuse; it does not
 establish real Qwen indexing performance at that scale. The separate
 [language study](results/language-quality-2026-10-13/findings.md) measures real
 Qwen indexing and durable reuse for 1,802 Zod windows. Actual VS Code saved,
-dirty-buffer and saved-edit workflows now pass; broader acceptance remains.
+dirty-buffer and saved-edit workflows now pass. Separate
+[native acceptance checks](results/editor-acceptance-2026-10-13/findings.md)
+exercise false workspace trust, multi-folder repository selection/removal and
+offline handling with an authored HTTP fixture. Ordinary user-profile activation
+and external beta feedback remain untested.
 
 The [coding workflow availability pilot](results/coding-workflows-2026-10-12/report.md)
 runs six paired seeded repairs in real Requests, Click, and Starlette checkouts
