@@ -20,6 +20,10 @@ FILES = ("__init__", "context", "source", "corpus", "languages", "javascript",
 SETTINGS = {"candidates": 50, "include_dependencies": True, "max_results": 8,
             "rerank": False, "source_budget": 12000, "token_budget": 4096}
 POLICY = "first5-static-callees-backfill-v1"
+# Verified in installed tiktoken0.14.0's primary openai_public/load source.
+CACHE_URL = "https://openaipublic.blob.core.windows.net/encodings/cl100k_base.tiktoken"
+CACHE_SHA256 = "223921b76ee99bde995b7ff738513eef100fb51d18c93597a113bcffe865b2a7"
+CACHE_KEY = hashlib.sha1(CACHE_URL.encode("utf-8")).hexdigest()
 
 
 def sha(raw):
@@ -187,9 +191,22 @@ def inputs(root):
 def runtime_bindings(root):
     cache = Path(os.environ.get("TIKTOKEN_CACHE_DIR", root / ".cache/tokenizers"))
     hashes = {path.name: sha(path.read_bytes()) for path in sorted(cache.glob("*")) if path.is_file()}
-    require(hashes, "Tokenizer cache missing; use the existing study cache (no replay downloads)")
+    require(hashes.get(CACHE_KEY) == CACHE_SHA256,
+            "Pinned cl100k tokenizer cache missing/corrupt; use the existing study cache (no replay downloads)")
     os.environ["TIKTOKEN_CACHE_DIR"] = str(cache)
     return {"tiktoken": version("tiktoken"), "tokenizer_cache_sha256": hashes}
+
+
+def pin_tokenizer_cache():
+    """Give the tokenizer immutable verified bytes, with no network/cache writes."""
+    import tiktoken.load
+    raw = (Path(os.environ["TIKTOKEN_CACHE_DIR"]) / CACHE_KEY).read_bytes()
+    require(sha(raw) == CACHE_SHA256, "Tokenizer cache changed before capture")
+    def captured(blobpath, expected_hash=None):
+        require(blobpath == CACHE_URL and expected_hash == CACHE_SHA256,
+                "Unexpected tokenizer data request; replay downloads are forbidden")
+        return raw
+    tiktoken.load.read_file_cached = captured
 
 
 def freeze(root, output):
@@ -226,6 +243,7 @@ def run(root, output):
     require(bindings == plan["input_sha256"] and repositories == plan["repositories"], "Frozen inputs changed")
     require(runtime_bindings(root) == plan["runtime"]
             and plan["runtime"]["tiktoken"] == frozen["packages"]["tiktoken"], "Tokenizer runtime differs from frozen study")
+    pin_tokenizer_cache()
     require(not any(name == "semantic_search" or name.startswith("semantic_search.") for name in sys.modules),
             "Run replay in a clean Python process")
     with tempfile.TemporaryDirectory(prefix="packing-frozen-") as temporary:
