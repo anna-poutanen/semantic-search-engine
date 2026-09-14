@@ -42,6 +42,7 @@ function redact(value, replacements) {
 }
 async function smoke(options) {
   const repo = await fs.realpath(options.repo), output = path.resolve(options.output);
+  const extensionPath = options.extensionPath || config.root;
   const before = await snapshot(repo);
   if (before.source !== source) { throw new Error('Smoke requires the fresh three-function host-fixture.cjs repository'); }
   const entries = before.entries;
@@ -64,10 +65,11 @@ async function smoke(options) {
   const relay = await startRelay(options.url, repo, { holdQuery: query + ' Cancellation transport smoke.',
     onSearchStart: starts => fs.writeFile(receiptStarts, JSON.stringify(starts)) });
   const hostResult = path.join(directory, 'host-result.json');
-  const args = [repo, `--extensionDevelopmentPath=${config.root}`, `--extensionTestsPath=${path.join(config.root, 'dist/test/host/index.js')}`,
+  const args = [repo, `--extensionDevelopmentPath=${extensionPath}`, `--extensionTestsPath=${path.join(config.root, 'dist/test/host/index.js')}`,
     `--user-data-dir=${userData}`, `--extensions-dir=${extensions}`, '--disable-extensions', '--disable-workspace-trust',
     '--disable-updates', '--skip-welcome', '--skip-release-notes', '--no-cached-data'];
-  const replacements = [[repo, '<fixture>'], [directory, '<host-run>'], [config.root, '<extension>'], [os.homedir(), '<home>']];
+  const replacements = [[repo, '<fixture>'], [directory, '<host-run>'], [extensionPath, '<extension>'],
+    ...(extensionPath !== config.root ? [[config.root, '<extension-source>']] : []), [os.homedir(), '<home>']];
   const record = { protocol: 'explicit editor fixture integration smoke, not a ranking benchmark',
     started_utc: new Date().toISOString(), host_preparation: prepared.record,
     backend_status: backend, fixture_mode: mixed ? 'mixed' : 'python', overlay_smoke: options.overlays === true,
@@ -86,6 +88,7 @@ async function smoke(options) {
         SEMANTIC_SEARCH_HOST_RESULT: hostResult, SEMANTIC_SEARCH_HOST_QUERY: query,
         SEMANTIC_SEARCH_HOST_OVERLAYS: options.overlays ? '1' : '0',
         SEMANTIC_SEARCH_HOST_SAVED_EDITS: options.savedEdits ? '1' : '0',
+        SEMANTIC_SEARCH_HOST_EXTENSION_PATH: options.extensionPath ? extensionPath : '',
         SEMANTIC_SEARCH_HOST_RECEIPT_STARTS: receiptStarts,
         SEMANTIC_SEARCH_HOST_CASES: JSON.stringify(mixed ? cases : cases.slice(0, 1)) }, stdio: ['ignore', 'pipe', 'pipe'] });
       const stop = signal => { try { process.kill(-child.pid, signal); } catch {} };

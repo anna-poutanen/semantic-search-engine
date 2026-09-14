@@ -14,6 +14,18 @@ MCP adapter use the same backend. See
 [the project plan](docs/project-plan.md), [the service API](docs/backend-api.md),
 and [MCP setup](docs/mcp.md).
 
+For a small reproducible walkthrough, see [the demo guide](docs/demo.md).
+After the runtime and Qwen setup below, run:
+
+```bash
+.venv/bin/python scripts/demo_mac.py --run
+```
+
+This creates a fresh ignored Python/JS/TS toy, checks real HTTP and MCP delivery,
+and stops its own service. The [completed demo](results/demo-2026-10-13/findings.md)
+retains exact source summaries and its runtime limits. Running the script without
+`--run` prepares instructions and source without loading a model.
+
 ## Run on an Apple Silicon Mac
 
 The tested setup is an M4 MacBook Pro, 24 GB RAM, macOS 15.1.1. Python dependencies,

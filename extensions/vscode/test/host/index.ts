@@ -31,6 +31,13 @@ export async function run(): Promise<void> {
     const folder = vscode.workspace.workspaceFolders?.[0]; assert.ok(folder);
     assert.equal(await fs.realpath(folder.uri.fsPath), await fs.realpath(required('SEMANTIC_SEARCH_HOST_REPO')));
     const extension = vscode.extensions.getExtension<ExtensionApi>('anna-poutanen.semantic-search-local'); assert.ok(extension);
+    record.extension_path = extension.extensionPath;
+    const expectedExtensionPath = process.env.SEMANTIC_SEARCH_HOST_EXTENSION_PATH;
+    if (expectedExtensionPath) {
+      assert.equal(await fs.realpath(extension.extensionPath), await fs.realpath(expectedExtensionPath));
+      record.expected_extension_path = expectedExtensionPath;
+      checks.packaged_extension_path = true;
+    }
     const api = await limit(extension.activate(), 'extension activation');
     assert.equal(typeof api.getState, 'function'); assert.equal(typeof api.onDidChangeState, 'function'); checks.activation = true;
     const catalog = await vscode.commands.getCommands(true);
