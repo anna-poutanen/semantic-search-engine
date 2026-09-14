@@ -1,0 +1,218 @@
+"""Independent CPU-only Koa source recheck and existing benchmark inventory.
+
+Run with .venv/bin/python; no backend, retrieval, embedding, reranker, model
+runtime, prior ranking outcomes or network client is imported or opened.
+"""
+from __future__ import annotations
+
+from datetime import datetime, timezone
+import hashlib
+import json
+from pathlib import Path
+import subprocess
+import sys
+
+ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / "src"))
+from semantic_search.corpus import extract_snippets
+from semantic_search.languages import extractor_fingerprint
+from semantic_search.source import physical_lines
+
+
+def sha(raw):
+    return hashlib.sha256(raw).hexdigest()
+
+
+def require(value, message):
+    if not value:
+        raise ValueError(message)
+
+
+def read(relative):
+    return json.loads((ROOT / relative).read_text())
+
+
+def git(corpus, *args, binary=False):
+    result = subprocess.run(["git", "-C", str(corpus), *args],
+                            capture_output=True, check=True, timeout=10)
+    return result.stdout if binary else result.stdout.decode().strip()
+
+
+def groups(query):
+    if query["kind"] == "absent":
+        require(query.get("targets") == [] and "target_groups" not in query,
+                "Malformed absent query")
+        return []
+    result = query.get("target_groups", [query.get("targets")])
+    require(query["kind"] == "present" and result and all(result),
+            "Malformed present evidence")
+    return result
+
+
+def main():
+    output = Path(__file__).with_name("eligibility.json")
+    require(not output.exists(), "Refuse to replace the prospective receipt")
+    audit_path = "results/koa-clause-preflight-2026-10-13/source-audit.json"
+    review_path = "results/koa-clause-preflight-2026-10-13/source-review.json"
+    dataset_path = "benchmarks/koa_clause_holdout.json"
+    manifest_path = "benchmarks/koa_clause_holdout_manifest.json"
+    audit, review = read(audit_path), read(review_path)
+    data, manifest = read(dataset_path), read(manifest_path)
+    require(review["passed"] and review["corpus_and_semantic_preflight_passed"],
+            "Prior neutral semantic review did not pass")
+    for path, expected in review["asset_sha256"].items():
+        require(sha((ROOT / path).read_bytes()) == expected,
+                f"Prior source review binding changed: {path}")
+    require(audit["eligibility_failures"] == [], "Original extraction failure")
+    corpus = ROOT / ".cache/corpora/koa"
+    require(git(corpus, "rev-parse", "HEAD") == data["revision"]
+            == manifest["datasets"][0]["revision"] == review["corpus"]["revision"],
+            "Pinned commit mismatch")
+    require(git(corpus, "status", "--porcelain=v1", "--untracked-files=all") == "",
+            "Corpus is dirty")
+    paths = git(corpus, "ls-files", "-z", "--", "lib", binary=True)
+    paths = sorted(path.decode() for path in paths.split(b"\0") if path)
+    require(paths == sorted(audit["source_file_sha256"])
+            == sorted(review["corpus"]["source_files"]), "Source membership changed")
+    sources, hashes = {}, {}
+    for path in paths:
+        raw = (corpus / path).read_bytes()
+        hashes[path] = sha(raw)
+        require(hashes[path] == audit["source_file_sha256"][path]
+                == review["corpus"]["source_files"][path], "Source file changed")
+        sources[path] = physical_lines(raw.decode("utf-8"))
+        header = audit["source_headers"][path]
+        require(sha("".join(sources[path][:header["first_physical_lines"]]).encode())
+                == header["sha256"], "Header slice changed")
+    license_raw = (corpus / "LICENSE").read_bytes()
+    require(license_raw == git(corpus, "show", f"{data['revision']}:LICENSE", binary=True),
+            "Local license differs from pinned Git blob")
+    require(sha(license_raw) == audit["license"]["sha256"]
+            == review["license"]["sha256"], "License binding changed")
+    require(license_raw.decode().strip() in
+            (ROOT / review["license"]["notice_path"]).read_text(), "Notice lost license")
+    require(extractor_fingerprint() == audit["extractor"] == review["extractor"],
+            "Saved-source extractor fingerprint changed")
+    for path, expected in audit["implementation_sha256"].items():
+        require(sha((ROOT / path).read_bytes()) == expected,
+                f"Production source changed since static audit: {path}")
+    snippets = extract_snippets(corpus, "lib", max_lines=160, overlap_lines=40,
+                                source_exclusions=())
+    inventory = [{"id": row.id, "path": row.path, "symbol": row.symbol,
+                  "start_line": row.start_line, "end_line": row.end_line,
+                  "source_hash": row.content_hash} for row in snippets]
+    require(inventory == audit["window_inventory"], "175-window inventory changed")
+    for row in snippets:
+        expected = "".join(sources[row.path][row.start_line - 1:row.end_line])
+        require(row.text == expected and row.content_hash == sha(expected.encode()),
+                "Extracted window is not exact saved source")
+    query_proofs = []
+    multi_file = same_file_and = positive = absent = required = 0
+    for query in data["queries"]:
+        gold = groups(query)
+        proof_groups = []
+        all_paths = set()
+        if gold:
+            positive += 1
+        else:
+            absent += 1
+        for alternatives in gold:
+            required += 1
+            proofs = []
+            for target in alternatives:
+                path = target["path"]
+                first, last = target["evidence_lines"]
+                require(type(first) is int and type(last) is int
+                        and 1 <= first <= last <= len(sources[path]), "Invalid evidence bounds")
+                require(target["definition_lines"] == [first, last],
+                        "Koa gold no longer covers its full definition")
+                evidence = "".join(sources[path][first - 1:last])
+                require(sha(evidence.encode()) == target["evidence_sha256"]
+                        and hashes[path] == target["source_file_sha256"], "Gold source mismatch")
+                require(sources[path][first - 1].strip() == target["declaration_anchor"],
+                        "Declaration anchor mismatch")
+                eligible = [row.id for row in snippets if row.path == path
+                            and row.start_line <= first <= last <= row.end_line]
+                require(eligible, "No source window contains complete evidence")
+                all_paths.add(path)
+                proofs.append({**target, "eligible_window_ids": eligible})
+            proof_groups.append(proofs)
+        multi_file += bool(len(gold) > 1 and len(all_paths) > 1)
+        same_file_and += bool(len(gold) > 1 and len(all_paths) == 1)
+        query_proofs.append({"id": query["id"], "query": query["query"],
+                             "kind": query["kind"], "required_groups": len(gold),
+                             "group_proofs": proof_groups})
+    require((len(query_proofs), positive, absent, required, multi_file, same_file_and)
+            == (8, 6, 2, 11, 3, 1), "Koa inventory changed")
+
+    full_scope = []
+    for manifest_file in ("benchmarks/quality_manifest.json",
+                          "benchmarks/language_quality_manifest.json"):
+        for entry in read(manifest_file)["datasets"]:
+            dataset = read(entry["dataset"])
+            require(sha((ROOT / entry["dataset"]).read_bytes()) == entry["sha256"],
+                    "Existing dataset hash mismatch")
+            queries = dataset["queries"]
+            for query in queries:
+                for alternatives in groups(query):
+                    for target in alternatives:
+                        require(set(("path", "symbol", "evidence_lines")) <= target.keys(),
+                                "Existing benchmark lacks executable evidence span")
+            full_scope.append({"id": entry["id"], "manifest": manifest_file,
+                               "manifest_sha256": sha((ROOT / manifest_file).read_bytes()),
+                               "dataset": entry["dataset"], "sha256": entry["sha256"],
+                               "queries": len(queries),
+                               "present": sum(q["kind"] == "present" for q in queries),
+                               "absent": sum(q["kind"] == "absent" for q in queries),
+                               "all_positive_targets_have_evidence_lines": True,
+                               "original_assigned_role": entry["role"],
+                               "new_reranker_role": "previously_observed_development"})
+    require(sum(row["queries"] for row in full_scope) == 136,
+            "Existing full benchmark inventory changed")
+    receipt = {
+        "version": 1,
+        "classification": "Prospective independent static source eligibility for Qwen reranking",
+        "created_at_utc": datetime.now(timezone.utc).isoformat(),
+        "checks_passed": True,
+        "model_calls": 0, "retrieval_calls": 0,
+        "new_reranker_or_koa_ranking_outcomes_read": False,
+        "label_query_or_prior_artifact_changes": 0,
+        "generator_sha256": sha(Path(__file__).read_bytes()),
+        "asset_sha256": {path: sha((ROOT / path).read_bytes()) for path in
+                         (audit_path, review_path, dataset_path, manifest_path,
+                          "docs/koa-clause-holdout-protocol.md",
+                          "results/koa-clause-preflight-2026-10-13/NOTICE.md")},
+        "corpus": {"repo_url": data["repo_url"], "revision": data["revision"],
+                   "package_version": data["package_version"], "clean_checkout": True,
+                   "source_root": "lib", "source_exclusions": [],
+                   "source_files": hashes, "source_windows": len(inventory),
+                   "window_inventory_sha256": audit["window_inventory_sha256"]},
+        "extractor": extractor_fingerprint(),
+        "license": audit["license"],
+        "summary": {"queries": 8, "present_queries": 6, "absent_queries": 2,
+                    "required_groups": 11, "multi_file_and_queries": 3,
+                    "same_file_and_queries": 1, "full_definition_gold": True},
+        "query_proofs": query_proofs,
+        "full_existing_benchmark": full_scope,
+        "full_existing_totals": {"queries": 136, "present": 112, "absent": 24},
+        "with_fresh_koa_totals": {"queries": 144, "present": 118, "absent": 26,
+                                 "repositories": 8},
+        "decision": "Koa is eligible for a separately frozen full-query candidate reranking comparison; old clause-fusion inference_authorized=false remains unchanged.",
+        "protocol_freeze_required": True,
+        "limitations": [
+            "Static source eligibility does not establish ranking quality, performance or coding correctness.",
+            "Source-reviewed repository/settings holdout is not untouched-source or model-pretraining holdout.",
+            "Python gold retains existing sufficient executable spans; language/Koa gold often requires full declared bodies. Report repository/language strata.",
+            "All original Python and Express/Zod query outputs have been observed previously; label them development for the new reranker settings.",
+            "The two absent Koa cases are scoped to seven tracked lib files, excluding dependencies and user middleware.",
+            "Keep all eight Koa cases; do not fit a prompt, threshold, shortlist or packing policy to their eventual outputs."
+        ]
+    }
+    output.write_text(json.dumps(receipt, indent=2, ensure_ascii=False) + "\n")
+    print(json.dumps({"output": str(output.relative_to(ROOT)), "checks_passed": True,
+                      "koa_queries": 8, "koa_windows": 175, "existing_queries": 136,
+                      "model_calls": 0, "retrieval_calls": 0}))
+
+
+if __name__ == "__main__":
+    main()
