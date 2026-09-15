@@ -1,0 +1,46 @@
+import datetime, json, os, pathlib, signal, subprocess, sys, time
+root = pathlib.Path.cwd()
+output = root / "results/clause-fusion-development-2026-10-13"
+command = [str(root / ".venv/bin/python"), str(root / "scripts/run_clause_fusion.py"), "--run", "--output", str(output)]
+started = time.monotonic()
+record = {"started_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(), "timeout_seconds": 480, "owned_session": True, "forced_kill": False, "timed_out": False}
+with (root / ".cache/clause-fusion-run.log").open("x") as log:
+    process = subprocess.Popen(command, cwd=root, stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
+    print(json.dumps({"owned_pid": process.pid, "started": True}), flush=True)
+    try:
+        process.wait(timeout=480)
+    except subprocess.TimeoutExpired:
+        record["timed_out"] = True
+        os.killpg(process.pid, signal.SIGINT)
+        try:
+            process.wait(timeout=15)
+        except subprocess.TimeoutExpired:
+            record["forced_kill"] = True
+            os.killpg(process.pid, signal.SIGKILL)
+            process.wait(timeout=5)
+    finally:
+        try:
+            os.killpg(process.pid, 0)
+        except ProcessLookupError:
+            record["owned_process_group_stopped"] = True
+        else:
+            os.killpg(process.pid, signal.SIGTERM)
+            time.sleep(0.25)
+            try:
+                os.killpg(process.pid, 0)
+            except ProcessLookupError:
+                record["owned_process_group_stopped"] = True
+            else:
+                record["forced_kill"] = True
+                os.killpg(process.pid, signal.SIGKILL)
+                time.sleep(0.25)
+                try:
+                    os.killpg(process.pid, 0)
+                except ProcessLookupError:
+                    record["owned_process_group_stopped"] = True
+                else:
+                    record["owned_process_group_stopped"] = False
+record.update(exit_code=process.returncode, elapsed_seconds=time.monotonic()-started, finished_utc=datetime.datetime.now(datetime.timezone.utc).isoformat())
+(output / "supervisor.json").write_text(json.dumps(record, indent=2)+"\n")
+print(json.dumps(record), flush=True)
+sys.exit(0 if record["exit_code"] == 0 and not record["timed_out"] and record["owned_process_group_stopped"] else 1)
