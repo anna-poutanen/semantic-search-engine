@@ -294,3 +294,42 @@ def test_candidate_identity_mismatch_is_retained_and_not_counted_as_reranking_ga
     before["pool_identity_sha256"], after["pool_identity_sha256"] = "a", "b"
     result = audit.changes([before], [after])
     assert result["candidate_pool_mismatches"] and not result["complete_gains"]
+
+
+def test_canonical_artifact_json_metadata_is_restored_to_production_compact_order():
+    import json
+    production = {"query": "behavior", "match_status": "candidates", "results": [],
+                  "budget_exhausted": False,
+                  "token_usage": {"encoding": "cl100k_base", "tokens": 123, "budget": 4096, "truncated": False},
+                  "scope": {"source_root": "lib", "membership": "saved implementations",
+                            "source_exclusions": [], "exclusions_omitted": 0}}
+    stored = json.loads(json.dumps(production, sort_keys=True))
+    before = deepcopy(stored)
+    assert production == stored  # Canonical persistence preserves every value, but loses order.
+    assert audit.evidence.compact_text(production) != audit.evidence.compact_text(stored)
+    rebuilt = audit.production_order(stored)
+    assert audit.evidence.compact_text(rebuilt) == audit.evidence.compact_text(production)
+    assert stored == before and list(stored["token_usage"])[0] == "budget"
+
+
+def test_scope_matches_shipped_sorted_deduplicated_exclusions_and_bounded_display():
+    entry = {"source_root": "packages/zod/src/v4", "source_exclusions": [
+        "**/tests/**", "**/*.test.ts", "**/*.test.tsx", "**/*.d.ts", "**/*.d.ts"]}
+    assert audit.expected_scope(entry) == {
+        "source_root": "packages/zod/src/v4",
+        "membership": "saved implementations; Git-tracked files only in Git projects",
+        "source_exclusions": ["**/*.d.ts", "**/*.test.ts", "**/*.test.tsx", "**/tests/**"],
+        "exclusions_omitted": 0,
+    }
+    entry["source_exclusions"] += ["x" * 81, "z-last"]
+    assert audit.expected_scope(entry)["exclusions_omitted"] == 2
+
+
+@pytest.mark.parametrize("field", ["token_usage", "scope"])
+def test_extra_compact_metadata_cannot_be_silently_discarded_during_order_normalization(field):
+    response = {"token_usage": {"encoding": "cl100k_base", "tokens": 12, "budget": 4096, "truncated": False},
+                "scope": {"source_root": "lib", "membership": "saved implementations",
+                          "source_exclusions": [], "exclusions_omitted": 0}}
+    response[field]["extra"] = "must not vanish"
+    with pytest.raises(ValueError, match="Exact shipped compact"):
+        audit.production_order(response)

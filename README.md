@@ -163,6 +163,19 @@ temperature calibration and are ranking signals, not certainty percentages.
 
 ## Experiments
 
+The [full Qwen reranker experiment](results/qwen-reranker-full-2026-10-13/findings.md)
+tests 144 distinct queries across eight real repositories, including fresh Koa,
+with 1,728 searches and 43,200 actual benchmark pair forwards. Under the same
+eight-excerpt context budget, complete delivered evidence improves from **107 to
+110 of 118 positives for dense**, and **103 to 111 for hybrid**. Fresh Koa stays
+6/6 for dense and improves from 5/6 to 6/6 for hybrid. Gains and regressions are
+retained. Warm pipeline median/P95 rises from **0.283/0.675 seconds to
+7.345/16.592 for dense**, and **0.290/0.856 to 9.461/17.049 for hybrid**.
+The sequential 50-candidate scorer remains experimental; fast dense retrieval is
+still the default. These are in-process resident timings with a scorer HTTP hop,
+not complete production HTTP/MCP latency or coding/token-saving evidence. The
+source-span metric is separate from historical symbol-based results below.
+
 The [106-query frozen evaluation](results/retrieval-quality-2026-10-12/findings.md)
 covers five repositories, including ten multi-file AND behaviors and a Rich
 repository holdout. Dense context delivers complete evidence for **83/88 positive

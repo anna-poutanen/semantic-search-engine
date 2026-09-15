@@ -1,6 +1,34 @@
 # Local Qwen3 reranker development experiment
 
-The experimental script has CPU fake-model tests and one independently audited
+The [full frozen Mac study](../results/qwen-reranker-full-2026-10-13/findings.md)
+now covers 144 distinct queries across eight real codebases, including fresh Koa,
+with three actual repeated passes and 43,200 benchmark pair forwards. Scoring
+the full 50-candidate pool improves complete delivered evidence from 107 to 110
+of 118 positives for dense and from 103 to 111 for hybrid. Dense has four gains
+and one regression; hybrid has ten gains and two regressions. Fresh Koa stays
+6/6 for dense and improves from 5/6 to 6/6 for hybrid.
+
+Warm median/P95 is 7.345/16.592 seconds for dense + Qwen and 9.461/17.049 for
+hybrid + Qwen, compared with 0.283/0.675 and 0.290/0.856 without reranking.
+These are resident in-process pipeline timings including a scorer HTTP hop,
+not the full production HTTP/MCP route. Model loading and index setup are
+excluded. The resident scorer's MLX allocator peak is 1,834,129,428 bytes;
+it does not measure operating-system RSS or combined embedding/scorer memory.
+The modest quality gain does not justify making the 50-candidate sequential
+scorer the default. Shortlist/batching validation precedes another coding study.
+All 26 absent queries return candidates; no absence threshold is fitted.
+Production defaults and the main runtime lock remain unchanged.
+
+The [frozen protocol](qwen-reranker-full-protocol.md), raw outputs, independent
+audit and evidence explanations preserve all scores, actual forward receipts,
+source spans, context budgets, gains and regressions. The primary metric requires
+complete original executable source intervals, independent of symbol identity;
+historical Python symbol-based scores remain a separate diagnostic. No numerical
+PyTorch parity, coding correctness or paid-agent token benefit is established.
+
+## Earlier selected-case probe
+
+The prototype previously had one independently audited
 real Mac run on a deliberately selected, previously observed Express miss.
 It scored all 50 retained dense candidates; the unchanged context packer
 delivered all three required evidence groups, compared with two in the baseline.
@@ -49,7 +77,8 @@ this is not an operating-system RSS measurement.
   returns normalized hidden states from `model.model`. Only `hidden[:, -1:, :]`
   reaches the tied embedding projection or untied head. This avoids materializing
   vocabulary logits at every sequence position; the backbone still processes the
-  complete pair. Repeated warm service measurements remain outstanding.
+  complete pair. The full study above now measures repeated resident pipeline
+  latency with this sequential implementation.
 - Yes/no final-token logits yield both their difference and a stable two-class
   softmax signal. They are ranking signals, not calibrated correctness estimates.
 - The complete pair, including both wrapper segments, is capped at 8192 tokens.
@@ -99,6 +128,8 @@ logit difference with original dense rank and stable ID as tie-breakers.
 Previously observed Express/Zod cases are development evidence;
 any genuine unseen holdout requires a separate prospective protocol. This probe
 does not establish latency suitability, injection resistance, cross-platform
-support or parity with the official Transformers output. Numerical comparison,
-the complete development set including regressions and absent queries, a fresh
-repository query set, and repeated warm latency/memory checks remain outstanding.
+support or parity with the official Transformers output. Numerical comparison
+remains outstanding. The full study above completes the development matrix,
+fresh repository check and repeated warm pipeline measurements for the fixed
+50-candidate sequential scorer. All observed queries, including Koa, are now
+development evidence for future tuning.

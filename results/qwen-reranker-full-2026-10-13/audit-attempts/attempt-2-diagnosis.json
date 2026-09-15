@@ -1,0 +1,29 @@
+{
+  "attempt": 2,
+  "diagnosed_at_utc": "2026-10-13T16:53:47.830892+00:00",
+  "first_failed_identity": {
+    "dataset": "zod",
+    "query_id": "zod_sync_rejects_async",
+    "condition": "dense",
+    "repetition": 1
+  },
+  "cause": "Auditor expected source exclusion display in authored manifest order; shipped validate_exclusions sorts and deduplicates patterns before indexed_scope display.",
+  "all_other_checked_metadata_agree": true,
+  "same_exclusion_strings": true,
+  "actual_shipped_exclusion_order": [
+    "**/*.d.ts",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/tests/**"
+  ],
+  "incorrect_expected_manifest_order": [
+    "**/tests/**",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.d.ts"
+  ],
+  "correction": "Independently reconstruct sorted distinct exclusions, then shipped four-pattern/80-character bounded scope display. No source membership, labels, ranks, budgets, producer or model setting changed.",
+  "auditor_after_correction_sha256": "0855868a3128033935e86eef98feee1aa61e146f554c623ce4a22b4540c7b8ea",
+  "preserved_second_source": "attempt-2-auditor.py.txt",
+  "producer_or_run_artifact_changes": 0
+}
