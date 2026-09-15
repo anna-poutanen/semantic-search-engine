@@ -915,7 +915,13 @@ def _run(output):
                     }
                 ),
             )
-            write(output / "summary.json", publication(summarize(rows, frozen)))
+            failed_summary = summarize(rows, frozen)
+            failed_summary["complete"] = False
+            failed_summary["run_failure"] = {
+                "error_type": type(error).__name__,
+                "error": str(error),
+            }
+            write(output / "summary.json", publication(failed_summary))
             raise
 
 
