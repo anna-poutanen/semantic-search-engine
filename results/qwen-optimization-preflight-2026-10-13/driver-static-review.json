@@ -1,0 +1,73 @@
+{
+  "acknowledged_startup_limitations": [
+    {
+      "classification": "Not a successful-run blocker; incomplete startup cannot pass clean-stop audit or be represented as a complete comparison.",
+      "finding": "Worker installs cooperative SIGTERM/SIGINT handlers only after loading and generic warmups. A startup interruption can exit without worker-level stop/counter receipts. Supervisor still bounds/stops the owned process and preserves the failed start."
+    },
+    {
+      "classification": "Root acknowledged; supervisor failure evidence remains. No claim of successful/clean worker completion is permitted for this incomplete attempt.",
+      "finding": "Exclusive forwards ledger open is outside worker try/finally; an open error follows reranker-start without worker failure/stop JSON, before model weights are loaded."
+    }
+  ],
+  "blocking_findings": [],
+  "checks": {
+    "actual_retrieval_and_packing": "Pipeline re-embeds each request, retrieves exactly 50 dense/hybrid candidates, observes only the first K literal query/source scores with selected B, orders by fresh raw logit difference/originalindex/id, and gives only that ranked prefix to the unchanged original packer. Baselines pack full 50. Original static dependency expansion,source/fullspan validation,8excerpt/12000char/4096token caps and timing boundary remain intact.",
+    "decision_hash_binding": "CLI freezes supplied decision-input bytes to project-relative SHA-256. run rechecks every binding before run-start/scoring. The setup-selection semantics remain protocol/root-auditor obligations, not inferred from the presence of arbitrary hashed files.",
+    "failure_preservation": "Resolved review blocker: driver previously overwrote helper failure.json,losing its detailed counters. Final driver preserves existing failure.json and completion.json, writing separate driver-failure.json when needed; exclusive destination check prevents another overwrite. CPU regression test confirms byte-equivalent detailed objects remain.",
+    "freeze_schema": "Root freezer recomputes source membership, raw source hashes, full-span evidence, inventory/settings, model metadata and runtime/source/package closure without loading model weights. Exact current frozen keys/values are rechecked before run; helper and supervisor source are included in bindings. Koa is explicitly observed development.",
+    "parity_inputs": "Each development repository uses its first positive query and saved dense 50 pool in manifest order; content lookup now uses pool window.source_hash. Literal pairs are frozen in the parity plan and rechecked before run. B1 scores are fresh, not old score substitution.",
+    "parity_no_embedding": "Parity only invokes the resident scorer; it never calls embedding weight verification, indexing or pipeline. The freeze constructor verifies embedding metadata only with _model=None. Completion records empty embedding counts; source geometry uses retained literal pairs.",
+    "parity_numeric_and_ties": "All metadata/input hashes must match across batch modes. Frozen finite yes/no logits,difference,binary signal limits are inclusive and independently checked. For index i<j, comparing delta>=0 incorporates original-index stable tie order, records ties becoming opposite order and inversions becoming exact ties. Strong inversions and top-five swaps beyond the fixed near-tie band fail.",
+    "supervisor_ownership": "New process sessions are owned explicitly; readiness binds planhash,PID/group,completed warmup and exact127.0.0.1port. Supervisor is bounded by readiness/whole-study deadlines,TERM 30 s/KILL 10 s grace,onlysignalsownedgroups,recordsfailure/interruption/forcedkill,cleansauth token and optionalownedcaffeinate. Private directory 700/files 600 and immutable start/final receipts are tested.",
+    "synthetic_clipping": "Four-line alpha/beta fixture avoids prior quadratic thousands-of-lines clipping. Actual pinned tokenizer/unchanged PairBuilder CPU check retained exactly two physical lines, 4605 tokens, SHA 7d3a2c6532c860948d0d4588a5b7cbc42a9cd34bf5dcd18888224f361914723c; no native runtime or weights imported.",
+    "worker_ownership": "Engine closure and model/weights ownership tuple are both released before clearing native allocator cache. Seven fake lifecycle cases verify warmups,normal stop,load/runtime/request failures,no unauthorized inference and closure release before allocator measurement. Stop records allocator peak and post-cleanup state,not OS RSS.",
+    "worker_requests": "Loopback-only authenticated score endpoint accepts exactlyrequest_id,pairs,batch_size; engine enforces literal query/source only. Seen request IDs prevent retries/cache replays. Failure freezes worker state and retained forward ledger/counters; supervisor/root forbid stage resume/overwrite."
+  },
+  "classification": "Independent final static driver/worker/supervisor review before any optimization inference",
+  "created_at_utc": "2026-10-14T01:15:02.656912+00:00",
+  "embedding_calls": 0,
+  "limitations": [
+    "Static review and CPU fakes do not certify native BF16 parity,retrieval quality,warm latency,actual allocator memory or complete process cleanup. Actual post-run audit must require driver completion,worker stop and successful supervisor receipts.",
+    "Root reviewer authored pipeline helper; independent shortlist_replay auditor owns its post-run reconstruction. Driver/worker/supervisor source were independently authored by root/batch agent.",
+    "No fresh HTTPX ranking outcomes have been observed by this reviewer."
+  ],
+  "model_calls": 0,
+  "native_runtime_imported": false,
+  "passed": true,
+  "producer_edits": 0,
+  "retrieval_calls": 0,
+  "reviewed_asset_sha256": {
+    "docs/qwen-reranker-optimization-protocol.md": "ca06e477fc093ed7e7d22265464975c55bb73e56462d1e430058ca830054e074",
+    "scripts/prototype_qwen_reranker.py": "a76d0e9d97ead8b40e6c538d84d178f6ceea9b145dba07cb5c34f2972c0d90e0",
+    "scripts/qwen_optimization_pipeline.py": "ff79feab54124186affbc0e9a2b8c175fefb587bb181685b2f53a96285a83450",
+    "scripts/qwen_reranker_batch.py": "53247c96c416b655d714859691bc38f08af4aaccabfe01770acf86ed4c4221fd",
+    "scripts/resident_qwen_optimization.py": "258c47a0949b11005c19bf1bccc55dc7dd91842a9a95cfe063f51fe445097cbc",
+    "scripts/run_qwen_optimization.py": "960b300c419e3928f90c7e734a356e3e6364e5854dc2658f14eaa7860bd3ce1f",
+    "scripts/supervise_qwen_optimization.py": "932000e4e772a849330685cd003c61eef171f5d2dcbe71aa88c6a7186f70963f",
+    "tests/test_qwen_optimization_driver.py": "51c7ba4b61bd9f1fc6040a0e9323fb62b352b1f72be74334937230a91bb2ca05",
+    "tests/test_qwen_optimization_pipeline.py": "31e573ddfd1c0ad3e9712c5cc6cd46d691120bd414ad23826648f22cb56ec5fe",
+    "tests/test_qwen_optimization_supervisor.py": "a21719561be5171ed30a1e7e8420603e7e8ca79daa231f78dda70bd9a86f03cf",
+    "tests/test_resident_qwen_optimization.py": "ef602bf8560f14eea5ee6d0ac357aedcd9f72d384fa1fbc012a302377151715a"
+  },
+  "reviewer": "fresh_corpus independent agent; root driver and resident/supervisor reviewed independently of their authors",
+  "tests_added": "tests/test_qwen_optimization_driver.py",
+  "verification": {
+    "driver_test_count": 39,
+    "focused_tests_command": ".venv/bin/python -m pytest -q tests/test_qwen_optimization_driver.py tests/test_resident_qwen_optimization.py tests/test_qwen_optimization_supervisor.py",
+    "focused_tests_result": "70 passed in 0.10 s",
+    "pinned_tokenizer_cpu_result": {
+      "delivered_lines": 2,
+      "delivered_sha256": "7d3a2c6532c860948d0d4588a5b7cbc42a9cd34bf5dcd18888224f361914723c",
+      "model_calls": 0,
+      "native_runtime_imported": false,
+      "source_lines": 4,
+      "total_tokens": 4605,
+      "truncated": true,
+      "weights_loaded": false
+    },
+    "ruff_command": ".venv/bin/ruff check tests/test_qwen_optimization_driver.py",
+    "ruff_result": "All checks passed"
+  },
+  "version": 1,
+  "weight_bytes_read": false
+}

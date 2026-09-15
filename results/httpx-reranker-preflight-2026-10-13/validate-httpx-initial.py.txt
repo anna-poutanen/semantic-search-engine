@@ -1,0 +1,218 @@
+#!/usr/bin/env python3
+"""CPU-only HTTPX source, full-function labels and saved-source eligibility gate.
+
+No model, embedding, retrieval, scorer, prior ranking output or HTTPX runtime is
+imported. The production extractor is used only to verify exact source windows.
+"""
+from __future__ import annotations
+
+import argparse
+import ast
+from datetime import datetime, timezone
+import hashlib
+import json
+from pathlib import Path
+import subprocess
+import sys
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "src"))
+
+from semantic_search.corpus import _source_files, extract_snippets
+from semantic_search.languages import extractor_fingerprint
+from semantic_search.source import physical_lines
+
+DATASET = "benchmarks/httpx_reranker_queries.json"
+FREEZE = "results/httpx-reranker-preflight-2026-10-13/source-freeze.json"
+CORPUS = ".cache/corpora/httpx"
+REVISION = "26d48e0634e6ee9cdc0533996db289ce4b430177"
+
+
+def sha(raw):
+    return hashlib.sha256(raw).hexdigest()
+
+
+def canonical(value):
+    return json.dumps(value, sort_keys=True, ensure_ascii=False,
+                      separators=(",", ":"), allow_nan=False).encode()
+
+
+def require(ok, message):
+    if not ok:
+        raise ValueError(message)
+
+
+def git(repo, *args):
+    return subprocess.check_output(["git", "-C", str(repo), *args], timeout=15)
+
+
+def definitions(source):
+    rows = {}
+
+    def visit(node, parents):
+        for item in ast.iter_child_nodes(node):
+            if isinstance(item, (ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef)):
+                qualified = ".".join((*parents, item.name))
+                if isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                    rows.setdefault(qualified, []).append(item)
+                visit(item, (*parents, item.name))
+            else:
+                visit(item, parents)
+
+    visit(ast.parse(source), ())
+    return rows
+
+
+def groups(query):
+    if query["kind"] == "absent":
+        require(query.get("targets") == [] and "target_groups" not in query,
+                "Absent query has targets")
+        return []
+    result = query.get("target_groups", [query.get("targets")])
+    require(query["kind"] == "present" and result and all(result),
+            "Positive query has no groups")
+    return result
+
+
+def validate():
+    repo = ROOT / CORPUS
+    freeze_raw, dataset_raw = (ROOT / FREEZE).read_bytes(), (ROOT / DATASET).read_bytes()
+    freeze, dataset = json.loads(freeze_raw), json.loads(dataset_raw)
+    require(freeze["labels_authored"] is False and freeze["model_calls"] == 0
+            and freeze["retrieval_calls"] == 0 and freeze["embedding_calls"] == 0,
+            "Source/scope was not frozen before labels and inference")
+    require(dataset["source_freeze"] == FREEZE
+            and dataset["source_freeze_sha256"] == sha(freeze_raw), "Source freeze binding changed")
+    require(freeze["revision"] == dataset["revision"] == REVISION
+            == git(repo, "rev-parse", "HEAD").decode().strip(), "Pinned revision mismatch")
+    require(dataset["repo_url"] == freeze["repo_url"] == "https://github.com/encode/httpx",
+            "Official source URL mismatch")
+    require(dataset["source_root"] == freeze["source_root"] == "httpx"
+            and dataset["source_exclusions"] == freeze["source_exclusions"] == [],
+            "Frozen source scope changed")
+    require(git(repo, "status", "--porcelain=v1", "--untracked-files=all") == b"",
+            "Corpus checkout has changes")
+    tracked = sorted(path.decode() for path in git(repo, "ls-files", "-z", "--", "httpx").split(b"\0")
+                     if path and path.decode().endswith(".py"))
+    require(tracked == sorted(freeze["tracked_python_source_files"]), "Tracked source membership changed")
+    selected = sorted(path.relative_to(repo).as_posix()
+                      for path in _source_files(repo, repo / "httpx", ()))
+    require(selected == tracked, "Production source selection differs from frozen tracked Python scope")
+    sources, line_lists, raw_hashes, ast_rows, headers = {}, {}, {}, {}, {}
+    for path in tracked:
+        raw = (repo / path).read_bytes()
+        require(raw == git(repo, "show", f"{REVISION}:{path}"), "Source differs from pinned Git blob")
+        require(sha(raw) == freeze["tracked_python_source_files"][path], "Source hash changed")
+        source = raw.decode("utf-8")
+        sources[path], line_lists[path], raw_hashes[path] = source, physical_lines(source), sha(raw)
+        ast_rows[path] = definitions(source)
+        headers[path] = {"first_physical_lines": min(12, len(line_lists[path])),
+                         "sha256": sha("".join(line_lists[path][:12]).encode())}
+    license_raw = (repo / "LICENSE.md").read_bytes()
+    require(license_raw == git(repo, "show", f"{REVISION}:LICENSE.md"), "Upstream license changed")
+    require(sha(license_raw) == freeze["license"]["sha256"]
+            and license_raw == (ROOT / "benchmarks/HTTPX_LICENSE.txt").read_bytes(),
+            "Published license does not match pinned source")
+    snippets = extract_snippets(repo, "httpx", max_lines=160, overlap_lines=40,
+                                source_exclusions=(), sources=sources)
+    require(len({row.id for row in snippets}) == len(snippets), "Duplicate extracted source window")
+    inventory = []
+    for row in snippets:
+        expected = "".join(line_lists[row.path][row.start_line - 1:row.end_line])
+        require(row.text == expected and row.content_hash == sha(expected.encode()),
+                "Source window is not exact pinned physical source")
+        inventory.append({"id": row.id, "path": row.path, "symbol": row.symbol,
+                          "start_line": row.start_line, "end_line": row.end_line,
+                          "source_hash": row.content_hash})
+    require(len({query["id"] for query in dataset["queries"]}) == len(dataset["queries"]),
+            "Duplicate query identity")
+    proofs = []
+    positives = absent = required = multi_file = same_file_and = 0
+    for query in dataset["queries"]:
+        gold = groups(query)
+        require(query["query"].strip() and isinstance(query["notes"], str) and query["notes"].strip(),
+                "Query text or source scope note is missing")
+        require(query["split"] == "repository_holdout", "Fresh dataset split changed")
+        paths, group_proofs = set(), []
+        positives += bool(gold)
+        absent += not gold
+        for alternatives in gold:
+            required += 1
+            alternative_proofs = []
+            for target in alternatives:
+                path, symbol = target["path"], target["symbol"]
+                require(path in sources, "Gold outside frozen source scope")
+                matches = ast_rows[path].get(symbol, [])
+                require(len(matches) == 1, "Gold does not bind exactly one AST definition")
+                node = matches[0]
+                first, last = target["evidence_lines"]
+                require(type(first) is int and type(last) is int and 1 <= first <= last <= len(line_lists[path]),
+                        "Invalid evidence bounds")
+                require(target["definition_lines"] == target["evidence_lines"]
+                        == [node.lineno, node.end_lineno], "Gold is not the complete executable definition")
+                require(not (len(node.body) == 1 and isinstance(node.body[0], ast.Expr)
+                             and isinstance(node.body[0].value, ast.Constant)
+                             and isinstance(node.body[0].value.value, str)), "Docstring-only gold")
+                evidence = "".join(line_lists[path][first - 1:last])
+                require(sha(evidence.encode()) == target["evidence_sha256"]
+                        and raw_hashes[path] == target["source_file_sha256"], "Gold hash mismatch")
+                require(line_lists[path][first - 1].strip() == target["declaration_anchor"],
+                        "Gold declaration anchor mismatch")
+                require(path not in query["query"] and symbol not in query["query"],
+                        "Query leaks its exact target path or symbol")
+                eligible = [row.id for row in snippets if row.path == path
+                            and row.start_line <= first <= last <= row.end_line]
+                require(eligible, f"No source window contains full evidence: {query['id']}:{symbol}")
+                paths.add(path)
+                alternative_proofs.append({**target, "eligible_window_ids": eligible})
+            group_proofs.append(alternative_proofs)
+        multi_file += bool(len(gold) > 1 and len(paths) > 1)
+        same_file_and += bool(len(gold) > 1 and len(paths) == 1)
+        proofs.append({"id": query["id"], "kind": query["kind"], "query": query["query"],
+                       "required_groups": len(gold), "group_proofs": group_proofs})
+    require((len(proofs), positives, absent, required, multi_file, same_file_and) == (15, 12, 3, 28, 5, 3),
+            "Prospective authored query inventory changed")
+    implementation = [ROOT / "src/semantic_search/corpus.py", ROOT / "src/semantic_search/languages.py",
+                      ROOT / "src/semantic_search/source.py", ROOT / "src/semantic_search/javascript.py"]
+    return {"version": 1, "classification": "Static HTTPX full-source and full-function gold eligibility",
+            "created_at_utc": datetime.now(timezone.utc).isoformat(), "checks_passed": True,
+            "model_calls": 0, "embedding_calls": 0, "retrieval_calls": 0,
+            "ranking_outcomes_read": False, "httpx_runtime_imported": False,
+            "independent_semantic_review_required": True,
+            "generator": str(Path(__file__).relative_to(ROOT)), "generator_sha256": sha(Path(__file__).read_bytes()),
+            "dataset": DATASET, "dataset_sha256": sha(dataset_raw), "source_freeze": FREEZE,
+            "source_freeze_sha256": sha(freeze_raw), "corpus": CORPUS, "repo_url": dataset["repo_url"],
+            "revision": REVISION, "source_root": "httpx", "source_exclusions": [], "git_clean": True,
+            "source_file_count": len(tracked), "source_file_sha256": raw_hashes, "source_headers": headers,
+            "license": {"path": "LICENSE.md", "sha256": sha(license_raw),
+                        "notice_path": "benchmarks/HTTPX_LICENSE.txt"},
+            "implementation_sha256": {str(path.relative_to(ROOT)): sha(path.read_bytes()) for path in implementation},
+            "extractor": extractor_fingerprint(), "window_count": len(inventory), "window_inventory": inventory,
+            "window_inventory_sha256": sha(canonical(inventory)),
+            "query_count": len(proofs), "positive_queries": positives, "scoped_absent_queries": absent,
+            "required_groups": required, "multi_file_positive_queries": multi_file,
+            "same_file_and_queries": same_file_and, "query_proofs": proofs,
+            "absence_review": {"scope": "all 23 tracked httpx Python implementation files, excluding tests/docs/dependencies/caller code",
+                               "persistent_response_cache": "No disk HTTP-response cache/freshness/revalidation implementation; decoder/body memoization and cookies are insufficient.",
+                               "server_error_backoff_retry": "httpcore connection retries, redirects and Digest retries do not implement status-response backoff/jitter.",
+                               "digest_body_integrity": "DigestAuth._resolve_qop explicitly raises NotImplementedError for sole auth-int; body hashing is TODO."},
+            "limitations": ["This static gate verifies source/label bindings and window eligibility, not dynamic HTTPX behavior or retrieval quality.",
+                            "The codebase was source-read to author labels; fresh means previously unranked source/settings, not unread source or pretraining holdout."]}
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--output", type=Path)
+    args = parser.parse_args()
+    receipt = validate()
+    if args.output is not None:
+        require(not args.output.exists(), "Refuse to replace a prospective eligibility receipt")
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        args.output.write_text(json.dumps(receipt, indent=2, sort_keys=True, ensure_ascii=False) + "\n")
+    print(json.dumps({key: receipt[key] for key in ("checks_passed", "revision", "source_file_count", "window_count",
+                                                 "query_count", "positive_queries", "scoped_absent_queries",
+                                                 "required_groups", "multi_file_positive_queries", "same_file_and_queries")}, indent=2))
+
+
+if __name__ == "__main__":
+    main()

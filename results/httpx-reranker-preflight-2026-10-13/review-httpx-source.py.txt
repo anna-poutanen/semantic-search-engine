@@ -1,0 +1,163 @@
+#!/usr/bin/env python3
+"""Independent CPU source/AST/window binding review; no HTTPX runtime or retrieval."""
+import ast
+from datetime import datetime, timezone
+import hashlib
+import json
+from pathlib import Path
+import re
+import subprocess
+import sys
+
+ROOT = Path(__file__).resolve().parents[2]
+HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(ROOT / "src"))
+from semantic_search.corpus import extract_snippets
+
+
+def sha(raw):
+    return hashlib.sha256(raw).hexdigest()
+
+
+def require(condition, message):
+    if not condition:
+        raise ValueError(message)
+
+
+def git(repo, *args):
+    return subprocess.check_output(["git", "-C", str(repo), *args], timeout=15)
+
+
+class Definitions(ast.NodeVisitor):
+    def __init__(self):
+        self.stack, self.rows = [], {}
+
+    def visit_ClassDef(self, node):
+        self.stack.append(node.name)
+        self.generic_visit(node)
+        self.stack.pop()
+
+    def visit_FunctionDef(self, node):
+        self.stack.append(node.name)
+        self.rows.setdefault(".".join(self.stack), []).append(node)
+        self.generic_visit(node)
+        self.stack.pop()
+
+    visit_AsyncFunctionDef = visit_FunctionDef
+
+
+def review():
+    inputs = {"source-freeze": HERE / "source-freeze.json", "eligibility": HERE / "eligibility.json",
+              "manifest": ROOT / "benchmarks/httpx_reranker_manifest.json",
+              "dataset": ROOT / "benchmarks/httpx_reranker_queries.json"}
+    raw = {name: path.read_bytes() for name, path in inputs.items()}
+    hashes = {name: sha(data) for name, data in raw.items()}
+    parsed = {name: json.loads(data) for name, data in raw.items()}
+    freeze, manifest, dataset, eligibility = [parsed[name] for name in ("source-freeze", "manifest", "dataset", "eligibility")]
+    spec = manifest["datasets"][0]
+    repo = ROOT / spec["corpus"]
+    require(git(repo, "rev-parse", "HEAD").decode().strip() == freeze["revision"] == spec["revision"] == dataset["revision"], "Pinned revision differs")
+    require(freeze["revision"] == "26d48e0634e6ee9cdc0533996db289ce4b430177", "Unexpected revision")
+    require(git(repo, "status", "--porcelain=v1", "--untracked-files=all") == b"", "Checkout is dirty")
+    require(spec["sha256"] == hashes["dataset"] == eligibility["dataset_sha256"], "Dataset SHA differs")
+    require(manifest["source_freeze_sha256"] == dataset["source_freeze_sha256"] == hashes["source-freeze"], "Source freeze SHA differs")
+    require(manifest["source_audit_sha256"] == hashes["eligibility"], "Eligibility SHA differs")
+    require(all(value == "httpx" for value in (freeze["source_root"], dataset["source_root"], spec["source_root"])), "Scope root differs")
+    require(freeze["source_exclusions"] == dataset["source_exclusions"] == spec["source_exclusions"] == [], "Scope exclusions differ")
+    require(freeze["labels_authored"] is False and freeze["prior_corpus_retrieval_observed"] is False, "Pre-label source freeze invalid")
+    require(all(freeze[key] == 0 for key in ("embedding_calls", "model_calls", "retrieval_calls")), "Inference before source freeze")
+    tracked = sorted(path.decode() for path in git(repo, "ls-files", "-z", "--", "httpx").split(b"\0") if path and path.endswith(b".py"))
+    require(tracked == sorted(freeze["tracked_python_source_files"]) and len(tracked) == 23, "Tracked Python scope differs")
+    sources, lines, nodes, source_hashes = {}, {}, {}, {}
+    for path in tracked:
+        source_raw = (repo / path).read_bytes()
+        require(source_raw == git(repo, "show", "HEAD:" + path), "Working bytes differ from committed blob: " + path)
+        source_hashes[path] = sha(source_raw)
+        require(source_hashes[path] == freeze["tracked_python_source_files"][path], "Frozen source SHA differs: " + path)
+        sources[path] = source_raw.decode("utf-8")
+        lines[path] = re.findall(r"[^\r\n]*(?:\r\n|\r|\n)|[^\r\n]+$", sources[path])
+        definitions = Definitions()
+        definitions.visit(ast.parse(sources[path], filename=path))
+        nodes[path] = definitions.rows
+    settings = manifest["source_window_settings"]
+    require(settings == {"include_docstrings": True, "max_lines": 160, "overlap_lines": 40}, "Window settings differ")
+    snippets = extract_snippets(repo, "httpx", 160, 40, sources=sources, source_exclusions=())
+    require(len(snippets) == manifest["source_window_count"] == eligibility["window_count"] == 438, "Window count differs")
+    require(len({row.id for row in snippets}) == len(snippets), "Duplicate source windows")
+    query_proofs = []
+    positives = absent = group_count = multi_file = same_file = 0
+    ids = []
+    for query in dataset["queries"]:
+        ids.append(query["id"])
+        require(query["split"] == "repository_holdout" and query["query"].strip(), "Query split/text invalid")
+        if query["kind"] == "absent":
+            absent += 1
+            require(query.get("targets") == [] and "target_groups" not in query, "Absent query has gold")
+            query_proofs.append({"id": query["id"], "kind": "absent", "required_groups": 0})
+            continue
+        positives += 1
+        groups = query.get("target_groups", [query.get("targets")])
+        require(query["kind"] == "present" and groups and all(groups), "Positive gold missing")
+        paths, proofs = set(), []
+        for group in groups:
+            require(len(group) == 1, "Unexpected OR alternative")
+            target = group[0]
+            path, symbol = target["path"], target["symbol"]
+            require(path in sources and symbol in nodes[path], "Gold symbol not in frozen source")
+            expected = target["definition_lines"]
+            matches = [node for node in nodes[path][symbol] if [node.lineno, node.end_lineno] == expected]
+            require(len(matches) == 1, "Definition lines do not identify a unique complete AST body")
+            require(target["evidence_lines"] == expected, "Evidence is not the entire function body")
+            a, b = expected
+            source_text = "".join(lines[path][a - 1:b])
+            require(sha(source_text.encode()) == target["evidence_sha256"], "Gold span SHA differs")
+            require(source_hashes[path] == target["source_file_sha256"], "Gold file SHA differs")
+            require(lines[path][a - 1].strip() == target["declaration_anchor"], "Declaration anchor differs")
+            eligible = [row.id for row in snippets if row.path == path and row.start_line <= a <= b <= row.end_line]
+            require(eligible, "No actual source window contains entire gold function")
+            for row in [row for row in snippets if row.id in eligible]:
+                require(row.text == "".join(lines[path][row.start_line - 1:row.end_line]), "Window source was rewritten")
+                require(sha(row.text.encode()) == row.content_hash, "Window SHA differs")
+            paths.add(path)
+            group_count += 1
+            proofs.append({"path": path, "symbol": symbol, "full_ast_body": expected,
+                           "evidence_sha256": target["evidence_sha256"], "eligible_window_ids": eligible})
+        multi_file += len(groups) > 1 and len(paths) > 1
+        same_file += len(groups) > 1 and len(paths) == 1
+        query_proofs.append({"id": query["id"], "kind": "present", "required_groups": len(groups), "groups": proofs})
+    require(len(ids) == len(set(ids)) == 15, "Query inventory or uniqueness differs")
+    require((positives, absent, group_count, multi_file, same_file) == (12, 3, 28, 5, 3), "Gold inventory differs")
+    for name, path in inputs.items():
+        require(sha(path.read_bytes()) == hashes[name], "Review input changed during review: " + name)
+    require("httpx" not in sys.modules and "mlx.core" not in sys.modules, "Unexpected runtime import")
+    return {"version": 1, "created_at_utc": datetime.now(timezone.utc).isoformat(),
+            "reviewer": "independent batch_scorer agent, not label author", "checks_passed": True,
+            "script_sha256": sha(Path(__file__).read_bytes()), "input_sha256": hashes,
+            "model_calls": 0, "embedding_calls": 0, "retrieval_calls": 0,
+            "ranking_outcomes_read": False, "httpx_runtime_imported": False,
+            "revision": freeze["revision"], "source_file_count": len(tracked), "source_file_sha256": source_hashes,
+            "window_count": len(snippets), "query_count": len(ids), "positive_queries": positives,
+            "scoped_absent_queries": absent, "required_groups": group_count,
+            "multi_file_positive_queries": multi_file, "same_file_and_queries": same_file,
+            "query_proofs": query_proofs,
+            "semantic_review": "independent-source-review.md",
+            "semantic_review_sha256": sha((HERE / "independent-source-review.md").read_bytes()),
+            "limitations": ["Source-authored gold and static full-body delivery checks; not dynamic HTTPX correctness.",
+                            "Null-valued custom cookie jars can bypass Cookies.get's value-is-not-None ambiguity guard; review records this source edge case.",
+                            "URL.host decodes IDNA only when the stored normalized host starts with xn--, as already scoped in authored notes.",
+                            "Absence is limited to all tracked httpx Python implementations; external dependencies/custom transports/caller logic are outside scope."]}
+
+
+try:
+    receipt = review()
+except BaseException as error:
+    receipt = {"created_at_utc": datetime.now(timezone.utc).isoformat(), "checks_passed": False,
+               "script_sha256": sha(Path(__file__).read_bytes()), "error_type": type(error).__name__, "error": str(error),
+               "model_calls": 0, "embedding_calls": 0, "retrieval_calls": 0, "ranking_outcomes_read": False}
+    with (HERE / "reviewer-failure.json").open("x") as stream:
+        stream.write(json.dumps(receipt, sort_keys=True, indent=2) + "\n")
+    raise
+else:
+    with (HERE / "reviewer-receipt.json").open("x") as stream:
+        stream.write(json.dumps(receipt, sort_keys=True, indent=2) + "\n")
+    print(json.dumps({key: receipt[key] for key in ("checks_passed", "query_count", "positive_queries", "scoped_absent_queries", "required_groups", "window_count")}, sort_keys=True))

@@ -1,0 +1,79 @@
+{
+  "advisories": [
+    {
+      "blocking": false,
+      "finding": "16,384 bounds padded input slots, not GPU allocator bytes or OS RSS. Native SDPA can choose fused/unfused heuristics; shape-dependent actual peaks must be measured and reported.",
+      "id": "input_slots_are_not_byte_memory_limit"
+    },
+    {
+      "blocking": false,
+      "finding": "score_batch docstring says no graph reuse across requests. Native MLX-LM swiglu uses mx.compile(shapeless=True), so this is too broad. Restrict the claim to no input/KV/result caching; native compiled kernel reuse is part of a warm runtime.",
+      "id": "native_compile_wording"
+    },
+    {
+      "blocking": false,
+      "finding": "Resident caller must release both the engine and returned model/weights tuple before clear_cache, because the scorer lambda retains model. Verify clean shutdown/allocator state in actual worker receipts.",
+      "id": "resident_cleanup_ownership"
+    }
+  ],
+  "blocking_findings": [],
+  "checks": {
+    "actual_accounting": "Distinct attempted/completed batch-forward and pair counters record one B-way execution as one forward and B pairs. Every scorer attempt has started followed by completed or failed receipt; failed scalar validation does not increment completion. Completed token totals split real and allocated slots.",
+    "bounded_schedule": "Allowed sizes1,2,4,8; <=50 pairs/request; each pair<=8192 tokens; actual B*L<=16384. Greedy ascending-length grouping rejects a sequence over its requested token budget rather than dropping it. Stable original index breaks length ties.",
+    "checkpoint_runtime": "The loader calls unchanged original checkpoint verification with weight hashing before load, uses strict native model weights and original PairBuilder/instruction. Installed Qwen3, base and rope source hashes plus runtime versions are checked; supporting imported origins are checked. No Hub loader, network, quantization, replacement architecture or source metadata injection is introduced.",
+    "error_ownership": "Loaded model and weights are returned to caller, while engine scorer closure also retains model. Batch arrays are local and successful results are only Python scalar/source-identity metadata; loader exception clears local model/weights and MLX cache. Resident shutdown must release engine closure plus returned ownership references and clear allocator cache.",
+    "final_token_gather": "hidden[rows,positions,:] selects each n-1 index, then adds the singleton sequence axis before the tied embedding projection. Shape checks require exactly B,1 before reading yes/no logits; no full-sequence vocabulary head is projected.",
+    "native_attention": "Qwen3 reshapes attention to B,head,L,dim and no cache is provided. Qwen3Model calls create_attention_mask(h,None), returning causal for L>1. MLX fast SDPA documents lower-right causal alignment, which is j<=i here because query/key lengths are equal. No mixing across batch examples occurs.",
+    "original_order": "Each original index appears once in planned groups. Scored rows are written back into results[index]. Receipts bind pair_index, source/query/delivered hashes and exact input-token hashes, so scheduling does not alter external candidate identity.",
+    "padding_isolation": "Right padding retains each real prefix at identical positions 0..n-1. A real query i<n cannot attend future padded keys j>=n; per-token RMSNorm/MLP and residual paths preserve this through all layers. Padded query outputs are never selected or fed into any real earlier state.",
+    "parity_plan": "Document freezes internal BF16 bounds and near-tie inversion/top-five checks before inference, including varied lengths, peer reorder/duplicate, Unicode and full-line clipping. Fake tests cannot establish native numerical parity; old rankings cannot substitute for actual batched scoring/packing.",
+    "rope": "Pinned config has rope_scaling=null, sliding_window=null, tie_word_embeddings=true. initialize_rope selects nn.RoPE; no-cache attention calls RoPE with its default offset0. There is no length-dependent dynamic RoPE for this checkpoint.",
+    "singleton_exactness": "Every singleton, including singleton remainder in a B>1 schedule, calls unchanged prototype.score_pair with identical builder input, no padding and original final slice. B1 plans keep original candidate order."
+  },
+  "classification": "Independent static batch scorer and pinned native API review; no inference",
+  "created_at_utc": "2026-10-14T00:58:01.434662+00:00",
+  "embedding_calls": 0,
+  "limitations": [
+    "No model weights loaded or pair inference performed; static causal reasoning and fake tests do not certify BF16 numerical parity, warm latency, native peak memory, end-to-end resident cleanup or retrieval quality.",
+    "This review covers the bound source hashes. Later source changes require a review update or independent recheck before use."
+  ],
+  "model_calls": 0,
+  "native_runtime_imported_by_review": false,
+  "passed": true,
+  "retrieval_calls": 0,
+  "reviewed_asset_sha256": {
+    ".cache/models/qwen3-reranker-0.6b-original/config.json": "d479c427a9ca5295218063d4f9aca4f297ab4ac27487cca7af42c84643d51ef0",
+    ".cache/reranker-experiment/.venv/lib/python3.12/site-packages/mlx/core/fast.pyi": "e6ead453b46633174ef101388f4e6b7c02ed837fbee91db16aa3be39ea6f2d4b",
+    ".cache/reranker-experiment/.venv/lib/python3.12/site-packages/mlx/nn/layers/normalization.py": "0873ca425d5de6dd462d336ff45a2563f945abeebef3f5146bfc7c83af54be83",
+    ".cache/reranker-experiment/.venv/lib/python3.12/site-packages/mlx/nn/layers/positional_encoding.py": "8c139eb81c41b2bb5fd6caa64395a5ef9da72b862ff29ae38507b94223913a64",
+    ".cache/reranker-experiment/.venv/lib/python3.12/site-packages/mlx_lm/models/activations.py": "6f7d756897deb322af4fe98e040df76e9358a91d76521e51f14d734fdd0fb05f",
+    ".cache/reranker-experiment/.venv/lib/python3.12/site-packages/mlx_lm/models/base.py": "b782b2ac0f55ed8fa9c1afce1f36307d5d8714aad2c0991d63998047f7507174",
+    ".cache/reranker-experiment/.venv/lib/python3.12/site-packages/mlx_lm/models/qwen3.py": "7e29b7055d8e526a0ede6e2740a3038ad24d0cef6a1abb446c411d3fbd0efa2d",
+    ".cache/reranker-experiment/.venv/lib/python3.12/site-packages/mlx_lm/models/rope_utils.py": "06466d57dfe1ccc1e61ba595c0a8f2dd3a14bcb5c6a1d06c67591dc03128606b",
+    "docs/qwen-reranker-batching.md": "e4ea898d14d916c2b57b312a6732a8607a8f7dfeeb0be593c46616d3b6ec61f1",
+    "scripts/prototype_qwen_reranker.py": "a76d0e9d97ead8b40e6c538d84d178f6ceea9b145dba07cb5c34f2972c0d90e0",
+    "scripts/qwen_reranker_batch.py": "64b6e3249ad7a404c27e871b8c1fbd17e68f0e09be7c5daee9b820355fc622fa",
+    "tests/test_qwen_reranker_batch.py": "fb53ab90a6ac433664c0bee8911493e1f80f3634b2b8c2eb092090b686693bb2"
+  },
+  "reviewer": "fresh_corpus independent agent, not batch source author",
+  "scope": "Static implementation and injected contracts only; actual resident numeric parity is a required subsequent gate",
+  "source_edits": 0,
+  "verification": {
+    "import_free_preflight_command": ".cache/reranker-experiment/.venv/bin/python scripts/qwen_reranker_batch.py",
+    "injected_tests_command": ".venv/bin/python -m pytest -q tests/test_qwen_reranker_batch.py",
+    "injected_tests_result": "51 passed in0.11s; no native model/runtime loaded",
+    "preflight_result": {
+      "errors": [],
+      "model_calls": 0,
+      "network": false,
+      "packages": {
+        "mlx": "0.32.3",
+        "mlx-lm": "0.32.0",
+        "tokenizers": "0.23.3"
+      },
+      "weights_loaded": false
+    }
+  },
+  "version": 1,
+  "weight_bytes_read": false
+}
