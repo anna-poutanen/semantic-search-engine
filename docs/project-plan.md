@@ -132,6 +132,20 @@ skipped contained excerpts and backfilled spare capacity. It changed 28/90
 delivered outputs and improved three evidence ranks, but recovered no complete
 behavior and lost none. The default packing policy remains unchanged.
 
+A separate [clause-fusion development test](../results/clause-fusion-development-v2-2026-10-13/independent-findings.md)
+completed all 60 planned conditions with fresh query embeddings. It recovered no
+complete misses, increased query API calls from 30 to 56, and lost one Zod
+candidate-complete behavior at depth 50. Delivered completeness stayed 10/12
+Express and 8/12 Zod. The initial source-gate failure made zero model calls and
+is preserved separately. This rule remains experimental.
+
+The [new Koa source preflight](../results/koa-clause-preflight-2026-10-13/source-review.md)
+verifies six positives, three multi-file AND behaviors and two scoped absent
+queries without inference. None of those naturally authored queries activates
+the narrow clause rule, so its comparative applicability gate fails. The texts
+were not rewritten to force activation. They remain a prospective retrieval
+corpus, rather than a completed holdout result.
+
 Use fresh development queries to improve evidence delivery and a new
 untouched holdout to assess those changes. The observed Zod misses are now
 development evidence for future tuning. Broader coding tasks and external beta

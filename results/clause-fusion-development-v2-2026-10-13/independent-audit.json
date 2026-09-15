@@ -1,0 +1,1372 @@
+{
+  "classification": "Independent post-selection audit of already-observed Express/Zod development query fusion",
+  "checks_passed": true,
+  "attempts_checked": 60,
+  "unique_queries": 30,
+  "raw_ranked_windows_checked": 4300,
+  "delivered_excerpts_checked": 460,
+  "saved_files_checked": 113,
+  "frozen_windows_checked": 1992,
+  "metrics": {
+    "express": {
+      "full_query_dense": {
+        "queries": 15,
+        "present": 12,
+        "absent": 3,
+        "candidate_complete": 12,
+        "delivered_complete": 10,
+        "required_groups": 19,
+        "candidate_groups": 19,
+        "delivered_groups": 17,
+        "and_queries": 4,
+        "and_complete": 2,
+        "absent_with_decoys": 3,
+        "absent_statuses": {
+          "candidates": 3
+        },
+        "observed_query_api_calls": 15,
+        "inprocess_samples": 15,
+        "median_inprocess_s": 0.10828404099447653,
+        "p95_inprocess_s": 0.11650366600952111,
+        "total_inprocess_s": 1.608997704955982,
+        "max_compact_tokens": 2232
+      },
+      "clause_rrf": {
+        "queries": 15,
+        "present": 12,
+        "absent": 3,
+        "candidate_complete": 12,
+        "delivered_complete": 10,
+        "required_groups": 19,
+        "candidate_groups": 19,
+        "delivered_groups": 17,
+        "and_queries": 4,
+        "and_complete": 2,
+        "absent_with_decoys": 3,
+        "absent_statuses": {
+          "candidates": 3
+        },
+        "observed_query_api_calls": 31,
+        "inprocess_samples": 15,
+        "median_inprocess_s": 0.14718070899834856,
+        "p95_inprocess_s": 0.16137274997890927,
+        "total_inprocess_s": 1.9741449189314153,
+        "max_compact_tokens": 2403
+      }
+    },
+    "zod": {
+      "full_query_dense": {
+        "queries": 15,
+        "present": 12,
+        "absent": 3,
+        "candidate_complete": 11,
+        "delivered_complete": 8,
+        "required_groups": 19,
+        "candidate_groups": 18,
+        "delivered_groups": 13,
+        "and_queries": 4,
+        "and_complete": 0,
+        "absent_with_decoys": 3,
+        "absent_statuses": {
+          "candidates": 3
+        },
+        "observed_query_api_calls": 15,
+        "inprocess_samples": 15,
+        "median_inprocess_s": 0.1964857499988284,
+        "p95_inprocess_s": 0.3551984999794513,
+        "total_inprocess_s": 3.2219320440199226,
+        "max_compact_tokens": 4092
+      },
+      "clause_rrf": {
+        "queries": 15,
+        "present": 12,
+        "absent": 3,
+        "candidate_complete": 10,
+        "delivered_complete": 8,
+        "required_groups": 19,
+        "candidate_groups": 17,
+        "delivered_groups": 13,
+        "and_queries": 4,
+        "and_complete": 0,
+        "absent_with_decoys": 3,
+        "absent_statuses": {
+          "candidates": 3
+        },
+        "observed_query_api_calls": 25,
+        "inprocess_samples": 15,
+        "median_inprocess_s": 0.22106391601846553,
+        "p95_inprocess_s": 0.30662433299585246,
+        "total_inprocess_s": 3.4222827079647686,
+        "max_compact_tokens": 4092
+      }
+    }
+  },
+  "paired_changes": {
+    "complete_gains": [],
+    "complete_regressions": [],
+    "and_gains": [],
+    "and_regressions": [],
+    "group_changes": [],
+    "rank_changes": [
+      {
+        "dataset": "express",
+        "query_id": "express_redirect_html_and_head",
+        "baseline_ranks": [
+          2
+        ],
+        "fusion_ranks": [
+          3
+        ],
+        "baseline_candidate_ranks": [
+          2
+        ],
+        "fusion_candidate_ranks": [
+          3
+        ]
+      },
+      {
+        "dataset": "express",
+        "query_id": "express_trusted_forwarded_protocol",
+        "baseline_ranks": [
+          null,
+          1,
+          2
+        ],
+        "fusion_ranks": [
+          null,
+          4,
+          1
+        ],
+        "baseline_candidate_ranks": [
+          14,
+          1,
+          2
+        ],
+        "fusion_candidate_ranks": [
+          26,
+          4,
+          1
+        ]
+      },
+      {
+        "dataset": "express",
+        "query_id": "express_view_cache_and_lookup",
+        "baseline_ranks": [
+          1,
+          3,
+          2
+        ],
+        "fusion_ranks": [
+          1,
+          3,
+          4
+        ],
+        "baseline_candidate_ranks": [
+          1,
+          3,
+          2
+        ],
+        "fusion_candidate_ranks": [
+          1,
+          3,
+          4
+        ]
+      },
+      {
+        "dataset": "express",
+        "query_id": "express_callable_app_dispatch_context",
+        "baseline_ranks": [
+          2,
+          1
+        ],
+        "fusion_ranks": [
+          3,
+          1
+        ],
+        "baseline_candidate_ranks": [
+          2,
+          1
+        ],
+        "fusion_candidate_ranks": [
+          3,
+          1
+        ]
+      }
+    ],
+    "candidate_complete_gains": [],
+    "candidate_complete_regressions": [
+      {
+        "dataset": "zod",
+        "query_id": "zod_nested_deep_partial",
+        "baseline_ranks": [
+          null,
+          null,
+          null
+        ],
+        "fusion_ranks": [
+          null,
+          null,
+          null
+        ],
+        "baseline_candidate_ranks": [
+          17,
+          26,
+          26
+        ],
+        "fusion_candidate_ranks": [
+          null,
+          14,
+          14
+        ]
+      }
+    ]
+  },
+  "cases": [
+    {
+      "condition": "full_query_dense",
+      "dataset": "express",
+      "query_id": "express_case_insensitive_header_alias",
+      "kind": "present",
+      "multi_file": false,
+      "ranks": [
+        1
+      ],
+      "candidate_ranks": [
+        1
+      ],
+      "tokens": 1455,
+      "result_count": 8,
+      "match_status": "candidates",
+      "elapsed_inprocess_s": 0.11348991599516012,
+      "query_api_calls": 1
+    },
+    {
+      "condition": "clause_rrf",
+      "dataset": "express",
+      "query_id": "express_case_insensitive_header_alias",
+      "kind": "present",
+      "multi_file": false,
+      "ranks": [
+        1
+      ],
+      "candidate_ranks": [
+        1
+      ],
+      "tokens": 1581,
+      "result_count": 8,
+      "match_status": "candidates",
+      "elapsed_inprocess_s": 0.15966583299450576,
+      "query_api_calls": 3
+    },
+    {
+      "condition": "clause_rrf",
+      "dataset": "express",
+      "query_id": "express_jsonp_callback_safety",
+      "kind": "present",
+      "multi_file": false,
+      "ranks": [
+        1
+      ],
+      "candidate_ranks": [
+        1
+      ],
+      "tokens": 1711,
+      "result_count": 8,
+      "match_status": "candidates",
+      "elapsed_inprocess_s": 0.10868574999039993,
+      "query_api_calls": 1
+    },
+    {
+      "condition": "full_query_dense",
+      "dataset": "express",
+      "query_id": "express_jsonp_callback_safety",
+      "kind": "present",
+      "multi_file": false,
+      "ranks": [
+        1
+      ],
+      "candidate_ranks": [
+        1
+      ],
+      "tokens": 1711,
+      "result_count": 8,
+      "match_status": "candidates",
+      "elapsed_inprocess_s": 0.11495700001250952,
+      "query_api_calls": 1
+    },
+    {
+      "condition": "full_query_dense",
+      "dataset": "express",
+      "query_id": "express_cookie_signing_and_age",
+      "kind": "present",
+      "multi_file": false,
+      "ranks": [
+        1
+      ],
+      "candidate_ranks": [
+        1
+      ],
+      "tokens": 1932,
+      "result_count": 8,
+      "match_status": "candidates",
+      "elapsed_inprocess_s": 0.10576220901566558,
+      "query_api_calls": 1
+    },
+    {
+      "condition": "clause_rrf",
+      "dataset": "express",
+      "query_id": "express_cookie_signing_and_age",
+      "kind": "present",
+      "multi_file": false,
+      "ranks": [
+        1
+      ],
+      "candidate_ranks": [
+        1
+      ],
+      "tokens": 1932,
+      "result_count": 8,
+      "match_status": "candidates",
+      "elapsed_inprocess_s": 0.10629570900346152,
+      "query_api_calls": 1
+    },
+    {
+      "condition": "clause_rrf",
+      "dataset": "express",
+      "query_id": "express_clear_cookie_ignores_age",
+      "kind": "present",
+      "multi_file": false,
+      "ranks": [
+        1
+      ],
+      "candidate_ranks": [
+        1
+      ],
+      "tokens": 1310,
+      "result_count": 8,
+      "match_status": "candidates",
+      "elapsed_inprocess_s": 0.16017433302477002,
+      "query_api_calls": 3
+    },
+    {
+      "condition": "full_query_dense",
+      "dataset": "express",
+      "query_id": "express_clear_cookie_ignores_age",
+      "kind": "present",
+      "multi_file": false,
+      "ranks": [
+        1
+      ],
+      "candidate_ranks": [
+        1
+      ],
+      "tokens": 1474,
+      "result_count": 8,
+      "match_status": "candidates",
+      "elapsed_inprocess_s": 0.11144449998391792,
+      "query_api_calls": 1
+    },
+    {
+      "condition": "full_query_dense",
+      "dataset": "express",
+      "query_id": "express_append_preserves_headers",
+      "kind": "present",
+      "multi_file": false,
+      "ranks": [
+        2
+      ],
+      "candidate_ranks": [
+        2
+      ],
+      "tokens": 1796,
+      "result_count": 8,
+      "match_status": "candidates",
+      "elapsed_inprocess_s": 0.1117632079985924,
+      "query_api_calls": 1
+    },
+    {
+      "condition": "clause_rrf",
+      "dataset": "express",
+      "query_id": "express_append_preserves_headers",
+      "kind": "present",
+      "multi_file": false,
+      "ranks": [
+        2
+      ],
+      "candidate_ranks": [
+        2
+      ],
+      "tokens": 1796,
+      "result_count": 8,
+      "match_status": "candidates",
+      "elapsed_inprocess_s": 0.09520095799234696,
+      "query_api_calls": 1
+    },
+    {
+      "condition": "clause_rrf",
+      "dataset": "express",
+      "query_id": "express_content_negotiation_fallback",
+      "kind": "present",
+      "multi_file": false,
+      "ranks": [
+        1
+      ],
+      "candidate_ranks": [
+        1
+      ],
+      "tokens": 1252,
+      "result_count": 8,
+      "match_status": "candidates",
+      "elapsed_inprocess_s": 0.10356550000142306,
+      "query_api_calls": 1
+    },
+    {
+      "condition": "full_query_dense",
+      "dataset": "express",
+      "query_id": "express_content_negotiation_fallback",
+      "kind": "present",
+      "multi_file": false,
+      "ranks": [
+        1
+      ],
+      "candidate_ranks": [
+        1
+      ],
+      "tokens": 1252,
+      "result_count": 8,
+      "match_status": "candidates",
+      "elapsed_inprocess_s": 0.11650366600952111,
+      "query_api_calls": 1
+    },
+    {
+      "condition": "full_query_dense",
+      "dataset": "express",
+      "query_id": "express_redirect_html_and_head",
+      "kind": "present",
+      "multi_file": false,
+      "ranks": [
+        2
+      ],
+      "candidate_ranks": [
+        2
+      ],
+      "tokens": 2232,
+      "result_count": 8,
+      "match_status": "candidates",
+      "elapsed_inprocess_s": 0.10828404099447653,
+      "query_api_calls": 1
+    },
+    {
+      "condition": "clause_rrf",
+      "dataset": "express",
+      "query_id": "express_redirect_html_and_head",
+      "kind": "present",
+      "multi_file": false,
+      "ranks": [
+        3
+      ],
+      "candidate_ranks": [
+        3
+      ],
+      "tokens": 2403,
+      "result_count": 8,
+      "match_status": "candidates",
+      "elapsed_inprocess_s": 0.16137274997890927,
+      "query_api_calls": 3
+    },
+    {
+      "condition": "clause_rrf",
+      "dataset": "express",
+      "query_id": "express_mounted_app_prototype_restore",
+      "kind": "present",
+      "multi_file": false,
+      "ranks": [
+        3
+      ],
+      "candidate_ranks": [
+        3
+      ],
+      "tokens": 1742,
+      "result_count": 8,
+      "match_status": "candidates",
+      "elapsed_inprocess_s": 0.15886987498379312,
+      "query_api_calls": 3
+    },
+    {
+      "condition": "full_query_dense",
+      "dataset": "express",
+      "query_id": "express_mounted_app_prototype_restore",
+      "kind": "present",
+      "multi_file": false,
+      "ranks": [
+        3
+      ],
+      "candidate_ranks": [
+        3
+      ],
+      "tokens": 1730,
+      "result_count": 8,
+      "match_status": "candidates",
+      "elapsed_inprocess_s": 0.1112954999844078,
+      "query_api_calls": 1
+    },
+    {
+      "condition": "full_query_dense",
+      "dataset": "express",
+      "query_id": "express_configured_query_parser",
+      "kind": "present",
+      "multi_file": true,
+      "ranks": [
+        null,
+        2,
+        1
+      ],
+      "candidate_ranks": [
+        24,
+        2,
+        1
+      ],
+      "tokens": 1055,
+      "result_count": 8,
+      "match_status": "candidates",
+      "elapsed_inprocess_s": 0.10348966598394327,
+      "query_api_calls": 1
+    },
+    {
+      "condition": "clause_rrf",
+      "dataset": "express",
+      "query_id": "express_configured_query_parser",
+      "kind": "present",
+      "multi_file": true,
+      "ranks": [
+        null,
+        2,
+        1
+      ],
+      "candidate_ranks": [
+        29,
+        2,
+        1
+      ],
+      "tokens": 1052,
+      "result_count": 8,
+      "match_status": "candidates",
+      "elapsed_inprocess_s": 0.16021420899778605,
+      "query_api_calls": 3
+    },
+    {
+      "condition": "clause_rrf",
+      "dataset": "express",
+      "query_id": "express_trusted_forwarded_protocol",
+      "kind": "present",
+      "multi_file": true,
+      "ranks": [
+        null,
+        4,
+        1
+      ],
+      "candidate_ranks": [
+        26,
+        4,
+        1
+      ],
+      "tokens": 1483,
+      "result_count": 8,
+      "match_status": "candidates",
+      "elapsed_inprocess_s": 0.15888595901196823,
+      "query_api_calls": 3
+    },
+    {
+      "condition": "full_query_dense",
+      "dataset": "express",
+      "query_id": "express_trusted_forwarded_protocol",
+      "kind": "present",
+      "multi_file": true,
+      "ranks": [
+        null,
+        1,
+        2
+      ],
+      "candidate_ranks": [
+        14,
+        1,
+        2
+      ],
+      "tokens": 1487,
+      "result_count": 8,
+      "match_status": "candidates",
+      "elapsed_inprocess_s": 0.09348054099245928,
+      "query_api_calls": 1
+    },
+    {
+      "condition": "full_query_dense",
+      "dataset": "express",
+      "query_id": "express_view_cache_and_lookup",
+      "kind": "present",
+      "multi_file": true,
+      "ranks": [
+        1,
+        3,
+        2
+      ],
+      "candidate_ranks": [
+        1,
+        3,
+        2
+      ],
+      "tokens": 2116,
+      "result_count": 8,
+      "match_status": "candidates",
+      "elapsed_inprocess_s": 0.1032035420066677,
+      "query_api_calls": 1
+    },
+    {
+      "condition": "clause_rrf",
+      "dataset": "express",
+      "query_id": "express_view_cache_and_lookup",
+      "kind": "present",
+      "multi_file": true,
+      "ranks": [
+        1,
+        3,
+        4
+      ],
+      "candidate_ranks": [
+        1,
+        3,
+        4
+      ],
+      "tokens": 2116,
+      "result_count": 8,
+      "match_status": "candidates",
+      "elapsed_inprocess_s": 0.14718070899834856,
+      "query_api_calls": 3
+    },
+    {
+      "condition": "clause_rrf",
+      "dataset": "express",
+      "query_id": "express_callable_app_dispatch_context",
+      "kind": "present",
+      "multi_file": true,
+      "ranks": [
+        3,
+        1
+      ],
+      "candidate_ranks": [
+        3,
+        1
+      ],
+      "tokens": 1363,
+      "result_count": 8,
+      "match_status": "candidates",
+      "elapsed_inprocess_s": 0.15279262498370372,
+      "query_api_calls": 3
+    },
+    {
+      "condition": "full_query_dense",
+      "dataset": "express",
+      "query_id": "express_callable_app_dispatch_context",
+      "kind": "present",
+      "multi_file": true,
+      "ranks": [
+        2,
+        1
+      ],
+      "candidate_ranks": [
+        2,
+        1
+      ],
+      "tokens": 1363,
+      "result_count": 8,
+      "match_status": "candidates",
+      "elapsed_inprocess_s": 0.10175820798031054,
+      "query_api_calls": 1
+    },
+    {
+      "condition": "full_query_dense",
+      "dataset": "express",
+      "query_id": "express_absent_builtin_rate_limit",
+      "kind": "absent",
+      "multi_file": false,
+      "ranks": [],
+      "candidate_ranks": [],
+      "tokens": 1310,
+      "result_count": 8,
+      "match_status": "candidates",
+      "elapsed_inprocess_s": 0.09906170799513347,
+      "query_api_calls": 1
+    },
+    {
+      "condition": "clause_rrf",
+      "dataset": "express",
+      "query_id": "express_absent_builtin_rate_limit",
+      "kind": "absent",
+      "multi_file": false,
+      "ranks": [],
+      "candidate_ranks": [],
+      "tokens": 1310,
+      "result_count": 8,
+      "match_status": "candidates",
+      "elapsed_inprocess_s": 0.0952191669784952,
+      "query_api_calls": 1
+    },
+    {
+      "condition": "clause_rrf",
+      "dataset": "express",
+      "query_id": "express_absent_outbound_retry",
+      "kind": "absent",
+      "multi_file": false,
+      "ranks": [],
+      "candidate_ranks": [],
+      "tokens": 1891,
+      "result_count": 8,
+      "match_status": "candidates",
+      "elapsed_inprocess_s": 0.10865583299892023,
+      "query_api_calls": 1
+    },
+    {
+      "condition": "full_query_dense",
+      "dataset": "express",
+      "query_id": "express_absent_outbound_retry",
+      "kind": "absent",
+      "multi_file": false,
+      "ranks": [],
+      "candidate_ranks": [],
+      "tokens": 1891,
+      "result_count": 8,
+      "match_status": "candidates",
+      "elapsed_inprocess_s": 0.11052912499872036,
+      "query_api_calls": 1
+    },
+    {
+      "condition": "full_query_dense",
+      "dataset": "express",
+      "query_id": "express_absent_cookie_encryption_rotation",
+      "kind": "absent",
+      "multi_file": false,
+      "ranks": [],
+      "candidate_ranks": [],
+      "tokens": 1448,
+      "result_count": 8,
+      "match_status": "candidates",
+      "elapsed_inprocess_s": 0.10397487500449643,
+      "query_api_calls": 1
+    },
+    {
+      "condition": "clause_rrf",
+      "dataset": "express",
+      "query_id": "express_absent_cookie_encryption_rotation",
+      "kind": "absent",
+      "multi_file": false,
+      "ranks": [],
+      "candidate_ranks": [],
+      "tokens": 1448,
+      "result_count": 8,
+      "match_status": "candidates",
+      "elapsed_inprocess_s": 0.09736570899258368,
+      "query_api_calls": 1
+    },
+    {
+      "condition": "clause_rrf",
+      "dataset": "zod",
+      "query_id": "zod_sync_rejects_async",
+      "kind": "present",
+      "multi_file": false,
+      "ranks": [
+        3
+      ],
+      "candidate_ranks": [
+        3
+      ],
+      "tokens": 1992,
+      "result_count": 8,
+      "match_status": "candidates",
+      "elapsed_inprocess_s": 0.21197637499426492,
+      "query_api_calls": 1
+    },
+    {
+      "condition": "full_query_dense",
+      "dataset": "zod",
+      "query_id": "zod_sync_rejects_async",
+      "kind": "present",
+      "multi_file": false,
+      "ranks": [
+        3
+      ],
+      "candidate_ranks": [
+        3
+      ],
+      "tokens": 1992,
+      "result_count": 8,
+      "match_status": "candidates",
+      "elapsed_inprocess_s": 0.18883050000295043,
+      "query_api_calls": 1
+    },
+    {
+      "condition": "full_query_dense",
+      "dataset": "zod",
+      "query_id": "zod_flatten_errors",
+      "kind": "present",
+      "multi_file": false,
+      "ranks": [
+        1
+      ],
+      "candidate_ranks": [
+        1
+      ],
+      "tokens": 4088,
+      "result_count": 6,
+      "match_status": "candidates",
+      "elapsed_inprocess_s": 0.25839974998962134,
+      "query_api_calls": 1
+    },
+    {
+      "condition": "clause_rrf",
+      "dataset": "zod",
+      "query_id": "zod_flatten_errors",
+      "kind": "present",
+      "multi_file": false,
+      "ranks": [
+        1
+      ],
+      "candidate_ranks": [
+        1
+      ],
+      "tokens": 4088,
+      "result_count": 6,
+      "match_status": "candidates",
+      "elapsed_inprocess_s": 0.25398762497934513,
+      "query_api_calls": 1
+    },
+    {
+      "condition": "clause_rrf",
+      "dataset": "zod",
+      "query_id": "zod_tree_error_paths",
+      "kind": "present",
+      "multi_file": false,
+      "ranks": [
+        1
+      ],
+      "candidate_ranks": [
+        1
+      ],
+      "tokens": 4092,
+      "result_count": 8,
+      "match_status": "candidates",
+      "elapsed_inprocess_s": 0.21057987498352304,
+      "query_api_calls": 1
+    },
+    {
+      "condition": "full_query_dense",
+      "dataset": "zod",
+      "query_id": "zod_tree_error_paths",
+      "kind": "present",
+      "multi_file": false,
+      "ranks": [
+        1
+      ],
+      "candidate_ranks": [
+        1
+      ],
+      "tokens": 4092,
+      "result_count": 8,
+      "match_status": "candidates",
+      "elapsed_inprocess_s": 0.21144637500401586,
+      "query_api_calls": 1
+    },
+    {
+      "condition": "full_query_dense",
+      "dataset": "zod",
+      "query_id": "zod_decimal_multiple_tolerance",
+      "kind": "present",
+      "multi_file": false,
+      "ranks": [
+        1
+      ],
+      "candidate_ranks": [
+        1
+      ],
+      "tokens": 2204,
+      "result_count": 8,
+      "match_status": "candidates",
+      "elapsed_inprocess_s": 0.1936870840145275,
+      "query_api_calls": 1
+    },
+    {
+      "condition": "clause_rrf",
+      "dataset": "zod",
+      "query_id": "zod_decimal_multiple_tolerance",
+      "kind": "present",
+      "multi_file": false,
+      "ranks": [
+        1
+      ],
+      "candidate_ranks": [
+        1
+      ],
+      "tokens": 2204,
+      "result_count": 8,
+      "match_status": "candidates",
+      "elapsed_inprocess_s": 0.19272795802680776,
+      "query_api_calls": 1
+    },
+    {
+      "condition": "clause_rrf",
+      "dataset": "zod",
+      "query_id": "zod_error_parameter_normalization",
+      "kind": "present",
+      "multi_file": false,
+      "ranks": [
+        2
+      ],
+      "candidate_ranks": [
+        2
+      ],
+      "tokens": 3943,
+      "result_count": 8,
+      "match_status": "candidates",
+      "elapsed_inprocess_s": 0.20511004098807462,
+      "query_api_calls": 1
+    },
+    {
+      "condition": "full_query_dense",
+      "dataset": "zod",
+      "query_id": "zod_error_parameter_normalization",
+      "kind": "present",
+      "multi_file": false,
+      "ranks": [
+        2
+      ],
+      "candidate_ranks": [
+        2
+      ],
+      "tokens": 3943,
+      "result_count": 8,
+      "match_status": "candidates",
+      "elapsed_inprocess_s": 0.194238708994817,
+      "query_api_calls": 1
+    },
+    {
+      "condition": "full_query_dense",
+      "dataset": "zod",
+      "query_id": "zod_numeric_enum_reverse_entries",
+      "kind": "present",
+      "multi_file": false,
+      "ranks": [
+        2
+      ],
+      "candidate_ranks": [
+        2
+      ],
+      "tokens": 1827,
+      "result_count": 8,
+      "match_status": "candidates",
+      "elapsed_inprocess_s": 0.19181504199514166,
+      "query_api_calls": 1
+    },
+    {
+      "condition": "clause_rrf",
+      "dataset": "zod",
+      "query_id": "zod_numeric_enum_reverse_entries",
+      "kind": "present",
+      "multi_file": false,
+      "ranks": [
+        2
+      ],
+      "candidate_ranks": [
+        2
+      ],
+      "tokens": 1827,
+      "result_count": 8,
+      "match_status": "candidates",
+      "elapsed_inprocess_s": 0.1987317499879282,
+      "query_api_calls": 1
+    },
+    {
+      "condition": "clause_rrf",
+      "dataset": "zod",
+      "query_id": "zod_urlsafe_base64_bytes",
+      "kind": "present",
+      "multi_file": false,
+      "ranks": [
+        1
+      ],
+      "candidate_ranks": [
+        1
+      ],
+      "tokens": 1513,
+      "result_count": 8,
+      "match_status": "candidates",
+      "elapsed_inprocess_s": 0.22339812500285916,
+      "query_api_calls": 2
+    },
+    {
+      "condition": "full_query_dense",
+      "dataset": "zod",
+      "query_id": "zod_urlsafe_base64_bytes",
+      "kind": "present",
+      "multi_file": false,
+      "ranks": [
+        1
+      ],
+      "candidate_ranks": [
+        1
+      ],
+      "tokens": 1513,
+      "result_count": 8,
+      "match_status": "candidates",
+      "elapsed_inprocess_s": 0.19030424999073148,
+      "query_api_calls": 1
+    },
+    {
+      "condition": "full_query_dense",
+      "dataset": "zod",
+      "query_id": "zod_local_json_schema_refs",
+      "kind": "present",
+      "multi_file": false,
+      "ranks": [
+        1
+      ],
+      "candidate_ranks": [
+        1
+      ],
+      "tokens": 4088,
+      "result_count": 8,
+      "match_status": "candidates",
+      "elapsed_inprocess_s": 0.2525495419977233,
+      "query_api_calls": 1
+    },
+    {
+      "condition": "clause_rrf",
+      "dataset": "zod",
+      "query_id": "zod_local_json_schema_refs",
+      "kind": "present",
+      "multi_file": false,
+      "ranks": [
+        1
+      ],
+      "candidate_ranks": [
+        1
+      ],
+      "tokens": 4088,
+      "result_count": 8,
+      "match_status": "candidates",
+      "elapsed_inprocess_s": 0.2508439579978585,
+      "query_api_calls": 1
+    },
+    {
+      "condition": "clause_rrf",
+      "dataset": "zod",
+      "query_id": "zod_safe_parse_lazy_error_redaction",
+      "kind": "present",
+      "multi_file": true,
+      "ranks": [
+        null,
+        2,
+        1
+      ],
+      "candidate_ranks": [
+        null,
+        2,
+        1
+      ],
+      "tokens": 2870,
+      "result_count": 8,
+      "match_status": "candidates",
+      "elapsed_inprocess_s": 0.2543641249940265,
+      "query_api_calls": 3
+    },
+    {
+      "condition": "full_query_dense",
+      "dataset": "zod",
+      "query_id": "zod_safe_parse_lazy_error_redaction",
+      "kind": "present",
+      "multi_file": true,
+      "ranks": [
+        null,
+        2,
+        1
+      ],
+      "candidate_ranks": [
+        null,
+        2,
+        1
+      ],
+      "tokens": 2995,
+      "result_count": 8,
+      "match_status": "candidates",
+      "elapsed_inprocess_s": 0.20368637499632314,
+      "query_api_calls": 1
+    },
+    {
+      "condition": "full_query_dense",
+      "dataset": "zod",
+      "query_id": "zod_custom_refinement_issue_context",
+      "kind": "present",
+      "multi_file": true,
+      "ranks": [
+        null,
+        1
+      ],
+      "candidate_ranks": [
+        11,
+        1
+      ],
+      "tokens": 2551,
+      "result_count": 8,
+      "match_status": "candidates",
+      "elapsed_inprocess_s": 0.19865558401215822,
+      "query_api_calls": 1
+    },
+    {
+      "condition": "clause_rrf",
+      "dataset": "zod",
+      "query_id": "zod_custom_refinement_issue_context",
+      "kind": "present",
+      "multi_file": true,
+      "ranks": [
+        null,
+        1
+      ],
+      "candidate_ranks": [
+        10,
+        1
+      ],
+      "tokens": 2953,
+      "result_count": 8,
+      "match_status": "candidates",
+      "elapsed_inprocess_s": 0.22983008399023674,
+      "query_api_calls": 2
+    },
+    {
+      "condition": "clause_rrf",
+      "dataset": "zod",
+      "query_id": "zod_nested_deep_partial",
+      "kind": "present",
+      "multi_file": true,
+      "ranks": [
+        null,
+        null,
+        null
+      ],
+      "candidate_ranks": [
+        null,
+        14,
+        14
+      ],
+      "tokens": 3383,
+      "result_count": 8,
+      "match_status": "candidates",
+      "elapsed_inprocess_s": 0.2772899999981746,
+      "query_api_calls": 4
+    },
+    {
+      "condition": "full_query_dense",
+      "dataset": "zod",
+      "query_id": "zod_nested_deep_partial",
+      "kind": "present",
+      "multi_file": true,
+      "ranks": [
+        null,
+        null,
+        null
+      ],
+      "candidate_ranks": [
+        17,
+        26,
+        26
+      ],
+      "tokens": 3909,
+      "result_count": 8,
+      "match_status": "candidates",
+      "elapsed_inprocess_s": 0.20446154099772684,
+      "query_api_calls": 1
+    },
+    {
+      "condition": "full_query_dense",
+      "dataset": "zod",
+      "query_id": "zod_metadata_attachment_registry",
+      "kind": "present",
+      "multi_file": true,
+      "ranks": [
+        null,
+        1,
+        3
+      ],
+      "candidate_ranks": [
+        24,
+        1,
+        3
+      ],
+      "tokens": 1367,
+      "result_count": 8,
+      "match_status": "candidates",
+      "elapsed_inprocess_s": 0.1964857499988284,
+      "query_api_calls": 1
+    },
+    {
+      "condition": "clause_rrf",
+      "dataset": "zod",
+      "query_id": "zod_metadata_attachment_registry",
+      "kind": "present",
+      "multi_file": true,
+      "ranks": [
+        null,
+        1,
+        3
+      ],
+      "candidate_ranks": [
+        24,
+        1,
+        3
+      ],
+      "tokens": 1367,
+      "result_count": 8,
+      "match_status": "candidates",
+      "elapsed_inprocess_s": 0.18829870902118273,
+      "query_api_calls": 1
+    },
+    {
+      "condition": "clause_rrf",
+      "dataset": "zod",
+      "query_id": "zod_absent_remote_ref_fetch",
+      "kind": "absent",
+      "multi_file": false,
+      "ranks": [],
+      "candidate_ranks": [],
+      "tokens": 3977,
+      "result_count": 5,
+      "match_status": "candidates",
+      "elapsed_inprocess_s": 0.22106391601846553,
+      "query_api_calls": 2
+    },
+    {
+      "condition": "full_query_dense",
+      "dataset": "zod",
+      "query_id": "zod_absent_remote_ref_fetch",
+      "kind": "absent",
+      "multi_file": false,
+      "ranks": [],
+      "candidate_ranks": [],
+      "tokens": 3977,
+      "result_count": 5,
+      "match_status": "candidates",
+      "elapsed_inprocess_s": 0.191516542021418,
+      "query_api_calls": 1
+    },
+    {
+      "condition": "full_query_dense",
+      "dataset": "zod",
+      "query_id": "zod_absent_async_retry_backoff",
+      "kind": "absent",
+      "multi_file": false,
+      "ranks": [],
+      "candidate_ranks": [],
+      "tokens": 1578,
+      "result_count": 8,
+      "match_status": "candidates",
+      "elapsed_inprocess_s": 0.1906565000244882,
+      "query_api_calls": 1
+    },
+    {
+      "condition": "clause_rrf",
+      "dataset": "zod",
+      "query_id": "zod_absent_async_retry_backoff",
+      "kind": "absent",
+      "multi_file": false,
+      "ranks": [],
+      "candidate_ranks": [],
+      "tokens": 1578,
+      "result_count": 8,
+      "match_status": "candidates",
+      "elapsed_inprocess_s": 0.19745583398616873,
+      "query_api_calls": 1
+    },
+    {
+      "condition": "clause_rrf",
+      "dataset": "zod",
+      "query_id": "zod_absent_issue_encryption",
+      "kind": "absent",
+      "multi_file": false,
+      "ranks": [],
+      "candidate_ranks": [],
+      "tokens": 4071,
+      "result_count": 3,
+      "match_status": "candidates",
+      "elapsed_inprocess_s": 0.30662433299585246,
+      "query_api_calls": 3
+    },
+    {
+      "condition": "full_query_dense",
+      "dataset": "zod",
+      "query_id": "zod_absent_issue_encryption",
+      "kind": "absent",
+      "multi_file": false,
+      "ranks": [],
+      "candidate_ranks": [],
+      "tokens": 4081,
+      "result_count": 3,
+      "match_status": "candidates",
+      "elapsed_inprocess_s": 0.3551984999794513,
+      "query_api_calls": 1
+    }
+  ],
+  "cold_setup_seconds": {
+    "express": 6.367966249992605,
+    "zod": 107.89207716699457
+  },
+  "cold_document_api_calls": 2,
+  "cold_unique_document_texts": 1983,
+  "observed_query_api_calls": {
+    "full_query_dense": 30,
+    "clause_rrf": 56
+  },
+  "supervisor": {
+    "started_utc": "2026-10-13T12:59:19.298231+00:00",
+    "timeout_seconds": 480,
+    "owned_session": true,
+    "forced_kill": false,
+    "timed_out": false,
+    "owned_process_group_stopped": true,
+    "exit_code": 0,
+    "elapsed_seconds": 128.4719498330087,
+    "finished_utc": "2026-10-13T13:01:27.769893+00:00"
+  },
+  "initial_gate_comparison": {
+    "unchanged_selection_runtime_and_corpora": true,
+    "changed_plan_fields": [
+      "frozen_at_utc",
+      "source_commit",
+      "source_sha256"
+    ],
+    "changed_source_files": [
+      "docs/clause-fusion-development.md",
+      "scripts/run_clause_fusion.py"
+    ],
+    "limit": "Correction follows a zero-inference source-gate failure; there were no semantic outcomes to select or tune against.",
+    "initial_plan_sha256": "98a0e25aba08cb8bf930ff4a29abbafc1c3516a8e7e61363d38e18fa05562970",
+    "initial_failure_sha256": "f72709042b3ffbedc5eb3ef575ff1603d88ceb441c1cf0bfa5d5cfe872a28a2f"
+  },
+  "artifacts_sha256": {
+    "frozen-plan.json": "e6dd9cdf4de300d0c197f7f349d87a15b47abea4318202297861885c93927ad6",
+    "CPU-preflight.json": "52707860e8df66af245703f9ca59d9a59218ba6f220b1fc9768162e8fde84fc8",
+    "attempts.jsonl": "d0d422565fc5385824218c13f09c35f5ac375b973c6ab480c38db74581163daa",
+    "setups.json": "4f3f3eb0f5f9a56fe1f9bc702b9ef8e4bdce8d42914020060fba3b2833f3295f",
+    "summary.json": "25f0e512e9c0ba15fc7fa3db342b5474ff11c1796a5da5273a6f20d7613e597c",
+    "run-start.json": "d9e540db3c073574499335f7f1d8a7c53b96c1e7904da1631ef000a30d2167ab",
+    "run-verification.json": "ddec2a1e981bd2ff801487045a7e355b4f5e912e63ff6bcd201e8f2e043bf1f8",
+    "supervisor.json": "de0abd8df6c8f404110528590ce0edcf825d64a297b326e0e947b39247ea32f6",
+    "supervisor.py.txt": "71478e1c69e822a5a9d32fa562cc8acf28f683c38064cbb001b0590ce966fae6"
+  },
+  "auditor_sha256": "d3596ab5f872c21046435bbd02035c77513928c751a996b2739982809c5be986",
+  "source_evidence_helper_sha256": "e9870adae71d349000eb6de6e4d46c84ceb58ba970f6bc7bdb799a25977cd9d8",
+  "limits": [
+    "Both repositories and all queries were already observed; this one-pass development probe is not a new holdout, generalization test, coding-correctness test or justification for changing defaults.",
+    "All OR alternatives and required AND groups are rescored from complete executable spans in one exact saved-source excerpt per group. Plausible absent-query decoys receive no positive gold credit.",
+    "Independent RRF and exact compact payload checks use retained ranks and source bytes. Retained complete query vectors reproduce their byte SHA/norm; the auditor does not rerun semantic embedding or dense retrieval.",
+    "Observed attempted/completed embedding API calls and actual input logs are checked, not individual internal MLX batch forwards or provider usage.",
+    "Condition intervals are in-process embedding/retrieval/fusion/packing observations; prepared-vector backend timings are not model latency. Cold index setup is separate; memory is process-lifetime and descriptive.",
+    "Source files, package metadata, checkpoint metadata and closed index byte hashes are checked. Retained complete weight-file SHA/size verification matches pinned provenance; the auditor does not reread or load weights.",
+    "No model, retrieval, HTTP, hosted service or native app is executed by this auditor. The prior independent source-only scoring helper is reused; no producer or production ranking helper is imported."
+  ]
+}

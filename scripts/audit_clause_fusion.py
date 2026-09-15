@@ -111,6 +111,7 @@ def verify_raw(window, inventory, sources):
 def verify_attempt(row, query, condition, inventory, sources, encoding):
     require(row["status"] == "completed" and "error" not in row and row["query"] == query,
             "Completed literal condition")
+    require(row["active_phase"] == "complete", "Completed attempt phase marker")
     inputs = [query] if condition == CONDITIONS[0] else split_inputs(query)
     require(row["query_inputs"] == inputs, "Independent literal clause split differs")
     verify_counters(row["counts_before"], row["counts_after"], inputs)
@@ -203,6 +204,21 @@ def verify_run_receipt(plan, receipt, plan_sha):
             and tokenizer["network"] is tokenizer["cache_writes"] is False, "Frozen offline tokenizer provenance")
 
 
+def compare_prospective_plans(initial, corrected):
+    require(set(initial) == set(corrected), "Prospective versions have different fields")
+    changed = [key for key in initial if initial[key] != corrected[key]]
+    require(set(changed) <= {"frozen_at_utc", "source_commit", "source_sha256"},
+            "Corrected freeze changed queries, rule, labels, source corpus, budgets or runtime")
+    require(set(initial["source_sha256"]) == set(corrected["source_sha256"]), "Corrected source inventory membership")
+    changed_sources = [key for key in initial["source_sha256"]
+                       if initial["source_sha256"][key] != corrected["source_sha256"][key]]
+    require(set(changed_sources) <= {"scripts/run_clause_fusion.py", "docs/clause-fusion-development.md"},
+            "Corrected freeze changed runtime/extractor implementation")
+    return {"unchanged_selection_runtime_and_corpora": True, "changed_plan_fields": changed,
+            "changed_source_files": changed_sources,
+            "limit": "Correction follows a zero-inference source-gate failure; there were no semantic outcomes to select or tune against."}
+
+
 def paired_changes(cases):
     grouped = {}
     for case in cases:
@@ -263,6 +279,12 @@ def build_audit(root, study):
     attempts = jsonl(study / "attempts.jsonl")
     verification, run_start = (read(study / name) for name in ("run-verification.json", "run-start.json"))
     verify_run_receipt(plan, verification, sha((study / "frozen-plan.json").read_bytes()))
+    supervisor = read(study / "supervisor.json")
+    require(type(supervisor["exit_code"]) is int and supervisor["exit_code"] == 0
+            and supervisor["owned_session"] is supervisor["owned_process_group_stopped"] is True
+            and supervisor["timed_out"] is supervisor["forced_kill"] is False
+            and supervisor["timeout_seconds"] == 480 and 0 < supervisor["elapsed_seconds"] < 500,
+            "Complete child bounded supervisor exit/owned-group cleanup")
     require(datetime.fromisoformat(plan["frozen_at_utc"]) <= datetime.fromisoformat(run_start["started_at_utc"])
             <= datetime.fromisoformat(verification["observed_at_utc"]), "Freeze/start/weight-verification observation order")
     require(plan["conditions"] == list(CONDITIONS) and plan["settings"] == SETTINGS
@@ -425,14 +447,30 @@ def build_audit(root, study):
                                "baseline_candidate_ranks": a["candidate_ranks"], "fusion_candidate_ranks": b["candidate_ranks"],
                                "baseline_s": a["elapsed_inprocess_s"], "fusion_s": b["elapsed_inprocess_s"]})
     require(summary["paired_changes"] == expected_pairs, "All producer paired changes independently recomputed")
+    previous = study.parent / study.name.replace("-v2-", "-")
+    initial_comparison = None
+    if previous != study and (previous / "frozen-plan.json").exists():
+        initial = read(previous / "frozen-plan.json")
+        initial_comparison = compare_prospective_plans(initial, plan)
+        failed = read(previous / "failure.json")
+        require(failed["phase"] == "pre-model setup gate" and failed["attempted_conditions"] == failed["model_calls"] == 0,
+                "Corrected prospective version followed actual semantic outcomes")
+        initial_comparison["initial_plan_sha256"] = sha((previous / "frozen-plan.json").read_bytes())
+        initial_comparison["initial_failure_sha256"] = sha((previous / "failure.json").read_bytes())
     return {"classification": "Independent post-selection audit of already-observed Express/Zod development query fusion",
             "checks_passed": True, "attempts_checked": 60, "unique_queries": 30, "raw_ranked_windows_checked": raw_rows,
             "delivered_excerpts_checked": delivered_rows, "saved_files_checked": files_checked,
             "frozen_windows_checked": windows_checked, "metrics": metrics, "paired_changes": paired_changes(cases),
             "cases": cases, "cold_setup_seconds": {name: setup["cold_index_s"] for name, setup in setup_by_dataset.items()},
+            "cold_document_api_calls": sum(setup["counts_after_setup"]["completed_document_calls"] for setup in setups),
+            "cold_unique_document_texts": sum(setup["counts_after_setup"]["document_texts"] for setup in setups),
+            "observed_query_api_calls": {condition: sum(case["query_api_calls"] for case in cases
+                                         if case["condition"] == condition) for condition in CONDITIONS},
+            "supervisor": supervisor, "initial_gate_comparison": initial_comparison,
             "artifacts_sha256": {path.name: sha(path.read_bytes()) for path in (study / "frozen-plan.json", study / "CPU-preflight.json",
                                  study / "attempts.jsonl", study / "setups.json", study / "summary.json",
-                                 study / "run-start.json", study / "run-verification.json")},
+                                 study / "run-start.json", study / "run-verification.json",
+                                 study / "supervisor.json", study / "supervisor.py.txt")},
             "auditor_sha256": sha(Path(__file__).read_bytes()), "source_evidence_helper_sha256": sha(Path(evidence.__file__).read_bytes()),
             "limits": [
                 "Both repositories and all queries were already observed; this one-pass development probe is not a new holdout, generalization test, coding-correctness test or justification for changing defaults.",
@@ -456,6 +494,7 @@ def render(result):
     changes = result["paired_changes"]
     lines += ["", f"Across all 24 positive pairs: {len(changes['complete_gains'])} complete gains and {len(changes['complete_regressions'])} complete regressions; among eight AND queries, {len(changes['and_gains'])} gains and {len(changes['and_regressions'])} regressions. Absent queries remain separate and plausible candidates do not prove behavior or absence.", "",
               "Raw full-query cosine remains separate from RRF priority. Every delivered payload retains the shared eight-result, 12,000-character and exact 4,096-token caps. Extra query API calls and in-process intervals are descriptive costs; they are not provider billing or HTTP latency. All paired changes, missed groups and denominators are in the JSON.", "",
+              f"Candidate-completeness changes: {len(changes['candidate_complete_gains'])} gains and {len(changes['candidate_complete_regressions'])} regressions. The latter are retained even when delivered coverage was already incomplete. Two cold document API calls embedded {result['cold_unique_document_texts']} unique document texts for {result['frozen_windows_checked']} windows; setup took Express {result['cold_setup_seconds']['express']:.3f}s and Zod {result['cold_setup_seconds']['zod']:.3f}s. These are API calls, not counted Metal forwards.", "",
               "Limitations:", "", *["- " + limit for limit in result["limits"]], ""]
     return "\n".join(lines)
 
@@ -475,17 +514,72 @@ def incomplete_audit(study, error):
                        "Retained status counts are diagnostic until provenance/source/counter checks pass; no quality aggregate is issued on an incomplete or inconsistent ledger."]}
 
 
+def verify_gate_record(plan, preflight, failure, supervisor, run_start):
+    require(failure == {"attempted_conditions": 0, "error": "Exact frozen invariant differs: source_sha256",
+                       "error_type": "ValueError", "model_calls": 0, "phase": "pre-model setup gate", "retry": False},
+            "Exact source-invariant pre-model failure")
+    require(type(failure["attempted_conditions"]) is type(failure["model_calls"]) is int
+            and plan["model_calls_in_freeze"] == preflight["model_calls"] == 0
+            and plan["weights_loaded_in_freeze"] is False and preflight["checks_passed"] is True,
+            "Zero attempted semantic conditions/model calls")
+    require(supervisor["exit_code"] == 1 and supervisor["timed_out"] is supervisor["forced_kill"] is False
+            and supervisor["owned_process_group_stopped"] is supervisor["owned_session"] is True
+            and 0 < supervisor["elapsed_seconds"] < supervisor["timeout_seconds"], "Failed child bounded owned cleanup")
+    require(datetime.fromisoformat(plan["frozen_at_utc"]) <= datetime.fromisoformat(supervisor["started_utc"])
+            <= datetime.fromisoformat(run_start["started_at_utc"]) <= datetime.fromisoformat(supervisor["finished_utc"]),
+            "Initial gate freeze/start/finish order")
+
+
+def audit_pre_model_failure(root, study):
+    plan, preflight, failure, supervisor, start = (read(study / name) for name in
+        ("frozen-plan.json", "CPU-preflight.json", "failure.json", "supervisor.json", "run-start.json"))
+    verify_gate_record(plan, preflight, failure, supervisor, start)
+    require(not any((study / name).exists() for name in ("attempts.jsonl", "setups.json", "summary.json", "run-verification.json")),
+            "Pre-model gate unexpectedly retained semantic or weight-verification outputs")
+    checked = 0
+    for name, expected in plan["source_sha256"].items():
+        evidence.located(root, name)
+        raw = subprocess.check_output(["git", "-C", str(root), "show", plan["source_commit"] + ":" + name], timeout=10)
+        require(sha(raw) == expected, "Initial frozen source differs from committed bytes: " + name)
+        checked += 1
+    return {"classification": "Independent audit of failed pre-model source gate, preserved separately from corrected prospective probe",
+            "checks_passed": True, "outcome": "failed_before_model", "planned_conditions": 60,
+            "attempted_conditions": 0, "model_calls": 0, "semantic_outcomes": 0,
+            "frozen_source_reference": plan["source_commit"], "frozen_source_files_checked": checked,
+            "source_gate_error": failure["error"], "owned_process_group_stopped": True,
+            "artifacts_sha256": {path.name: sha(path.read_bytes()) for path in study.iterdir() if path.is_file()
+                                 and path.name not in ("independent-audit.json", "independent-findings.md")},
+            "auditor_sha256": sha(Path(__file__).read_bytes()),
+            "limits": ["This is a retained source-provenance gate failure, not a semantic condition failure or a quality result.",
+                       "Zero inference follows the recorded phase and reviewed producer call order: invariant validation precedes weight-byte verification, resident model construction and query/document inference.",
+                       "The loaded producer bytes were not captured in the failure receipt itself; committed frozen bytes and failure-stage assertions are retained. A corrected producer requires a separate prospective freeze/directory, with this original untouched."]}
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=ROOT)
     parser.add_argument("--study", type=Path, default=ROOT / "results/clause-fusion-development-2026-10-13")
     args = parser.parse_args(argv)
     try:
-        result = build_audit(args.root.resolve(), args.study.resolve())
+        initial_gate = ((args.study / "failure.json").is_file()
+                        and read(args.study / "failure.json").get("phase") == "pre-model setup gate"
+                        and not (args.study / "attempts.jsonl").exists())
+        result = (audit_pre_model_failure(args.root.resolve(), args.study.resolve()) if initial_gate
+                  else build_audit(args.root.resolve(), args.study.resolve()))
     except (KeyError, ValueError, TypeError, OSError, subprocess.SubprocessError) as error:
         result = incomplete_audit(args.study.resolve(), error)
     (args.study / "independent-audit.json").write_text(json.dumps(result, indent=2) + "\n")
-    findings = render(result) if result["checks_passed"] else "# Independent audit did not pass\n\n" + result["error"] + "\n\n" + "\n".join(result["limits"]) + "\n"
+    if result.get("outcome") == "failed_before_model":
+        findings = ("# Preserved pre-model source-gate failure\n\n"
+                    "The frozen source invariant rejected the first launch before weight verification or inference. "
+                    "Zero of 60 semantic conditions were attempted; no quality result exists. "
+                    "The failed child exited1 with its owned process group stopped, without timeout or forced kill. "
+                    "The original freeze, failure and supervisor evidence remain unchanged; the corrected probe uses a separate prospective directory.\n\n"
+                    + "\n".join("- " + limit for limit in result["limits"]) + "\n")
+    elif result["checks_passed"]:
+        findings = render(result)
+    else:
+        findings = "# Independent audit did not pass\n\n" + result["error"] + "\n\n" + "\n".join(result["limits"]) + "\n"
     (args.study / "independent-findings.md").write_text(findings)
     print(json.dumps({key: result[key] for key in ("checks_passed", "attempts_checked", "raw_ranked_windows_checked", "delivered_excerpts_checked") if key in result}))
     return 0 if result["checks_passed"] else 1

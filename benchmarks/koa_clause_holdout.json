@@ -1,0 +1,268 @@
+{
+  "version": 1,
+  "repo_url": "https://github.com/koajs/koa",
+  "revision": "2fecd029c6ce6b79d65158d28a76538f7f6b0378",
+  "package_version": "3.2.1",
+  "source_root": "lib",
+  "source_exclusions": [],
+  "language": "javascript",
+  "benchmark_role": "prospective_repository_holdout",
+  "no_inference": true,
+  "authoring": "Source-authored from pinned official code after unchanged CPU parser viability check; no model/ranking or new Express/Zod clause outcomes inspected. Query text is behavior-first, not chosen to activate the splitter. Neutral semantic review required before future inference.",
+  "target_groups_semantics": "OR within each group; AND across all groups. Credit requires one verified excerpt containing each complete executable evidence span. Function bodies are deliberately complete, including guards; matching names/comments are insufficient.",
+  "queries": [
+    {
+      "id": "koa_header_only_metadata",
+      "query": "Assign a default media type and UTF-8 byte length for a string response; answer a header-only request without transmitting that body.",
+      "kind": "present",
+      "notes": "Local body assignment and final header-only response dispatch are both required. Existing content types are respected; this asks local control/assignment, not external MIME tables or Node byte-encoding internals.",
+      "target_groups": [
+        [
+          {
+            "path": "lib/response.js",
+            "symbol": "module.exports.set body",
+            "definition_lines": [
+              148,
+              245
+            ],
+            "evidence_lines": [
+              148,
+              245
+            ],
+            "declaration_anchor": "set body (val) {",
+            "evidence_sha256": "a28c818a1654803598680a383d562b36e15d7ac390ba75875e9d9f9a7efc2111",
+            "source_file_sha256": "cf8de7b8ae32b7d7b58d57dd7c88db04d68a6ebaf8e5b50e58a33f1bcdf8c511"
+          }
+        ],
+        [
+          {
+            "path": "lib/application.js",
+            "symbol": "respond",
+            "definition_lines": [
+              283,
+              352
+            ],
+            "evidence_lines": [
+              283,
+              352
+            ],
+            "declaration_anchor": "function respond (ctx) {",
+            "evidence_sha256": "7ff5363ac96d70491627c79a6775107cc7aa2a3645181ee2ad8889d1ac7cba4c",
+            "source_file_sha256": "d693bbeda65c4f55a9d888e3cf255187cefbdbc93572cb4a4897ccbbb8e6c5ac"
+          }
+        ]
+      ],
+      "split": "repository_holdout"
+    },
+    {
+      "id": "koa_middleware_error_response",
+      "query": "For an unwritten, writable response, translate a middleware failure into a safe status and text reply, disclose details only when explicitly allowed, clear old headers and emit an application error.",
+      "kind": "present",
+      "notes": "Promise rejection/finished-response errors delegate from request handling to the context error body. Valid specified error headers are reapplied except generated content type/length; unknown status defaults to500. Already sent/unwritable responses only emit and cannot be rewritten.",
+      "target_groups": [
+        [
+          {
+            "path": "lib/application.js",
+            "symbol": "Application.handleRequest",
+            "definition_lines": [
+              213,
+              220
+            ],
+            "evidence_lines": [
+              213,
+              220
+            ],
+            "declaration_anchor": "handleRequest (ctx, fnMiddleware) {",
+            "evidence_sha256": "296a2945f0dfc1d8b7b6af6ee0411ce5c11f0bd748f93e55e387aa56dfaec540",
+            "source_file_sha256": "d693bbeda65c4f55a9d888e3cf255187cefbdbc93572cb4a4897ccbbb8e6c5ac"
+          }
+        ],
+        [
+          {
+            "path": "lib/context.js",
+            "symbol": "module.exports.onerror",
+            "definition_lines": [
+              106,
+              168
+            ],
+            "evidence_lines": [
+              106,
+              168
+            ],
+            "declaration_anchor": "onerror (err) {",
+            "evidence_sha256": "d34673787b44d00c4b674d5b715d4e14c366b16ebd2bc3818824a4989475d0be",
+            "source_file_sha256": "93fdd5eddf6c1c331f81fff88f624a03ec59c987c796f93835dbea804e29d831"
+          }
+        ]
+      ],
+      "split": "repository_holdout"
+    },
+    {
+      "id": "koa_stream_response_lifecycle",
+      "query": "Treat compatible readable streams as response bodies, attach completion cleanup, discard stale lengths when swapping bodies, and forward transmission errors when an application error listener exists.",
+      "kind": "present",
+      "notes": "Require local native/structural stream classification, assignment cleanup/length handling, and final pipeline plus conditional error forwarding. Replacing an old stream with another stream attaches an error sink rather than destroying the old stream; no stronger destruction claim is made. Node pipeline and external destroy/on-finished algorithms are outside lib scope.",
+      "target_groups": [
+        [
+          {
+            "path": "lib/is-stream.js",
+            "symbol": "module.exports",
+            "definition_lines": [
+              7,
+              20
+            ],
+            "evidence_lines": [
+              7,
+              20
+            ],
+            "declaration_anchor": "module.exports = (stream) => {",
+            "evidence_sha256": "0dc7f68e2322a3c56e7d9ae71ac5f191a713bda13284acd374c6f53092f7f01b",
+            "source_file_sha256": "8d3d310d81005cfc2aaa5d523afab9c2204c7a69b00565cf332d302c2ca7092d"
+          }
+        ],
+        [
+          {
+            "path": "lib/response.js",
+            "symbol": "module.exports.set body",
+            "definition_lines": [
+              148,
+              245
+            ],
+            "evidence_lines": [
+              148,
+              245
+            ],
+            "declaration_anchor": "set body (val) {",
+            "evidence_sha256": "a28c818a1654803598680a383d562b36e15d7ac390ba75875e9d9f9a7efc2111",
+            "source_file_sha256": "cf8de7b8ae32b7d7b58d57dd7c88db04d68a6ebaf8e5b50e58a33f1bcdf8c511"
+          }
+        ],
+        [
+          {
+            "path": "lib/application.js",
+            "symbol": "respond",
+            "definition_lines": [
+              283,
+              352
+            ],
+            "evidence_lines": [
+              283,
+              352
+            ],
+            "declaration_anchor": "function respond (ctx) {",
+            "evidence_sha256": "7ff5363ac96d70491627c79a6775107cc7aa2a3645181ee2ad8889d1ac7cba4c",
+            "source_file_sha256": "d693bbeda65c4f55a9d888e3cf255187cefbdbc93572cb4a4897ccbbb8e6c5ac"
+          }
+        ]
+      ],
+      "split": "repository_holdout"
+    },
+    {
+      "id": "koa_client_address_trust_and_cache",
+      "query": "Determine and cache the client address, trusting a forwarded chain only when enabled, limiting it to the configured number of hops, and falling back to the socket address.",
+      "kind": "present",
+      "notes": "The forwarded-list getter uses the configured header and last allowed hops only with proxy trust; the client-address getter caches first remaining address or socket fallback. Same-file AND evidence, not a multi-file case.",
+      "target_groups": [
+        [
+          {
+            "path": "lib/request.js",
+            "symbol": "module.exports.get ips",
+            "definition_lines": [
+              445,
+              455
+            ],
+            "evidence_lines": [
+              445,
+              455
+            ],
+            "declaration_anchor": "get ips () {",
+            "evidence_sha256": "4b552c09af79fe9e0a741fbb96e33ef713578b97b8c3a70f5f15978d3bc7cbc7",
+            "source_file_sha256": "b15a74f8020e9aa11d6ce70c15f00120eca1e2ecd701db21291e8b522376fe46"
+          }
+        ],
+        [
+          {
+            "path": "lib/request.js",
+            "symbol": "module.exports.get ip",
+            "definition_lines": [
+              466,
+              471
+            ],
+            "evidence_lines": [
+              466,
+              471
+            ],
+            "declaration_anchor": "get ip () {",
+            "evidence_sha256": "e5b124604b3cc6060ad66e94d752b8f8a351397ef377305dddff1f7a494fc5af",
+            "source_file_sha256": "b15a74f8020e9aa11d6ce70c15f00120eca1e2ecd701db21291e8b522376fe46"
+          }
+        ]
+      ],
+      "split": "repository_holdout"
+    },
+    {
+      "id": "koa_relocation_response_negotiation",
+      "query": "Send a relocation response with a safely encoded destination, retain an existing redirect status, and choose escaped HTML or plain text according to the client’s accepted format.",
+      "kind": "present",
+      "notes": "The local helper normalizes absolute http(s) destinations, sets encoded Location, defaults non-redirect status to302, escapes HTML and otherwise sends text. External URL/encoding/content-negotiation package internals are outside scope.",
+      "targets": [
+        {
+          "path": "lib/response.js",
+          "symbol": "module.exports.redirect",
+          "definition_lines": [
+            315,
+            336
+          ],
+          "evidence_lines": [
+            315,
+            336
+          ],
+          "declaration_anchor": "redirect (url) {",
+          "evidence_sha256": "09a7c04b2d62a87b3a9f108c9d82d83702d9c080388cae253877a75742722476",
+          "source_file_sha256": "cf8de7b8ae32b7d7b58d57dd7c88db04d68a6ebaf8e5b50e58a33f1bcdf8c511"
+        }
+      ],
+      "split": "repository_holdout"
+    },
+    {
+      "id": "koa_conditional_cache_guard",
+      "query": "Validate request freshness only for GET or HEAD with a successful response or a not-modified status; other method and status combinations should return a negative freshness result.",
+      "kind": "present",
+      "notes": "This asks the local method/status gate before delegation to the fresh package, not the external conditional-header comparison algorithm.",
+      "targets": [
+        {
+          "path": "lib/request.js",
+          "symbol": "module.exports.get fresh",
+          "definition_lines": [
+            320,
+            333
+          ],
+          "evidence_lines": [
+            320,
+            333
+          ],
+          "declaration_anchor": "get fresh () {",
+          "evidence_sha256": "fa4abc87251712829834c2704045d10a7dacdc39f6923546401742a5ad1546c4",
+          "source_file_sha256": "b15a74f8020e9aa11d6ce70c15f00120eca1e2ecd701db21291e8b522376fe46"
+        }
+      ],
+      "split": "repository_holdout"
+    },
+    {
+      "id": "koa_absent_remote_body_fetch_retry",
+      "query": "Fetch remote resources named in an incoming request body and automatically retry failed downloads with exponential backoff.",
+      "kind": "absent",
+      "notes": "Scoped to pinned tracked lib core. It provides an inbound HTTP application and response helpers, not an outbound request-body link fetch/retry system; user middleware and dependencies are outside scope.",
+      "targets": [],
+      "split": "repository_holdout"
+    },
+    {
+      "id": "koa_absent_rotating_body_encryption",
+      "query": "Encrypt outgoing JSON bodies with tenant-specific rotating keys and include the active key identifier in each encrypted payload.",
+      "kind": "absent",
+      "notes": "Scoped to pinned tracked lib core. Plain JSON serialization, cookie signing-key support and ordinary response headers are not body encryption/key rotation; user middleware/dependencies are excluded.",
+      "targets": [],
+      "split": "repository_holdout"
+    }
+  ]
+}
