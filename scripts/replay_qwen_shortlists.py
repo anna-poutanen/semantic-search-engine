@@ -400,7 +400,7 @@ def findings(result):
              "conditions remain separate. Only original first-K candidates are sorted by the earlier observed scalar scores. "
              "Source extraction, original labels, five anchors, static callee expansion, eight excerpts, 12,000 source "
              "characters and the exact 4,096-token compact budget remain unchanged.", "",
-             "| Retrieval | Prefix | Complete / 118 | Groups / 148 | Multi-file / 21 | Gains / losses vs baseline | Gains / losses vs Qwen50 |", 
+             "| Retrieval | Prefix | Complete / 118 | Groups / 148 | Multi-file / 21 | Gains / losses vs baseline | Gains / losses vs Qwen50 |",
              "|---|---:|---:|---:|---:|---:|---:|"]
     for retrieval in ("dense", "hybrid"):
         baseline = result["metrics"][retrieval]["baseline"]
