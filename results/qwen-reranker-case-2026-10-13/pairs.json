@@ -1,0 +1,202 @@
+[
+  {
+    "query": "Where is the configured simple, extended, custom, or disabled query parser compiled and then invoked on the raw URL query, with disabled parsing returning an empty object?",
+    "source": "defineGetter(req, 'query', function query(){\n  var queryparse = this.app.get('query parser fn');\n\n  if (!queryparse) {\n    // parsing is disabled\n    return Object.create(null);\n  }\n\n  var querystring = parse(this).query;\n\n  return queryparse(querystring);\n});\n"
+  },
+  {
+    "query": "Where is the configured simple, extended, custom, or disabled query parser compiled and then invoked on the raw URL query, with disabled parsing returning an empty object?",
+    "source": "exports.compileQueryParser = function compileQueryParser(val) {\n  var fn;\n\n  if (typeof val === 'function') {\n    return val;\n  }\n\n  switch (val) {\n    case true:\n    case 'simple':\n      fn = querystring.parse;\n      break;\n    case false:\n      break;\n    case 'extended':\n      fn = parseExtendedQueryString;\n      break;\n    default:\n      throw new TypeError('unknown value for query parser function: ' + val);\n  }\n\n  return fn;\n}\n"
+  },
+  {
+    "query": "Where is the configured simple, extended, custom, or disabled query parser compiled and then invoked on the raw URL query, with disabled parsing returning an empty object?",
+    "source": "var compileQueryParser = require('./utils').compileQueryParser;\n"
+  },
+  {
+    "query": "Where is the configured simple, extended, custom, or disabled query parser compiled and then invoked on the raw URL query, with disabled parsing returning an empty object?",
+    "source": "function parseExtendedQueryString(str) {\n  return qs.parse(str, {\n    allowPrototypes: true\n  });\n}\n"
+  },
+  {
+    "query": "Where is the configured simple, extended, custom, or disabled query parser compiled and then invoked on the raw URL query, with disabled parsing returning an empty object?",
+    "source": "var querystring = require('node:querystring');\n"
+  },
+  {
+    "query": "Where is the configured simple, extended, custom, or disabled query parser compiled and then invoked on the raw URL query, with disabled parsing returning an empty object?",
+    "source": "var parse = require('parseurl');\n"
+  },
+  {
+    "query": "Where is the configured simple, extended, custom, or disabled query parser compiled and then invoked on the raw URL query, with disabled parsing returning an empty object?",
+    "source": "exports.urlencoded = bodyParser.urlencoded\n"
+  },
+  {
+    "query": "Where is the configured simple, extended, custom, or disabled query parser compiled and then invoked on the raw URL query, with disabled parsing returning an empty object?",
+    "source": "var parseRange = require('range-parser');\n"
+  },
+  {
+    "query": "Where is the configured simple, extended, custom, or disabled query parser compiled and then invoked on the raw URL query, with disabled parsing returning an empty object?",
+    "source": "var qs = require('qs');\n"
+  },
+  {
+    "query": "Where is the configured simple, extended, custom, or disabled query parser compiled and then invoked on the raw URL query, with disabled parsing returning an empty object?",
+    "source": "defineGetter(req, 'path', function path() {\n  return parse(this).pathname;\n});\n"
+  },
+  {
+    "query": "Where is the configured simple, extended, custom, or disabled query parser compiled and then invoked on the raw URL query, with disabled parsing returning an empty object?",
+    "source": "exports.raw = bodyParser.raw\n"
+  },
+  {
+    "query": "Where is the configured simple, extended, custom, or disabled query parser compiled and then invoked on the raw URL query, with disabled parsing returning an empty object?",
+    "source": "function acceptParams (str) {\n  var length = str.length;\n  var colonIndex = str.indexOf(';');\n  var index = colonIndex === -1 ? length : colonIndex;\n  var ret = { value: str.slice(0, index).trim(), quality: 1, params: {} };\n\n  while (index < length) {\n    var splitIndex = str.indexOf('=', index);\n    if (splitIndex === -1) break;\n\n    var colonIndex = str.indexOf(';', index);\n    var endIndex = colonIndex === -1 ? length : colonIndex;\n\n    if (splitIndex > endIndex) {\n      index = str.lastIndexOf(';', splitIndex - 1) + 1;\n      continue;\n    }\n\n    var key = str.slice(index, splitIndex).trim();\n    var value = str.slice(splitIndex + 1, endIndex).trim();\n\n    if (key === 'q') {\n      ret.quality = parseFloat(value);\n    } else {\n      ret.params[key] = value;\n    }\n\n    index = endIndex + 1;\n  }\n\n  return ret;\n}\n"
+  },
+  {
+    "query": "Where is the configured simple, extended, custom, or disabled query parser compiled and then invoked on the raw URL query, with disabled parsing returning an empty object?",
+    "source": "defineGetter(req, 'xhr', function xhr(){\n  var val = this.get('X-Requested-With') || '';\n  return val.toLowerCase() === 'xmlhttprequest';\n});\n"
+  },
+  {
+    "query": "Where is the configured simple, extended, custom, or disabled query parser compiled and then invoked on the raw URL query, with disabled parsing returning an empty object?",
+    "source": "var encodeUrl = require('encodeurl');\n"
+  },
+  {
+    "query": "Where is the configured simple, extended, custom, or disabled query parser compiled and then invoked on the raw URL query, with disabled parsing returning an empty object?",
+    "source": "    get: function getrouter() {\n      if (router === null) {\n        router = new Router({\n          caseSensitive: this.enabled('case sensitive routing'),\n          strict: this.enabled('strict routing')\n        });\n      }\n\n      return router;\n    }\n"
+  },
+  {
+    "query": "Where is the configured simple, extended, custom, or disabled query parser compiled and then invoked on the raw URL query, with disabled parsing returning an empty object?",
+    "source": "var bodyParser = require('body-parser')\n"
+  },
+  {
+    "query": "Where is the configured simple, extended, custom, or disabled query parser compiled and then invoked on the raw URL query, with disabled parsing returning an empty object?",
+    "source": "  var keys = Object.keys(obj)\n    .filter(function (v) { return v !== 'default' })\n"
+  },
+  {
+    "query": "Where is the configured simple, extended, custom, or disabled query parser compiled and then invoked on the raw URL query, with disabled parsing returning an empty object?",
+    "source": "req.range = function range(size, options) {\n  var range = this.get('Range');\n  if (!range) return;\n  return parseRange(size, range, options);\n};\n"
+  },
+  {
+    "query": "Where is the configured simple, extended, custom, or disabled query parser compiled and then invoked on the raw URL query, with disabled parsing returning an empty object?",
+    "source": "exports.compileTrust = function(val) {\n  if (typeof val === 'function') return val;\n\n  if (val === true) {\n    // Support plain true/false\n    return function(){ return true };\n  }\n\n  if (typeof val === 'number') {\n    // Support trusting hop count\n    return function(a, i){ return i < val };\n  }\n\n  if (typeof val === 'string') {\n    // Support comma-separated values\n    val = val.split(',')\n      .map(function (v) { return v.trim() })\n  }\n\n  return proxyaddr.compile(val || []);\n}\n"
+  },
+  {
+    "query": "Where is the configured simple, extended, custom, or disabled query parser compiled and then invoked on the raw URL query, with disabled parsing returning an empty object?",
+    "source": "app.defaultConfiguration = function defaultConfiguration() {\n  var env = process.env.NODE_ENV || 'development';\n\n  // default settings\n  this.enable('x-powered-by');\n  this.set('etag', 'weak');\n  this.set('env', env);\n  this.set('query parser', 'simple')\n  this.set('subdomain offset', 2);\n  this.set('trust proxy', false);\n\n  // trust proxy inherit back-compat\n  Object.defineProperty(this.settings, trustProxyDefaultSymbol, {\n    configurable: true,\n    value: true\n  });\n\n  debug('booting in %s mode', env);\n\n  this.on('mount', function onmount(parent) {\n    // inherit trust proxy\n    if (this.settings[trustProxyDefaultSymbol] === true\n      && typeof parent.settings['trust proxy fn'] === 'function') {\n      delete this.settings['trust proxy'];\n      delete this.settings['trust proxy fn'];\n    }\n\n    // inherit protos\n    Object.setPrototypeOf(this.request, parent.request)\n    Object.setPrototypeOf(this.response, parent.response)\n    Object.setPrototypeOf(this.engines, parent.engines)\n    Object.setPrototypeOf(this.settings, parent.settings)\n  });\n\n  // setup locals\n  this.locals = Object.create(null);\n\n  // top-most app is mounted at /\n  this.mountpath = '/';\n\n  // default locals\n  this.locals.settings = this.settings;\n\n  // default configuration\n  this.set('view', View);\n  this.set('views', resolve('views'));\n  this.set('jsonp callback name', 'callback');\n\n  if (env === 'production') {\n    this.enable('view cache');\n  }\n};\n"
+  },
+  {
+    "query": "Where is the configured simple, extended, custom, or disabled query parser compiled and then invoked on the raw URL query, with disabled parsing returning an empty object?",
+    "source": "app.init = function init() {\n  var router = null;\n\n  this.cache = Object.create(null);\n  this.engines = Object.create(null);\n  this.settings = Object.create(null);\n\n  this.defaultConfiguration();\n\n  // Setup getting to lazily add base router\n  Object.defineProperty(this, 'router', {\n    configurable: true,\n    enumerable: true,\n    get: function getrouter() {\n      if (router === null) {\n        router = new Router({\n          caseSensitive: this.enabled('case sensitive routing'),\n          strict: this.enabled('strict routing')\n        });\n      }\n\n      return router;\n    }\n  });\n};\n"
+  },
+  {
+    "query": "Where is the configured simple, extended, custom, or disabled query parser compiled and then invoked on the raw URL query, with disabled parsing returning an empty object?",
+    "source": "exports.json = bodyParser.json\n"
+  },
+  {
+    "query": "Where is the configured simple, extended, custom, or disabled query parser compiled and then invoked on the raw URL query, with disabled parsing returning an empty object?",
+    "source": "    default: function(){\n      body = '';\n    }\n"
+  },
+  {
+    "query": "Where is the configured simple, extended, custom, or disabled query parser compiled and then invoked on the raw URL query, with disabled parsing returning an empty object?",
+    "source": "app.set = function set(setting, val) {\n  if (arguments.length === 1) {\n    // app.get(setting)\n    return this.settings[setting];\n  }\n\n  debug('set \"%s\" to %o', setting, val);\n\n  // set value\n  this.settings[setting] = val;\n\n  // trigger matched settings\n  switch (setting) {\n    case 'etag':\n      this.set('etag fn', compileETag(val));\n      break;\n    case 'query parser':\n      this.set('query parser fn', compileQueryParser(val));\n      break;\n    case 'trust proxy':\n      this.set('trust proxy fn', compileTrust(val));\n\n      // trust proxy inherit back-compat\n      Object.defineProperty(this.settings, trustProxyDefaultSymbol, {\n        configurable: true,\n        value: false\n      });\n\n      break;\n  }\n\n  return this;\n};\n"
+  },
+  {
+    "query": "Where is the configured simple, extended, custom, or disabled query parser compiled and then invoked on the raw URL query, with disabled parsing returning an empty object?",
+    "source": "app.disabled = function disabled(setting) {\n  return !this.set(setting);\n};\n"
+  },
+  {
+    "query": "Where is the configured simple, extended, custom, or disabled query parser compiled and then invoked on the raw URL query, with disabled parsing returning an empty object?",
+    "source": "res.location = function location(url) {\n  return this.set('Location', encodeUrl(url));\n};\n"
+  },
+  {
+    "query": "Where is the configured simple, extended, custom, or disabled query parser compiled and then invoked on the raw URL query, with disabled parsing returning an empty object?",
+    "source": "res.jsonp = function jsonp(obj) {\n  // settings\n  var app = this.app;\n  var escape = app.get('json escape')\n  var replacer = app.get('json replacer');\n  var spaces = app.get('json spaces');\n  var body = stringify(obj, replacer, spaces, escape)\n  var callback = this.req.query[app.get('jsonp callback name')];\n\n  // content-type\n  if (!this.get('Content-Type')) {\n    this.set('X-Content-Type-Options', 'nosniff');\n    this.set('Content-Type', 'application/json');\n  }\n\n  // fixup callback\n  if (Array.isArray(callback)) {\n    callback = callback[0];\n  }\n\n  // jsonp\n  if (typeof callback === 'string' && callback.length !== 0) {\n    this.set('X-Content-Type-Options', 'nosniff');\n    this.set('Content-Type', 'text/javascript');\n\n    // restrict callback charset\n    callback = callback.replace(/[^\\[\\]\\w$.]/g, '');\n\n    if (body === undefined) {\n      // empty argument\n      body = ''\n    } else if (typeof body === 'string') {\n      // replace chars not allowed in JavaScript that are in JSON\n      body = body\n        .replace(/\\u2028/g, '\\\\u2028')\n        .replace(/\\u2029/g, '\\\\u2029')\n    }\n\n    // the /**/ is a specific security mitigation for \"Rosetta Flash JSONP abuse\"\n    // the typeof check is just to reduce client error noise\n    body = '/**/ typeof ' + callback + ' === \\'function\\' && ' + callback + '(' + body + ');';\n  }\n\n  return this.send(body);\n};\n"
+  },
+  {
+    "query": "Where is the configured simple, extended, custom, or disabled query parser compiled and then invoked on the raw URL query, with disabled parsing returning an empty object?",
+    "source": "app.disable = function disable(setting) {\n  return this.set(setting, false);\n};\n"
+  },
+  {
+    "query": "Where is the configured simple, extended, custom, or disabled query parser compiled and then invoked on the raw URL query, with disabled parsing returning an empty object?",
+    "source": "exports.normalizeType = function(type){\n  return ~type.indexOf('/')\n    ? acceptParams(type)\n    : { value: (mime.lookup(type) || 'application/octet-stream'), params: {} }\n};\n"
+  },
+  {
+    "query": "Where is the configured simple, extended, custom, or disabled query parser compiled and then invoked on the raw URL query, with disabled parsing returning an empty object?",
+    "source": "res.format = function(obj){\n  var req = this.req;\n  var next = req.next;\n\n  var keys = Object.keys(obj)\n    .filter(function (v) { return v !== 'default' })\n\n  var key = keys.length > 0\n    ? req.accepts(keys)\n    : false;\n\n  this.vary(\"Accept\");\n\n  if (key) {\n    this.set('Content-Type', normalizeType(key).value);\n    obj[key](req, this, next);\n  } else if (obj.default) {\n    obj.default(req, this, next)\n  } else {\n    next(createError(406, {\n      types: normalizeTypes(keys).map(function (o) { return o.value })\n    }))\n  }\n\n  return this;\n};\n"
+  },
+  {
+    "query": "Where is the configured simple, extended, custom, or disabled query parser compiled and then invoked on the raw URL query, with disabled parsing returning an empty object?",
+    "source": "exports.Router = Router;\n"
+  },
+  {
+    "query": "Where is the configured simple, extended, custom, or disabled query parser compiled and then invoked on the raw URL query, with disabled parsing returning an empty object?",
+    "source": "req.is = function is(types) {\n  var arr = types;\n\n  // support flattened arguments\n  if (!Array.isArray(types)) {\n    arr = new Array(arguments.length);\n    for (var i = 0; i < arr.length; i++) {\n      arr[i] = arguments[i];\n    }\n  }\n\n  return typeis(this, arr);\n};\n"
+  },
+  {
+    "query": "Where is the configured simple, extended, custom, or disabled query parser compiled and then invoked on the raw URL query, with disabled parsing returning an empty object?",
+    "source": "exports.text = bodyParser.text\n"
+  },
+  {
+    "query": "Where is the configured simple, extended, custom, or disabled query parser compiled and then invoked on the raw URL query, with disabled parsing returning an empty object?",
+    "source": "defineGetter(req, 'fresh', function(){\n  var method = this.method;\n  var res = this.res\n  var status = res.statusCode\n\n  // GET, HEAD, or QUERY for weak freshness validation only\n  if ('GET' !== method && 'HEAD' !== method && 'QUERY' !== method) return false;\n\n  // 2xx or 304 as per rfc2616 14.26\n  if ((status >= 200 && status < 300) || 304 === status) {\n    return fresh(this.headers, {\n      'etag': res.get('ETag'),\n      'last-modified': res.get('Last-Modified')\n    })\n  }\n\n  return false;\n});\n"
+  },
+  {
+    "query": "Where is the configured simple, extended, custom, or disabled query parser compiled and then invoked on the raw URL query, with disabled parsing returning an empty object?",
+    "source": "res.cookie = function (name, value, options) {\n  var opts = { ...options };\n  var secret = this.req.secret;\n  var signed = opts.signed;\n\n  if (signed && !secret) {\n    throw new Error('cookieParser(\"secret\") required for signed cookies');\n  }\n\n  var val = typeof value === 'object'\n    ? 'j:' + JSON.stringify(value)\n    : String(value);\n\n  if (signed) {\n    val = 's:' + sign(val, secret);\n  }\n\n  if (opts.maxAge != null) {\n    var maxAge = opts.maxAge - 0\n\n    if (!isNaN(maxAge)) {\n      opts.expires = new Date(Date.now() + maxAge)\n      opts.maxAge = Math.floor(maxAge / 1000)\n    }\n  }\n\n  if (opts.path == null) {\n    opts.path = '/';\n  }\n\n  this.append('Set-Cookie', cookie.serialize(name, String(val), opts));\n\n  return this;\n};\n"
+  },
+  {
+    "query": "Where is the configured simple, extended, custom, or disabled query parser compiled and then invoked on the raw URL query, with disabled parsing returning an empty object?",
+    "source": "      types: normalizeTypes(keys).map(function (o) { return o.value })\n"
+  },
+  {
+    "query": "Where is the configured simple, extended, custom, or disabled query parser compiled and then invoked on the raw URL query, with disabled parsing returning an empty object?",
+    "source": "app.enabled = function enabled(setting) {\n  return Boolean(this.set(setting));\n};\n"
+  },
+  {
+    "query": "Where is the configured simple, extended, custom, or disabled query parser compiled and then invoked on the raw URL query, with disabled parsing returning an empty object?",
+    "source": "exports.Route = Router.Route;\n"
+  },
+  {
+    "query": "Where is the configured simple, extended, custom, or disabled query parser compiled and then invoked on the raw URL query, with disabled parsing returning an empty object?",
+    "source": "    val = val.split(',')\n      .map(function (v) { return v.trim() })\n"
+  },
+  {
+    "query": "Where is the configured simple, extended, custom, or disabled query parser compiled and then invoked on the raw URL query, with disabled parsing returning an empty object?",
+    "source": "req.accepts = function(){\n  var accept = accepts(this);\n  return accept.types.apply(accept, arguments);\n};\n"
+  },
+  {
+    "query": "Where is the configured simple, extended, custom, or disabled query parser compiled and then invoked on the raw URL query, with disabled parsing returning an empty object?",
+    "source": "app.handle = function handle(req, res, callback) {\n  // final handler\n  var done = callback || finalhandler(req, res, {\n    env: this.get('env'),\n    onerror: logerror.bind(this)\n  });\n\n  // set powered by header\n  if (this.enabled('x-powered-by')) {\n    res.setHeader('X-Powered-By', 'Express');\n  }\n\n  // set circular references\n  req.res = res;\n  res.req = req;\n\n  // alter the prototypes\n  Object.setPrototypeOf(req, this.request)\n  Object.setPrototypeOf(res, this.response)\n\n  // setup locals\n  if (!res.locals) {\n    res.locals = Object.create(null);\n  }\n\n  this.router.handle(req, res, done);\n};\n"
+  },
+  {
+    "query": "Where is the configured simple, extended, custom, or disabled query parser compiled and then invoked on the raw URL query, with disabled parsing returning an empty object?",
+    "source": "exports.request = req;\n"
+  },
+  {
+    "query": "Where is the configured simple, extended, custom, or disabled query parser compiled and then invoked on the raw URL query, with disabled parsing returning an empty object?",
+    "source": "'use strict';\n"
+  },
+  {
+    "query": "Where is the configured simple, extended, custom, or disabled query parser compiled and then invoked on the raw URL query, with disabled parsing returning an empty object?",
+    "source": "res.get = function(field){\n  return this.getHeader(field);\n};\n"
+  },
+  {
+    "query": "Where is the configured simple, extended, custom, or disabled query parser compiled and then invoked on the raw URL query, with disabled parsing returning an empty object?",
+    "source": "var req = require('./request');\n"
+  },
+  {
+    "query": "Where is the configured simple, extended, custom, or disabled query parser compiled and then invoked on the raw URL query, with disabled parsing returning an empty object?",
+    "source": "var extname = path.extname;\n"
+  },
+  {
+    "query": "Where is the configured simple, extended, custom, or disabled query parser compiled and then invoked on the raw URL query, with disabled parsing returning an empty object?",
+    "source": "app.enable = function enable(setting) {\n  return this.set(setting, true);\n};\n"
+  },
+  {
+    "query": "Where is the configured simple, extended, custom, or disabled query parser compiled and then invoked on the raw URL query, with disabled parsing returning an empty object?",
+    "source": "app.param = function param(name, fn) {\n  if (Array.isArray(name)) {\n    for (var i = 0; i < name.length; i++) {\n      this.param(name[i], fn);\n    }\n\n    return this;\n  }\n\n  this.router.param(name, fn);\n\n  return this;\n};\n"
+  },
+  {
+    "query": "Where is the configured simple, extended, custom, or disabled query parser compiled and then invoked on the raw URL query, with disabled parsing returning an empty object?",
+    "source": "var basename = path.basename;\n"
+  },
+  {
+    "query": "Where is the configured simple, extended, custom, or disabled query parser compiled and then invoked on the raw URL query, with disabled parsing returning an empty object?",
+    "source": "defineGetter(req, 'subdomains', function subdomains() {\n  var hostname = this.hostname;\n\n  if (!hostname) return [];\n\n  var offset = this.app.get('subdomain offset');\n  var subdomains = !isIP(hostname)\n    ? hostname.split('.').reverse()\n    : [hostname];\n\n  return subdomains.slice(offset);\n});\n"
+  }
+]
