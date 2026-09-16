@@ -1,0 +1,73 @@
+{
+  "version": 1,
+  "classification": "Prospective Koa repository holdout for an already fixed clause rule; NO INFERENCE",
+  "no_inference": true,
+  "independent_source_review_required": true,
+  "protocol": "docs/koa-clause-holdout-protocol.md",
+  "source_audit": "results/koa-clause-preflight-2026-10-13/source-audit.json",
+  "source_audit_sha256": "86b6f0f0cee0ca9519711d3d8c903b1d8ecc5e1c0f83b1f0d4d63016b83063aa",
+  "fixed_rule_protocol": "docs/clause-fusion-development.md",
+  "fixed_rule_protocol_sha256": "4cd0ff4b576ae6db76afe8ab1001bb119cb5c61e0d944427775f8a019965b4a6",
+  "settings": {
+    "rerank": false,
+    "candidates": 50,
+    "max_results": 8,
+    "source_budget": 12000,
+    "token_budget": 4096,
+    "include_dependencies": true
+  },
+  "datasets": [
+    {
+      "id": "koa",
+      "corpus": ".cache/corpora/koa",
+      "repo_url": "https://github.com/koajs/koa",
+      "revision": "2fecd029c6ce6b79d65158d28a76538f7f6b0378",
+      "dataset": "benchmarks/koa_clause_holdout.json",
+      "sha256": "9f7ac046dc11004a84fd592d4642b2a26cdca45c2c50bc01f329832f94ec8bdf",
+      "source_root": "lib",
+      "source_exclusions": [],
+      "language": "javascript",
+      "role": "prospective_repository_holdout"
+    }
+  ],
+  "positive_queries": 6,
+  "multi_file_positive_queries": 3,
+  "same_file_and_queries": 1,
+  "scoped_absent_queries": 2,
+  "protocol_sha256": "5d2da6fc229d4049d050c6dc92e19624b08f32d3bfb4a093c28afbc430b754b6",
+  "fixed_rule_source": "scripts/run_clause_fusion.py",
+  "fixed_rule_source_sha256": "c794a16f37f22da214ca470546dc1572e79a11f87f48efe58fe08754fd564125",
+  "fixed_rule": {
+    "version": 1,
+    "separators": [
+      "and where",
+      "and then",
+      "while",
+      "then",
+      "before"
+    ],
+    "case_insensitive": true,
+    "word_boundaries": true,
+    "minimum_clause_whitespace_words": 4,
+    "maximum_additional_clauses": 3,
+    "deduplication": "collapsed whitespace and casefold",
+    "selection": "full original query, then first eligible distinct clauses in source order",
+    "rrf_k": 60,
+    "weights": "equal",
+    "per_list_depth": 50,
+    "merged_depth": 50,
+    "ties": "original full-query rank then stable snippet ID",
+    "threshold": null,
+    "h2o": false
+  },
+  "rule_activation_preflight": {
+    "checked_after_label_authoring": true,
+    "query_count": 8,
+    "queries_with_additional_clause": 0,
+    "additional_inputs": 0,
+    "case_substitutions": 0,
+    "note": "Query texts are retained regardless of rule activation. Zero activation cannot discriminate fusion from full-query ranking; no wording was altered to force activation."
+  },
+  "comparative_fusion_preflight_passed": false,
+  "inference_authorized": false
+}
