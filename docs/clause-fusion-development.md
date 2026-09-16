@@ -25,14 +25,17 @@ The separate reported top cosine is the actual raw full-query top-list value.
 
 ```sh
 .venv/bin/python scripts/run_clause_fusion.py --freeze \
-  --output results/clause-fusion-development-2026-10-13
+  --output results/local/clause-fusion-new-run
 .venv/bin/python scripts/run_clause_fusion.py --run \
-  --output results/clause-fusion-development-2026-10-13
+  --output results/local/clause-fusion-new-run
 ```
 
 Freeze is CPU-only: it reads source, installed package and local checkpoint
 metadata and extracts saved windows. It does not initialize model weights,
 read weight-file bytes, download files, query Qwen/H2O, or access user config.
+The fixed existing cl100k cache URL/key/SHA is checked, its immutable bytes are
+captured for the explicit run, and unexpected tokenizer URL/hash requests are
+rejected. Inherited cache paths do not allow a download or cache write.
 It binds source/protocol hashes, all 30 literal texts and selected clause inputs,
 all 60 scheduled attempts, installed distributions, checkpoint metadata, parser
 fingerprint, source membership and exact extracted-window identities. Weight
@@ -58,7 +61,9 @@ by unique query index; there is one attempt per query/condition, not repetitions
 
 Observed attempted/completed document/query call counts and actual input strings
 are immutable before/after snapshots. Query-vector dtype, shape, norm and byte
-SHA are retained. Full baseline and every control raw source list, merged order,
+SHA plus complete numeric values are retained for independent reconstruction.
+These are model API calls/texts rather than individual Metal batch forwards.
+Full baseline and every control raw source list, merged order,
 all delivered excerpts, exact physical/source hashes and shared-budget checks
 are preserved. Existing gold labels enter scoring only after source-only
 selection and packing have finished. Quality denominators remain 30 unique
@@ -71,3 +76,10 @@ was adapted before the original language inference. This is a single,
 predetermined development probe of query formulation, with extra model cost
 measured descriptively. Its outcomes cannot establish an independent holdout
 improvement or justify tuning a shipped default on these observed labels.
+
+Cooperative SIGTERM/keyboard interruption retains the attempted condition and
+actual before/after counters before closing the model/backend and rethrowing.
+A hard kill or machine loss can prevent a final receipt; no estimate or retry
+substitutes for it. CPU real-encoder checks copy the existing verified cache into
+an explicit private fixture, or clearly skip when that offline setup is missing;
+missing/corrupt-cache and synthetic no-network/restoration checks always run.

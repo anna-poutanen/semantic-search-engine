@@ -117,6 +117,13 @@ def verify_attempt(row, query, condition, inventory, sources, encoding):
     vectors = row["query_vectors"]
     require(len(vectors) == len(inputs), "Observed vector count")
     for vector, text in zip(vectors, inputs, strict=True):
+        import numpy as np
+        require(isinstance(vector["values"], list) and len(vector["values"]) == 1024
+                and all(type(value) in (int, float) for value in vector["values"]), "Retained numeric query vector")
+        values = np.asarray(vector["values"], dtype=np.float32)
+        require(np.isfinite(values).all() and sha(values.tobytes()) == vector["sha256"]
+                and math.isclose(float(np.linalg.norm(values)), vector["l2_norm"], rel_tol=1e-7),
+                "Independent complete vector byte SHA/norm")
         require(vector["input"] == text and vector["shape"] == [1024] and vector["dtype"] == "float32"
                 and isinstance(vector["sha256"], str) and bool(HASH.fullmatch(vector["sha256"]))
                 and type(vector["l2_norm"]) in (int, float) and math.isfinite(vector["l2_norm"])
@@ -393,6 +400,10 @@ def build_audit(root, study):
                       "elapsed_inprocess_s": row["elapsed_inprocess_s"], "query_api_calls": calls})
     for name, setup in setup_by_dataset.items():
         require(setup["counts_after_queries"] == setup["counts_at_close"] == running_counts[name], "Final query/close counter snapshots")
+        closed = setup["after_close"]
+        require(closed["backend_status"]["closed"] is True and closed["weights_resident"] is False
+                and closed["metal_runtime_resident"] is False and closed["backend_close_returned"] is True,
+                "Observed backend/model/runtime close")
     metrics = {name: {condition: summarize_cases([case for case in cases if case["dataset"] == name
                         and case["condition"] == condition]) for condition in CONDITIONS} for name in labels}
     for name, conditions in metrics.items():
@@ -426,7 +437,7 @@ def build_audit(root, study):
             "limits": [
                 "Both repositories and all queries were already observed; this one-pass development probe is not a new holdout, generalization test, coding-correctness test or justification for changing defaults.",
                 "All OR alternatives and required AND groups are rescored from complete executable spans in one exact saved-source excerpt per group. Plausible absent-query decoys receive no positive gold credit.",
-                "Independent RRF and exact compact payload checks use retained ranks and source bytes; semantic dense ordering and vector byte digests cannot be independently reproduced without retained embedding vectors.",
+                "Independent RRF and exact compact payload checks use retained ranks and source bytes. Retained complete query vectors reproduce their byte SHA/norm; the auditor does not rerun semantic embedding or dense retrieval.",
                 "Observed attempted/completed embedding API calls and actual input logs are checked, not individual internal MLX batch forwards or provider usage.",
                 "Condition intervals are in-process embedding/retrieval/fusion/packing observations; prepared-vector backend timings are not model latency. Cold index setup is separate; memory is process-lifetime and descriptive.",
                 "Source files, package metadata, checkpoint metadata and closed index byte hashes are checked. Retained complete weight-file SHA/size verification matches pinned provenance; the auditor does not reread or load weights.",
