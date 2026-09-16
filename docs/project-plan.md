@@ -146,6 +146,21 @@ the narrow clause rule, so its comparative applicability gate fails. The texts
 were not rewritten to force activation. They remain a prospective retrieval
 corpus, rather than a completed holdout result.
 
+The separate [Qwen reranker prototype](qwen-reranker-experiment.md) now has a
+real Mac [development probe and independent audit](../results/qwen-reranker-case-v2-2026-10-13/independent-findings.md). On one explicitly selected Express miss, it scored
+all 50 retained candidates and delivered all three required groups under the
+same eight-excerpt, 12,000-character and 4,096-token limits; dense delivery had
+covered two groups. The isolated run took about five seconds including weight
+verification, loading, tokenization, scoring and disposal. This is one chosen
+case, with no numerical PyTorch parity proof, broader quality, warm HTTP P95 or
+paid-token conclusion. The original observation-wrapper failure scored zero
+pairs and remains preserved separately. The production default is unchanged.
+
+Next, freeze a complete development comparison for this reranker, including
+regressions, absent queries, exact source caps, repeated warm service timing and
+memory. Evaluate fixed settings on a new repository query set, then repeat the
+coding comparison with stronger checks and complete provider usage receipts.
+
 Use fresh development queries to improve evidence delivery and a new
 untouched holdout to assess those changes. The observed Zod misses are now
 development evidence for future tuning. Broader coding tasks and external beta
