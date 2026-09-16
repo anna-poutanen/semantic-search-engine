@@ -13,6 +13,7 @@ import math
 from urllib.request import Request
 
 import run_qwen_reranker_benchmark as previous
+import qwen_optimization_clock as clocks
 
 ROOT = previous.ROOT
 packing, language = previous.packing, previous.language
@@ -126,6 +127,18 @@ def search_backend(*args, **kwargs):
     return SearchBackend(*args, **kwargs)
 
 
+def clock_checkpoint(guard, record, field, label, *, since=None):
+    """Retain a failed sample before propagating its non-retriable clock abort."""
+    try:
+        receipt = guard.check(label, since=since)
+    except clocks.ClockIntegrityError as error:
+        record[field] = error.receipt
+        record["clock_failure"] = error.receipt
+        raise
+    record[field] = receipt
+    return receipt
+
+
 def run_pipeline(output, entries, frozen, http, ready, token):
     """Write unchanged full-run ledgers plus configuration/prefix/batch receipts.
 
@@ -139,6 +152,7 @@ def run_pipeline(output, entries, frozen, http, ready, token):
     configurations = {value["id"]: check_configuration(value) for value in frozen["conditions"]}
     require(len(configurations) == len(frozen["conditions"]), "Duplicate frozen configurations")
     require(frozen["settings"] == packing.SETTINGS, "Original packing caps changed")
+    require(frozen.get("clock_integrity") == clocks.POLICY, "Frozen wall/performance clock policy differs")
     require(frozen["planned_requests"] == len(frozen["schedule"]), "Planned schedule count differs")
     entry_ids = [entry["id"] for entry, _, _ in entries]
     require(len(set(entry_ids)) == len(entry_ids), "Duplicate corpus entry")
@@ -148,6 +162,7 @@ def run_pipeline(output, entries, frozen, http, ready, token):
         require(set(identity) == {"dataset", "query_id", "condition", "repetition"}
                 and identity["condition"] in configurations and identity["dataset"] in entry_ids,
                 "Unexpected frozen schedule identity")
+    guard = clocks.ClockIntegrity()
     owner = observed_embedder()
     rows, setups, pools, content_seen = [], [], {}, set()
     paired_pools, repeated_pools = {}, {}
@@ -161,6 +176,9 @@ def run_pipeline(output, entries, frozen, http, ready, token):
                 gzip.open(output / "source-content.jsonl.gz", "xt", encoding="utf-8") as content_ledger:
             for entry, dataset, sources in entries:
                 identifier = entry["id"]
+                setup = {"dataset": identifier, "counts_before": owner.counts(), "excluded_from_latency": True}
+                setups.append(setup)
+                clock_checkpoint(guard, setup, "clock_start", "setup/" + identifier + "/start")
                 destination = ROOT / ".cache/indexes" / (output.name + "-" + identifier + ".sqlite3")
                 destination.parent.mkdir(parents=True, exist_ok=True)
                 require(not destination.exists(), "Owned per-stage cache already exists")
@@ -170,10 +188,11 @@ def run_pipeline(output, entries, frozen, http, ready, token):
                 phase = previous.time.perf_counter()
                 before = owner.counts()
                 warmup = backend.search(previous.GENERIC_WARMUP, retrieval="dense", max_results=1, rerank=False)
-                setup = {"dataset": identifier, "index_and_embedding_warmup_s": previous.time.perf_counter() - phase,
+                setup.update({"index_and_embedding_warmup_s": previous.time.perf_counter() - phase,
                     "seed": seed, "indexstats": warmup["indexstats"], "counts_before": before,
-                    "counts_after": owner.counts(), "excluded_from_latency": True}
-                setups.append(setup)
+                    "counts_after": owner.counts()})
+                clock_checkpoint(guard, setup, "clock_end", "setup/" + identifier + "/end",
+                                 since=setup["clock_start"]["sample"])
                 write(output / "setups.json", previous.publish(setups))
                 queries = {query["id"]: query for query in dataset["queries"]}
                 source = next(record for record in frozen["sources"] if record["id"] == identifier)
@@ -184,7 +203,11 @@ def run_pipeline(output, entries, frozen, http, ready, token):
                     row = {"identity": identity, "query": query["query"], "configuration": configuration,
                            "status": "started", "counts_before": owner.counts(), "active_phase": "query_embedding"}
                     started = previous.time.perf_counter()
+                    request_id = "/".join(str(identity[key]) for key in ("dataset", "query_id", "condition", "repetition"))
                     try:
+                        row["active_phase"] = "clock_query_start"
+                        clock_checkpoint(guard, row, "clock_start", request_id + "/start")
+                        row["active_phase"] = "query_embedding"
                         retrieval = configuration["retrieval"]
                         phase = previous.time.perf_counter()
                         vector = owner.embed_query(query["query"])
@@ -221,7 +244,6 @@ def run_pipeline(output, entries, frozen, http, ready, token):
                                                                                 else repeated_pools[pool_key] == identity_hash)
                         repeated_pools.setdefault(pool_key, identity_hash)
                         row["active_phase"] = "reranker_http" if configuration["batch_size"] else "baseline_ordering"
-                        request_id = "/".join(str(identity[key]) for key in ("dataset", "query_id", "condition", "repetition"))
                         selected, scored, elapsed, order = select_prefix(pairs, query["query"], configuration,
                                                                         http, ready, token, request_id)
                         row["reranker_http_s"], row["ranking_order"] = elapsed, order
@@ -238,6 +260,9 @@ def run_pipeline(output, entries, frozen, http, ready, token):
                             top_full_cosine=top_cosine, score_kind=score_kind)
                         row["packing_s"] = previous.time.perf_counter() - phase
                         row["elapsed_warm_pipeline_s"] = previous.time.perf_counter() - started
+                        row["active_phase"] = "clock_query_end"
+                        clock_checkpoint(guard, row, "clock_end", request_id + "/end",
+                                         since=row["clock_start"]["sample"])
                         # Validation, gold scoring and writes are outside the same original timing boundary.
                         row["active_phase"] = "post_timing_validation_and_scoring"
                         response["experimental_candidate_retrieval"] = retrieval
@@ -276,6 +301,12 @@ def run_pipeline(output, entries, frozen, http, ready, token):
                                 "Measured query unexpectedly embedded documents")
                         row["status"], row["active_phase"] = "completed", "complete"
                     except BaseException as error:
+                        if "clock_start" in row and "clock_end" not in row:
+                            try:
+                                clock_checkpoint(guard, row, "clock_end", request_id + "/failed_end",
+                                                 since=row["clock_start"]["sample"])
+                            except clocks.ClockIntegrityError:
+                                pass  # Both failed receipts remain; no filter, restart or baseline reset.
                         row["status"], row["error_type"], row["error"] = "failed", type(error).__name__, str(error)
                         row["counts_after"] = owner.counts()
                         row["failed_elapsed_s"] = previous.time.perf_counter() - started
@@ -294,8 +325,11 @@ def run_pipeline(output, entries, frozen, http, ready, token):
                     and [row["identity"] for row in rows] == frozen["schedule"])
         require(complete, "Actual search ledger does not complete exact frozen schedule")
     except BaseException as error:
+        if setups:
+            write(output / "setups.json", previous.publish(setups))
         write(output / "failure.json", {"error_type": type(error).__name__, "error": str(error),
-              "attempted_requests": len(rows), "completed_requests": sum(row["status"] == "completed" for row in rows)})
+              "attempted_requests": len(rows), "completed_requests": sum(row["status"] == "completed" for row in rows),
+              "clock_failure": error.receipt if isinstance(error, clocks.ClockIntegrityError) else None})
         raise
     finally:
         try:
@@ -311,6 +345,7 @@ def run_pipeline(output, entries, frozen, http, ready, token):
                 "repeated_candidate_mismatches": [row["identity"] for row in rows
                                                   if row.get("matches_first_observed_pool_across_repetitions") is False],
                 "embedding_owner_closed": owner._model is None,
+                "clock_baseline": guard.baseline, "clock_integrity": clocks.POLICY,
                 "finished_at_utc": datetime.now(timezone.utc).isoformat()}
             write(output / "completion.json", completion)
     return completion
