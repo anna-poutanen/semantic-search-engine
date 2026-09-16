@@ -3,9 +3,12 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import os
 from pathlib import Path
+import select
 import signal
 import subprocess
+import sys
 
 import pytest
 
@@ -261,3 +264,143 @@ def test_readiness_rejects_nonloopback_endpoint_or_wrong_hash(tmp_path):
         path.write_text(json.dumps(item))
         with pytest.raises(ValueError, match=expected):
             supervisor.validate_ready(path, process, "plan")
+
+
+class ZombieRace:
+    """A session leader exits but remains unreaped until its owner's next poll."""
+    pid = 31337
+
+    def __init__(self, *, exit_between_poll_and_probe=False):
+        self.returncode = None
+        self.state = "alive"
+        self.exit_between_poll_and_probe = exit_between_poll_and_probe
+        self.observations = []
+
+    def poll(self):
+        self.observations.append(("poll", self.state))
+        if self.state == "zombie":
+            self.state, self.returncode = "gone", 0
+        return self.returncode
+
+    def wait(self, timeout):
+        return self.poll()
+
+    def group_signal(self, pid, signum):
+        assert pid == self.pid
+        self.observations.append(("signal", signum, self.state))
+        if self.state == "gone":
+            raise ProcessLookupError(pid)
+        if signum == 0 and self.state == "exit_pending":
+            self.state = "zombie"
+        if self.state == "zombie":
+            raise PermissionError(1, "Unreaped session leader")
+        if signum == signal.SIGTERM:
+            self.state = "exit_pending" if self.exit_between_poll_and_probe else "zombie"
+        elif signum == signal.SIGKILL:
+            raise AssertionError("A cooperative zombie race must never trigger forced kill")
+
+
+def test_reaps_just_terminated_leader_before_group_probe():
+    process, clock = ZombieRace(), Clock()
+    result = supervisor.stop_owned(process, clock=clock, sleep=clock.sleep, group_signal=process.group_signal)
+    assert result["exit_code"] == 0 and result["owned_group_stopped"] and result["term_sent"]
+    assert not result["errors"] and not result["forced_kill"] and not result["group_permission_retries"]
+    assert ("signal", 0, "zombie") not in process.observations
+    assert ("poll", "zombie") in process.observations
+
+
+def test_preserves_transient_eperm_and_retries_only_after_fresh_poll():
+    process, clock = ZombieRace(exit_between_poll_and_probe=True), Clock()
+    result = supervisor.stop_owned(process, clock=clock, sleep=clock.sleep, group_signal=process.group_signal)
+    assert result["exit_code"] == 0 and result["owned_group_stopped"] and not result["errors"]
+    assert len(result["group_permission_retries"]) == 1
+    retry = result["group_permission_retries"][0]
+    assert retry["error_type"] == "PermissionError" and retry["recovered"]
+    assert retry["leader_exit_before_fresh_poll"] is None and retry["leader_exit_after_fresh_poll"] == 0
+    assert "disappeared" in retry["resolution"]
+    failed_probe = process.observations.index(("signal", 0, "exit_pending"))
+    assert process.observations[failed_probe + 1:failed_probe + 3] == [("poll", "zombie"), ("signal", 0, "gone")]
+
+
+@pytest.mark.parametrize("leader_exit", [None, 0])
+def test_persistent_eperm_does_not_certify_live_group_as_gone(leader_exit):
+    calls, clock = [], Clock()
+
+    class RestrictedGroup:
+        pid = 31338
+        returncode = leader_exit
+
+        def poll(self):
+            calls.append("poll")
+            return self.returncode
+
+    def restricted_signal(pid, value):
+        assert pid == 31338 and value == 0
+        calls.append("probe")
+        raise PermissionError(1, "Live owned group is not signalable")
+
+    result = supervisor.stop_owned(RestrictedGroup(), clock=clock, sleep=clock.sleep, group_signal=restricted_signal)
+    assert not result["owned_group_stopped"] and not result["term_sent"] and not result["forced_kill"]
+    assert result["errors"][0]["error_type"] == "PermissionError"
+    assert result["exit_code"] == leader_exit
+    assert not result["group_permission_retries"][0]["recovered"]
+    assert calls[:4] == ["poll", "probe", "poll", "probe"]
+
+
+def test_cleanup_receipt_is_successful_for_cooperative_unreaped_worker(tmp_path):
+    root, study = fixture(tmp_path)
+
+    class ZombieFactory(Factory):
+        def __init__(self):
+            super().__init__()
+            self.zombies = set()
+
+        def __call__(self, args, **kwargs):
+            process = super().__call__(args, **kwargs)
+            original_poll = process.poll
+
+            def poll():
+                if process.pid in self.zombies:
+                    self.zombies.remove(process.pid)
+                    self.groups.discard(process.pid)
+                    process.returncode = 0
+                return original_poll()
+
+            process.poll = poll
+            return process
+
+        def group_signal(self, pid, value):
+            if pid in self.zombies:
+                raise PermissionError(1, "Zombie not yet reaped")
+            process = next(item for item in self.processes if item.pid == pid)
+            if process.role == "resident" and value == signal.SIGTERM:
+                self.signals.append((pid, value))
+                self.zombies.add(pid)
+                return
+            return super().group_signal(pid, value)
+
+    result, receipt, _ = execute(root, study, ZombieFactory())
+    assert result == 0 and receipt["success"] and receipt["resident_exit_code"] == 0
+    assert receipt["resident_owned_group_stopped"] and not receipt["resident_stop"]["errors"]
+    assert receipt["private_auth_token_removed"] and not receipt["forced_kill"]
+
+
+def test_real_owned_cpu_child_stops_cleanly_and_is_reaped():
+    # A real session/process test, with no MLX/model/network imports or GPU work.
+    child = subprocess.Popen([sys.executable, "-u", "-c",
+        "import signal,sys,time; signal.signal(signal.SIGTERM,lambda *_:sys.exit(0)); "
+        "print('ready',flush=True); time.sleep(5)"], stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE, text=True, start_new_session=True)
+    try:
+        assert select.select([child.stdout], [], [], 5)[0], "Owned CPU child failed to become ready"
+        assert child.stdout.readline().strip() == "ready"
+        result = supervisor.stop_owned(child)
+        assert result["owned_group_stopped"] and result["exit_code"] == 0 and result["term_sent"]
+        assert not result["errors"] and not result["forced_kill"]
+        assert child.poll() == 0
+    finally:
+        if child.poll() is None:
+            os.killpg(child.pid, signal.SIGKILL)
+            child.wait(timeout=5)
+        child.stdout.close()
+        child.stderr.close()
