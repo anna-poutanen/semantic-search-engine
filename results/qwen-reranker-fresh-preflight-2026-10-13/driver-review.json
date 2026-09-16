@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "classification": "Independent prospective CPU-only candidate/gold/packing/timing source review",
+  "reviewed_at_utc": "2026-10-13T14:25:38.533039+00:00",
+  "passed": true,
+  "model_calls": 0,
+  "retrieval_calls": 0,
+  "new_model_or_koa_ranking_outcomes_opened": false,
+  "producer_prototype_production_label_changes_by_reviewer": 0,
+  "asset_sha256": {
+    "scripts/run_qwen_reranker_benchmark.py": "f2a3a23f5bf9c37ca10799af9ed11a940fafebdc3ba2fc01f76752e281a9ae60",
+    "scripts/resident_qwen_reranker.py": "22c61f81e5bba6dbf107fd6847707c05046ae2a5dbc4bd97a7c77fffd05877f3",
+    "scripts/prototype_qwen_reranker.py": "a76d0e9d97ead8b40e6c538d84d178f6ceea9b145dba07cb5c34f2972c0d90e0",
+    "scripts/run_clause_fusion.py": "c794a16f37f22da214ca470546dc1572e79a11f87f48efe58fe08754fd564125",
+    "scripts/run_language_quality.py": "824daf7410d7046323f6f6e753a3ab0ad399ab8b9a534da2cb58c79b1657c979",
+    "src/semantic_search/backend.py": "6d90e948f31f89929bb93c99dffa84446d3a0d621f6eeaf95078706173c30d9b",
+    "src/semantic_search/context.py": "fb9ce00075272d0e0ca9064d5c79e8ca45abc94c60b95c2cabf1c3b98ee2cb85",
+    "src/semantic_search/persistent_retrieval.py": "4597d1b0de5f977e4fab966500f063ae923b66dde1809a9c88cf1723ae44e6e2",
+    "src/semantic_search/retrieval.py": "21bb25d259916ce1d0aa876b2d0cd355fa907a60c019b99de0ccfd90c6a9ab88",
+    "docs/qwen-reranker-full-protocol.md": "3a10db650511d8c793de01782690e4214cd3c8e290edef8379cc7d469e693b55",
+    "docs/qwen-reranker-koa-eligibility.md": "0296db07688054fa5ef12f425ea243f0a0f63cc39c96da03879330ca2e23a8b2",
+    "results/qwen-reranker-fresh-preflight-2026-10-13/eligibility.json": "b678d7fa84227ed69f38267f2b412692f023cd6a55ad1cd952f4729807c9b449",
+    "results/qwen-reranker-fresh-preflight-2026-10-13/driver-review.md": "3f0ee503754c1db8be1c7de1f7ee618a28648ab2c4e0d99aa315759b7d597e75",
+    "tests/test_qwen_reranker_benchmark.py": "39e241a71a617d0e72364c1ea3bcebf8f4cb4898460a8a1a1578fe778e0ea347",
+    "tests/test_resident_qwen_reranker.py": "89a580935d1bf71bae6eb23f04453e0abadca3c8eb786393267293047161c3de",
+    "tests/test_prototype_qwen_reranker.py": "b1ddbc72db502b830b299c6bd2dc7fb835553fe5be4ed1c17ac7bce177740c73",
+    "tests/test_clause_fusion.py": "af09e0e809eea1d14bf7d70ce8e9f65ac8c47fe1df4811081e49bae03f903643"
+  },
+  "checks": {
+    "literal_query_source_only_model_payload": true,
+    "gold_scoring_after_measured_interval": true,
+    "original_dense_and_hybrid_candidate_algorithms": true,
+    "observed_pair_candidate_identity_order_source_comparison": true,
+    "same_unmodified_production_packer": true,
+    "original_gold_bounds_not_expanded": true,
+    "truthful_external_hybrid_vs_internal_dense_pack_metadata": true,
+    "artifact_writes_after_measured_interval": true,
+    "startup_setup_warmup_excluded_from_warm_pipeline_samples": true,
+    "helper_loopback_http_distinguished_from_production_http_latency": true,
+    "proxy_and_redirects_disabled_for_owned_loopback": true,
+    "historical_koa_clause_gate_and_source_assets_unchanged": true,
+    "report_links_resolve": true
+  },
+  "tests": {
+    "command": ".venv/bin/python -m pytest tests/test_qwen_reranker_benchmark.py tests/test_resident_qwen_reranker.py tests/test_prototype_qwen_reranker.py tests/test_clause_fusion.py -q",
+    "passed": 63,
+    "failed": 0,
+    "duration_s": 1.55,
+    "scope": "fake observation/ordering/URL/gold contracts and unchanged packer; no real model"
+  },
+  "limitations": [
+    "Actual scheduled execution, pair ledger counts and observed candidate equality require post-run independent audit.",
+    "Independent runtime/checkpoint/forward/cleanup audit is owned by the separate experiment auditor.",
+    "SQLite seed proof binds the main database file, not sidecar/access-time nonmutation.",
+    "Static dependency source may lie outside the original candidate top50; report source origin of evidence gains.",
+    "Warm pipeline includes instrumentation and a scorer helper HTTP hop; it is not complete production HTTP latency.",
+    "No retrieval-quality, coding-correctness, token-savings or PyTorch-parity outcome is established by this review."
+  ]
+}
