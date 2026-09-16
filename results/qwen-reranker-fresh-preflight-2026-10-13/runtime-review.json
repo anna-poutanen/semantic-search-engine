@@ -1,0 +1,39 @@
+{
+  "classification": "Prospective independent CPU resident-model/runtime/forward/timing review",
+  "created_at_utc": "2026-10-13T14:27:21.387873+00:00",
+  "checks_passed": true,
+  "model_calls": 0,
+  "retrieval_calls": 0,
+  "weight_bytes_read": false,
+  "outcomes_read": false,
+  "source_sha256": {
+    "scripts/resident_qwen_reranker.py": "22c61f81e5bba6dbf107fd6847707c05046ae2a5dbc4bd97a7c77fffd05877f3",
+    "scripts/run_qwen_reranker_benchmark.py": "f2a3a23f5bf9c37ca10799af9ed11a940fafebdc3ba2fc01f76752e281a9ae60",
+    "scripts/prototype_qwen_reranker.py": "a76d0e9d97ead8b40e6c538d84d178f6ceea9b145dba07cb5c34f2972c0d90e0",
+    "docs/qwen-reranker-full-protocol.md": "3a10db650511d8c793de01782690e4214cd3c8e290edef8379cc7d469e693b55",
+    "tests/test_resident_qwen_reranker.py": "89a580935d1bf71bae6eb23f04453e0abadca3c8eb786393267293047161c3de",
+    "tests/test_qwen_reranker_benchmark.py": "39e241a71a617d0e72364c1ea3bcebf8f4cb4898460a8a1a1578fe778e0ea347"
+  },
+  "focused_cpu_tests": {
+    "passed": 63,
+    "command": ".venv/bin/python -B -m pytest -q tests/test_resident_qwen_reranker.py tests/test_qwen_reranker_benchmark.py tests/test_prototype_qwen_reranker.py tests/test_clause_fusion.py"
+  },
+  "findings": [
+    "Original BF16 checkpoint fully verified before runtime import/model construction; metadata-only freeze binds all 34 installed isolated distributions.",
+    "Actually imported pinned Qwen3 source origin/hash checked before construction; fixed original code-only instruction/template remains unchanged.",
+    "Prototype scorer projects only normalized final-token hidden state and materializes MLX graph before extracting yes/no scalar logits; raw logit difference defines rank, not saturated softmax.",
+    "Scorer accepts only literal query and source pairs; exact whole-physical-line prefix and tokenizer IDs/cap hashes observed for every forward.",
+    "One source-independent synthetic addition warmup is predeclared and counted outside benchmark; each subsequent scored candidate has a fresh started/completed ledger event and monotone observed counters.",
+    "HTTP is single-worker authenticated loopback; proxy and redirect routing are disabled in driver; main embedding and blocking scorer evaluation serialize GPU work.",
+    "Full helper interval includes pair tokenization, evaluated forwards, metadata/hash checks and per-forward ledger flush; measured main interval has a helper HTTP boundary and is not production full-HTTP latency.",
+    "All root-owned attempt/partial failure/start/stop evidence must be reconciled after completion; a clean listener stop alone does not establish full matrix completion.",
+    "No model/runtime/forward blocker remains for the prospective full experiment."
+  ],
+  "limits": [
+    "CPU review only, no new inference/ranking/model outputs were read.",
+    "Numerical parity with official PyTorch is not established; output probability is an uncalibrated rank signal.",
+    "Verification/load component timers omit some imports/tokenizer construction; overall cold startup requires actual supervisor ready-wall-clock receipt.",
+    "A scored prefix can omit a source suffix that the unchanged delivered packer includes; actual clipping must be retained in final audit.",
+    "Memory receipts describe the MLX allocator, not OS RSS or combined system memory."
+  ]
+}

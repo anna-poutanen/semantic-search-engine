@@ -1,0 +1,906 @@
+#!/usr/bin/env python3
+"""Independently verify broad reranker evidence without model or retrieval calls."""
+from __future__ import annotations
+
+import argparse
+import ast
+from collections import Counter
+from copy import deepcopy
+from datetime import datetime
+import hashlib
+import gzip
+import importlib.metadata
+import importlib.util
+import json
+import math
+from pathlib import Path
+import statistics
+import subprocess
+
+ROOT = Path(__file__).resolve().parents[1]
+SPEC = importlib.util.spec_from_file_location(
+    "independent_reranker_saved_evidence", ROOT / "scripts/report_context_packing.py"
+)
+evidence = importlib.util.module_from_spec(SPEC)
+SPEC.loader.exec_module(evidence)
+
+
+def require(ok, message):
+    if not ok:
+        raise ValueError(message)
+
+
+def sha(raw):
+    return hashlib.sha256(raw).hexdigest()
+
+
+def read(path):
+    return json.loads(path.read_bytes())
+
+
+def jsonl(path):
+    return [json.loads(line) for line in path.read_text().split("\n") if line.strip()]
+
+
+def finite(value, message, *, minimum=None):
+    require(type(value) in (int, float) and math.isfinite(value)
+            and (minimum is None or value >= minimum), message)
+
+
+def groups(query, sources, hashes):
+    """Allow historical Python labels, but verify every full literal evidence span."""
+    if query.get("kind") == "absent":
+        require(query.get("targets", []) == [] and "target_groups" not in query,
+                "Absent query has executable gold")
+        return []
+    require(query.get("kind") == "present"
+            and not ("targets" in query and "target_groups" in query), "Unambiguous positive kind")
+    result = query.get("target_groups", [query.get("targets")])
+    require(isinstance(result, list) and result
+            and all(isinstance(group, list) and group for group in result), "Nonempty OR/AND groups")
+    for alternatives in result:
+        for target in alternatives:
+            require(target["path"] in sources and isinstance(target["symbol"], str)
+                    and target["symbol"], "Executable gold path/symbol")
+            lo, hi = target["evidence_lines"]
+            require(type(lo) is type(hi) is int
+                    and 1 <= lo <= hi <= len(sources[target["path"]]), "Complete executable span bounds")
+            actual = "".join(sources[target["path"]][lo - 1:hi])
+            require(target.get("source_file_sha256", hashes[target["path"]]) == hashes[target["path"]]
+                    and target.get("evidence_sha256", sha(actual.encode())) == sha(actual.encode()),
+                    "Executable gold source/hash")
+            if "definition_lines" in target:
+                a, b = target["definition_lines"]
+                require(type(a) is type(b) is int and 1 <= a <= lo <= hi <= b <= len(sources[target["path"]]),
+                        "Executable definition contains evidence")
+    return result
+
+
+def ranks(rows, gold, *, symbol_required=False):
+    return [next((number for number, row in enumerate(rows, 1)
+                  if any(row["path"] == target["path"]
+                         and (not symbol_required or row["symbol"] == target["symbol"])
+                         and row["start_line"] <= target["evidence_lines"][0]
+                         <= target["evidence_lines"][1] <= row["end_line"]
+                         for target in alternatives)), None) for alternatives in gold]
+
+
+def verify_raw(rows, inventory, sources, *, score_kind):
+    require(isinstance(rows, list) and len(rows) <= 50
+            and len({row["id"] for row in rows}) == len(rows), "Unique candidate pool at depth fifty")
+    for row in rows:
+        require(row["id"] in inventory, "Candidate outside frozen extractor inventory")
+        frozen = inventory[row["id"]]
+        require(all(row[key] == frozen[key] for key in
+                    ("path", "symbol", "start_line", "end_line", "source_hash")), "Exact candidate identity")
+        lo, hi = row["start_line"], row["end_line"]
+        require(type(lo) is type(hi) is int and 1 <= lo <= hi <= len(sources[row["path"]]),
+                "Exact candidate physical bounds")
+        actual = "".join(sources[row["path"]][lo - 1:hi])
+        require(row["source"] == actual and row["source_hash"] == sha(actual.encode()),
+                "Literal candidate source and hash")
+        finite(row["retrieval_score"], "Finite retrieval score")
+        if score_kind == "cosine":
+            require(-1.00001 <= row["retrieval_score"] <= 1.00001, "Cosine score bound")
+        else:
+            require(score_kind == "rrf_k60" and 0 <= row["retrieval_score"] <= 2 / 61,
+                    "RRF priority kind/bound")
+    return len(rows)
+
+
+def verify_score(score):
+    for key in ("yes_logit", "no_logit", "logit_difference", "yes_rank_signal"):
+        finite(score[key], "Finite actual final-token scalar score")
+    delta = score["yes_logit"] - score["no_logit"]
+    require(math.isfinite(delta) and score["logit_difference"] == delta,
+            "Actual yes-minus-no logits")
+    signal = (1 / (1 + math.exp(-delta)) if delta >= 0
+              else math.exp(delta) / (1 + math.exp(delta)))
+    require(math.isclose(score["yes_rank_signal"], signal, rel_tol=1e-13, abs_tol=1e-15),
+            "Independent stable two-class rank signal")
+
+
+def prototype_constants(source):
+    wanted = {"MODEL_ID", "REVISION", "MAX_TOKENS", "INSTRUCTION", "PREFIX", "SUFFIX",
+              "PINS", "RUNTIME_PINS", "QWEN3_SOURCE_SHA"}
+    result = {}
+    for node in ast.parse(source).body:
+        if isinstance(node, ast.Assign) and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name):
+            name = node.targets[0].id
+            if name in wanted:
+                result[name] = ast.literal_eval(node.value)
+    require(set(result) == wanted, "Committed literal original reranker prototype constants")
+    return result
+
+
+def rebuild_pair(query, source, tokenizer, config):
+    def encode(text):
+        result = tokenizer.encode(text, add_special_tokens=False)
+        return list(result.ids if hasattr(result, "ids") else result)
+    prefix, suffix = encode(config["PREFIX"]), encode(config["SUFFIX"])
+    header = f"<Instruct>: {config['INSTRUCTION']}\n<Query>: {query}\n<Document>: "
+    lines = evidence.physical_lines(source)
+    for count in range(len(lines), 0, -1):
+        delivered = "".join(lines[:count])
+        ids = prefix + encode(header + delivered) + suffix
+        if len(ids) <= config["MAX_TOKENS"]:
+            return {"source_sha256": sha(source.encode()), "delivered_sha256": sha(delivered.encode()),
+                    "source_lines": len(lines), "delivered_lines": count,
+                    "source_utf8_bytes": len(source.encode()), "delivered_utf8_bytes": len(delivered.encode()),
+                    "truncated": delivered != source, "total_tokens": len(ids),
+                    "query_sha256": sha(query.encode()),
+                    "input_ids_sha256": sha(json.dumps(ids, separators=(",", ":")).encode())}
+    raise ValueError("No complete literal physical source prefix fits the full pair token cap")
+
+
+def verify_scoring_receipt(receipt, pairs, records, tokenizer, config,
+                           *, request_id, previous_counts, warmup=False):
+    require(receipt["request_id"] == request_id and receipt["warmup"] is warmup
+            and receipt["pairs_sha256"] == sha(json.dumps(
+                pairs, sort_keys=True, ensure_ascii=False, separators=(",", ":")).encode()),
+            "Actual resident request/source-only pair digest")
+    require(len(receipt["results"]) == len(pairs) and len(records) == 2 * len(pairs),
+            "Every requested pair has started/completed observed forward")
+    counts = receipt["counts"]
+    require(set(counts) == {"requests", "attempted_forwards", "completed_forwards"}
+            and all(type(value) is int and value >= 0 for value in counts.values()),
+            "Strict actual resident request/forward counters")
+    require(counts["requests"] == previous_counts["requests"] + 1
+            and counts["attempted_forwards"] == previous_counts["attempted_forwards"] + len(pairs)
+            and counts["completed_forwards"] == previous_counts["completed_forwards"] + len(pairs),
+            "Actual resident forward counters advance without score reuse")
+    forward_sum = 0.
+    for index, (pair, result) in enumerate(zip(pairs, receipt["results"], strict=True)):
+        require(set(pair) == {"query", "source"}, "Only literal query/source enters model scorer")
+        expected = rebuild_pair(pair["query"], pair["source"], tokenizer, config)
+        require(type(result["truncated"]) is bool and all(type(result[key]) is int for key in
+                ("source_lines", "delivered_lines", "source_utf8_bytes", "delivered_utf8_bytes", "total_tokens")),
+                "Strict actual scored-prefix boolean/integer metadata")
+        require({key: result[key] for key in expected if key != "input_ids_sha256"}
+                == {key: value for key, value in expected.items() if key != "input_ids_sha256"},
+                "Exact scored source prefix, bytes, physical lines, cap and tokenizer input")
+        verify_score(result)
+        started, completed = records[index * 2:index * 2 + 2]
+        identity = {key: expected[key] for key in ("query_sha256", "source_sha256", "delivered_sha256",
+                    "total_tokens", "input_ids_sha256", "truncated", "delivered_lines")}
+        identity.update(request_id=request_id, pair_index=index, warmup=warmup,
+                        forward_number=previous_counts["attempted_forwards"] + index + 1)
+        require(started == identity | {"event": "started"}
+                and {key: completed[key] for key in identity} == identity
+                and completed["event"] == "completed", "Ordered immutable actual forward identities")
+        require(all(type(record["pair_index"]) is type(record["forward_number"])
+                    is type(record["total_tokens"]) is type(record["delivered_lines"]) is int
+                    and type(record["warmup"]) is type(record["truncated"]) is bool
+                    for record in (started, completed)), "Strict forward identity/counter types")
+        verify_score(completed["score"])
+        require(completed["score"] == {key: result[key] for key in completed["score"]},
+                "Observed actual scalar score equals final model result")
+        finite(completed["elapsed_s"], "Finite evaluated-forward interval", minimum=0)
+        forward_sum += completed["elapsed_s"]
+    for key in ("forward_s", "tokenization_s", "server_scoring_s"):
+        finite(receipt[key], "Finite actual resident timing: " + key, minimum=0)
+    require(math.isclose(forward_sum, receipt["forward_s"], rel_tol=1e-12, abs_tol=1e-12)
+            and receipt["server_scoring_s"] + 1e-12 >= receipt["forward_s"] + receipt["tokenization_s"],
+            "Resident full interval contains observed evaluated forwards and tokenization")
+    return counts
+
+
+def ordered(raw, scores):
+    require(len(raw) == len(scores), "One actual score for each retained candidate")
+    for score in scores:
+        verify_score(score)
+    indices = sorted(range(len(raw)), key=lambda index:
+                     (-scores[index]["logit_difference"], index + 1, raw[index]["id"]))
+    return [{**raw[index], "retrieval_score": scores[index]["logit_difference"]}
+            for index in indices]
+
+
+def verify_vector(record, query=None):
+    import numpy as np
+    require(("input" not in record or record["input"] == query) and record["dtype"] == "float32"
+            and record["shape"] == [1024] and isinstance(record["values"], list)
+            and len(record["values"]) == 1024
+            and all(type(value) in (int, float) and math.isfinite(value) for value in record["values"]),
+            "Actual literal query/vector dimensionality and finite values")
+    vector = np.asarray(record["values"], dtype=np.float32)
+    require(sha(vector.tobytes()) == record["sha256"] and np.isfinite(vector).all()
+            and np.linalg.norm(vector) > 0
+            and ("l2_norm" not in record or math.isclose(float(np.linalg.norm(vector)),
+                 record["l2_norm"], rel_tol=1e-7, abs_tol=1e-7)),
+            "Actual float32 vector bytes/norm")
+    return vector
+
+
+def actual_path(root, recorded):
+    require(isinstance(recorded, str), "Recorded actual file path")
+    path = recorded.replace("<PROJECT>", str(root)).replace("<HOME>", str(Path.home()))
+    return Path(path).resolve(strict=True)
+
+
+def verify_model_provenance(root, plan, provenance, config):
+    identity = provenance["model"]
+    checkpoint = root / ".cache/models/qwen3-reranker-0.6b-original"
+    require(actual_path(root, identity["directory"]) == checkpoint.resolve()
+            and identity["model_id"] == plan["reranker"]["model_id"] == config["MODEL_ID"]
+            and identity["revision"] == plan["reranker"]["revision"] == config["REVISION"]
+            and identity["weight_identity_verified"] is True,
+            "Actual original BF16 checkpoint identity and full-byte verification receipt")
+    require(set(identity["files"]) == set(identity["file_witnesses"]) == set(config["PINS"]),
+            "Exact original checkpoint file inventory")
+    for name, (size, digest) in config["PINS"].items():
+        path = checkpoint / name
+        stat = path.stat()
+        require(stat.st_size == size and identity["files"][name] == {"size": size, "sha256": digest},
+                "Actual recorded original file size/hash verification")
+        witness = identity["file_witnesses"][name]
+        require(actual_path(root, witness[0]) == path.resolve()
+                and witness[1:] == [stat.st_dev, stat.st_ino, stat.st_size, stat.st_mtime_ns, stat.st_ctime_ns],
+                "Actual checkpoint unchanged file/inode/stat witness")
+        frozen = plan["reranker"]["checkpoint_files"][name]
+        require(frozen["size"] == size, "Metadata freeze exact original file size")
+        if name.endswith(".safetensors"):
+            require(frozen == {"size": size, "sha256": None, "weight_bytes_read": False},
+                    "Prospective metadata-only original weight preflight")
+        else:
+            require(sha(path.read_bytes()) == digest and frozen == {"size": size, "sha256": digest},
+                    "Independent actual tokenizer/config bytes")
+    runtime = provenance["runtime"]
+    require(runtime["errors"] == [] and runtime["packages"] == config["RUNTIME_PINS"]
+            and plan["reranker"]["runtime"] == {"packages": config["RUNTIME_PINS"],
+                  "qwen3_source_sha256": config["QWEN3_SOURCE_SHA"]}
+            and runtime["qwen3_source_sha256"] == runtime["imported_qwen3_source_sha256"]
+            == config["QWEN3_SOURCE_SHA"], "Actual installed and imported original Qwen3 runtime identity")
+    site = root / ".cache/reranker-experiment/.venv/lib/python3.12/site-packages"
+    path = site / "mlx_lm/models/qwen3.py"
+    require(actual_path(root, runtime["qwen3_source_path"])
+            == actual_path(root, runtime["imported_qwen3_source_path"]) == path.resolve()
+            and sha(path.read_bytes()) == config["QWEN3_SOURCE_SHA"],
+            "Actually imported pinned Qwen3 primary implementation")
+    packages = {distribution.metadata["Name"]: distribution.version
+                for distribution in importlib.metadata.distributions(path=[str(site)])}
+    require(provenance["packages"] == packages == plan["reranker"]["packages"],
+            "Actual isolated resident distribution inventory and prospective closure")
+    require(provenance["instruction"] == config["INSTRUCTION"]
+            and provenance["max_total_tokens"] == config["MAX_TOKENS"] == 8192
+            and provenance["sequential_unpadded"] is True,
+            "Prospective fixed source-only instruction and unpadded full pair cap")
+    for key in ("verification_s", "load_s"):
+        finite(provenance[key], "Actual separate setup interval", minimum=0)
+    from tokenizers import Tokenizer
+    require(importlib.metadata.version("tokenizers") == config["RUNTIME_PINS"]["tokenizers"],
+            "Independent CPU tokenizer version matches actual scoring tokenizer")
+    return Tokenizer.from_file(str(checkpoint / "tokenizer.json"))
+
+
+def distributions(values):
+    require(isinstance(values, list) and values, "Nonempty latency sample population")
+    for value in values:
+        finite(value, "Finite observed warm interval", minimum=0)
+    ordered_values = sorted(values)
+    return {"samples": len(values), "median_s": statistics.median(values),
+            "p95_s": ordered_values[math.ceil(.95 * len(values)) - 1],
+            "min_s": ordered_values[0], "max_s": ordered_values[-1]}
+
+
+def summarize(cases):
+    """Unique first-pass quality only; latency may use all completed repeated passes."""
+    unique = [case for case in cases if case["repetition"] == 1]
+    require(len({(case["dataset"], case["query_id"]) for case in unique}) == len(unique),
+            "Quality cases are unique first-pass queries")
+    positive = [case for case in unique if case["kind"] == "present"]
+    absent = [case for case in unique if case["kind"] == "absent"]
+    multi = [case for case in positive if case["multi_file"]]
+    require(all(type(case["tokens"]) is int and 0 <= case["tokens"] <= 4096 for case in cases),
+            "Exact compact token integer/cap")
+    complete = [max(case["evidence_ranks"]) if None not in case["evidence_ranks"] else None
+                for case in positive]
+    phase_names = sorted({key for case in cases for key in case.get("phases", {})})
+    phases = {name: distributions([case["phases"][name] for case in cases
+                                  if name in case.get("phases", {})]) for name in phase_names}
+    return {"unique_queries": len(unique), "present": len(positive), "absent": len(absent),
+            "delivered_complete": sum(rank is not None for rank in complete),
+            "candidate_complete": sum(None not in case["candidate_evidence_ranks"] for case in positive),
+            "required_groups": sum(len(case["evidence_ranks"]) for case in positive),
+            "covered_groups": sum(sum(rank is not None for rank in case["evidence_ranks"]) for case in positive),
+            "multi_file_queries": len(multi),
+            "multi_file_complete": sum(None not in case["evidence_ranks"] for case in multi),
+            "complete_evidence_mrr": sum(1 / rank for rank in complete if rank is not None) / len(positive)
+            if positive else None,
+            **{f"complete_at_{depth}": sum(rank is not None and rank <= depth for rank in complete)
+               for depth in (1, 3, 5, 8)},
+            "absent_statuses": dict(Counter(case["match_status"] for case in absent)),
+            "compact_tokens": {"samples": len(cases),
+                               "median": statistics.median(case["tokens"] for case in cases),
+                               "max": max(case["tokens"] for case in cases)},
+            "warm_measured_seconds": distributions([case["elapsed_s"] for case in cases]),
+            "warm_phases": phases}
+
+
+def changes(before, after):
+    require([(case["dataset"], case["query_id"], case["repetition"]) for case in before]
+            == [(case["dataset"], case["query_id"], case["repetition"]) for case in after],
+            "Matched baseline/reranker case matrix")
+    result = {key: [] for key in ("complete_gains", "complete_regressions", "group_changes", "rank_changes",
+                                  "candidate_pool_mismatches")}
+    for a, b in zip(before, after, strict=True):
+        if a["repetition"] != 1 or a["kind"] != "present":
+            continue
+        require(a["kind"] == b["kind"], "Paired conditions changed frozen labels")
+        if (a["candidate_evidence_ranks"] != b["candidate_evidence_ranks"]
+                or a.get("pool_identity_sha256") != b.get("pool_identity_sha256")):
+            result["candidate_pool_mismatches"].append({"dataset": a["dataset"], "query_id": a["query_id"],
+                "baseline_candidate_ranks": a["candidate_evidence_ranks"],
+                "reranked_candidate_ranks": b["candidate_evidence_ranks"],
+                "limit": "Not a matched fixed-pool reranking comparison; retained without silent substitution/retry."})
+            continue
+        ar, br = a["evidence_ranks"], b["evidence_ranks"]
+        item = {"dataset": a["dataset"], "query_id": a["query_id"], "before": ar, "after": br}
+        if None in ar and None not in br:
+            result["complete_gains"].append(item)
+        if None not in ar and None in br:
+            result["complete_regressions"].append(item)
+        if [rank is not None for rank in ar] != [rank is not None for rank in br]:
+            result["group_changes"].append(item)
+        if ar != br:
+            result["rank_changes"].append(item)
+    return result
+
+
+def canonical(value):
+    return json.dumps(value, sort_keys=True, ensure_ascii=False,
+                      separators=(",", ":"), allow_nan=False).encode()
+
+
+def gz_jsonl(path):
+    with gzip.open(path, "rt", encoding="utf-8") as stream:
+        return [json.loads(line) for line in stream if line.strip()]
+
+
+def check_sources(root, plan):
+    from semantic_search.corpus import _source_files, extract_snippets
+    from semantic_search.languages import decode_source, extractor_fingerprint
+    from semantic_search.relations import ReferenceGraph
+
+    expected_manifests = ("benchmarks/quality_manifest.json", "benchmarks/language_quality_manifest.json",
+                          "benchmarks/koa_clause_holdout_manifest.json")
+    require(set(plan["manifest_sha256"]) == set(expected_manifests), "Full original benchmark manifests")
+    entries = []
+    for name in expected_manifests:
+        path = evidence.located(root, name)
+        require(sha(path.read_bytes()) == plan["manifest_sha256"][name], "Original manifest unchanged: " + name)
+        entries.extend(read(path)["datasets"])
+    require([entry["id"] for entry in entries] == ["flask", "requests", "click", "starlette", "rich", "express", "zod", "koa"],
+            "Complete eight-repository source matrix")
+    require([record["id"] for record in plan["sources"]] == [entry["id"] for entry in entries]
+            and plan["extractor"] == extractor_fingerprint(), "Complete frozen actual extractor inventory")
+    datasets, catalog, positive_count, absent_count, group_count, multi_count = {}, [], 0, 0, 0, 0
+    for entry, record in zip(entries, plan["sources"], strict=True):
+        dataset_path = evidence.located(root, entry["dataset"])
+        require(sha(dataset_path.read_bytes()) == entry["sha256"], "Original label bytes unchanged")
+        data = read(dataset_path)
+        repo = evidence.located(root, entry["corpus"])
+        require(subprocess.check_output(["git", "-C", str(repo), "rev-parse", "HEAD"], text=True).strip()
+                == entry["revision"] == data["revision"]
+                and not subprocess.check_output(["git", "-C", str(repo), "status", "--porcelain"], text=True).strip(),
+                "Clean pinned corpus revision")
+        require(data["repo_url"] == entry["repo_url"] and data["source_root"] == entry["source_root"],
+                "Original source scope metadata")
+        paths = _source_files(repo, repo / entry["source_root"], entry.get("source_exclusions", []))
+        raw = {path.relative_to(repo).as_posix(): path.read_bytes() for path in paths}
+        hashes = {path: sha(value) for path, value in raw.items()}
+        require(hashes == record["source_file_sha256"], "Actual full production source membership/bytes")
+        for path, value in raw.items():
+            pinned = subprocess.check_output(["git", "-C", str(repo), "show", entry["revision"] + ":" + path])
+            require(value == pinned, "Saved source differs from exact committed corpus bytes")
+        decoded = {path: decode_source(path, value) for path, value in raw.items()}
+        sources = {path: evidence.physical_lines(text) for path, text in decoded.items()}
+        snippets = extract_snippets(repo, entry["source_root"], max_lines=160, overlap_lines=40,
+                                    source_exclusions=entry.get("source_exclusions", []), sources=decoded)
+        inventory = [{"id": snippet.id, "path": snippet.path, "symbol": snippet.symbol,
+                      "start_line": snippet.start_line, "end_line": snippet.end_line,
+                      "source_hash": snippet.content_hash} for snippet in snippets]
+        require(inventory == record["window_inventory"] and len(inventory) == record["windows"]
+                and sha(canonical(inventory)) == record["window_inventory_sha256"],
+                "Independently reconstructed complete frozen windows")
+        query_map = {}
+        require([query["id"] for query in data["queries"]] == [query["query_id"] for query in record["queries"]],
+                "All original benchmark queries retained in order")
+        for query, frozen_query in zip(data["queries"], record["queries"], strict=True):
+            gold = groups(query, sources, hashes)
+            normalized = deepcopy(gold)
+            for alternatives in normalized:
+                for target in alternatives:
+                    lo, hi = target["evidence_lines"]
+                    target["evidence_sha256"] = sha("".join(sources[target["path"]][lo - 1:hi]).encode())
+            eligible = [[window["id"] for window in inventory if ranks([window], [alternatives])[0] is not None]
+                        for alternatives in gold]
+            require(frozen_query == {"query_id": query["id"], "kind": query["kind"],
+                    "groups": normalized, "eligible_windows": eligible}
+                    and all(eligible), "Untouched original gold and full-span source eligibility")
+            multi = len(gold) > 1 and len({target["path"] for alternatives in gold for target in alternatives}) > 1
+            query_map[query["id"]] = {"query": query["query"], "kind": query["kind"], "groups": normalized,
+                                     "multi_file": multi}
+            catalog.append({"dataset": entry["id"], "query_id": query["id"], "query": query["query"]})
+            positive_count += query["kind"] == "present"
+            absent_count += query["kind"] == "absent"
+            group_count += len(gold)
+            multi_count += multi
+        require(record["classification"] == ("fresh retrieval repository" if entry["id"] == "koa"
+                else "previously observed development"), "Current evidence classification")
+        datasets[entry["id"]] = {"sources": sources, "hashes": hashes,
+            "inventory": {window["id"]: window for window in inventory}, "queries": query_map,
+            "graph": ReferenceGraph(decoded, snippets), "snippets": {snippet.id: snippet for snippet in snippets},
+            "entry": entry}
+    require(plan["query_catalog"] == catalog and len(catalog) == 144
+            and (positive_count, absent_count, group_count, multi_count) == (118, 26, 148, 21),
+            "Full unique 144-query/118-positive/26-absent/148-group/21-multifile matrix")
+    conditions = ("dense", "dense_qwen", "hybrid", "hybrid_qwen")
+    scheduled = []
+    for entry in entries:
+        selected = [row for row in catalog if row["dataset"] == entry["id"]]
+        for repetition in range(1, 4):
+            for number, query in enumerate(selected):
+                offset = (number + repetition - 1) % 4
+                for condition in conditions[offset:] + conditions[:offset]:
+                    scheduled.append({"dataset": entry["id"], "query_id": query["query_id"],
+                                      "condition": condition, "repetition": repetition})
+    require(plan["schedule"] == scheduled and plan["conditions"] == list(conditions)
+            and plan["repetitions"] == 3 and len(scheduled) == plan["planned_requests"] == 1728,
+            "Prospective rotated matched four-condition three-pass schedule")
+    return datasets
+
+
+def exact_packing(response, raw, data):
+    """Reconstruct first-five anchors/two-callee expansion and unchanged character/token packing."""
+    from semantic_search.context import apply_token_budget
+    distinct = {}
+    for row in raw:
+        distinct.setdefault((row["path"], row["symbol"]), row)
+    eligible = list(distinct.values())[:8]
+    anchors, expanded = eligible[:5], []
+    included = set()
+    for anchor in anchors:
+        expanded.append((data["snippets"][anchor["id"]], anchor["retrieval_score"], "retrieval", None))
+        included.add((anchor["path"], anchor["symbol"]))
+    for anchor in anchors:
+        for callee in data["graph"].dependencies(data["snippets"][anchor["id"]], limit=2):
+            key = (callee.path, callee.symbol)
+            if key not in included and len(expanded) < 8:
+                expanded.append((callee, anchor["retrieval_score"], "dependency", anchor["id"]))
+                included.add(key)
+    for row in eligible:
+        key = (row["path"], row["symbol"])
+        if key not in included and len(expanded) < 8:
+            expanded.append((data["snippets"][row["id"]], row["retrieval_score"], "retrieval", None))
+            included.add(key)
+    rows, remaining = [], 12000
+    for snippet, score, origin, related in expanded:
+        lines, used = [], 0
+        for line in evidence.physical_lines(snippet.text):
+            if used + len(line) > remaining:
+                break
+            lines.append(line)
+            used += len(line)
+        source = "".join(lines)
+        if not source:
+            continue
+        remaining -= len(source)
+        rows.append({"id": snippet.id, "path": snippet.path, "symbol": snippet.symbol,
+                     "start_line": snippet.start_line, "end_line": snippet.start_line + len(lines) - 1,
+                     "window_end_line": snippet.end_line, "source": source, "content_hash": snippet.content_hash,
+                     "source_hash": sha(source.encode()), "retrieval_score": score, "h2o_score": None,
+                     "origin": origin, "related_to": related, "truncated": source != snippet.text})
+    rebuilt = {"query": response["query"], "scope": response["scope"],
+               "match_status": "candidates" if raw else "no_candidates", "results": rows,
+               "total_source_chars": 12000 - remaining,
+               "budget_exhausted": any(row["truncated"] for row in rows) or len(rows) < len(expanded)}
+    rebuilt = apply_token_budget(rebuilt, 4096)
+    require(evidence.compact_text(rebuilt) == evidence.compact_text(response)
+            and rebuilt["results"] == response["results"],
+            "Independent exact unchanged packer compact payload/source order/dependency expansion")
+    return len(rows)
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--root", type=Path, default=ROOT)
+    parser.add_argument("--study", type=Path, required=True)
+    args = parser.parse_args(argv)
+    result = build_audit(args.root.resolve(), args.study.resolve())
+    (args.study / "independent-audit.json").write_text(json.dumps(result, indent=2) + "\n")
+    (args.study / "independent-findings.md").write_text(findings(result))
+    print(json.dumps({key: result[key] for key in ("checks_passed", "completed_conditions")}))
+
+
+def findings(result):
+    lines = ["# Full Qwen reranker independent audit", "",
+             "All 1,728 planned condition attempts completed across 144 unique queries in eight pinned repositories. "
+             "The resident scorer performed 43,200 fresh benchmark pair forwards plus one declared synthetic warmup. "
+             "The embedding model performed 1,728 query calls plus eight separately excluded repository warmups. "
+             "The audit checks every literal source slice, original full evidence span, actual tokenizer/template input, "
+             "yes/no scalar score, forward receipt, unchanged packer/dependency expansion and exact compact token cap. "
+             "Both root-owned process groups stopped, the listener closed and the private authentication token was removed.", "",
+             "Quality below uses the 144 first-pass queries once: 118 present behaviors and 26 scoped absent features. "
+             "The 136 previously observed queries are development evidence; Koa contributes eight fresh retrieval queries "
+             "(six present and two absent). Warm distributions use all three actual passes, with 432 measured requests per condition. "
+             "Those intervals cover the in-process pipeline and helper HTTP hop, including instrumentation; they are not "
+             "latency for the full production HTTP endpoint.", "",
+             "| Condition | Complete / 118 | Multi-file / 21 | Groups / 148 | Development / 112 | Fresh Koa / 6 | Warm median / P95 (s) |",
+             "| --- | ---: | ---: | ---: | ---: | ---: | ---: |"]
+    for condition, metrics in result["metrics"].items():
+        all_cases, development, fresh = (metrics[key] for key in ("all", "observed_development", "fresh_koa"))
+        warm = all_cases["warm_measured_seconds"]
+        lines.append(f"| {condition} | {all_cases['delivered_complete']} | {all_cases['multi_file_complete']} | "
+                     f"{all_cases['covered_groups']} | {development['delivered_complete']} | {fresh['delivered_complete']} | "
+                     f"{warm['median_s']:.3f} / {warm['p95_s']:.3f} |")
+    lines += ["", "| Repository | Present | Dense | Dense + Qwen | Hybrid | Hybrid + Qwen |",
+              "| --- | ---: | ---: | ---: | ---: | ---: |"]
+    for dataset in ("flask", "requests", "click", "starlette", "rich", "express", "zod", "koa"):
+        metrics = [result["metrics"][condition][dataset] for condition in ("dense", "dense_qwen", "hybrid", "hybrid_qwen")]
+        lines.append(f"| {dataset} | {metrics[0]['present']} | " + " | ".join(str(item["delivered_complete"]) for item in metrics) + " |")
+    lines += ["", "Each repository cell counts queries whose entire originally declared evidence interval is delivered. "
+              "OR alternatives are allowed within a required group; every separate group remains required. Python's "
+              "original exact-symbol metric is independently verified as a separate compatibility diagnostic. "
+              "The primary source-span metric can credit enclosing windows, so these totals cannot be substituted "
+              "for historical symbol-dependent percentages.", ""]
+    for retrieval, comparison in result["changes"].items():
+        lines.append(f"For `{retrieval}`, Qwen produces {len(comparison['complete_gains'])} complete-evidence gains "
+                     f"and {len(comparison['complete_regressions'])} regressions among matched first-pass positive cases. "
+                     f"There are {len(comparison['candidate_pool_mismatches'])} unmatched candidate-pool comparisons. "
+                     "Every gain, regression and group/rank change is retained by query ID in `independent-audit.json`.")
+        lines.append("")
+    lines.append("Absent queries are retained outside positive accuracy denominators: "
+                 + "; ".join(f"`{condition}` {metrics['all']['absent_statuses']}" for condition, metrics in result["metrics"].items())
+                 + ". The experiment fits no abstention threshold; plausible returned code does not establish that an absent feature exists.")
+    lines += ["", f"The auditor verified {result['source_excerpts_checked']:,} delivered source excerpts, "
+              f"{result['literal_source_contents_checked']:,} unique literal source contents and "
+              f"{result['unique_candidate_pool_receipts_checked']:,} stored candidate pools. "
+              f"There were {len(result['paired_candidate_mismatches'])} within-pair and "
+              f"{len(result['repeated_candidate_mismatches'])} repeated candidate identity/source mismatches; "
+              f"{result['scored_prefixes_truncated']} scored source prefixes were clipped. "
+              "Ordered candidate identity, retrieval-score, vector-byte, reranker-score and compact-payload drift are "
+              "reported independently. Static dependencies can deliver evidence outside the raw candidate pool. "
+              "Exact full-row and compact-payload reconstruction verifies that expansion and clipping obey the unchanged packer.", "",
+              "`independent-audit.json` contains per-repository and language quality, all warm component distributions "
+              "and sample counts, compact token usage, setup/cache reuse and actual model counters, allocator memory, "
+              "all paired changes, stability receipts and artifact hashes. Model verification/load and indexing/setup "
+              "are excluded from warm samples. MLX memory receipts are allocator observations, not operating-system RSS.", "",
+              "The original BF16 weights are bound by root's retained full-byte verification and unchanged file/stat "
+              "witnesses. This CPU audit rehashes metadata, tokenizers, source and runtime identities without loading "
+              "weights or repeating inference. Numerical parity with PyTorch, calibrated absence confidence, coding "
+              "correctness and paid-agent token usage remain untested here. Production defaults remain unchanged.", ""]
+    return "\n".join(lines)
+
+
+def build_audit(root, study):
+    plan = read(study / "frozen-plan.json")
+    plan_hash = sha((study / "frozen-plan.json").read_bytes())
+    require(plan["settings"] == evidence.CAPS and plan["primary_quality_repetition"] == 1
+            and plan["query_cache"] is plan["score_cache"] is plan["h2o"] is False
+            and plan["threshold"] is None and plan["model_calls_in_freeze"] == 0
+            and plan["weights_loaded_in_freeze"] is False
+            and plan["planned_reranker_requests"] == 864 and plan["maximum_pair_forwards"] == 43200
+            and plan["generic_reranker_warmup_forwards"] == 1,
+            "Exact prospective caps, no caches/H2O/threshold and zero-inference freeze")
+    frozen_at = datetime.fromisoformat(plan["frozen_at_utc"])
+    require(frozen_at.tzinfo is not None, "Actual aware freeze timestamp")
+    for name, digest in plan["implementation_sha256"].items():
+        path = evidence.located(root, name)
+        require(sha(path.read_bytes()) == digest, "Frozen actual producer/helper/core source: " + name)
+        committed = subprocess.check_output(["git", "-C", str(root), "show", plan["source_commit"] + ":" + name])
+        require(sha(committed) == digest, "Committed prospective producer source: " + name)
+    for origin in plan["semantic_module_origins"].values():
+        require(origin["sha256"] == plan["implementation_sha256"][origin["project_relative_path"]],
+                "Actual imported semantic module/source byte binding")
+    packages = {distribution.metadata["Name"]: distribution.version
+                for distribution in importlib.metadata.distributions()}
+    require(plan["packages"] == packages, "Current main runtime distribution closure matches freeze")
+    prototype_path = root / "scripts/prototype_qwen_reranker.py"
+    require(sha(prototype_path.read_bytes()) == plan["reranker"]["prototype_sha256"], "Unchanged reviewed scorer")
+    config = prototype_constants(prototype_path.read_text())
+    tokenizer = verify_model_provenance(root, plan, read(study / "reranker-provenance.json"), config)
+    for name in ("run-start.json", "reranker-start.json"):
+        start = read(study / name)
+        require(start["frozen_plan_sha256"] == plan_hash
+                and datetime.fromisoformat(start["started_at_utc"]) >= frozen_at,
+                "Actual startup follows exact prospective frozen plan")
+    embedding_weights = read(study / "embedding-weight-verification.json")
+    expected_weights = {name: {"sha256": record["expected_sha256_from_provenance"],
+          "bytes": record["bytes"], "matches_pinned_provenance": True}
+          for name, record in plan["embedding_checkpoint"].items() if name.endswith(".safetensors")}
+    require(embedding_weights == expected_weights and expected_weights,
+            "Actual main embedding full-byte verification receipt")
+    offline = plan["offline_tokenizer"]
+    require(offline["sha256"] == "223921b76ee99bde995b7ff738513eef100fb51d18c93597a113bcffe865b2a7"
+            and offline["tiktoken"] == plan["packages"]["tiktoken"]
+            and offline["network"] is offline["cache_writes"] is False,
+            "Prospective offline exact compact tokenizer")
+    cache = root / ".cache/tokenizers"
+    encoding = evidence.encoder(root, {"runtime": {"tiktoken": offline["tiktoken"],
+        "tokenizer_cache_sha256": {path.name: sha(path.read_bytes()) for path in cache.iterdir() if path.is_file()}}})
+    datasets = check_sources(root, plan)
+    content_rows = gz_jsonl(study / "source-content.jsonl.gz")
+    contents = {}
+    for content in content_rows:
+        require(set(content) == {"sha256", "source"} and content["sha256"] not in contents
+                and sha(content["source"].encode()) == content["sha256"], "Unique literal content-addressed sources")
+        contents[content["sha256"]] = content["source"]
+    pool_rows = gz_jsonl(study / "candidate-pools.jsonl.gz")
+    pools = {}
+    for pool in pool_rows:
+        require(pool["pool_id"] not in pools and sha(canonical(pool["windows"])) == pool["pool_sha256"]
+                and pool["pool_id"] == pool["pool_key"] + "/" + pool["pool_sha256"],
+                "Unique candidate pool/order/source/score digest")
+        identity = pool["first_identity"]
+        require(pool["pool_key"] == identity["dataset"] + "/" + identity["query_id"] + "/"
+                + identity["condition"].split("_")[0], "Literal candidate pool identity binding")
+        raw = [{**window, "source": contents[window["source_hash"]]} for window in pool["windows"]]
+        data = datasets[identity["dataset"]]
+        verify_raw(raw, data["inventory"], data["sources"],
+                   score_kind="cosine" if identity["condition"].startswith("dense") else "rrf_k60")
+        pools[pool["pool_id"]] = {"pool": pool, "raw": raw}
+    rows = gz_jsonl(study / "searches.jsonl.gz")
+    completion = read(study / "completion.json")
+    require(completion["complete"] is True and completion["attempted_requests"]
+            == completion["completed_requests"] == len(rows) == 1728
+            and completion["embedding_owner_closed"] is True
+            and [row["identity"] for row in rows] == plan["schedule"],
+            "All planned actual condition attempts completed in prospective order")
+    require(not (study / "failure.json").exists() and not (study / "reranker-failure.json").exists(),
+            "Successful audit cannot conceal failed attempt evidence")
+    forwards = gz_jsonl(study / "forwards.jsonl.gz")
+    generic_pair = [{"query": "Locate addition of two values.",
+                     "source": "def add(left, right):\n    return left + right\n"}]
+    model_counts = verify_scoring_receipt(read(study / "reranker-warmup.json"), generic_pair, forwards[:2], tokenizer,
+        config, request_id="generic-reranker-warmup", previous_counts={"requests": 0,
+        "attempted_forwards": 0, "completed_forwards": 0}, warmup=True)
+    forward_offset = 2
+    used_pools, used_contents, first_pool, repeated_pool, paired_pool = set(), set(), {}, {}, {}
+    paired_mismatches, repeated_mismatches, scored_truncated, excerpt_count = [], [], 0, 0
+    counters = {key: 0 for key in ("completed_query_calls", "completed_document_calls", "document_texts",
+                                 "attempted_query_calls", "attempted_document_calls", "attempted_document_texts")}
+    setups = read(study / "setups.json")
+    require([setup["dataset"] for setup in setups] == list(datasets), "All eight setups and closes retained")
+    setup_map = {setup["dataset"]: setup for setup in setups}
+    seen_datasets, cases = set(), []
+    first_vectors, first_scores, first_orders, first_compact = {}, {}, {}, {}
+    vector_drift, score_drift, ranking_drift, compact_drift, float_pool_drift = [], [], [], [], []
+    first_exact_pools = {}
+    for row in rows:
+        identity = row["identity"]
+        dataset, query_id, condition = (identity[key] for key in ("dataset", "query_id", "condition"))
+        data, query = datasets[dataset], datasets[dataset]["queries"][query_id]
+        if dataset not in seen_datasets:
+            setup = setup_map[dataset]
+            require(setup["counts_before"] == counters and setup["excluded_from_latency"] is True
+                    and setup["backend_closed"] is True, "Owned setup count continuity and actual backend close")
+            after = setup["counts_after"]
+            require(set(after) == set(counters) and all(type(value) is int and value >= 0 for value in after.values())
+                    and after["attempted_query_calls"] == counters["attempted_query_calls"] + 1
+                    and after["completed_query_calls"] == counters["completed_query_calls"] + 1,
+                    "One separately excluded generic embedding warmup per repository")
+            require(after["attempted_document_calls"] == after["completed_document_calls"]
+                    and after["attempted_document_texts"] == after["document_texts"], "Successful observed document setup calls")
+            finite(setup["index_and_embedding_warmup_s"], "Separate actual setup interval", minimum=0)
+            counters = after
+            seen_datasets.add(dataset)
+        require(row["status"] == "completed" and row["active_phase"] == "complete"
+                and row["query"] == query["query"] and row["kind"] == query["kind"]
+                and row["counts_before"] == counters and set(row["counts_after"]) == set(counters),
+                "Completed literal condition and actual embedding counter continuity")
+        after = row["counts_after"]
+        require(all(type(value) is int and value >= 0 for value in after.values())
+                and all(after[key] == counters[key] + (1 if "query_calls" in key else 0) for key in counters),
+                "Exactly one fresh observed embedding forward and zero document calls per condition")
+        counters = after
+        verify_vector(row["vector"], query["query"])
+        vector_key = dataset + "/" + query_id
+        if vector_key in first_vectors and first_vectors[vector_key] != row["vector"]["sha256"]:
+            vector_drift.append(identity)
+        first_vectors.setdefault(vector_key, row["vector"]["sha256"])
+        pool_data = pools[row["pool_id"]]
+        raw, pool = pool_data["raw"], pool_data["pool"]
+        pool_key = dataset + "/" + query_id + "/" + condition.split("_")[0]
+        require(pool["pool_key"] == pool_key and row["candidate_pool_sha256"] == pool["pool_sha256"]
+                and row["candidate_order"] == [window["id"] for window in raw]
+                and row["candidate_count"] == len(raw), "Fresh raw candidate order/identity/count receipt")
+        if row["pool_id"] not in first_pool:
+            require(pool["first_identity"] == identity, "First observed pool reference is actual creation attempt")
+            first_pool[row["pool_id"]] = identity
+        used_pools.add(row["pool_id"])
+        used_contents.update(window["source_hash"] for window in raw)
+        pool_identity = sha(canonical([{key: value for key, value in window.items()
+                              if key not in ("source", "retrieval_score")} for window in raw]))
+        pair_key = pool_key + "/" + str(identity["repetition"])
+        matched_pair = None if pair_key not in paired_pool else paired_pool[pair_key] == pool_identity
+        matched_repeat = None if pool_key not in repeated_pool else repeated_pool[pool_key] == pool_identity
+        require(row["candidate_identity_source_sha256"] == pool_identity
+                and row["matches_prior_condition_pool_in_pair"] is matched_pair
+                and row["matches_first_observed_pool_across_repetitions"] is matched_repeat,
+                "Independent candidate identity/source pairing and repeated drift receipt")
+        paired_pool.setdefault(pair_key, pool_identity)
+        repeated_pool.setdefault(pool_key, pool_identity)
+        if pool_key in first_exact_pools and first_exact_pools[pool_key] != row["candidate_pool_sha256"]:
+            float_pool_drift.append(identity)
+        first_exact_pools.setdefault(pool_key, row["candidate_pool_sha256"])
+        if matched_pair is False:
+            paired_mismatches.append(identity)
+        if matched_repeat is False:
+            repeated_mismatches.append(identity)
+        if condition.endswith("_qwen") and raw:
+            receipt = row["reranker"]
+            requested_pairs = [{"query": query["query"], "source": window["source"]} for window in raw]
+            count = 2 * len(raw)
+            model_counts = verify_scoring_receipt(receipt, requested_pairs,
+                forwards[forward_offset:forward_offset + count], tokenizer, config,
+                request_id="/".join(str(identity[key]) for key in ("dataset", "query_id", "condition", "repetition")),
+                previous_counts=model_counts)
+            forward_offset += count
+            selected = ordered(raw, receipt["results"])
+            score_key = dataset + "/" + query_id + "/" + condition
+            actual_scores = [{"id": window["id"], **{key: score[key] for key in
+                         ("yes_logit", "no_logit", "logit_difference", "yes_rank_signal")}}
+                         for window, score in zip(raw, receipt["results"], strict=True)]
+            if score_key in first_scores and first_scores[score_key] != actual_scores:
+                score_drift.append(identity)
+            first_scores.setdefault(score_key, actual_scores)
+            scored_truncated += sum(score["truncated"] for score in receipt["results"])
+            require(row["reranker_http_s"] + 1e-9 >= receipt["server_scoring_s"],
+                    "Actual blocking helper HTTP interval contains server scoring")
+            score_kind = "experimental_qwen_yes_minus_no_logit_difference"
+        else:
+            require("reranker" not in row and row["reranker_http_s"] == 0,
+                    "Unreranked condition or empty pool performed no helper scoring")
+            selected = raw
+            score_kind = "cosine" if condition.startswith("dense") else "equal_weight_rrf_priority_k60"
+        require(row["ranking_order"] == [window["id"] for window in selected], "Independent actual raw-logit ranking order")
+        for key in ("query_embedding_s", "candidate_retrieval_s", "reranker_http_s", "packing_s", "elapsed_warm_pipeline_s"):
+            finite(row[key], "Actual measured warm phase: " + key, minimum=0)
+        require(row["elapsed_warm_pipeline_s"] + 1e-9 >= sum(row[key] for key in
+                ("query_embedding_s", "candidate_retrieval_s", "reranker_http_s", "packing_s")),
+                "Measured warm pipeline contains all actual serial component intervals")
+        response = row["response"]
+        exclusions = data["entry"].get("source_exclusions", [])
+        displayed_exclusions = [pattern for pattern in exclusions if len(pattern) <= 80][:4]
+        expected_scope = {"source_root": data["entry"]["source_root"],
+            "membership": "saved implementations; Git-tracked files only in Git projects",
+            "source_exclusions": displayed_exclusions,
+            "exclusions_omitted": len(exclusions) - len(displayed_exclusions)}
+        require(response["query"] == query["query"] and response["retrieval"] == condition.split("_")[0]
+                and response["scope"] == expected_scope
+                and response["source_root"] == data["entry"]["source_root"] and response["source_budget"] == 12000
+                and actual_path(root, response["repo"]) == evidence.located(root, data["entry"]["corpus"])
+                and response["experimental_candidate_retrieval"] == condition.split("_")[0]
+                and response["experimental_packing_adapter"] == "dense adapter with externally obtained candidate order"
+                and response["rerank"] is False and response["match_evidence"]["threshold"] is None
+                and response["match_evidence"]["ranking_score_kind"] == score_kind
+                and response["candidate_windows"] == len(raw)
+                and response["match_status"] == ("candidates" if raw else "no_candidates"),
+                "Actual retrieval/experimental ranking provenance without H2O/abstention")
+        finite(response["match_evidence"]["top_cosine"], "Original full-query cosine metadata")
+        require(-1.00001 <= response["match_evidence"]["top_cosine"] <= 1.00001,
+                "Original cosine metadata remains distinct from reranker logits or RRF priority")
+        excerpt_count += evidence.verify_response(response, response, data["inventory"], data["sources"], encoding, selected)
+        exact_packing(response, selected, data)
+        repeated_case = dataset + "/" + query_id + "/" + condition
+        compact_hash = sha(evidence.compact_text(response).encode())
+        if repeated_case in first_orders and first_orders[repeated_case] != row["ranking_order"]:
+            ranking_drift.append(identity)
+        if repeated_case in first_compact and first_compact[repeated_case] != compact_hash:
+            compact_drift.append(identity)
+        first_orders.setdefault(repeated_case, row["ranking_order"])
+        first_compact.setdefault(repeated_case, compact_hash)
+        expected_ranks = ranks(response["results"], query["groups"])
+        expected_candidates = ranks(raw, query["groups"])
+        require(row["required_groups"] == len(query["groups"]) and row["multi_file_and"] is query["multi_file"]
+                and row["evidence_ranks"] == expected_ranks and row["candidate_evidence_ranks"] == expected_candidates
+                and row["ranked_candidate_evidence_ranks"] == ranks(selected, query["groups"]),
+                "Independent full source-span OR/AND labels only after delivery")
+        if dataset in ("flask", "requests", "click", "starlette", "rich"):
+            require(row["symbol_compatibility_evidence_ranks"] == ranks(response["results"], query["groups"], symbol_required=True)
+                    and row["symbol_compatibility_candidate_evidence_ranks"] == ranks(raw, query["groups"], symbol_required=True),
+                    "Original exact-symbol plus complete-span Python compatibility diagnostic")
+        phases = {key: row[key] for key in ("query_embedding_s", "candidate_retrieval_s", "reranker_http_s", "packing_s")}
+        if "reranker" in row:
+            phases.update({"server_tokenization_s": row["reranker"]["tokenization_s"],
+                           "server_evaluated_forwards_s": row["reranker"]["forward_s"],
+                           "server_scoring_s": row["reranker"]["server_scoring_s"]})
+        cases.append({"dataset": dataset, "query_id": query_id, "condition": condition,
+            "repetition": identity["repetition"], "kind": query["kind"], "multi_file": query["multi_file"],
+            "evidence_ranks": expected_ranks, "candidate_evidence_ranks": expected_candidates,
+            "match_status": response["match_status"], "tokens": response["token_usage"]["tokens"],
+            "elapsed_s": row["elapsed_warm_pipeline_s"], "pool_identity_sha256": pool_identity, "phases": phases})
+    require(used_pools == set(pools) and used_contents == set(contents), "No orphan or unreferenced pool/source artifacts")
+    require(forward_offset == len(forwards) and completion["embedding_counts"] == counters
+            and counters["completed_query_calls"] == counters["attempted_query_calls"] == 1736
+            and completion["paired_candidate_mismatches"] == paired_mismatches
+            and completion["repeated_candidate_mismatches"] == repeated_mismatches,
+            "Complete actual forwards/embeddings and honest candidate drift accounting")
+    stop = read(study / "reranker-stop.json")
+    require(stop["clean_stop"] is stop["listener_closed"] is True
+            and {key: stop[key] for key in model_counts} == model_counts
+            and model_counts["requests"] == 865 and model_counts["completed_forwards"]
+            == model_counts["attempted_forwards"] == 43201,
+            "Successful owned listener/model close and all 43200 fresh benchmark forwards plus warmup")
+    for key in ("mlx_active_memory_after_cleanup", "mlx_process_lifetime_peak_bytes"):
+        require(type(stop[key]) is int and stop[key] >= 0, "Actual allocator memory receipt")
+    require(datetime.fromisoformat(stop["stopped_at_utc"]) >= datetime.fromisoformat(read(study / "reranker-start.json")["started_at_utc"])
+            and datetime.fromisoformat(completion["finished_at_utc"]) >= datetime.fromisoformat(read(study / "run-start.json")["started_at_utc"]),
+            "Actual startup/completion chronology")
+    supervisor = read(study / "supervisor.json")
+    require(supervisor["frozen_plan_sha256"] == plan_hash
+            and supervisor["supervisor_sha256"] == sha((study / "supervisor.py.txt").read_bytes())
+            and supervisor["timed_out"] is supervisor["forced_kill"] is False
+            and supervisor["owned_sessions"] is supervisor["private_auth_token_removed"] is True
+            and supervisor["main_exit_code"] == supervisor["resident_exit_code"] == 0
+            and supervisor["main_owned_group_stopped"] is supervisor["resident_owned_group_stopped"] is True
+            and "error" not in supervisor, "Bounded root supervisor stopped both owned sessions and removed auth")
+    require(type(supervisor["main_pid"]) is type(supervisor["resident_pid"]) is int
+            and supervisor["main_pid"] > 0 and supervisor["resident_pid"] > 0
+            and supervisor["main_pid"] != supervisor["resident_pid"]
+            and supervisor["timeout_seconds"] == 10800,
+            "Two distinct root-owned bounded child processes")
+    finite(supervisor["elapsed_seconds"], "Actual whole experiment supervisor interval", minimum=0)
+    require(datetime.fromisoformat(supervisor["started_utc"]) >= frozen_at
+            and datetime.fromisoformat(supervisor["finished_utc"]) >= datetime.fromisoformat(stop["stopped_at_utc"]),
+            "Supervisor startup/final cleanup chronology")
+    summaries = {}
+    for condition in plan["conditions"]:
+        selected_cases = [case for case in cases if case["condition"] == condition]
+        subsets = {"all": selected_cases, "observed_development": [case for case in selected_cases if case["dataset"] != "koa"],
+                   "fresh_koa": [case for case in selected_cases if case["dataset"] == "koa"],
+                   "python": [case for case in selected_cases if case["dataset"] in ("flask", "requests", "click", "starlette", "rich")],
+                   "javascript_typescript": [case for case in selected_cases if case["dataset"] in ("express", "zod")]}
+        subsets.update({dataset: [case for case in selected_cases if case["dataset"] == dataset] for dataset in datasets})
+        summaries[condition] = {name: summarize(items) for name, items in subsets.items()}
+    comparisons = {retrieval: changes([case for case in cases if case["condition"] == retrieval],
+                                     [case for case in cases if case["condition"] == retrieval + "_qwen"])
+                   for retrieval in ("dense", "hybrid")}
+    return {"checks_passed": True, "classification": "Independent CPU source/model-receipt/full-span/packing/warm-latency audit",
+            "completed_conditions": len(rows), "unique_queries": 144, "completed_reranker_requests": 864,
+            "completed_benchmark_pair_forwards": 43200, "generic_warmup_forwards": 1,
+            "actual_query_embedding_calls": 1736, "source_excerpts_checked": excerpt_count,
+            "literal_source_contents_checked": len(contents), "unique_candidate_pool_receipts_checked": len(pools),
+            "scored_prefixes_truncated": scored_truncated, "paired_candidate_mismatches": paired_mismatches,
+            "repeated_candidate_mismatches": repeated_mismatches,
+            "stability": {"vector_byte_drift": vector_drift, "candidate_order_source_or_float_score_drift": float_pool_drift,
+                "reranker_scalar_score_drift": score_drift, "reranked_order_drift": ranking_drift,
+                "compact_payload_drift": compact_drift}, "metrics": summaries, "changes": comparisons,
+            "setup": setups, "embedding_counts": counters, "resident_counts": model_counts,
+            "supervisor_elapsed_seconds": supervisor["elapsed_seconds"],
+            "allocator_memory": {key: stop[key] for key in
+                ("mlx_active_memory_after_cleanup", "mlx_process_lifetime_peak_bytes", "memory_scope")},
+            "frozen_plan_sha256": plan_hash, "auditor_sha256": sha(Path(__file__).read_bytes()),
+            "artifact_sha256": {path.name: sha(path.read_bytes()) for path in study.iterdir() if path.is_file()
+                and path.name not in ("independent-audit.json", "independent-findings.md")},
+            "limits": ["Quality uses unique first-pass queries only. Repeated warm samples are descriptive observations from one Mac.",
+                "Main timings cover in-process embedding/retrieval plus the blocking helper HTTP hop and unchanged packing, not the whole production HTTP endpoint.",
+                "All prior Python/Express/Zod queries are observed development evidence. Koa was source-reviewed before this first retrieval experiment; no model-pretraining exclusion is established.",
+                "Python original spans can be narrower branches while JS/TS/Koa usually require complete declared bodies. Historical exact-symbol percentages are a separate diagnostic.",
+                "Original full weight byte hashes rely on root's retained verification receipt and unchanged stat/inode witnesses; the CPU auditor rehashes metadata/tokenizers/source and does not reload weights or rerun inference.",
+                "No numerical PyTorch parity, calibrated absence threshold, coding correctness, actual agent token billing, or broad latency claim is established.",
+                "Static dependencies can deliver evidence outside the top50 raw pool; direct reranking cannot add new raw candidates."]}
+
+
+if __name__ == "__main__":
+    main()
