@@ -241,3 +241,27 @@ def test_pipeline_failure_receipt_and_completion_are_preserved_by_root_driver(tm
     assert json.loads((tmp_path / "completion.json").read_text()) == detailed_completion
     failure = json.loads((tmp_path / "driver-failure.json").read_text())
     assert failure["stage"] == "grid" and failure["no_retry"] is True
+
+
+def test_source_freeze_rejects_patch_absent_from_real_recorded_commit(tmp_path, monkeypatch):
+    import subprocess
+
+    def git(*args):
+        return subprocess.check_output(["git", "-C", str(tmp_path), *args], text=True)
+
+    git("init", "-q")
+    source = tmp_path / "pipeline.py"
+    source.write_text("before clock completion patch\n")
+    git("add", "pipeline.py")
+    git("-c", "user.name=Freeze Test", "-c", "user.email=freeze@example.invalid", "commit", "-qm", "initial")
+    recorded = git("rev-parse", "HEAD").strip()
+    source.write_text("after clock completion patch\n")
+    bindings = {"pipeline.py": driver.sha(source.read_bytes())}
+    monkeypatch.setattr(driver, "ROOT", tmp_path)
+    with pytest.raises(ValueError, match="not in recorded source commit"):
+        driver.verify_committed_implementation(recorded, bindings)
+    git("add", "pipeline.py")
+    git("-c", "user.name=Freeze Test", "-c", "user.email=freeze@example.invalid", "commit", "-qm", "complete patch")
+    driver.verify_committed_implementation(git("rev-parse", "HEAD").strip(), bindings)
+    with pytest.raises(ValueError, match="not in recorded source commit"):
+        driver.verify_committed_implementation(recorded, bindings)

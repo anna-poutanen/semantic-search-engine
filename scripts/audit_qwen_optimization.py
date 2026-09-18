@@ -10,7 +10,7 @@ from __future__ import annotations
 import argparse
 from collections import Counter
 from copy import deepcopy
-from datetime import datetime
+from datetime import datetime, timezone
 import gzip
 import hashlib
 import importlib.metadata
@@ -41,6 +41,15 @@ SUPPORTING_RUNTIME_HASHES = {
     "base.py": "b782b2ac0f55ed8fa9c1afce1f36307d5d8714aad2c0991d63998047f7507174",
     "rope_utils.py": "06466d57dfe1ccc1e61ba595c0a8f2dd3a14bcb5c6a1d06c67591dc03128606b",
 }
+CLOCK_DRIFT_NS = 2_000_000_000
+# Independently specified audit contract; no producer clock helper is imported.
+CLOCK_POLICY = {
+    "version": 1, "wall_clock": "time.time_ns", "performance_clock": "time.perf_counter_ns",
+    "max_absolute_drift_ns": CLOCK_DRIFT_NS,
+    "checks": ["cumulative_since_pipeline_start", "within_each_measured_query", "after_each_setup_and_between_queries"],
+    "failure_policy": "Abort and preserve the failing clock/query receipt; no filtering, retry or selection of an interrupted run",
+    "sampling": "Wall then performance clock, integer nanoseconds; UTC derived from each recorded wall sample",
+}
 
 
 def require(value, message):
@@ -68,6 +77,102 @@ def gz_rows(path):
 
 def strict_count(value, message, *, minimum=0):
     require(type(value) is int and value >= minimum, message)
+
+
+def verify_clock_sample(sample):
+    require(isinstance(sample, dict) and set(sample) == {"wall_time_ns", "perf_counter_ns", "utc"},
+            "Exact independent wall/performance/UTC sample keys")
+    require(type(sample["wall_time_ns"]) is type(sample["perf_counter_ns"]) is int
+            and sample["perf_counter_ns"] >= 0 and isinstance(sample["utc"], str),
+            "Strict independent integer nanosecond clock samples")
+    seconds, nanos = divmod(sample["wall_time_ns"], 1_000_000_000)
+    expected = datetime.fromtimestamp(seconds, timezone.utc).replace(microsecond=nanos // 1000).isoformat()
+    require(sample["utc"] == expected, "UTC must derive exactly from recorded integer wall nanoseconds")
+    return sample
+
+
+def verify_clock_delta(value, before, after):
+    require(isinstance(value, dict) and set(value) == {"wall_elapsed_ns", "perf_elapsed_ns", "drift_ns",
+            "absolute_drift_ns", "max_drift_ns", "consistent"}, "Exact independent raw clock delta keys")
+    require(all(type(number) is int for key, number in value.items() if key != "consistent")
+            and type(value["consistent"]) is bool, "Clock deltas retain strict signed integer arithmetic")
+    wall = after["wall_time_ns"] - before["wall_time_ns"]
+    perf = after["perf_counter_ns"] - before["perf_counter_ns"]
+    drift = wall - perf
+    require(value == {"wall_elapsed_ns": wall, "perf_elapsed_ns": perf, "drift_ns": drift,
+            "absolute_drift_ns": abs(drift), "max_drift_ns": CLOCK_DRIFT_NS,
+            "consistent": perf >= 0 and abs(drift) <= CLOCK_DRIFT_NS},
+            "Every clock delta must independently reconcile its exact original sample endpoints")
+    require(value["consistent"] is True, "Suspension, clock step or performance rollback invalidates the whole study")
+
+
+def verify_clock_receipt(receipt, baseline, label, *, since=None):
+    require(isinstance(receipt, dict) and set(receipt) == {"version", "label", "baseline", "sample",
+            "cumulative", "interval", "max_drift_ns", "consistent"}, "Exact independent clock receipt keys")
+    require(type(receipt["version"]) is int and receipt["version"] == 1 and receipt["label"] == label
+            and type(receipt["max_drift_ns"]) is int and receipt["max_drift_ns"] == CLOCK_DRIFT_NS
+            and receipt["consistent"] is True, "Unchanged fixed two-second clock gate and exact phase identity")
+    verify_clock_sample(receipt["baseline"])
+    sample = verify_clock_sample(receipt["sample"])
+    require(receipt["baseline"] == baseline, "Cumulative timing guard cannot reset or replace the original baseline")
+    verify_clock_delta(receipt["cumulative"], baseline, sample)
+    if since is None:
+        require(receipt["interval"] is None, "Start and final checkpoints have no substituted interval anchor")
+    else:
+        verify_clock_delta(receipt["interval"], since, sample)
+    return sample
+
+
+def verify_clock_study(plan, rows, setups, completion):
+    """Audit every chronological setup/query/final checkpoint without filtering."""
+    if "clock_integrity" not in plan:
+        require(not any("clock_start" in row or "clock_end" in row for row in rows + setups)
+                and "clock_integrity" not in completion, "Legacy no-clock plans cannot claim unfrozen clock evidence")
+        return {"available": False, "reason": "Historical study predates the prospective clock-integrity amendment"}
+    require(canonical(plan["clock_integrity"]) == canonical(CLOCK_POLICY)
+            and canonical(completion.get("clock_integrity")) == canonical(CLOCK_POLICY),
+            "Exact frozen and completed independent clock policy")
+    baseline = verify_clock_sample(completion["clock_baseline"])
+    require(completion.get("clock_failure") is None, "No final cleanup clock failure may qualify")
+    require([row["identity"] for row in rows] == plan["schedule"], "Clock audit retains every frozen scheduled query")
+    datasets = list(dict.fromkeys(row["dataset"] for row in plan["schedule"]))
+    require([setup["dataset"] for setup in setups] == datasets, "Clock audit retains every ordered original setup")
+    previous = baseline
+    receipts = []
+
+    def checkpoint(record, field, label, since=None):
+        nonlocal previous
+        require(record.get("clock_failure") is None and field in record, "Every successful phase retains its clock evidence")
+        receipt = record[field]
+        sample = verify_clock_receipt(receipt, baseline, label, since=since)
+        require(sample["perf_counter_ns"] >= previous["perf_counter_ns"]
+                and sample["wall_time_ns"] >= previous["wall_time_ns"],
+                "Recorded setup/query/final phases must remain in performance and wall-clock order")
+        previous = sample
+        receipts.append(receipt)
+        return sample
+
+    for setup in setups:
+        dataset = setup["dataset"]
+        start = checkpoint(setup, "clock_start", "setup/" + dataset + "/start")
+        checkpoint(setup, "clock_end", "setup/" + dataset + "/end", start)
+        for row in rows:
+            identity = row["identity"]
+            if identity["dataset"] != dataset:
+                continue
+            request = "/".join(str(identity[key]) for key in ("dataset", "query_id", "condition", "repetition"))
+            start = checkpoint(row, "clock_start", request + "/start")
+            checkpoint(row, "clock_end", request + "/end", start)
+    final = checkpoint(completion, "clock_end", "pipeline/complete")
+    require(completion["finished_at_utc"] == final["utc"], "Actual completion UTC is the final post-cleanup clock sample")
+    return {"available": True, "policy": deepcopy(CLOCK_POLICY), "baseline": baseline,
+            "checkpoint_count": len(receipts), "setup_intervals": len(setups), "query_intervals": len(rows),
+            "max_absolute_cumulative_drift_ns": max(receipt["cumulative"]["absolute_drift_ns"] for receipt in receipts),
+            "max_absolute_interval_drift_ns": max(receipt["interval"]["absolute_drift_ns"]
+                                                   for receipt in receipts if receipt["interval"] is not None),
+            "wall_elapsed_ns": final["wall_time_ns"] - baseline["wall_time_ns"],
+            "perf_elapsed_ns": final["perf_counter_ns"] - baseline["perf_counter_ns"],
+            "all_checkpoints_consistent": True, "chronological_wall_and_performance_samples": True}
 
 
 def counters(value):
@@ -474,6 +579,12 @@ def verify_frozen_plan(root, study):
             "Unrelaxed fixed BF16 parity tolerances")
     require(plan["reranker"]["supporting_sources"] == SUPPORTING_RUNTIME_HASHES,
             "Prospective native causal/RoPE supporting source pins")
+    if plan["stage"] != "parity" and "scripts/qwen_optimization_clock.py" in plan["implementation_sha256"]:
+        require(canonical(plan.get("clock_integrity")) == canonical(CLOCK_POLICY),
+                "New retrieval producer must prospectively freeze the unchanged clock-integrity policy")
+    elif "clock_integrity" in plan:
+        require(plan["stage"] != "parity" and canonical(plan["clock_integrity"]) == canonical(CLOCK_POLICY),
+                "Clock-integrity policy must be exact and belong to a measured retrieval stage")
     frozen_at = datetime.fromisoformat(plan["frozen_at_utc"])
     require(frozen_at.tzinfo is not None, "Aware actual prospective freeze timestamp")
     for name, digest in plan["implementation_sha256"].items():
@@ -753,6 +864,11 @@ def audit_retrieval(root, study, plan, datasets, completion, tokenizer, config, 
     require([row["identity"] for row in rows] == plan["schedule"], "Exact completed prospectively rotated search schedule")
     setups = read(study / "setups.json")
     require([row["dataset"] for row in setups] == list(datasets), "Every ordered source setup and close retained")
+    clock_integrity = verify_clock_study(plan, rows, setups, completion)
+    if clock_integrity["available"]:
+        require(datetime.fromisoformat(clock_integrity["baseline"]["utc"])
+                >= datetime.fromisoformat(read(study / "run-start.json")["started_at_utc"]),
+                "One original pipeline clock baseline follows the actual frozen-plan main startup")
     setup_map = {item["dataset"]: item for item in setups}
     configured = {value["id"]: value for value in plan["conditions"]}
     embed_counts = dict.fromkeys(("completed_query_calls", "completed_document_calls", "document_texts",
@@ -906,7 +1022,8 @@ def audit_retrieval(root, study, plan, datasets, completion, tokenizer, config, 
         "batch_actual_size_distribution": dict(Counter(batch_lengths)), "benchmark_real_input_tokens": real_tokens,
         "benchmark_allocated_input_tokens": allocated_tokens, "benchmark_padding_tokens": allocated_tokens - real_tokens,
         "benchmark_padding_ratio": (allocated_tokens - real_tokens) / allocated_tokens if allocated_tokens else None,
-        "literal_source_contents_checked": len(contents), "candidate_pools_checked": len(pools), "setup": setups}
+        "literal_source_contents_checked": len(contents), "candidate_pools_checked": len(pools), "setup": setups,
+        "clock_integrity": clock_integrity}
 
 
 def build_audit(root, study):
@@ -916,7 +1033,8 @@ def build_audit(root, study):
     require(completion["complete"] is True and completion["embedding_owner_closed"] is True
             and completion["attempted_requests"] == completion["completed_requests"] == plan["planned_requests"],
             "Every prospectively planned actual stage attempt completes without silent retry")
-    require(not (study / "failure.json").exists() and not (study / "reranker-failure.json").exists(),
+    require(not any((study / name).exists() for name in
+                    ("failure.json", "reranker-failure.json", "clock-completion-failure.json")),
             "A successful study audit must not conceal failed actual attempts")
     config = original.prototype_constants((root / "scripts/prototype_qwen_reranker.py").read_text())
     tokenizer = verify_model_provenance(root, plan, read(study / "reranker-provenance.json"), config)

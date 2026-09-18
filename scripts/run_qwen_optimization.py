@@ -154,6 +154,13 @@ def implementation_hashes():
     return result
 
 
+def verify_committed_implementation(commit, bindings):
+    """Refuse a prospective plan whose bytes are absent from its source commit."""
+    for name, expected in bindings.items():
+        committed = subprocess.check_output(["git", "-C", str(ROOT), "show", commit + ":" + name])
+        require(sha(committed) == expected, "Frozen implementation is not in recorded source commit: " + name)
+
+
 def freeze_inputs(stage, configurations, reranker_python, checkpoint):
     from semantic_search.embeddings import QwenEmbedder
     require(stage in ("parity", "grid", "development", "fresh"), "Unknown experimental stage")
@@ -337,6 +344,7 @@ def main(argv=None):
         _, plan = freeze_inputs(args.stage, configurations, args.reranker_python, args.checkpoint)
         plan["frozen_at_utc"] = datetime.now(timezone.utc).isoformat()
         plan["source_commit"] = subprocess.check_output(["git", "-C", str(ROOT), "rev-parse", "HEAD"], text=True).strip()
+        verify_committed_implementation(plan["source_commit"], plan["implementation_sha256"])
         plan["decision_inputs"] = {str(path.resolve().relative_to(ROOT)): sha(path.read_bytes()) for path in args.decision_input}
         args.output.mkdir(parents=True, exist_ok=False)
         write(args.output / "frozen-plan.json", plan)

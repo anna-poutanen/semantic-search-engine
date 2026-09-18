@@ -2,6 +2,7 @@
 from copy import deepcopy
 import importlib.util
 import math
+from datetime import datetime, timezone
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -388,3 +389,155 @@ def test_failed_owner_diagnostic_rejects_false_cleanup_or_changed_counts(tmp_pat
         (study / name).write_text(json.dumps(value))
     with pytest.raises(ValueError):
         audit.verify_failed_supervisor_diagnostics(root, study, plan, audit.zero_counts())
+
+
+def clock_fixture(points=None):
+    """Hand-authored successful timeline; no producer clock implementation used."""
+    baseline = {"wall_time_ns": 1_700_000_000_000_000_123, "perf_counter_ns": 100_000_000_000,
+                "utc": "2023-11-14T22:13:20+00:00"}
+    # (elapsed performance nanoseconds, cumulative wall-minus-performance drift).
+    points = points or [(step * 100_000_000, 0) for step in range(1, 8)]
+
+    def sample(point):
+        perf, drift = point
+        wall = baseline["wall_time_ns"] + perf + drift
+        seconds, ns = divmod(wall, 1_000_000_000)
+        return {"wall_time_ns": wall, "perf_counter_ns": baseline["perf_counter_ns"] + perf,
+                "utc": datetime.fromtimestamp(seconds, timezone.utc).replace(microsecond=ns // 1000).isoformat()}
+
+    def delta(before, after):
+        perf = after["perf_counter_ns"] - before["perf_counter_ns"]
+        wall = after["wall_time_ns"] - before["wall_time_ns"]
+        return {"wall_elapsed_ns": wall, "perf_elapsed_ns": perf, "drift_ns": wall - perf,
+                "absolute_drift_ns": abs(wall - perf), "max_drift_ns": 2_000_000_000,
+                "consistent": perf >= 0 and abs(wall - perf) <= 2_000_000_000}
+
+    def receipt(index, label, start=None):
+        end = sample(points[index])
+        cumulative = delta(baseline, end)
+        interval = None if start is None else delta(start["sample"], end)
+        return {"version": 1, "label": label, "baseline": deepcopy(baseline), "sample": end,
+                "cumulative": cumulative, "interval": interval, "max_drift_ns": 2_000_000_000,
+                "consistent": cumulative["consistent"] and (interval is None or interval["consistent"])}
+
+    schedule = [{"dataset": "code", "query_id": query, "condition": "dense", "repetition": 1}
+                for query in ("first", "second")]
+    setup = {"dataset": "code", "clock_start": receipt(0, "setup/code/start")}
+    setup["clock_end"] = receipt(1, "setup/code/end", setup["clock_start"])
+    rows = []
+    for index, identity in enumerate(schedule):
+        request = "code/" + identity["query_id"] + "/dense/1"
+        row = {"identity": identity, "clock_start": receipt(2 + 2 * index, request + "/start")}
+        row["clock_end"] = receipt(3 + 2 * index, request + "/end", row["clock_start"])
+        rows.append(row)
+    final = receipt(6, "pipeline/complete")
+    completion = {"clock_baseline": deepcopy(baseline), "clock_integrity": deepcopy(audit.CLOCK_POLICY),
+                  "clock_end": final, "clock_failure": None, "finished_at_utc": final["sample"]["utc"]}
+    plan = {"schedule": schedule, "clock_integrity": deepcopy(audit.CLOCK_POLICY)}
+    return plan, rows, [setup], completion
+
+
+def test_clock_auditor_reconstructs_every_setup_query_and_cleanup_sample_without_mutation():
+    values = clock_fixture()
+    before = deepcopy(values)
+    result = audit.verify_clock_study(*values)
+    assert result["checkpoint_count"] == 7 and result["query_intervals"] == 2 and result["setup_intervals"] == 1
+    assert result["wall_elapsed_ns"] == result["perf_elapsed_ns"] == 700_000_000
+    assert result["max_absolute_cumulative_drift_ns"] == result["max_absolute_interval_drift_ns"] == 0
+    assert result["chronological_wall_and_performance_samples"] is True
+    assert values == before
+
+
+@pytest.mark.parametrize("change", ["sample_type", "utc", "missing_start", "missing_end", "label", "version_bool",
+    "threshold", "signed_delta", "absolute_delta", "consistent_claim", "baseline_reset", "interval_anchor",
+    "failure", "completion_failure", "final_utc", "policy", "hidden_phase", "final_interval", "missing_final"])
+def test_clock_auditor_rejects_forged_receipts_endpoints_policy_and_missing_lifecycle_samples(change):
+    plan, rows, setups, completion = clock_fixture()
+    receipt = rows[0]["clock_end"]
+    if change == "sample_type":
+        receipt["sample"]["perf_counter_ns"] = float(receipt["sample"]["perf_counter_ns"])
+    elif change == "utc":
+        receipt["sample"]["utc"] = "2023-11-14T22:13:21+00:00"
+    elif change in ("missing_start", "missing_end"):
+        rows[0].pop("clock_start" if change == "missing_start" else "clock_end")
+    elif change == "label":
+        receipt["label"] = rows[1]["clock_end"]["label"]
+    elif change == "version_bool":
+        receipt["version"] = True
+    elif change == "threshold":
+        receipt["max_drift_ns"] = 2_000_000_001
+    elif change == "signed_delta":
+        receipt["cumulative"]["drift_ns"] = 1
+    elif change == "absolute_delta":
+        receipt["interval"]["absolute_drift_ns"] = 1
+    elif change == "consistent_claim":
+        receipt["interval"]["consistent"] = 1
+    elif change == "baseline_reset":
+        second = rows[1]["clock_start"]
+        second["baseline"] = deepcopy(second["sample"])
+        second["cumulative"].update(wall_elapsed_ns=0, perf_elapsed_ns=0)
+    elif change == "interval_anchor":
+        # A plausible positive interval from a substituted earlier sample.
+        receipt["interval"].update(wall_elapsed_ns=200_000_000, perf_elapsed_ns=200_000_000)
+    elif change == "failure":
+        setups[0]["clock_failure"] = {"consistent": False}
+    elif change == "completion_failure":
+        completion["clock_failure"] = {"consistent": False}
+    elif change == "final_utc":
+        completion["finished_at_utc"] = rows[-1]["clock_end"]["sample"]["utc"]
+    elif change == "policy":
+        plan["clock_integrity"]["max_absolute_drift_ns"] = 3_000_000_000
+    elif change == "hidden_phase":
+        receipt["filtered_samples"] = []
+    elif change == "final_interval":
+        completion["clock_end"]["interval"] = deepcopy(receipt["interval"])
+    else:
+        completion.pop("clock_end")
+    with pytest.raises((ValueError, KeyError)):
+        audit.verify_clock_study(plan, rows, setups, completion)
+
+
+@pytest.mark.parametrize("position", [1, 2, 3, 6])
+def test_clock_auditor_fails_suspend_during_setup_between_queries_within_query_or_cleanup(position):
+    points = [(step * 100_000_000, 7_200_000_000_000 if step - 1 >= position else 0) for step in range(1, 8)]
+    with pytest.raises(ValueError):
+        audit.verify_clock_study(*clock_fixture(points))
+
+
+def test_clock_auditor_never_turns_consistent_claim_into_authority_for_excess_drift():
+    values = clock_fixture([(step * 100_000_000, 2_000_000_001 if step == 7 else 0) for step in range(1, 8)])
+    values[3]["clock_end"]["consistent"] = True
+    values[3]["clock_end"]["cumulative"]["consistent"] = True
+    with pytest.raises(ValueError):
+        audit.verify_clock_study(*values)
+
+
+def test_clock_auditor_exact_two_second_boundary_and_nanosecond_precision():
+    points = [(step * 100_000_000, 2_000_000_000 if step == 7 else 0) for step in range(1, 8)]
+    result = audit.verify_clock_study(*clock_fixture(points))
+    assert result["max_absolute_cumulative_drift_ns"] == 2_000_000_000
+    assert result["baseline"]["wall_time_ns"] % 1000 == 123
+
+
+def test_clock_auditor_rejects_opposing_wall_steps_even_when_final_cumulative_drift_is_tolerated():
+    points = [(100_000_000, 0), (200_000_000, 0), (3_000_000_000, 1_900_000_000),
+              (7_000_000_000, -1_900_000_000), (8_000_000_000, 0), (9_000_000_000, 0), (10_000_000_000, 0)]
+    with pytest.raises(ValueError):
+        audit.verify_clock_study(*clock_fixture(points))
+
+
+@pytest.mark.parametrize("points", [
+    [(100_000_000, 0), (200_000_000, 0), (500_000_000, 0), (600_000_000, 0),
+     (300_000_000, 0), (400_000_000, 0), (700_000_000, 0)],
+    [(100_000_000, 0), (200_000_000, 0), (300_000_000, -200_000_000),
+     (400_000_000, 0), (500_000_000, 0), (600_000_000, 0), (700_000_000, 0)],
+])
+def test_clock_auditor_requires_actual_phase_order_on_both_clocks(points):
+    with pytest.raises(ValueError):
+        audit.verify_clock_study(*clock_fixture(points))
+
+
+def test_clock_auditor_preserves_legacy_no_clock_qualification_without_fabricating_new_evidence():
+    assert audit.verify_clock_study({}, [], [], {})["available"] is False
+    with pytest.raises(ValueError):
+        audit.verify_clock_study({}, [{"clock_start": {}}], [], {})
