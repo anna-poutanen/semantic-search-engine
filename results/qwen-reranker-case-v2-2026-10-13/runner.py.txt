@@ -1,0 +1,44 @@
+import datetime, hashlib, importlib.metadata, importlib.util, json, pathlib, signal, sys, time
+root=pathlib.Path.cwd(); out=root/"results/qwen-reranker-case-v2-2026-10-13"
+assert sys.argv[1:]==["--run"], "Explicit --run required"
+plan=json.loads((out/"frozen-plan.json").read_text())
+for file,key in [(root/"scripts/prototype_qwen_reranker.py","prototype_sha256"),(out/"pairs.json","pairs_sha256"),(out/"baseline.json","baseline_sha256")]:
+    assert hashlib.sha256(file.read_bytes()).hexdigest()==plan[key]
+assert not (out/"run-start.json").exists(), "No retry or resume"
+(out/"run-start.json").write_text(json.dumps({"started_utc":datetime.datetime.now(datetime.timezone.utc).isoformat()})+"\n")
+def public(x):
+    if isinstance(x,str): return x.replace(str(root),"<PROJECT>").replace(str(pathlib.Path.home()),"<HOME>")
+    if isinstance(x,list):return [public(v) for v in x]
+    if isinstance(x,dict):return {k:public(v) for k,v in x.items()}
+    return x
+spec=importlib.util.spec_from_file_location("frozen_reranker",root/"scripts/prototype_qwen_reranker.py")
+module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+pairs=json.loads((out/"pairs.json").read_text());assert len(pairs)==50
+packages={d.metadata["Name"]:d.version for d in importlib.metadata.distributions()}
+original=module.score_pair; attempted=completed=0
+started=time.perf_counter()
+with (out/"forwards.jsonl").open("x") as stream:
+    def observed(model,pair,*forward_args,**forward_kwargs):
+        global attempted,completed
+        attempted+=1; index=attempted
+        row={"pair_number":index,"status":"started","started_utc":datetime.datetime.now(datetime.timezone.utc).isoformat(),"input_ids_sha256":hashlib.sha256(json.dumps(pair["input_ids"],separators=(",",":")).encode()).hexdigest(),"total_tokens":pair["total_tokens"],"source_sha256":pair["source_sha256"],"delivered_sha256":pair["delivered_sha256"],"truncated":pair["truncated"]}
+        stream.write(json.dumps(row)+"\n");stream.flush();phase=time.perf_counter()
+        try:score=original(model,pair,*forward_args,**forward_kwargs)
+        except BaseException as error:
+            stream.write(json.dumps({"pair_number":index,"status":"failed","error_type":type(error).__name__,"error":str(error)})+"\n");stream.flush();raise
+        completed+=1;row.update(status="completed",forward_seconds=time.perf_counter()-phase,score=score)
+        stream.write(json.dumps(row)+"\n");stream.flush();return score
+    module.score_pair=observed
+    signal.signal(signal.SIGTERM,lambda *_: (_ for _ in ()).throw(KeyboardInterrupt("Owned supervisor stop")))
+    try:
+        result=module.run_local(root/".cache/models/qwen3-reranker-0.6b-original",pairs)
+        import mlx.core as mx
+        mx.synchronize()
+        result.update(attempted_pair_calls=attempted,completed_pair_calls=completed,elapsed_total_seconds=time.perf_counter()-started,packages=packages,active_memory_after_return=mx.get_active_memory(),process_lifetime_peak_memory=mx.get_peak_memory(),limitations=plan["limits"])
+        assert completed==attempted==50
+        assert hashlib.sha256((root/"scripts/prototype_qwen_reranker.py").read_bytes()).hexdigest()==plan["prototype_sha256"]
+        (out/"model-result.json").write_text(json.dumps(public(result),ensure_ascii=False,indent=2)+"\n")
+    except BaseException as error:
+        (out/"failure.json").write_text(json.dumps(public({"attempted_pair_calls":attempted,"completed_pair_calls":completed,"error_type":type(error).__name__,"error":str(error),"elapsed_seconds":time.perf_counter()-started,"retry":False}),indent=2)+"\n")
+        raise
+print(json.dumps({"completed_pair_calls":completed,"elapsed_total_seconds":result["elapsed_total_seconds"]}),flush=True)
