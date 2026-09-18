@@ -1,0 +1,494 @@
+{
+  "version": 1,
+  "classification": "Prospective independent static source eligibility for Qwen reranking",
+  "created_at_utc": "2026-10-13T14:12:36.148469+00:00",
+  "checks_passed": true,
+  "model_calls": 0,
+  "retrieval_calls": 0,
+  "new_reranker_or_koa_ranking_outcomes_read": false,
+  "label_query_or_prior_artifact_changes": 0,
+  "generator_sha256": "909a8cc4bb040de11b1d0b5e3065eabd15386a040bc7f6d38e960d7d6251a5cf",
+  "asset_sha256": {
+    "results/koa-clause-preflight-2026-10-13/source-audit.json": "86b6f0f0cee0ca9519711d3d8c903b1d8ecc5e1c0f83b1f0d4d63016b83063aa",
+    "results/koa-clause-preflight-2026-10-13/source-review.json": "60e45a693a9c3edcf97c0a4490b36641b87d2333df814a8c6bde12ef9fd403f8",
+    "benchmarks/koa_clause_holdout.json": "9f7ac046dc11004a84fd592d4642b2a26cdca45c2c50bc01f329832f94ec8bdf",
+    "benchmarks/koa_clause_holdout_manifest.json": "681aaf7b27fa436aa434d7ba14461df192d0ce984d5f6776d1140d3b79bed880",
+    "docs/koa-clause-holdout-protocol.md": "5d2da6fc229d4049d050c6dc92e19624b08f32d3bfb4a093c28afbc430b754b6",
+    "results/koa-clause-preflight-2026-10-13/NOTICE.md": "a08475342a005fda94da7a61880ddc91fcf89102a33405523439f0172c6218f9"
+  },
+  "corpus": {
+    "repo_url": "https://github.com/koajs/koa",
+    "revision": "2fecd029c6ce6b79d65158d28a76538f7f6b0378",
+    "package_version": "3.2.1",
+    "clean_checkout": true,
+    "source_root": "lib",
+    "source_exclusions": [],
+    "source_files": {
+      "lib/application.js": "d693bbeda65c4f55a9d888e3cf255187cefbdbc93572cb4a4897ccbbb8e6c5ac",
+      "lib/context.js": "93fdd5eddf6c1c331f81fff88f624a03ec59c987c796f93835dbea804e29d831",
+      "lib/is-stream.js": "8d3d310d81005cfc2aaa5d523afab9c2204c7a69b00565cf332d302c2ca7092d",
+      "lib/only.js": "ab7febafa4bc552b844dc57e00a6c187df1fef75915319da6b4682945a9a2db8",
+      "lib/request.js": "b15a74f8020e9aa11d6ce70c15f00120eca1e2ecd701db21291e8b522376fe46",
+      "lib/response.js": "cf8de7b8ae32b7d7b58d57dd7c88db04d68a6ebaf8e5b50e58a33f1bcdf8c511",
+      "lib/search-params.js": "bbe11c3d24a568a67b37b77369e9977ae7460fae14ac2f4da17666bb999da2d2"
+    },
+    "source_windows": 175,
+    "window_inventory_sha256": "f2ce39a81819336e228cc4a6f9fe19a42708cfa02ae3d218776fd96c3c8cdabd"
+  },
+  "extractor": {
+    "policy": "saved-implementations-v3",
+    "python_ast": [
+      3,
+      12
+    ],
+    "extensions": {
+      ".py": null,
+      ".js": "javascript",
+      ".jsx": "javascript",
+      ".mjs": "javascript",
+      ".cjs": "javascript",
+      ".ts": "typescript",
+      ".mts": "typescript",
+      ".cts": "typescript",
+      ".tsx": "tsx"
+    },
+    "parser_pins": {
+      "tree-sitter": "0.26.0",
+      "tree-sitter-javascript": "0.25.0",
+      "tree-sitter-typescript": "0.23.2"
+    },
+    "installed_parsers": {
+      "tree-sitter": "0.26.0",
+      "tree-sitter-javascript": "0.25.0",
+      "tree-sitter-typescript": "0.23.2"
+    },
+    "js_excluded_directories": [
+      ".next",
+      ".nuxt",
+      ".svelte-kit",
+      "bower_components",
+      "build",
+      "coverage",
+      "dist",
+      "node_modules",
+      "out"
+    ],
+    "window_lines": 160,
+    "overlap_lines": 40
+  },
+  "license": {
+    "path": "LICENSE",
+    "sha256": "16943a6ac79711e26289640dcca989be857059b938380b118bca5afc1ea4e7d7",
+    "copyright": "Copyright (c) 2019 Koa contributors",
+    "identifier": "MIT",
+    "official_url": "https://github.com/koajs/koa/blob/2fecd029c6ce6b79d65158d28a76538f7f6b0378/LICENSE"
+  },
+  "summary": {
+    "queries": 8,
+    "present_queries": 6,
+    "absent_queries": 2,
+    "required_groups": 11,
+    "multi_file_and_queries": 3,
+    "same_file_and_queries": 1,
+    "full_definition_gold": true
+  },
+  "query_proofs": [
+    {
+      "id": "koa_header_only_metadata",
+      "query": "Assign a default media type and UTF-8 byte length for a string response; answer a header-only request without transmitting that body.",
+      "kind": "present",
+      "required_groups": 2,
+      "group_proofs": [
+        [
+          {
+            "path": "lib/response.js",
+            "symbol": "module.exports.set body",
+            "definition_lines": [
+              148,
+              245
+            ],
+            "evidence_lines": [
+              148,
+              245
+            ],
+            "declaration_anchor": "set body (val) {",
+            "evidence_sha256": "a28c818a1654803598680a383d562b36e15d7ac390ba75875e9d9f9a7efc2111",
+            "source_file_sha256": "cf8de7b8ae32b7d7b58d57dd7c88db04d68a6ebaf8e5b50e58a33f1bcdf8c511",
+            "eligible_window_ids": [
+              "lib/response.js:module.exports.set body:148-245"
+            ]
+          }
+        ],
+        [
+          {
+            "path": "lib/application.js",
+            "symbol": "respond",
+            "definition_lines": [
+              283,
+              352
+            ],
+            "evidence_lines": [
+              283,
+              352
+            ],
+            "declaration_anchor": "function respond (ctx) {",
+            "evidence_sha256": "7ff5363ac96d70491627c79a6775107cc7aa2a3645181ee2ad8889d1ac7cba4c",
+            "source_file_sha256": "d693bbeda65c4f55a9d888e3cf255187cefbdbc93572cb4a4897ccbbb8e6c5ac",
+            "eligible_window_ids": [
+              "lib/application.js:respond:283-352"
+            ]
+          }
+        ]
+      ]
+    },
+    {
+      "id": "koa_middleware_error_response",
+      "query": "For an unwritten, writable response, translate a middleware failure into a safe status and text reply, disclose details only when explicitly allowed, clear old headers and emit an application error.",
+      "kind": "present",
+      "required_groups": 2,
+      "group_proofs": [
+        [
+          {
+            "path": "lib/application.js",
+            "symbol": "Application.handleRequest",
+            "definition_lines": [
+              213,
+              220
+            ],
+            "evidence_lines": [
+              213,
+              220
+            ],
+            "declaration_anchor": "handleRequest (ctx, fnMiddleware) {",
+            "evidence_sha256": "296a2945f0dfc1d8b7b6af6ee0411ce5c11f0bd748f93e55e387aa56dfaec540",
+            "source_file_sha256": "d693bbeda65c4f55a9d888e3cf255187cefbdbc93572cb4a4897ccbbb8e6c5ac",
+            "eligible_window_ids": [
+              "lib/application.js:Application.handleRequest:213-220"
+            ]
+          }
+        ],
+        [
+          {
+            "path": "lib/context.js",
+            "symbol": "module.exports.onerror",
+            "definition_lines": [
+              106,
+              168
+            ],
+            "evidence_lines": [
+              106,
+              168
+            ],
+            "declaration_anchor": "onerror (err) {",
+            "evidence_sha256": "d34673787b44d00c4b674d5b715d4e14c366b16ebd2bc3818824a4989475d0be",
+            "source_file_sha256": "93fdd5eddf6c1c331f81fff88f624a03ec59c987c796f93835dbea804e29d831",
+            "eligible_window_ids": [
+              "lib/context.js:module.exports.onerror:106-168",
+              "lib/context.js:<module>.proto:20-179"
+            ]
+          }
+        ]
+      ]
+    },
+    {
+      "id": "koa_stream_response_lifecycle",
+      "query": "Treat compatible readable streams as response bodies, attach completion cleanup, discard stale lengths when swapping bodies, and forward transmission errors when an application error listener exists.",
+      "kind": "present",
+      "required_groups": 3,
+      "group_proofs": [
+        [
+          {
+            "path": "lib/is-stream.js",
+            "symbol": "module.exports",
+            "definition_lines": [
+              7,
+              20
+            ],
+            "evidence_lines": [
+              7,
+              20
+            ],
+            "declaration_anchor": "module.exports = (stream) => {",
+            "evidence_sha256": "0dc7f68e2322a3c56e7d9ae71ac5f191a713bda13284acd374c6f53092f7f01b",
+            "source_file_sha256": "8d3d310d81005cfc2aaa5d523afab9c2204c7a69b00565cf332d302c2ca7092d",
+            "eligible_window_ids": [
+              "lib/is-stream.js:module.exports:7-20"
+            ]
+          }
+        ],
+        [
+          {
+            "path": "lib/response.js",
+            "symbol": "module.exports.set body",
+            "definition_lines": [
+              148,
+              245
+            ],
+            "evidence_lines": [
+              148,
+              245
+            ],
+            "declaration_anchor": "set body (val) {",
+            "evidence_sha256": "a28c818a1654803598680a383d562b36e15d7ac390ba75875e9d9f9a7efc2111",
+            "source_file_sha256": "cf8de7b8ae32b7d7b58d57dd7c88db04d68a6ebaf8e5b50e58a33f1bcdf8c511",
+            "eligible_window_ids": [
+              "lib/response.js:module.exports.set body:148-245"
+            ]
+          }
+        ],
+        [
+          {
+            "path": "lib/application.js",
+            "symbol": "respond",
+            "definition_lines": [
+              283,
+              352
+            ],
+            "evidence_lines": [
+              283,
+              352
+            ],
+            "declaration_anchor": "function respond (ctx) {",
+            "evidence_sha256": "7ff5363ac96d70491627c79a6775107cc7aa2a3645181ee2ad8889d1ac7cba4c",
+            "source_file_sha256": "d693bbeda65c4f55a9d888e3cf255187cefbdbc93572cb4a4897ccbbb8e6c5ac",
+            "eligible_window_ids": [
+              "lib/application.js:respond:283-352"
+            ]
+          }
+        ]
+      ]
+    },
+    {
+      "id": "koa_client_address_trust_and_cache",
+      "query": "Determine and cache the client address, trusting a forwarded chain only when enabled, limiting it to the configured number of hops, and falling back to the socket address.",
+      "kind": "present",
+      "required_groups": 2,
+      "group_proofs": [
+        [
+          {
+            "path": "lib/request.js",
+            "symbol": "module.exports.get ips",
+            "definition_lines": [
+              445,
+              455
+            ],
+            "evidence_lines": [
+              445,
+              455
+            ],
+            "declaration_anchor": "get ips () {",
+            "evidence_sha256": "4b552c09af79fe9e0a741fbb96e33ef713578b97b8c3a70f5f15978d3bc7cbc7",
+            "source_file_sha256": "b15a74f8020e9aa11d6ce70c15f00120eca1e2ecd701db21291e8b522376fe46",
+            "eligible_window_ids": [
+              "lib/request.js:module.exports.get ips:445-455"
+            ]
+          }
+        ],
+        [
+          {
+            "path": "lib/request.js",
+            "symbol": "module.exports.get ip",
+            "definition_lines": [
+              466,
+              471
+            ],
+            "evidence_lines": [
+              466,
+              471
+            ],
+            "declaration_anchor": "get ip () {",
+            "evidence_sha256": "e5b124604b3cc6060ad66e94d752b8f8a351397ef377305dddff1f7a494fc5af",
+            "source_file_sha256": "b15a74f8020e9aa11d6ce70c15f00120eca1e2ecd701db21291e8b522376fe46",
+            "eligible_window_ids": [
+              "lib/request.js:module.exports.get ip:466-471"
+            ]
+          }
+        ]
+      ]
+    },
+    {
+      "id": "koa_relocation_response_negotiation",
+      "query": "Send a relocation response with a safely encoded destination, retain an existing redirect status, and choose escaped HTML or plain text according to the client’s accepted format.",
+      "kind": "present",
+      "required_groups": 1,
+      "group_proofs": [
+        [
+          {
+            "path": "lib/response.js",
+            "symbol": "module.exports.redirect",
+            "definition_lines": [
+              315,
+              336
+            ],
+            "evidence_lines": [
+              315,
+              336
+            ],
+            "declaration_anchor": "redirect (url) {",
+            "evidence_sha256": "09a7c04b2d62a87b3a9f108c9d82d83702d9c080388cae253877a75742722476",
+            "source_file_sha256": "cf8de7b8ae32b7d7b58d57dd7c88db04d68a6ebaf8e5b50e58a33f1bcdf8c511",
+            "eligible_window_ids": [
+              "lib/response.js:module.exports.redirect:315-336"
+            ]
+          }
+        ]
+      ]
+    },
+    {
+      "id": "koa_conditional_cache_guard",
+      "query": "Validate request freshness only for GET or HEAD with a successful response or a not-modified status; other method and status combinations should return a negative freshness result.",
+      "kind": "present",
+      "required_groups": 1,
+      "group_proofs": [
+        [
+          {
+            "path": "lib/request.js",
+            "symbol": "module.exports.get fresh",
+            "definition_lines": [
+              320,
+              333
+            ],
+            "evidence_lines": [
+              320,
+              333
+            ],
+            "declaration_anchor": "get fresh () {",
+            "evidence_sha256": "fa4abc87251712829834c2704045d10a7dacdc39f6923546401742a5ad1546c4",
+            "source_file_sha256": "b15a74f8020e9aa11d6ce70c15f00120eca1e2ecd701db21291e8b522376fe46",
+            "eligible_window_ids": [
+              "lib/request.js:module.exports.get fresh:320-333"
+            ]
+          }
+        ]
+      ]
+    },
+    {
+      "id": "koa_absent_remote_body_fetch_retry",
+      "query": "Fetch remote resources named in an incoming request body and automatically retry failed downloads with exponential backoff.",
+      "kind": "absent",
+      "required_groups": 0,
+      "group_proofs": []
+    },
+    {
+      "id": "koa_absent_rotating_body_encryption",
+      "query": "Encrypt outgoing JSON bodies with tenant-specific rotating keys and include the active key identifier in each encrypted payload.",
+      "kind": "absent",
+      "required_groups": 0,
+      "group_proofs": []
+    }
+  ],
+  "full_existing_benchmark": [
+    {
+      "id": "flask",
+      "manifest": "benchmarks/quality_manifest.json",
+      "manifest_sha256": "51222d58f565e5865c4569bf122aa957b2cb703f4d41ae20f079f4f987a14b11",
+      "dataset": "benchmarks/flask_queries.json",
+      "sha256": "7394c6c04a13f470b693a58095edbb12e07db2330e8dbec4b5c6448529143235",
+      "queries": 14,
+      "present": 12,
+      "absent": 2,
+      "all_positive_targets_have_evidence_lines": true,
+      "original_assigned_role": "development",
+      "new_reranker_role": "previously_observed_development"
+    },
+    {
+      "id": "requests",
+      "manifest": "benchmarks/quality_manifest.json",
+      "manifest_sha256": "51222d58f565e5865c4569bf122aa957b2cb703f4d41ae20f079f4f987a14b11",
+      "dataset": "benchmarks/new_requests_queries.json",
+      "sha256": "6120911fce0ad94d42c0cf340e38d397f61454e57faa377298054ca76eb5645c",
+      "queries": 20,
+      "present": 16,
+      "absent": 4,
+      "all_positive_targets_have_evidence_lines": true,
+      "original_assigned_role": "development",
+      "new_reranker_role": "previously_observed_development"
+    },
+    {
+      "id": "click",
+      "manifest": "benchmarks/quality_manifest.json",
+      "manifest_sha256": "51222d58f565e5865c4569bf122aa957b2cb703f4d41ae20f079f4f987a14b11",
+      "dataset": "benchmarks/click_queries.json",
+      "sha256": "fdcd668df309124aefe7e3fd00171a84b8f9ce75cc7fac5dbbd446dfe706ade3",
+      "queries": 24,
+      "present": 20,
+      "absent": 4,
+      "all_positive_targets_have_evidence_lines": true,
+      "original_assigned_role": "development",
+      "new_reranker_role": "previously_observed_development"
+    },
+    {
+      "id": "starlette",
+      "manifest": "benchmarks/quality_manifest.json",
+      "manifest_sha256": "51222d58f565e5865c4569bf122aa957b2cb703f4d41ae20f079f4f987a14b11",
+      "dataset": "benchmarks/starlette_queries.json",
+      "sha256": "0aee9fc24238731966e6f98f14e2205fcd3cab80059f3165b43dade8eb53afb6",
+      "queries": 24,
+      "present": 20,
+      "absent": 4,
+      "all_positive_targets_have_evidence_lines": true,
+      "original_assigned_role": "development",
+      "new_reranker_role": "previously_observed_development"
+    },
+    {
+      "id": "rich",
+      "manifest": "benchmarks/quality_manifest.json",
+      "manifest_sha256": "51222d58f565e5865c4569bf122aa957b2cb703f4d41ae20f079f4f987a14b11",
+      "dataset": "benchmarks/rich_queries.json",
+      "sha256": "72060f1e2cc5e214acb78233707fd4573c97de791aea8ab3670ed1db28f9d238",
+      "queries": 24,
+      "present": 20,
+      "absent": 4,
+      "all_positive_targets_have_evidence_lines": true,
+      "original_assigned_role": "repository_holdout",
+      "new_reranker_role": "previously_observed_development"
+    },
+    {
+      "id": "express",
+      "manifest": "benchmarks/language_quality_manifest.json",
+      "manifest_sha256": "1f9033e4efa407f0c7613f5b46bbd9d7857ba2344e304214fea82f286cdd4611",
+      "dataset": "benchmarks/express_language_queries.json",
+      "sha256": "9147af679d20774952023b81987c5e57bcfaf945b607760b3b464ce0ebadf633",
+      "queries": 15,
+      "present": 12,
+      "absent": 3,
+      "all_positive_targets_have_evidence_lines": true,
+      "original_assigned_role": "development",
+      "new_reranker_role": "previously_observed_development"
+    },
+    {
+      "id": "zod",
+      "manifest": "benchmarks/language_quality_manifest.json",
+      "manifest_sha256": "1f9033e4efa407f0c7613f5b46bbd9d7857ba2344e304214fea82f286cdd4611",
+      "dataset": "benchmarks/zod_language_queries.json",
+      "sha256": "ddd2ca006c97a47aac89cf3f9b18a0563fa79afc5a528186653d42fd3b98b1ba",
+      "queries": 15,
+      "present": 12,
+      "absent": 3,
+      "all_positive_targets_have_evidence_lines": true,
+      "original_assigned_role": "repository_holdout",
+      "new_reranker_role": "previously_observed_development"
+    }
+  ],
+  "full_existing_totals": {
+    "queries": 136,
+    "present": 112,
+    "absent": 24
+  },
+  "with_fresh_koa_totals": {
+    "queries": 144,
+    "present": 118,
+    "absent": 26,
+    "repositories": 8
+  },
+  "decision": "Koa is eligible for a separately frozen full-query candidate reranking comparison; old clause-fusion inference_authorized=false remains unchanged.",
+  "protocol_freeze_required": true,
+  "limitations": [
+    "Static source eligibility does not establish ranking quality, performance or coding correctness.",
+    "Source-reviewed repository/settings holdout is not untouched-source or model-pretraining holdout.",
+    "Python gold retains existing sufficient executable spans; language/Koa gold often requires full declared bodies. Report repository/language strata.",
+    "All original Python and Express/Zod query outputs have been observed previously; label them development for the new reranker settings.",
+    "The two absent Koa cases are scoped to seven tracked lib files, excluding dependencies and user middleware.",
+    "Keep all eight Koa cases; do not fit a prompt, threshold, shortlist or packing policy to their eventual outputs."
+  ]
+}
