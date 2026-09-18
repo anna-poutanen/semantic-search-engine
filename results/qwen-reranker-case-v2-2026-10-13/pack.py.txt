@@ -1,0 +1,38 @@
+import hashlib, json, pathlib, sys
+import numpy as np
+root=pathlib.Path.cwd();out=root/"results/qwen-reranker-case-v2-2026-10-13"
+sys.path.insert(0,str(root/"scripts"))
+import run_clause_fusion as packing
+from semantic_search.backend import SearchBackend
+from semantic_search.embeddings import QwenEmbedder
+from semantic_search.context import compact_result,serialize_context
+baseline=json.loads((out/"baseline.json").read_text());model=json.loads((out/"model-result.json").read_text())
+raw=baseline["raw_ranked_source_lists"][0]["windows"];assert len(raw)==len(model["results"])==50
+vector_record=baseline["query_vectors"][0];vector=np.asarray(vector_record["values"],dtype=vector_record["dtype"])
+assert hashlib.sha256(vector.tobytes()).hexdigest()==vector_record["sha256"]
+class NoInference(QwenEmbedder):
+ def embed_documents(self,*args,**kwargs):raise AssertionError("CPU packing cannot embed documents")
+ def embed_query(self,*args,**kwargs):raise AssertionError("CPU packing cannot embed queries")
+embedder=NoInference(progress=False)
+backend=SearchBackend(root/".cache/corpora/express","lib",root/".cache/indexes/clause-fusion-development-v2-2026-10-13-express-clause-development.sqlite3",embedder=embedder)
+try:
+ stats=backend.refresh();assert stats["indexed_windows"]==0 and stats["reused_windows"]==190
+ snippets={item.id:item for item in backend._snippets};pairs=[]
+ for row,result in zip(raw,model["results"]):
+  snippet=snippets[row["id"]];assert snippet.text==row["source"] and result["source_sha256"]==row["source_hash"]
+  pairs.append((snippet,row["retrieval_score"]))
+ a=packing.pack_candidates(backend,baseline["query"],vector,pairs,top_full_cosine=pairs[0][1],score_kind="cosine")
+ assert compact_result(a)==compact_result(baseline["response"]),"Baseline compact packing differs"
+ order=sorted(range(50),key=lambda index:(-model["results"][index]["logit_difference"],index,raw[index]["id"]))
+ scored=[(pairs[index][0],model["results"][index]["logit_difference"]) for index in order]
+ b=packing.pack_candidates(backend,baseline["query"],vector,scored,top_full_cosine=pairs[0][1],score_kind="experimental_qwen_yes_minus_no_logit_difference")
+ helper=packing.language_helpers();dataset=json.loads((root/"benchmarks/express_language_queries.json").read_text());query=next(q for q in dataset["queries"] if q["id"]==baseline["identity"]["query_id"])
+ sourcepaths=json.loads((root/"results/clause-fusion-development-v2-2026-10-13/frozen-plan.json").read_text())["sources"][0]["source_file_sha256"]
+ sources={name:(root/".cache/corpora/express"/name).read_text() for name in sourcepaths}
+ assert all(hashlib.sha256((root/".cache/corpora/express"/name).read_bytes()).hexdigest()==expected for name,expected in sourcepaths.items())
+ gold=helper.groups(query)
+ result={"classification":"One chosen known-miss development case; no default change or generalization proof","baseline_compact_equal":True,"baseline_evidence_ranks":helper.evidence_ranks(a["results"],gold,sources),"reranked_evidence_ranks":helper.evidence_ranks(b["results"],gold,sources),"order":[raw[index]["id"] for index in order],"baseline_response":a,"reranked_response":b,"reused_vector_sha256":vector_record["sha256"],"cache_reused_windows":stats["reused_windows"],"embedding_calls":0,"packing_source_sha256":hashlib.sha256((root/"scripts/run_clause_fusion.py").read_bytes()).hexdigest(),"limits":["No fresh retrieval or embeddings; ranks from prior development run","One known miss selected before scoring, not a new holdout","No numerical PyTorch parity proof","No HTTP/coding/provider token comparison"]}
+finally:backend.close()
+result["backend_closed"]=backend.status()["closed"];assert embedder._model is None
+result=packing.publication(result);(out/"packing.json").write_text(json.dumps(result,ensure_ascii=False,indent=2)+"\n")
+print(json.dumps({"baseline":result["baseline_evidence_ranks"],"reranked":result["reranked_evidence_ranks"]}))
