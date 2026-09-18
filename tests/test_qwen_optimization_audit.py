@@ -242,3 +242,50 @@ def test_latency_p95_is_nearest_rank_and_not_interpolated():
     assert audit.distribution(list(range(1, 21)))["p95_s"] == 19
     with pytest.raises(ValueError):
         audit.distribution([False])
+
+
+def test_signal_tolerance_can_fail_when_both_logits_and_difference_pass():
+    reference = [parity_result(0., 0)]
+    sample = deepcopy(reference)
+    delta = .11
+    sample[0].update(yes_logit=.055, no_logit=-.055, logit_difference=delta,
+                     yes_rank_signal=1 / (1 + math.exp(-delta)))
+    result = audit.parity(reference, sample)
+    assert result["absolute_error_max"]["yes_logit"] < audit.LOGIT_TOLERANCE
+    assert result["absolute_error_max"]["no_logit"] < audit.LOGIT_TOLERANCE
+    assert result["absolute_error_max"]["logit_difference"] < audit.DIFFERENCE_TOLERANCE
+    assert result["absolute_error_max"]["yes_rank_signal"] > audit.SIGNAL_TOLERANCE
+    assert result["qualified"] is False
+
+
+@pytest.mark.parametrize("value", [
+    {"id": "dense", "retrieval": "dense", "shortlist": 5, "batch_size": 0},
+    {"id": "dense_k24_b2", "retrieval": "dense", "shortlist": 32, "batch_size": 2},
+    {"id": "dense_k24_b2", "retrieval": "dense", "shortlist": 24, "batch_size": 2.0},
+    {"id": "hybrid_k24_b1", "retrieval": "hybrid", "shortlist": 24, "batch_size": True},
+])
+def test_config_identity_depth_baseline_or_boolean_change_rejected(value):
+    with pytest.raises(ValueError):
+        audit.configuration(value)
+
+
+def test_baseline_comparisons_preserve_complete_regressions_and_partial_group_changes():
+    before = [case("gain", 1, [None]), case("loss", 1, [1, 2]), case("partial", 1, [None, 3]),
+              case("absent", 1, [], "absent"), case("loss", 2, [1, 2])]
+    after = [case("gain", 1, [4]), case("loss", 1, [None, 2]), case("partial", 1, [None, None]),
+             case("absent", 1, [], "absent"), case("loss", 2, [1, 2])]
+    change = audit.changes(before, after)
+    assert [item["query_id"] for item in change["complete_gains"]] == ["gain"]
+    assert [item["query_id"] for item in change["complete_regressions"]] == ["loss"]
+    assert [item["query_id"] for item in change["group_changes"]] == ["gain", "loss", "partial"]
+
+
+def test_import_of_independent_auditor_cannot_import_native_model_or_producer(tmp_path):
+    import subprocess
+    import sys
+    path = Path(__file__).parents[1] / "scripts/audit_qwen_optimization.py"
+    code = (f"import runpy,sys; runpy.run_path({str(path)!r}); "
+            "assert 'mlx.core' not in sys.modules and 'mlx_lm' not in sys.modules; "
+            "assert 'qwen_reranker_batch' not in sys.modules; "
+            "assert 'run_qwen_optimization' not in sys.modules")
+    subprocess.run([sys.executable, "-B", "-c", code], cwd=tmp_path, capture_output=True, check=True)
