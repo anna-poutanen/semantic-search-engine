@@ -1,0 +1,152 @@
+"""Independent CPU source/control review; no model imports or source edits."""
+from pathlib import Path
+import difflib
+import hashlib
+import io
+import json
+import os
+import re
+import subprocess
+import sys
+import tarfile
+import tempfile
+
+ROOT = Path.cwd()
+OUT = ROOT / "results/strict-coding-preflight-2026-10-14"
+CACHE = ROOT / ".cache/strict-coding-controls-2026-10-14"
+DEST = OUT / "independent-review"
+
+
+def digest(path):
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+def require(value, message):
+    if not value:
+        raise ValueError(message)
+
+
+def normalize(text):
+    return text.replace(str(ROOT), "<PROJECT>").replace(str(Path.home()), "<USER_HOME>")
+
+
+def source_map(workspace, task):
+    return {str(p.relative_to(workspace)): digest(p) for p in sorted((workspace / task["source_root"]).rglob("*.py"))}
+
+
+def run(command, workspace, task):
+    env = dict(os.environ)
+    for key in ("PYTHONPATH", "PYTHONHOME", "PYTEST_ADDOPTS", "PYTEST_PLUGINS"):
+        env.pop(key, None)
+    env.update(PYTHONPATH=str((workspace / task["source_root"]).parent), PYTHONDONTWRITEBYTECODE="1")
+    result = subprocess.run(command, cwd=workspace, env=env, capture_output=True, text=True, timeout=180)
+    return {"command": [normalize(str(x)) for x in command], "exit_code": result.returncode,
+            "stdout_sha256": hashlib.sha256(result.stdout.encode()).hexdigest(),
+            "stderr_sha256": hashlib.sha256(result.stderr.encode()).hexdigest()}, result.stdout
+
+
+def main():
+    strict = json.loads((ROOT / "benchmarks/strict_multifile_checks/manifest.json").read_bytes())
+    tasks = {t["id"]: t for t in json.loads((ROOT / "benchmarks/coding_workflows_multifile.json").read_bytes())["tasks"]}
+    controls = json.loads((OUT / "final-controls/controls.json").read_bytes())
+    repairs = json.loads((CACHE / "repairs.json").read_bytes())
+    require(controls["complete"] is True and controls["model_calls"] == 0, "Complete CPU control inventory")
+    for name, expected in strict["input_sha256"].items():
+        require(digest(ROOT / name) == expected, "Unchanged original/strict checker, task and accepted probe: " + name)
+    require(controls["strict_manifest_sha256"] == digest(ROOT / "benchmarks/strict_multifile_checks/manifest.json")
+            and controls["task_manifest_sha256"] == digest(ROOT / "benchmarks/coding_workflows_multifile.json"), "Actual control manifest bindings")
+    old = (OUT / "control-source-v2.py.txt").read_text()
+    current = (ROOT / "scripts/prepare_strict_multifile_controls.py").read_text()
+    require(controls["generator_sha256"] == digest(OUT / "control-source-v2.py.txt"), "Byte-exact archived actual control generator")
+    require(current == old.replace('return value.replace(str(ROOT), "<PROJECT>")',
+            'return value.replace(str(ROOT), "<PROJECT>").replace(str(Path.home()), "<USER_HOME>")'), "Only publication privacy change after control evaluation")
+    normalization = json.loads((OUT / "publication-normalization-v2.json").read_bytes())
+    for name, record in normalization["files"].items():
+        require(digest(OUT / name) == record["published_sha256"]
+                and digest(CACHE / "raw-public-artifacts-v2" / name) == record["previous_public_sha256"], "Preserved old/new publication bytes: " + name)
+    reviewed, raw_receipts = {}, 0
+    with tempfile.TemporaryDirectory(prefix="independent-strict-review-", dir=ROOT / ".cache") as temporary:
+        for identity, spec in strict["tasks"].items():
+            task, observed = tasks[identity], controls["tasks"][identity]
+            require(task["revision"] == spec["revision"] and task["source_root"] == spec["source_root"]
+                    and hashlib.sha256(task["prompt"].encode()).hexdigest() == spec["prompt_sha256"], "Original contract/revision/source scope")
+            scratch = Path(temporary) / identity
+            scratch.mkdir()
+            original = subprocess.check_output(["git", "-C", str(ROOT / task["corpus"]), "archive", task["revision"]])
+            with tarfile.open(fileobj=io.BytesIO(original)) as archive:
+                archive.extractall(scratch, filter="data")
+            subprocess.run(["git", "init", "-q", str(scratch)], check=True, capture_output=True)
+            original_patch = ROOT / "benchmarks/multifile_references" / (identity + ".patch")
+            require(digest(original_patch) == task["reference_patch_sha256"] == observed["original_reference_patch_sha256"], "Original reference patch unchanged")
+            labels = ["base", "original-reference"] + (["strict-reference"] if identity in repairs else [])
+            maps, reruns = {}, []
+            for label in labels:
+                if label == "original-reference":
+                    subprocess.run(["git", "apply", "--whitespace=nowarn", str(original_patch)], cwd=scratch, check=True, capture_output=True)
+                elif label == "strict-reference":
+                    repair = Path(repairs[identity]["path"])
+                    require(repair.is_relative_to(CACHE) and digest(repair) == repairs[identity]["sha256"] == observed["repair_patch_sha256"], "Ignored repair patch exact binding")
+                    subprocess.run(["git", "apply", "--whitespace=nowarn", str(repair)], cwd=scratch, check=True, capture_output=True)
+                actual = CACHE / "final-controls" / identity / label
+                control = observed["controls"][label]
+                maps[label] = source_map(actual, task)
+                require(maps[label] == source_map(scratch, task) == control["source_sha256"], "Positive/base source exactly reproduces pinned archive and declared patches")
+                require(all(digest(actual / name) == expected == digest(scratch / name)
+                            for name, expected in task["upstream_test_sha256"].items()), "Every original test, fixture and configuration byte retained")
+                require(control["source_unchanged"] is True and control["compatibility"]["passed"] is True, "Controls preserve source and original compatibility")
+                raw_folder = CACHE / "final-controls" / identity / ("control-raw-logs-" + label)
+                logged = [("strict", control["strict"])] + [("compatibility-" + str(i), r) for i, r in enumerate(control["compatibility"]["commands"])]
+                for filename, receipt in logged:
+                    for kind in ("stdout", "stderr"):
+                        raw = raw_folder / (filename + "." + kind + ".txt")
+                        public = OUT / "final-controls" / identity / label / (filename + "." + kind + ".txt")
+                        require(digest(raw) == receipt["ignored_raw_" + kind + "_sha256"]
+                                and digest(public) == receipt[kind + "_sha256"]
+                                and normalize(raw.read_text()) == public.read_text(), "Exact raw and published log witnesses")
+                        raw_receipts += 1
+                positive = label == ("strict-reference" if identity in repairs else "original-reference")
+                require(control["strict"]["passed"] is positive, "Expected base/original-negative and strict-positive gates")
+                if positive:
+                    command = [sys.executable, str(ROOT / spec["strict_script"]), "--repo", str(actual)]
+                    receipt, stdout = run(command, actual, task)
+                    grade = json.loads(stdout)
+                    require(receipt["exit_code"] == 0 and grade["passed"] is True and grade["failures"] == grade["errors"] == grade["skipped"] == 0,
+                            "Independent actual positive strict checker rerun")
+                    receipt["grade"] = json.loads(normalize(json.dumps(grade)))
+                    reruns.append(receipt)
+                    for compatibility in task["compatibility_commands"]:
+                        receipt, stdout = run([sys.executable, *compatibility["args"]], actual, task)
+                        summaries = [line for line in stdout.splitlines() if " in " in line and re.search(r"\b\d+ (?:passed|failed|errors?|skipped|xfailed|xpassed|deselected)\b", line)]
+                        counts = dict.fromkeys(("passed", "skipped", "failed", "errors", "xfailed", "xpassed", "deselected"), 0)
+                        require(summaries, "Actual independent compatibility summary exists")
+                        for number, name in re.findall(r"\b(\d+) (passed|skipped|failed|errors?|xfailed|xpassed|deselected)\b", summaries[-1]):
+                            counts["errors" if name == "error" else name] = int(number)
+                        require(receipt["exit_code"] == 0 and counts == compatibility["expected_summary"], "Independent exact original compatibility rerun")
+                        receipt["summary"] = counts
+                        reruns.append(receipt)
+                    require(source_map(actual, task) == maps[label], "Independent checks do not alter production source")
+            changed = [name for name in maps.get("strict-reference", {}) if maps["strict-reference"][name] != maps["original-reference"][name]]
+            require(set(changed) == ({"src/requests/models.py", "src/requests/sessions.py"} if identity == "requests_response_limit" else
+                    {"src/click/core.py"} if identity == "click_atomic_transactions" else set()), "Repair scope contains only accepted production implementation files")
+            reviewed[identity] = {"contract_and_probe_scope_reviewed": True, "original_tests_and_config_bytes_unchanged": True,
+                                  "source_reconstruction_passed": True, "repair_changed_files": changed,
+                                  "positive_strict_and_original_compatibility_reruns": reruns}
+    return {"classification": "Independent CPU strict-checker/control source, scope and actual positive rerun review; no model calls",
+            "checks_passed": True, "model_calls": 0, "scope": "Prospective coding checker controls only, not retrieval or hosted workflow qualification",
+            "review_source_sha256": digest(Path(__file__)), "actual_controls_sha256": digest(OUT / "final-controls/controls.json"),
+            "archived_producing_source_sha256": controls["generator_sha256"], "current_publication_source_sha256": digest(ROOT / "scripts/prepare_strict_multifile_controls.py"),
+            "normalization_sha256": digest(OUT / "publication-normalization-v2.json"), "raw_and_public_log_pairs_checked": raw_receipts // 2,
+            "publisher_concern_resolved": "Exact producing source archived; subsequent sole change redacts user-home paths without grading semantics changes",
+            "tasks": reviewed}
+
+
+if __name__ == "__main__":
+    try:
+        result = main()
+    except BaseException as error:
+        failures = len(list(DEST.glob("*-review-failure.json"))) + 1
+        (DEST / f"{failures:02d}-review-failure.json").write_text(json.dumps({"error_type": type(error).__name__, "error": str(error), "source_sha256": digest(Path(__file__))}) + "\n")
+        (DEST / f"{failures:02d}-review-source.py.txt").write_bytes(Path(__file__).read_bytes())
+        raise
+    (DEST / "review.json").write_text(json.dumps(result, indent=2, allow_nan=False) + "\n")
+    print(json.dumps({"checks_passed": result["checks_passed"], "tasks": len(result["tasks"]), "model_calls": 0}))

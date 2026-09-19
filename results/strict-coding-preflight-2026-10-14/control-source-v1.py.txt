@@ -1,0 +1,194 @@
+#!/usr/bin/env python3
+"""CPU-only clean-base/reference controls for the new strict coding checkers.
+
+Repairs, when supplied, must live in ignored evaluator storage. Original task
+text, checkers, published references and historical grades are never modified.
+"""
+from __future__ import annotations
+
+import argparse
+import hashlib
+import io
+import json
+import os
+from pathlib import Path
+import re
+import shutil
+import subprocess
+import sys
+import tarfile
+
+ROOT = Path(__file__).resolve().parents[1]
+TASKS = ROOT / "benchmarks/coding_workflows_multifile.json"
+STRICT = ROOT / "benchmarks/strict_multifile_checks/manifest.json"
+SELECTED = ("requests_response_limit", "click_atomic_transactions", "starlette_body_limits")
+
+
+def require(value, message):
+    if not value:
+        raise ValueError(message)
+
+
+def digest(path):
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+def git(repo, *args):
+    return subprocess.run(["git", "-C", str(repo), *args], capture_output=True, check=True).stdout
+
+
+def write(path, value):
+    with Path(path).open("x", encoding="utf-8") as stream:
+        stream.write(json.dumps(value, sort_keys=True, indent=2, allow_nan=False) + "\n")
+
+
+def counts(stdout):
+    names = ("passed", "skipped", "failed", "errors", "xfailed", "xpassed", "deselected")
+    summaries = [line for line in stdout.splitlines() if " in " in line and
+                 re.search(r"\b\d+ (?:passed|failed|errors?|skipped|xfailed|xpassed|deselected)\b", line)]
+    if not summaries:
+        return None
+    result = dict.fromkeys(names, 0)
+    for number, name in re.findall(r"\b(\d+) (passed|skipped|failed|errors?|xfailed|xpassed|deselected)\b", summaries[-1]):
+        result["errors" if name == "error" else name] = int(number)
+    return result
+
+
+def environment(workspace, task):
+    env = dict(os.environ)
+    for name in ("PYTHONPATH", "PYTHONHOME", "PYTEST_ADDOPTS", "PYTEST_PLUGINS"):
+        env.pop(name, None)
+    env.update(PYTHONPATH=str((workspace / task["source_root"]).parent), PYTHONDONTWRITEBYTECODE="1")
+    return env
+
+
+def command_receipt(command, workspace, task, logs, label, *, timeout):
+    try:
+        value = subprocess.run(command, cwd=workspace, env=environment(workspace, task),
+                               capture_output=True, text=True, timeout=timeout)
+        stdout, stderr, exit_code, timed_out = value.stdout, value.stderr, value.returncode, False
+    except subprocess.TimeoutExpired as error:
+        stdout, stderr, exit_code, timed_out = error.stdout or "", error.stderr or "", None, True
+        stdout = stdout.decode(errors="replace") if isinstance(stdout, bytes) else stdout
+        stderr = stderr.decode(errors="replace") if isinstance(stderr, bytes) else stderr
+    logs.mkdir(parents=True, exist_ok=True)
+    paths = {"stdout": logs / (label + ".stdout.txt"), "stderr": logs / (label + ".stderr.txt")}
+    for kind, text in (("stdout", stdout), ("stderr", stderr)):
+        with paths[kind].open("x", encoding="utf-8") as stream:
+            stream.write(text)
+    return {"command": command, "exit_code": exit_code, "timed_out": timed_out,
+            "stdout_sha256": digest(paths["stdout"]), "stderr_sha256": digest(paths["stderr"]),
+            "summary": counts(stdout)}, stdout
+
+
+def archive(task, destination):
+    repo = ROOT / task["corpus"]
+    require(git(repo, "rev-parse", "HEAD").decode().strip() == task["revision"], "Pinned corpus revision changed")
+    require(not git(repo, "status", "--porcelain", "--untracked-files=no").strip(), "Pinned tracked corpus changed")
+    destination.mkdir(parents=True)
+    with tarfile.open(fileobj=io.BytesIO(git(repo, "archive", task["revision"]))) as stream:
+        stream.extractall(destination, filter="data")
+
+
+def apply_patch(workspace, path):
+    subprocess.run(["git", "apply", "--whitespace=nowarn", str(path)], cwd=workspace,
+                   capture_output=True, check=True)
+
+
+def source_hashes(workspace, task):
+    return {str(path.relative_to(workspace)): digest(path)
+            for path in sorted((workspace / task["source_root"]).rglob("*.py"))}
+
+
+def compatibility(workspace, task, logs):
+    # Every control begins with a pinned tracked archive. Check all restored test
+    # and test-configuration bytes before and after the original commands.
+    frozen = task["upstream_test_sha256"]
+    require(all(digest(workspace / name) == expected for name, expected in frozen.items()), "Original test/config bytes changed")
+    records = []
+    for index, spec in enumerate(task["compatibility_commands"]):
+        receipt, _ = command_receipt([sys.executable, *spec["args"]], workspace, task, logs,
+                                     "compatibility-" + str(index), timeout=spec["timeout_s"])
+        receipt["expected_summary"] = spec["expected_summary"]
+        receipt["passed"] = receipt["exit_code"] == 0 and receipt["summary"] == spec["expected_summary"]
+        records.append(receipt)
+    require(all(digest(workspace / name) == expected for name, expected in frozen.items()), "Upstream checks altered original tests/config")
+    return {"passed": all(record["passed"] for record in records), "commands": records,
+            "restored_original_test_and_config_sha256": frozen}
+
+
+def evaluate(workspace, task, logs, strict):
+    before = source_hashes(workspace, task)
+    receipt, stdout = command_receipt([sys.executable, str(ROOT / strict["strict_script"]), "--repo", str(workspace)],
+                                     workspace, task, logs, "strict", timeout=180)
+    try:
+        receipt["grade"] = json.loads(stdout)
+    except ValueError as error:
+        receipt["grade"] = None
+        receipt["receipt_error"] = str(error)
+    receipt["passed"] = receipt["exit_code"] == 0 and receipt["grade"] is not None and receipt["grade"].get("passed") is True
+    upstream = compatibility(workspace, task, logs)
+    after = source_hashes(workspace, task)
+    require(before == after, "CPU controls must not mutate production source")
+    return {"strict": receipt, "compatibility": upstream, "source_sha256": before, "source_unchanged": True}
+
+
+def prepare(cache, output, repairs=None):
+    cache, output = Path(cache).resolve(), Path(output).resolve()
+    require(not cache.exists() and not output.exists(), "Use new named cache and receipt destinations; attempts are immutable")
+    require(cache.is_relative_to(ROOT / ".cache"), "Evaluator controls must remain in ignored project cache")
+    subprocess.run(["git", "check-ignore", str(cache)], cwd=ROOT, check=True, capture_output=True)
+    strict = json.loads(STRICT.read_text())
+    tasks = {row["id"]: row for row in json.loads(TASKS.read_text())["tasks"] if row["id"] in SELECTED}
+    repair_specs = json.loads(Path(repairs).read_text()) if repairs else {}
+    require(set(repair_specs) <= set(SELECTED), "Only selected task repairs permitted")
+    output.mkdir(parents=True)
+    result = {"version": 1, "classification": "New prospective strict controls; previous references and grades unchanged",
+              "model_calls": 0, "task_manifest_sha256": digest(TASKS), "strict_manifest_sha256": digest(STRICT),
+              "generator_sha256": digest(Path(__file__)), "tasks": {}}
+    try:
+        for identity in SELECTED:
+            task = tasks[identity]
+            base = cache / identity / "base"
+            archive(task, base)
+            reference = cache / identity / "original-reference"
+            shutil.copytree(base, reference)
+            patch = ROOT / "benchmarks/multifile_references" / (identity + ".patch")
+            require(digest(patch) == task["reference_patch_sha256"], "Original published reference patch changed")
+            apply_patch(reference, patch)
+            record = {"revision": task["revision"], "original_reference_patch_sha256": digest(patch), "controls": {}}
+            for label, workspace in (("base", base), ("original-reference", reference)):
+                record["controls"][label] = evaluate(workspace, task, output / identity / label, strict["tasks"][identity])
+            if identity in repair_specs:
+                spec = repair_specs[identity]
+                repair = Path(spec["path"]).resolve(strict=True)
+                require(repair.is_relative_to(ROOT / ".cache") and digest(repair) == spec["sha256"], "Repair must match its ignored frozen evaluator patch")
+                repaired = cache / identity / "strict-reference"
+                shutil.copytree(reference, repaired)
+                apply_patch(repaired, repair)
+                record["repair_patch_sha256"] = digest(repair)
+                record["controls"]["strict-reference"] = evaluate(repaired, task, output / identity / "strict-reference", strict["tasks"][identity])
+            result["tasks"][identity] = record
+            write(output / (identity + ".json"), record)
+        result["complete"] = True
+    except BaseException as error:
+        result["complete"] = False
+        result["failure"] = {"type": type(error).__name__, "message": str(error)}
+        write(output / "controls.json", result)
+        raise
+    write(output / "controls.json", result)
+    return result
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--cache", required=True, type=Path)
+    parser.add_argument("--output", required=True, type=Path)
+    parser.add_argument("--repairs", type=Path)
+    args = parser.parse_args()
+    result = prepare(args.cache, args.output, args.repairs)
+    print(json.dumps({"complete": result["complete"], "tasks": len(result["tasks"]), "model_calls": 0}))
+
+
+if __name__ == "__main__":
+    main()
