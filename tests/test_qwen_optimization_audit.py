@@ -289,3 +289,102 @@ def test_import_of_independent_auditor_cannot_import_native_model_or_producer(tm
             "assert 'qwen_reranker_batch' not in sys.modules; "
             "assert 'run_qwen_optimization' not in sys.modules")
     subprocess.run([sys.executable, "-B", "-c", code], cwd=tmp_path, capture_output=True, check=True)
+
+
+def test_superseded_frozen_producer_needs_matching_archive_and_committed_bytes(tmp_path, monkeypatch):
+    import gzip
+    import json
+    root, study = tmp_path / "root", tmp_path / "root/results/study"
+    (root / "scripts").mkdir(parents=True)
+    study.mkdir(parents=True)
+    old, current = b"original frozen producer", root / "scripts/producer.py"
+    current.write_bytes(b"later corrected producer")
+    path = study / "frozen-sources/scripts/producer.py.gz"
+    path.parent.mkdir(parents=True)
+    with gzip.open(path, "wb") as stream:
+        stream.write(old)
+    plan = {"version": 1, "stage": "parity", "settings": audit.original.evidence.CAPS,
+            "repetitions": 3, "primary_quality_repetition": 1, "query_cache": False,
+            "score_cache": False, "weights_loaded_in_freeze": False, "model_calls_in_freeze": 0,
+            "batch_sizes": [1, 2, 4, 8], "max_padded_tokens": 16384,
+            "generic_reranker_warmup_pairs": 32, "generic_reranker_warmup_forwards": 15,
+            "parity_limits": {"yes_logit": .0625, "no_logit": .0625, "logit_difference": .125,
+                              "yes_rank_signal": .025, "inversion_margin": .25},
+            "reranker": {"supporting_sources": audit.SUPPORTING_RUNTIME_HASHES},
+            "frozen_at_utc": "2026-10-13T20:00:00+00:00", "source_commit": "frozen-commit",
+            "implementation_sha256": {"scripts/producer.py": audit.sha(old)}, "semantic_module_origins": {},
+            "decision_inputs": {}, "packages": {}, "conditions": [
+                {"id": "dense", "retrieval": "dense", "shortlist": 50, "batch_size": 0}]}
+    (study / "frozen-plan.json").write_text(json.dumps(plan))
+    monkeypatch.setattr(audit.subprocess, "check_output", lambda *args, **kwargs: old)
+    monkeypatch.setattr(audit.importlib.metadata, "distributions", lambda: [])
+    assert audit.verify_frozen_plan(root, study) == plan
+    with gzip.open(path, "wb") as stream:
+        stream.write(b"tampered archive")
+    with pytest.raises(ValueError, match="archived"):
+        audit.verify_frozen_plan(root, study)
+
+
+def failed_supervisor_fixture(tmp_path):
+    import json
+    root, study = tmp_path / "root", tmp_path / "root/results/study"
+    study.mkdir(parents=True)
+    (study / "frozen-plan.json").write_text("frozen")
+    owner_sha = "a" * 64
+    plan = {"frozen_at_utc": "2026-10-13T20:00:00+00:00",
+            "implementation_sha256": {"scripts/supervise_qwen_optimization.py": owner_sha}}
+    supervisor = {"success": False, "supervisor_exit_code": 1,
+                  "frozen_plan_sha256": audit.sha(b"frozen"), "supervisor_sha256": owner_sha,
+                  "owned_sessions": True, "main_exit_code": 0, "main_owned_group_stopped": True,
+                  "forced_kill": False, "timed_out": False, "main_pid": 10, "resident_pid": 20,
+                  "caffeinate_pid": 30, "finished_utc": "2026-10-13T20:00:03+00:00",
+                  "resident_stop": {"errors": [{"error_type": "PermissionError", "error": "Operation not permitted"}]}}
+    stop = audit.zero_counts() | {"clean_stop": True, "listener_closed": True,
+                                "mlx_active_memory_after_cleanup": 8, "mlx_process_lifetime_peak_bytes": 1000,
+                                "memory_scope": "MLX allocator"}
+    observed = {"model_calls": 0, "owned_groups_in_ps": [], "listener_closed": True, "token_absent": True,
+                "observed_at_utc": "2026-10-13T20:00:04+00:00", "owned_process_checks": {
+                    str(pid): {"getpgid": {"present": False}, "group_signal_zero": {"result": "ProcessLookupError", "errno": 3}}
+                    for pid in (10, 20, 30)}}
+    values = {"supervisor.json": supervisor, "reranker-stop.json": stop, "post-supervisor-cleanup.json": observed}
+    for name in ("run-start.json", "reranker-start.json"):
+        values[name] = {"frozen_plan_sha256": supervisor["frozen_plan_sha256"],
+                        "started_at_utc": "2026-10-13T20:00:01+00:00"}
+    for name, value in values.items():
+        (study / name).write_text(json.dumps(value))
+    return root, study, plan, values
+
+
+def test_later_cleanup_does_not_promote_failed_supervision_to_success(tmp_path):
+    root, study, plan, _ = failed_supervisor_fixture(tmp_path)
+    result = audit.verify_failed_supervisor_diagnostics(root, study, plan, audit.zero_counts())
+    assert result["clean_supervised_run"] is False
+    assert result["original_supervisor_failure"]["success"] is False
+    assert result["resident_stopped_cleanly"] is True
+
+
+@pytest.mark.parametrize("change", ["success", "foreign_pid", "listener", "token", "group", "resident_count", "chronology"])
+def test_failed_owner_diagnostic_rejects_false_cleanup_or_changed_counts(tmp_path, change):
+    import json
+    root, study, plan, values = failed_supervisor_fixture(tmp_path)
+    if change == "success":
+        values["supervisor.json"]["success"] = True
+    elif change == "foreign_pid":
+        values["post-supervisor-cleanup.json"]["owned_process_checks"]["999"] = {}
+    elif change == "listener":
+        values["post-supervisor-cleanup.json"]["listener_closed"] = False
+    elif change == "token":
+        token = root / ".cache/study/token.secret"
+        token.parent.mkdir(parents=True)
+        token.write_text("retained-private-token")
+    elif change == "group":
+        values["post-supervisor-cleanup.json"]["owned_process_checks"]["20"]["group_signal_zero"] = {
+            "result": "PermissionError", "errno": 1}
+    elif change == "resident_count":
+        values["reranker-stop.json"]["completed_pairs"] = 1
+    else:
+        values["post-supervisor-cleanup.json"]["observed_at_utc"] = "2026-10-13T19:00:00+00:00"
+    for name, value in values.items():
+        (study / name).write_text(json.dumps(value))
+    with pytest.raises(ValueError):
+        audit.verify_failed_supervisor_diagnostics(root, study, plan, audit.zero_counts())
