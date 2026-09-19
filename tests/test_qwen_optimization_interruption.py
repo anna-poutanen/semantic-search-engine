@@ -1,6 +1,7 @@
 """CPU recovery tests: original bytes stay untouched, missing evidence stays absent."""
 import gzip
 import importlib.util
+from datetime import datetime, timezone
 from pathlib import Path
 import sys
 from types import SimpleNamespace
@@ -102,3 +103,56 @@ def test_missing_file_in_recorded_commit_stays_a_missing_binding(monkeypatch):
     monkeypatch.setattr(audit.subprocess, "run", lambda *args, **kwargs: SimpleNamespace(returncode=128, stdout=b""))
     bindings, mismatch = audit.committed_source_bindings({"source_commit": "a" * 40, "implementation_sha256": {"missing.py": "expected"}})
     assert mismatch == ["missing.py"] and bindings["missing.py"]["committed_source_sha256"] is None
+
+
+def test_graceful_sigint_retains_failed_attempt_and_known_final_counters():
+    ids = [{"condition": "a"}, {"condition": "b"}, {"condition": "c"}]
+    rows = [{"identity": ids[0], "status": "completed", "active_phase": "complete"},
+            {"identity": ids[1], "status": "failed", "active_phase": "reranker_http",
+             "error_type": "KeyboardInterrupt", "counts_after": {"completed_query_calls": 3}}]
+    completion = {"complete": False, "embedding_owner_closed": True, "attempted_requests": 2,
+                  "completed_requests": 1, "embedding_counts": {"completed_query_calls": 3}}
+    complete, failed = audit.retained_prefix({"schedule": ids}, rows, completion)
+    assert complete == rows[:1] and failed == rows[1:]
+    completion["completed_requests"] = 2
+    with pytest.raises(ValueError, match="attempted/completed"):
+        audit.retained_prefix({"schedule": ids}, rows, completion)
+
+
+def test_abrupt_interrupt_never_promotes_a_failed_row_to_completion():
+    identity = {"condition": "a"}
+    row = {"identity": identity, "status": "failed", "error_type": "KeyboardInterrupt"}
+    with pytest.raises(ValueError, match="completed prefix"):
+        audit.retained_prefix({"schedule": [identity]}, [row], None)
+
+
+def test_partial_clock_analysis_keeps_failed_end_without_qualifying_study():
+    def sample(number):
+        wall = 1_700_000_000_000_000_000 + number * 1_000_000
+        seconds, nanos = divmod(wall, 1_000_000_000)
+        return {"wall_time_ns": wall, "perf_counter_ns": number * 1_000_000,
+                "utc": datetime.fromtimestamp(seconds, timezone.utc).replace(microsecond=nanos // 1000).isoformat()}
+
+    baseline = sample(0)
+
+    def receipt(number, since=None, label="phase"):
+        point = sample(number)
+
+        def delta(anchor):
+            elapsed = point["perf_counter_ns"] - anchor["perf_counter_ns"]
+            return {"wall_elapsed_ns": elapsed, "perf_elapsed_ns": elapsed, "drift_ns": 0,
+                    "absolute_drift_ns": 0, "max_drift_ns": 2_000_000_000, "consistent": True}
+
+        return {"baseline": baseline, "sample": point, "consistent": True, "max_drift_ns": 2_000_000_000,
+                "label": label, "cumulative": delta(baseline), "interval": delta(sample(since)) if since is not None else None}
+
+    setup = {"dataset": "repo", "clock_start": receipt(1), "clock_end": receipt(2, 1)}
+    row = {"identity": {"dataset": "repo"}, "clock_start": receipt(3), "clock_end": receipt(4, 3, "request/failed_end")}
+    completion = {"clock_integrity": {"fixed": True}, "clock_failure": None, "clock_baseline": baseline,
+                  "clock_end": receipt(5), "finished_at_utc": sample(5)["utc"]}
+    result = audit.partial_clock_receipts({"clock_integrity": {"fixed": True}}, [row], [setup], completion)
+    assert result["partial_receipts_checked"] == 5 and not result["whole_study_qualified"]
+    assert result["failed_request_end_label"] == "request/failed_end"
+    row["clock_end"]["interval"]["wall_elapsed_ns"] += 1
+    with pytest.raises(ValueError, match="reconcile"):
+        audit.partial_clock_receipts({"clock_integrity": {"fixed": True}}, [row], [setup], completion)

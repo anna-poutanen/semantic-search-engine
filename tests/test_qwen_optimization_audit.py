@@ -553,3 +553,57 @@ def test_clock_auditor_rejects_measured_interior_phase_time_outside_its_actual_c
         rows[0]["packing_s"] = .5
     with pytest.raises(ValueError):
         audit.verify_clock_study(plan, rows, setups, completion)
+
+
+INTERRUPTION_SPEC = importlib.util.spec_from_file_location(
+    "independent_clock_interruption", Path(__file__).parents[1] / "scripts/audit_qwen_optimization_clock_interruption.py"
+)
+interruption = importlib.util.module_from_spec(INTERRUPTION_SPEC)
+INTERRUPTION_SPEC.loader.exec_module(interruption)
+
+
+def interrupted_clock_fixture():
+    plan, rows, setups, completion = clock_fixture()
+    plan["schedule"].append({"dataset": "code", "query_id": "never_attempted", "condition": "dense", "repetition": 1})
+    plan["planned_requests"] = 3
+    for row in rows:
+        row["status"] = "completed"
+    rows[-1]["status"] = "failed"
+    rows[-1]["active_phase"] = "reranker_http"
+    rows[-1]["clock_end"]["label"] = rows[-1]["clock_end"]["label"].replace("/end", "/failed_end")
+    completion.update(complete=False, embedding_owner_closed=True, attempted_requests=2, completed_requests=1)
+    return plan, rows, setups, completion
+
+
+def test_interrupted_clock_diagnostic_keeps_failed_end_and_never_fills_unobserved_schedule():
+    values = interrupted_clock_fixture()
+    result = interruption.interrupted_clocks(*values)
+    assert result["attempted_queries"] == 2 and result["completed_queries"] == 1
+    assert result["checkpoint_count"] == 7
+    assert result["failed_end_label"] == "code/second/dense/1/failed_end"
+    assert result["failed_phase"] == "reranker_http"
+
+
+@pytest.mark.parametrize("change", ["qualified", "owner", "filtered", "retry", "failed_end", "lost_failed_row", "missing_final", "counts", "drift"])
+def test_interrupted_clock_diagnostic_rejects_loss_of_failure_or_clock_evidence(change):
+    plan, rows, setups, completion = interrupted_clock_fixture()
+    if change == "qualified":
+        completion["complete"] = True
+    elif change == "owner":
+        completion["embedding_owner_closed"] = False
+    elif change == "filtered":
+        rows.pop(0)
+    elif change == "retry":
+        rows[-1]["identity"] = deepcopy(rows[0]["identity"])
+    elif change == "failed_end":
+        rows[-1]["clock_end"]["label"] = "code/second/dense/1/end"
+    elif change == "lost_failed_row":
+        rows[-1]["status"] = "completed"
+    elif change == "missing_final":
+        completion.pop("clock_end")
+    elif change == "counts":
+        completion["completed_requests"] = 2
+    else:
+        rows[-1]["clock_end"]["interval"]["absolute_drift_ns"] = 2_000_000_001
+    with pytest.raises((ValueError, KeyError)):
+        interruption.interrupted_clocks(plan, rows, setups, completion)
