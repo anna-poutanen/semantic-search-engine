@@ -1,0 +1,77 @@
+{
+  "accounting_scope": "Reported completed-turn input+output only. Retained interrupted-prefix usage is partial observed usage; unreported interrupted-turn and per-request billing remain unknown.",
+  "actual_cpu_checks": [
+    "Real isolated CPU CLI timeout, SIGTERM, repeated signal, force-kill, leader-exit versus cleanup timing, raw checkpoint preservation",
+    "Runner SIGTERM integration retains actual reported completed-turn prefix usage, publishes one failed attempt, proves owned cleanup and leaves later attempts unstarted"
+  ],
+  "checked_at_utc": "2026-10-14T07:15:36.313759+00:00",
+  "checks_passed": true,
+  "classification": "CPU-only workflow capture and runner integration verification; no hosted or native model execution",
+  "diff_check": {
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "exit_code": 0,
+    "output": ""
+  },
+  "fault_injection_checks": [
+    "Setup, post-CLI, grading and publication interruption retention",
+    "Interrupt at CLI return handoff recovers actual durable checkpoint; no token estimates",
+    "Failed/stale production source, plan, result and source-map certificate rejection"
+  ],
+  "hosted_calls": 0,
+  "limits": [
+    "CPU subprocess fixtures validate capture and ownership; this receipt is not a hosted coding result or native production smoke certificate.",
+    "Independent read-only runner review is tracked separately."
+  ],
+  "model_calls": 0,
+  "prior_whole_suite_source_archives": {
+    "results/qwen-integration-preflight-2026-10-14/cpu-verification-promoted-sources/scripts/run_qwen_workflows.py.gz": {
+      "gzip_sha256": "cb1ee2b2fe515b59617ec35e4ee94cdceecb73edb57921be8f739502daae2e90",
+      "source_sha256": "593cda85634d104f66c69a0913c8b0f30a7c9d3a793ec1f3c4fb7de8406ed959"
+    },
+    "results/qwen-integration-preflight-2026-10-14/cpu-verification-promoted-sources/tests/test_qwen_workflow_runner.py.gz": {
+      "gzip_sha256": "4404a30bddc89785bd393f4f57706cb08525513c34185c532c9caa4a8b9c316f",
+      "source_sha256": "930f9469bcd5f6b8e7186ce16771745e2069bb948ea47041ffd4a3b5b5acc594"
+    }
+  },
+  "pytest": {
+    "command": [
+      ".venv/bin/python",
+      "-m",
+      "pytest",
+      "tests/test_qwen_workflow_runner.py",
+      "tests/test_qwen_workflow_process.py",
+      "tests/test_qwen_workflow_independent_review.py",
+      "tests/test_qwen_workflow_evidence.py",
+      "-q"
+    ],
+    "exit_code": 0,
+    "output": "........................................................................ [ 91%]\n.......                                                                  [100%]\n79 passed in 3.68s\n"
+  },
+  "ruff": {
+    "command": [
+      ".venv/bin/ruff",
+      "check",
+      "scripts/run_qwen_workflows.py",
+      "tests/test_qwen_workflow_runner.py"
+    ],
+    "exit_code": 0,
+    "output": "All checks passed!\n"
+  },
+  "source_sha256": {
+    "docs/qwen-coding-workflow-protocol.md": "0206f5ca97a4b87e1f9a25bd5581f1e4d99bed4ff53c51d91faa3b3cb28d53b2",
+    "scripts/qwen_optimization_clock.py": "98a9fe827fa3e59eff71dd1281868249c85c0ec5b674175e084e5f20f91cddbd",
+    "scripts/qwen_workflow_evidence.py": "94fc6cbf0694d4caced4bf26726789157d654a3f5e35ae5774f0ae27eb50d5f0",
+    "scripts/qwen_workflow_process.py": "5766a6254d75ae5d55378664c2c4e80ad710c0dc35d5f60828283a7a644b97b1",
+    "scripts/run_multifile_workflows.py": "58cb1bcfae90fc82cb73bada1aac1aaf18324142ed1725db19b11af273abeb71",
+    "scripts/run_qwen_workflows.py": "9c8d5d9a9b71c274af0deafa360a74c04e6cd58ab3fc7997a7ddcc4f089a9ade",
+    "tests/test_qwen_workflow_evidence.py": "d4a1e384bcc7a03d5da5d4d1beea16d2a526f6b1383a7faf50412fff0357e1f2",
+    "tests/test_qwen_workflow_independent_review.py": "963f9bacfa9b0269381d85f8271960209c8419543c09b471453dfde3520b074e",
+    "tests/test_qwen_workflow_process.py": "b6eb31e55311db67e8000e48afe7160a31916973a31206788025dd645c4c54d6",
+    "tests/test_qwen_workflow_runner.py": "81850a1ad6d52fef5408d1c62f63961ae3df507b9c7bfda279772d01b0c6dedd"
+  },
+  "version": 1
+}
