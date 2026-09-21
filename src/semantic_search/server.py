@@ -164,7 +164,7 @@ class BackendHandler(BaseHTTPRequestHandler):
                 result = {"indexstats": self.server.backend.refresh()}
             else:
                 allowed = {"query", "retrieval", "rerank", "candidates", "max_results", "source_budget",
-                           "token_budget", "include_dependencies", "request_id", "overlays"}
+                           "token_budget", "include_dependencies", "request_id", "overlays", "rerank_provider"}
                 if set(data) - allowed:
                     raise ValueError("Unknown search option")
                 if "query" not in data:

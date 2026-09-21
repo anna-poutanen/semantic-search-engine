@@ -5,9 +5,11 @@ from contextlib import contextmanager
 import hashlib
 import inspect
 import json
+import math
 import subprocess
 import threading
 import time
+import uuid
 from pathlib import Path
 from urllib.parse import urlsplit
 
@@ -62,7 +64,7 @@ class SearchBackend:
 
     def __init__(self, repo, source_root="src/flask", db_path=None, *, index=None,
                  embedder=None, h2o_url="http://127.0.0.1:8741", h2o_client=None,
-                 abstention_policy=None, source_exclusions=()):
+                 abstention_policy=None, source_exclusions=(), qwen_client=None):
         self.repo = Path(repo).resolve()
         if not self.repo.is_dir():
             raise ValueError("repo must be an existing directory")
@@ -90,6 +92,7 @@ class SearchBackend:
         except (ValueError, TypeError, AttributeError) as error:
             raise ValueError("h2o_url must be a loopback HTTP base URL without credentials") from error
         self._h2o = h2o_client or H2OClient(h2o_url)
+        self._qwen = qwen_client
         self._lock = threading.RLock()
         self._requests = CancellationRegistry()
         self._closed = False
@@ -123,6 +126,8 @@ class SearchBackend:
     def _check_open(self):
         if self._closed:
             raise RuntimeError("Search backend is closed")
+        if self._qwen is not None and getattr(self._qwen, "safe_for_embedding", True) is False:
+            raise RuntimeError("Previous Qwen failure left worker shutdown unproved; restart the backend")
 
     def _get_embedder(self):
         if self._embedder is None:
@@ -300,7 +305,7 @@ class SearchBackend:
 
     def search(self, query, retrieval="dense", rerank=False, candidates=4,
                max_results=5, source_budget=12000, token_budget=None,
-               include_dependencies=False, request_id=None, overlays=None):
+               include_dependencies=False, request_id=None, overlays=None, rerank_provider="h2o"):
         if not isinstance(query, str) or not query.strip() or len(query) > MAX_QUERY_CHARS:
             raise ValueError(f"query must be nonempty and at most {MAX_QUERY_CHARS} characters")
         try:
@@ -311,6 +316,10 @@ class SearchBackend:
             raise ValueError("retrieval must be bm25, dense, or hybrid")
         if type(rerank) is not bool:
             raise ValueError("rerank must be a boolean")
+        if rerank_provider not in ("h2o", "qwen"):
+            raise ValueError("rerank_provider must be h2o or qwen")
+        if rerank and rerank_provider == "qwen" and self._qwen is None:
+            raise ValueError("Qwen reranking is not configured; start an explicitly owned local worker")
         _integer(candidates, "candidates", 1, MAX_CANDIDATES)
         _integer(max_results, "max_results", 1, MAX_RESULTS)
         _integer(source_budget, "source_budget", 0, MAX_SOURCE_BUDGET)
@@ -326,7 +335,7 @@ class SearchBackend:
             if entries:
                 from semantic_search.overlays import search_overlay
                 settings = {"query": query, "retrieval": retrieval, "rerank": rerank,
-                            "candidates": candidates, "max_results": max_results,
+                            "rerank_provider": rerank_provider, "candidates": candidates, "max_results": max_results,
                             "source_budget": source_budget, "token_budget": token_budget,
                             "include_dependencies": include_dependencies}
                 response = search_overlay(self, entries, settings, check)
@@ -341,7 +350,8 @@ class SearchBackend:
                 check()
                 embedding_s = time.perf_counter() - phase if vector is not None else 0.0
                 phase = time.perf_counter()
-                limit = candidates if rerank else max(50, candidates, max_results)
+                qwen_rerank = rerank and rerank_provider == "qwen"
+                limit = 50 if qwen_rerank else candidates if rerank else max(50, candidates, max_results)
                 pairs = []
                 if self._snippets:
                     if retrieval == "bm25":
@@ -350,6 +360,7 @@ class SearchBackend:
                         pairs = self._dense.search(vector, limit)
                     else:
                         pairs = self._hybrid.search(query, vector, limit)
+                full_candidate_count = len(pairs)
                 match_status = "candidates" if pairs else "no_candidates"
                 top_cosine = (pairs[0][1] if retrieval == "dense" and pairs else
                               self._dense.search(vector, limit=1)[0][1] if vector is not None else None)
@@ -358,15 +369,32 @@ class SearchBackend:
                     match_status, pairs = "insufficient_evidence", []
                 retrieval_s = time.perf_counter() - phase
                 phase = time.perf_counter()
-                judgments = {}
-                if rerank:
+                judgments, qwen_judgments = {}, {}
+                if qwen_rerank:
+                    pairs = pairs[:candidates]
+                    scoring_request_id = request_id or uuid.uuid4().hex
+                    for index, (snippet, _) in enumerate(pairs):
+                        check()
+                        judgment = self._qwen.score(query, snippet,
+                            request_id=f"{scoring_request_id}-{index}")
+                        if (type(judgment.score) not in (int, float)
+                                or not math.isfinite(judgment.score)):
+                            raise ValueError("Qwen reranker returned a nonfinite ranking scalar")
+                        qwen_judgments[snippet.id] = judgment
+                        check()
+                    # Preserve the original prefix index on ties, as in the audited study.
+                    order = sorted(range(len(pairs)), key=lambda i: (
+                        -qwen_judgments[pairs[i][0].id].score, i, pairs[i][0].id))
+                    pairs = [pairs[index] for index in order]
+                elif rerank:
                     for snippet, _ in pairs:
                         check()
                         judgments[snippet.id] = self._h2o.score(query, snippet)
                         check()
-                if rerank:
                     pairs.sort(key=lambda pair: (-judgments[pair[0].id].score, -pair[1], pair[0].id))
-                h2o_s = time.perf_counter() - phase if rerank else 0.0
+                reranker_s = time.perf_counter() - phase if rerank else 0.0
+                h2o_s = reranker_s if rerank and not qwen_rerank else 0.0
+                qwen_s = reranker_s if qwen_rerank else 0.0
                 phase = time.perf_counter()
                 seen, selected = set(), []
                 for snippet, score in pairs:
@@ -420,6 +448,7 @@ class SearchBackend:
                                     "source_hash": hashlib.sha256(source.encode()).hexdigest(),
                                     "retrieval_score": float(score),
                                     "h2o_score": judgments[snippet.id].score if snippet.id in judgments else None,
+                                    "qwen_score": qwen_judgments[snippet.id].score if snippet.id in qwen_judgments else None,
                                     "origin": origins.get(snippet.id, ("retrieval", None))[0],
                                     "related_to": origins.get(snippet.id, ("retrieval", None))[1],
                                     **self._source_provenance(snippet.path),
@@ -429,18 +458,24 @@ class SearchBackend:
                 response = {"repo": str(self.repo), "source_root": self.source_root,
                         "scope": self._search_scope(),
                         "query": query, "retrieval": retrieval, "rerank": rerank,
-                        "results": results, "candidate_windows": len(pairs),
+                        "rerank_provider": rerank_provider, "reranker_batch_size": 1 if qwen_rerank else None,
+                        "retrieval_candidate_windows": full_candidate_count, "results": results, "candidate_windows": len(pairs),
                         "available_symbols": len(selected), "source_budget": source_budget,
                         "total_source_chars": source_budget - remaining,
                         "budget_exhausted": any(r["truncated"] for r in results) or len(results) < len(eligible),
                         "indexstats": stats,
                         "timings": {"index_s": stats["elapsed_s"], "query_embedding_s": embedding_s,
-                                    "retrieval_s": retrieval_s, "h2o_s": h2o_s,
+                                    "retrieval_s": retrieval_s, "h2o_s": h2o_s, "qwen_s": qwen_s,
                                     "packaging_s": packaging_s, "total_s": time.perf_counter() - started}}
+                if qwen_rerank:
+                    response["reranker_receipts"] = {identifier: judgment.response
+                        for identifier, judgment in qwen_judgments.items()}
                 response["match_status"] = match_status
                 response["match_evidence"] = {"top_cosine": top_cosine,
                     "threshold": self._policy.threshold if self._policy else None,
                     "meaning": "Candidate relevance is not proof that a behavior exists or is absent."}
+                if qwen_rerank:
+                    response["match_evidence"]["ranking_score_kind"] = "qwen_yes_minus_no_logit_difference"
                 if token_budget is not None:
                     response = apply_token_budget(response, token_budget)
                 check()
