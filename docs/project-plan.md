@@ -80,9 +80,10 @@ references, and weak-match rejection is not proof that a behavior is absent.
 
 ## Evaluation gates
 
-H2O must improve delivered results enough to justify latency. The first pilot is
-development evidence, not a held-out benchmark. The expanded 106-query set now
-reserves Rich as a repository holdout. The frozen fast-retrieval conditions meet
+Rerankers must improve delivered results enough to justify latency. The first pilot is
+development evidence, not a held-out benchmark. The original expanded 106-query set
+reserved Rich as a repository holdout; those observed queries are now development
+evidence for subsequent experiments. The frozen fast-retrieval conditions met
 the initial 90% candidate-coverage and sub-five-second warm latency aspirations
 on this authored sample: held-out dense coverage is 19/20 at depth 50, with
 175 ms P95 HTTP for dense context. These are sample-specific outcomes. H2O
@@ -139,12 +140,13 @@ candidate-complete behavior at depth 50. Delivered completeness stayed 10/12
 Express and 8/12 Zod. The initial source-gate failure made zero model calls and
 is preserved separately. This rule remains experimental.
 
-The [new Koa source preflight](../results/koa-clause-preflight-2026-10-13/source-review.md)
+The [Koa source preflight](../results/koa-clause-preflight-2026-10-13/source-review.md)
 verifies six positives, three multi-file AND behaviors and two scoped absent
 queries without inference. None of those naturally authored queries activates
 the narrow clause rule, so its comparative applicability gate fails. The texts
-were not rewritten to force activation. They remain a prospective retrieval
-corpus, rather than a completed holdout result.
+were not rewritten to force activation. That clause experiment remains blocked;
+the unchanged queries were subsequently used in the separately authorized,
+prospectively frozen Qwen reranker study below.
 
 The separate [Qwen reranker prototype](qwen-reranker-experiment.md) now has a
 real Mac [development probe and independent audit](../results/qwen-reranker-case-v2-2026-10-13/independent-findings.md). On one explicitly selected Express miss, it scored
@@ -156,10 +158,32 @@ case, with no numerical PyTorch parity proof, broader quality, warm HTTP P95 or
 paid-token conclusion. The original observation-wrapper failure scored zero
 pairs and remains preserved separately. The production default is unchanged.
 
-Next, freeze a complete development comparison for this reranker, including
-regressions, absent queries, exact source caps, repeated warm service timing and
-memory. Evaluate fixed settings on a new repository query set, then repeat the
-coding comparison with stronger checks and complete provider usage receipts.
+The [full Qwen reranker study](../results/qwen-reranker-full-2026-10-13/findings.md)
+is complete: 144 unique queries across eight repositories, three actual repeated
+passes, 1,728 searches and 43,200 fresh benchmark pair forwards. With the original
+context packer and all 50 retrieved candidates scored, complete delivered evidence
+improves from 107 to 110 of 118 positives for dense and from 103 to 111 for hybrid.
+Dense has four complete gains and one regression; hybrid has ten gains and two
+regressions. Multi-file completion improves from 11 to 13 of 21 for dense and
+from 13 to 14 for hybrid. Fresh Koa improves from 5 to 6 of 6 with hybrid, while
+dense stays at 6 of 6. The primary full-source-span metric is independent of symbol
+identity and must not be substituted for historical symbol-dependent percentages.
+
+The latency tradeoff remains unresolved. Warm median/P95 for the measured
+in-process pipeline is 0.283/0.675 seconds for dense versus 7.345/16.592 with Qwen,
+and 0.290/0.856 for hybrid versus 9.461/17.049 with Qwen. These include query
+embedding, retrieval, the scorer's loopback HTTP hop and packing, but exclude model
+startup/index setup and the complete production HTTP/MCP route. All absent queries
+still return candidates. The 50-candidate sequential scorer remains experimental;
+the production dense default stays unchanged.
+
+Next, reduce reranker latency with a prospectively specified shortlist and/or
+batching experiment, preserving complete delivered evidence, regressions and
+source budgets. The observed Koa results are now development evidence. Establish
+a fresh retrieval check for any tuned settings before integrating the reranker
+and repeating the coding comparison with stronger checks and complete provider
+usage receipts. This retrieval study measures no coding correctness or paid-agent
+token savings.
 
 Use fresh development queries to improve evidence delivery and a new
 untouched holdout to assess those changes. The observed Zod misses are now

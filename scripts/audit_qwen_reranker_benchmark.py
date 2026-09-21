@@ -376,6 +376,28 @@ def gz_jsonl(path):
         return [json.loads(line) for line in stream if line.strip()]
 
 
+def production_order(response):
+    """Recover fixed production metadata order lost by canonical artifact JSON."""
+    require(set(response["token_usage"]) == {"encoding", "tokens", "budget", "truncated"}
+            and set(response["scope"]) == {"source_root", "membership", "source_exclusions", "exclusions_omitted"},
+            "Exact shipped compact token/scope metadata key sets before normalization")
+    result = deepcopy(response)
+    result["token_usage"] = {key: response["token_usage"][key] for key in
+                             ("encoding", "tokens", "budget", "truncated")}
+    result["scope"] = {key: response["scope"][key] for key in
+                       ("source_root", "membership", "source_exclusions", "exclusions_omitted")}
+    return result
+
+
+def expected_scope(entry):
+    # SearchBackend stores validate_exclusions' sorted, distinct tuple.
+    exclusions = sorted(set(entry.get("source_exclusions", [])))
+    shown = [pattern for pattern in exclusions if len(pattern) <= 80][:4]
+    return {"source_root": entry["source_root"],
+            "membership": "saved implementations; Git-tracked files only in Git projects",
+            "source_exclusions": shown, "exclusions_omitted": len(exclusions) - len(shown)}
+
+
 def check_sources(root, plan):
     from semantic_search.corpus import _source_files, extract_snippets
     from semantic_search.languages import decode_source, extractor_fingerprint
@@ -473,6 +495,7 @@ def check_sources(root, plan):
 def exact_packing(response, raw, data):
     """Reconstruct first-five anchors/two-callee expansion and unchanged character/token packing."""
     from semantic_search.context import apply_token_budget
+    response = production_order(response)
     distinct = {}
     for row in raw:
         distinct.setdefault((row["path"], row["symbol"]), row)
@@ -780,14 +803,9 @@ def build_audit(root, study):
                 ("query_embedding_s", "candidate_retrieval_s", "reranker_http_s", "packing_s")),
                 "Measured warm pipeline contains all actual serial component intervals")
         response = row["response"]
-        exclusions = data["entry"].get("source_exclusions", [])
-        displayed_exclusions = [pattern for pattern in exclusions if len(pattern) <= 80][:4]
-        expected_scope = {"source_root": data["entry"]["source_root"],
-            "membership": "saved implementations; Git-tracked files only in Git projects",
-            "source_exclusions": displayed_exclusions,
-            "exclusions_omitted": len(exclusions) - len(displayed_exclusions)}
+        scope = expected_scope(data["entry"])
         require(response["query"] == query["query"] and response["retrieval"] == condition.split("_")[0]
-                and response["scope"] == expected_scope
+                and response["scope"] == scope
                 and response["source_root"] == data["entry"]["source_root"] and response["source_budget"] == 12000
                 and actual_path(root, response["repo"]) == evidence.located(root, data["entry"]["corpus"])
                 and response["experimental_candidate_retrieval"] == condition.split("_")[0]
@@ -800,10 +818,12 @@ def build_audit(root, study):
         finite(response["match_evidence"]["top_cosine"], "Original full-query cosine metadata")
         require(-1.00001 <= response["match_evidence"]["top_cosine"] <= 1.00001,
                 "Original cosine metadata remains distinct from reranker logits or RRF priority")
-        excerpt_count += evidence.verify_response(response, response, data["inventory"], data["sources"], encoding, selected)
+        ordered_response = production_order(response)
+        excerpt_count += evidence.verify_response(ordered_response, ordered_response,
+                                                 data["inventory"], data["sources"], encoding, selected)
         exact_packing(response, selected, data)
         repeated_case = dataset + "/" + query_id + "/" + condition
-        compact_hash = sha(evidence.compact_text(response).encode())
+        compact_hash = sha(evidence.compact_text(ordered_response).encode())
         if repeated_case in first_orders and first_orders[repeated_case] != row["ranking_order"]:
             ranking_drift.append(identity)
         if repeated_case in first_compact and first_compact[repeated_case] != compact_hash:
@@ -893,6 +913,8 @@ def build_audit(root, study):
             "frozen_plan_sha256": plan_hash, "auditor_sha256": sha(Path(__file__).read_bytes()),
             "artifact_sha256": {path.name: sha(path.read_bytes()) for path in study.iterdir() if path.is_file()
                 and path.name not in ("independent-audit.json", "independent-findings.md")},
+            "audit_attempt_sha256": {str(path.relative_to(study)): sha(path.read_bytes())
+                for path in sorted((study / "audit-attempts").glob("*")) if path.is_file()},
             "limits": ["Quality uses unique first-pass queries only. Repeated warm samples are descriptive observations from one Mac.",
                 "Main timings cover in-process embedding/retrieval plus the blocking helper HTTP hop and unchanged packing, not the whole production HTTP endpoint.",
                 "All prior Python/Express/Zod queries are observed development evidence. Koa was source-reviewed before this first retrieval experiment; no model-pretraining exclusion is established.",
