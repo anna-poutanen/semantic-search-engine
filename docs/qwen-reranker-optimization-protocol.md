@@ -96,12 +96,16 @@ The first grid attempt was interrupted by Mac clamshell sleep and is preserved
 under results/qwen-shortlist-grid-2026-10-13, excluded in its entirety. Before a
 new grid begins, freeze a clock-integrity policy: sample wall-clock and monotonic
 nanosecond clocks from one pipeline baseline, before/after setup and before/after
-each measured search. Absolute disagreement greater than two seconds aborts the
+each measured search, and after model cleanup. Absolute disagreement greater than two seconds aborts the
 whole attempt, including discontinuities between searches. Preserve all observed
 clock receipts and failed search attempts. No interrupted sample is filtered or
 resumed. The within-search monotonic interval remains the latency measurement;
 the wall clock diagnoses continuity, not an alternative favorable timing result.
 Neither labels, numeric gates, shortlist choices nor selection rules change.
+An additional stopped attempt under results/qwen-shortlist-grid-2026-10-14
+preserves a source-commit mismatch during freezing. The driver now refuses a
+plan unless every implementation hash matches its recorded Git commit. The
+separate replacement remains a full run with the same conditions and schedule.
 
 For each family order grid configurations by P95, median, smaller K, then smaller
 B. A configuration qualifies only if its first-pass panel retains all B1/K50

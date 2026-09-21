@@ -301,3 +301,26 @@ def test_clock_policy_drift_is_rejected_before_model_ownership(tmp_path, monkeyp
     monkeypatch.setattr(pipeline, "observed_embedder", lambda: pytest.fail("must not own model"))
     with pytest.raises(ValueError, match="clock policy differs"):
         pipeline.run_pipeline(output, entries, frozen, worker, {}, "")
+
+
+def test_suspension_after_last_query_is_caught_after_model_close_without_reclassifying_completed_queries(tmp_path, monkeypatch):
+    output, entries, frozen, worker, owner, _ = fixture(tmp_path, monkeypatch)
+    fake = FakeClocks()
+    original_guard = pipeline.clocks.ClockIntegrity
+    monkeypatch.setattr(pipeline.clocks, "ClockIntegrity", lambda: original_guard(wall_clock=fake.wall_clock, perf_clock=fake.perf_clock))
+    close = owner.close
+    def close_then_suspend():
+        close()
+        fake.suspend()
+    owner.close = close_then_suspend
+    with pytest.raises(pipeline.clocks.ClockIntegrityError):
+        pipeline.run_pipeline(output, entries, frozen, worker,
+                              {"url": "http://127.0.0.1:43210"}, "test-private-token")
+    completion = json.loads((output / "completion.json").read_text())
+    assert completion["completed_requests"] == completion["attempted_requests"] == 6
+    assert not completion["complete"] and completion["embedding_owner_closed"]
+    assert not completion["clock_end"]["consistent"] and completion["clock_end"]["label"] == "pipeline/complete"
+    assert completion["clock_failure"] == completion["clock_end"]
+    assert completion["finished_at_utc"] == completion["clock_end"]["sample"]["utc"]
+    assert all(row["status"] == "completed" for row in rows(output / "searches.jsonl.gz"))
+    assert json.loads((output / "failure.json").read_text())["phase"] == "after_model_cleanup"
