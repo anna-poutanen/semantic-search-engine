@@ -1,0 +1,615 @@
+{
+  "version": 1,
+  "repo_url": "https://github.com/encode/httpx",
+  "revision": "26d48e0634e6ee9cdc0533996db289ce4b430177",
+  "source_root": "httpx",
+  "source_exclusions": [],
+  "language": "python",
+  "classification": "Source-authored HTTPX repository holdout, unobserved retrieval before setup selection",
+  "source_freeze": "results/httpx-reranker-preflight-2026-10-13/source-freeze.json",
+  "source_freeze_sha256": "6561d34c15bea1f9fd9be7b69ff74823ecfb29b69434f52de44e3bd9244e4416",
+  "target_groups_semantics": "OR within each group; AND across all groups. Credit requires one verified delivered excerpt to contain the group's complete function or method source span. Names, comments and partial bodies are insufficient.",
+  "query_authoring": "Natural behavior queries authored from pinned source after source/scope freeze, with no model, embedding, retrieval, ranking output or old outcome-driven label selection. Fresh means previously unranked HTTPX source/settings, not unread source or a pretraining holdout.",
+  "queries": [
+    {
+      "id": "httpx_json_request_encoding_and_headers",
+      "query": "Build a JSON request body with compact UTF-8 serialization and its byte length, reject non-finite numbers, and preserve content headers explicitly supplied by the caller.",
+      "kind": "present",
+      "notes": "Require request-construction wiring, body-type dispatch, JSON serialization/header production, and default-header merge. The query assumes JSON is supplied without a competing raw content/form/files payload and without an explicit stream. The pinned codec passes allow_nan=False to the standard JSON serializer; the serializer implementation is outside scope. Complete local functions including precedence and explicit-header guards are required.",
+      "split": "repository_holdout",
+      "target_groups": [
+        [
+          {
+            "path": "httpx/_models.py",
+            "symbol": "Request.__init__",
+            "definition_lines": [
+              383,
+              439
+            ],
+            "evidence_lines": [
+              383,
+              439
+            ],
+            "declaration_anchor": "def __init__(",
+            "evidence_sha256": "23b22679c8fb43190f18e4d00f018e9e9c6f806fca22234486740d001cd52b36",
+            "source_file_sha256": "e3ffc6bb2bf580bc6e6428708a6f247d036220e709f5a72b785392babbd97e6b"
+          }
+        ],
+        [
+          {
+            "path": "httpx/_content.py",
+            "symbol": "encode_request",
+            "definition_lines": [
+              186,
+              218
+            ],
+            "evidence_lines": [
+              186,
+              218
+            ],
+            "declaration_anchor": "def encode_request(",
+            "evidence_sha256": "6651ed432577431e4bd1617f2c8eab330b2ff249e4ee500e02694fadbf74d8ff",
+            "source_file_sha256": "2c61b3ac94d1dcebcde0c6f519554d2d7917247fbaa0a97002db4ef69e70ff28"
+          }
+        ],
+        [
+          {
+            "path": "httpx/_content.py",
+            "symbol": "encode_json",
+            "definition_lines": [
+              176,
+              183
+            ],
+            "evidence_lines": [
+              176,
+              183
+            ],
+            "declaration_anchor": "def encode_json(json: Any) -> tuple[dict[str, str], ByteStream]:",
+            "evidence_sha256": "30372895d631a8b5200f61f3cad175aa09b48db43be3b717291d7ef9f93f658e",
+            "source_file_sha256": "2c61b3ac94d1dcebcde0c6f519554d2d7917247fbaa0a97002db4ef69e70ff28"
+          }
+        ],
+        [
+          {
+            "path": "httpx/_models.py",
+            "symbol": "Request._prepare",
+            "definition_lines": [
+              441,
+              460
+            ],
+            "evidence_lines": [
+              441,
+              460
+            ],
+            "declaration_anchor": "def _prepare(self, default_headers: dict[str, str]) -> None:",
+            "evidence_sha256": "2512f2c35f01fe341f99e1c6f88e680bd82ae89b7e9a812b129829724921bb2c",
+            "source_file_sha256": "e3ffc6bb2bf580bc6e6428708a6f247d036220e709f5a72b785392babbd97e6b"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "httpx_stacked_content_decoding",
+      "query": "Select supported response content encodings from the headers, undo stacked encodings in reverse order, and pass buffered tail bytes through the remaining decoders at the end.",
+      "kind": "present",
+      "notes": "Require response decoder selection plus the combined decoder's ordering, incremental decode and flush bodies. Unknown encoding names are ignored; this is local orchestration rather than the external compression algorithms. Decoder caching is included in the full selection body.",
+      "split": "repository_holdout",
+      "target_groups": [
+        [
+          {
+            "path": "httpx/_models.py",
+            "symbol": "Response._get_content_decoder",
+            "definition_lines": [
+              699,
+              722
+            ],
+            "evidence_lines": [
+              699,
+              722
+            ],
+            "declaration_anchor": "def _get_content_decoder(self) -> ContentDecoder:",
+            "evidence_sha256": "e4e87bf13cffb62ff16b32e70909692a6918a8c13e0ed95553d12228b93fffd6",
+            "source_file_sha256": "e3ffc6bb2bf580bc6e6428708a6f247d036220e709f5a72b785392babbd97e6b"
+          }
+        ],
+        [
+          {
+            "path": "httpx/_decoders.py",
+            "symbol": "MultiDecoder.__init__",
+            "definition_lines": [
+              208,
+              214
+            ],
+            "evidence_lines": [
+              208,
+              214
+            ],
+            "declaration_anchor": "def __init__(self, children: typing.Sequence[ContentDecoder]) -> None:",
+            "evidence_sha256": "f54e7afff9a7e3bdcf11966113b5fb187d82551f2b723cf980722cd3f8e530cb",
+            "source_file_sha256": "a74757f08d0d1077b1b37506a784ac66eb62321b17aeb5a5ebe1a7a956f488a3"
+          }
+        ],
+        [
+          {
+            "path": "httpx/_decoders.py",
+            "symbol": "MultiDecoder.decode",
+            "definition_lines": [
+              216,
+              219
+            ],
+            "evidence_lines": [
+              216,
+              219
+            ],
+            "declaration_anchor": "def decode(self, data: bytes) -> bytes:",
+            "evidence_sha256": "b26b60a6d4beefdbf40dd8fc6b43f7de70949da7773cbb2fdea86935f7800f5d",
+            "source_file_sha256": "a74757f08d0d1077b1b37506a784ac66eb62321b17aeb5a5ebe1a7a956f488a3"
+          }
+        ],
+        [
+          {
+            "path": "httpx/_decoders.py",
+            "symbol": "MultiDecoder.flush",
+            "definition_lines": [
+              221,
+              225
+            ],
+            "evidence_lines": [
+              221,
+              225
+            ],
+            "declaration_anchor": "def flush(self) -> bytes:",
+            "evidence_sha256": "dc3469789352f853208be884b95a98d405747c2453735f4eef94d20d09eec99a",
+            "source_file_sha256": "a74757f08d0d1077b1b37506a784ac66eb62321b17aeb5a5ebe1a7a956f488a3"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "httpx_async_incremental_text_lines",
+      "query": "Yield text lines from an asynchronous response even when line endings split across incoming chunks, hold incomplete lines until more text arrives, and emit an unfinished final line when the stream ends.",
+      "kind": "present",
+      "notes": "Require the async response-to-line-decoder loop and both incremental line parsing and final flush. The input to the line splitter is already decoded text; charset selection and decompression are outside this behavior's required evidence. A trailing carriage return is held across chunks and flush clears its state.",
+      "split": "repository_holdout",
+      "target_groups": [
+        [
+          {
+            "path": "httpx/_models.py",
+            "symbol": "Response.aiter_lines",
+            "definition_lines": [
+              1028,
+              1035
+            ],
+            "evidence_lines": [
+              1028,
+              1035
+            ],
+            "declaration_anchor": "async def aiter_lines(self) -> typing.AsyncIterator[str]:",
+            "evidence_sha256": "852397bad6e1ccdc78f390872c65b4b364fb4686f97a2780e58949fb7cede16a",
+            "source_file_sha256": "e3ffc6bb2bf580bc6e6428708a6f247d036220e709f5a72b785392babbd97e6b"
+          }
+        ],
+        [
+          {
+            "path": "httpx/_decoders.py",
+            "symbol": "LineDecoder.decode",
+            "definition_lines": [
+              333,
+              369
+            ],
+            "evidence_lines": [
+              333,
+              369
+            ],
+            "declaration_anchor": "def decode(self, text: str) -> list[str]:",
+            "evidence_sha256": "8097e3e9f92ed5129bb7a461b65fcb8845a138d822ce4977efabf2728db774a5",
+            "source_file_sha256": "a74757f08d0d1077b1b37506a784ac66eb62321b17aeb5a5ebe1a7a956f488a3"
+          }
+        ],
+        [
+          {
+            "path": "httpx/_decoders.py",
+            "symbol": "LineDecoder.flush",
+            "definition_lines": [
+              371,
+              378
+            ],
+            "evidence_lines": [
+              371,
+              378
+            ],
+            "declaration_anchor": "def flush(self) -> list[str]:",
+            "evidence_sha256": "db49090f74d5195c86c44718142ca9330427c0a7e45c92ebb5e5c6923693f7c8",
+            "source_file_sha256": "a74757f08d0d1077b1b37506a784ac66eb62321b17aeb5a5ebe1a7a956f488a3"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "httpx_multipart_unknown_length_framing",
+      "query": "Construct a multipart upload and choose a complete Content-Length when every part has a known size, otherwise send chunked framing while retaining the multipart boundary in the content type.",
+      "kind": "present",
+      "notes": "Require codec-to-multipart wiring, local aggregate byte-length calculation including delimiters, and header selection. This asks behavior given each field's reported length, not external file seeking or field-length probing internals. Boundary construction and field rendering are existing prerequisites rather than requested algorithms.",
+      "split": "repository_holdout",
+      "target_groups": [
+        [
+          {
+            "path": "httpx/_content.py",
+            "symbol": "encode_multipart_data",
+            "definition_lines": [
+              152,
+              157
+            ],
+            "evidence_lines": [
+              152,
+              157
+            ],
+            "declaration_anchor": "def encode_multipart_data(",
+            "evidence_sha256": "001535a3c1f0e6a8282a605f04ddf4fe06a8504beba8db9dc1d435b9f9717a51",
+            "source_file_sha256": "2c61b3ac94d1dcebcde0c6f519554d2d7917247fbaa0a97002db4ef69e70ff28"
+          }
+        ],
+        [
+          {
+            "path": "httpx/_multipart.py",
+            "symbol": "MultipartStream.get_content_length",
+            "definition_lines": [
+              265,
+              283
+            ],
+            "evidence_lines": [
+              265,
+              283
+            ],
+            "declaration_anchor": "def get_content_length(self) -> int | None:",
+            "evidence_sha256": "af2641e262c647f81058f8fc82306d19f2b3449bd50db69f8be91b455ca4ab79",
+            "source_file_sha256": "28e1c465997aa28860f663da2b2caedf8e6aab5ac92e0df94d41b7600cd70776"
+          }
+        ],
+        [
+          {
+            "path": "httpx/_multipart.py",
+            "symbol": "MultipartStream.get_headers",
+            "definition_lines": [
+              287,
+              292
+            ],
+            "evidence_lines": [
+              287,
+              292
+            ],
+            "declaration_anchor": "def get_headers(self) -> dict[str, str]:",
+            "evidence_sha256": "63538cf2334c24b9efbc0863bc38684e0f67484d757e4d95714d96df47aa5bd5",
+            "source_file_sha256": "28e1c465997aa28860f663da2b2caedf8e6aab5ac92e0df94d41b7600cd70776"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "httpx_redirect_header_safety",
+      "query": "Clean request headers when redirecting to another origin: strip credentials except for a direct same-host HTTP-to-HTTPS upgrade, update the destination host, remove body framing after a change to GET, and discard the old cookie header.",
+      "kind": "present",
+      "notes": "Require local redirect-header mutation, exact same-origin comparison, the restricted HTTP80-to-HTTPS443 upgrade exception, and default-port resolution. This asks cleanup given the chosen destination/method; method selection, cookie store lookup and redirect transmission are outside the requested behavior. All four same-file functions must be delivered.",
+      "split": "repository_holdout",
+      "target_groups": [
+        [
+          {
+            "path": "httpx/_client.py",
+            "symbol": "BaseClient._redirect_headers",
+            "definition_lines": [
+              546,
+              571
+            ],
+            "evidence_lines": [
+              546,
+              571
+            ],
+            "declaration_anchor": "def _redirect_headers(self, request: Request, url: URL, method: str) -> Headers:",
+            "evidence_sha256": "ee31e38c0160b54fc839bb7fbf7058a13aad8d467b1a884026fa697b18987fb7",
+            "source_file_sha256": "c43f941baefe58c91e96d00039e1868fe719d91453026d7db1647194563bff8d"
+          }
+        ],
+        [
+          {
+            "path": "httpx/_client.py",
+            "symbol": "_same_origin",
+            "definition_lines": [
+              83,
+              91
+            ],
+            "evidence_lines": [
+              83,
+              91
+            ],
+            "declaration_anchor": "def _same_origin(url: URL, other: URL) -> bool:",
+            "evidence_sha256": "f74d70eb52bde59830037b83eef5c8d7de883a6b2cadbd0eab1a38839188a263",
+            "source_file_sha256": "c43f941baefe58c91e96d00039e1868fe719d91453026d7db1647194563bff8d"
+          }
+        ],
+        [
+          {
+            "path": "httpx/_client.py",
+            "symbol": "_is_https_redirect",
+            "definition_lines": [
+              62,
+              74
+            ],
+            "evidence_lines": [
+              62,
+              74
+            ],
+            "declaration_anchor": "def _is_https_redirect(url: URL, location: URL) -> bool:",
+            "evidence_sha256": "205732ad1ec174bcd910c74fa59b93202d2bcfe80df6a215326a2b0b26aa78dd",
+            "source_file_sha256": "c43f941baefe58c91e96d00039e1868fe719d91453026d7db1647194563bff8d"
+          }
+        ],
+        [
+          {
+            "path": "httpx/_client.py",
+            "symbol": "_port_or_default",
+            "definition_lines": [
+              77,
+              80
+            ],
+            "evidence_lines": [
+              77,
+              80
+            ],
+            "declaration_anchor": "def _port_or_default(url: URL) -> int | None:",
+            "evidence_sha256": "a5922ed1aab8072737ad0eb1df44dce8ff8bf57d0bfcdea0084b13092d7941fc",
+            "source_file_sha256": "c43f941baefe58c91e96d00039e1868fe719d91453026d7db1647194563bff8d"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "httpx_digest_challenge_retry_flow",
+      "query": "After an unauthorized response, retry with Digest credentials only when a matching challenge is present, reset the nonce count for the new challenge, and carry response cookies onto the authenticated request.",
+      "kind": "present",
+      "notes": "The full Digest authentication generator directly implements the conditional retry, challenge selection, nonce reset and cookie copying. Hash/header formatting helpers are delegated; no claim is made that their cryptographic construction is fully explained by this single span. Non-401 or non-Digest challenges do not trigger another yielded request.",
+      "split": "repository_holdout",
+      "targets": [
+        {
+          "path": "httpx/_auth.py",
+          "symbol": "DigestAuth.auth_flow",
+          "definition_lines": [
+            193,
+            222
+          ],
+          "evidence_lines": [
+            193,
+            222
+          ],
+          "declaration_anchor": "def auth_flow(self, request: Request) -> typing.Generator[Request, Response, None]:",
+          "evidence_sha256": "f5ade5dd09e6288971c6dd4d4b9425cbed37d221fe61abf7de2eb98a17399064",
+          "source_file_sha256": "62bdd0c1a5122b5eeb198c7eee3f85762705233cf863d14557ed45e3eed15d7e"
+        }
+      ]
+    },
+    {
+      "id": "httpx_repeated_header_values",
+      "query": "Look up every value of a repeated HTTP header without case sensitivity, optionally split each comma-separated value and trim its surrounding whitespace.",
+      "kind": "present",
+      "notes": "The full header-list getter implements both modes and preserves order. This asks lookup rather than insertion/deletion or the comma-joined mapping getter; values split on commas without quoted-string parsing.",
+      "split": "repository_holdout",
+      "targets": [
+        {
+          "path": "httpx/_models.py",
+          "symbol": "Headers.get_list",
+          "definition_lines": [
+            252,
+            272
+          ],
+          "evidence_lines": [
+            252,
+            272
+          ],
+          "declaration_anchor": "def get_list(self, key: str, split_commas: bool = False) -> list[str]:",
+          "evidence_sha256": "c8a896e7cff95231c3871cd977c2f35c799c574615df84393b0c2aec25ae8c10",
+          "source_file_sha256": "e3ffc6bb2bf580bc6e6428708a6f247d036220e709f5a72b785392babbd97e6b"
+        }
+      ]
+    },
+    {
+      "id": "httpx_cookie_scope_ambiguity",
+      "query": "Retrieve a stored cookie by name with optional exact domain and path filters, return a default when no match exists, and reject ambiguous matches rather than silently choosing one.",
+      "kind": "present",
+      "notes": "The full local cookie getter iterates its jar, applies exact optional filters, raises CookieConflict on a second matched value, and returns the caller default if none remains. Standards-based cookie transmission/acceptance in the standard-library jar is outside this local lookup scope.",
+      "split": "repository_holdout",
+      "targets": [
+        {
+          "path": "httpx/_models.py",
+          "symbol": "Cookies.get",
+          "definition_lines": [
+            1143,
+            1166
+          ],
+          "evidence_lines": [
+            1143,
+            1166
+          ],
+          "declaration_anchor": "def get(  # type: ignore",
+          "evidence_sha256": "1bc5d92c6b2c772159f2663d2c6467e2666c1a010ed9ee1851d3bfe24d9196cf",
+          "source_file_sha256": "e3ffc6bb2bf580bc6e6428708a6f247d036220e709f5a72b785392babbd97e6b"
+        }
+      ]
+    },
+    {
+      "id": "httpx_immutable_query_parameter_updates",
+      "query": "Create updated URL query parameters without changing the original: append another value for an existing key, or merge a new set that replaces all values of overlapping keys while keeping other keys.",
+      "kind": "present",
+      "notes": "Require immutable append and merge bodies. The copied maps and new instances distinguish these operations from an in-place update; constructor/value conversion details are existing prerequisites. New merge keys replace the entire prior value list, whereas append retains previous values.",
+      "split": "repository_holdout",
+      "target_groups": [
+        [
+          {
+            "path": "httpx/_urls.py",
+            "symbol": "QueryParams.add",
+            "definition_lines": [
+              552,
+              565
+            ],
+            "evidence_lines": [
+              552,
+              565
+            ],
+            "declaration_anchor": "def add(self, key: str, value: typing.Any = None) -> QueryParams:",
+            "evidence_sha256": "ced8a72ca555029a462c63c8d5e3a518a3ec98f081b1c9287bad95ecb9201ee5",
+            "source_file_sha256": "757f7d551d4348e1e9828f40abb3f360ee0529dc6a2a3c32369f20adff1d1cdd"
+          }
+        ],
+        [
+          {
+            "path": "httpx/_urls.py",
+            "symbol": "QueryParams.merge",
+            "definition_lines": [
+              582,
+              598
+            ],
+            "evidence_lines": [
+              582,
+              598
+            ],
+            "declaration_anchor": "def merge(self, params: QueryParamTypes | None = None) -> QueryParams:",
+            "evidence_sha256": "c240889f06b0cc9989458bd58640713fcd1ad4e7542f9108e52b00f8ecdeb243",
+            "source_file_sha256": "757f7d551d4348e1e9828f40abb3f360ee0529dc6a2a3c32369f20adff1d1cdd"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "httpx_unicode_and_wire_hostname_views",
+      "query": "Expose a URL host as readable Unicode by decoding an internationalized ASCII hostname, while also providing the unchanged ASCII bytes used for the wire representation.",
+      "kind": "present",
+      "notes": "Require both decoded-host and raw-host property bodies. This asks views of an already parsed/normalized host, not IDNA encoding during URL parsing or general hostname validation. The decoded view invokes IDNA decoding only for the punycode prefix; the raw view ASCII-encodes the stored normalized host.",
+      "split": "repository_holdout",
+      "target_groups": [
+        [
+          {
+            "path": "httpx/_urls.py",
+            "symbol": "URL.host",
+            "definition_lines": [
+              169,
+              193
+            ],
+            "evidence_lines": [
+              169,
+              193
+            ],
+            "declaration_anchor": "def host(self) -> str:",
+            "evidence_sha256": "33fa9eb37f148a6fbcd18074b99c6d50fea2ef7da6b9721c075d397d1829aae2",
+            "source_file_sha256": "757f7d551d4348e1e9828f40abb3f360ee0529dc6a2a3c32369f20adff1d1cdd"
+          }
+        ],
+        [
+          {
+            "path": "httpx/_urls.py",
+            "symbol": "URL.raw_host",
+            "definition_lines": [
+              196,
+              215
+            ],
+            "evidence_lines": [
+              196,
+              215
+            ],
+            "declaration_anchor": "def raw_host(self) -> bytes:",
+            "evidence_sha256": "46a6c4433b21be4b234d4eda8368d9cd016e6838c57a864c3815cc12c615f477",
+            "source_file_sha256": "757f7d551d4348e1e9828f40abb3f360ee0529dc6a2a3c32369f20adff1d1cdd"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "httpx_inprocess_async_application_response",
+      "query": "Send an HTTP request directly to an asynchronous application, expose its streamed request body, suppress response body bytes for HEAD, and convert an application failure before response start into status 500 when exception propagation is disabled.",
+      "kind": "present",
+      "notes": "The complete asynchronous application transport handler includes scope setup, nested request receive and response send callbacks, HEAD suppression, conditional exception propagation and local 500 fallback. If a response status was already supplied before the failure it is preserved. This is HTTP request/response invocation, not application lifespan or websocket handling.",
+      "split": "repository_holdout",
+      "targets": [
+        {
+          "path": "httpx/_transports/asgi.py",
+          "symbol": "ASGITransport.handle_async_request",
+          "definition_lines": [
+            99,
+            187
+          ],
+          "evidence_lines": [
+            99,
+            187
+          ],
+          "declaration_anchor": "async def handle_async_request(",
+          "evidence_sha256": "02b7e1869c9ff20e318aea3cbfc3cc8ff69b49e543ed38cb04d69dce468beb5c",
+          "source_file_sha256": "1d17e20d830fb78c101f6805807660e1cfa2dec6e5a3a6cbe464ea7044fec73f"
+        }
+      ]
+    },
+    {
+      "id": "httpx_environment_proxy_opt_in_and_bypass",
+      "query": "Use system or environment proxy settings only when allowed, normalize proxy hosts missing a scheme, and honor a wildcard no-proxy entry by disabling all environment proxy mounts.",
+      "kind": "present",
+      "notes": "Require the client proxy-map gate and local environment proxy normalization/bypass. A supplied explicit proxy is applied separately, and a wildcard bypass applies to environment configuration. getproxies may consult platform settings as well as environment variables; those standard-library internals and later URL-pattern routing are outside the query.",
+      "split": "repository_holdout",
+      "target_groups": [
+        [
+          {
+            "path": "httpx/_client.py",
+            "symbol": "BaseClient._get_proxy_map",
+            "definition_lines": [
+              239,
+              251
+            ],
+            "evidence_lines": [
+              239,
+              251
+            ],
+            "declaration_anchor": "def _get_proxy_map(",
+            "evidence_sha256": "2f6fd8863d60de1f7c7a1e575cb0ed85be24d703556e0e5b70ff4ca7475ca68e",
+            "source_file_sha256": "c43f941baefe58c91e96d00039e1868fe719d91453026d7db1647194563bff8d"
+          }
+        ],
+        [
+          {
+            "path": "httpx/_utils.py",
+            "symbol": "get_environment_proxies",
+            "definition_lines": [
+              30,
+              76
+            ],
+            "evidence_lines": [
+              30,
+              76
+            ],
+            "declaration_anchor": "def get_environment_proxies() -> dict[str, str | None]:",
+            "evidence_sha256": "dfefe0682926371085ba1f25446ad872831aa9ed6c8139df36e3a9d3791a4364",
+            "source_file_sha256": "fd355ea802afc4990a1ddcfb74579be2cd0b66a41781e1645d281f88704aff5a"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "httpx_absent_persistent_response_cache",
+      "query": "Cache successful HTTP responses on disk, reuse still-fresh entries without a network request, and revalidate expired entries with their stored validators.",
+      "kind": "absent",
+      "notes": "Absent within the pinned tracked httpx Python implementation scope. In-memory decoder/body caching, cookie storage, Cacheable redirect comments and conditional headers are insufficient: no persistent HTTP response cache or freshness/revalidation policy is implemented. Custom transports, third-party cache packages and caller logic are outside scope.",
+      "targets": [],
+      "split": "repository_holdout"
+    },
+    {
+      "id": "httpx_absent_server_error_backoff_retry",
+      "query": "Automatically retry server-error HTTP responses with exponential backoff and jitter, stopping when the configured retry budget is exhausted.",
+      "kind": "absent",
+      "notes": "Absent within pinned tracked httpx Python scope. The default transport accepts retries and delegates them to httpcore connection setup; that is not an HTTP status-response retry loop. Redirect following and Digest challenge retries are insufficient. httpcore internals, custom transports and caller retry packages are excluded.",
+      "targets": [],
+      "split": "repository_holdout"
+    },
+    {
+      "id": "httpx_absent_digest_body_integrity",
+      "query": "Authenticate a request with Digest body-integrity protection by including the request entity hash in the authentication calculation when the server offers only that protection mode.",
+      "kind": "absent",
+      "notes": "Absent within pinned tracked httpx Python scope. The Digest implementation contains a TODO for auth-int and explicitly raises NotImplementedError when that is the sole offered qop; the implemented auth mode hashes the method/path without request-body integrity. Arbitrary user authentication classes and external implementations are excluded.",
+      "targets": [],
+      "split": "repository_holdout"
+    }
+  ]
+}

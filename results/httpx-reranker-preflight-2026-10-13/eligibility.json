@@ -1,0 +1,4399 @@
+{
+  "absence_review": {
+    "digest_body_integrity": "DigestAuth._resolve_qop explicitly raises NotImplementedError for sole auth-int; body hashing is TODO.",
+    "persistent_response_cache": "No disk HTTP-response cache/freshness/revalidation implementation; decoder/body memoization and cookies are insufficient.",
+    "scope": "all 23 tracked httpx Python implementation files, excluding tests/docs/dependencies/caller code",
+    "server_error_backoff_retry": "httpcore connection retries, redirects and Digest retries do not implement status-response backoff/jitter."
+  },
+  "checks_passed": true,
+  "classification": "Static HTTPX full-source and full-function gold eligibility",
+  "corpus": ".cache/corpora/httpx",
+  "created_at_utc": "2026-10-14T00:40:05.840805+00:00",
+  "dataset": "benchmarks/httpx_reranker_queries.json",
+  "dataset_sha256": "355df955908f20964eed424779610893b6e0f694206ca64f130ee36a95a7b275",
+  "embedding_calls": 0,
+  "extractor": {
+    "extensions": {
+      ".cjs": "javascript",
+      ".cts": "typescript",
+      ".js": "javascript",
+      ".jsx": "javascript",
+      ".mjs": "javascript",
+      ".mts": "typescript",
+      ".py": null,
+      ".ts": "typescript",
+      ".tsx": "tsx"
+    },
+    "installed_parsers": {
+      "tree-sitter": "0.26.0",
+      "tree-sitter-javascript": "0.25.0",
+      "tree-sitter-typescript": "0.23.2"
+    },
+    "js_excluded_directories": [
+      ".next",
+      ".nuxt",
+      ".svelte-kit",
+      "bower_components",
+      "build",
+      "coverage",
+      "dist",
+      "node_modules",
+      "out"
+    ],
+    "overlap_lines": 40,
+    "parser_pins": {
+      "tree-sitter": "0.26.0",
+      "tree-sitter-javascript": "0.25.0",
+      "tree-sitter-typescript": "0.23.2"
+    },
+    "policy": "saved-implementations-v3",
+    "python_ast": [
+      3,
+      12
+    ],
+    "window_lines": 160
+  },
+  "generator": "scripts/validate_httpx_reranker_corpus.py",
+  "generator_sha256": "e3e12519e4880c5e18091382eff81dc32b85fb33eacc9985b720ce469f76d2bf",
+  "git_clean": true,
+  "httpx_runtime_imported": false,
+  "implementation_sha256": {
+    "src/semantic_search/corpus.py": "feae67386ad0b6551c3391d4d1e5dd49656e9a90c6c313d640ea5399eb8a8d6a",
+    "src/semantic_search/javascript.py": "ebf4a40819f7e79bab25e2cc5787c70e9fb6aff2ba7331ec244029258d8d3360",
+    "src/semantic_search/languages.py": "aab5dfe8247ed1f30662cf6f0f442289d9459ebb30d099e259475a1911c88399",
+    "src/semantic_search/source.py": "eb8dc397d95bb82bee8941dc3ff62ad3af911439f63d014af2e4b5a5f06036d4"
+  },
+  "independent_semantic_review_required": true,
+  "license": {
+    "notice_path": "benchmarks/HTTPX_LICENSE.txt",
+    "path": "LICENSE.md",
+    "sha256": "4ec59d544f12b5f539a3a716fd321ac58ccd8030b465221f2c880200cdf28d8d"
+  },
+  "limitations": [
+    "This static gate verifies source/label bindings and window eligibility, not dynamic HTTPX behavior or retrieval quality.",
+    "The codebase was source-read to author labels; fresh means previously unranked source/settings, not unread source or pretraining holdout."
+  ],
+  "model_calls": 0,
+  "multi_file_positive_queries": 5,
+  "positive_queries": 12,
+  "query_count": 15,
+  "query_proofs": [
+    {
+      "group_proofs": [
+        [
+          {
+            "declaration_anchor": "def __init__(",
+            "definition_lines": [
+              383,
+              439
+            ],
+            "eligible_window_ids": [
+              "httpx/_models.py:Request.__init__:383-439"
+            ],
+            "evidence_lines": [
+              383,
+              439
+            ],
+            "evidence_sha256": "23b22679c8fb43190f18e4d00f018e9e9c6f806fca22234486740d001cd52b36",
+            "path": "httpx/_models.py",
+            "source_file_sha256": "e3ffc6bb2bf580bc6e6428708a6f247d036220e709f5a72b785392babbd97e6b",
+            "symbol": "Request.__init__"
+          }
+        ],
+        [
+          {
+            "declaration_anchor": "def encode_request(",
+            "definition_lines": [
+              186,
+              218
+            ],
+            "eligible_window_ids": [
+              "httpx/_content.py:encode_request:186-218"
+            ],
+            "evidence_lines": [
+              186,
+              218
+            ],
+            "evidence_sha256": "6651ed432577431e4bd1617f2c8eab330b2ff249e4ee500e02694fadbf74d8ff",
+            "path": "httpx/_content.py",
+            "source_file_sha256": "2c61b3ac94d1dcebcde0c6f519554d2d7917247fbaa0a97002db4ef69e70ff28",
+            "symbol": "encode_request"
+          }
+        ],
+        [
+          {
+            "declaration_anchor": "def encode_json(json: Any) -> tuple[dict[str, str], ByteStream]:",
+            "definition_lines": [
+              176,
+              183
+            ],
+            "eligible_window_ids": [
+              "httpx/_content.py:encode_json:176-183"
+            ],
+            "evidence_lines": [
+              176,
+              183
+            ],
+            "evidence_sha256": "30372895d631a8b5200f61f3cad175aa09b48db43be3b717291d7ef9f93f658e",
+            "path": "httpx/_content.py",
+            "source_file_sha256": "2c61b3ac94d1dcebcde0c6f519554d2d7917247fbaa0a97002db4ef69e70ff28",
+            "symbol": "encode_json"
+          }
+        ],
+        [
+          {
+            "declaration_anchor": "def _prepare(self, default_headers: dict[str, str]) -> None:",
+            "definition_lines": [
+              441,
+              460
+            ],
+            "eligible_window_ids": [
+              "httpx/_models.py:Request._prepare:441-460"
+            ],
+            "evidence_lines": [
+              441,
+              460
+            ],
+            "evidence_sha256": "2512f2c35f01fe341f99e1c6f88e680bd82ae89b7e9a812b129829724921bb2c",
+            "path": "httpx/_models.py",
+            "source_file_sha256": "e3ffc6bb2bf580bc6e6428708a6f247d036220e709f5a72b785392babbd97e6b",
+            "symbol": "Request._prepare"
+          }
+        ]
+      ],
+      "id": "httpx_json_request_encoding_and_headers",
+      "kind": "present",
+      "query": "Build a JSON request body with compact UTF-8 serialization and its byte length, reject non-finite numbers, and preserve content headers explicitly supplied by the caller.",
+      "required_groups": 4
+    },
+    {
+      "group_proofs": [
+        [
+          {
+            "declaration_anchor": "def _get_content_decoder(self) -> ContentDecoder:",
+            "definition_lines": [
+              699,
+              722
+            ],
+            "eligible_window_ids": [
+              "httpx/_models.py:Response._get_content_decoder:699-722"
+            ],
+            "evidence_lines": [
+              699,
+              722
+            ],
+            "evidence_sha256": "e4e87bf13cffb62ff16b32e70909692a6918a8c13e0ed95553d12228b93fffd6",
+            "path": "httpx/_models.py",
+            "source_file_sha256": "e3ffc6bb2bf580bc6e6428708a6f247d036220e709f5a72b785392babbd97e6b",
+            "symbol": "Response._get_content_decoder"
+          }
+        ],
+        [
+          {
+            "declaration_anchor": "def __init__(self, children: typing.Sequence[ContentDecoder]) -> None:",
+            "definition_lines": [
+              208,
+              214
+            ],
+            "eligible_window_ids": [
+              "httpx/_decoders.py:MultiDecoder.__init__:208-214"
+            ],
+            "evidence_lines": [
+              208,
+              214
+            ],
+            "evidence_sha256": "f54e7afff9a7e3bdcf11966113b5fb187d82551f2b723cf980722cd3f8e530cb",
+            "path": "httpx/_decoders.py",
+            "source_file_sha256": "a74757f08d0d1077b1b37506a784ac66eb62321b17aeb5a5ebe1a7a956f488a3",
+            "symbol": "MultiDecoder.__init__"
+          }
+        ],
+        [
+          {
+            "declaration_anchor": "def decode(self, data: bytes) -> bytes:",
+            "definition_lines": [
+              216,
+              219
+            ],
+            "eligible_window_ids": [
+              "httpx/_decoders.py:MultiDecoder.decode:216-219"
+            ],
+            "evidence_lines": [
+              216,
+              219
+            ],
+            "evidence_sha256": "b26b60a6d4beefdbf40dd8fc6b43f7de70949da7773cbb2fdea86935f7800f5d",
+            "path": "httpx/_decoders.py",
+            "source_file_sha256": "a74757f08d0d1077b1b37506a784ac66eb62321b17aeb5a5ebe1a7a956f488a3",
+            "symbol": "MultiDecoder.decode"
+          }
+        ],
+        [
+          {
+            "declaration_anchor": "def flush(self) -> bytes:",
+            "definition_lines": [
+              221,
+              225
+            ],
+            "eligible_window_ids": [
+              "httpx/_decoders.py:MultiDecoder.flush:221-225"
+            ],
+            "evidence_lines": [
+              221,
+              225
+            ],
+            "evidence_sha256": "dc3469789352f853208be884b95a98d405747c2453735f4eef94d20d09eec99a",
+            "path": "httpx/_decoders.py",
+            "source_file_sha256": "a74757f08d0d1077b1b37506a784ac66eb62321b17aeb5a5ebe1a7a956f488a3",
+            "symbol": "MultiDecoder.flush"
+          }
+        ]
+      ],
+      "id": "httpx_stacked_content_decoding",
+      "kind": "present",
+      "query": "Select supported response content encodings from the headers, undo stacked encodings in reverse order, and pass buffered tail bytes through the remaining decoders at the end.",
+      "required_groups": 4
+    },
+    {
+      "group_proofs": [
+        [
+          {
+            "declaration_anchor": "async def aiter_lines(self) -> typing.AsyncIterator[str]:",
+            "definition_lines": [
+              1028,
+              1035
+            ],
+            "eligible_window_ids": [
+              "httpx/_models.py:Response.aiter_lines:1028-1035"
+            ],
+            "evidence_lines": [
+              1028,
+              1035
+            ],
+            "evidence_sha256": "852397bad6e1ccdc78f390872c65b4b364fb4686f97a2780e58949fb7cede16a",
+            "path": "httpx/_models.py",
+            "source_file_sha256": "e3ffc6bb2bf580bc6e6428708a6f247d036220e709f5a72b785392babbd97e6b",
+            "symbol": "Response.aiter_lines"
+          }
+        ],
+        [
+          {
+            "declaration_anchor": "def decode(self, text: str) -> list[str]:",
+            "definition_lines": [
+              333,
+              369
+            ],
+            "eligible_window_ids": [
+              "httpx/_decoders.py:LineDecoder.decode:333-369"
+            ],
+            "evidence_lines": [
+              333,
+              369
+            ],
+            "evidence_sha256": "8097e3e9f92ed5129bb7a461b65fcb8845a138d822ce4977efabf2728db774a5",
+            "path": "httpx/_decoders.py",
+            "source_file_sha256": "a74757f08d0d1077b1b37506a784ac66eb62321b17aeb5a5ebe1a7a956f488a3",
+            "symbol": "LineDecoder.decode"
+          }
+        ],
+        [
+          {
+            "declaration_anchor": "def flush(self) -> list[str]:",
+            "definition_lines": [
+              371,
+              378
+            ],
+            "eligible_window_ids": [
+              "httpx/_decoders.py:LineDecoder.flush:371-378"
+            ],
+            "evidence_lines": [
+              371,
+              378
+            ],
+            "evidence_sha256": "db49090f74d5195c86c44718142ca9330427c0a7e45c92ebb5e5c6923693f7c8",
+            "path": "httpx/_decoders.py",
+            "source_file_sha256": "a74757f08d0d1077b1b37506a784ac66eb62321b17aeb5a5ebe1a7a956f488a3",
+            "symbol": "LineDecoder.flush"
+          }
+        ]
+      ],
+      "id": "httpx_async_incremental_text_lines",
+      "kind": "present",
+      "query": "Yield text lines from an asynchronous response even when line endings split across incoming chunks, hold incomplete lines until more text arrives, and emit an unfinished final line when the stream ends.",
+      "required_groups": 3
+    },
+    {
+      "group_proofs": [
+        [
+          {
+            "declaration_anchor": "def encode_multipart_data(",
+            "definition_lines": [
+              152,
+              157
+            ],
+            "eligible_window_ids": [
+              "httpx/_content.py:encode_multipart_data:152-157"
+            ],
+            "evidence_lines": [
+              152,
+              157
+            ],
+            "evidence_sha256": "001535a3c1f0e6a8282a605f04ddf4fe06a8504beba8db9dc1d435b9f9717a51",
+            "path": "httpx/_content.py",
+            "source_file_sha256": "2c61b3ac94d1dcebcde0c6f519554d2d7917247fbaa0a97002db4ef69e70ff28",
+            "symbol": "encode_multipart_data"
+          }
+        ],
+        [
+          {
+            "declaration_anchor": "def get_content_length(self) -> int | None:",
+            "definition_lines": [
+              265,
+              283
+            ],
+            "eligible_window_ids": [
+              "httpx/_multipart.py:MultipartStream.get_content_length:265-283"
+            ],
+            "evidence_lines": [
+              265,
+              283
+            ],
+            "evidence_sha256": "af2641e262c647f81058f8fc82306d19f2b3449bd50db69f8be91b455ca4ab79",
+            "path": "httpx/_multipart.py",
+            "source_file_sha256": "28e1c465997aa28860f663da2b2caedf8e6aab5ac92e0df94d41b7600cd70776",
+            "symbol": "MultipartStream.get_content_length"
+          }
+        ],
+        [
+          {
+            "declaration_anchor": "def get_headers(self) -> dict[str, str]:",
+            "definition_lines": [
+              287,
+              292
+            ],
+            "eligible_window_ids": [
+              "httpx/_multipart.py:MultipartStream.get_headers:287-292"
+            ],
+            "evidence_lines": [
+              287,
+              292
+            ],
+            "evidence_sha256": "63538cf2334c24b9efbc0863bc38684e0f67484d757e4d95714d96df47aa5bd5",
+            "path": "httpx/_multipart.py",
+            "source_file_sha256": "28e1c465997aa28860f663da2b2caedf8e6aab5ac92e0df94d41b7600cd70776",
+            "symbol": "MultipartStream.get_headers"
+          }
+        ]
+      ],
+      "id": "httpx_multipart_unknown_length_framing",
+      "kind": "present",
+      "query": "Construct a multipart upload and choose a complete Content-Length when every part has a known size, otherwise send chunked framing while retaining the multipart boundary in the content type.",
+      "required_groups": 3
+    },
+    {
+      "group_proofs": [
+        [
+          {
+            "declaration_anchor": "def _redirect_headers(self, request: Request, url: URL, method: str) -> Headers:",
+            "definition_lines": [
+              546,
+              571
+            ],
+            "eligible_window_ids": [
+              "httpx/_client.py:BaseClient._redirect_headers:546-571"
+            ],
+            "evidence_lines": [
+              546,
+              571
+            ],
+            "evidence_sha256": "ee31e38c0160b54fc839bb7fbf7058a13aad8d467b1a884026fa697b18987fb7",
+            "path": "httpx/_client.py",
+            "source_file_sha256": "c43f941baefe58c91e96d00039e1868fe719d91453026d7db1647194563bff8d",
+            "symbol": "BaseClient._redirect_headers"
+          }
+        ],
+        [
+          {
+            "declaration_anchor": "def _same_origin(url: URL, other: URL) -> bool:",
+            "definition_lines": [
+              83,
+              91
+            ],
+            "eligible_window_ids": [
+              "httpx/_client.py:_same_origin:83-91"
+            ],
+            "evidence_lines": [
+              83,
+              91
+            ],
+            "evidence_sha256": "f74d70eb52bde59830037b83eef5c8d7de883a6b2cadbd0eab1a38839188a263",
+            "path": "httpx/_client.py",
+            "source_file_sha256": "c43f941baefe58c91e96d00039e1868fe719d91453026d7db1647194563bff8d",
+            "symbol": "_same_origin"
+          }
+        ],
+        [
+          {
+            "declaration_anchor": "def _is_https_redirect(url: URL, location: URL) -> bool:",
+            "definition_lines": [
+              62,
+              74
+            ],
+            "eligible_window_ids": [
+              "httpx/_client.py:_is_https_redirect:62-74"
+            ],
+            "evidence_lines": [
+              62,
+              74
+            ],
+            "evidence_sha256": "205732ad1ec174bcd910c74fa59b93202d2bcfe80df6a215326a2b0b26aa78dd",
+            "path": "httpx/_client.py",
+            "source_file_sha256": "c43f941baefe58c91e96d00039e1868fe719d91453026d7db1647194563bff8d",
+            "symbol": "_is_https_redirect"
+          }
+        ],
+        [
+          {
+            "declaration_anchor": "def _port_or_default(url: URL) -> int | None:",
+            "definition_lines": [
+              77,
+              80
+            ],
+            "eligible_window_ids": [
+              "httpx/_client.py:_port_or_default:77-80"
+            ],
+            "evidence_lines": [
+              77,
+              80
+            ],
+            "evidence_sha256": "a5922ed1aab8072737ad0eb1df44dce8ff8bf57d0bfcdea0084b13092d7941fc",
+            "path": "httpx/_client.py",
+            "source_file_sha256": "c43f941baefe58c91e96d00039e1868fe719d91453026d7db1647194563bff8d",
+            "symbol": "_port_or_default"
+          }
+        ]
+      ],
+      "id": "httpx_redirect_header_safety",
+      "kind": "present",
+      "query": "Clean request headers when redirecting to another origin: strip credentials except for a direct same-host HTTP-to-HTTPS upgrade, update the destination host, remove body framing after a change to GET, and discard the old cookie header.",
+      "required_groups": 4
+    },
+    {
+      "group_proofs": [
+        [
+          {
+            "declaration_anchor": "def auth_flow(self, request: Request) -> typing.Generator[Request, Response, None]:",
+            "definition_lines": [
+              193,
+              222
+            ],
+            "eligible_window_ids": [
+              "httpx/_auth.py:DigestAuth.auth_flow:193-222"
+            ],
+            "evidence_lines": [
+              193,
+              222
+            ],
+            "evidence_sha256": "f5ade5dd09e6288971c6dd4d4b9425cbed37d221fe61abf7de2eb98a17399064",
+            "path": "httpx/_auth.py",
+            "source_file_sha256": "62bdd0c1a5122b5eeb198c7eee3f85762705233cf863d14557ed45e3eed15d7e",
+            "symbol": "DigestAuth.auth_flow"
+          }
+        ]
+      ],
+      "id": "httpx_digest_challenge_retry_flow",
+      "kind": "present",
+      "query": "After an unauthorized response, retry with Digest credentials only when a matching challenge is present, reset the nonce count for the new challenge, and carry response cookies onto the authenticated request.",
+      "required_groups": 1
+    },
+    {
+      "group_proofs": [
+        [
+          {
+            "declaration_anchor": "def get_list(self, key: str, split_commas: bool = False) -> list[str]:",
+            "definition_lines": [
+              252,
+              272
+            ],
+            "eligible_window_ids": [
+              "httpx/_models.py:Headers.get_list:252-272"
+            ],
+            "evidence_lines": [
+              252,
+              272
+            ],
+            "evidence_sha256": "c8a896e7cff95231c3871cd977c2f35c799c574615df84393b0c2aec25ae8c10",
+            "path": "httpx/_models.py",
+            "source_file_sha256": "e3ffc6bb2bf580bc6e6428708a6f247d036220e709f5a72b785392babbd97e6b",
+            "symbol": "Headers.get_list"
+          }
+        ]
+      ],
+      "id": "httpx_repeated_header_values",
+      "kind": "present",
+      "query": "Look up every value of a repeated HTTP header without case sensitivity, optionally split each comma-separated value and trim its surrounding whitespace.",
+      "required_groups": 1
+    },
+    {
+      "group_proofs": [
+        [
+          {
+            "declaration_anchor": "def get(  # type: ignore",
+            "definition_lines": [
+              1143,
+              1166
+            ],
+            "eligible_window_ids": [
+              "httpx/_models.py:Cookies.get:1143-1166"
+            ],
+            "evidence_lines": [
+              1143,
+              1166
+            ],
+            "evidence_sha256": "1bc5d92c6b2c772159f2663d2c6467e2666c1a010ed9ee1851d3bfe24d9196cf",
+            "path": "httpx/_models.py",
+            "source_file_sha256": "e3ffc6bb2bf580bc6e6428708a6f247d036220e709f5a72b785392babbd97e6b",
+            "symbol": "Cookies.get"
+          }
+        ]
+      ],
+      "id": "httpx_cookie_scope_ambiguity",
+      "kind": "present",
+      "query": "Retrieve a stored cookie by name with optional exact domain and path filters, return a default when no match exists, and reject ambiguous matches rather than silently choosing one.",
+      "required_groups": 1
+    },
+    {
+      "group_proofs": [
+        [
+          {
+            "declaration_anchor": "def add(self, key: str, value: typing.Any = None) -> QueryParams:",
+            "definition_lines": [
+              552,
+              565
+            ],
+            "eligible_window_ids": [
+              "httpx/_urls.py:QueryParams.add:552-565"
+            ],
+            "evidence_lines": [
+              552,
+              565
+            ],
+            "evidence_sha256": "ced8a72ca555029a462c63c8d5e3a518a3ec98f081b1c9287bad95ecb9201ee5",
+            "path": "httpx/_urls.py",
+            "source_file_sha256": "757f7d551d4348e1e9828f40abb3f360ee0529dc6a2a3c32369f20adff1d1cdd",
+            "symbol": "QueryParams.add"
+          }
+        ],
+        [
+          {
+            "declaration_anchor": "def merge(self, params: QueryParamTypes | None = None) -> QueryParams:",
+            "definition_lines": [
+              582,
+              598
+            ],
+            "eligible_window_ids": [
+              "httpx/_urls.py:QueryParams.merge:582-598"
+            ],
+            "evidence_lines": [
+              582,
+              598
+            ],
+            "evidence_sha256": "c240889f06b0cc9989458bd58640713fcd1ad4e7542f9108e52b00f8ecdeb243",
+            "path": "httpx/_urls.py",
+            "source_file_sha256": "757f7d551d4348e1e9828f40abb3f360ee0529dc6a2a3c32369f20adff1d1cdd",
+            "symbol": "QueryParams.merge"
+          }
+        ]
+      ],
+      "id": "httpx_immutable_query_parameter_updates",
+      "kind": "present",
+      "query": "Create updated URL query parameters without changing the original: append another value for an existing key, or merge a new set that replaces all values of overlapping keys while keeping other keys.",
+      "required_groups": 2
+    },
+    {
+      "group_proofs": [
+        [
+          {
+            "declaration_anchor": "def host(self) -> str:",
+            "definition_lines": [
+              169,
+              193
+            ],
+            "eligible_window_ids": [
+              "httpx/_urls.py:URL.host:168-193"
+            ],
+            "evidence_lines": [
+              169,
+              193
+            ],
+            "evidence_sha256": "33fa9eb37f148a6fbcd18074b99c6d50fea2ef7da6b9721c075d397d1829aae2",
+            "path": "httpx/_urls.py",
+            "source_file_sha256": "757f7d551d4348e1e9828f40abb3f360ee0529dc6a2a3c32369f20adff1d1cdd",
+            "symbol": "URL.host"
+          }
+        ],
+        [
+          {
+            "declaration_anchor": "def raw_host(self) -> bytes:",
+            "definition_lines": [
+              196,
+              215
+            ],
+            "eligible_window_ids": [
+              "httpx/_urls.py:URL.raw_host:195-215"
+            ],
+            "evidence_lines": [
+              196,
+              215
+            ],
+            "evidence_sha256": "46a6c4433b21be4b234d4eda8368d9cd016e6838c57a864c3815cc12c615f477",
+            "path": "httpx/_urls.py",
+            "source_file_sha256": "757f7d551d4348e1e9828f40abb3f360ee0529dc6a2a3c32369f20adff1d1cdd",
+            "symbol": "URL.raw_host"
+          }
+        ]
+      ],
+      "id": "httpx_unicode_and_wire_hostname_views",
+      "kind": "present",
+      "query": "Expose a URL host as readable Unicode by decoding an internationalized ASCII hostname, while also providing the unchanged ASCII bytes used for the wire representation.",
+      "required_groups": 2
+    },
+    {
+      "group_proofs": [
+        [
+          {
+            "declaration_anchor": "async def handle_async_request(",
+            "definition_lines": [
+              99,
+              187
+            ],
+            "eligible_window_ids": [
+              "httpx/_transports/asgi.py:ASGITransport.handle_async_request:99-187"
+            ],
+            "evidence_lines": [
+              99,
+              187
+            ],
+            "evidence_sha256": "02b7e1869c9ff20e318aea3cbfc3cc8ff69b49e543ed38cb04d69dce468beb5c",
+            "path": "httpx/_transports/asgi.py",
+            "source_file_sha256": "1d17e20d830fb78c101f6805807660e1cfa2dec6e5a3a6cbe464ea7044fec73f",
+            "symbol": "ASGITransport.handle_async_request"
+          }
+        ]
+      ],
+      "id": "httpx_inprocess_async_application_response",
+      "kind": "present",
+      "query": "Send an HTTP request directly to an asynchronous application, expose its streamed request body, suppress response body bytes for HEAD, and convert an application failure before response start into status 500 when exception propagation is disabled.",
+      "required_groups": 1
+    },
+    {
+      "group_proofs": [
+        [
+          {
+            "declaration_anchor": "def _get_proxy_map(",
+            "definition_lines": [
+              239,
+              251
+            ],
+            "eligible_window_ids": [
+              "httpx/_client.py:BaseClient._get_proxy_map:239-251"
+            ],
+            "evidence_lines": [
+              239,
+              251
+            ],
+            "evidence_sha256": "2f6fd8863d60de1f7c7a1e575cb0ed85be24d703556e0e5b70ff4ca7475ca68e",
+            "path": "httpx/_client.py",
+            "source_file_sha256": "c43f941baefe58c91e96d00039e1868fe719d91453026d7db1647194563bff8d",
+            "symbol": "BaseClient._get_proxy_map"
+          }
+        ],
+        [
+          {
+            "declaration_anchor": "def get_environment_proxies() -> dict[str, str | None]:",
+            "definition_lines": [
+              30,
+              76
+            ],
+            "eligible_window_ids": [
+              "httpx/_utils.py:get_environment_proxies:30-76"
+            ],
+            "evidence_lines": [
+              30,
+              76
+            ],
+            "evidence_sha256": "dfefe0682926371085ba1f25446ad872831aa9ed6c8139df36e3a9d3791a4364",
+            "path": "httpx/_utils.py",
+            "source_file_sha256": "fd355ea802afc4990a1ddcfb74579be2cd0b66a41781e1645d281f88704aff5a",
+            "symbol": "get_environment_proxies"
+          }
+        ]
+      ],
+      "id": "httpx_environment_proxy_opt_in_and_bypass",
+      "kind": "present",
+      "query": "Use system or environment proxy settings only when allowed, normalize proxy hosts missing a scheme, and honor a wildcard no-proxy entry by disabling all environment proxy mounts.",
+      "required_groups": 2
+    },
+    {
+      "group_proofs": [],
+      "id": "httpx_absent_persistent_response_cache",
+      "kind": "absent",
+      "query": "Cache successful HTTP responses on disk, reuse still-fresh entries without a network request, and revalidate expired entries with their stored validators.",
+      "required_groups": 0
+    },
+    {
+      "group_proofs": [],
+      "id": "httpx_absent_server_error_backoff_retry",
+      "kind": "absent",
+      "query": "Automatically retry server-error HTTP responses with exponential backoff and jitter, stopping when the configured retry budget is exhausted.",
+      "required_groups": 0
+    },
+    {
+      "group_proofs": [],
+      "id": "httpx_absent_digest_body_integrity",
+      "kind": "absent",
+      "query": "Authenticate a request with Digest body-integrity protection by including the request entity hash in the authentication calculation when the server offers only that protection mode.",
+      "required_groups": 0
+    }
+  ],
+  "ranking_outcomes_read": false,
+  "repo_url": "https://github.com/encode/httpx",
+  "required_groups": 28,
+  "retrieval_calls": 0,
+  "revision": "26d48e0634e6ee9cdc0533996db289ce4b430177",
+  "same_file_and_queries": 3,
+  "scoped_absent_queries": 3,
+  "source_exclusions": [],
+  "source_file_count": 23,
+  "source_file_sha256": {
+    "httpx/__init__.py": "0ac6997bac998f4ac783adf6d8058a587193315afdb718047c3e4fdff46bcfad",
+    "httpx/__version__.py": "2e853261e3974e2786cee3ffeb850bd30c5db718eebbf41b3af13b34e83e22a5",
+    "httpx/_api.py": "aff660b388c8a5c3c92ea2b975b6d26b2aa8fe254c2856b164277ea0e1f12c4b",
+    "httpx/_auth.py": "62bdd0c1a5122b5eeb198c7eee3f85762705233cf863d14557ed45e3eed15d7e",
+    "httpx/_client.py": "c43f941baefe58c91e96d00039e1868fe719d91453026d7db1647194563bff8d",
+    "httpx/_config.py": "a4fa7653ec2271f70ab05f8a6111352d876dddee84446788a1767c1a3a372d67",
+    "httpx/_content.py": "2c61b3ac94d1dcebcde0c6f519554d2d7917247fbaa0a97002db4ef69e70ff28",
+    "httpx/_decoders.py": "a74757f08d0d1077b1b37506a784ac66eb62321b17aeb5a5ebe1a7a956f488a3",
+    "httpx/_exceptions.py": "6f15bb7f1ce054c01d3536f04f4567ab4e202435b5fe023f1858903ee3328cbd",
+    "httpx/_main.py": "0a0f4631a6e24d3fecc1a0df5202118ad4b0c4b44c4b05033a6ecb7521aa940e",
+    "httpx/_models.py": "e3ffc6bb2bf580bc6e6428708a6f247d036220e709f5a72b785392babbd97e6b",
+    "httpx/_multipart.py": "28e1c465997aa28860f663da2b2caedf8e6aab5ac92e0df94d41b7600cd70776",
+    "httpx/_status_codes.py": "0d89fedae7c180c797cb9b3cc77fd307bc2302e00031ec136a43eb9b9ad712c7",
+    "httpx/_transports/__init__.py": "19b52805200ea7bcfe97ef63e5884c851dc3308727e8554b863d3bd8edcd9e7a",
+    "httpx/_transports/asgi.py": "1d17e20d830fb78c101f6805807660e1cfa2dec6e5a3a6cbe464ea7044fec73f",
+    "httpx/_transports/base.py": "9194bf54c6d58987c5e7bd29a205022756ee973fb26df2f9d4faacf7292d79b5",
+    "httpx/_transports/default.py": "03379a454c95c0271c4f2c8d25ec437f49f57457f3cf2769748420bf0ecf2e79",
+    "httpx/_transports/mock.py": "3d3a34779ebb4484d7c46ae48ba90deffebbc300317f088c0dcb972626428c4a",
+    "httpx/_transports/wsgi.py": "35c3d7dd76a9fc4c0215958efce692c9036e227098c7540c35b3bc1807a2ea36",
+    "httpx/_types.py": "272878d4642aec039ebfc20e58a0c083bcc26ef1c07ee7e65b983f3e24ed12b6",
+    "httpx/_urlparse.py": "640987e3b38d7e4c6bae3f8f3d88467a21e36fa0232824be00d58837838bfca6",
+    "httpx/_urls.py": "757f7d551d4348e1e9828f40abb3f360ee0529dc6a2a3c32369f20adff1d1cdd",
+    "httpx/_utils.py": "fd355ea802afc4990a1ddcfb74579be2cd0b66a41781e1645d281f88704aff5a"
+  },
+  "source_freeze": "results/httpx-reranker-preflight-2026-10-13/source-freeze.json",
+  "source_freeze_sha256": "6561d34c15bea1f9fd9be7b69ff74823ecfb29b69434f52de44e3bd9244e4416",
+  "source_headers": {
+    "httpx/__init__.py": {
+      "first_physical_lines": 12,
+      "sha256": "ee430b379b1691514ed53d945b27c60175d6e4005060b638543bb19291ce6f91"
+    },
+    "httpx/__version__.py": {
+      "first_physical_lines": 3,
+      "sha256": "2e853261e3974e2786cee3ffeb850bd30c5db718eebbf41b3af13b34e83e22a5"
+    },
+    "httpx/_api.py": {
+      "first_physical_lines": 12,
+      "sha256": "b9ae685996ab288e8dc77016a4b5b156ed68e5aec0cdcf58ecc005cbbc86ba1e"
+    },
+    "httpx/_auth.py": {
+      "first_physical_lines": 12,
+      "sha256": "4da6e07e6455d7dc530b2cf9a8e7b02f6631a3699a3a55c1751aad985655b3af"
+    },
+    "httpx/_client.py": {
+      "first_physical_lines": 12,
+      "sha256": "ddd7920cc2d3c762bf3f007f1df96fcdfe815283605981e83331f3c18fdf0a02"
+    },
+    "httpx/_config.py": {
+      "first_physical_lines": 12,
+      "sha256": "918dc5167666137d0e4f6ba49d639d57922474c860b446d358862080e8daae47"
+    },
+    "httpx/_content.py": {
+      "first_physical_lines": 12,
+      "sha256": "af02e95f714337d12b65480fb232067d8c239a3564f20e8bba8e473eddd47f96"
+    },
+    "httpx/_decoders.py": {
+      "first_physical_lines": 12,
+      "sha256": "5ea0e1db944f4d0d0ddb8dd9f40a7581d6b46cf631d76f66d6f6a4d59e4efbdc"
+    },
+    "httpx/_exceptions.py": {
+      "first_physical_lines": 12,
+      "sha256": "f224eee8713572864f2801d2f94a65bac98f1ed7c36906cefe15d712ddd6c17b"
+    },
+    "httpx/_main.py": {
+      "first_physical_lines": 12,
+      "sha256": "cd163a7bc31b8ffd81936820644e1b06d78c5c4b3fcf9e4a6339f83eb8bbdde4"
+    },
+    "httpx/_models.py": {
+      "first_physical_lines": 12,
+      "sha256": "f0ddb8fc51b2a088bfbe5a5c1deb62aeb4e646b62a9f1d5f7bdb50c438833fb1"
+    },
+    "httpx/_multipart.py": {
+      "first_physical_lines": 12,
+      "sha256": "0c52f85bd9f3d23efa2d5524b9c3817e8d88ce5cad7e4665160a014d03cd4e6c"
+    },
+    "httpx/_status_codes.py": {
+      "first_physical_lines": 12,
+      "sha256": "55920a2f9d2781b327ba85704a26129461a67b3ce2ab16830226fc2f6617aed5"
+    },
+    "httpx/_transports/__init__.py": {
+      "first_physical_lines": 12,
+      "sha256": "87e5979e9929227a9b402c9a225ef53f6d924df3ed724f189d12b41c1b592004"
+    },
+    "httpx/_transports/asgi.py": {
+      "first_physical_lines": 12,
+      "sha256": "68798575b82cde6851250684320e8253d04fefd5f6a3e3aaaf6fa5913c2beb1b"
+    },
+    "httpx/_transports/base.py": {
+      "first_physical_lines": 12,
+      "sha256": "4d158b74da3046aa9050d32743a23402b1d77e3c438d845c04fdd0159bfe9d7d"
+    },
+    "httpx/_transports/default.py": {
+      "first_physical_lines": 12,
+      "sha256": "550043b3e7a80abeee0923e0f5d4024bc69c926d7cb5299d23f5c0ab5f549254"
+    },
+    "httpx/_transports/mock.py": {
+      "first_physical_lines": 12,
+      "sha256": "011ce47d01c39e261eaa19af507e45cca960cac2515c29df232ee0d7dd792141"
+    },
+    "httpx/_transports/wsgi.py": {
+      "first_physical_lines": 12,
+      "sha256": "2298dbf15285913d3c28a9496d12cee2b6680f387638a8f2bbcb85c3e41fa08f"
+    },
+    "httpx/_types.py": {
+      "first_physical_lines": 12,
+      "sha256": "2b01e973eb1fd891af8d7b96246a853b726674a192049f44c4a4597cb3b0ccaa"
+    },
+    "httpx/_urlparse.py": {
+      "first_physical_lines": 12,
+      "sha256": "0a4b7a52dc102eca099da7195b2d02b673495cd0cab4e230ab296a873670f0f2"
+    },
+    "httpx/_urls.py": {
+      "first_physical_lines": 12,
+      "sha256": "4bada76ff652707a7d29338842502930cdab2f389f2a8c9aeb6aaa21f60dd7d5"
+    },
+    "httpx/_utils.py": {
+      "first_physical_lines": 12,
+      "sha256": "bc7b55e117cba09f6301dab1cc96a4c867b56fc32334a33d053b4d7235e39743"
+    }
+  },
+  "source_root": "httpx",
+  "version": 1,
+  "window_count": 438,
+  "window_inventory": [
+    {
+      "end_line": 26,
+      "id": "httpx/__init__.py:main:18-26",
+      "path": "httpx/__init__.py",
+      "source_hash": "6b7db7c1ebda044fba6e414c9cf1c2d1523c733279a2ffca6a6d6872b85157db",
+      "start_line": 18,
+      "symbol": "main"
+    },
+    {
+      "end_line": 120,
+      "id": "httpx/_api.py:request:39-120",
+      "path": "httpx/_api.py",
+      "source_hash": "e1b4926d38b0fb5af44ca74bcf23fb051c1fffa5553c5ad4d7bfe84923c880f4",
+      "start_line": 39,
+      "symbol": "request"
+    },
+    {
+      "end_line": 171,
+      "id": "httpx/_api.py:stream:123-171",
+      "path": "httpx/_api.py",
+      "source_hash": "340b035e72c4c105a590fb39ad997dd345c344c19358cc22c8c5532f4b74de26",
+      "start_line": 123,
+      "symbol": "stream"
+    },
+    {
+      "end_line": 207,
+      "id": "httpx/_api.py:get:174-207",
+      "path": "httpx/_api.py",
+      "source_hash": "5609646e00269ffb3cea1c27c9ad1c01048dda60ffe0d59cb8bd88ab841a3ba6",
+      "start_line": 174,
+      "symbol": "get"
+    },
+    {
+      "end_line": 243,
+      "id": "httpx/_api.py:options:210-243",
+      "path": "httpx/_api.py",
+      "source_hash": "f317627d7fae0c116fb493cea20faf7cbec49a58ec8520c0c9a559fcbfe6a6d9",
+      "start_line": 210,
+      "symbol": "options"
+    },
+    {
+      "end_line": 279,
+      "id": "httpx/_api.py:head:246-279",
+      "path": "httpx/_api.py",
+      "source_hash": "b9c734d526fa6e0c34eda5991f183b80527c823dd4d9314c7a150444f5a01e09",
+      "start_line": 246,
+      "symbol": "head"
+    },
+    {
+      "end_line": 320,
+      "id": "httpx/_api.py:post:282-320",
+      "path": "httpx/_api.py",
+      "source_hash": "5373eef5b8ee30756d0853c4e2ed720803740641011afd78071d5e6f2bd9bd28",
+      "start_line": 282,
+      "symbol": "post"
+    },
+    {
+      "end_line": 361,
+      "id": "httpx/_api.py:put:323-361",
+      "path": "httpx/_api.py",
+      "source_hash": "d33c84e3ae7d85cefe599a1dd07a02360c00160f671cd8ddc68506ff45df1e13",
+      "start_line": 323,
+      "symbol": "put"
+    },
+    {
+      "end_line": 402,
+      "id": "httpx/_api.py:patch:364-402",
+      "path": "httpx/_api.py",
+      "source_hash": "e6044bb26dab5b8dd06b3d760ce2ea94afcd9f4ec92f7ec76b886090c618e74e",
+      "start_line": 364,
+      "symbol": "patch"
+    },
+    {
+      "end_line": 438,
+      "id": "httpx/_api.py:delete:405-438",
+      "path": "httpx/_api.py",
+      "source_hash": "80d05a6e877c28765ec3d14563dc52af18d456e282b672e44f9d0f516aeab048",
+      "start_line": 405,
+      "symbol": "delete"
+    },
+    {
+      "end_line": 60,
+      "id": "httpx/_auth.py:Auth.auth_flow:38-60",
+      "path": "httpx/_auth.py",
+      "source_hash": "3db15d53236c51822dd07e3b30ae777e96108728a14dcf1cf0a52b3c652a28bc",
+      "start_line": 38,
+      "symbol": "Auth.auth_flow"
+    },
+    {
+      "end_line": 85,
+      "id": "httpx/_auth.py:Auth.sync_auth_flow:62-85",
+      "path": "httpx/_auth.py",
+      "source_hash": "9f08b0ff604b5a4cd573b5e97fae769d46f7c027d2bf81eb5b01f920db8c07ba",
+      "start_line": 62,
+      "symbol": "Auth.sync_auth_flow"
+    },
+    {
+      "end_line": 110,
+      "id": "httpx/_auth.py:Auth.async_auth_flow:87-110",
+      "path": "httpx/_auth.py",
+      "source_hash": "952b06129f88f7b39f045b1786aa3f74ee7654d628d8f0931d9bbf2b259c937a",
+      "start_line": 87,
+      "symbol": "Auth.async_auth_flow"
+    },
+    {
+      "end_line": 120,
+      "id": "httpx/_auth.py:FunctionAuth.__init__:119-120",
+      "path": "httpx/_auth.py",
+      "source_hash": "e0addb08cd5eed8c744566285dc36bfe07a0a886c4b54308baf66da0fab0b5b4",
+      "start_line": 119,
+      "symbol": "FunctionAuth.__init__"
+    },
+    {
+      "end_line": 123,
+      "id": "httpx/_auth.py:FunctionAuth.auth_flow:122-123",
+      "path": "httpx/_auth.py",
+      "source_hash": "96bc41a73c82790caceb0dd5f922c0229c1ca33430b580afaa10cf89fc65f09f",
+      "start_line": 122,
+      "symbol": "FunctionAuth.auth_flow"
+    },
+    {
+      "end_line": 133,
+      "id": "httpx/_auth.py:BasicAuth.__init__:132-133",
+      "path": "httpx/_auth.py",
+      "source_hash": "cfd91ca58d3e74bb329fd64a7e6274b27fd8b538ef05808aaf81f7a43dfe5819",
+      "start_line": 132,
+      "symbol": "BasicAuth.__init__"
+    },
+    {
+      "end_line": 137,
+      "id": "httpx/_auth.py:BasicAuth.auth_flow:135-137",
+      "path": "httpx/_auth.py",
+      "source_hash": "e5fdc7f45d66c94072e108d010dda5ac345cbfbb27eb16bbea8b7ace7fac445e",
+      "start_line": 135,
+      "symbol": "BasicAuth.auth_flow"
+    },
+    {
+      "end_line": 142,
+      "id": "httpx/_auth.py:BasicAuth._build_auth_header:139-142",
+      "path": "httpx/_auth.py",
+      "source_hash": "e3da7203fa03e37819eb31794c4886d9e009e61f44d28369405f3c02f6fbac92",
+      "start_line": 139,
+      "symbol": "BasicAuth._build_auth_header"
+    },
+    {
+      "end_line": 155,
+      "id": "httpx/_auth.py:NetRCAuth.__init__:150-155",
+      "path": "httpx/_auth.py",
+      "source_hash": "916fc4a3939e23329858a5771ce04eb5d6e49d46932c03fbc8d0817193ddb41d",
+      "start_line": 150,
+      "symbol": "NetRCAuth.__init__"
+    },
+    {
+      "end_line": 167,
+      "id": "httpx/_auth.py:NetRCAuth.auth_flow:157-167",
+      "path": "httpx/_auth.py",
+      "source_hash": "97d30d16eab248acf601a4c11a3d64dbdad81ed2f85038e345609338d8a192db",
+      "start_line": 157,
+      "symbol": "NetRCAuth.auth_flow"
+    },
+    {
+      "end_line": 172,
+      "id": "httpx/_auth.py:NetRCAuth._build_auth_header:169-172",
+      "path": "httpx/_auth.py",
+      "source_hash": "e3da7203fa03e37819eb31794c4886d9e009e61f44d28369405f3c02f6fbac92",
+      "start_line": 169,
+      "symbol": "NetRCAuth._build_auth_header"
+    },
+    {
+      "end_line": 191,
+      "id": "httpx/_auth.py:DigestAuth.__init__:187-191",
+      "path": "httpx/_auth.py",
+      "source_hash": "131f6032d3fd4c3753afa06b1cdd917a04a0504db82e883023131be360ef42b9",
+      "start_line": 187,
+      "symbol": "DigestAuth.__init__"
+    },
+    {
+      "end_line": 222,
+      "id": "httpx/_auth.py:DigestAuth.auth_flow:193-222",
+      "path": "httpx/_auth.py",
+      "source_hash": "f5ade5dd09e6288971c6dd4d4b9425cbed37d221fe61abf7de2eb98a17399064",
+      "start_line": 193,
+      "symbol": "DigestAuth.auth_flow"
+    },
+    {
+      "end_line": 253,
+      "id": "httpx/_auth.py:DigestAuth._parse_challenge:224-253",
+      "path": "httpx/_auth.py",
+      "source_hash": "a33c6d84d7d5646b0256aa60b454c0233903d6abf361396711da17e43c114a56",
+      "start_line": 224,
+      "symbol": "DigestAuth._parse_challenge"
+    },
+    {
+      "end_line": 301,
+      "id": "httpx/_auth.py:DigestAuth._build_auth_header:255-301",
+      "path": "httpx/_auth.py",
+      "source_hash": "8130fee90ea58d75b493e4d6651d05359e8417d6f392d910bb21f561b3b732f9",
+      "start_line": 255,
+      "symbol": "DigestAuth._build_auth_header"
+    },
+    {
+      "end_line": 261,
+      "id": "httpx/_auth.py:DigestAuth._build_auth_header.digest:260-261",
+      "path": "httpx/_auth.py",
+      "source_hash": "7cf4de5e1ef92e1313cceb497102c738f2c6e6f004efa0c08dd13b9e7be280f1",
+      "start_line": 260,
+      "symbol": "DigestAuth._build_auth_header.digest"
+    },
+    {
+      "end_line": 309,
+      "id": "httpx/_auth.py:DigestAuth._get_client_nonce:303-309",
+      "path": "httpx/_auth.py",
+      "source_hash": "ce5118080d8bf0b3840d12e11c3d2da613e1a3a2dcf460caeb93ff742b8e88da",
+      "start_line": 303,
+      "symbol": "DigestAuth._get_client_nonce"
+    },
+    {
+      "end_line": 327,
+      "id": "httpx/_auth.py:DigestAuth._get_header_value:311-327",
+      "path": "httpx/_auth.py",
+      "source_hash": "a1b080033646777a4b6c8ce85c7508521289647d963c6a3b30e740087fd95eef",
+      "start_line": 311,
+      "symbol": "DigestAuth._get_header_value"
+    },
+    {
+      "end_line": 340,
+      "id": "httpx/_auth.py:DigestAuth._resolve_qop:329-340",
+      "path": "httpx/_auth.py",
+      "source_hash": "53a13ff3b3ac938f048897149bc5fd7f8f1fb053eb71492e3a27a5374a8b6d1e",
+      "start_line": 329,
+      "symbol": "DigestAuth._resolve_qop"
+    },
+    {
+      "end_line": 74,
+      "id": "httpx/_client.py:_is_https_redirect:62-74",
+      "path": "httpx/_client.py",
+      "source_hash": "205732ad1ec174bcd910c74fa59b93202d2bcfe80df6a215326a2b0b26aa78dd",
+      "start_line": 62,
+      "symbol": "_is_https_redirect"
+    },
+    {
+      "end_line": 80,
+      "id": "httpx/_client.py:_port_or_default:77-80",
+      "path": "httpx/_client.py",
+      "source_hash": "a5922ed1aab8072737ad0eb1df44dce8ff8bf57d0bfcdea0084b13092d7941fc",
+      "start_line": 77,
+      "symbol": "_port_or_default"
+    },
+    {
+      "end_line": 91,
+      "id": "httpx/_client.py:_same_origin:83-91",
+      "path": "httpx/_client.py",
+      "source_hash": "f74d70eb52bde59830037b83eef5c8d7de883a6b2cadbd0eab1a38839188a263",
+      "start_line": 83,
+      "symbol": "_same_origin"
+    },
+    {
+      "end_line": 150,
+      "id": "httpx/_client.py:BoundSyncStream.__init__:145-150",
+      "path": "httpx/_client.py",
+      "source_hash": "fea4bff74be6c261f58825f6a1cefb513fa86591676ee4e275acb74367ccdec7",
+      "start_line": 145,
+      "symbol": "BoundSyncStream.__init__"
+    },
+    {
+      "end_line": 154,
+      "id": "httpx/_client.py:BoundSyncStream.__iter__:152-154",
+      "path": "httpx/_client.py",
+      "source_hash": "b07ce94fb27aa2812f56e9d7febaa984d1e0e4bbd833b0bf7d3f05e09b919d0d",
+      "start_line": 152,
+      "symbol": "BoundSyncStream.__iter__"
+    },
+    {
+      "end_line": 159,
+      "id": "httpx/_client.py:BoundSyncStream.close:156-159",
+      "path": "httpx/_client.py",
+      "source_hash": "9acd1319fe0cd29ff9d1343487a2fadb0b8491ad6551310c924912b6427855da",
+      "start_line": 156,
+      "symbol": "BoundSyncStream.close"
+    },
+    {
+      "end_line": 173,
+      "id": "httpx/_client.py:BoundAsyncStream.__init__:168-173",
+      "path": "httpx/_client.py",
+      "source_hash": "47f2b15b35e86099e3268226b5bb7039c8c8dcc7947843f51a236de1f31c08e8",
+      "start_line": 168,
+      "symbol": "BoundAsyncStream.__init__"
+    },
+    {
+      "end_line": 177,
+      "id": "httpx/_client.py:BoundAsyncStream.__aiter__:175-177",
+      "path": "httpx/_client.py",
+      "source_hash": "de747a3b4fb78112f970d63b235fc72ad1323c57dbb9f9725103982a0f386a93",
+      "start_line": 175,
+      "symbol": "BoundAsyncStream.__aiter__"
+    },
+    {
+      "end_line": 182,
+      "id": "httpx/_client.py:BoundAsyncStream.aclose:179-182",
+      "path": "httpx/_client.py",
+      "source_hash": "cec6f43fb454a3edafe169f5044e4ec41af160a16563eb3fc1acb361d7a8ac83",
+      "start_line": 179,
+      "symbol": "BoundAsyncStream.aclose"
+    },
+    {
+      "end_line": 221,
+      "id": "httpx/_client.py:BaseClient.__init__:189-221",
+      "path": "httpx/_client.py",
+      "source_hash": "39738a20aac0076efe65d6f28609052dae04df01ef225225d4d0ecaf5e4e431c",
+      "start_line": 189,
+      "symbol": "BaseClient.__init__"
+    },
+    {
+      "end_line": 228,
+      "id": "httpx/_client.py:BaseClient.is_closed:223-228",
+      "path": "httpx/_client.py",
+      "source_hash": "6388c38c16083d5c86750e7cb78c66259b1e433ee2d4cbeaadf2a6e4c027b7a0",
+      "start_line": 223,
+      "symbol": "BaseClient.is_closed"
+    },
+    {
+      "end_line": 232,
+      "id": "httpx/_client.py:BaseClient.trust_env:230-232",
+      "path": "httpx/_client.py",
+      "source_hash": "1454101579a2ac4b9214e3d8915cae2dc6ba21af0e12b953381edab506377579",
+      "start_line": 230,
+      "symbol": "BaseClient.trust_env"
+    },
+    {
+      "end_line": 237,
+      "id": "httpx/_client.py:BaseClient._enforce_trailing_slash:234-237",
+      "path": "httpx/_client.py",
+      "source_hash": "db13edd827312aa4f0d1e14f790f562a085a879e19e5afdeaade400b7e45c702",
+      "start_line": 234,
+      "symbol": "BaseClient._enforce_trailing_slash"
+    },
+    {
+      "end_line": 251,
+      "id": "httpx/_client.py:BaseClient._get_proxy_map:239-251",
+      "path": "httpx/_client.py",
+      "source_hash": "2f6fd8863d60de1f7c7a1e575cb0ed85be24d703556e0e5b70ff4ca7475ca68e",
+      "start_line": 239,
+      "symbol": "BaseClient._get_proxy_map"
+    },
+    {
+      "end_line": 255,
+      "id": "httpx/_client.py:BaseClient.timeout:253-255",
+      "path": "httpx/_client.py",
+      "source_hash": "1c24aef55d72eea3b11ad9ef4a2aad3b6a08d863234a6daaae6f21156b5d9158",
+      "start_line": 253,
+      "symbol": "BaseClient.timeout"
+    },
+    {
+      "end_line": 259,
+      "id": "httpx/_client.py:BaseClient.timeout:257-259",
+      "path": "httpx/_client.py",
+      "source_hash": "484d0c20a5996de188001e6dd307ada4d935b2cbb57673c71f24417cb0ef2358",
+      "start_line": 257,
+      "symbol": "BaseClient.timeout"
+    },
+    {
+      "end_line": 263,
+      "id": "httpx/_client.py:BaseClient.event_hooks:261-263",
+      "path": "httpx/_client.py",
+      "source_hash": "bc127fc6459f1f20b5f765cec2145da744879c28242ecccfd8972e28e318b631",
+      "start_line": 261,
+      "symbol": "BaseClient.event_hooks"
+    },
+    {
+      "end_line": 270,
+      "id": "httpx/_client.py:BaseClient.event_hooks:265-270",
+      "path": "httpx/_client.py",
+      "source_hash": "61fd3705e3237dbd4483a92127f52181cdc5c2e5889d0bb2d82fcb6ce7d58795",
+      "start_line": 265,
+      "symbol": "BaseClient.event_hooks"
+    },
+    {
+      "end_line": 281,
+      "id": "httpx/_client.py:BaseClient.auth:272-281",
+      "path": "httpx/_client.py",
+      "source_hash": "dcfe6ff5af00f98596fe4b488995e53928def8d96753f49b43c95381d30e1108",
+      "start_line": 272,
+      "symbol": "BaseClient.auth"
+    },
+    {
+      "end_line": 285,
+      "id": "httpx/_client.py:BaseClient.auth:283-285",
+      "path": "httpx/_client.py",
+      "source_hash": "c37c1da451936c41b18336c99c591db93e5df79eaf5f29c59c0c64ce2c597d0b",
+      "start_line": 283,
+      "symbol": "BaseClient.auth"
+    },
+    {
+      "end_line": 292,
+      "id": "httpx/_client.py:BaseClient.base_url:287-292",
+      "path": "httpx/_client.py",
+      "source_hash": "e2181d6b913671e8ca1646e6dd0f2f3604455d6c77a597e13b31ac7b6dd58e81",
+      "start_line": 287,
+      "symbol": "BaseClient.base_url"
+    },
+    {
+      "end_line": 296,
+      "id": "httpx/_client.py:BaseClient.base_url:294-296",
+      "path": "httpx/_client.py",
+      "source_hash": "00cfb8403f8360210825a1fe2738df5c9f70fdd83b2051518ee2b71ffdb0099f",
+      "start_line": 294,
+      "symbol": "BaseClient.base_url"
+    },
+    {
+      "end_line": 303,
+      "id": "httpx/_client.py:BaseClient.headers:298-303",
+      "path": "httpx/_client.py",
+      "source_hash": "52686a8786eedbae7f4db1d3fa4e363158773d84e0059c4fe5e710aec57810b1",
+      "start_line": 298,
+      "symbol": "BaseClient.headers"
+    },
+    {
+      "end_line": 316,
+      "id": "httpx/_client.py:BaseClient.headers:305-316",
+      "path": "httpx/_client.py",
+      "source_hash": "2f6cad5474aefb06781455b720fb601c1bb65069937ff05b63c69c66b3d13b24",
+      "start_line": 305,
+      "symbol": "BaseClient.headers"
+    },
+    {
+      "end_line": 323,
+      "id": "httpx/_client.py:BaseClient.cookies:318-323",
+      "path": "httpx/_client.py",
+      "source_hash": "f6c62fb2b396eb247b90a847584e1d272d482ad1689723415048d65261181a5d",
+      "start_line": 318,
+      "symbol": "BaseClient.cookies"
+    },
+    {
+      "end_line": 327,
+      "id": "httpx/_client.py:BaseClient.cookies:325-327",
+      "path": "httpx/_client.py",
+      "source_hash": "ff9677c7a9e3d3bf5ac40157efc03ea991fc171a48ba3ed4f1615a36eccd9fcb",
+      "start_line": 325,
+      "symbol": "BaseClient.cookies"
+    },
+    {
+      "end_line": 334,
+      "id": "httpx/_client.py:BaseClient.params:329-334",
+      "path": "httpx/_client.py",
+      "source_hash": "7af3e32bc3568337e4f166921276de3861892d7c8015ff19da2e4eb108b95312",
+      "start_line": 329,
+      "symbol": "BaseClient.params"
+    },
+    {
+      "end_line": 338,
+      "id": "httpx/_client.py:BaseClient.params:336-338",
+      "path": "httpx/_client.py",
+      "source_hash": "e08162651dcaf9d9fe1e923e8326d1831429c2e13436d31a041502e31497188c",
+      "start_line": 336,
+      "symbol": "BaseClient.params"
+    },
+    {
+      "end_line": 389,
+      "id": "httpx/_client.py:BaseClient.build_request:340-389",
+      "path": "httpx/_client.py",
+      "source_hash": "30899d7e06788df4eafd4defef8e0f63a8414c9bb008a96d8e7744ec9acab34e",
+      "start_line": 340,
+      "symbol": "BaseClient.build_request"
+    },
+    {
+      "end_line": 411,
+      "id": "httpx/_client.py:BaseClient._merge_url:391-411",
+      "path": "httpx/_client.py",
+      "source_hash": "3b00320150ee361237413617d769cef89c5754cc88cba49f0193858203adeb71",
+      "start_line": 391,
+      "symbol": "BaseClient._merge_url"
+    },
+    {
+      "end_line": 422,
+      "id": "httpx/_client.py:BaseClient._merge_cookies:413-422",
+      "path": "httpx/_client.py",
+      "source_hash": "6e7b01852586d018313d187572f6b2ebedc5359df2a0390ec41f3cf1e8f0e0fd",
+      "start_line": 413,
+      "symbol": "BaseClient._merge_cookies"
+    },
+    {
+      "end_line": 431,
+      "id": "httpx/_client.py:BaseClient._merge_headers:424-431",
+      "path": "httpx/_client.py",
+      "source_hash": "474b000e56d9b8db8fbba425cd8dfaf84249341a95d189b3bcddb5312a31acc0",
+      "start_line": 424,
+      "symbol": "BaseClient._merge_headers"
+    },
+    {
+      "end_line": 443,
+      "id": "httpx/_client.py:BaseClient._merge_queryparams:433-443",
+      "path": "httpx/_client.py",
+      "source_hash": "ce5e95f48911a03a2eb3afc5d10db7363db4afa29bc68be4a776960b8a448253",
+      "start_line": 433,
+      "symbol": "BaseClient._merge_queryparams"
+    },
+    {
+      "end_line": 455,
+      "id": "httpx/_client.py:BaseClient._build_auth:445-455",
+      "path": "httpx/_client.py",
+      "source_hash": "d919e70194cc45d97956617d147c4bef3a0efe17ae378ee9c97269dd7b762698",
+      "start_line": 445,
+      "symbol": "BaseClient._build_auth"
+    },
+    {
+      "end_line": 473,
+      "id": "httpx/_client.py:BaseClient._build_request_auth:457-473",
+      "path": "httpx/_client.py",
+      "source_hash": "400016131483cdcdde7c0c0e68838837f65d26910557c002fbe38b7dc168de1c",
+      "start_line": 457,
+      "symbol": "BaseClient._build_request_auth"
+    },
+    {
+      "end_line": 492,
+      "id": "httpx/_client.py:BaseClient._build_redirect_request:475-492",
+      "path": "httpx/_client.py",
+      "source_hash": "94360dbc86ace7c4dec1aa1f16760faaaa9923133ba67344943ae802e1b2eb1c",
+      "start_line": 475,
+      "symbol": "BaseClient._build_redirect_request"
+    },
+    {
+      "end_line": 515,
+      "id": "httpx/_client.py:BaseClient._redirect_method:494-515",
+      "path": "httpx/_client.py",
+      "source_hash": "e975e2d26ab47541fca407e8b75039d0a8349dd42fcf4fcea2ff13a6923cae11",
+      "start_line": 494,
+      "symbol": "BaseClient._redirect_method"
+    },
+    {
+      "end_line": 544,
+      "id": "httpx/_client.py:BaseClient._redirect_url:517-544",
+      "path": "httpx/_client.py",
+      "source_hash": "77347a71d28837ea3738606d8b08ec90a61e25cb022646e61a26ec9fef60e9db",
+      "start_line": 517,
+      "symbol": "BaseClient._redirect_url"
+    },
+    {
+      "end_line": 571,
+      "id": "httpx/_client.py:BaseClient._redirect_headers:546-571",
+      "path": "httpx/_client.py",
+      "source_hash": "ee31e38c0160b54fc839bb7fbf7058a13aad8d467b1a884026fa697b18987fb7",
+      "start_line": 546,
+      "symbol": "BaseClient._redirect_headers"
+    },
+    {
+      "end_line": 582,
+      "id": "httpx/_client.py:BaseClient._redirect_stream:573-582",
+      "path": "httpx/_client.py",
+      "source_hash": "0cd52bf04c16f07638f68c44f554dd1dc9877af8614aac5e6cd03aaf4b6c3750",
+      "start_line": 573,
+      "symbol": "BaseClient._redirect_stream"
+    },
+    {
+      "end_line": 591,
+      "id": "httpx/_client.py:BaseClient._set_timeout:584-591",
+      "path": "httpx/_client.py",
+      "source_hash": "2da45d7f358188a7c2e24f139271613f280e787aacb242fcd04d855c4fac111c",
+      "start_line": 584,
+      "symbol": "BaseClient._set_timeout"
+    },
+    {
+      "end_line": 716,
+      "id": "httpx/_client.py:Client.__init__:639-716",
+      "path": "httpx/_client.py",
+      "source_hash": "a3bbb12afe326ab278fb3c324fb14e1f8507a03956e36453c2808c0d4ab4e950",
+      "start_line": 639,
+      "symbol": "Client.__init__"
+    },
+    {
+      "end_line": 738,
+      "id": "httpx/_client.py:Client._init_transport:718-738",
+      "path": "httpx/_client.py",
+      "source_hash": "031c37f984f8b3e91e4f6b60bef8d6b966f7c83e6eeba323c1fc2d267055e5de",
+      "start_line": 718,
+      "symbol": "Client._init_transport"
+    },
+    {
+      "end_line": 758,
+      "id": "httpx/_client.py:Client._init_proxy_transport:740-758",
+      "path": "httpx/_client.py",
+      "source_hash": "584bd8df834947e621e45aff7c535d339f90664dcdd4ad60d149020e24eeeeb5",
+      "start_line": 740,
+      "symbol": "Client._init_proxy_transport"
+    },
+    {
+      "end_line": 769,
+      "id": "httpx/_client.py:Client._transport_for_url:760-769",
+      "path": "httpx/_client.py",
+      "source_hash": "815a22d1c26158810551cd8a1af4f1f5582558b698410e3fd5aaa8be33d910bd",
+      "start_line": 760,
+      "symbol": "Client._transport_for_url"
+    },
+    {
+      "end_line": 825,
+      "id": "httpx/_client.py:Client.request:771-825",
+      "path": "httpx/_client.py",
+      "source_hash": "86948163b53ccab88e9312c6bd280f5ce47eb0c9da31efb699d3d4de109809c3",
+      "start_line": 771,
+      "symbol": "Client.request"
+    },
+    {
+      "end_line": 877,
+      "id": "httpx/_client.py:Client.stream:827-877",
+      "path": "httpx/_client.py",
+      "source_hash": "08a71fc3d48b7fed81b83a2a9feef34dc83d8f9a3ca14dfab804c6f83e53fa54",
+      "start_line": 827,
+      "symbol": "Client.stream"
+    },
+    {
+      "end_line": 928,
+      "id": "httpx/_client.py:Client.send:879-928",
+      "path": "httpx/_client.py",
+      "source_hash": "319a84957624ed20798754f9b3ec26a48af5935906346778ecf6cbba17f65df9",
+      "start_line": 879,
+      "symbol": "Client.send"
+    },
+    {
+      "end_line": 962,
+      "id": "httpx/_client.py:Client._send_handling_auth:930-962",
+      "path": "httpx/_client.py",
+      "source_hash": "f7b52e86d910387b2fd58443a08e820046addbd435c25f7534e80cbcf3763fb3",
+      "start_line": 930,
+      "symbol": "Client._send_handling_auth"
+    },
+    {
+      "end_line": 999,
+      "id": "httpx/_client.py:Client._send_handling_redirects:964-999",
+      "path": "httpx/_client.py",
+      "source_hash": "5cfa5658545adbfac1a5b4091c07f9cbe508f109e424069735aad210a83bd3f9",
+      "start_line": 964,
+      "symbol": "Client._send_handling_redirects"
+    },
+    {
+      "end_line": 1034,
+      "id": "httpx/_client.py:Client._send_single_request:1001-1034",
+      "path": "httpx/_client.py",
+      "source_hash": "d964c700bd8e298c8af6bdbb5affa4bf2745a28a1b2f18fd4ecf22b5a0719407",
+      "start_line": 1001,
+      "symbol": "Client._send_single_request"
+    },
+    {
+      "end_line": 1063,
+      "id": "httpx/_client.py:Client.get:1036-1063",
+      "path": "httpx/_client.py",
+      "source_hash": "8b940f34f47a72f36ee04459cd23c3d0a824db29c357f88181f09fd4063966cc",
+      "start_line": 1036,
+      "symbol": "Client.get"
+    },
+    {
+      "end_line": 1092,
+      "id": "httpx/_client.py:Client.options:1065-1092",
+      "path": "httpx/_client.py",
+      "source_hash": "bee8b42d08519caed6539fef4499c56cde3c92e2260d99e367651f1525476819",
+      "start_line": 1065,
+      "symbol": "Client.options"
+    },
+    {
+      "end_line": 1121,
+      "id": "httpx/_client.py:Client.head:1094-1121",
+      "path": "httpx/_client.py",
+      "source_hash": "b24cedd31483b3f8bf42cf1016c5f17726ef8fb8f7683cf6118e319854929b61",
+      "start_line": 1094,
+      "symbol": "Client.head"
+    },
+    {
+      "end_line": 1158,
+      "id": "httpx/_client.py:Client.post:1123-1158",
+      "path": "httpx/_client.py",
+      "source_hash": "f572db74cd5c56b4ca59c763bf05bd1cf4a341b50022dadfeef97a88440075e9",
+      "start_line": 1123,
+      "symbol": "Client.post"
+    },
+    {
+      "end_line": 1195,
+      "id": "httpx/_client.py:Client.put:1160-1195",
+      "path": "httpx/_client.py",
+      "source_hash": "303ce5da972138a5492b60bc6b9f2e03bc0c55d0aa50bf308a137245b6fa8d98",
+      "start_line": 1160,
+      "symbol": "Client.put"
+    },
+    {
+      "end_line": 1232,
+      "id": "httpx/_client.py:Client.patch:1197-1232",
+      "path": "httpx/_client.py",
+      "source_hash": "28133ab0a133bec1931b07fdde11fe0b67bb4868b9d51873c0696607322e5887",
+      "start_line": 1197,
+      "symbol": "Client.patch"
+    },
+    {
+      "end_line": 1261,
+      "id": "httpx/_client.py:Client.delete:1234-1261",
+      "path": "httpx/_client.py",
+      "source_hash": "9dc220d81ce9f7361113cf9aee7e3700a090e2c700d7741102f2c599cc75898a",
+      "start_line": 1234,
+      "symbol": "Client.delete"
+    },
+    {
+      "end_line": 1273,
+      "id": "httpx/_client.py:Client.close:1263-1273",
+      "path": "httpx/_client.py",
+      "source_hash": "6f51f31093b01e74e1375aaec7707aa821b91a6e7e45485de8d183bfdf5e066e",
+      "start_line": 1263,
+      "symbol": "Client.close"
+    },
+    {
+      "end_line": 1291,
+      "id": "httpx/_client.py:Client.__enter__:1275-1291",
+      "path": "httpx/_client.py",
+      "source_hash": "20d0f523d8e82b43ed418f1d6898ff3dfc55cca9c63541f0a049216ec14860e2",
+      "start_line": 1275,
+      "symbol": "Client.__enter__"
+    },
+    {
+      "end_line": 1304,
+      "id": "httpx/_client.py:Client.__exit__:1293-1304",
+      "path": "httpx/_client.py",
+      "source_hash": "82a318caad23b1131faf79d944cf52dae81a44cfbddfe4a971155267b6258fe6",
+      "start_line": 1293,
+      "symbol": "Client.__exit__"
+    },
+    {
+      "end_line": 1430,
+      "id": "httpx/_client.py:AsyncClient.__init__:1353-1430",
+      "path": "httpx/_client.py",
+      "source_hash": "4dc8397d2249ef58e1422917f7f3860f078ed2588effb98ab4adcbbc79b5d8e3",
+      "start_line": 1353,
+      "symbol": "AsyncClient.__init__"
+    },
+    {
+      "end_line": 1452,
+      "id": "httpx/_client.py:AsyncClient._init_transport:1432-1452",
+      "path": "httpx/_client.py",
+      "source_hash": "e0a943317ef65dd4ecde9efb3d2e834119c21ad861722e326bff365ba708a701",
+      "start_line": 1432,
+      "symbol": "AsyncClient._init_transport"
+    },
+    {
+      "end_line": 1472,
+      "id": "httpx/_client.py:AsyncClient._init_proxy_transport:1454-1472",
+      "path": "httpx/_client.py",
+      "source_hash": "95dcc6c52696881f39991f6297d8b1f6a8b3796ffbfbe7f28ceb62a69736aaf1",
+      "start_line": 1454,
+      "symbol": "AsyncClient._init_proxy_transport"
+    },
+    {
+      "end_line": 1483,
+      "id": "httpx/_client.py:AsyncClient._transport_for_url:1474-1483",
+      "path": "httpx/_client.py",
+      "source_hash": "b3c8d01e7100e0735c02f18d60dfffa79b84def9b55e2c3255d1e55894c946df",
+      "start_line": 1474,
+      "symbol": "AsyncClient._transport_for_url"
+    },
+    {
+      "end_line": 1540,
+      "id": "httpx/_client.py:AsyncClient.request:1485-1540",
+      "path": "httpx/_client.py",
+      "source_hash": "3c60c7bbc151d9027d8cea0361feea0cfcc6112a8d6b07c4e17c961fc7761982",
+      "start_line": 1485,
+      "symbol": "AsyncClient.request"
+    },
+    {
+      "end_line": 1592,
+      "id": "httpx/_client.py:AsyncClient.stream:1542-1592",
+      "path": "httpx/_client.py",
+      "source_hash": "d716d0c5a11fd165a6e18adbd1ea019f688e62feead0cc98f84d5aad989db00d",
+      "start_line": 1542,
+      "symbol": "AsyncClient.stream"
+    },
+    {
+      "end_line": 1643,
+      "id": "httpx/_client.py:AsyncClient.send:1594-1643",
+      "path": "httpx/_client.py",
+      "source_hash": "76a23b35cd47c95e2959219fbc9aab17ee8978e8636ff602e240272c1eeb85b6",
+      "start_line": 1594,
+      "symbol": "AsyncClient.send"
+    },
+    {
+      "end_line": 1677,
+      "id": "httpx/_client.py:AsyncClient._send_handling_auth:1645-1677",
+      "path": "httpx/_client.py",
+      "source_hash": "73be9fe146881fca02e9712d9a9b37605933ecc13d949d90cd17b5022ac78f38",
+      "start_line": 1645,
+      "symbol": "AsyncClient._send_handling_auth"
+    },
+    {
+      "end_line": 1715,
+      "id": "httpx/_client.py:AsyncClient._send_handling_redirects:1679-1715",
+      "path": "httpx/_client.py",
+      "source_hash": "88dba22b429959500bedfc9a0aa28eef978751a684c8c1958b02db97089c2c81",
+      "start_line": 1679,
+      "symbol": "AsyncClient._send_handling_redirects"
+    },
+    {
+      "end_line": 1749,
+      "id": "httpx/_client.py:AsyncClient._send_single_request:1717-1749",
+      "path": "httpx/_client.py",
+      "source_hash": "339c8a224990002fade9ba9852db8636799edfbc2d444b8e6c08421b421e41fb",
+      "start_line": 1717,
+      "symbol": "AsyncClient._send_single_request"
+    },
+    {
+      "end_line": 1778,
+      "id": "httpx/_client.py:AsyncClient.get:1751-1778",
+      "path": "httpx/_client.py",
+      "source_hash": "f5ed397b497b70d11af84b7115d20d4266074652945a393349c6c07d360f40e0",
+      "start_line": 1751,
+      "symbol": "AsyncClient.get"
+    },
+    {
+      "end_line": 1807,
+      "id": "httpx/_client.py:AsyncClient.options:1780-1807",
+      "path": "httpx/_client.py",
+      "source_hash": "dcf1422ae14509fcd4ea48f7f10d991ca25ad7b35c9ced48d7c7eaa80b42f9a6",
+      "start_line": 1780,
+      "symbol": "AsyncClient.options"
+    },
+    {
+      "end_line": 1836,
+      "id": "httpx/_client.py:AsyncClient.head:1809-1836",
+      "path": "httpx/_client.py",
+      "source_hash": "062568450229ca7de7d6ff366c6faac59a0442a61853cadef5bd3ab8ae8c6c9b",
+      "start_line": 1809,
+      "symbol": "AsyncClient.head"
+    },
+    {
+      "end_line": 1873,
+      "id": "httpx/_client.py:AsyncClient.post:1838-1873",
+      "path": "httpx/_client.py",
+      "source_hash": "8fb8881a6df7a6231093e11f98a811d4bf9c386298e109d0498dd7760037f557",
+      "start_line": 1838,
+      "symbol": "AsyncClient.post"
+    },
+    {
+      "end_line": 1910,
+      "id": "httpx/_client.py:AsyncClient.put:1875-1910",
+      "path": "httpx/_client.py",
+      "source_hash": "be4717d379a9e89c72985a53c287bc9452285a3dc7d512b716e85b766d213ce6",
+      "start_line": 1875,
+      "symbol": "AsyncClient.put"
+    },
+    {
+      "end_line": 1947,
+      "id": "httpx/_client.py:AsyncClient.patch:1912-1947",
+      "path": "httpx/_client.py",
+      "source_hash": "dbb7515fd092ed5e62dfe2cb6be4afda1cf93ccf9625b30171389fd18be1e1ad",
+      "start_line": 1912,
+      "symbol": "AsyncClient.patch"
+    },
+    {
+      "end_line": 1976,
+      "id": "httpx/_client.py:AsyncClient.delete:1949-1976",
+      "path": "httpx/_client.py",
+      "source_hash": "4785e4eae08c203203dd9a6ebb6142b7de715bf48097a114934e4e727a5240f1",
+      "start_line": 1949,
+      "symbol": "AsyncClient.delete"
+    },
+    {
+      "end_line": 1988,
+      "id": "httpx/_client.py:AsyncClient.aclose:1978-1988",
+      "path": "httpx/_client.py",
+      "source_hash": "27f00f1667b7df649f69e4674578d12488dc9547ecce82334a9666b47db811f3",
+      "start_line": 1978,
+      "symbol": "AsyncClient.aclose"
+    },
+    {
+      "end_line": 2006,
+      "id": "httpx/_client.py:AsyncClient.__aenter__:1990-2006",
+      "path": "httpx/_client.py",
+      "source_hash": "373fe8e068933ea0b25201a10f70ce77d9a2ad1abcf7c05114044b4d6ecaa5f8",
+      "start_line": 1990,
+      "symbol": "AsyncClient.__aenter__"
+    },
+    {
+      "end_line": 2019,
+      "id": "httpx/_client.py:AsyncClient.__aexit__:2008-2019",
+      "path": "httpx/_client.py",
+      "source_hash": "d80bdc43deeea04868e49bc33397ef514ee4416ade086ef9839a9f8f21f9c07f",
+      "start_line": 2008,
+      "symbol": "AsyncClient.__aexit__"
+    },
+    {
+      "end_line": 69,
+      "id": "httpx/_config.py:create_ssl_context:23-69",
+      "path": "httpx/_config.py",
+      "source_hash": "72025cd79112712b06019f8adfefda2da666aa892477aead46debbed25c6e026",
+      "start_line": 23,
+      "symbol": "create_ssl_context"
+    },
+    {
+      "end_line": 130,
+      "id": "httpx/_config.py:Timeout.__init__:86-130",
+      "path": "httpx/_config.py",
+      "source_hash": "086d01e51c9371b6b5b7039b6d1e83f8757e7f8abdefeaff59e71688179fba9d",
+      "start_line": 86,
+      "symbol": "Timeout.__init__"
+    },
+    {
+      "end_line": 138,
+      "id": "httpx/_config.py:Timeout.as_dict:132-138",
+      "path": "httpx/_config.py",
+      "source_hash": "cc3e282658b46be302edba2d00569a09e1cb007b52a811f16a826ed459642c32",
+      "start_line": 132,
+      "symbol": "Timeout.as_dict"
+    },
+    {
+      "end_line": 147,
+      "id": "httpx/_config.py:Timeout.__eq__:140-147",
+      "path": "httpx/_config.py",
+      "source_hash": "ce27a85270c7cf58836f6b21de557494a4b41488b14e3e90bdafd024a4539adb",
+      "start_line": 140,
+      "symbol": "Timeout.__eq__"
+    },
+    {
+      "end_line": 156,
+      "id": "httpx/_config.py:Timeout.__repr__:149-156",
+      "path": "httpx/_config.py",
+      "source_hash": "2c0544d9b06a72c88733f5169fda954561e3eb13076ff6eac35cee9fd374e952",
+      "start_line": 149,
+      "symbol": "Timeout.__repr__"
+    },
+    {
+      "end_line": 182,
+      "id": "httpx/_config.py:Limits.__init__:173-182",
+      "path": "httpx/_config.py",
+      "source_hash": "39cf74a4091c365677c44096620dbafa7714289a459c24914f1543b38a787193",
+      "start_line": 173,
+      "symbol": "Limits.__init__"
+    },
+    {
+      "end_line": 190,
+      "id": "httpx/_config.py:Limits.__eq__:184-190",
+      "path": "httpx/_config.py",
+      "source_hash": "c87f405dd962ad083812f9e3e82fd9810f54b63b48e71d027368966d12ba2931",
+      "start_line": 184,
+      "symbol": "Limits.__eq__"
+    },
+    {
+      "end_line": 198,
+      "id": "httpx/_config.py:Limits.__repr__:192-198",
+      "path": "httpx/_config.py",
+      "source_hash": "774f7b1ffac5e9b77515e2f1ee6421e78f77ce7d75a5eaf2953f565f9f6bf8ee",
+      "start_line": 192,
+      "symbol": "Limits.__repr__"
+    },
+    {
+      "end_line": 224,
+      "id": "httpx/_config.py:Proxy.__init__:202-224",
+      "path": "httpx/_config.py",
+      "source_hash": "22b7381dd95c3beb4dfbd4fc24b2659337d2623ef5ca21b852fb5e4701e693d0",
+      "start_line": 202,
+      "symbol": "Proxy.__init__"
+    },
+    {
+      "end_line": 233,
+      "id": "httpx/_config.py:Proxy.raw_auth:226-233",
+      "path": "httpx/_config.py",
+      "source_hash": "f3b8e9f2b51d9cbf415487d84d3274c5897b1c652b49e32f84cfd629243471d7",
+      "start_line": 226,
+      "symbol": "Proxy.raw_auth"
+    },
+    {
+      "end_line": 243,
+      "id": "httpx/_config.py:Proxy.__repr__:235-243",
+      "path": "httpx/_config.py",
+      "source_hash": "f2e7d0e345acdcb60752d4489c5405b5d6626981bb5cd429ffcc4523a236bd24",
+      "start_line": 235,
+      "symbol": "Proxy.__repr__"
+    },
+    {
+      "end_line": 33,
+      "id": "httpx/_content.py:ByteStream.__init__:32-33",
+      "path": "httpx/_content.py",
+      "source_hash": "7acddfd2f08d78c18fd24f81fbb7fa3791a6b963632e73f1d0a9468a85aa4987",
+      "start_line": 32,
+      "symbol": "ByteStream.__init__"
+    },
+    {
+      "end_line": 36,
+      "id": "httpx/_content.py:ByteStream.__iter__:35-36",
+      "path": "httpx/_content.py",
+      "source_hash": "d885ed57d16bf4d40878196f90b4076531d807e2b41b86e8f8acf383636331a1",
+      "start_line": 35,
+      "symbol": "ByteStream.__iter__"
+    },
+    {
+      "end_line": 39,
+      "id": "httpx/_content.py:ByteStream.__aiter__:38-39",
+      "path": "httpx/_content.py",
+      "source_hash": "0c35d35e7eb5ba89e36731f4baacf3f508a97b2e2068096269327eca6043f401",
+      "start_line": 38,
+      "symbol": "ByteStream.__aiter__"
+    },
+    {
+      "end_line": 48,
+      "id": "httpx/_content.py:IteratorByteStream.__init__:45-48",
+      "path": "httpx/_content.py",
+      "source_hash": "a032dd03bd3ffc6622488413c84b85834a0e240c431c75bcb9e2a241478826cb",
+      "start_line": 45,
+      "symbol": "IteratorByteStream.__init__"
+    },
+    {
+      "end_line": 64,
+      "id": "httpx/_content.py:IteratorByteStream.__iter__:50-64",
+      "path": "httpx/_content.py",
+      "source_hash": "720db9d7f75fb1270a7fb747875e858ed5f81140717cebd19e455b867c4400bf",
+      "start_line": 50,
+      "symbol": "IteratorByteStream.__iter__"
+    },
+    {
+      "end_line": 73,
+      "id": "httpx/_content.py:AsyncIteratorByteStream.__init__:70-73",
+      "path": "httpx/_content.py",
+      "source_hash": "08fb9d9fe514a0bfdcbeeeef75c26a279c81c8d228060f15aebd284bd028b388",
+      "start_line": 70,
+      "symbol": "AsyncIteratorByteStream.__init__"
+    },
+    {
+      "end_line": 89,
+      "id": "httpx/_content.py:AsyncIteratorByteStream.__aiter__:75-89",
+      "path": "httpx/_content.py",
+      "source_hash": "16525524b0a989d2645acc2b03ac6138e523a7c1188eba6862261e2d4dcc4940",
+      "start_line": 75,
+      "symbol": "AsyncIteratorByteStream.__aiter__"
+    },
+    {
+      "end_line": 100,
+      "id": "httpx/_content.py:UnattachedStream.__iter__:99-100",
+      "path": "httpx/_content.py",
+      "source_hash": "55cd0dbcdb2b9c996243c5258d1bf119faea6ee9f102bbd630bd01d3117ad5b7",
+      "start_line": 99,
+      "symbol": "UnattachedStream.__iter__"
+    },
+    {
+      "end_line": 104,
+      "id": "httpx/_content.py:UnattachedStream.__aiter__:102-104",
+      "path": "httpx/_content.py",
+      "source_hash": "6386c885b53a8caecd0a040b972dd02b6211e8e89a8b760fd2376ec2990eeca1",
+      "start_line": 102,
+      "symbol": "UnattachedStream.__aiter__"
+    },
+    {
+      "end_line": 133,
+      "id": "httpx/_content.py:encode_content:107-133",
+      "path": "httpx/_content.py",
+      "source_hash": "0442068de8032cbe7cc657444105a1e69cf96921880421808ca87e19212d5b17",
+      "start_line": 107,
+      "symbol": "encode_content"
+    },
+    {
+      "end_line": 149,
+      "id": "httpx/_content.py:encode_urlencoded_data:136-149",
+      "path": "httpx/_content.py",
+      "source_hash": "cf65b36debda98d7df59185c9f3001d77b02050611f7d1fc3250b37adb6e3291",
+      "start_line": 136,
+      "symbol": "encode_urlencoded_data"
+    },
+    {
+      "end_line": 157,
+      "id": "httpx/_content.py:encode_multipart_data:152-157",
+      "path": "httpx/_content.py",
+      "source_hash": "001535a3c1f0e6a8282a605f04ddf4fe06a8504beba8db9dc1d435b9f9717a51",
+      "start_line": 152,
+      "symbol": "encode_multipart_data"
+    },
+    {
+      "end_line": 165,
+      "id": "httpx/_content.py:encode_text:160-165",
+      "path": "httpx/_content.py",
+      "source_hash": "33cb9c4d599751626ff73ea91432019a05aa0b97d676d90dbbf1b362d2032f2c",
+      "start_line": 160,
+      "symbol": "encode_text"
+    },
+    {
+      "end_line": 173,
+      "id": "httpx/_content.py:encode_html:168-173",
+      "path": "httpx/_content.py",
+      "source_hash": "71bac2c99774ab5b98018ec87b137746c0bdde729f6fd3ef5925cd6f417bca5c",
+      "start_line": 168,
+      "symbol": "encode_html"
+    },
+    {
+      "end_line": 183,
+      "id": "httpx/_content.py:encode_json:176-183",
+      "path": "httpx/_content.py",
+      "source_hash": "30372895d631a8b5200f61f3cad175aa09b48db43be3b717291d7ef9f93f658e",
+      "start_line": 176,
+      "symbol": "encode_json"
+    },
+    {
+      "end_line": 218,
+      "id": "httpx/_content.py:encode_request:186-218",
+      "path": "httpx/_content.py",
+      "source_hash": "6651ed432577431e4bd1617f2c8eab330b2ff249e4ee500e02694fadbf74d8ff",
+      "start_line": 186,
+      "symbol": "encode_request"
+    },
+    {
+      "end_line": 240,
+      "id": "httpx/_content.py:encode_response:221-240",
+      "path": "httpx/_content.py",
+      "source_hash": "6f3a5f21e3298095d86e69ef65001a5b625dd42e2ed7a7d69554078e24c7c33b",
+      "start_line": 221,
+      "symbol": "encode_response"
+    },
+    {
+      "end_line": 50,
+      "id": "httpx/_decoders.py:IdentityDecoder.decode:49-50",
+      "path": "httpx/_decoders.py",
+      "source_hash": "7eb3f80ed8d617e542f3f0602453390d609d5ad3df177ec0b4dfa807e03dda22",
+      "start_line": 49,
+      "symbol": "IdentityDecoder.decode"
+    },
+    {
+      "end_line": 53,
+      "id": "httpx/_decoders.py:IdentityDecoder.flush:52-53",
+      "path": "httpx/_decoders.py",
+      "source_hash": "84968c1a44f79b815d946e32f142d0a048b3c7d23aee0eaa1e0d0dd4c107132c",
+      "start_line": 52,
+      "symbol": "IdentityDecoder.flush"
+    },
+    {
+      "end_line": 65,
+      "id": "httpx/_decoders.py:DeflateDecoder.__init__:63-65",
+      "path": "httpx/_decoders.py",
+      "source_hash": "6c35135b1af0ea48d515303d220a5a709c1008f8abf27eae3824960d1808435b",
+      "start_line": 63,
+      "symbol": "DeflateDecoder.__init__"
+    },
+    {
+      "end_line": 76,
+      "id": "httpx/_decoders.py:DeflateDecoder.decode:67-76",
+      "path": "httpx/_decoders.py",
+      "source_hash": "f9d584379ce6b82a9722d053675eb1e37cb6a0a07032a4a3065fc6b05815c43d",
+      "start_line": 67,
+      "symbol": "DeflateDecoder.decode"
+    },
+    {
+      "end_line": 82,
+      "id": "httpx/_decoders.py:DeflateDecoder.flush:78-82",
+      "path": "httpx/_decoders.py",
+      "source_hash": "07d41f0bd914709e3820f39edc277b0d1da9aaf904391e42a0b2a2072210697e",
+      "start_line": 78,
+      "symbol": "DeflateDecoder.flush"
+    },
+    {
+      "end_line": 93,
+      "id": "httpx/_decoders.py:GZipDecoder.__init__:92-93",
+      "path": "httpx/_decoders.py",
+      "source_hash": "8e7d3c56813ad71311a304b1cc0a36cedd73fea778a3b8e34e9c083b0fa2ea9f",
+      "start_line": 92,
+      "symbol": "GZipDecoder.__init__"
+    },
+    {
+      "end_line": 99,
+      "id": "httpx/_decoders.py:GZipDecoder.decode:95-99",
+      "path": "httpx/_decoders.py",
+      "source_hash": "c3cd4a5f1604828addcba45d5be03bcb8568834d72123851a346eb64333fd6c5",
+      "start_line": 95,
+      "symbol": "GZipDecoder.decode"
+    },
+    {
+      "end_line": 105,
+      "id": "httpx/_decoders.py:GZipDecoder.flush:101-105",
+      "path": "httpx/_decoders.py",
+      "source_hash": "07d41f0bd914709e3820f39edc277b0d1da9aaf904391e42a0b2a2072210697e",
+      "start_line": 101,
+      "symbol": "GZipDecoder.flush"
+    },
+    {
+      "end_line": 134,
+      "id": "httpx/_decoders.py:BrotliDecoder.__init__:118-134",
+      "path": "httpx/_decoders.py",
+      "source_hash": "f795669bf21739cb4814cf6522b11494378173e4b1f36cfb5e49f64c6f6c8b77",
+      "start_line": 118,
+      "symbol": "BrotliDecoder.__init__"
+    },
+    {
+      "end_line": 143,
+      "id": "httpx/_decoders.py:BrotliDecoder.decode:136-143",
+      "path": "httpx/_decoders.py",
+      "source_hash": "25d8f19978d25d1452e2b3a0cb6da99a9c7cd88eb3c8ff1f421c7da759136cdc",
+      "start_line": 136,
+      "symbol": "BrotliDecoder.decode"
+    },
+    {
+      "end_line": 158,
+      "id": "httpx/_decoders.py:BrotliDecoder.flush:145-158",
+      "path": "httpx/_decoders.py",
+      "source_hash": "c05eca67653a94082688862cb1b1796f96dd9314ad29cf51d7bcf474f9dfe29d",
+      "start_line": 145,
+      "symbol": "BrotliDecoder.flush"
+    },
+    {
+      "end_line": 178,
+      "id": "httpx/_decoders.py:ZStandardDecoder.__init__:170-178",
+      "path": "httpx/_decoders.py",
+      "source_hash": "bd0c7853b17590bbf6b757424dc14085dc2ad9f4febdf04ac45247d3dd514552",
+      "start_line": 170,
+      "symbol": "ZStandardDecoder.__init__"
+    },
+    {
+      "end_line": 192,
+      "id": "httpx/_decoders.py:ZStandardDecoder.decode:180-192",
+      "path": "httpx/_decoders.py",
+      "source_hash": "12518f00aa71a18315f8210b251bb38fd7478fa277c981dc22cc2a1ede89e870",
+      "start_line": 180,
+      "symbol": "ZStandardDecoder.decode"
+    },
+    {
+      "end_line": 200,
+      "id": "httpx/_decoders.py:ZStandardDecoder.flush:194-200",
+      "path": "httpx/_decoders.py",
+      "source_hash": "2d1bb822185d4a23cef6cfce1b0d9b029d7ed0431824e780a7977ba49163f35b",
+      "start_line": 194,
+      "symbol": "ZStandardDecoder.flush"
+    },
+    {
+      "end_line": 214,
+      "id": "httpx/_decoders.py:MultiDecoder.__init__:208-214",
+      "path": "httpx/_decoders.py",
+      "source_hash": "f54e7afff9a7e3bdcf11966113b5fb187d82551f2b723cf980722cd3f8e530cb",
+      "start_line": 208,
+      "symbol": "MultiDecoder.__init__"
+    },
+    {
+      "end_line": 219,
+      "id": "httpx/_decoders.py:MultiDecoder.decode:216-219",
+      "path": "httpx/_decoders.py",
+      "source_hash": "b26b60a6d4beefdbf40dd8fc6b43f7de70949da7773cbb2fdea86935f7800f5d",
+      "start_line": 216,
+      "symbol": "MultiDecoder.decode"
+    },
+    {
+      "end_line": 225,
+      "id": "httpx/_decoders.py:MultiDecoder.flush:221-225",
+      "path": "httpx/_decoders.py",
+      "source_hash": "dc3469789352f853208be884b95a98d405747c2453735f4eef94d20d09eec99a",
+      "start_line": 221,
+      "symbol": "MultiDecoder.flush"
+    },
+    {
+      "end_line": 235,
+      "id": "httpx/_decoders.py:ByteChunker.__init__:233-235",
+      "path": "httpx/_decoders.py",
+      "source_hash": "952ff4d23ddc2b7188e222e8f2cf3b47a7d9c781aa223ef745e0f01aa85a31c2",
+      "start_line": 233,
+      "symbol": "ByteChunker.__init__"
+    },
+    {
+      "end_line": 258,
+      "id": "httpx/_decoders.py:ByteChunker.decode:237-258",
+      "path": "httpx/_decoders.py",
+      "source_hash": "8f2517ec7ae252374606f85de68e8438682ad5cc6ec8b44e6f934be92a9ab03a",
+      "start_line": 237,
+      "symbol": "ByteChunker.decode"
+    },
+    {
+      "end_line": 264,
+      "id": "httpx/_decoders.py:ByteChunker.flush:260-264",
+      "path": "httpx/_decoders.py",
+      "source_hash": "5cb5addf98d0086a8b13653c70fb47e3ec79f1be9e29a5bb1c02da804aa08f99",
+      "start_line": 260,
+      "symbol": "ByteChunker.flush"
+    },
+    {
+      "end_line": 274,
+      "id": "httpx/_decoders.py:TextChunker.__init__:272-274",
+      "path": "httpx/_decoders.py",
+      "source_hash": "667ea9aa389978ac47b260e7002869ce787eea6ff386252dd7f3841189291fee",
+      "start_line": 272,
+      "symbol": "TextChunker.__init__"
+    },
+    {
+      "end_line": 297,
+      "id": "httpx/_decoders.py:TextChunker.decode:276-297",
+      "path": "httpx/_decoders.py",
+      "source_hash": "2ca58d2e3393591aa2b8736b91afe38083f48f12f524e8a10b06da28729be330",
+      "start_line": 276,
+      "symbol": "TextChunker.decode"
+    },
+    {
+      "end_line": 303,
+      "id": "httpx/_decoders.py:TextChunker.flush:299-303",
+      "path": "httpx/_decoders.py",
+      "source_hash": "2263c772763f29ed6c21b0db76b396197bb7526629cb42120f86cbe4978a21f1",
+      "start_line": 299,
+      "symbol": "TextChunker.flush"
+    },
+    {
+      "end_line": 312,
+      "id": "httpx/_decoders.py:TextDecoder.__init__:311-312",
+      "path": "httpx/_decoders.py",
+      "source_hash": "73a77cbb55366c361183de2179b1671eab08a8511890f71223744752bac8e78b",
+      "start_line": 311,
+      "symbol": "TextDecoder.__init__"
+    },
+    {
+      "end_line": 315,
+      "id": "httpx/_decoders.py:TextDecoder.decode:314-315",
+      "path": "httpx/_decoders.py",
+      "source_hash": "a9dd2dffa9a7bd58bc4ad9b2cc25e7e4066d3ddc7eb5a339b964bd89f6abd334",
+      "start_line": 314,
+      "symbol": "TextDecoder.decode"
+    },
+    {
+      "end_line": 318,
+      "id": "httpx/_decoders.py:TextDecoder.flush:317-318",
+      "path": "httpx/_decoders.py",
+      "source_hash": "eddfc9db4ce51eb0fe0439a13cd3ccf68861291a51c0d8a71951079d0db4b88b",
+      "start_line": 317,
+      "symbol": "TextDecoder.flush"
+    },
+    {
+      "end_line": 331,
+      "id": "httpx/_decoders.py:LineDecoder.__init__:329-331",
+      "path": "httpx/_decoders.py",
+      "source_hash": "d73ac5e678790361f62b71a09812648c6d7f0be8691f0afa58f24dcec0d091c7",
+      "start_line": 329,
+      "symbol": "LineDecoder.__init__"
+    },
+    {
+      "end_line": 369,
+      "id": "httpx/_decoders.py:LineDecoder.decode:333-369",
+      "path": "httpx/_decoders.py",
+      "source_hash": "8097e3e9f92ed5129bb7a461b65fcb8845a138d822ce4977efabf2728db774a5",
+      "start_line": 333,
+      "symbol": "LineDecoder.decode"
+    },
+    {
+      "end_line": 378,
+      "id": "httpx/_decoders.py:LineDecoder.flush:371-378",
+      "path": "httpx/_decoders.py",
+      "source_hash": "db49090f74d5195c86c44718142ca9330427c0a7e45c92ebb5e5c6923693f7c8",
+      "start_line": 371,
+      "symbol": "LineDecoder.flush"
+    },
+    {
+      "end_line": 94,
+      "id": "httpx/_exceptions.py:HTTPError.__init__:92-94",
+      "path": "httpx/_exceptions.py",
+      "source_hash": "61e888b14fb164dd0a651f2a665cf94fa4e53504dc46536f892165d9f30fa522",
+      "start_line": 92,
+      "symbol": "HTTPError.__init__"
+    },
+    {
+      "end_line": 100,
+      "id": "httpx/_exceptions.py:HTTPError.request:96-100",
+      "path": "httpx/_exceptions.py",
+      "source_hash": "6dd1c310683360f9e2095990c5858bc041ec896b165cca0983bc41cface4c093",
+      "start_line": 96,
+      "symbol": "HTTPError.request"
+    },
+    {
+      "end_line": 104,
+      "id": "httpx/_exceptions.py:HTTPError.request:102-104",
+      "path": "httpx/_exceptions.py",
+      "source_hash": "4e83c43c788e3bbbe37f2ca29935b2c8a8946e2d6deeb50831a91de9e4b761b2",
+      "start_line": 102,
+      "symbol": "HTTPError.request"
+    },
+    {
+      "end_line": 120,
+      "id": "httpx/_exceptions.py:RequestError.__init__:112-120",
+      "path": "httpx/_exceptions.py",
+      "source_hash": "374e4ac109ce723c61aea1f42aa3e3b0c29d165b65cbb8dac7e7be7343bb6f25",
+      "start_line": 112,
+      "symbol": "RequestError.__init__"
+    },
+    {
+      "end_line": 268,
+      "id": "httpx/_exceptions.py:HTTPStatusError.__init__:265-268",
+      "path": "httpx/_exceptions.py",
+      "source_hash": "9a2dca852841b9a64d4704c2b1442c7fc074e9d48156e728a8e22a26b3ee5a91",
+      "start_line": 265,
+      "symbol": "HTTPStatusError.__init__"
+    },
+    {
+      "end_line": 277,
+      "id": "httpx/_exceptions.py:InvalidURL.__init__:276-277",
+      "path": "httpx/_exceptions.py",
+      "source_hash": "c62143dd2d1670c4b6d281df58e6753757a1409f4eae49763988285036973bb6",
+      "start_line": 276,
+      "symbol": "InvalidURL.__init__"
+    },
+    {
+      "end_line": 288,
+      "id": "httpx/_exceptions.py:CookieConflict.__init__:287-288",
+      "path": "httpx/_exceptions.py",
+      "source_hash": "c62143dd2d1670c4b6d281df58e6753757a1409f4eae49763988285036973bb6",
+      "start_line": 287,
+      "symbol": "CookieConflict.__init__"
+    },
+    {
+      "end_line": 306,
+      "id": "httpx/_exceptions.py:StreamError.__init__:305-306",
+      "path": "httpx/_exceptions.py",
+      "source_hash": "c62143dd2d1670c4b6d281df58e6753757a1409f4eae49763988285036973bb6",
+      "start_line": 305,
+      "symbol": "StreamError.__init__"
+    },
+    {
+      "end_line": 324,
+      "id": "httpx/_exceptions.py:StreamConsumed.__init__:315-324",
+      "path": "httpx/_exceptions.py",
+      "source_hash": "b4266b4184d59ab1564c3c55148a6b731d770e65f469c75ae6ed6dc7b171a910",
+      "start_line": 315,
+      "symbol": "StreamConsumed.__init__"
+    },
+    {
+      "end_line": 337,
+      "id": "httpx/_exceptions.py:StreamClosed.__init__:333-337",
+      "path": "httpx/_exceptions.py",
+      "source_hash": "07d2532ddd15bd9c05ecb5d0e85baefe2135ebf7493e1c03d9059cf31d8f5c20",
+      "start_line": 333,
+      "symbol": "StreamClosed.__init__"
+    },
+    {
+      "end_line": 350,
+      "id": "httpx/_exceptions.py:ResponseNotRead.__init__:345-350",
+      "path": "httpx/_exceptions.py",
+      "source_hash": "1be4b75fd047532d3c0c1e2ab9f25f6bb0b290a126ec439554633df9ae02bd6f",
+      "start_line": 345,
+      "symbol": "ResponseNotRead.__init__"
+    },
+    {
+      "end_line": 363,
+      "id": "httpx/_exceptions.py:RequestNotRead.__init__:358-363",
+      "path": "httpx/_exceptions.py",
+      "source_hash": "1f24ca6c78991756135bc459241d929a7d8fec093dc96d17c1b1b0b245303f05",
+      "start_line": 358,
+      "symbol": "RequestNotRead.__init__"
+    },
+    {
+      "end_line": 379,
+      "id": "httpx/_exceptions.py:request_context:366-379",
+      "path": "httpx/_exceptions.py",
+      "source_hash": "e8b21fd7b402c1aa5733189fce03241b4ba35d3a1cb9bb93d617795dfa10023e",
+      "start_line": 366,
+      "symbol": "request_context"
+    },
+    {
+      "end_line": 100,
+      "id": "httpx/_main.py:print_help:26-100",
+      "path": "httpx/_main.py",
+      "source_hash": "42f6bc147253e1be144ef15b4fa34d3e9761e192bf602b9c26bd3059343d7099",
+      "start_line": 26,
+      "symbol": "print_help"
+    },
+    {
+      "end_line": 113,
+      "id": "httpx/_main.py:get_lexer_for_response:103-113",
+      "path": "httpx/_main.py",
+      "source_hash": "5754602cd8eb0d964f7556bb9ba181a6d42cc5a0bc2add134d6ddadccfb6f9ee",
+      "start_line": 103,
+      "symbol": "get_lexer_for_response"
+    },
+    {
+      "end_line": 126,
+      "id": "httpx/_main.py:format_request_headers:116-126",
+      "path": "httpx/_main.py",
+      "source_hash": "c52b8efb2fe1f39155413a598907154cee1ed5ba5d6a45f35a4127ad59c6f29e",
+      "start_line": 116,
+      "symbol": "format_request_headers"
+    },
+    {
+      "end_line": 144,
+      "id": "httpx/_main.py:format_response_headers:129-144",
+      "path": "httpx/_main.py",
+      "source_hash": "241081c142d0b94ad65870ddc79d570aaa2870e9e5168fd812e257e7ed24483c",
+      "start_line": 129,
+      "symbol": "format_response_headers"
+    },
+    {
+      "end_line": 153,
+      "id": "httpx/_main.py:print_request_headers:147-153",
+      "path": "httpx/_main.py",
+      "source_hash": "d7a533fe0585ebf367a7ff685d2067415282cbd36ebcc6288871aebff8850e44",
+      "start_line": 147,
+      "symbol": "print_request_headers"
+    },
+    {
+      "end_line": 167,
+      "id": "httpx/_main.py:print_response_headers:156-167",
+      "path": "httpx/_main.py",
+      "source_hash": "d3d711a5924db0a0af8c8a1b6ec27efdffa90ff8f370b2873a341613d23e34a4",
+      "start_line": 156,
+      "symbol": "print_response_headers"
+    },
+    {
+      "end_line": 186,
+      "id": "httpx/_main.py:print_response:170-186",
+      "path": "httpx/_main.py",
+      "source_hash": "1b2a7f03388e071be16a45a78e826129a0ed3a12393a66c0a448af7d764826f1",
+      "start_line": 170,
+      "symbol": "print_response"
+    },
+    {
+      "end_line": 209,
+      "id": "httpx/_main.py:format_certificate:194-209",
+      "path": "httpx/_main.py",
+      "source_hash": "b6bdf3ca869fd979c0d07b5fd9800cdfe246abc407e8d6791552c7fe561f0737",
+      "start_line": 194,
+      "symbol": "format_certificate"
+    },
+    {
+      "end_line": 248,
+      "id": "httpx/_main.py:trace:212-248",
+      "path": "httpx/_main.py",
+      "source_hash": "6afa630618acedb5b2f4c5c46dd003b8570925338f82ad41b46f821a644c1863",
+      "start_line": 212,
+      "symbol": "trace"
+    },
+    {
+      "end_line": 270,
+      "id": "httpx/_main.py:download_response:251-270",
+      "path": "httpx/_main.py",
+      "source_hash": "c687aad25acc74309ff92c8de87ff4962916786675612adc281f99a2a9903c5f",
+      "start_line": 251,
+      "symbol": "download_response"
+    },
+    {
+      "end_line": 284,
+      "id": "httpx/_main.py:validate_json:273-284",
+      "path": "httpx/_main.py",
+      "source_hash": "c964b6c8765c72c8d1ff26e0cc3e1c101546e6b6f9e7ee0b8a49d0e935d6d97c",
+      "start_line": 273,
+      "symbol": "validate_json"
+    },
+    {
+      "end_line": 298,
+      "id": "httpx/_main.py:validate_auth:287-298",
+      "path": "httpx/_main.py",
+      "source_hash": "2af430f6be416324a255ab0caaccc7ae887f6ccd282714251c92e2886cb518a8",
+      "start_line": 287,
+      "symbol": "validate_auth"
+    },
+    {
+      "end_line": 310,
+      "id": "httpx/_main.py:handle_help:301-310",
+      "path": "httpx/_main.py",
+      "source_hash": "9b1f229c3fb016738c6c5ac4d9ce7ef52aaaf7a4f99de7a5a24c38ad8ce33290",
+      "start_line": 301,
+      "symbol": "handle_help"
+    },
+    {
+      "end_line": 506,
+      "id": "httpx/_main.py:main:433-506",
+      "path": "httpx/_main.py",
+      "source_hash": "720369e00e65d5563ba091e7ab62cfb7a8678de9858f613e1b6f96b22b7f4a60",
+      "start_line": 433,
+      "symbol": "main"
+    },
+    {
+      "end_line": 64,
+      "id": "httpx/_models.py:_is_known_encoding:56-64",
+      "path": "httpx/_models.py",
+      "source_hash": "287b1b22e110b579f02a7702fd559e7ffb85b6749216d9b8e7b301cd7c90246c",
+      "start_line": 56,
+      "symbol": "_is_known_encoding"
+    },
+    {
+      "end_line": 71,
+      "id": "httpx/_models.py:_normalize_header_key:67-71",
+      "path": "httpx/_models.py",
+      "source_hash": "2db03b6b717d39077057c32912181fb413c545c629ff7dbfe8216d4254ceb4f8",
+      "start_line": 67,
+      "symbol": "_normalize_header_key"
+    },
+    {
+      "end_line": 82,
+      "id": "httpx/_models.py:_normalize_header_value:74-82",
+      "path": "httpx/_models.py",
+      "source_hash": "b02385a90c92af1c1b81d70bf1068994aeeb42ad788e4acca17baf13dd2c5c84",
+      "start_line": 74,
+      "symbol": "_normalize_header_value"
+    },
+    {
+      "end_line": 90,
+      "id": "httpx/_models.py:_parse_content_type_charset:85-90",
+      "path": "httpx/_models.py",
+      "source_hash": "dfaf08d2934b74eae8ccbb506616eaea10d5960a43d3e6c642d7d12048d4ebad",
+      "start_line": 85,
+      "symbol": "_parse_content_type_charset"
+    },
+    {
+      "end_line": 127,
+      "id": "httpx/_models.py:_parse_header_links:93-127",
+      "path": "httpx/_models.py",
+      "source_hash": "36de3e9a1aa1dcfc8b3fc4cfaa2807fc0870576c3ed85ff141c0947f9c9f6f53",
+      "start_line": 93,
+      "symbol": "_parse_header_links"
+    },
+    {
+      "end_line": 136,
+      "id": "httpx/_models.py:_obfuscate_sensitive_headers:130-136",
+      "path": "httpx/_models.py",
+      "source_hash": "a9d96aa25fb6f2637428602dde9a34db4205dbf32d3d7d8a2e8b01382944b2ba",
+      "start_line": 130,
+      "symbol": "_obfuscate_sensitive_headers"
+    },
+    {
+      "end_line": 164,
+      "id": "httpx/_models.py:Headers.__init__:144-164",
+      "path": "httpx/_models.py",
+      "source_hash": "6e29ee106a1fac76e3c8dcd7d2824716d2d310a374003556ebeb0e007d6839b6",
+      "start_line": 144,
+      "symbol": "Headers.__init__"
+    },
+    {
+      "end_line": 189,
+      "id": "httpx/_models.py:Headers.encoding:166-189",
+      "path": "httpx/_models.py",
+      "source_hash": "f9fc1ca32eacec61f2b90d5fa59910affb77408013d46373bb18e67045688b88",
+      "start_line": 166,
+      "symbol": "Headers.encoding"
+    },
+    {
+      "end_line": 193,
+      "id": "httpx/_models.py:Headers.encoding:191-193",
+      "path": "httpx/_models.py",
+      "source_hash": "ebbca07d9d67bebc558fd30e5abf0a6e4024c16a9de9c014ef8c86f0bdbd9f67",
+      "start_line": 191,
+      "symbol": "Headers.encoding"
+    },
+    {
+      "end_line": 200,
+      "id": "httpx/_models.py:Headers.raw:195-200",
+      "path": "httpx/_models.py",
+      "source_hash": "5aca9bbc49d28391dcf83e469aaf0045b7b423a14c14a87dc38182b2e5c2947e",
+      "start_line": 195,
+      "symbol": "Headers.raw"
+    },
+    {
+      "end_line": 203,
+      "id": "httpx/_models.py:Headers.keys:202-203",
+      "path": "httpx/_models.py",
+      "source_hash": "0ded4dfe814e81e31c08b8875b54c1dccc161146d32fb1134cdc87eb676c33a1",
+      "start_line": 202,
+      "symbol": "Headers.keys"
+    },
+    {
+      "end_line": 214,
+      "id": "httpx/_models.py:Headers.values:205-214",
+      "path": "httpx/_models.py",
+      "source_hash": "0aa52e5ddc30cc5725570d44772c96d51545195f774b90214ecc673d44d9bbb9",
+      "start_line": 205,
+      "symbol": "Headers.values"
+    },
+    {
+      "end_line": 229,
+      "id": "httpx/_models.py:Headers.items:216-229",
+      "path": "httpx/_models.py",
+      "source_hash": "b8308a0eeaa3c71c50299db32d91d410893241af0c03d721cf2b677bcc84b0e0",
+      "start_line": 216,
+      "symbol": "Headers.items"
+    },
+    {
+      "end_line": 240,
+      "id": "httpx/_models.py:Headers.multi_items:231-240",
+      "path": "httpx/_models.py",
+      "source_hash": "75eabdb50accd2e5ebcedce73cf9433abae124a3e9b38d7dcd2f8ebb8f3382b6",
+      "start_line": 231,
+      "symbol": "Headers.multi_items"
+    },
+    {
+      "end_line": 250,
+      "id": "httpx/_models.py:Headers.get:242-250",
+      "path": "httpx/_models.py",
+      "source_hash": "1cf47d6e3bba1f9f3050089b1062ac98a31928dc1e06ee6bc5790663d7b05b67",
+      "start_line": 242,
+      "symbol": "Headers.get"
+    },
+    {
+      "end_line": 272,
+      "id": "httpx/_models.py:Headers.get_list:252-272",
+      "path": "httpx/_models.py",
+      "source_hash": "c8a896e7cff95231c3871cd977c2f35c799c574615df84393b0c2aec25ae8c10",
+      "start_line": 252,
+      "symbol": "Headers.get_list"
+    },
+    {
+      "end_line": 279,
+      "id": "httpx/_models.py:Headers.update:274-279",
+      "path": "httpx/_models.py",
+      "source_hash": "e09eca7851ec94444b116f87bc7ad873ef0a3eaafd3d561a7f357263974749f4",
+      "start_line": 274,
+      "symbol": "Headers.update"
+    },
+    {
+      "end_line": 282,
+      "id": "httpx/_models.py:Headers.copy:281-282",
+      "path": "httpx/_models.py",
+      "source_hash": "e784ec2dae1a621768d7bbfcee42f3da73925e06844b9cd6773a2c77a34c3dea",
+      "start_line": 281,
+      "symbol": "Headers.copy"
+    },
+    {
+      "end_line": 302,
+      "id": "httpx/_models.py:Headers.__getitem__:284-302",
+      "path": "httpx/_models.py",
+      "source_hash": "7c220df74e99968a848c1bf3b88f363f98a351dc779857f61f8482d90dbf686d",
+      "start_line": 284,
+      "symbol": "Headers.__getitem__"
+    },
+    {
+      "end_line": 326,
+      "id": "httpx/_models.py:Headers.__setitem__:304-326",
+      "path": "httpx/_models.py",
+      "source_hash": "c7cb4e9e85d672ef4239d01e8aa68f06c69a91e4dab6d21b8d8bdd215c5a28fe",
+      "start_line": 304,
+      "symbol": "Headers.__setitem__"
+    },
+    {
+      "end_line": 344,
+      "id": "httpx/_models.py:Headers.__delitem__:328-344",
+      "path": "httpx/_models.py",
+      "source_hash": "951742befba900bc3fa93aea9116ad4b33fd6b72b68324c2d0277ddafb853235",
+      "start_line": 328,
+      "symbol": "Headers.__delitem__"
+    },
+    {
+      "end_line": 348,
+      "id": "httpx/_models.py:Headers.__contains__:346-348",
+      "path": "httpx/_models.py",
+      "source_hash": "e0f082dd8cfdb20643aafdc85baa68d54ccdd0b5dbe87d3bc89243b986f6cec2",
+      "start_line": 346,
+      "symbol": "Headers.__contains__"
+    },
+    {
+      "end_line": 351,
+      "id": "httpx/_models.py:Headers.__iter__:350-351",
+      "path": "httpx/_models.py",
+      "source_hash": "ef481ce9d56959b1b07b58c151137422d6db5464dfb8e14277a66ea31eed5bf6",
+      "start_line": 350,
+      "symbol": "Headers.__iter__"
+    },
+    {
+      "end_line": 354,
+      "id": "httpx/_models.py:Headers.__len__:353-354",
+      "path": "httpx/_models.py",
+      "source_hash": "efac86f7c3ea3bcae8f31229a04ef3c49dceebc866080fdfc37e17b915951f4e",
+      "start_line": 353,
+      "symbol": "Headers.__len__"
+    },
+    {
+      "end_line": 364,
+      "id": "httpx/_models.py:Headers.__eq__:356-364",
+      "path": "httpx/_models.py",
+      "source_hash": "05dace6ad44b7709bb95b168527b1c3494c38654e2586daa2fbfa59052393768",
+      "start_line": 356,
+      "symbol": "Headers.__eq__"
+    },
+    {
+      "end_line": 379,
+      "id": "httpx/_models.py:Headers.__repr__:366-379",
+      "path": "httpx/_models.py",
+      "source_hash": "7cf0bb30aadd80753723e5669b15e4b57b8146981db42837921bf42b1bc0c9ba",
+      "start_line": 366,
+      "symbol": "Headers.__repr__"
+    },
+    {
+      "end_line": 439,
+      "id": "httpx/_models.py:Request.__init__:383-439",
+      "path": "httpx/_models.py",
+      "source_hash": "23b22679c8fb43190f18e4d00f018e9e9c6f806fca22234486740d001cd52b36",
+      "start_line": 383,
+      "symbol": "Request.__init__"
+    },
+    {
+      "end_line": 460,
+      "id": "httpx/_models.py:Request._prepare:441-460",
+      "path": "httpx/_models.py",
+      "source_hash": "2512f2c35f01fe341f99e1c6f88e680bd82ae89b7e9a812b129829724921bb2c",
+      "start_line": 441,
+      "symbol": "Request._prepare"
+    },
+    {
+      "end_line": 466,
+      "id": "httpx/_models.py:Request.content:462-466",
+      "path": "httpx/_models.py",
+      "source_hash": "7a564f291530b9c6fffce102168094070069b69aeb12e778b0aaae82e0628114",
+      "start_line": 462,
+      "symbol": "Request.content"
+    },
+    {
+      "end_line": 480,
+      "id": "httpx/_models.py:Request.read:468-480",
+      "path": "httpx/_models.py",
+      "source_hash": "87cafd01601ca66a9e2c82281f63b19759d93141fb5033f9a6b89ff1aeb3e462",
+      "start_line": 468,
+      "symbol": "Request.read"
+    },
+    {
+      "end_line": 494,
+      "id": "httpx/_models.py:Request.aread:482-494",
+      "path": "httpx/_models.py",
+      "source_hash": "2fc8ae849647944abdb8f906e387938935eae3b077aad4c55ca67c90d0a89aeb",
+      "start_line": 482,
+      "symbol": "Request.aread"
+    },
+    {
+      "end_line": 499,
+      "id": "httpx/_models.py:Request.__repr__:496-499",
+      "path": "httpx/_models.py",
+      "source_hash": "f670946bf9e8046782fbe73596247385b2a8f1315fb6360089996860dea770a5",
+      "start_line": 496,
+      "symbol": "Request.__repr__"
+    },
+    {
+      "end_line": 506,
+      "id": "httpx/_models.py:Request.__getstate__:501-506",
+      "path": "httpx/_models.py",
+      "source_hash": "1a87e9b01f5c5fdd339a99e29db12ea69d34419e92e1fc2503ab2686eb96328c",
+      "start_line": 501,
+      "symbol": "Request.__getstate__"
+    },
+    {
+      "end_line": 512,
+      "id": "httpx/_models.py:Request.__setstate__:508-512",
+      "path": "httpx/_models.py",
+      "source_hash": "2ead579c0ce44e7056a7a85ab614b38292851478164f738cffaad631e8c63853",
+      "start_line": 508,
+      "symbol": "Request.__setstate__"
+    },
+    {
+      "end_line": 569,
+      "id": "httpx/_models.py:Response.__init__:516-569",
+      "path": "httpx/_models.py",
+      "source_hash": "44f5163543520e9d5d9847a7efe087b878996d4c47344567c98bd8d69b81cf3b",
+      "start_line": 516,
+      "symbol": "Response.__init__"
+    },
+    {
+      "end_line": 576,
+      "id": "httpx/_models.py:Response._prepare:571-576",
+      "path": "httpx/_models.py",
+      "source_hash": "69ed4fb830e46c50f4378a53cbb2ecc4745fb7a0d16e6e2af3fd77f2f8a62761",
+      "start_line": 571,
+      "symbol": "Response._prepare"
+    },
+    {
+      "end_line": 589,
+      "id": "httpx/_models.py:Response.elapsed:578-589",
+      "path": "httpx/_models.py",
+      "source_hash": "387e2287357151f748b4f5f4c5661359a4387b3425a1ce793657bf6c00053e28",
+      "start_line": 578,
+      "symbol": "Response.elapsed"
+    },
+    {
+      "end_line": 593,
+      "id": "httpx/_models.py:Response.elapsed:591-593",
+      "path": "httpx/_models.py",
+      "source_hash": "46ca1c5d353713846249d1abf2fb70595cee5ab575f9b80a3e4cada8a12ef39d",
+      "start_line": 591,
+      "symbol": "Response.elapsed"
+    },
+    {
+      "end_line": 604,
+      "id": "httpx/_models.py:Response.request:595-604",
+      "path": "httpx/_models.py",
+      "source_hash": "f471e49c7427d70a206214d614c31c19099c6e55a38b06cb97cda398d859c4df",
+      "start_line": 595,
+      "symbol": "Response.request"
+    },
+    {
+      "end_line": 608,
+      "id": "httpx/_models.py:Response.request:606-608",
+      "path": "httpx/_models.py",
+      "source_hash": "ce723c93640d147b7105c91dfae2a0e6ca0948dca3b902a39bb460d717f8ae05",
+      "start_line": 606,
+      "symbol": "Response.request"
+    },
+    {
+      "end_line": 617,
+      "id": "httpx/_models.py:Response.http_version:610-617",
+      "path": "httpx/_models.py",
+      "source_hash": "2b547ad6e6aacb6f272fb3f3fa8482f2487b15b9c2d7145480fdd101d30c7dd3",
+      "start_line": 610,
+      "symbol": "Response.http_version"
+    },
+    {
+      "end_line": 626,
+      "id": "httpx/_models.py:Response.reason_phrase:619-626",
+      "path": "httpx/_models.py",
+      "source_hash": "c48e0df455f1517db5f7d5af573ed89d7851b0a2bcab7f8c859ee44b3fa41aef",
+      "start_line": 619,
+      "symbol": "Response.reason_phrase"
+    },
+    {
+      "end_line": 633,
+      "id": "httpx/_models.py:Response.url:628-633",
+      "path": "httpx/_models.py",
+      "source_hash": "0f83b9cefc907bc7c0c0e6e757585d0df70505e840c03ce296b06f2446bd54cb",
+      "start_line": 628,
+      "symbol": "Response.url"
+    },
+    {
+      "end_line": 639,
+      "id": "httpx/_models.py:Response.content:635-639",
+      "path": "httpx/_models.py",
+      "source_hash": "6d490a98d3760cc6f68a501181ea535802de9a67fffb6584faf6f89a27f22aba",
+      "start_line": 635,
+      "symbol": "Response.content"
+    },
+    {
+      "end_line": 650,
+      "id": "httpx/_models.py:Response.text:641-650",
+      "path": "httpx/_models.py",
+      "source_hash": "ba68e9fc8e75e52061a9a288187b3bd663480389efc58bcd89da129a52faf240",
+      "start_line": 641,
+      "symbol": "Response.text"
+    },
+    {
+      "end_line": 672,
+      "id": "httpx/_models.py:Response.encoding:652-672",
+      "path": "httpx/_models.py",
+      "source_hash": "389176212774ac0066c5bd05b736441867241f72da24f2dcabebbace97ef5a11",
+      "start_line": 652,
+      "symbol": "Response.encoding"
+    },
+    {
+      "end_line": 686,
+      "id": "httpx/_models.py:Response.encoding:674-686",
+      "path": "httpx/_models.py",
+      "source_hash": "d017bb737feb89e15155c3653d37ca6ef5a388def09fed164c512ab1809f3116",
+      "start_line": 674,
+      "symbol": "Response.encoding"
+    },
+    {
+      "end_line": 697,
+      "id": "httpx/_models.py:Response.charset_encoding:688-697",
+      "path": "httpx/_models.py",
+      "source_hash": "3b0ee3c76f5eaf812b1fc118fb20524543013318486bc022fcbfd1fad1a99d63",
+      "start_line": 688,
+      "symbol": "Response.charset_encoding"
+    },
+    {
+      "end_line": 722,
+      "id": "httpx/_models.py:Response._get_content_decoder:699-722",
+      "path": "httpx/_models.py",
+      "source_hash": "e4e87bf13cffb62ff16b32e70909692a6918a8c13e0ed95553d12228b93fffd6",
+      "start_line": 699,
+      "symbol": "Response._get_content_decoder"
+    },
+    {
+      "end_line": 729,
+      "id": "httpx/_models.py:Response.is_informational:724-729",
+      "path": "httpx/_models.py",
+      "source_hash": "98c1bb47a108ac26141f4f99dc61c3c09a45b0b413e69f94d166b0b4144fb211",
+      "start_line": 724,
+      "symbol": "Response.is_informational"
+    },
+    {
+      "end_line": 736,
+      "id": "httpx/_models.py:Response.is_success:731-736",
+      "path": "httpx/_models.py",
+      "source_hash": "b54bc58fae5da5ae0f288d5441d39077ed4d888b02b92c502569ebc1baf8cf58",
+      "start_line": 731,
+      "symbol": "Response.is_success"
+    },
+    {
+      "end_line": 748,
+      "id": "httpx/_models.py:Response.is_redirect:738-748",
+      "path": "httpx/_models.py",
+      "source_hash": "f89012020ebd4578bd677cecb631e0625c4cb7a93ba0cc7a382e7bf0349612c0",
+      "start_line": 738,
+      "symbol": "Response.is_redirect"
+    },
+    {
+      "end_line": 755,
+      "id": "httpx/_models.py:Response.is_client_error:750-755",
+      "path": "httpx/_models.py",
+      "source_hash": "2cd887cf5c8ffe68b999d454b8bddf906aedff4e4e9c5745e77fc90497ed7148",
+      "start_line": 750,
+      "symbol": "Response.is_client_error"
+    },
+    {
+      "end_line": 762,
+      "id": "httpx/_models.py:Response.is_server_error:757-762",
+      "path": "httpx/_models.py",
+      "source_hash": "ca6499021187fe993e04d8d087c40ba0c9cebf44231898970ba5fe5ada24a08b",
+      "start_line": 757,
+      "symbol": "Response.is_server_error"
+    },
+    {
+      "end_line": 769,
+      "id": "httpx/_models.py:Response.is_error:764-769",
+      "path": "httpx/_models.py",
+      "source_hash": "b3d26e1753291ec975805b104bd5e5dd1df6db49f9f33f1986eed83e522b603e",
+      "start_line": 764,
+      "symbol": "Response.is_error"
+    },
+    {
+      "end_line": 792,
+      "id": "httpx/_models.py:Response.has_redirect_location:771-792",
+      "path": "httpx/_models.py",
+      "source_hash": "7c31b0b00c39efed051f8542f50ee9b5181dc0f526cc06092def1f21e7d47b14",
+      "start_line": 771,
+      "symbol": "Response.has_redirect_location"
+    },
+    {
+      "end_line": 829,
+      "id": "httpx/_models.py:Response.raise_for_status:794-829",
+      "path": "httpx/_models.py",
+      "source_hash": "5211434d379ff3a5a85acd2e2cbbf7799bb48129f7839a2d68025b5397a53e09",
+      "start_line": 794,
+      "symbol": "Response.raise_for_status"
+    },
+    {
+      "end_line": 832,
+      "id": "httpx/_models.py:Response.json:831-832",
+      "path": "httpx/_models.py",
+      "source_hash": "9f433217d24c2dd0f93f173d9e1c520790e1b44ca7fe80e2709bb764b074c376",
+      "start_line": 831,
+      "symbol": "Response.json"
+    },
+    {
+      "end_line": 839,
+      "id": "httpx/_models.py:Response.cookies:834-839",
+      "path": "httpx/_models.py",
+      "source_hash": "8aa3bb2865f9b1961fe0e827b1d50fd8128490cd957e3c1d75d78d384c8368d4",
+      "start_line": 834,
+      "symbol": "Response.cookies"
+    },
+    {
+      "end_line": 853,
+      "id": "httpx/_models.py:Response.links:841-853",
+      "path": "httpx/_models.py",
+      "source_hash": "67372c5d0ad788f725a3bb893d64d046ade79f9e470300e3456e3d46cd339355",
+      "start_line": 841,
+      "symbol": "Response.links"
+    },
+    {
+      "end_line": 857,
+      "id": "httpx/_models.py:Response.num_bytes_downloaded:855-857",
+      "path": "httpx/_models.py",
+      "source_hash": "276b6ffad04b28bc0abcbda711ae0e524743be7db77d12283d5e8ba7586ea5d7",
+      "start_line": 855,
+      "symbol": "Response.num_bytes_downloaded"
+    },
+    {
+      "end_line": 860,
+      "id": "httpx/_models.py:Response.__repr__:859-860",
+      "path": "httpx/_models.py",
+      "source_hash": "73a0adacac794fa4aeff7697da91d0ad8b45b3565a906667fa2358580c36e8e6",
+      "start_line": 859,
+      "symbol": "Response.__repr__"
+    },
+    {
+      "end_line": 867,
+      "id": "httpx/_models.py:Response.__getstate__:862-867",
+      "path": "httpx/_models.py",
+      "source_hash": "460194b9d87c8d88300cf6ca1f0024a0ef4d50ad1b9d6ebbcac1dde515c75ff4",
+      "start_line": 862,
+      "symbol": "Response.__getstate__"
+    },
+    {
+      "end_line": 874,
+      "id": "httpx/_models.py:Response.__setstate__:869-874",
+      "path": "httpx/_models.py",
+      "source_hash": "7ed5b317991c4dacd581bafb391696d9b17432c76e3198bfed62c1df259712bc",
+      "start_line": 869,
+      "symbol": "Response.__setstate__"
+    },
+    {
+      "end_line": 882,
+      "id": "httpx/_models.py:Response.read:876-882",
+      "path": "httpx/_models.py",
+      "source_hash": "f7fc21bf4d2c7a259e8d9a571bfcb462f980f2cc8f03a29e0bb2394851622ea1",
+      "start_line": 876,
+      "symbol": "Response.read"
+    },
+    {
+      "end_line": 905,
+      "id": "httpx/_models.py:Response.iter_bytes:884-905",
+      "path": "httpx/_models.py",
+      "source_hash": "75a0df0b318a46a0b575c86952232082df56699c4ec3599a5840aa051b72aadf",
+      "start_line": 884,
+      "symbol": "Response.iter_bytes"
+    },
+    {
+      "end_line": 924,
+      "id": "httpx/_models.py:Response.iter_text:907-924",
+      "path": "httpx/_models.py",
+      "source_hash": "195af327182ba7de9f623d8cf1fd6fec456cec249eab4246a96787705f1584cd",
+      "start_line": 907,
+      "symbol": "Response.iter_text"
+    },
+    {
+      "end_line": 933,
+      "id": "httpx/_models.py:Response.iter_lines:926-933",
+      "path": "httpx/_models.py",
+      "source_hash": "02c26e4a5081314cd70a2ca0ba8a8de1b7c70bbdd4df05336d45a16b53d6b33e",
+      "start_line": 926,
+      "symbol": "Response.iter_lines"
+    },
+    {
+      "end_line": 959,
+      "id": "httpx/_models.py:Response.iter_raw:935-959",
+      "path": "httpx/_models.py",
+      "source_hash": "fa13eb548c47b104d6ad465bdc042cb3f3425312e92d37739c01e9d47f08f3f0",
+      "start_line": 935,
+      "symbol": "Response.iter_raw"
+    },
+    {
+      "end_line": 972,
+      "id": "httpx/_models.py:Response.close:961-972",
+      "path": "httpx/_models.py",
+      "source_hash": "112cd82adf7c3fca3f30c7b3bad28a31145dde4a1e1cddd0c8cefe901db20769",
+      "start_line": 961,
+      "symbol": "Response.close"
+    },
+    {
+      "end_line": 980,
+      "id": "httpx/_models.py:Response.aread:974-980",
+      "path": "httpx/_models.py",
+      "source_hash": "b6908ee9b52c8ec693b77caa1f53a759ff6c7a4375fce673b9fe49ebca89ba58",
+      "start_line": 974,
+      "symbol": "Response.aread"
+    },
+    {
+      "end_line": 1005,
+      "id": "httpx/_models.py:Response.aiter_bytes:982-1005",
+      "path": "httpx/_models.py",
+      "source_hash": "e4eeded40b7a32d5330f18bdf79c30b2eafc4ceeabada59ff29a5ba0794a12f8",
+      "start_line": 982,
+      "symbol": "Response.aiter_bytes"
+    },
+    {
+      "end_line": 1026,
+      "id": "httpx/_models.py:Response.aiter_text:1007-1026",
+      "path": "httpx/_models.py",
+      "source_hash": "b7396633c7a715d414e7fdcd990de968d338467340ef97c6ca499d8a47a9d88e",
+      "start_line": 1007,
+      "symbol": "Response.aiter_text"
+    },
+    {
+      "end_line": 1035,
+      "id": "httpx/_models.py:Response.aiter_lines:1028-1035",
+      "path": "httpx/_models.py",
+      "source_hash": "852397bad6e1ccdc78f390872c65b4b364fb4686f97a2780e58949fb7cede16a",
+      "start_line": 1028,
+      "symbol": "Response.aiter_lines"
+    },
+    {
+      "end_line": 1063,
+      "id": "httpx/_models.py:Response.aiter_raw:1037-1063",
+      "path": "httpx/_models.py",
+      "source_hash": "f8662c5e6a82e0eedd109b6d797f7f2ccb9406729aee91c668f7052d1bb3e483",
+      "start_line": 1037,
+      "symbol": "Response.aiter_raw"
+    },
+    {
+      "end_line": 1076,
+      "id": "httpx/_models.py:Response.aclose:1065-1076",
+      "path": "httpx/_models.py",
+      "source_hash": "f5682caf50a173573be59bb288fd61440a72ccaa5cd2a9b27f1284267fd7821d",
+      "start_line": 1065,
+      "symbol": "Response.aclose"
+    },
+    {
+      "end_line": 1099,
+      "id": "httpx/_models.py:Cookies.__init__:1084-1099",
+      "path": "httpx/_models.py",
+      "source_hash": "ac01259d6d59021ce9fc1c154cc767e52b053086d8f1f3187b91fc122a42c0d5",
+      "start_line": 1084,
+      "symbol": "Cookies.__init__"
+    },
+    {
+      "end_line": 1108,
+      "id": "httpx/_models.py:Cookies.extract_cookies:1101-1108",
+      "path": "httpx/_models.py",
+      "source_hash": "ed8dc7a9b42d238ecfb699a28bd0eae43d29d3487e732bf47c267532e3ea6828",
+      "start_line": 1101,
+      "symbol": "Cookies.extract_cookies"
+    },
+    {
+      "end_line": 1115,
+      "id": "httpx/_models.py:Cookies.set_cookie_header:1110-1115",
+      "path": "httpx/_models.py",
+      "source_hash": "ec2bb09b35829a75aad92ab6e982048c9a52b2092812fa2010cba1fdb33b8fbd",
+      "start_line": 1110,
+      "symbol": "Cookies.set_cookie_header"
+    },
+    {
+      "end_line": 1141,
+      "id": "httpx/_models.py:Cookies.set:1117-1141",
+      "path": "httpx/_models.py",
+      "source_hash": "8a7748d81c434fd2e083058b3b2aafb367092c7b9f576a7cafd7b10c5dda09a5",
+      "start_line": 1117,
+      "symbol": "Cookies.set"
+    },
+    {
+      "end_line": 1166,
+      "id": "httpx/_models.py:Cookies.get:1143-1166",
+      "path": "httpx/_models.py",
+      "source_hash": "1bc5d92c6b2c772159f2663d2c6467e2666c1a010ed9ee1851d3bfe24d9196cf",
+      "start_line": 1143,
+      "symbol": "Cookies.get"
+    },
+    {
+      "end_line": 1190,
+      "id": "httpx/_models.py:Cookies.delete:1168-1190",
+      "path": "httpx/_models.py",
+      "source_hash": "c3a0e9238a9d2166ce792b5e10272ddf8c2652f36d3dae800fa0d0428980f86f",
+      "start_line": 1168,
+      "symbol": "Cookies.delete"
+    },
+    {
+      "end_line": 1203,
+      "id": "httpx/_models.py:Cookies.clear:1192-1203",
+      "path": "httpx/_models.py",
+      "source_hash": "31f939858915b06c29c843cebbc417c50441e9137a8cae0a58b6e87b9765440a",
+      "start_line": 1192,
+      "symbol": "Cookies.clear"
+    },
+    {
+      "end_line": 1208,
+      "id": "httpx/_models.py:Cookies.update:1205-1208",
+      "path": "httpx/_models.py",
+      "source_hash": "64f64462e28a5476beaa7df825532ce19468c5386a7104fd162928fa2479f372",
+      "start_line": 1205,
+      "symbol": "Cookies.update"
+    },
+    {
+      "end_line": 1211,
+      "id": "httpx/_models.py:Cookies.__setitem__:1210-1211",
+      "path": "httpx/_models.py",
+      "source_hash": "6b974de355b08bdad288f0231807ac6ed173602b09d835cc5ccad91a049ae047",
+      "start_line": 1210,
+      "symbol": "Cookies.__setitem__"
+    },
+    {
+      "end_line": 1217,
+      "id": "httpx/_models.py:Cookies.__getitem__:1213-1217",
+      "path": "httpx/_models.py",
+      "source_hash": "19384f98a9223700b90df503163b033c58841b0167d259bf6d7f866d2b02a16a",
+      "start_line": 1213,
+      "symbol": "Cookies.__getitem__"
+    },
+    {
+      "end_line": 1220,
+      "id": "httpx/_models.py:Cookies.__delitem__:1219-1220",
+      "path": "httpx/_models.py",
+      "source_hash": "c6ea90a156841134285ce65b48ea316958511f539fecd419c24ee68ffe24c1b6",
+      "start_line": 1219,
+      "symbol": "Cookies.__delitem__"
+    },
+    {
+      "end_line": 1223,
+      "id": "httpx/_models.py:Cookies.__len__:1222-1223",
+      "path": "httpx/_models.py",
+      "source_hash": "39b0eab939d9533de7a8ce60d578ca915082c4560c6dbab649a93933ccd63ca2",
+      "start_line": 1222,
+      "symbol": "Cookies.__len__"
+    },
+    {
+      "end_line": 1226,
+      "id": "httpx/_models.py:Cookies.__iter__:1225-1226",
+      "path": "httpx/_models.py",
+      "source_hash": "99ef29ad61c6562e33965a8bfc0e2227aa2713cc4cb95a572ffcd8683b4e1e4e",
+      "start_line": 1225,
+      "symbol": "Cookies.__iter__"
+    },
+    {
+      "end_line": 1231,
+      "id": "httpx/_models.py:Cookies.__bool__:1228-1231",
+      "path": "httpx/_models.py",
+      "source_hash": "227480ea5e4f09cff8ecc415d8f6bc022eb803b0eb60c9c57492b4e919bf027f",
+      "start_line": 1228,
+      "symbol": "Cookies.__bool__"
+    },
+    {
+      "end_line": 1241,
+      "id": "httpx/_models.py:Cookies.__repr__:1233-1241",
+      "path": "httpx/_models.py",
+      "source_hash": "dc18c83e16ff1ad9a2752f5bebd54e8bb0c47719e4529348268ef3d13fdea974",
+      "start_line": 1233,
+      "symbol": "Cookies.__repr__"
+    },
+    {
+      "end_line": 1255,
+      "id": "httpx/_models.py:Cookies._CookieCompatRequest.__init__:1249-1255",
+      "path": "httpx/_models.py",
+      "source_hash": "344f9a680e02e0b84711c36296f0a831faf12c63472f585c339e1cfc42037983",
+      "start_line": 1249,
+      "symbol": "Cookies._CookieCompatRequest.__init__"
+    },
+    {
+      "end_line": 1259,
+      "id": "httpx/_models.py:Cookies._CookieCompatRequest.add_unredirected_header:1257-1259",
+      "path": "httpx/_models.py",
+      "source_hash": "80e7efef479e7036e14c4934cc8fda6ce6d0a70cda3b7b5e4e1d3abcbabdd2d6",
+      "start_line": 1257,
+      "symbol": "Cookies._CookieCompatRequest.add_unredirected_header"
+    },
+    {
+      "end_line": 1268,
+      "id": "httpx/_models.py:Cookies._CookieCompatResponse.__init__:1267-1268",
+      "path": "httpx/_models.py",
+      "source_hash": "98ac8661664315d97ada9a9486317985009cd329e0b59a61af56d164ff6c53c2",
+      "start_line": 1267,
+      "symbol": "Cookies._CookieCompatResponse.__init__"
+    },
+    {
+      "end_line": 1277,
+      "id": "httpx/_models.py:Cookies._CookieCompatResponse.info:1270-1277",
+      "path": "httpx/_models.py",
+      "source_hash": "c31094d1ffb6c9db21b354641f46e6d26c1cbb5ac7b8d04646f4e85b871a36c9",
+      "start_line": 1270,
+      "symbol": "Cookies._CookieCompatResponse.info"
+    },
+    {
+      "end_line": 42,
+      "id": "httpx/_multipart.py:_format_form_param:33-42",
+      "path": "httpx/_multipart.py",
+      "source_hash": "838972415855d26f727ec9c1553f9056811abd3c1b3ce244f7700ba4b36a32c2",
+      "start_line": 33,
+      "symbol": "_format_form_param"
+    },
+    {
+      "end_line": 39,
+      "id": "httpx/_multipart.py:_format_form_param.replacer:38-39",
+      "path": "httpx/_multipart.py",
+      "source_hash": "b1b8325f9bac9bd09b5323af0c87ce310c645dfbeeffd945e9037f53b104d90d",
+      "start_line": 38,
+      "symbol": "_format_form_param.replacer"
+    },
+    {
+      "end_line": 53,
+      "id": "httpx/_multipart.py:_guess_content_type:45-53",
+      "path": "httpx/_multipart.py",
+      "source_hash": "ab7035b642ecc5de993278fc06aed32962e09b6cf6db09a1b0d3c063314d6b39",
+      "start_line": 45,
+      "symbol": "_guess_content_type"
+    },
+    {
+      "end_line": 67,
+      "id": "httpx/_multipart.py:get_multipart_boundary_from_content_type:56-67",
+      "path": "httpx/_multipart.py",
+      "source_hash": "7bffb5d0bee71697d8a9cba05a697573c9c786f586bf9cd3c46ecb9f124ee67d",
+      "start_line": 56,
+      "symbol": "get_multipart_boundary_from_content_type"
+    },
+    {
+      "end_line": 88,
+      "id": "httpx/_multipart.py:DataField.__init__:75-88",
+      "path": "httpx/_multipart.py",
+      "source_hash": "51efa70e56af29295d293810264a28b009d1d40212330fdea068bebbb9a5616f",
+      "start_line": 75,
+      "symbol": "DataField.__init__"
+    },
+    {
+      "end_line": 97,
+      "id": "httpx/_multipart.py:DataField.render_headers:90-97",
+      "path": "httpx/_multipart.py",
+      "source_hash": "20b23aa2583240348f69ad9f0210295a915474be6c0d14e92a41c597cf775ff3",
+      "start_line": 90,
+      "symbol": "DataField.render_headers"
+    },
+    {
+      "end_line": 103,
+      "id": "httpx/_multipart.py:DataField.render_data:99-103",
+      "path": "httpx/_multipart.py",
+      "source_hash": "a362970dddab0ab44c5ed29c4599221b3f3eb708887f44b99816b5a7439363ea",
+      "start_line": 99,
+      "symbol": "DataField.render_data"
+    },
+    {
+      "end_line": 108,
+      "id": "httpx/_multipart.py:DataField.get_length:105-108",
+      "path": "httpx/_multipart.py",
+      "source_hash": "16f4c3ff795ee35f6aff1cabae5a3a7e2f3bb8a4198417fc041b66218130d807",
+      "start_line": 105,
+      "symbol": "DataField.get_length"
+    },
+    {
+      "end_line": 112,
+      "id": "httpx/_multipart.py:DataField.render:110-112",
+      "path": "httpx/_multipart.py",
+      "source_hash": "62acbca6408e00194395d4934d825a54e816e9875f35418f042b54a97cb6bb9f",
+      "start_line": 110,
+      "symbol": "DataField.render"
+    },
+    {
+      "end_line": 169,
+      "id": "httpx/_multipart.py:FileField.__init__:122-169",
+      "path": "httpx/_multipart.py",
+      "source_hash": "cbffd11fca9dbec0ed9508151220ff48f91c4f9610d22592cebc33e6b6331ce7",
+      "start_line": 122,
+      "symbol": "FileField.__init__"
+    },
+    {
+      "end_line": 184,
+      "id": "httpx/_multipart.py:FileField.get_length:171-184",
+      "path": "httpx/_multipart.py",
+      "source_hash": "d5d35e8b66bf060a94446e352abc0542aa20a9cbdcbaaa883dede19089da7f43",
+      "start_line": 171,
+      "symbol": "FileField.get_length"
+    },
+    {
+      "end_line": 201,
+      "id": "httpx/_multipart.py:FileField.render_headers:186-201",
+      "path": "httpx/_multipart.py",
+      "source_hash": "c755590ccc7acd22b8b0ad5e67e99e37384ca895adb7aea6b86a2721c65fcbb1",
+      "start_line": 186,
+      "symbol": "FileField.render_headers"
+    },
+    {
+      "end_line": 217,
+      "id": "httpx/_multipart.py:FileField.render_data:203-217",
+      "path": "httpx/_multipart.py",
+      "source_hash": "bbe013ce83ba1d4cb27db4439a877faba1173b4691a51f638266d9150c687656",
+      "start_line": 203,
+      "symbol": "FileField.render_data"
+    },
+    {
+      "end_line": 221,
+      "id": "httpx/_multipart.py:FileField.render:219-221",
+      "path": "httpx/_multipart.py",
+      "source_hash": "e2bf4695a67157a8f36ebc5688ec68a65ebdbcdde37d4574fd3e073c1779068a",
+      "start_line": 219,
+      "symbol": "FileField.render"
+    },
+    {
+      "end_line": 242,
+      "id": "httpx/_multipart.py:MultipartStream.__init__:229-242",
+      "path": "httpx/_multipart.py",
+      "source_hash": "4325c7a9cd9001cf479e046a798953f0b8a5e05b0b31083c41079ed03ac22e07",
+      "start_line": 229,
+      "symbol": "MultipartStream.__init__"
+    },
+    {
+      "end_line": 256,
+      "id": "httpx/_multipart.py:MultipartStream._iter_fields:244-256",
+      "path": "httpx/_multipart.py",
+      "source_hash": "674dd0afca1fa7ee57867a36e4d8ab7dad2e1147d3b026ed3f29bb725a6da7cf",
+      "start_line": 244,
+      "symbol": "MultipartStream._iter_fields"
+    },
+    {
+      "end_line": 263,
+      "id": "httpx/_multipart.py:MultipartStream.iter_chunks:258-263",
+      "path": "httpx/_multipart.py",
+      "source_hash": "902f3a07faf856a345ba0b84d17d2284775d9f169bfc86ed890f2561824d853a",
+      "start_line": 258,
+      "symbol": "MultipartStream.iter_chunks"
+    },
+    {
+      "end_line": 283,
+      "id": "httpx/_multipart.py:MultipartStream.get_content_length:265-283",
+      "path": "httpx/_multipart.py",
+      "source_hash": "af2641e262c647f81058f8fc82306d19f2b3449bd50db69f8be91b455ca4ab79",
+      "start_line": 265,
+      "symbol": "MultipartStream.get_content_length"
+    },
+    {
+      "end_line": 292,
+      "id": "httpx/_multipart.py:MultipartStream.get_headers:287-292",
+      "path": "httpx/_multipart.py",
+      "source_hash": "63538cf2334c24b9efbc0863bc38684e0f67484d757e4d95714d96df47aa5bd5",
+      "start_line": 287,
+      "symbol": "MultipartStream.get_headers"
+    },
+    {
+      "end_line": 296,
+      "id": "httpx/_multipart.py:MultipartStream.__iter__:294-296",
+      "path": "httpx/_multipart.py",
+      "source_hash": "8fe0c5396a8da61ac3a5eb5be7eebe66aac8cf6e554a7638db2f411a37775811",
+      "start_line": 294,
+      "symbol": "MultipartStream.__iter__"
+    },
+    {
+      "end_line": 300,
+      "id": "httpx/_multipart.py:MultipartStream.__aiter__:298-300",
+      "path": "httpx/_multipart.py",
+      "source_hash": "e1d25dd3b5cd251a6c6dc69d1cf94c41258d0e616e76054b4214f6aebad70690",
+      "start_line": 298,
+      "symbol": "MultipartStream.__aiter__"
+    },
+    {
+      "end_line": 33,
+      "id": "httpx/_status_codes.py:codes.__new__:28-33",
+      "path": "httpx/_status_codes.py",
+      "source_hash": "1de4c970e5f246b2b0dcb6147354f160c26970837db820df0209f2d1799a6b14",
+      "start_line": 28,
+      "symbol": "codes.__new__"
+    },
+    {
+      "end_line": 36,
+      "id": "httpx/_status_codes.py:codes.__str__:35-36",
+      "path": "httpx/_status_codes.py",
+      "source_hash": "a11cd93f689653cfd74334bd5ab244fc718e1688db5d7005c696055d84260482",
+      "start_line": 35,
+      "symbol": "codes.__str__"
+    },
+    {
+      "end_line": 43,
+      "id": "httpx/_status_codes.py:codes.get_reason_phrase:38-43",
+      "path": "httpx/_status_codes.py",
+      "source_hash": "4846de1acb28dea0ec8157d59f5006d7dda32d253f88da626989357d16d68001",
+      "start_line": 38,
+      "symbol": "codes.get_reason_phrase"
+    },
+    {
+      "end_line": 50,
+      "id": "httpx/_status_codes.py:codes.is_informational:45-50",
+      "path": "httpx/_status_codes.py",
+      "source_hash": "5240b5c2e8f75a35ec333a19fa3eeb1dc3c5891ea55bd4b4b447cab8a5840964",
+      "start_line": 45,
+      "symbol": "codes.is_informational"
+    },
+    {
+      "end_line": 57,
+      "id": "httpx/_status_codes.py:codes.is_success:52-57",
+      "path": "httpx/_status_codes.py",
+      "source_hash": "c7bbd2497d6560214e2e766121d7c5a6d02fdf677a0dc4dbb122615180af4b4f",
+      "start_line": 52,
+      "symbol": "codes.is_success"
+    },
+    {
+      "end_line": 64,
+      "id": "httpx/_status_codes.py:codes.is_redirect:59-64",
+      "path": "httpx/_status_codes.py",
+      "source_hash": "694a066c37141b714c74174d42f37c6da9c252f976068b393b7b3fc7151b8f50",
+      "start_line": 59,
+      "symbol": "codes.is_redirect"
+    },
+    {
+      "end_line": 71,
+      "id": "httpx/_status_codes.py:codes.is_client_error:66-71",
+      "path": "httpx/_status_codes.py",
+      "source_hash": "7aa8eb3df9cabca61e5f96204397ea6e8a779aa78e17ad62d6b72dc029953097",
+      "start_line": 66,
+      "symbol": "codes.is_client_error"
+    },
+    {
+      "end_line": 78,
+      "id": "httpx/_status_codes.py:codes.is_server_error:73-78",
+      "path": "httpx/_status_codes.py",
+      "source_hash": "2544483fc6d9fc970c48d87b67817639a8bf322e1c9e04618e3bb28f532ca531",
+      "start_line": 73,
+      "symbol": "codes.is_server_error"
+    },
+    {
+      "end_line": 85,
+      "id": "httpx/_status_codes.py:codes.is_error:80-85",
+      "path": "httpx/_status_codes.py",
+      "source_hash": "776a6a77f6451128b6c4e1c538158fe57b8ab23bcc641b9b059809845a7e005c",
+      "start_line": 80,
+      "symbol": "codes.is_error"
+    },
+    {
+      "end_line": 41,
+      "id": "httpx/_transports/asgi.py:is_running_trio:29-41",
+      "path": "httpx/_transports/asgi.py",
+      "source_hash": "1545d79de07abc2555b345d18369ed8ab86e7039ca41c81b8c04eedbbe2b3f51",
+      "start_line": 29,
+      "symbol": "is_running_trio"
+    },
+    {
+      "end_line": 52,
+      "id": "httpx/_transports/asgi.py:create_event:44-52",
+      "path": "httpx/_transports/asgi.py",
+      "source_hash": "67411f4bbf1b168470f96b3315aa3f900b3c55111cf97236a06b3bf2f30822f8",
+      "start_line": 44,
+      "symbol": "create_event"
+    },
+    {
+      "end_line": 57,
+      "id": "httpx/_transports/asgi.py:ASGIResponseStream.__init__:56-57",
+      "path": "httpx/_transports/asgi.py",
+      "source_hash": "dee6ee2b371749d468734d3fc8ae52a112c50d595063143e4f79805fb39056b4",
+      "start_line": 56,
+      "symbol": "ASGIResponseStream.__init__"
+    },
+    {
+      "end_line": 60,
+      "id": "httpx/_transports/asgi.py:ASGIResponseStream.__aiter__:59-60",
+      "path": "httpx/_transports/asgi.py",
+      "source_hash": "f97e2e5abd16fd06f254fc669a8a5822967c7fc6f72be933593839122b1c89f6",
+      "start_line": 59,
+      "symbol": "ASGIResponseStream.__aiter__"
+    },
+    {
+      "end_line": 97,
+      "id": "httpx/_transports/asgi.py:ASGITransport.__init__:87-97",
+      "path": "httpx/_transports/asgi.py",
+      "source_hash": "b3efeb2552018a8b26c05bf06588893d2494f616e1dc5ad9d418150993d9b81a",
+      "start_line": 87,
+      "symbol": "ASGITransport.__init__"
+    },
+    {
+      "end_line": 187,
+      "id": "httpx/_transports/asgi.py:ASGITransport.handle_async_request:99-187",
+      "path": "httpx/_transports/asgi.py",
+      "source_hash": "02b7e1869c9ff20e318aea3cbfc3cc8ff69b49e543ed38cb04d69dce468beb5c",
+      "start_line": 99,
+      "symbol": "ASGITransport.handle_async_request"
+    },
+    {
+      "end_line": 146,
+      "id": "httpx/_transports/asgi.py:ASGITransport.handle_async_request.receive:134-146",
+      "path": "httpx/_transports/asgi.py",
+      "source_hash": "e6e0af4c6a751ab0f51b5274e70bec9519ac47199548e271d08820fa7c48ab26",
+      "start_line": 134,
+      "symbol": "ASGITransport.handle_async_request.receive"
+    },
+    {
+      "end_line": 167,
+      "id": "httpx/_transports/asgi.py:ASGITransport.handle_async_request.send:148-167",
+      "path": "httpx/_transports/asgi.py",
+      "source_hash": "595df6ba0872b3e6af0e642a681af9e15abd63d71ebaec15314911f958e66665",
+      "start_line": 148,
+      "symbol": "ASGITransport.handle_async_request.send"
+    },
+    {
+      "end_line": 16,
+      "id": "httpx/_transports/base.py:BaseTransport.__enter__:15-16",
+      "path": "httpx/_transports/base.py",
+      "source_hash": "12309cb6d46c12fdcec1af50593533317e0b8aeb953c433b7520caee604f7288",
+      "start_line": 15,
+      "symbol": "BaseTransport.__enter__"
+    },
+    {
+      "end_line": 24,
+      "id": "httpx/_transports/base.py:BaseTransport.__exit__:18-24",
+      "path": "httpx/_transports/base.py",
+      "source_hash": "5aba06117a88cb1a1b5e661de053912d906c403445306e6fbd9ff24b5694d895",
+      "start_line": 18,
+      "symbol": "BaseTransport.__exit__"
+    },
+    {
+      "end_line": 67,
+      "id": "httpx/_transports/base.py:AsyncBaseTransport.__aenter__:66-67",
+      "path": "httpx/_transports/base.py",
+      "source_hash": "bea10a629edc4c931b123470d175dd7049276b9ca09ba634b627887f2915ec90",
+      "start_line": 66,
+      "symbol": "AsyncBaseTransport.__aenter__"
+    },
+    {
+      "end_line": 75,
+      "id": "httpx/_transports/base.py:AsyncBaseTransport.__aexit__:69-75",
+      "path": "httpx/_transports/base.py",
+      "source_hash": "6786ac907605e991194c24440093379fb292ef0e8a114120f2163da9fece668b",
+      "start_line": 69,
+      "symbol": "AsyncBaseTransport.__aexit__"
+    },
+    {
+      "end_line": 92,
+      "id": "httpx/_transports/default.py:_load_httpcore_exceptions:74-92",
+      "path": "httpx/_transports/default.py",
+      "source_hash": "29111a205dd79b83e56e5675237f8e5a72fb6e82119f99a9f0b6922f41597841",
+      "start_line": 74,
+      "symbol": "_load_httpcore_exceptions"
+    },
+    {
+      "end_line": 118,
+      "id": "httpx/_transports/default.py:map_httpcore_exceptions:95-118",
+      "path": "httpx/_transports/default.py",
+      "source_hash": "9afd913fa34d8266e68b22d78534c99cb8f9e21afd00df250beecb8ab28404c7",
+      "start_line": 95,
+      "symbol": "map_httpcore_exceptions"
+    },
+    {
+      "end_line": 123,
+      "id": "httpx/_transports/default.py:ResponseStream.__init__:122-123",
+      "path": "httpx/_transports/default.py",
+      "source_hash": "cde8f679e7d1ddc3207a05c34ec03177bb11aaa6406c9f8eae17a64eacc24f05",
+      "start_line": 122,
+      "symbol": "ResponseStream.__init__"
+    },
+    {
+      "end_line": 128,
+      "id": "httpx/_transports/default.py:ResponseStream.__iter__:125-128",
+      "path": "httpx/_transports/default.py",
+      "source_hash": "c004ac791d8271d8a0e5524a8935f902e0045c594c672f3c732e25c9cba3de0b",
+      "start_line": 125,
+      "symbol": "ResponseStream.__iter__"
+    },
+    {
+      "end_line": 132,
+      "id": "httpx/_transports/default.py:ResponseStream.close:130-132",
+      "path": "httpx/_transports/default.py",
+      "source_hash": "dbd179a5a03f1b5640aecfe3ec56deeafe56c87c174655865c0fe3c97e6d9e97",
+      "start_line": 130,
+      "symbol": "ResponseStream.close"
+    },
+    {
+      "end_line": 215,
+      "id": "httpx/_transports/default.py:HTTPTransport.__init__:136-215",
+      "path": "httpx/_transports/default.py",
+      "source_hash": "c5fe8f1eadf4fb491a7b7cb18ca729b208952caa5ed47ad062a558d0f5d880ae",
+      "start_line": 136,
+      "symbol": "HTTPTransport.__init__"
+    },
+    {
+      "end_line": 219,
+      "id": "httpx/_transports/default.py:HTTPTransport.__enter__:217-219",
+      "path": "httpx/_transports/default.py",
+      "source_hash": "f5c3f97dda5aa3bd554425a67cf9d740ec1c9cee1e9009fcf1453999aac306a5",
+      "start_line": 217,
+      "symbol": "HTTPTransport.__enter__"
+    },
+    {
+      "end_line": 228,
+      "id": "httpx/_transports/default.py:HTTPTransport.__exit__:221-228",
+      "path": "httpx/_transports/default.py",
+      "source_hash": "9c28d967bd2820ef7a72cf797e1e20cd09ed40f224e7dc595674e8b1e3445780",
+      "start_line": 221,
+      "symbol": "HTTPTransport.__exit__"
+    },
+    {
+      "end_line": 259,
+      "id": "httpx/_transports/default.py:HTTPTransport.handle_request:230-259",
+      "path": "httpx/_transports/default.py",
+      "source_hash": "9edcd0cdfa4b6872e902526042f467c9571c7f222fb2986e63375c9eddb062be",
+      "start_line": 230,
+      "symbol": "HTTPTransport.handle_request"
+    },
+    {
+      "end_line": 262,
+      "id": "httpx/_transports/default.py:HTTPTransport.close:261-262",
+      "path": "httpx/_transports/default.py",
+      "source_hash": "26edbcd82cdd4172b3caf441da179483cbf32fed8b6b6709d6dde49553b30e19",
+      "start_line": 261,
+      "symbol": "HTTPTransport.close"
+    },
+    {
+      "end_line": 267,
+      "id": "httpx/_transports/default.py:AsyncResponseStream.__init__:266-267",
+      "path": "httpx/_transports/default.py",
+      "source_hash": "9a964eab45e731d4aec9f5956e5d795b5a9ff94a5ad774a37de3e5d678a58767",
+      "start_line": 266,
+      "symbol": "AsyncResponseStream.__init__"
+    },
+    {
+      "end_line": 272,
+      "id": "httpx/_transports/default.py:AsyncResponseStream.__aiter__:269-272",
+      "path": "httpx/_transports/default.py",
+      "source_hash": "a9ccdb1d75b4c6f2043ec2010db42bb1147e5b0e1d57b7e2327f9e1c3b88e48b",
+      "start_line": 269,
+      "symbol": "AsyncResponseStream.__aiter__"
+    },
+    {
+      "end_line": 276,
+      "id": "httpx/_transports/default.py:AsyncResponseStream.aclose:274-276",
+      "path": "httpx/_transports/default.py",
+      "source_hash": "e1bf7f8dd811938be4ac571b077273e1f27b5e00307c59ac4be5993819f2543d",
+      "start_line": 274,
+      "symbol": "AsyncResponseStream.aclose"
+    },
+    {
+      "end_line": 359,
+      "id": "httpx/_transports/default.py:AsyncHTTPTransport.__init__:280-359",
+      "path": "httpx/_transports/default.py",
+      "source_hash": "433c33239d86ec87383cba12229bd086b4a92985b25ff8b0859cf028f29250e0",
+      "start_line": 280,
+      "symbol": "AsyncHTTPTransport.__init__"
+    },
+    {
+      "end_line": 363,
+      "id": "httpx/_transports/default.py:AsyncHTTPTransport.__aenter__:361-363",
+      "path": "httpx/_transports/default.py",
+      "source_hash": "1fad06ceb5c70b3ec2fcb649d1d9466c759761b773865cbd94ec82e999c061f4",
+      "start_line": 361,
+      "symbol": "AsyncHTTPTransport.__aenter__"
+    },
+    {
+      "end_line": 372,
+      "id": "httpx/_transports/default.py:AsyncHTTPTransport.__aexit__:365-372",
+      "path": "httpx/_transports/default.py",
+      "source_hash": "895cd70762f1a39b9d919331368ab45275d3855ac50425310680bcf94a30e562",
+      "start_line": 365,
+      "symbol": "AsyncHTTPTransport.__aexit__"
+    },
+    {
+      "end_line": 403,
+      "id": "httpx/_transports/default.py:AsyncHTTPTransport.handle_async_request:374-403",
+      "path": "httpx/_transports/default.py",
+      "source_hash": "4dfd2e15d472a02f00c8033af74acb24d614bbb3f46a6fefb100e82cf4f7bd51",
+      "start_line": 374,
+      "symbol": "AsyncHTTPTransport.handle_async_request"
+    },
+    {
+      "end_line": 406,
+      "id": "httpx/_transports/default.py:AsyncHTTPTransport.aclose:405-406",
+      "path": "httpx/_transports/default.py",
+      "source_hash": "cef6e5ca8a3e850162f4282a3bf1cb47e1a6b8fe035e48e9674aacea3845c3d3",
+      "start_line": 405,
+      "symbol": "AsyncHTTPTransport.aclose"
+    },
+    {
+      "end_line": 17,
+      "id": "httpx/_transports/mock.py:MockTransport.__init__:16-17",
+      "path": "httpx/_transports/mock.py",
+      "source_hash": "5a10dcaca4be84ceef114f2f4c83523066ad53c5ca464270f9a207cc30fe7dd6",
+      "start_line": 16,
+      "symbol": "MockTransport.__init__"
+    },
+    {
+      "end_line": 27,
+      "id": "httpx/_transports/mock.py:MockTransport.handle_request:19-27",
+      "path": "httpx/_transports/mock.py",
+      "source_hash": "fc6e732575dc243812a7258ca0e46914778f70de2551a2ba3acb9f3ec3f78471",
+      "start_line": 19,
+      "symbol": "MockTransport.handle_request"
+    },
+    {
+      "end_line": 43,
+      "id": "httpx/_transports/mock.py:MockTransport.handle_async_request:29-43",
+      "path": "httpx/_transports/mock.py",
+      "source_hash": "abcf5c125eb6ec648b59a7d9e7088d65a926c04ebf1bcc92701a14fafd473b7c",
+      "start_line": 29,
+      "symbol": "MockTransport.handle_async_request"
+    },
+    {
+      "end_line": 27,
+      "id": "httpx/_transports/wsgi.py:_skip_leading_empty_chunks:22-27",
+      "path": "httpx/_transports/wsgi.py",
+      "source_hash": "15f5433069b6a820c84424cea84bfd71898527377de3bb22a73eaf13c94da259",
+      "start_line": 22,
+      "symbol": "_skip_leading_empty_chunks"
+    },
+    {
+      "end_line": 33,
+      "id": "httpx/_transports/wsgi.py:WSGIByteStream.__init__:31-33",
+      "path": "httpx/_transports/wsgi.py",
+      "source_hash": "fa3c078ad168151fe374df5726056bd7e49e89e50599edbe9baa18ae8e4d8e6d",
+      "start_line": 31,
+      "symbol": "WSGIByteStream.__init__"
+    },
+    {
+      "end_line": 37,
+      "id": "httpx/_transports/wsgi.py:WSGIByteStream.__iter__:35-37",
+      "path": "httpx/_transports/wsgi.py",
+      "source_hash": "d124b3fa49c8b56bce796deed205638c0129632ab5f3862ea480cf2ac7a422d9",
+      "start_line": 35,
+      "symbol": "WSGIByteStream.__iter__"
+    },
+    {
+      "end_line": 41,
+      "id": "httpx/_transports/wsgi.py:WSGIByteStream.close:39-41",
+      "path": "httpx/_transports/wsgi.py",
+      "source_hash": "86a62f978c83eda6598dc2d6545b7a7769a5e89c980c865fd5c077f83f88b485",
+      "start_line": 39,
+      "symbol": "WSGIByteStream.close"
+    },
+    {
+      "end_line": 89,
+      "id": "httpx/_transports/wsgi.py:WSGITransport.__init__:77-89",
+      "path": "httpx/_transports/wsgi.py",
+      "source_hash": "8a2fceb6a90dbe717f716df8aa839203fa14088ebea24b3415afdca82738cb91",
+      "start_line": 77,
+      "symbol": "WSGITransport.__init__"
+    },
+    {
+      "end_line": 149,
+      "id": "httpx/_transports/wsgi.py:WSGITransport.handle_request:91-149",
+      "path": "httpx/_transports/wsgi.py",
+      "source_hash": "151ffdf849a9fb677c113fdb410e2219587a46291bc0a975fd15684386a620f1",
+      "start_line": 91,
+      "symbol": "WSGITransport.handle_request"
+    },
+    {
+      "end_line": 132,
+      "id": "httpx/_transports/wsgi.py:WSGITransport.handle_request.start_response:123-132",
+      "path": "httpx/_transports/wsgi.py",
+      "source_hash": "15b0c99753ab9e0a9ff801875f40febb1ab7d645c8dc678498ee83dd6cce7020",
+      "start_line": 123,
+      "symbol": "WSGITransport.handle_request.start_response"
+    },
+    {
+      "end_line": 97,
+      "id": "httpx/_types.py:SyncByteStream.__iter__:93-97",
+      "path": "httpx/_types.py",
+      "source_hash": "64757c953b6196775b312d46193ef0308242d17fc9b4bc6928381d7292d539e6",
+      "start_line": 93,
+      "symbol": "SyncByteStream.__iter__"
+    },
+    {
+      "end_line": 111,
+      "id": "httpx/_types.py:AsyncByteStream.__aiter__:107-111",
+      "path": "httpx/_types.py",
+      "source_hash": "9809cfbbee070a013e3bd9b9e71f308feb467f796211b31f4688611e8998260f",
+      "start_line": 107,
+      "symbol": "AsyncByteStream.__aiter__"
+    },
+    {
+      "end_line": 175,
+      "id": "httpx/_urlparse.py:ParseResult.authority:167-175",
+      "path": "httpx/_urlparse.py",
+      "source_hash": "bbe457ccd36a77fbd87bba5d112143905cc7349535829064e04f606d6bc13651",
+      "start_line": 167,
+      "symbol": "ParseResult.authority"
+    },
+    {
+      "end_line": 184,
+      "id": "httpx/_urlparse.py:ParseResult.netloc:177-184",
+      "path": "httpx/_urlparse.py",
+      "source_hash": "a29f8efae483cd5b98aa2b69e31f8e2f90c93d7cd783adccd133d59f98476210",
+      "start_line": 177,
+      "symbol": "ParseResult.netloc"
+    },
+    {
+      "end_line": 198,
+      "id": "httpx/_urlparse.py:ParseResult.copy_with:186-198",
+      "path": "httpx/_urlparse.py",
+      "source_hash": "0573546d4d9600bac2802ec55805ea85bb7f38b61efa7814402141de55662aed",
+      "start_line": 186,
+      "symbol": "ParseResult.copy_with"
+    },
+    {
+      "end_line": 210,
+      "id": "httpx/_urlparse.py:ParseResult.__str__:200-210",
+      "path": "httpx/_urlparse.py",
+      "source_hash": "5e5075c9c6cfbf8d9f32b24d6e3cdffe9a172042ab6cc096c9d1ae62f5897f25",
+      "start_line": 200,
+      "symbol": "ParseResult.__str__"
+    },
+    {
+      "end_line": 345,
+      "id": "httpx/_urlparse.py:urlparse:213-345",
+      "path": "httpx/_urlparse.py",
+      "source_hash": "3e531bf2e492ce3870e3066a3ebe8d0dedb7b1009c684732402107e6ae476b96",
+      "start_line": 213,
+      "symbol": "urlparse"
+    },
+    {
+      "end_line": 392,
+      "id": "httpx/_urlparse.py:encode_host:348-392",
+      "path": "httpx/_urlparse.py",
+      "source_hash": "1aa01c5c2cf48c5d023e83e0793cc5bf21af7a89e238d987abc5424323ae838b",
+      "start_line": 348,
+      "symbol": "encode_host"
+    },
+    {
+      "end_line": 419,
+      "id": "httpx/_urlparse.py:normalize_port:395-419",
+      "path": "httpx/_urlparse.py",
+      "source_hash": "1912d963a6391f1e603ec88aa088447f362c3aaf9f0aa24126a61cdff6317906",
+      "start_line": 395,
+      "symbol": "normalize_port"
+    },
+    {
+      "end_line": 444,
+      "id": "httpx/_urlparse.py:validate_path:422-444",
+      "path": "httpx/_urlparse.py",
+      "source_hash": "32e091dcdedc83fd38a3cc99a5fc5e6d6309f71b9cd3c7f66ae19e094c941ea5",
+      "start_line": 422,
+      "symbol": "validate_path"
+    },
+    {
+      "end_line": 475,
+      "id": "httpx/_urlparse.py:normalize_path:447-475",
+      "path": "httpx/_urlparse.py",
+      "source_hash": "8b2e447cf7e806989bfefd12d72809d929d54fb24c2c591e6aff9891bfaab5de",
+      "start_line": 447,
+      "symbol": "normalize_path"
+    },
+    {
+      "end_line": 479,
+      "id": "httpx/_urlparse.py:PERCENT:478-479",
+      "path": "httpx/_urlparse.py",
+      "source_hash": "9d69f0ff034f51fa06d82ee711e63ac232ece5266aed0ceef5ace974b2073030",
+      "start_line": 478,
+      "symbol": "PERCENT"
+    },
+    {
+      "end_line": 494,
+      "id": "httpx/_urlparse.py:percent_encoded:482-494",
+      "path": "httpx/_urlparse.py",
+      "source_hash": "96c59ae0cea1b548738673bb028d32ea658ccfe4f28109e3e03b887dc71fc417",
+      "start_line": 482,
+      "symbol": "percent_encoded"
+    },
+    {
+      "end_line": 527,
+      "id": "httpx/_urlparse.py:quote:497-527",
+      "path": "httpx/_urlparse.py",
+      "source_hash": "3743b0ecdca22ea5fc0abcca1773a6daa8af18fec7a2509120ac735eb4e3181d",
+      "start_line": 497,
+      "symbol": "quote"
+    },
+    {
+      "end_line": 124,
+      "id": "httpx/_urls.py:URL.__init__:77-124",
+      "path": "httpx/_urls.py",
+      "source_hash": "47f88a7d1d7da31452760621ce3e36183721f19d82a05ff612e2664e13497717",
+      "start_line": 77,
+      "symbol": "URL.__init__"
+    },
+    {
+      "end_line": 132,
+      "id": "httpx/_urls.py:URL.scheme:126-132",
+      "path": "httpx/_urls.py",
+      "source_hash": "b4f4ec3e5c517863083f27f1e5c33e56dafeaba8a5bbd80315806e7390bf15c6",
+      "start_line": 126,
+      "symbol": "URL.scheme"
+    },
+    {
+      "end_line": 140,
+      "id": "httpx/_urls.py:URL.raw_scheme:134-140",
+      "path": "httpx/_urls.py",
+      "source_hash": "29bdc17d97f82843c54c680666f42860dcdba3a7b28bd998063111438b4e14a1",
+      "start_line": 134,
+      "symbol": "URL.raw_scheme"
+    },
+    {
+      "end_line": 148,
+      "id": "httpx/_urls.py:URL.userinfo:142-148",
+      "path": "httpx/_urls.py",
+      "source_hash": "c009dccaa8c14ad58a06f5e8cf628b96fa9348199c7b1659888bcb71cfeac6ff",
+      "start_line": 142,
+      "symbol": "URL.userinfo"
+    },
+    {
+      "end_line": 157,
+      "id": "httpx/_urls.py:URL.username:150-157",
+      "path": "httpx/_urls.py",
+      "source_hash": "e11ccbd38b3a6b82ea430cee13fee7f3a2f4e44ebf09852476c0f29e73c76d57",
+      "start_line": 150,
+      "symbol": "URL.username"
+    },
+    {
+      "end_line": 166,
+      "id": "httpx/_urls.py:URL.password:159-166",
+      "path": "httpx/_urls.py",
+      "source_hash": "233c52112f769c4ce36b62aaa464f4cea2ab10346b293de272a21d85ac97251b",
+      "start_line": 159,
+      "symbol": "URL.password"
+    },
+    {
+      "end_line": 193,
+      "id": "httpx/_urls.py:URL.host:168-193",
+      "path": "httpx/_urls.py",
+      "source_hash": "812d7c6f42df51efaf585e6e7b7a24c95071cc414b339d3afc670eac910681ee",
+      "start_line": 168,
+      "symbol": "URL.host"
+    },
+    {
+      "end_line": 215,
+      "id": "httpx/_urls.py:URL.raw_host:195-215",
+      "path": "httpx/_urls.py",
+      "source_hash": "065f8860d2ecd747eb5c69937037dc2c56f6927d5fe28a3e639af76c4ccd75bf",
+      "start_line": 195,
+      "symbol": "URL.raw_host"
+    },
+    {
+      "end_line": 231,
+      "id": "httpx/_urls.py:URL.port:217-231",
+      "path": "httpx/_urls.py",
+      "source_hash": "1f623b3c2da75d01da8e8e8717502baaca7823f1f3e1fde2079ef2fdcff07963",
+      "start_line": 217,
+      "symbol": "URL.port"
+    },
+    {
+      "end_line": 242,
+      "id": "httpx/_urls.py:URL.netloc:233-242",
+      "path": "httpx/_urls.py",
+      "source_hash": "c01d6b5ffdaea9826964987d1f9aa4fb5fa7e6217b261ddc840a4f727f38e3ec",
+      "start_line": 233,
+      "symbol": "URL.netloc"
+    },
+    {
+      "end_line": 255,
+      "id": "httpx/_urls.py:URL.path:244-255",
+      "path": "httpx/_urls.py",
+      "source_hash": "4311589b19306b9cbd1c40e4b09d2e2b7a6de73555c2ac22242bda5dfd1b247d",
+      "start_line": 244,
+      "symbol": "URL.path"
+    },
+    {
+      "end_line": 272,
+      "id": "httpx/_urls.py:URL.query:257-272",
+      "path": "httpx/_urls.py",
+      "source_hash": "151e65c530b76a989808b79f0955c502917da871b231979e1119a6bc4ac84115",
+      "start_line": 257,
+      "symbol": "URL.query"
+    },
+    {
+      "end_line": 280,
+      "id": "httpx/_urls.py:URL.params:274-280",
+      "path": "httpx/_urls.py",
+      "source_hash": "e429c9835aa52d1b9339366a2083f47108ce95926b246c6b9b3d6c8b3bd32ab7",
+      "start_line": 274,
+      "symbol": "URL.params"
+    },
+    {
+      "end_line": 297,
+      "id": "httpx/_urls.py:URL.raw_path:282-297",
+      "path": "httpx/_urls.py",
+      "source_hash": "f3c366f2aac7ede5e2c5fb979e62dfb9e59cfbccb74230932db877712e03d9c5",
+      "start_line": 282,
+      "symbol": "URL.raw_path"
+    },
+    {
+      "end_line": 305,
+      "id": "httpx/_urls.py:URL.fragment:299-305",
+      "path": "httpx/_urls.py",
+      "source_hash": "5393c0b1d3ae24ad1495b415eb62e0695cbe2c0d1a6be9597f059bcf6230abc2",
+      "start_line": 299,
+      "symbol": "URL.fragment"
+    },
+    {
+      "end_line": 317,
+      "id": "httpx/_urls.py:URL.is_absolute_url:307-317",
+      "path": "httpx/_urls.py",
+      "source_hash": "61797db2fee6bff9791587cf00659c57687cb82d7b4c9658d2106f8c16267c4a",
+      "start_line": 307,
+      "symbol": "URL.is_absolute_url"
+    },
+    {
+      "end_line": 325,
+      "id": "httpx/_urls.py:URL.is_relative_url:319-325",
+      "path": "httpx/_urls.py",
+      "source_hash": "a4687aad49fa3e2e66a2d7f65223206cb146c1420171cd08e9d797b0f0d6c697",
+      "start_line": 319,
+      "symbol": "URL.is_relative_url"
+    },
+    {
+      "end_line": 340,
+      "id": "httpx/_urls.py:URL.copy_with:327-340",
+      "path": "httpx/_urls.py",
+      "source_hash": "d907c8a99771ec2cf13428b2ef4bb0b595a1fe6548354e070d51bce2ec2cbbe5",
+      "start_line": 327,
+      "symbol": "URL.copy_with"
+    },
+    {
+      "end_line": 343,
+      "id": "httpx/_urls.py:URL.copy_set_param:342-343",
+      "path": "httpx/_urls.py",
+      "source_hash": "c0211d49701ca3366a78c77ca3aea1513236c9e6abf9e41732b8473f8012a296",
+      "start_line": 342,
+      "symbol": "URL.copy_set_param"
+    },
+    {
+      "end_line": 346,
+      "id": "httpx/_urls.py:URL.copy_add_param:345-346",
+      "path": "httpx/_urls.py",
+      "source_hash": "3e0884f9cd5a59feb1be9277712bb042e9e1a6a30ff2a76edf74d6fe305a8b7b",
+      "start_line": 345,
+      "symbol": "URL.copy_add_param"
+    },
+    {
+      "end_line": 349,
+      "id": "httpx/_urls.py:URL.copy_remove_param:348-349",
+      "path": "httpx/_urls.py",
+      "source_hash": "b590529d6c57e90dfd8e8a4ba8261fde5bcd31626d275bc482141c65043cf952",
+      "start_line": 348,
+      "symbol": "URL.copy_remove_param"
+    },
+    {
+      "end_line": 352,
+      "id": "httpx/_urls.py:URL.copy_merge_params:351-352",
+      "path": "httpx/_urls.py",
+      "source_hash": "84c4eb51947a591c99c3db2bdf4a1f739f9b10268338be6fbe580200b4ee2da1",
+      "start_line": 351,
+      "symbol": "URL.copy_merge_params"
+    },
+    {
+      "end_line": 366,
+      "id": "httpx/_urls.py:URL.join:354-366",
+      "path": "httpx/_urls.py",
+      "source_hash": "a8b8047dc204e4bfde7b256131934d19be2ccd3ffb1359aeb412d45d98a972e8",
+      "start_line": 354,
+      "symbol": "URL.join"
+    },
+    {
+      "end_line": 369,
+      "id": "httpx/_urls.py:URL.__hash__:368-369",
+      "path": "httpx/_urls.py",
+      "source_hash": "e9f77908abe26ee85a1e82a1c60bbf58071b1d50aedab8346e6e3988b5906de0",
+      "start_line": 368,
+      "symbol": "URL.__hash__"
+    },
+    {
+      "end_line": 372,
+      "id": "httpx/_urls.py:URL.__eq__:371-372",
+      "path": "httpx/_urls.py",
+      "source_hash": "7723d62301f5effde7ffca7b2a9e7ad090457d6a4d99e206c4277dfaac9d9c2c",
+      "start_line": 371,
+      "symbol": "URL.__eq__"
+    },
+    {
+      "end_line": 375,
+      "id": "httpx/_urls.py:URL.__str__:374-375",
+      "path": "httpx/_urls.py",
+      "source_hash": "51c4e8ec9232524b8b5c4ca40f02067ff5febf83593d415ca1bd392e30e43ac6",
+      "start_line": 374,
+      "symbol": "URL.__str__"
+    },
+    {
+      "end_line": 401,
+      "id": "httpx/_urls.py:URL.__repr__:377-401",
+      "path": "httpx/_urls.py",
+      "source_hash": "58ac07d72568ce91e503f51947b315c6b922febe58ac336f3c44207157448683",
+      "start_line": 377,
+      "symbol": "URL.__repr__"
+    },
+    {
+      "end_line": 417,
+      "id": "httpx/_urls.py:URL.raw:403-417",
+      "path": "httpx/_urls.py",
+      "source_hash": "b1578fce153f88cf9f0336d0d20b1e3114d0fc59edbf716611f923dd8958000f",
+      "start_line": 403,
+      "symbol": "URL.raw"
+    },
+    {
+      "end_line": 461,
+      "id": "httpx/_urls.py:QueryParams.__init__:425-461",
+      "path": "httpx/_urls.py",
+      "source_hash": "3d5e4bfcd10d38a69791138a1afaa5500d86130a0fb2872e9d06dfcd02b782f1",
+      "start_line": 425,
+      "symbol": "QueryParams.__init__"
+    },
+    {
+      "end_line": 472,
+      "id": "httpx/_urls.py:QueryParams.keys:463-472",
+      "path": "httpx/_urls.py",
+      "source_hash": "c4ff7dfbdfe84ad5d68a745e73aef5fa9e47b014b21a03589644958138cb187f",
+      "start_line": 463,
+      "symbol": "QueryParams.keys"
+    },
+    {
+      "end_line": 484,
+      "id": "httpx/_urls.py:QueryParams.values:474-484",
+      "path": "httpx/_urls.py",
+      "source_hash": "267b6b682de7c5503f6441c64812fbbe0a421ec0ae9d83f7918448de757cc8ab",
+      "start_line": 474,
+      "symbol": "QueryParams.values"
+    },
+    {
+      "end_line": 496,
+      "id": "httpx/_urls.py:QueryParams.items:486-496",
+      "path": "httpx/_urls.py",
+      "source_hash": "7c2eb9531d34b81ac966b49aa705f8308b55550b2d4479b34a0c9392ef210494",
+      "start_line": 486,
+      "symbol": "QueryParams.items"
+    },
+    {
+      "end_line": 510,
+      "id": "httpx/_urls.py:QueryParams.multi_items:498-510",
+      "path": "httpx/_urls.py",
+      "source_hash": "695d2732dc1bfb43a3fef85bf7c1cba3c4ac35422623adec694c981ea3656384",
+      "start_line": 498,
+      "symbol": "QueryParams.multi_items"
+    },
+    {
+      "end_line": 524,
+      "id": "httpx/_urls.py:QueryParams.get:512-524",
+      "path": "httpx/_urls.py",
+      "source_hash": "c5ae55429697e6983aeea738e6c4dd5c666f38fc347097cedd8ed09dc88be4a5",
+      "start_line": 512,
+      "symbol": "QueryParams.get"
+    },
+    {
+      "end_line": 535,
+      "id": "httpx/_urls.py:QueryParams.get_list:526-535",
+      "path": "httpx/_urls.py",
+      "source_hash": "076649293827d9594a8c5ce9578a4479ab8c9becfe9aa57e7c375699ca4414c5",
+      "start_line": 526,
+      "symbol": "QueryParams.get_list"
+    },
+    {
+      "end_line": 550,
+      "id": "httpx/_urls.py:QueryParams.set:537-550",
+      "path": "httpx/_urls.py",
+      "source_hash": "5f25fdad9d45fe7480263994ddce5b49569777f4260426561f3a58a6df9284fa",
+      "start_line": 537,
+      "symbol": "QueryParams.set"
+    },
+    {
+      "end_line": 565,
+      "id": "httpx/_urls.py:QueryParams.add:552-565",
+      "path": "httpx/_urls.py",
+      "source_hash": "ced8a72ca555029a462c63c8d5e3a518a3ec98f081b1c9287bad95ecb9201ee5",
+      "start_line": 552,
+      "symbol": "QueryParams.add"
+    },
+    {
+      "end_line": 580,
+      "id": "httpx/_urls.py:QueryParams.remove:567-580",
+      "path": "httpx/_urls.py",
+      "source_hash": "39491a124f3020daee7694ecf0779ce363e847c2f8d48eace2d7a365c995ae05",
+      "start_line": 567,
+      "symbol": "QueryParams.remove"
+    },
+    {
+      "end_line": 598,
+      "id": "httpx/_urls.py:QueryParams.merge:582-598",
+      "path": "httpx/_urls.py",
+      "source_hash": "c240889f06b0cc9989458bd58640713fcd1ad4e7542f9108e52b00f8ecdeb243",
+      "start_line": 582,
+      "symbol": "QueryParams.merge"
+    },
+    {
+      "end_line": 601,
+      "id": "httpx/_urls.py:QueryParams.__getitem__:600-601",
+      "path": "httpx/_urls.py",
+      "source_hash": "ce5e73fa71757465195a11e615e3767f2d66d7b88f83aae351448cfd97ffd6ed",
+      "start_line": 600,
+      "symbol": "QueryParams.__getitem__"
+    },
+    {
+      "end_line": 604,
+      "id": "httpx/_urls.py:QueryParams.__contains__:603-604",
+      "path": "httpx/_urls.py",
+      "source_hash": "1e0711abb23e76923c1b1a5118300f2f086a92fea328d5323a0256a5378e1d72",
+      "start_line": 603,
+      "symbol": "QueryParams.__contains__"
+    },
+    {
+      "end_line": 607,
+      "id": "httpx/_urls.py:QueryParams.__iter__:606-607",
+      "path": "httpx/_urls.py",
+      "source_hash": "ef481ce9d56959b1b07b58c151137422d6db5464dfb8e14277a66ea31eed5bf6",
+      "start_line": 606,
+      "symbol": "QueryParams.__iter__"
+    },
+    {
+      "end_line": 610,
+      "id": "httpx/_urls.py:QueryParams.__len__:609-610",
+      "path": "httpx/_urls.py",
+      "source_hash": "b9427b54f2e01e27c77d49bd8b03f3ae8e30582da513f0072bbac7478c714b05",
+      "start_line": 609,
+      "symbol": "QueryParams.__len__"
+    },
+    {
+      "end_line": 613,
+      "id": "httpx/_urls.py:QueryParams.__bool__:612-613",
+      "path": "httpx/_urls.py",
+      "source_hash": "9ca78f0512cf8bb730aee4fa4311cb985498be63053bba07e7d1f6c5016b86e7",
+      "start_line": 612,
+      "symbol": "QueryParams.__bool__"
+    },
+    {
+      "end_line": 616,
+      "id": "httpx/_urls.py:QueryParams.__hash__:615-616",
+      "path": "httpx/_urls.py",
+      "source_hash": "e9f77908abe26ee85a1e82a1c60bbf58071b1d50aedab8346e6e3988b5906de0",
+      "start_line": 615,
+      "symbol": "QueryParams.__hash__"
+    },
+    {
+      "end_line": 621,
+      "id": "httpx/_urls.py:QueryParams.__eq__:618-621",
+      "path": "httpx/_urls.py",
+      "source_hash": "22b2350762154ad16b64f2c813635c6fe326cd73180c55692b66e9a93e21d3cd",
+      "start_line": 618,
+      "symbol": "QueryParams.__eq__"
+    },
+    {
+      "end_line": 624,
+      "id": "httpx/_urls.py:QueryParams.__str__:623-624",
+      "path": "httpx/_urls.py",
+      "source_hash": "24043c55683b7d4c173c60b74c6ae061dca24c96022b8bb236f89c0ddd013187",
+      "start_line": 623,
+      "symbol": "QueryParams.__str__"
+    },
+    {
+      "end_line": 629,
+      "id": "httpx/_urls.py:QueryParams.__repr__:626-629",
+      "path": "httpx/_urls.py",
+      "source_hash": "7ffe52093d7f1fc304809e325840e15c614cd77fe5ff92f233e031fb0017ed56",
+      "start_line": 626,
+      "symbol": "QueryParams.__repr__"
+    },
+    {
+      "end_line": 635,
+      "id": "httpx/_urls.py:QueryParams.update:631-635",
+      "path": "httpx/_urls.py",
+      "source_hash": "d938b626f17968e61f27a1923a0881997fdee55511c31282ed606a66b152af2e",
+      "start_line": 631,
+      "symbol": "QueryParams.update"
+    },
+    {
+      "end_line": 641,
+      "id": "httpx/_urls.py:QueryParams.__setitem__:637-641",
+      "path": "httpx/_urls.py",
+      "source_hash": "503a1fbbe6a611935545234f4f6409ddd662cd274d0463742c321aeb89e0a71a",
+      "start_line": 637,
+      "symbol": "QueryParams.__setitem__"
+    },
+    {
+      "end_line": 27,
+      "id": "httpx/_utils.py:primitive_value_to_str:15-27",
+      "path": "httpx/_utils.py",
+      "source_hash": "7af18a35c4edea30512007a137cb66289aa69da550b0de91c752969f28f6757d",
+      "start_line": 15,
+      "symbol": "primitive_value_to_str"
+    },
+    {
+      "end_line": 76,
+      "id": "httpx/_utils.py:get_environment_proxies:30-76",
+      "path": "httpx/_utils.py",
+      "source_hash": "dfefe0682926371085ba1f25446ad872831aa9ed6c8139df36e3a9d3791a4364",
+      "start_line": 30,
+      "symbol": "get_environment_proxies"
+    },
+    {
+      "end_line": 80,
+      "id": "httpx/_utils.py:to_bytes:79-80",
+      "path": "httpx/_utils.py",
+      "source_hash": "34082eecf50de7493c913d5f79f0935838a969aa4e30625234a5bda948a59b0f",
+      "start_line": 79,
+      "symbol": "to_bytes"
+    },
+    {
+      "end_line": 84,
+      "id": "httpx/_utils.py:to_str:83-84",
+      "path": "httpx/_utils.py",
+      "source_hash": "304a25d33b211c3c8f4f378876d00ade44e80b960a82766184dba9ad92d8156e",
+      "start_line": 83,
+      "symbol": "to_str"
+    },
+    {
+      "end_line": 88,
+      "id": "httpx/_utils.py:to_bytes_or_str:87-88",
+      "path": "httpx/_utils.py",
+      "source_hash": "9e49969cba4b701cf03bf56c1f2629a148dcfc689caa2597fb988279c1bfe246",
+      "start_line": 87,
+      "symbol": "to_bytes_or_str"
+    },
+    {
+      "end_line": 92,
+      "id": "httpx/_utils.py:unquote:91-92",
+      "path": "httpx/_utils.py",
+      "source_hash": "92bd8491239c1e9b35cfb3ae93b8a9451f93a54cd792fb1953b65fd57bcb02d1",
+      "start_line": 91,
+      "symbol": "unquote"
+    },
+    {
+      "end_line": 117,
+      "id": "httpx/_utils.py:peek_filelike_length:95-117",
+      "path": "httpx/_utils.py",
+      "source_hash": "d2d3268efea0ab2c1598a5b84a609dcb9d262c8b22f48cd93969d15fe16f60b2",
+      "start_line": 95,
+      "symbol": "peek_filelike_length"
+    },
+    {
+      "end_line": 190,
+      "id": "httpx/_utils.py:URLPattern.__init__:162-190",
+      "path": "httpx/_utils.py",
+      "source_hash": "1ff29ada219633461f6942c4462e01754e01ee0ab0f60d863d55da4abc769a15",
+      "start_line": 162,
+      "symbol": "URLPattern.__init__"
+    },
+    {
+      "end_line": 203,
+      "id": "httpx/_utils.py:URLPattern.matches:192-203",
+      "path": "httpx/_utils.py",
+      "source_hash": "0b6314d63cc4d0f7090715a22a1962bbc6f23d9b857b01e5ee9fe05e0c6d4c8d",
+      "start_line": 192,
+      "symbol": "URLPattern.matches"
+    },
+    {
+      "end_line": 217,
+      "id": "httpx/_utils.py:URLPattern.priority:205-217",
+      "path": "httpx/_utils.py",
+      "source_hash": "01ce30275a15f6a01240f04547760847915393c316db24927cbfd871140880a2",
+      "start_line": 205,
+      "symbol": "URLPattern.priority"
+    },
+    {
+      "end_line": 220,
+      "id": "httpx/_utils.py:URLPattern.__hash__:219-220",
+      "path": "httpx/_utils.py",
+      "source_hash": "e92f7a033be73561f82e8cc8f7f28225dbb7a12584b5a52042bac3c76ef8c6e5",
+      "start_line": 219,
+      "symbol": "URLPattern.__hash__"
+    },
+    {
+      "end_line": 223,
+      "id": "httpx/_utils.py:URLPattern.__lt__:222-223",
+      "path": "httpx/_utils.py",
+      "source_hash": "8dc0a4d3d685bc71edbdea13ab3be07380788eb30e68d608bf9d97fa45a51e82",
+      "start_line": 222,
+      "symbol": "URLPattern.__lt__"
+    },
+    {
+      "end_line": 226,
+      "id": "httpx/_utils.py:URLPattern.__eq__:225-226",
+      "path": "httpx/_utils.py",
+      "source_hash": "53a304011cf7ae97008e4a393516840fccb6f6ab1cd1fe406373020bb9d2f346",
+      "start_line": 225,
+      "symbol": "URLPattern.__eq__"
+    },
+    {
+      "end_line": 234,
+      "id": "httpx/_utils.py:is_ipv4_hostname:229-234",
+      "path": "httpx/_utils.py",
+      "source_hash": "bdd136da9acb0b066fb87513a1b7bd6babfbb64141a4b46c36ea4755f14aab71",
+      "start_line": 229,
+      "symbol": "is_ipv4_hostname"
+    },
+    {
+      "end_line": 242,
+      "id": "httpx/_utils.py:is_ipv6_hostname:237-242",
+      "path": "httpx/_utils.py",
+      "source_hash": "687bde92178b445cfb9b1e0b268790be4ea9001aaf49628a3a63ef9467a25cd6",
+      "start_line": 237,
+      "symbol": "is_ipv6_hostname"
+    }
+  ],
+  "window_inventory_sha256": "a1352b10ad47be5422c8cbb9ba406c1615e9a1ce742c1d19923668cccdd41726"
+}

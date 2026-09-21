@@ -1,0 +1,158 @@
+"""Source-only label authoring after the independent source/scope freeze.
+
+Uses Python's AST and physical source bytes. No model, index, retrieval,
+embedding, existing ranking outcome, or HTTPX runtime is opened.
+"""
+from __future__ import annotations
+import ast
+import hashlib
+import json
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[2]
+REPO = ROOT / ".cache/corpora/httpx"
+OUT = Path(__file__).parent
+sha = lambda raw: hashlib.sha256(raw).hexdigest()
+freeze = json.loads((OUT / "source-freeze.json").read_text())
+assert not freeze["labels_authored"]
+
+
+def definitions(path):
+    raw = (REPO / path).read_bytes()
+    assert sha(raw) == freeze["tracked_python_source_files"][path]
+    nodes = {}
+    def walk(node, parents):
+        for item in ast.iter_child_nodes(node):
+            if isinstance(item, (ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef)):
+                qualified = ".".join((*parents, item.name))
+                if isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                    nodes.setdefault(qualified, []).append(item)
+                walk(item, (*parents, item.name))
+            else:
+                walk(item, parents)
+    walk(ast.parse(raw.decode("utf-8")), ())
+    return raw, nodes
+
+
+def target(path, symbol):
+    raw, nodes = definitions(path)
+    assert len(nodes[symbol]) == 1
+    node = nodes[symbol][0]
+    lines = raw.decode("utf-8").splitlines(keepends=True)
+    first, last = node.lineno, node.end_lineno
+    evidence = "".join(lines[first - 1:last]).encode()
+    return {"path": path, "symbol": symbol, "definition_lines": [first, last],
+            "evidence_lines": [first, last],
+            "declaration_anchor": lines[first - 1].strip(),
+            "evidence_sha256": sha(evidence), "source_file_sha256": sha(raw)}
+
+
+def present(identifier, query, notes, *items):
+    groups = [[target(path, symbol)] for path, symbol in items]
+    row = {"id": identifier, "query": query, "kind": "present", "notes": notes,
+           "split": "repository_holdout"}
+    if len(groups) == 1:
+        row["targets"] = groups[0]
+    else:
+        row["target_groups"] = groups
+    return row
+
+
+def absent(identifier, query, notes):
+    return {"id": identifier, "query": query, "kind": "absent", "notes": notes,
+            "targets": [], "split": "repository_holdout"}
+
+
+queries = [
+    present("httpx_json_request_encoding_and_headers",
+            "Build a JSON request body with compact UTF-8 serialization and its byte length, reject non-finite numbers, and preserve content headers explicitly supplied by the caller.",
+            "Require request-construction wiring, body-type dispatch, JSON serialization/header production, and default-header merge. The query assumes JSON is supplied without a competing raw content/form/files payload and without an explicit stream. The pinned codec passes allow_nan=False to the standard JSON serializer; the serializer implementation is outside scope. Complete local functions including precedence and explicit-header guards are required.",
+            ("httpx/_models.py", "Request.__init__"),
+            ("httpx/_content.py", "encode_request"),
+            ("httpx/_content.py", "encode_json"),
+            ("httpx/_models.py", "Request._prepare")),
+    present("httpx_stacked_content_decoding",
+            "Select supported response content encodings from the headers, undo stacked encodings in reverse order, and pass buffered tail bytes through the remaining decoders at the end.",
+            "Require response decoder selection plus the combined decoder's ordering, incremental decode and flush bodies. Unknown encoding names are ignored; this is local orchestration rather than the external compression algorithms. Decoder caching is included in the full selection body.",
+            ("httpx/_models.py", "Response._get_content_decoder"),
+            ("httpx/_decoders.py", "MultiDecoder.__init__"),
+            ("httpx/_decoders.py", "MultiDecoder.decode"),
+            ("httpx/_decoders.py", "MultiDecoder.flush")),
+    present("httpx_async_incremental_text_lines",
+            "Yield text lines from an asynchronous response even when line endings split across incoming chunks, hold incomplete lines until more text arrives, and emit an unfinished final line when the stream ends.",
+            "Require the async response-to-line-decoder loop and both incremental line parsing and final flush. The input to the line splitter is already decoded text; charset selection and decompression are outside this behavior's required evidence. A trailing carriage return is held across chunks and flush clears its state.",
+            ("httpx/_models.py", "Response.aiter_lines"),
+            ("httpx/_decoders.py", "LineDecoder.decode"),
+            ("httpx/_decoders.py", "LineDecoder.flush")),
+    present("httpx_multipart_unknown_length_framing",
+            "Construct a multipart upload and choose a complete Content-Length when every part has a known size, otherwise send chunked framing while retaining the multipart boundary in the content type.",
+            "Require codec-to-multipart wiring, local aggregate byte-length calculation including delimiters, and header selection. This asks behavior given each field's reported length, not external file seeking or field-length probing internals. Boundary construction and field rendering are existing prerequisites rather than requested algorithms.",
+            ("httpx/_content.py", "encode_multipart_data"),
+            ("httpx/_multipart.py", "MultipartStream.get_content_length"),
+            ("httpx/_multipart.py", "MultipartStream.get_headers")),
+    present("httpx_redirect_header_safety",
+            "Clean request headers when redirecting to another origin: strip credentials except for a direct same-host HTTP-to-HTTPS upgrade, update the destination host, remove body framing after a change to GET, and discard the old cookie header.",
+            "Require local redirect-header mutation, exact same-origin comparison, the restricted HTTP80-to-HTTPS443 upgrade exception, and default-port resolution. This asks cleanup given the chosen destination/method; method selection, cookie store lookup and redirect transmission are outside the requested behavior. All four same-file functions must be delivered.",
+            ("httpx/_client.py", "BaseClient._redirect_headers"),
+            ("httpx/_client.py", "_same_origin"),
+            ("httpx/_client.py", "_is_https_redirect"),
+            ("httpx/_client.py", "_port_or_default")),
+    present("httpx_digest_challenge_retry_flow",
+            "After an unauthorized response, retry with Digest credentials only when a matching challenge is present, reset the nonce count for the new challenge, and carry response cookies onto the authenticated request.",
+            "The full Digest authentication generator directly implements the conditional retry, challenge selection, nonce reset and cookie copying. Hash/header formatting helpers are delegated; no claim is made that their cryptographic construction is fully explained by this single span. Non-401 or non-Digest challenges do not trigger another yielded request.",
+            ("httpx/_auth.py", "DigestAuth.auth_flow")),
+    present("httpx_repeated_header_values",
+            "Look up every value of a repeated HTTP header without case sensitivity, optionally split each comma-separated value and trim its surrounding whitespace.",
+            "The full header-list getter implements both modes and preserves order. This asks lookup rather than insertion/deletion or the comma-joined mapping getter; values split on commas without quoted-string parsing.",
+            ("httpx/_models.py", "Headers.get_list")),
+    present("httpx_cookie_scope_ambiguity",
+            "Retrieve a stored cookie by name with optional exact domain and path filters, return a default when no match exists, and reject ambiguous matches rather than silently choosing one.",
+            "The full local cookie getter iterates its jar, applies exact optional filters, raises CookieConflict on a second matched value, and returns the caller default if none remains. Standards-based cookie transmission/acceptance in the standard-library jar is outside this local lookup scope.",
+            ("httpx/_models.py", "Cookies.get")),
+    present("httpx_immutable_query_parameter_updates",
+            "Create updated URL query parameters without changing the original: append another value for an existing key, or merge a new set that replaces all values of overlapping keys while keeping other keys.",
+            "Require immutable append and merge bodies. The copied maps and new instances distinguish these operations from an in-place update; constructor/value conversion details are existing prerequisites. New merge keys replace the entire prior value list, whereas append retains previous values.",
+            ("httpx/_urls.py", "QueryParams.add"),
+            ("httpx/_urls.py", "QueryParams.merge")),
+    present("httpx_unicode_and_wire_hostname_views",
+            "Expose a URL host as readable Unicode by decoding an internationalized ASCII hostname, while also providing the unchanged ASCII bytes used for the wire representation.",
+            "Require both decoded-host and raw-host property bodies. This asks views of an already parsed/normalized host, not IDNA encoding during URL parsing or general hostname validation. The decoded view invokes IDNA decoding only for the punycode prefix; the raw view ASCII-encodes the stored normalized host.",
+            ("httpx/_urls.py", "URL.host"),
+            ("httpx/_urls.py", "URL.raw_host")),
+    present("httpx_inprocess_async_application_response",
+            "Send an HTTP request directly to an asynchronous application, expose its streamed request body, suppress response body bytes for HEAD, and convert an application failure before response start into status 500 when exception propagation is disabled.",
+            "The complete asynchronous application transport handler includes scope setup, nested request receive and response send callbacks, HEAD suppression, conditional exception propagation and local 500 fallback. If a response status was already supplied before the failure it is preserved. This is HTTP request/response invocation, not application lifespan or websocket handling.",
+            ("httpx/_transports/asgi.py", "ASGITransport.handle_async_request")),
+    present("httpx_environment_proxy_opt_in_and_bypass",
+            "Use system or environment proxy settings only when allowed, normalize proxy hosts missing a scheme, and honor a wildcard no-proxy entry by disabling all environment proxy mounts.",
+            "Require the client proxy-map gate and local environment proxy normalization/bypass. A supplied explicit proxy is applied separately, and a wildcard bypass applies to environment configuration. getproxies may consult platform settings as well as environment variables; those standard-library internals and later URL-pattern routing are outside the query.",
+            ("httpx/_client.py", "BaseClient._get_proxy_map"),
+            ("httpx/_utils.py", "get_environment_proxies")),
+    absent("httpx_absent_persistent_response_cache",
+           "Cache successful HTTP responses on disk, reuse still-fresh entries without a network request, and revalidate expired entries with their stored validators.",
+           "Absent within the pinned tracked httpx Python implementation scope. In-memory decoder/body caching, cookie storage, Cacheable redirect comments and conditional headers are insufficient: no persistent HTTP response cache or freshness/revalidation policy is implemented. Custom transports, third-party cache packages and caller logic are outside scope."),
+    absent("httpx_absent_server_error_backoff_retry",
+           "Automatically retry server-error HTTP responses with exponential backoff and jitter, stopping when the configured retry budget is exhausted.",
+           "Absent within pinned tracked httpx Python scope. The default transport accepts retries and delegates them to httpcore connection setup; that is not an HTTP status-response retry loop. Redirect following and Digest challenge retries are insufficient. httpcore internals, custom transports and caller retry packages are excluded."),
+    absent("httpx_absent_digest_body_integrity",
+           "Authenticate a request with Digest body-integrity protection by including the request entity hash in the authentication calculation when the server offers only that protection mode.",
+           "Absent within pinned tracked httpx Python scope. The Digest implementation contains a TODO for auth-int and explicitly raises NotImplementedError when that is the sole offered qop; the implemented auth mode hashes the method/path without request-body integrity. Arbitrary user authentication classes and external implementations are excluded."),
+]
+
+assert len(queries) == 15
+assert sum(q["kind"] == "present" for q in queries) == 12
+assert sum(q["kind"] == "absent" for q in queries) == 3
+
+dataset = {"version": 1, "repo_url": freeze["repo_url"], "revision": freeze["revision"],
+           "source_root": freeze["source_root"], "source_exclusions": [], "language": "python",
+           "classification": "Source-authored HTTPX repository holdout, unobserved retrieval before setup selection",
+           "source_freeze": "results/httpx-reranker-preflight-2026-10-13/source-freeze.json",
+           "source_freeze_sha256": sha((OUT / "source-freeze.json").read_bytes()),
+           "target_groups_semantics": "OR within each group; AND across all groups. Credit requires one verified delivered excerpt to contain the group's complete function or method source span. Names, comments and partial bodies are insufficient.",
+           "query_authoring": "Natural behavior queries authored from pinned source after source/scope freeze, with no model, embedding, retrieval, ranking output or old outcome-driven label selection. Fresh means previously unranked HTTPX source/settings, not unread source or a pretraining holdout.",
+           "queries": queries}
+output = ROOT / "benchmarks/httpx_reranker_queries.json"
+assert not output.exists()
+output.write_text(json.dumps(dataset, indent=2, ensure_ascii=False) + "\n")
+print(json.dumps({"queries": len(queries), "positive": 12, "absent": 3,
+                  "dataset_sha256": sha(output.read_bytes())}))

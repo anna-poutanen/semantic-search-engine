@@ -1,0 +1,497 @@
+{
+  "checks_passed": true,
+  "created_at_utc": "2026-10-14T00:58:34.555981+00:00",
+  "embedding_calls": 0,
+  "httpx_runtime_imported": false,
+  "input_sha256": {
+    "dataset": "355df955908f20964eed424779610893b6e0f694206ca64f130ee36a95a7b275",
+    "eligibility": "ecbd8da390f45344e08497e216794e5e0b9ce7d7dd4fe58192dd6e0ec3b0a2b0",
+    "manifest": "25f5f737e50e60c7aa2496e5464187705c286625473795f35c0b06b41101b9b8",
+    "source-freeze": "6561d34c15bea1f9fd9be7b69ff74823ecfb29b69434f52de44e3bd9244e4416"
+  },
+  "limitations": [
+    "Source-authored gold and static full-body delivery checks; not dynamic HTTPX correctness.",
+    "Null-valued custom cookie jars can bypass Cookies.get's value-is-not-None ambiguity guard; review records this source edge case.",
+    "URL.host decodes IDNA only when the stored normalized host starts with xn--, as already scoped in authored notes.",
+    "Absence is limited to all tracked httpx Python implementations; external dependencies/custom transports/caller logic are outside scope."
+  ],
+  "model_calls": 0,
+  "multi_file_positive_queries": 5,
+  "positive_queries": 12,
+  "query_count": 15,
+  "query_proofs": [
+    {
+      "groups": [
+        {
+          "eligible_window_ids": [
+            "httpx/_models.py:Request.__init__:383-439"
+          ],
+          "evidence_sha256": "23b22679c8fb43190f18e4d00f018e9e9c6f806fca22234486740d001cd52b36",
+          "full_ast_body": [
+            383,
+            439
+          ],
+          "path": "httpx/_models.py",
+          "symbol": "Request.__init__"
+        },
+        {
+          "eligible_window_ids": [
+            "httpx/_content.py:encode_request:186-218"
+          ],
+          "evidence_sha256": "6651ed432577431e4bd1617f2c8eab330b2ff249e4ee500e02694fadbf74d8ff",
+          "full_ast_body": [
+            186,
+            218
+          ],
+          "path": "httpx/_content.py",
+          "symbol": "encode_request"
+        },
+        {
+          "eligible_window_ids": [
+            "httpx/_content.py:encode_json:176-183"
+          ],
+          "evidence_sha256": "30372895d631a8b5200f61f3cad175aa09b48db43be3b717291d7ef9f93f658e",
+          "full_ast_body": [
+            176,
+            183
+          ],
+          "path": "httpx/_content.py",
+          "symbol": "encode_json"
+        },
+        {
+          "eligible_window_ids": [
+            "httpx/_models.py:Request._prepare:441-460"
+          ],
+          "evidence_sha256": "2512f2c35f01fe341f99e1c6f88e680bd82ae89b7e9a812b129829724921bb2c",
+          "full_ast_body": [
+            441,
+            460
+          ],
+          "path": "httpx/_models.py",
+          "symbol": "Request._prepare"
+        }
+      ],
+      "id": "httpx_json_request_encoding_and_headers",
+      "kind": "present",
+      "required_groups": 4
+    },
+    {
+      "groups": [
+        {
+          "eligible_window_ids": [
+            "httpx/_models.py:Response._get_content_decoder:699-722"
+          ],
+          "evidence_sha256": "e4e87bf13cffb62ff16b32e70909692a6918a8c13e0ed95553d12228b93fffd6",
+          "full_ast_body": [
+            699,
+            722
+          ],
+          "path": "httpx/_models.py",
+          "symbol": "Response._get_content_decoder"
+        },
+        {
+          "eligible_window_ids": [
+            "httpx/_decoders.py:MultiDecoder.__init__:208-214"
+          ],
+          "evidence_sha256": "f54e7afff9a7e3bdcf11966113b5fb187d82551f2b723cf980722cd3f8e530cb",
+          "full_ast_body": [
+            208,
+            214
+          ],
+          "path": "httpx/_decoders.py",
+          "symbol": "MultiDecoder.__init__"
+        },
+        {
+          "eligible_window_ids": [
+            "httpx/_decoders.py:MultiDecoder.decode:216-219"
+          ],
+          "evidence_sha256": "b26b60a6d4beefdbf40dd8fc6b43f7de70949da7773cbb2fdea86935f7800f5d",
+          "full_ast_body": [
+            216,
+            219
+          ],
+          "path": "httpx/_decoders.py",
+          "symbol": "MultiDecoder.decode"
+        },
+        {
+          "eligible_window_ids": [
+            "httpx/_decoders.py:MultiDecoder.flush:221-225"
+          ],
+          "evidence_sha256": "dc3469789352f853208be884b95a98d405747c2453735f4eef94d20d09eec99a",
+          "full_ast_body": [
+            221,
+            225
+          ],
+          "path": "httpx/_decoders.py",
+          "symbol": "MultiDecoder.flush"
+        }
+      ],
+      "id": "httpx_stacked_content_decoding",
+      "kind": "present",
+      "required_groups": 4
+    },
+    {
+      "groups": [
+        {
+          "eligible_window_ids": [
+            "httpx/_models.py:Response.aiter_lines:1028-1035"
+          ],
+          "evidence_sha256": "852397bad6e1ccdc78f390872c65b4b364fb4686f97a2780e58949fb7cede16a",
+          "full_ast_body": [
+            1028,
+            1035
+          ],
+          "path": "httpx/_models.py",
+          "symbol": "Response.aiter_lines"
+        },
+        {
+          "eligible_window_ids": [
+            "httpx/_decoders.py:LineDecoder.decode:333-369"
+          ],
+          "evidence_sha256": "8097e3e9f92ed5129bb7a461b65fcb8845a138d822ce4977efabf2728db774a5",
+          "full_ast_body": [
+            333,
+            369
+          ],
+          "path": "httpx/_decoders.py",
+          "symbol": "LineDecoder.decode"
+        },
+        {
+          "eligible_window_ids": [
+            "httpx/_decoders.py:LineDecoder.flush:371-378"
+          ],
+          "evidence_sha256": "db49090f74d5195c86c44718142ca9330427c0a7e45c92ebb5e5c6923693f7c8",
+          "full_ast_body": [
+            371,
+            378
+          ],
+          "path": "httpx/_decoders.py",
+          "symbol": "LineDecoder.flush"
+        }
+      ],
+      "id": "httpx_async_incremental_text_lines",
+      "kind": "present",
+      "required_groups": 3
+    },
+    {
+      "groups": [
+        {
+          "eligible_window_ids": [
+            "httpx/_content.py:encode_multipart_data:152-157"
+          ],
+          "evidence_sha256": "001535a3c1f0e6a8282a605f04ddf4fe06a8504beba8db9dc1d435b9f9717a51",
+          "full_ast_body": [
+            152,
+            157
+          ],
+          "path": "httpx/_content.py",
+          "symbol": "encode_multipart_data"
+        },
+        {
+          "eligible_window_ids": [
+            "httpx/_multipart.py:MultipartStream.get_content_length:265-283"
+          ],
+          "evidence_sha256": "af2641e262c647f81058f8fc82306d19f2b3449bd50db69f8be91b455ca4ab79",
+          "full_ast_body": [
+            265,
+            283
+          ],
+          "path": "httpx/_multipart.py",
+          "symbol": "MultipartStream.get_content_length"
+        },
+        {
+          "eligible_window_ids": [
+            "httpx/_multipart.py:MultipartStream.get_headers:287-292"
+          ],
+          "evidence_sha256": "63538cf2334c24b9efbc0863bc38684e0f67484d757e4d95714d96df47aa5bd5",
+          "full_ast_body": [
+            287,
+            292
+          ],
+          "path": "httpx/_multipart.py",
+          "symbol": "MultipartStream.get_headers"
+        }
+      ],
+      "id": "httpx_multipart_unknown_length_framing",
+      "kind": "present",
+      "required_groups": 3
+    },
+    {
+      "groups": [
+        {
+          "eligible_window_ids": [
+            "httpx/_client.py:BaseClient._redirect_headers:546-571"
+          ],
+          "evidence_sha256": "ee31e38c0160b54fc839bb7fbf7058a13aad8d467b1a884026fa697b18987fb7",
+          "full_ast_body": [
+            546,
+            571
+          ],
+          "path": "httpx/_client.py",
+          "symbol": "BaseClient._redirect_headers"
+        },
+        {
+          "eligible_window_ids": [
+            "httpx/_client.py:_same_origin:83-91"
+          ],
+          "evidence_sha256": "f74d70eb52bde59830037b83eef5c8d7de883a6b2cadbd0eab1a38839188a263",
+          "full_ast_body": [
+            83,
+            91
+          ],
+          "path": "httpx/_client.py",
+          "symbol": "_same_origin"
+        },
+        {
+          "eligible_window_ids": [
+            "httpx/_client.py:_is_https_redirect:62-74"
+          ],
+          "evidence_sha256": "205732ad1ec174bcd910c74fa59b93202d2bcfe80df6a215326a2b0b26aa78dd",
+          "full_ast_body": [
+            62,
+            74
+          ],
+          "path": "httpx/_client.py",
+          "symbol": "_is_https_redirect"
+        },
+        {
+          "eligible_window_ids": [
+            "httpx/_client.py:_port_or_default:77-80"
+          ],
+          "evidence_sha256": "a5922ed1aab8072737ad0eb1df44dce8ff8bf57d0bfcdea0084b13092d7941fc",
+          "full_ast_body": [
+            77,
+            80
+          ],
+          "path": "httpx/_client.py",
+          "symbol": "_port_or_default"
+        }
+      ],
+      "id": "httpx_redirect_header_safety",
+      "kind": "present",
+      "required_groups": 4
+    },
+    {
+      "groups": [
+        {
+          "eligible_window_ids": [
+            "httpx/_auth.py:DigestAuth.auth_flow:193-222"
+          ],
+          "evidence_sha256": "f5ade5dd09e6288971c6dd4d4b9425cbed37d221fe61abf7de2eb98a17399064",
+          "full_ast_body": [
+            193,
+            222
+          ],
+          "path": "httpx/_auth.py",
+          "symbol": "DigestAuth.auth_flow"
+        }
+      ],
+      "id": "httpx_digest_challenge_retry_flow",
+      "kind": "present",
+      "required_groups": 1
+    },
+    {
+      "groups": [
+        {
+          "eligible_window_ids": [
+            "httpx/_models.py:Headers.get_list:252-272"
+          ],
+          "evidence_sha256": "c8a896e7cff95231c3871cd977c2f35c799c574615df84393b0c2aec25ae8c10",
+          "full_ast_body": [
+            252,
+            272
+          ],
+          "path": "httpx/_models.py",
+          "symbol": "Headers.get_list"
+        }
+      ],
+      "id": "httpx_repeated_header_values",
+      "kind": "present",
+      "required_groups": 1
+    },
+    {
+      "groups": [
+        {
+          "eligible_window_ids": [
+            "httpx/_models.py:Cookies.get:1143-1166"
+          ],
+          "evidence_sha256": "1bc5d92c6b2c772159f2663d2c6467e2666c1a010ed9ee1851d3bfe24d9196cf",
+          "full_ast_body": [
+            1143,
+            1166
+          ],
+          "path": "httpx/_models.py",
+          "symbol": "Cookies.get"
+        }
+      ],
+      "id": "httpx_cookie_scope_ambiguity",
+      "kind": "present",
+      "required_groups": 1
+    },
+    {
+      "groups": [
+        {
+          "eligible_window_ids": [
+            "httpx/_urls.py:QueryParams.add:552-565"
+          ],
+          "evidence_sha256": "ced8a72ca555029a462c63c8d5e3a518a3ec98f081b1c9287bad95ecb9201ee5",
+          "full_ast_body": [
+            552,
+            565
+          ],
+          "path": "httpx/_urls.py",
+          "symbol": "QueryParams.add"
+        },
+        {
+          "eligible_window_ids": [
+            "httpx/_urls.py:QueryParams.merge:582-598"
+          ],
+          "evidence_sha256": "c240889f06b0cc9989458bd58640713fcd1ad4e7542f9108e52b00f8ecdeb243",
+          "full_ast_body": [
+            582,
+            598
+          ],
+          "path": "httpx/_urls.py",
+          "symbol": "QueryParams.merge"
+        }
+      ],
+      "id": "httpx_immutable_query_parameter_updates",
+      "kind": "present",
+      "required_groups": 2
+    },
+    {
+      "groups": [
+        {
+          "eligible_window_ids": [
+            "httpx/_urls.py:URL.host:168-193"
+          ],
+          "evidence_sha256": "33fa9eb37f148a6fbcd18074b99c6d50fea2ef7da6b9721c075d397d1829aae2",
+          "full_ast_body": [
+            169,
+            193
+          ],
+          "path": "httpx/_urls.py",
+          "symbol": "URL.host"
+        },
+        {
+          "eligible_window_ids": [
+            "httpx/_urls.py:URL.raw_host:195-215"
+          ],
+          "evidence_sha256": "46a6c4433b21be4b234d4eda8368d9cd016e6838c57a864c3815cc12c615f477",
+          "full_ast_body": [
+            196,
+            215
+          ],
+          "path": "httpx/_urls.py",
+          "symbol": "URL.raw_host"
+        }
+      ],
+      "id": "httpx_unicode_and_wire_hostname_views",
+      "kind": "present",
+      "required_groups": 2
+    },
+    {
+      "groups": [
+        {
+          "eligible_window_ids": [
+            "httpx/_transports/asgi.py:ASGITransport.handle_async_request:99-187"
+          ],
+          "evidence_sha256": "02b7e1869c9ff20e318aea3cbfc3cc8ff69b49e543ed38cb04d69dce468beb5c",
+          "full_ast_body": [
+            99,
+            187
+          ],
+          "path": "httpx/_transports/asgi.py",
+          "symbol": "ASGITransport.handle_async_request"
+        }
+      ],
+      "id": "httpx_inprocess_async_application_response",
+      "kind": "present",
+      "required_groups": 1
+    },
+    {
+      "groups": [
+        {
+          "eligible_window_ids": [
+            "httpx/_client.py:BaseClient._get_proxy_map:239-251"
+          ],
+          "evidence_sha256": "2f6fd8863d60de1f7c7a1e575cb0ed85be24d703556e0e5b70ff4ca7475ca68e",
+          "full_ast_body": [
+            239,
+            251
+          ],
+          "path": "httpx/_client.py",
+          "symbol": "BaseClient._get_proxy_map"
+        },
+        {
+          "eligible_window_ids": [
+            "httpx/_utils.py:get_environment_proxies:30-76"
+          ],
+          "evidence_sha256": "dfefe0682926371085ba1f25446ad872831aa9ed6c8139df36e3a9d3791a4364",
+          "full_ast_body": [
+            30,
+            76
+          ],
+          "path": "httpx/_utils.py",
+          "symbol": "get_environment_proxies"
+        }
+      ],
+      "id": "httpx_environment_proxy_opt_in_and_bypass",
+      "kind": "present",
+      "required_groups": 2
+    },
+    {
+      "id": "httpx_absent_persistent_response_cache",
+      "kind": "absent",
+      "required_groups": 0
+    },
+    {
+      "id": "httpx_absent_server_error_backoff_retry",
+      "kind": "absent",
+      "required_groups": 0
+    },
+    {
+      "id": "httpx_absent_digest_body_integrity",
+      "kind": "absent",
+      "required_groups": 0
+    }
+  ],
+  "ranking_outcomes_read": false,
+  "required_groups": 28,
+  "retrieval_calls": 0,
+  "reviewer": "independent batch_scorer agent, not label author",
+  "revision": "26d48e0634e6ee9cdc0533996db289ce4b430177",
+  "same_file_and_queries": 3,
+  "scoped_absent_queries": 3,
+  "script_sha256": "3bb67f3634473572bed147dced1712e366f8ffa83cee599302d217c4079566d4",
+  "semantic_review": "independent-source-review.md",
+  "semantic_review_sha256": "2c0c39e04069ea8c4846860c03dce5276be46565bc1c868f61accde2e0bc87a0",
+  "source_file_count": 23,
+  "source_file_sha256": {
+    "httpx/__init__.py": "0ac6997bac998f4ac783adf6d8058a587193315afdb718047c3e4fdff46bcfad",
+    "httpx/__version__.py": "2e853261e3974e2786cee3ffeb850bd30c5db718eebbf41b3af13b34e83e22a5",
+    "httpx/_api.py": "aff660b388c8a5c3c92ea2b975b6d26b2aa8fe254c2856b164277ea0e1f12c4b",
+    "httpx/_auth.py": "62bdd0c1a5122b5eeb198c7eee3f85762705233cf863d14557ed45e3eed15d7e",
+    "httpx/_client.py": "c43f941baefe58c91e96d00039e1868fe719d91453026d7db1647194563bff8d",
+    "httpx/_config.py": "a4fa7653ec2271f70ab05f8a6111352d876dddee84446788a1767c1a3a372d67",
+    "httpx/_content.py": "2c61b3ac94d1dcebcde0c6f519554d2d7917247fbaa0a97002db4ef69e70ff28",
+    "httpx/_decoders.py": "a74757f08d0d1077b1b37506a784ac66eb62321b17aeb5a5ebe1a7a956f488a3",
+    "httpx/_exceptions.py": "6f15bb7f1ce054c01d3536f04f4567ab4e202435b5fe023f1858903ee3328cbd",
+    "httpx/_main.py": "0a0f4631a6e24d3fecc1a0df5202118ad4b0c4b44c4b05033a6ecb7521aa940e",
+    "httpx/_models.py": "e3ffc6bb2bf580bc6e6428708a6f247d036220e709f5a72b785392babbd97e6b",
+    "httpx/_multipart.py": "28e1c465997aa28860f663da2b2caedf8e6aab5ac92e0df94d41b7600cd70776",
+    "httpx/_status_codes.py": "0d89fedae7c180c797cb9b3cc77fd307bc2302e00031ec136a43eb9b9ad712c7",
+    "httpx/_transports/__init__.py": "19b52805200ea7bcfe97ef63e5884c851dc3308727e8554b863d3bd8edcd9e7a",
+    "httpx/_transports/asgi.py": "1d17e20d830fb78c101f6805807660e1cfa2dec6e5a3a6cbe464ea7044fec73f",
+    "httpx/_transports/base.py": "9194bf54c6d58987c5e7bd29a205022756ee973fb26df2f9d4faacf7292d79b5",
+    "httpx/_transports/default.py": "03379a454c95c0271c4f2c8d25ec437f49f57457f3cf2769748420bf0ecf2e79",
+    "httpx/_transports/mock.py": "3d3a34779ebb4484d7c46ae48ba90deffebbc300317f088c0dcb972626428c4a",
+    "httpx/_transports/wsgi.py": "35c3d7dd76a9fc4c0215958efce692c9036e227098c7540c35b3bc1807a2ea36",
+    "httpx/_types.py": "272878d4642aec039ebfc20e58a0c083bcc26ef1c07ee7e65b983f3e24ed12b6",
+    "httpx/_urlparse.py": "640987e3b38d7e4c6bae3f8f3d88467a21e36fa0232824be00d58837838bfca6",
+    "httpx/_urls.py": "757f7d551d4348e1e9828f40abb3f360ee0529dc6a2a3c32369f20adff1d1cdd",
+    "httpx/_utils.py": "fd355ea802afc4990a1ddcfb74579be2cd0b66a41781e1645d281f88704aff5a"
+  },
+  "version": 1,
+  "window_count": 438
+}
