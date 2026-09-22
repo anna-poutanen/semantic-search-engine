@@ -1,0 +1,142 @@
+{
+  "agent_elapsed_s": 20.088568665989442,
+  "agent_end": {
+    "monotonic_s": 205307.111975416,
+    "utc": "2026-10-14T07:36:59.148825+00:00"
+  },
+  "agent_exit_code": 0,
+  "agent_start": {
+    "monotonic_s": 205287.02340675,
+    "utc": "2026-10-14T07:36:39.060219+00:00"
+  },
+  "artifact_sha256": {
+    "published": {
+      "command.json": "753797bb9aaac984af35f794df2e5534bd624e2b443e79397914fa5c03ec4b65",
+      "event-timestamps.json": "00d018e2823780063bab0222cf0e947b5186635484a5c83ac5f0d8f806b2206f",
+      "events.jsonl": "47092a32cea306e5da97df79085462b291ef22068fd7f92eff1aea20500fdb61",
+      "final.txt": "811745c6f580787ed9c7aad3cb472d066fda04e7957593118af46bf3e7497b8d",
+      "http-receipts.jsonl": "3175cf8865e40fd28049381087b4f84c52b735666950599296f3e24b630776bd",
+      "stderr.txt": "b0fd72c324b4f3436a94b521f771c7eb8008397a33470ebf1c67316444d91961"
+    },
+    "raw": {
+      "command.json": "f2f10e18ee49b0c39a13777ec4694e2d7aa8c4a22b566d9639ad9e878e42b4c3",
+      "events.jsonl": "1f18fee08139a4295a114b2583938c052220a507f3524ab2a3039d28e9cd4cce",
+      "final.txt": "811745c6f580787ed9c7aad3cb472d066fda04e7957593118af46bf3e7497b8d",
+      "http-receipts.jsonl": "fbd14c17717aef1a0474f618fc23d737ef0772e7929e703cede9b496c154c67f",
+      "observed-events.json": "932e431d8b0ead3455e553d45b4d85f42968afe6b09832749515dab1b2719f28",
+      "stderr.txt": "b0fd72c324b4f3436a94b521f771c7eb8008397a33470ebf1c67316444d91961"
+    }
+  },
+  "classification": "Separate hosted transport diagnostic; never pooled with sixteen workflow trials",
+  "command_calls": 1,
+  "common_runtime_sha256": "067739026608e2d2b9e87ecdbf2df28d597bb1d3310fdc9e5fea48d695925015",
+  "completed": true,
+  "completed_correct": true,
+  "errors": [],
+  "failed": false,
+  "final_file_hashes": {
+    "loopback_smoke.py": "47bebd26bc3ff7bc3e534c4e3a1c64e529282c6596f43875ef914b006977e4e0",
+    "src/probe.py": "068909ed28decb7a9b0b8cddd5807bdbcc6e9e54527f30acaa3ec9c17f26a7ae"
+  },
+  "forbidden_local_model_calls": 0,
+  "initial_file_hashes": {
+    "loopback_smoke.py": "47bebd26bc3ff7bc3e534c4e3a1c64e529282c6596f43875ef914b006977e4e0",
+    "src/probe.py": "068909ed28decb7a9b0b8cddd5807bdbcc6e9e54527f30acaa3ec9c17f26a7ae"
+  },
+  "invalid_event_lines": [],
+  "local_model_inference": false,
+  "loopback_script": "import socket\nimport threading\n\nwith socket.socket() as server:\n    server.bind((\"127.0.0.1\", 0))\n    server.listen(1)\n    def reply():\n        with server.accept()[0] as connection:\n            connection.sendall(b\"LOOPBACK_OK\")\n    worker = threading.Thread(target=reply)\n    worker.start()\n    with socket.create_connection(server.getsockname(), timeout=5) as client:\n        assert client.recv(32) == b\"LOOPBACK_OK\"\n    worker.join(5)\n    assert not worker.is_alive()\nprint(\"LOOPBACK_OK\")\n",
+  "loopback_script_sha256": "47bebd26bc3ff7bc3e534c4e3a1c64e529282c6596f43875ef914b006977e4e0",
+  "matched_calls": [
+    {
+      "compact_text_sha256": "f99bd7e393c2250dd957e7d7d81303e53941a59a09c3d5eff77d0e06f756a993",
+      "item_id": "item_1",
+      "receipt_number": 1
+    }
+  ],
+  "matched_loopback_commands": [
+    {
+      "exit_code": 0,
+      "item_id": "item_2",
+      "normalized_argv": [
+        "<PROJECT>/.venv/bin/python",
+        "loopback_smoke.py"
+      ],
+      "stdout": "LOOPBACK_OK"
+    }
+  ],
+  "mcp_calls": 1,
+  "mcp_items": [
+    {
+      "arguments": {
+        "include_dependencies": false,
+        "max_results": 1,
+        "query": "workflow probe",
+        "retrieval": "bm25",
+        "token_budget": 512
+      },
+      "error": null,
+      "id": "item_1",
+      "result": {
+        "content": [
+          {
+            "text": "{\"query\":\"workflow probe\",\"match_status\":\"candidates\",\"results\":[{\"path\":\"src/probe.py\",\"symbol\":\"workflow_probe\",\"start_line\":1,\"end_line\":2,\"source\":\"def workflow_probe():\\n    return \\\"MULTIFILE_PROBE_OK\\\"\\n\",\"source_hash\":\"068909ed28decb7a9b0b8cddd5807bdbcc6e9e54527f30acaa3ec9c17f26a7ae\",\"truncated\":false,\"origin\":\"retrieval\",\"related_to\":null}],\"budget_exhausted\":false,\"token_usage\":{\"encoding\":\"cl100k_base\",\"tokens\":179,\"budget\":512,\"truncated\":false},\"scope\":{\"source_root\":\"src\",\"membership\":\"saved implementations; Git-tracked files only in Git projects\",\"source_exclusions\":[],\"exclusions_omitted\":0}}",
+            "type": "text"
+          }
+        ],
+        "structured_content": null
+      },
+      "server": "semantic_search",
+      "status": "completed",
+      "tool": "search_code",
+      "type": "mcp_tool_call"
+    }
+  ],
+  "observed_command_items": 1,
+  "observed_file_change_items": 0,
+  "per_model_call_usage": null,
+  "per_model_call_usage_reason": "Not emitted by exec --json",
+  "probe_source": "def workflow_probe():\n    return \"MULTIFILE_PROBE_OK\"\n",
+  "probe_source_sha256": "068909ed28decb7a9b0b8cddd5807bdbcc6e9e54527f30acaa3ec9c17f26a7ae",
+  "reported_turns": 1,
+  "successful_expected_http_receipts": 1,
+  "successful_expected_mcp_calls": 1,
+  "timed_out": false,
+  "tool_intervals": [
+    {
+      "end": {
+        "monotonic_s": 205297.131167,
+        "utc": "2026-10-14T07:36:49.168007+00:00"
+      },
+      "item_id": "item_1",
+      "observed_duration_s": 0.15777762501966208,
+      "start": {
+        "monotonic_s": 205296.973389375,
+        "utc": "2026-10-14T07:36:49.010207+00:00"
+      },
+      "type": "mcp_tool_call"
+    },
+    {
+      "end": {
+        "monotonic_s": 205302.540666625,
+        "utc": "2026-10-14T07:36:54.577528+00:00"
+      },
+      "item_id": "item_2",
+      "observed_duration_s": 1.7499987734481692e-05,
+      "start": {
+        "monotonic_s": 205302.540649125,
+        "utc": "2026-10-14T07:36:54.577505+00:00"
+      },
+      "type": "command_execution"
+    }
+  ],
+  "usage": {
+    "cache_write_input_tokens": 0,
+    "cached_input_tokens": 28800,
+    "input_tokens": 39628,
+    "output_tokens": 228,
+    "reasoning_output_tokens": 0,
+    "total_tokens": 39856,
+    "uncached_input_tokens": 10828
+  }
+}
