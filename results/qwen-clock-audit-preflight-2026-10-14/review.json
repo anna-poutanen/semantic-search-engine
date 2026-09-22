@@ -1,0 +1,19 @@
+{
+  "classification": "Independent CPU-only clock-auditor review and validation; no producer changes or inference",
+  "recorded_at_utc": "2026-10-14T04:20:47.144427+00:00",
+  "source_sha256": {
+    "scripts/audit_qwen_optimization.py": "37416ed2b0212fc0da11d5b38201686e4fa7db5a8fae0c148357ff5649d63dab",
+    "tests/test_qwen_optimization_audit.py": "4e260a9adc709bd09b4b4da8d219ae8d58a6f01f7d2b728fef1f2b89ab36c562"
+  },
+  "peer_review": "Batch scorer independently found no qualifying suspension or clock-reset loophole within the frozen two-second policy. Suggested binding interior phase durations and setup warmup duration to independently recomputed clock spans.",
+  "resolved_duration_concern": "The four interior query phase durations and setup warmup duration must fit their independently recomputed performance-clock span, allowing a fixed one-microsecond float rounding tolerance. The full warm query timer begins before its clock-start receipt and therefore has no incorrect upper bound against that narrower interval.",
+  "policy_limit": "The frozen gate rejects absolute wall-minus-performance drift exceeding two seconds and performance rollback; it does not prove absence of every shorter sleep or clock step.",
+  "cpu_validation": {
+    "passed": 158,
+    "scope": "Optimization audit, standalone clock utility, precision audit",
+    "ruff": "passed",
+    "whitespace": "passed"
+  },
+  "actual_study": "results/qwen-shortlist-grid-v2-2026-10-14",
+  "actual_study_status": "Awaiting complete pipeline and successful owner cleanup; no qualification claimed by this preflight"
+}

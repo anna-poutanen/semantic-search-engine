@@ -422,12 +422,13 @@ def clock_fixture(points=None):
 
     schedule = [{"dataset": "code", "query_id": query, "condition": "dense", "repetition": 1}
                 for query in ("first", "second")]
-    setup = {"dataset": "code", "clock_start": receipt(0, "setup/code/start")}
+    setup = {"dataset": "code", "clock_start": receipt(0, "setup/code/start"), "index_and_embedding_warmup_s": .02}
     setup["clock_end"] = receipt(1, "setup/code/end", setup["clock_start"])
     rows = []
     for index, identity in enumerate(schedule):
         request = "code/" + identity["query_id"] + "/dense/1"
-        row = {"identity": identity, "clock_start": receipt(2 + 2 * index, request + "/start")}
+        row = {"identity": identity, "clock_start": receipt(2 + 2 * index, request + "/start"),
+               "query_embedding_s": .01, "candidate_retrieval_s": .01, "reranker_http_s": .01, "packing_s": .01}
         row["clock_end"] = receipt(3 + 2 * index, request + "/end", row["clock_start"])
         rows.append(row)
     final = receipt(6, "pipeline/complete")
@@ -541,3 +542,14 @@ def test_clock_auditor_preserves_legacy_no_clock_qualification_without_fabricati
     assert audit.verify_clock_study({}, [], [], {})["available"] is False
     with pytest.raises(ValueError):
         audit.verify_clock_study({}, [{"clock_start": {}}], [], {})
+
+
+@pytest.mark.parametrize("where", ["setup", "query"])
+def test_clock_auditor_rejects_measured_interior_phase_time_outside_its_actual_clock_span(where):
+    plan, rows, setups, completion = clock_fixture()
+    if where == "setup":
+        setups[0]["index_and_embedding_warmup_s"] = .5
+    else:
+        rows[0]["packing_s"] = .5
+    with pytest.raises(ValueError):
+        audit.verify_clock_study(plan, rows, setups, completion)
