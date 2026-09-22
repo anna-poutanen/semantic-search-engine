@@ -241,6 +241,13 @@ def freeze_common(output, decision_path, fresh_study, production_parity, product
         mf.artifact(fresh_study / "frozen-plan.json"): sha(fresh_study / "frozen-plan.json")})
     config["artifact_sha256"].update(parity_binding)
     config["artifact_sha256"].update(smoke_binding)
+    probe_defaults = config["mcp"].pop("tool_defaults")
+    config["mcp"]["probe_tool_defaults"] = probe_defaults
+    config["mcp"]["condition_tool_defaults"] = {
+        condition: {**probe_defaults, "retrieval": selected["retrieval"],
+                    "candidates": selected["shortlist"], "rerank": condition == "mcp_qwen",
+                    "rerank_provider": "qwen" if condition == "mcp_qwen" else "h2o"}
+        for condition in ("mcp_fast", "mcp_qwen")}
     config.update({"classification": "Three-condition observed-task development rerun with stricter prospective gates",
         "selected_profile": selected, "development_decision": mf.artifact(decision_path),
         "fresh_study": mf.artifact(fresh_study), "workflow_instruction": INSTRUCTION,
