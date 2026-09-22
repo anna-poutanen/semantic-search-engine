@@ -33,7 +33,8 @@ retains exact source summaries and its runtime limits. Running the script withou
 ## Run on an Apple Silicon Mac
 
 The tested setup is an M4 MacBook Pro, 24 GB RAM, macOS 15.1.1. Python dependencies,
-approximately 1.1 GiB of Qwen weights and the optional 4.8 GiB H2O checkpoint are stored locally
+approximately 1.1 GiB of Qwen embedding weights, another 1.1 GiB for the optional
+Qwen reranker, and the optional 4.8 GiB H2O checkpoint are stored locally
 under ignored `.venv/` and `.cache/` directories. Retrieval and local scoring do
 not call a hosted inference service. An MCP host receives source excerpts and
 may include them in requests to its chosen coding model.
