@@ -478,7 +478,14 @@ def verify_frozen_plan(root, study):
     require(frozen_at.tzinfo is not None, "Aware actual prospective freeze timestamp")
     for name, digest in plan["implementation_sha256"].items():
         path = original.evidence.located(root, name)
-        require(sha(path.read_bytes()) == digest, "Frozen producer/helper/core source bytes: " + name)
+        archive = original.evidence.located(study, "frozen-sources/" + name + ".gz")
+        if sha(path.read_bytes()) != digest:
+            require(archive.is_file(), "Superseded frozen producer requires immutable source archive: " + name)
+            with gzip.open(archive, "rb") as stream:
+                require(sha(stream.read()) == digest, "Byte-exact archived original producer/helper/core source: " + name)
+        elif archive.is_file():
+            with gzip.open(archive, "rb") as stream:
+                require(sha(stream.read()) == digest, "Byte-exact archived original producer/helper/core source: " + name)
         committed = subprocess.check_output(["git", "-C", str(root), "show", plan["source_commit"] + ":" + name])
         require(sha(committed) == digest, "Committed prospective implementation bytes: " + name)
     for name, digest in plan["decision_inputs"].items():
@@ -558,6 +565,46 @@ def verify_startup_cleanup(root, study, plan, counts):
             <= datetime.fromisoformat(stop["stopped_at_utc"]), "Main actual completion precedes resident cooperative close")
     return {"supervisor_elapsed_seconds": supervisor["elapsed_seconds"], "allocator": {key: stop[key] for key in
             ("mlx_active_memory_after_cleanup", "mlx_process_lifetime_peak_bytes", "memory_scope")}}
+
+
+def verify_failed_supervisor_diagnostics(root, study, plan, counts):
+    """Preserve computation proof without promoting a failed owner to success."""
+    supervisor, stop = read(study / "supervisor.json"), read(study / "reranker-stop.json")
+    require(supervisor["success"] is False and supervisor["supervisor_exit_code"] != 0,
+            "Diagnostic audit must preserve original failed supervision")
+    require(supervisor["frozen_plan_sha256"] == sha((study / "frozen-plan.json").read_bytes())
+            and supervisor["supervisor_sha256"] == plan["implementation_sha256"]["scripts/supervise_qwen_optimization.py"]
+            and supervisor["owned_sessions"] is True and supervisor["main_exit_code"] == 0
+            and supervisor["main_owned_group_stopped"] is True
+            and supervisor["forced_kill"] is supervisor["timed_out"] is False,
+            "Original known cleanup failure retains correct frozen owner and completed main execution")
+    require({key: stop[key] for key in COUNTER_KEYS} == counts and stop["clean_stop"] is True
+            and stop["listener_closed"] is True, "Independent actual resident closes its listener and reconciles all observed scores/tokens")
+    for key in ("mlx_active_memory_after_cleanup", "mlx_process_lifetime_peak_bytes"):
+        strict_count(stop[key], "Actual failed-owner run native allocator receipt")
+    observed = read(study / "post-supervisor-cleanup.json")
+    require(observed["model_calls"] == 0 and observed["owned_groups_in_ps"] == []
+            and observed["listener_closed"] is True and observed["token_absent"] is True,
+            "Separately preserved read-only process/socket/authentication cleanup observations")
+    pids = [supervisor[key] for key in ("main_pid", "resident_pid", "caffeinate_pid") if key in supervisor]
+    require(set(observed["owned_process_checks"]) == {str(pid) for pid in pids},
+            "Post-owner checks refer only to original actual owned process identities")
+    for pid in pids:
+        record = observed["owned_process_checks"][str(pid)]
+        require(record["getpgid"]["present"] is False and record["group_signal_zero"] == {"result": "ProcessLookupError", "errno": 3},
+                "Actual original owned leader/group absent in supplementary read-only observation")
+    require(not (root / ".cache" / study.name / "token.secret").exists(), "Actual original private token absent after failed owner")
+    require(datetime.fromisoformat(observed["observed_at_utc"]) >= datetime.fromisoformat(supervisor["finished_utc"]),
+            "Supplementary cleanup observes state after preserved supervisor failure")
+    for start_name in ("run-start.json", "reranker-start.json"):
+        start = read(study / start_name)
+        require(start["frozen_plan_sha256"] == supervisor["frozen_plan_sha256"]
+                and datetime.fromisoformat(start["started_at_utc"]) >= datetime.fromisoformat(plan["frozen_at_utc"]),
+                "Actual failed-owner run still starts only after committed source/input freeze")
+    return {"clean_supervised_run": False, "original_supervisor_failure": supervisor,
+            "post_supervisor_cleanup_observation": observed, "resident_stopped_cleanly": True,
+            "allocator": {key: stop[key] for key in ("mlx_active_memory_after_cleanup", "mlx_process_lifetime_peak_bytes", "memory_scope")},
+            "limits": "Later process/socket/authentication absence and the resident's own clean stop do not rewrite the failed supervisor receipt or qualify this run for selection."}
 
 
 def audit_warmups(study, tokenizer, config, events):
@@ -920,15 +967,42 @@ def build_audit(root, study):
     actual_gate = read(study / "parity-gate.json")
     require(actual_gate["limits"] == plan["parity_limits"] and actual_gate["passing_batch_sizes"] == passing,
             "Independent fixed-tolerance gate agrees with actual retained eligible B list")
+    for size, groups in by_size.items():
+        for group_id, check in groups.items():
+            actual = actual_gate["comparisons"][size][group_id]
+            before, after = results[(group_id, 1)], results[(group_id, int(size))]
+            inversions = []
+            for inversion in check["rank_inversions"]:
+                a, b = sorted((inversion["before_higher_pair_index"], inversion["before_lower_pair_index"]))
+                inversions.append({"pair_indexes": [a, b], "reference_margin": inversion["b1_score_margin"],
+                                   "candidate_margin": abs(after[a]["logit_difference"] - after[b]["logit_difference"]),
+                                   "near_tie": not inversion["outside_near_tie_band"]})
+            inversions.sort(key=lambda item: item["pair_indexes"])
+            margins = [abs(before[a]["logit_difference"] - before[b]["logit_difference"])
+                       for a in check["top_five_missing_indexes"] for b in check["top_five_entering_indexes"]]
+            require(actual["passed"] is check["qualified"] and actual["max_absolute_errors"] == check["absolute_error_max"]
+                    and actual["ranking_inversions"] == inversions
+                    and actual["top_five_reference"] == sorted(check["before_order"][:5])
+                    and actual["top_five_candidate"] == sorted(check["after_order"][:5])
+                    and sorted(actual["top_five_swap_reference_margins"]) == sorted(margins),
+                    "Every actual fixed parity failure, scalar maximum, stable inversion and top-five diagnostic independently reconciles")
     require(completion["embedding_counts"] == {}, "Parity stage has zero actual embedding calls")
-    lifecycle = verify_startup_cleanup(root, study, plan, counts)
-    return {"checks_passed": True, "classification": "Independent CPU batch-input/native-forward/parity audit; no inference",
+    supervised = read(study / "supervisor.json")["success"] is True
+    lifecycle = verify_startup_cleanup(root, study, plan, counts) if supervised else verify_failed_supervisor_diagnostics(root, study, plan, counts)
+    return {"checks_passed": supervised, "diagnostics_verified": True, "study_qualified": supervised,
+            "clean_supervised_run": supervised,
+            "classification": ("Independent CPU batch-input/native-forward/parity audit; no inference" if supervised else
+                "Verified numerical diagnostics from a failed supervised parity run; excluded from setup selection"),
             "stage": plan["stage"], "actual_stage_requests": len(rows), "resident_counts": counts,
             "passing_batch_sizes": passing, "parity": by_size, "actual_parity_http_seconds": distribution(timings),
             "lifecycle": lifecycle, "frozen_plan_sha256": sha((study / "frozen-plan.json").read_bytes()),
             "auditor_sha256": sha(Path(__file__).read_bytes()), "artifact_sha256": {path.name: sha(path.read_bytes())
                 for path in sorted(study.iterdir()) if path.is_file()
                 and path.name not in ("independent-audit.json", "independent-findings.md")},
+            "archived_implementation_sha256": {str(path.relative_to(study)): sha(path.read_bytes())
+                for path in sorted((study / "frozen-sources").rglob("*.gz")) if path.is_file()},
+            "audit_attempt_sha256": {str(path.relative_to(study)): sha(path.read_bytes())
+                for path in sorted((study / "audit-attempts").glob("*")) if path.is_file()},
             "limits": ["CPU auditor independently rebuilds tokenizer IDs, logical grouping/layout/padding and actual scalar math without loading model weights.",
                        "Native causal and final-token path relies on committed frozen producer and verified pinned native source/loaded checkpoint witnesses, plus actual receipts and internal BF16 parity.",
                        "This is internal BF16 B1-versus-B batching parity, not numerical official/PyTorch parity or a production/coding latency benchmark.",
@@ -937,7 +1011,11 @@ def build_audit(root, study):
 
 def findings(result):
     return "\n".join(["# Independent Qwen optimization audit", "", result["classification"], "",
-        "All frozen source, input-token, actual native-forward, logical-pair, layout/padding, scalar, timing and cleanup checks passed.",
+        ("All frozen source, input-token, actual native-forward, logical-pair, layout/padding, scalar, timing and cleanup checks passed."
+         if result["checks_passed"] else
+         "Frozen source/input-token, actual native-forward/logical-pair, layout/padding, scalar and fixed numerical failures were verified. "
+         "The original supervisor cleanup failed and remains preserved. Later read-only process/socket/authentication absence and "
+         "the resident's own clean stop do not qualify this run for setup selection."),
         "", "Stage: " + result["stage"], "Passing batch sizes: " + ", ".join(map(str, result.get("passing_batch_sizes", []))),
         "", "Every detailed comparison, observed native/pair/token total and immutable artifact digest is in `independent-audit.json`.", "",
         *["- " + item for item in result["limits"]], ""])
@@ -962,7 +1040,9 @@ def main(argv=None):
         raise
     (study / "independent-audit.json").write_text(json.dumps(result, indent=2, ensure_ascii=False, allow_nan=False) + "\n")
     (study / "independent-findings.md").write_text(findings(result))
-    print(json.dumps({"checks_passed": True, "stage": result["stage"], "actual_stage_requests": result["actual_stage_requests"]}))
+    print(json.dumps({"checks_passed": result["checks_passed"], "diagnostics_verified": result.get("diagnostics_verified"),
+                      "study_qualified": result.get("study_qualified", result["checks_passed"]),
+                      "stage": result["stage"], "actual_stage_requests": result["actual_stage_requests"]}))
 
 
 if __name__ == "__main__":

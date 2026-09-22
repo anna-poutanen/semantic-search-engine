@@ -65,33 +65,66 @@ def private_file(path):
     return os.fdopen(descriptor, "w", encoding="utf-8")
 
 
-def group_exists(pid, group_signal):
+def group_operation(process, signum, group_signal, permission_receipts):
+    """Reap before probing/signaling; preserve and retry EPERM after a fresh poll.
+
+    An exited leader does not prove its descendants have stopped. Only a group
+    lookup returning ESRCH proves disappearance; unresolved live EPERM is raised.
+    """
+    process.poll()
     try:
-        group_signal(pid, 0)
+        group_signal(process.pid, signum)
     except ProcessLookupError:
         return False
+    except PermissionError as error:
+        # Darwin can report EPERM for a just-exited, unreaped session leader.
+        # The process may also have exited between the preceding poll and probe.
+        retry = {"signal": int(signum), "error_type": type(error).__name__, "error": str(error),
+                 "leader_exit_before_fresh_poll": process.returncode, "recovered": False}
+        permission_receipts.append(retry)
+        process.poll()
+        retry["leader_exit_after_fresh_poll"] = process.returncode
+        try:
+            group_signal(process.pid, signum)
+        except ProcessLookupError:
+            retry["recovered"] = True
+            retry["resolution"] = "Owned group disappeared after fresh leader poll/reap"
+            return False
+        except PermissionError:
+            retry["resolution"] = "Permission error persists; group disappearance is unproved"
+            raise
+        else:
+            retry["recovered"] = True
+            retry["resolution"] = "Owned group operation succeeded after fresh leader poll"
     return True
+
+
+def group_exists(process, group_signal, permission_receipts):
+    return group_operation(process, 0, group_signal, permission_receipts)
 
 
 def stop_owned(process, *, clock=time.monotonic, sleep=time.sleep, group_signal=os.killpg):
     """Signal only the new session ID belonging to the supplied owned Popen."""
     result = {"pid": process.pid, "owned_group": process.pid, "term_sent": False,
               "forced_kill": False, "owned_group_stopped": False, "exit_code": None,
-              "started_cleanup_utc": utc_now(), "errors": []}
+              "started_cleanup_utc": utc_now(), "errors": [], "group_permission_retries": []}
+
+    def exists():
+        return group_exists(process, group_signal, result["group_permission_retries"])
+
+    def send(signum):
+        return group_operation(process, signum, group_signal, result["group_permission_retries"])
+
     try:
-        if group_exists(process.pid, group_signal):
-            group_signal(process.pid, signal.SIGTERM)
-            result["term_sent"] = True
+        if exists():
+            result["term_sent"] = send(signal.SIGTERM)
             deadline = clock() + TERM_GRACE_S
-            while group_exists(process.pid, group_signal) and clock() < deadline:
-                process.poll()  # Reap an exited leader before checking for remaining descendants.
+            while exists() and clock() < deadline:
                 sleep(POLL_S)
-            if group_exists(process.pid, group_signal):
-                group_signal(process.pid, signal.SIGKILL)
-                result["forced_kill"] = True
+            if exists():
+                result["forced_kill"] = send(signal.SIGKILL)
                 deadline = clock() + KILL_GRACE_S
-                while group_exists(process.pid, group_signal) and clock() < deadline:
-                    process.poll()
+                while exists() and clock() < deadline:
                     sleep(POLL_S)
         process.poll()
         if process.returncode is None:
@@ -100,9 +133,16 @@ def stop_owned(process, *, clock=time.monotonic, sleep=time.sleep, group_signal=
             except subprocess.TimeoutExpired as error:
                 result["errors"].append({"error_type": type(error).__name__, "error": str(error)})
         result["exit_code"] = process.returncode
-        result["owned_group_stopped"] = not group_exists(process.pid, group_signal)
+        result["owned_group_stopped"] = not exists()
     except BaseException as error:
         result["errors"].append({"error_type": type(error).__name__, "error": str(error)})
+    finally:
+        # Preserve the actual leader status even if descendant group checks fail.
+        try:
+            process.poll()
+            result["exit_code"] = process.returncode
+        except BaseException as error:
+            result["errors"].append({"error_type": type(error).__name__, "error": str(error)})
     result["finished_cleanup_utc"] = utc_now()
     return result
 
