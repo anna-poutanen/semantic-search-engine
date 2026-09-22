@@ -1,0 +1,349 @@
+#!/usr/bin/env python3
+"""Independently audit frozen precision-decomposition receipts on CPU only.
+
+No producer, native model, embedding or retrieval module is imported. Shared
+last-state projections are diagnostic observations, never reranking latency or
+formal batching approval. Original R1 witness agreement controls interpretation.
+"""
+from __future__ import annotations
+
+import argparse
+from collections import Counter
+from copy import deepcopy
+from datetime import datetime
+import gzip
+import hashlib
+import importlib.util
+import json
+from pathlib import Path
+import subprocess
+
+ROOT = Path(__file__).resolve().parents[1]
+SPEC = importlib.util.spec_from_file_location("independent_precision_saved_evidence",
+    ROOT / "scripts/audit_qwen_optimization.py")
+evidence = importlib.util.module_from_spec(SPEC)
+SPEC.loader.exec_module(evidence)
+SCORES = evidence.SCORE_KEYS
+BATCHES = (2, 4, 8)
+
+
+def require(value, message):
+    if not value:
+        raise ValueError(message)
+
+
+def sha(raw):
+    return hashlib.sha256(raw).hexdigest()
+
+
+def read(path):
+    return json.loads(path.read_bytes())
+
+
+def gz_rows(path):
+    with gzip.open(path, "rt", encoding="utf-8") as stream:
+        return [json.loads(line) for line in stream if line.strip()]
+
+
+def vector(record, dimension):
+    import numpy as np
+    require(set(record) == {"native_dtype", "float32_dtype", "float32_shape", "float32_sha256", "values"}
+            and record["native_dtype"] == "mlx.core.bfloat16" and record["float32_dtype"] == "float32"
+            and record["float32_shape"] == [dimension] and isinstance(record["values"], list)
+            and len(record["values"]) == dimension and all(type(item) is int for item in record["float32_shape"]),
+            "Exact original BF16 last-hidden dtype and complete float32 vector dimension")
+    require(all(type(item) in (int, float) for item in record["values"]), "Strict numeric last-hidden values")
+    values = np.asarray(record["values"], dtype=np.float32)
+    require(np.isfinite(values).all() and values.astype(np.float64).tolist() == record["values"]
+            and sha(values.tobytes()) == record["float32_sha256"], "Exact finite serialized float32 last-hidden values/hash")
+    require((values.view(np.uint32) & 0xFFFF == 0).all(), "Stored native BF16 values must be exactly representable before float32 serialization")
+    return values.astype(np.float64)
+
+
+def difference(before, after):
+    import numpy as np
+    require(before.shape == after.shape and before.size, "Matched complete hidden-state dimensions")
+    signed = after - before
+    delta = np.abs(signed)
+    return {"dimensions": int(before.size), "max_absolute": float(delta.max()),
+            "mean_absolute": float(delta.mean()), "rms": float(np.sqrt(np.mean(signed * signed))),
+            "changed_dimensions": int(np.count_nonzero(signed))}
+
+
+def scalar(score):
+    evidence.verify_scalar(score)
+    return score
+
+
+def errors(before, after):
+    scalar(before)
+    scalar(after)
+    return {key: abs(after[key] - before[key]) for key in SCORES}
+
+
+def witness_comparison(record, old, constructed, score, input_hash):
+    metadata = {key: value for key, value in old.items() if key not in SCORES and key != "input_ids_sha256"}
+    require(metadata == constructed and old["input_ids_sha256"] == input_hash, "Exact R1 input construction/token witness")
+    old_score = {key: old[key] for key in SCORES}
+    delta = errors(old_score, score)
+    require(record == {"exact_score_match": all(value == 0 for value in delta.values()),
+            "absolute_score_errors": delta, "original_score": old_score}, "Every fresh original-score R1 witness comparison independently matches")
+    return all(value == 0 for value in delta.values()), delta
+
+
+def operation(events, offset, kind, identity, counts, elapsed):
+    require(offset + 2 <= len(events), "Every tracked original/materialized operation has observed start/completion")
+    started, completed = events[offset:offset + 2]
+    number = counts[kind] + 1
+    expected = {"event": "started", "kind": kind, "operation_number": number, **identity}
+    require(started == expected and set(completed) == set(expected) | {"elapsed_s"}
+            and {key: completed[key] for key in expected if key != "event"}
+                == {key: value for key, value in expected.items() if key != "event"}
+            and completed["event"] == "completed", "Exact ordered tracked operation identity and continuous kind counter")
+    require(type(started["operation_number"]) is type(completed["operation_number"]) is int
+            and type(started["batch_size"]) is type(completed["batch_size"]) is int
+            and type(started["shared_hidden_reuse"]) is type(completed["shared_hidden_reuse"]) is bool
+            and all(type(index) is int for index in started["pair_indexes"] + completed["pair_indexes"]),
+            "Strict tracked operation counter, batch size, reuse flag and original indexes")
+    for row in (started, completed):
+        if "batch_index" in row:
+            require(type(row["batch_index"]) is int, "Strict original actual diagnostic group index")
+        if "layout" in row:
+            layout = row["layout"]
+            require(all(type(layout[key]) is int for key in ("actual_batch_size", "padded_sequence_length", "real_input_tokens",
+                "allocated_input_tokens", "padding_tokens", "pad_token_id", "position_offset"))
+                and all(type(item) is int for item in layout["sequence_lengths"] + layout["last_token_positions"])
+                and type(layout["singleton_original_path"]) is bool, "Strict actual diagnostic native padding/position layout types")
+        if "projection_shape" in row:
+            require(all(type(item) is int for item in row["projection_shape"]), "Strict materialized singleton head shape")
+    evidence.original.finite(completed["elapsed_s"], "Finite actual tracked diagnostic operation interval", minimum=0)
+    counts[kind] += 1
+    elapsed[kind] += completed["elapsed_s"]
+    return offset + 2
+
+
+def old_witnesses(root, plan):
+    reference = plan["source_reference"]
+    source = evidence.original.evidence.located(root, reference["path"])
+    require(sha(source.read_bytes()) == reference["sha256"], "Frozen original R1 full source/input plan")
+    groups = [{"id": group["id"], "pairs": group["pairs"]} for group in read(source)["parity_sets"]]
+    witness = plan["score_witnesses"]
+    path = evidence.original.evidence.located(root, witness["path"])
+    require(sha(path.read_bytes()) == witness["sha256"], "Exact original observed R1 scalar/input witness artifact")
+    old_audit = read(source.parent / "independent-audit.json")
+    require(old_audit["diagnostics_verified"] is True
+            and old_audit["frozen_plan_sha256"] == reference["sha256"]
+            and old_audit["artifact_sha256"][path.name] == witness["sha256"], "Independently verified R1 diagnostics used solely as witnesses")
+    result = {}
+    for row in gz_rows(path):
+        key = row["identity"]["parity_set"], row["identity"]["batch_size"]
+        require(key not in result and row["status"] == "completed", "Complete unique original R1 witness set/B")
+        indexes = []
+        hashes = {}
+        for receipt in row["reranker"]["batches"]:
+            for item in receipt["pairs"]:
+                indexes.append(item["pair_index"])
+                hashes[item["pair_index"]] = item["input_ids_sha256"]
+        scores = row["reranker"]["results"]
+        require(sorted(indexes) == list(range(len(scores))), "Every original R1 logical pair has one token-input witness")
+        result[key] = [{**score, "input_ids_sha256": hashes[index]} for index, score in enumerate(scores)]
+    require(set(result) == {(group["id"], b) for group in groups for b in (1, 2, 4, 8)}, "Complete original R1 peer/source/B witness matrix")
+    return groups, result
+
+
+def bindings(root, study):
+    plan = read(study / "frozen-plan.json")
+    require(plan["version"] == 1 and plan["batch_sizes"] == list(BATCHES)
+            and plan["max_padded_tokens"] == 16384 and plan["model_calls_in_freeze"] == 0
+            and plan["weights_loaded_in_freeze"] is False, "Original bounded zero-inference diagnostic plan")
+    for name, digest in plan["implementation_sha256"].items():
+        require(sha(evidence.original.evidence.located(root, name).read_bytes()) == digest, "Unchanged frozen diagnostic source: " + name)
+        require(sha(subprocess.check_output(["git", "-C", str(root), "show", plan["source_commit"] + ":" + name])) == digest,
+                "Committed original diagnostic implementation before execution")
+    groups, witnesses = old_witnesses(root, plan)
+    require([group["id"] for group in groups] == plan["set_ids"] and len(groups) == plan["set_count"] == 9
+            and sum(len(group["pairs"]) for group in groups) == plan["pair_count"] == 416,
+            "Complete same nine source sets, all 416 pairs and original peer order")
+    pairs = root / "results/qwen-precision-preflight-2026-10-13/pairs.json"
+    require(sha(pairs.read_bytes()) == plan["pairs_sha256"] and read(pairs) == groups,
+            "Exact frozen literal pair file and complete original R1 controls")
+    model_plan = deepcopy(plan)
+    model_plan["reranker"]["packages"] = plan["packages"]
+    config = evidence.original.prototype_constants((root / "scripts/prototype_qwen_reranker.py").read_text())
+    tokenizer = evidence.verify_model_provenance(root, model_plan, read(study / "model-provenance.json"), config)
+    dimension = read(root / ".cache/models/qwen3-reranker-0.6b-original/config.json")["hidden_size"]
+    return plan, groups, witnesses, config, tokenizer, dimension
+
+
+def audit_set(record, group, witnesses, tokenizer, config, dimension, events, offset, counts, elapsed):
+    set_id, pairs = group["id"], group["pairs"]
+    require(record["set_id"] == set_id and type(record["pairs"]) is int and record["pairs"] == len(pairs)
+            and record["shared_hidden_reuse"] is True and record["diagnostic_only_not_reranking_latency"] is True
+            and record["original_witness_controls_available"] is True
+            and record["materialization_order"] == "Original full final-token head evaluated before hidden serialization/per-row projection",
+            "Complete original source-set and diagnostic-only materialization controls")
+    built = [evidence.built_pair(pair["query"], pair["source"], tokenizer, config) for pair in pairs]
+    sequential = record["sequential"]
+    require(len(sequential) == len(pairs), "Every original source has fresh sequential control")
+    reference_scores, original_exact, hidden = [], [], []
+    sequential_materialized = []
+    for index, (row, item) in enumerate(zip(sequential, built, strict=True)):
+        require(type(row["pair_index"]) is int and row["pair_index"] == index
+                and row["constructed"] == {key: value for key, value in item.items() if key != "input_ids"}
+                and row["input_ids"] == item["input_ids"] and row["input_ids_sha256"] == sha(evidence.canonical(item["input_ids"])),
+                "Fresh sequential exact source prefix, complete token IDs and original index")
+        require(all(type(token) is int and token >= 0 for token in row["input_ids"])
+                and type(row["constructed"]["truncated"]) is bool and all(type(row["constructed"][key]) is int for key in
+                    ("source_lines", "delivered_lines", "source_utf8_bytes", "delivered_utf8_bytes", "total_tokens")),
+                "Strict exact complete diagnostic token/prefix metadata types")
+        hidden.append(vector(row["last_hidden"], dimension))
+        reference_scores.append(scalar(row["score"]))
+        sequential_materialized.append(scalar(row["materialized_singleton_projection_score"]))
+        matched, _ = witness_comparison(row["original_witness_comparison"], witnesses[(set_id, 1)][index],
+            row["constructed"], row["score"], row["input_ids_sha256"])
+        original_exact.append(matched)
+        identity = {"set_id": set_id, "pair_indexes": [index], "batch_size": 1, "shared_hidden_reuse": False}
+        offset = operation(events, offset, "sequential_backbone", identity, counts, elapsed)
+        offset = operation(events, offset, "sequential_projection", identity, counts, elapsed)
+        offset = operation(events, offset, "sequential_materialized_projection", identity | {"shared_hidden_reuse": True}, counts, elapsed)
+    by_size = {}
+    require(set(record["batched"]) == {str(size) for size in BATCHES}, "Every configured B diagnostic retained")
+    for size in BATCHES:
+        result = record["batched"][str(size)]
+        groups = evidence.expected_groups(built, size, 16384)
+        expected_layout = [{"batch_index": index, "pair_indexes": indexes, "layout": evidence.expected_layout(built, indexes)}
+                           for index, indexes in enumerate(groups)]
+        require(result["groups"] == expected_layout and len(result["rows"]) == len(pairs), "Exact original length-sorted bounded group/layout matrix")
+        variants = {key: [] for key in ("original_batched", "materialized_batched", "per_row_same_hidden")}
+        differences, same_hidden_head_errors, original_batched_exact = [], [], []
+        for index, row in enumerate(result["rows"]):
+            require(type(row["pair_index"]) is type(row["batch_index"]) is int and row["pair_index"] == index
+                    and 0 <= row["batch_index"] < len(groups) and index in groups[row["batch_index"]]
+                    and row["input_ids_sha256"] == sequential[index]["input_ids_sha256"], "Original batch result restoration and exact input-token identity")
+            observed = vector(row["last_hidden"], dimension)
+            delta = difference(hidden[index], observed)
+            require(row["last_hidden_difference_from_sequential"] == {key: delta[key] for key in ("max_absolute", "mean_absolute", "dimensions")},
+                    "Reported complete hidden-state max/mean difference independently matches exact values")
+            differences.append({"pair_index": index, **delta})
+            variants["original_batched"].append(scalar(row["original_batched_projection_score"]))
+            variants["materialized_batched"].append(scalar(row["materialized_batched_projection_on_same_hidden_score"]))
+            variants["per_row_same_hidden"].append(scalar(row["per_row_projection_on_same_batched_hidden_score"]))
+            same_hidden_head_errors.append(errors(variants["materialized_batched"][-1], variants["per_row_same_hidden"][-1]))
+            matched, _ = witness_comparison(row["original_witness_comparison"], witnesses[(set_id, size)][index],
+                sequential[index]["constructed"], variants["original_batched"][-1], row["input_ids_sha256"])
+            original_batched_exact.append(matched)
+        original_exact.extend(original_batched_exact)
+        for index, indexes in enumerate(groups):
+            identity = {"set_id": set_id, "batch_index": index, "pair_indexes": indexes, "batch_size": size,
+                        "layout": expected_layout[index]["layout"], "shared_hidden_reuse": False}
+            offset = operation(events, offset, "batched_backbone", identity, counts, elapsed)
+            reused = identity | {"shared_hidden_reuse": True}
+            offset = operation(events, offset, "batched_projection", reused, counts, elapsed)
+            offset = operation(events, offset, "materialized_batched_projection", reused, counts, elapsed)
+            for pair_index in indexes:
+                identity = reused | {"pair_indexes": [pair_index], "projection_shape": [1, 1, dimension]}
+                offset = operation(events, offset, "per_row_projection", identity, counts, elapsed)
+        checks = {name: evidence.parity(reference_scores, values) for name, values in variants.items()}
+        checks_materialized_b1 = {name: evidence.parity(sequential_materialized, values) for name, values in variants.items()}
+        by_size[str(size)] = {"variant_gate_against_fresh_lazy_b1": checks,
+            "variant_gate_against_fresh_materialized_b1": checks_materialized_b1,
+            "original_batched_r1_exact_pairs": sum(original_batched_exact), "pairs": len(pairs),
+            "hidden_difference_by_pair": differences,
+            "same_materialized_hidden_bway_vs_perrow_head_max_error": {key: max(value[key] for value in same_hidden_head_errors) for key in SCORES},
+            "hidden_exact_pairs": sum(value["changed_dimensions"] == 0 for value in differences)}
+    require(record["original_witness_controls_exactly_reproduced"] is all(original_exact), "Producer R1-control agreement summary exactly reconciles")
+    materialization_errors = [errors(a, b) for a, b in zip(reference_scores, sequential_materialized, strict=True)]
+    return offset, {"set_id": set_id, "pairs": len(pairs), "original_r1_controls": len(original_exact),
+        "original_r1_controls_exact": sum(original_exact), "all_original_r1_controls_exact": all(original_exact),
+        "sequential_materialization_max_error": {key: max(item[key] for item in materialization_errors) for key in SCORES},
+        "by_batch_size": by_size}
+
+
+def lifecycle(root, study, plan):
+    start, completion, owner = (read(study / name) for name in ("run-start.json", "completion.json", "supervisor.json"))
+    digest = sha((study / "frozen-plan.json").read_bytes())
+    require(start["frozen_plan_sha256"] == owner["frozen_plan_sha256"] == digest
+            and start["pid"] == start["process_group"] == owner["model_pid"], "Actual owned standalone model session and exact prospective input plan")
+    require(completion["complete"] is True and completion["checkpoint_witnesses_final_passed"] is True
+            and completion["checkpoint_witness_error"] is None and completion["model_owners_released"] is True
+            and completion["shared_hidden_reuse_diagnostic_only"] is True and completion["reranking_latency_measured"] is False,
+            "Complete actual diagnostic/checkpoint closure without reranking latency claim")
+    require(owner["success"] is True and owner["timed_out"] is False and owner["owned_sessions"] is True,
+            "Successful bounded owner lifecycle for diagnostic session")
+    launcher = root / "results/qwen-precision-preflight-2026-10-13/launcher.py.txt"
+    require(sha(launcher.read_bytes()) == owner["launcher_sha256"]
+            and sha((root / "scripts/supervise_qwen_optimization.py").read_bytes()) == owner["cleanup_source_sha256"],
+            "Committed launch and cooperative cleanup implementation bindings")
+    for name in ("model", "caffeinate"):
+        if name + "_pid" not in owner:
+            continue
+        stopped = owner[name + "_stop"]
+        require(stopped["pid"] == stopped["owned_group"] == owner[name + "_pid"]
+                and stopped["owned_group_stopped"] is True and stopped["forced_kill"] is False and stopped["errors"] == [],
+                "Actual clean owned diagnostic process-group shutdown")
+        if name == "model":
+            require(stopped["exit_code"] == 0, "Actual standalone diagnostic exits normally")
+    require(datetime.fromisoformat(start["started_at_utc"]) >= datetime.fromisoformat(plan["frozen_at_utc"])
+            and datetime.fromisoformat(completion["finished_at_utc"]) >= datetime.fromisoformat(start["started_at_utc"]),
+            "Actual diagnostic begins after prospective freeze and completes after start")
+    for key in ("mlx_active_memory_after_cleanup", "mlx_process_lifetime_peak_bytes"):
+        evidence.strict_count(completion["cleanup"][key], "Actual diagnostic native allocator integer observation")
+    return {"owned_model_pid": owner["model_pid"], "cleanup": completion["cleanup"],
+            "limits": "Observed allocator peak/cleanup is not OS RSS; tracked projection durations include synchronization/reuse and are not reranking latency."}
+
+
+def build_audit(root, study):
+    plan, groups, witnesses, config, tokenizer, dimension = bindings(root, study)
+    require(not (study / "failure.json").exists(), "Successful diagnostic audit cannot conceal failed execution")
+    rows, events = gz_rows(study / "results.jsonl.gz"), gz_rows(study / "operations.jsonl.gz")
+    require([row["set_id"] for row in rows] == [group["id"] for group in groups], "Every actual original set completed once in frozen order")
+    counts, elapsed, offset, analyses = Counter(), Counter(), 0, []
+    for row, group in zip(rows, groups, strict=True):
+        offset, analysis = audit_set(row, group, witnesses, tokenizer, config, dimension, events, offset, counts, elapsed)
+        analyses.append(analysis)
+    completion = read(study / "completion.json")
+    require(offset == len(events) and completion["completed_sets"] == completion["planned_sets"] == len(groups)
+            and completion["operation_counts"] == {"attempted_operations": dict(counts), "completed_operations": dict(counts),
+                                                   "completed_operation_elapsed_s": dict(elapsed)},
+            "Every tracked lazy-graph/projection start/completion and per-kind sum/count reconciles without silent reuse")
+    summary = {str(size): {variant: {"sets_meeting_unchanged_diagnostic_gate": sum(
+                    item["by_batch_size"][str(size)]["variant_gate_against_fresh_lazy_b1"][variant]["qualified"] for item in analyses),
+                "all_sets_meet_unchanged_diagnostic_gate": all(item["by_batch_size"][str(size)]["variant_gate_against_fresh_lazy_b1"][variant]["qualified"] for item in analyses)}
+                for variant in ("original_batched", "materialized_batched", "per_row_same_hidden")} for size in BATCHES}
+    exact_controls = sum(item["original_r1_controls_exact"] for item in analyses)
+    controls = sum(item["original_r1_controls"] for item in analyses)
+    return {"diagnostics_verified": True, "checks_passed": True, "study_qualified": False,
+        "formal_batch_qualification": False, "reranking_latency_measured": False,
+        "classification": "Independent CPU precision-decomposition diagnostics; shared-state observations are not batching approval",
+        "original_r1_controls": controls, "original_r1_controls_exact": exact_controls,
+        "all_original_r1_controls_exact": exact_controls == controls, "sets": len(rows), "pairs": plan["pair_count"],
+        "dimension": dimension, "variant_summary": summary, "analyses": analyses,
+        "operation_counts": dict(counts), "tracked_operation_elapsed_s": dict(elapsed), "lifecycle": lifecycle(root, study, plan),
+        "frozen_plan_sha256": sha((study / "frozen-plan.json").read_bytes()), "auditor_sha256": sha(Path(__file__).read_bytes()),
+        "artifact_sha256": {path.name: sha(path.read_bytes()) for path in sorted(study.iterdir()) if path.is_file()
+                            and path.name not in ("independent-audit.json", "independent-findings.md")},
+        "limits": ["Interpret R1 causes only if all original lazy scores reproduce the frozen R1 scalar/input witnesses; mismatch leaves attribution unresolved.",
+                   "Per-row scores reuse evaluated batched hidden states. Favorable diagnostic gate results require a new frozen actual-request parity experiment before any corrected batch configuration qualifies.",
+                   "Every graph-construction/projection operation is reconciled; auxiliary materialization/float32 serialization may evaluate graphs and is not itself an independently measured backbone forward or reranking request.",
+                   "No retrieval, embedding, fresh codebase evaluation, provider tokens, production latency or numerical official/PyTorch parity is established by this diagnostic."]}
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--root", type=Path, default=ROOT)
+    parser.add_argument("--study", type=Path, required=True)
+    args = parser.parse_args(argv)
+    study = args.study.resolve()
+    result = build_audit(args.root.resolve(), study)
+    (study / "independent-audit.json").write_text(json.dumps(result, indent=2, ensure_ascii=False, allow_nan=False) + "\n")
+    lines = ["# Independent precision-decomposition audit", "", result["classification"], "",
+        f"All original R1 controls exactly reproduced: {result['original_r1_controls_exact']} / {result['original_r1_controls']}.", "",
+        "Stored native BF16 vectors, exact float32 hashes/values, complete original token/source inputs, all scalar variants, "
+        "tracked operations and owned cleanup are independently verified. The JSON includes per-set max/mean/RMS hidden "
+        "differences and unchanged diagnostic gates for every projection variant.", "", *["- " + item for item in result["limits"]], ""]
+    (study / "independent-findings.md").write_text("\n".join(lines))
+    print(json.dumps({key: result[key] for key in ("diagnostics_verified", "study_qualified", "all_original_r1_controls_exact", "variant_summary")}))
+
+
+if __name__ == "__main__":
+    main()
