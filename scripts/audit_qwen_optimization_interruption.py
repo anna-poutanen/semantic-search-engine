@@ -131,6 +131,70 @@ def committed_source_bindings(plan):
     return result, mismatches
 
 
+def retained_prefix(plan, rows, completion):
+    require([row["identity"] for row in rows] == plan["schedule"][:len(rows)], "Retained main attempts must follow the exact frozen prefix")
+    complete = [row for row in rows if row["status"] == "completed"]
+    failed = [row for row in rows if row["status"] == "failed"]
+    require(all(row["active_phase"] == "complete" for row in complete), "Completed rows must finish their observed pipeline")
+    if completion is None:
+        require(not failed and len(complete) == len(rows), "Abrupt main termination retains only completed prefix rows")
+    else:
+        require(completion["complete"] is False and completion["embedding_owner_closed"] is True
+                and completion["attempted_requests"] == len(rows) and completion["completed_requests"] == len(complete),
+                "Graceful interruption completion must preserve exact attempted/completed counts and actual owner closure")
+        require(len(failed) == 1 and failed[0] is rows[-1] and failed[0]["error_type"] == "KeyboardInterrupt",
+                "Graceful SIGINT keeps one final interrupted attempted row, never a completed observation")
+        require(failed[0]["counts_after"] == completion["embedding_counts"], "Graceful final embedding counters must match the retained failing attempt")
+    return complete, failed
+
+
+def partial_clock_receipts(plan, rows, setups, completion):
+    """Independently check retained chronological clock arithmetic, not full-run qualification."""
+    if completion is None or "clock_integrity" not in plan:
+        return None
+    require(completion["clock_integrity"] == plan["clock_integrity"] and completion["clock_failure"] is None,
+            "Retained partial completion must preserve its clock policy/failure state")
+    baseline, records = completion["clock_baseline"], []
+    for setup in setups:
+        start = setup["clock_start"]
+        records.extend([(start, None), (setup["clock_end"], start["sample"])])
+        for row in rows:
+            if row["identity"]["dataset"] == setup["dataset"]:
+                start = row["clock_start"]
+                records.extend([(start, None), (row["clock_end"], start["sample"])])
+    records.append((completion["clock_end"], None))
+    previous, maximum = baseline, 0
+    for receipt, since in records:
+        require(receipt["baseline"] == baseline and receipt["consistent"] is True
+                and receipt["max_drift_ns"] == 2_000_000_000, "Partial clock evidence cannot reset or relax its original baseline")
+        sample = receipt["sample"]
+        for endpoint in (baseline, sample):
+            require(type(endpoint["wall_time_ns"]) is type(endpoint["perf_counter_ns"]) is int, "Clock samples retain integer nanoseconds")
+            seconds, ns = divmod(endpoint["wall_time_ns"], 1_000_000_000)
+            require(endpoint["utc"] == datetime.fromtimestamp(seconds, timezone.utc).replace(microsecond=ns // 1000).isoformat(),
+                    "Retained UTC must match its actual wall sample")
+        for key, anchor in (("cumulative", baseline), ("interval", since)):
+            value = receipt[key]
+            if anchor is None:
+                require(value is None, "Clock checkpoint has no substituted interval")
+                continue
+            wall = sample["wall_time_ns"] - anchor["wall_time_ns"]
+            perf = sample["perf_counter_ns"] - anchor["perf_counter_ns"]
+            drift = wall - perf
+            require(value == {"wall_elapsed_ns": wall, "perf_elapsed_ns": perf, "drift_ns": drift,
+                    "absolute_drift_ns": abs(drift), "max_drift_ns": 2_000_000_000,
+                    "consistent": perf >= 0 and abs(drift) <= 2_000_000_000} and value["consistent"] is True,
+                    "Retained partial clock deltas must reconcile every endpoint")
+            maximum = max(maximum, abs(drift))
+        require(sample["wall_time_ns"] >= previous["wall_time_ns"] and sample["perf_counter_ns"] >= previous["perf_counter_ns"],
+                "Retained partial setup/query/cleanup clock samples must remain chronological")
+        previous = sample
+    require(completion["finished_at_utc"] == completion["clock_end"]["sample"]["utc"], "Graceful cleanup retains its final actual UTC")
+    return {"partial_receipts_checked": len(records), "maximum_observed_absolute_drift_ns": maximum,
+            "whole_study_qualified": False, "baseline": baseline, "final_sample": previous,
+            "failed_request_end_label": rows[-1]["clock_end"]["label"]}
+
+
 def expected_pair(builder, pair):
     built = builder.build(pair["query"], pair["source"])
     return {"query_sha256": built["query_sha256"], "source_sha256": built["source_sha256"],
@@ -224,17 +288,19 @@ def native_events(events, warmups, plan, pools, contents, builder):
 
 def audit(study):
     study = Path(study).resolve(strict=True)
-    require(not (study / "completion.json").exists(), "Interruption audit is for original incomplete runs only")
+    completion = read(study / "completion.json") if (study / "completion.json").exists() else None
+    require(completion is None or completion["complete"] is False, "Interruption audit never replaces a successful-study certificate")
     originals = {path.relative_to(study).as_posix(): sha(path.read_bytes()) for path in study.rglob("*") if path.is_file()
                  and not path.relative_to(study).as_posix().startswith(("recovered-prefix/", "interruption-audit"))}
     plan, supervisor, interruption = [read(study / name) for name in ("frozen-plan.json", "supervisor.json", "interruption.json")]
     digest = originals["frozen-plan.json"]
     require(plan["stage"] == "grid" and interruption["qualification"] is False, "Interrupted grid remains ineligible")
-    require(supervisor["frozen_plan_sha256"] == digest and supervisor["error_type"] == "SupervisorInterrupted"
-            and supervisor["interrupted_signal"] == 15 and supervisor["success"] is False
-            and supervisor["main_exit_code"] == -15 and supervisor["resident_exit_code"] == 0
+    require(supervisor["frozen_plan_sha256"] == digest and supervisor["success"] is False
+            and supervisor["main_exit_code"] == (-15 if completion is None else -2) and supervisor["resident_exit_code"] == 0
             and supervisor["forced_kill"] is False and supervisor["private_auth_token_removed"] is True,
             "Original interrupted owner status differs")
+    require((completion is None and supervisor["error_type"] == "SupervisorInterrupted" and supervisor["interrupted_signal"] == 15)
+            or (completion is not None and supervisor["error"] == "Main study exited unsuccessfully"), "Original termination mechanism must remain explicit")
     for label in ("main", "resident", "caffeinate"):
         stop = supervisor[label + "_stop"]
         require(stop["pid"] == stop["owned_group"] == supervisor[label + "_pid"]
@@ -243,7 +309,7 @@ def audit(study):
     for name in ("supervisor-start.json", "run-start.json", "reranker-start.json"):
         require(read(study / name)["frozen_plan_sha256"] == digest, "Original startup freeze binding differs")
     sources, changed_sources = archived_sources(study, plan)
-    require(interruption["frozen_sources_archived"] == len(sources), "Interruption source-archive count differs")
+    require(interruption.get("frozen_sources_archived", len(sources)) == len(sources), "Interruption source-archive count differs")
     commit_bindings, commit_mismatches = committed_source_bindings(plan)
     if "uncommitted_frozen_sources" in interruption:
         require(interruption["recorded_source_commit"] == plan["source_commit"]
@@ -264,8 +330,8 @@ def audit(study):
         if not info["gzip_footer_verified"]:
             copies[name] = payload
     rows, pools, source_content, events = [recovered[name] for name in LEDGERS]
-    require([row["identity"] for row in rows] == plan["schedule"][:len(rows)]
-            and all(row["status"] == "completed" and row["active_phase"] == "complete" for row in rows), "Retained main searches must be an exact completed frozen prefix")
+    complete_rows, failed_rows = retained_prefix(plan, rows, completion)
+    partial_clocks = partial_clock_receipts(plan, rows, read(study / "setups.json"), completion)
     require(len(rows) < plan["planned_requests"] and ledgers["forwards.jsonl.gz"]["gzip_footer_verified"], "Main study is incomplete and resident event ledger is closed")
     contents = {row["sha256"]: row["source"] for row in source_content}
     require(len(contents) == len(source_content) and all(sha(source.encode()) == key for key, source in contents.items()), "Retained source bytes/hash inventory differs")
@@ -288,7 +354,7 @@ def audit(study):
     require(stop["clean_stop"] is True and stop["listener_closed"] is True, "Resident listener/model lifecycle differs")
     observed_request_ids = set()
     for row in rows:
-        if row["configuration"]["batch_size"]:
+        if row["configuration"]["batch_size"] and "reranker" in row:
             response = row["reranker"]
             require(response["batches"] == response["batch_receipts"] == requests[response["request_id"]], "Retained main scoring receipt differs from resident native events")
             observed_request_ids.add(response["request_id"])
@@ -296,8 +362,9 @@ def audit(study):
                 == row["counts_before"]["completed_query_calls"] + 1, "Retained main query embedding counters do not reconcile")
     native_only = [identity for identity in requests if not identity.startswith("generic-warmup-") and identity not in observed_request_ids]
     remaining = plan["schedule"][len(rows):]
-    expected_next = "/".join(str(remaining[0][key]) for key in ("dataset", "query_id", "condition", "repetition"))
-    require(native_only == [expected_next], "Exactly one next scheduled request has native completion without a main completion row")
+    unmatched_identity = failed_rows[0]["identity"] if failed_rows else remaining[0]
+    expected_next = "/".join(str(unmatched_identity[key]) for key in ("dataset", "query_id", "condition", "repetition"))
+    require(native_only == [expected_next], "Exactly one interrupted current/next request has native completion without a main completion row")
     power = []
     for event in interruption.get("power_events", []):
         stamp = datetime.strptime(event[:25], "%Y-%m-%d %H:%M:%S %z").astimezone(timezone.utc).isoformat()
@@ -315,14 +382,20 @@ def audit(study):
               "interruption_reason": interruption["reason"], "recorded_source_commit": plan["source_commit"],
               "recorded_commit_source_bindings": commit_bindings, "frozen_sources_missing_from_recorded_commit": commit_mismatches,
               "current_implementation_differences": changed_sources, "decision_input_sha256": decision_bindings,
-              "ledgers": ledgers, "planned_searches": plan["planned_requests"], "retained_completed_search_rows": len(rows),
-              "retained_completed_rows_by_condition": dict(Counter(row["identity"]["condition"] for row in rows)),
+              "ledgers": ledgers, "planned_searches": plan["planned_requests"], "retained_completed_search_rows": len(complete_rows),
+              "retained_attempted_search_rows": len(rows), "retained_failed_search_rows": len(failed_rows),
+              "retained_completed_rows_by_condition": dict(Counter(row["identity"]["condition"] for row in complete_rows)),
+              "failed_search_identity": failed_rows[0]["identity"] if failed_rows else None,
+              "failed_search_error_type": failed_rows[0]["error_type"] if failed_rows else None,
+              "partial_clock_evidence": partial_clocks,
               "last_retained_search_identity": last["identity"], "next_scheduled_identity": remaining[0],
               "native_only_completed_request_ids": native_only, "native_counts": native,
               "last_retained_main_embedding_counts": last["counts_after"],
-              "completed_query_embedding_lower_bound": last["counts_after"]["completed_query_calls"] + len(native_only),
-              "final_main_embedding_counters": None, "final_main_allocator_cleanup": None,
-              "final_main_owner_cleanup_receipt": None, "last_attempt_after_native_only_request": None,
+              "completed_query_embedding_lower_bound": last["counts_after"]["completed_query_calls"] + (0 if completion else len(native_only)),
+              "final_main_embedding_counters": completion["embedding_counts"] if completion else None, "final_main_allocator_cleanup": None,
+              "final_main_owner_cleanup_receipt": {"embedding_owner_closed": completion["embedding_owner_closed"],
+                  "finished_at_utc": completion["finished_at_utc"], "completion_sha256": originals["completion.json"]} if completion else None,
+              "last_attempt_after_native_only_request": None,
               "owner_receipt_all_groups_stopped": True, "private_auth_token_removed": True,
               "resident_allocator_cleanup": {key: stop[key] for key in ("mlx_active_memory_after_cleanup", "mlx_process_lifetime_peak_bytes")},
               "power_interruption": {"event_count": len(power), "lid_sleep_utc": lid_sleep, "lid_wake_utc": lid_wake,
@@ -333,18 +406,19 @@ def audit(study):
                          "Recovered copies contain only exact retained complete JSON-line bytes, not reconstructed missing events.",
                          "Original missing gzip footers remain missing; originals and all archived attempted sources stay unchanged.",
                          "Resident native inputs/tokens/padding/scalars/counters reconcile; this does not certify full retrieval/packing quality or latency.",
-                         "Main was terminated with SIGTERM and has no final completion/counter/allocator receipt; unknown values remain null.",
+                         "Main termination mechanism and available completion/counter/owner closure are retained; absent allocator values remain null.",
                          "Resident memory is its MLX allocator, not OS RSS or combined model memory."]}
     return result, copies
 
 
 def findings(result):
     native = result["native_counts"]
-    missing = result["next_scheduled_identity"]
-    description = "/".join(str(missing[key]) for key in ("dataset", "query_id", "condition", "repetition"))
+    description = result["native_only_completed_request_ids"][0]
     counters = result["last_retained_main_embedding_counts"]["completed_query_calls"]
     power = result["power_interruption"]
-    cause = ("The Mac entered clamshell sleep during this run." if power["event_count"] else
+    cause = ("The grid was gracefully interrupted because external power was absent and the Mac reached 3% battery."
+             if result["final_main_owner_cleanup_receipt"] else
+             "The Mac entered clamshell sleep during this run." if power["event_count"] else
              "The run was stopped because its recorded source commit does not contain every frozen implementation byte.")
     source_reason = (["", "Recorded source-commit mismatch: "
                       + ", ".join("`" + name + "`" for name in result["frozen_sources_missing_from_recorded_commit"]) + "."]
@@ -355,9 +429,11 @@ def findings(result):
         cause + " The whole partial grid is ineligible for retrieval selection or warm-latency comparison. Original files are retained; this audit does not replace a successful study certificate.", *source_reason, "",
         f"- Retained searches: {result['retained_completed_search_rows']} / {result['planned_searches']} completed rows, in the exact frozen schedule prefix.",
         f"- Resident: {native['benchmark_completed_scoring_requests']} benchmark scoring requests, {native['benchmark_completed_forwards']} actual benchmark forwards/pairs, plus four warmups (15 forwards / 32 pairs).",
-        f"- The next scheduled request `{description}` finished scoring but has no completed main search row. Final main embedding counters and allocator cleanup are unknown; the last retained counter is {counters} query calls, with a proved lower bound of {result['completed_query_embedding_lower_bound']} after that additional scored request.",
-        "- Three main-owned gzip ledgers lack footers. Separate recovered copies contain exact retained complete lines; their original compressed and retained-byte hashes are recorded. The resident event gzip closed normally.",
-        f"- All {len(result['original_archived_implementations'])} original frozen source files match their archived hashes. All owned process groups stopped; the resident closed normally with {result['resident_allocator_cleanup']['mlx_active_memory_after_cleanup']} allocator bytes remaining. The main exited on SIGTERM (-15), and the private authentication token was removed.",
+        f"- Request `{description}` finished native scoring but has no completed main search observation. Final main embedding calls: {result['final_main_embedding_counters']['completed_query_calls'] if result['final_main_embedding_counters'] else 'unknown'}; last retained counter {counters}, proved lower bound {result['completed_query_embedding_lower_bound']}. Main allocator cleanup remains unknown.",
+        ("- All original raw gzip ledgers closed with valid footers; the final failed-main attempt and completion=false receipt remain recorded."
+         if all(info["gzip_footer_verified"] for info in result["ledgers"].values()) else
+         "- Three main-owned gzip ledgers lack footers. Separate recovered copies contain exact retained complete lines; their original compressed and retained-byte hashes are recorded. The resident event gzip closed normally."),
+        f"- All {len(result['original_archived_implementations'])} original frozen source files match their archived hashes. All owned process groups stopped; the resident closed normally with {result['resident_allocator_cleanup']['mlx_active_memory_after_cleanup']} allocator bytes remaining. The main exited on {'SIGINT (-2)' if result['final_main_owner_cleanup_receipt'] else 'SIGTERM (-15)'}, and the private authentication token was removed.",
         *power_note, "",
         "No quality aggregates, P95 selection, coding correctness or token savings are inferred from this partial run.", ""])
 
@@ -369,7 +445,8 @@ def main(argv=None):
     result, copies = audit(args.study)
     study = args.study.resolve()
     destination = study / "recovered-prefix"
-    destination.mkdir(exist_ok=False)
+    if copies:
+        destination.mkdir(exist_ok=False)
     for name, payload in copies.items():
         path = destination / name
         with path.open("xb") as stream:

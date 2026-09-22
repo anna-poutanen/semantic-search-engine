@@ -1,0 +1,388 @@
+#!/usr/bin/env python3
+"""CPU-only forensic reconciliation of an interrupted, ineligible Qwen study.
+
+Original artifacts are never rewritten. Recoverable complete JSON lines may be
+copied into separately named valid gzip files. This is not a successful study
+certificate, retrieval-quality report, latency estimate, resume or selection.
+"""
+from __future__ import annotations
+
+import argparse
+from collections import Counter
+from datetime import datetime, timezone
+import gzip
+import hashlib
+import importlib.metadata
+import json
+from pathlib import Path
+import subprocess
+import zlib
+
+import prototype_qwen_reranker as prototype
+
+ROOT = Path(__file__).resolve().parents[1]
+LEDGERS = ("searches.jsonl.gz", "candidate-pools.jsonl.gz", "source-content.jsonl.gz", "forwards.jsonl.gz")
+
+
+def require(ok, message):
+    if not ok:
+        raise ValueError(message)
+
+
+def sha(raw):
+    return hashlib.sha256(raw).hexdigest()
+
+
+def canonical(value):
+    return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()
+
+
+def read(path):
+    return json.loads(path.read_bytes())
+
+
+def recovered_lines(raw):
+    """Recover only complete, valid UTF-8 JSON lines; retain exact original bytes.
+
+    Missing gzip footer is reported rather than fabricated as original closure.
+    On a decompression error, replay only the failing input chunk byte by byte to
+    preserve all output preceding that error. A malformed/incomplete final JSON
+    line is excluded from the recovered copy and its bytes are still hashed.
+    """
+    decoder = zlib.decompressobj(31)
+    output, compressed_consumed, decode_error = bytearray(), 0, None
+    for position in range(0, len(raw), 4096):
+        chunk = raw[position:position + 4096]
+        before = decoder.copy()
+        try:
+            output.extend(decoder.decompress(chunk))
+            compressed_consumed += len(chunk)
+        except zlib.error:
+            decoder = before
+            for byte in chunk:
+                try:
+                    output.extend(decoder.decompress(bytes([byte])))
+                    compressed_consumed += 1
+                except zlib.error as error:
+                    decode_error = {"error_type": type(error).__name__, "error": str(error),
+                                    "compressed_error_offset": compressed_consumed}
+                    break
+            break
+        if decoder.eof:
+            break
+    if decode_error is None:
+        try:
+            output.extend(decoder.flush())
+        except zlib.error as error:
+            decode_error = {"error_type": type(error).__name__, "error": str(error),
+                            "compressed_error_offset": compressed_consumed}
+    payload = bytes(output)
+    rows, valid_prefix, offset, json_error = [], bytearray(), 0, None
+    for line in payload.splitlines(keepends=True):
+        if not line.endswith(b"\n"):
+            break
+        try:
+            require(line.strip(), "Blank ledger lines are not retained JSON receipts")
+            row = json.loads(line.decode("utf-8"))
+            require(isinstance(row, dict), "Each retained ledger line must be a JSON object")
+        except (ValueError, UnicodeDecodeError) as error:
+            json_error = {"error_type": type(error).__name__, "error": str(error), "decoded_error_offset": offset}
+            break
+        rows.append(row)
+        valid_prefix.extend(line)
+        offset += len(line)
+    trailing = payload[offset:]
+    info = {"original_compressed_sha256": sha(raw), "original_compressed_bytes": len(raw),
+            "gzip_footer_verified": bool(decoder.eof and decode_error is None and not decoder.unused_data),
+            "decompression_error": decode_error, "compressed_unused_bytes": len(decoder.unused_data),
+            "decoded_bytes": len(payload), "decoded_sha256": sha(payload), "retained_complete_json_lines": len(rows),
+            "retained_exact_line_bytes": len(valid_prefix), "retained_exact_line_sha256": sha(bytes(valid_prefix)),
+            "unretained_decoded_bytes": len(trailing), "unretained_decoded_sha256": sha(trailing),
+            "json_line_error": json_error}
+    return rows, bytes(valid_prefix), info
+
+
+def archived_sources(study, plan):
+    result, current_changes = {}, []
+    for name, expected in plan["implementation_sha256"].items():
+        require(not Path(name).is_absolute() and ".." not in Path(name).parts, "Frozen source path must be relative")
+        archive = study / "frozen-sources" / (name + ".gz")
+        raw = archive.read_bytes()
+        source = gzip.decompress(raw)
+        require(sha(source) == expected, "Archived attempted implementation differs from original freeze: " + name)
+        result[name] = {"source_sha256": expected, "archive_compressed_sha256": sha(raw), "bytes": len(source)}
+        current = ROOT / name
+        if not current.is_file() or sha(current.read_bytes()) != expected:
+            current_changes.append(name)
+    require(len(result) == len(plan["implementation_sha256"]), "All original frozen implementation files must remain archived")
+    return result, current_changes
+
+
+def committed_source_bindings(plan):
+    result, mismatches = {}, []
+    for name, expected in plan["implementation_sha256"].items():
+        observed = subprocess.run(["git", "-C", str(ROOT), "show", plan["source_commit"] + ":" + name],
+                                  capture_output=True, check=False, timeout=15)
+        committed = sha(observed.stdout) if observed.returncode == 0 else None
+        result[name] = {"frozen_source_sha256": expected, "committed_source_sha256": committed,
+                        "matches_recorded_commit": committed == expected}
+        if committed != expected:
+            mismatches.append(name)
+    return result, mismatches
+
+
+def expected_pair(builder, pair):
+    built = builder.build(pair["query"], pair["source"])
+    return {"query_sha256": built["query_sha256"], "source_sha256": built["source_sha256"],
+            "delivered_sha256": built["delivered_sha256"], "input_ids_sha256": sha(canonical(built["input_ids"])),
+            "total_tokens": built["total_tokens"], "truncated": built["truncated"], "delivered_lines": built["delivered_lines"]}
+
+
+def native_events(events, warmups, plan, pools, contents, builder):
+    require(len(events) % 2 == 0, "Every retained native started event must have a completion")
+    requests, pairs, real_tokens, allocated_tokens = {}, 0, 0, 0
+    benchmark_ids = {"/".join(str(identity[key]) for key in ("dataset", "query_id", "condition", "repetition")): identity
+                     for identity in plan["schedule"] if next(c for c in plan["conditions"] if c["id"] == identity["condition"])["batch_size"]}
+    configs = {config["id"]: config for config in plan["conditions"]}
+    queries = {(q["dataset"], q["query_id"]): q["query"] for q in plan["query_catalog"]}
+    warm_pairs = [{"query": "Locate addition of two values.", "source": "def add(left, right):\n"
+                  + "    # fixed warmup\n" * index + "    return left + right\n"} for index in range(8)]
+    literal_cache = {}
+    for number, (start, complete) in enumerate(zip(events[::2], events[1::2], strict=True), 1):
+        require(start["event"] == "started" and complete["event"] == "completed", "No failed/unpaired native event may be inferred complete")
+        require({k: v for k, v in complete.items() if k not in ("event", "elapsed_s", "scores")}
+                == {k: v for k, v in start.items() if k != "event"}, "Native started/completed identities differ")
+        require(type(start["batch_forward_number"]) is int and start["batch_forward_number"] == number, "Native forward numbers must form the complete observed prefix")
+        identity = start["request_id"]
+        if identity not in requests:
+            requests[identity] = []
+        requests[identity].append(complete)
+        require(len(complete["scores"]) == len(start["pairs"]), "One scalar result per actual native pair")
+        for score in complete["scores"]:
+            require(score == prototype.binary_score(score["yes_logit"], score["no_logit"]), "Native scalar fields differ from original binary score math")
+        layout = start["layout"]
+        lengths = [pair["total_tokens"] for pair in start["pairs"]]
+        require(layout["actual_batch_size"] == len(lengths) and layout["sequence_lengths"] == lengths
+                and layout["padded_sequence_length"] == max(lengths)
+                and layout["real_input_tokens"] == sum(lengths)
+                and layout["allocated_input_tokens"] == len(lengths) * max(lengths)
+                and layout["padding_tokens"] == layout["allocated_input_tokens"] - sum(lengths)
+                and layout["padding_ratio"] == layout["padding_tokens"] / layout["allocated_input_tokens"]
+                and layout["last_token_positions"] == [length - 1 for length in lengths]
+                and layout["position_offset"] == 0 and layout["padding_side"] == "right"
+                and layout["attention_mask"] == "native_causal" and layout["pad_token_id"] == 0
+                and layout["singleton_original_path"] == (len(lengths) == 1)
+                and layout["allocated_input_tokens"] <= 16384, "Observed native token/padding/last-position layout differs")
+        if start["warmup"]:
+            require(identity in {"generic-warmup-b" + str(size) for size in (1, 2, 4, 8)}, "Unknown separately recorded warmup")
+            literal = warm_pairs
+        else:
+            require(identity in benchmark_ids, "Native scoring request is outside original frozen schedule")
+            scheduled = benchmark_ids[identity]
+            config = configs[scheduled["condition"]]
+            require(start["batch_size_requested"] == config["batch_size"] == 1, "Interrupted grid only contains parity-qualified B1")
+            key = scheduled["dataset"] + "/" + scheduled["query_id"] + "/" + config["retrieval"]
+            available = [pool for pool in pools if pool["pool_key"] == key]
+            require(available, "Observed native request has no retained candidate/source pool")
+            # Multiple repeated pools may exist; preserve only a literal-prefix match.
+            candidates = [[{"query": queries[(scheduled["dataset"], scheduled["query_id"])],
+                            "source": contents[window["source_hash"]]} for window in pool["windows"][:config["shortlist"]]]
+                          for pool in available]
+            matched = [candidate for candidate in candidates if all(candidate[pair["pair_index"]]["source"].encode()
+                       and sha(candidate[pair["pair_index"]]["source"].encode()) == pair["source_sha256"] for pair in start["pairs"])]
+            require(matched, "Native literal inputs cannot match retained frozen candidate prefix")
+            literal = matched[0]
+        for pair in start["pairs"]:
+            index = pair["pair_index"]
+            require(type(index) is int and 0 <= index < len(literal), "Original pair index must remain inside literal request")
+            cache_key = sha(canonical(literal[index]))
+            if cache_key not in literal_cache:
+                literal_cache[cache_key] = expected_pair(builder, literal[index])
+            require({key: value for key, value in pair.items() if key != "pair_index"} == literal_cache[cache_key],
+                    "Native query/source/prefix/token input witness differs from independently rebuilt original pair")
+        pairs += len(lengths)
+        real_tokens += sum(lengths)
+        allocated_tokens += layout["allocated_input_tokens"]
+    warm_ids = ["generic-warmup-b" + str(size) for size in (1, 2, 4, 8)]
+    require(list(requests)[:4] == warm_ids, "Observed native requests begin with the four predeclared warmups")
+    for receipt in warmups:
+        require(receipt["batches"] == receipt["batch_receipts"] == requests[receipt["request_id"]], "Warmup response differs from original observed native events")
+    for identity, observed in requests.items():
+        indexes = [pair["pair_index"] for event in observed for pair in event["pairs"]]
+        expected_count = 8 if identity in warm_ids else configs[benchmark_ids[identity]["condition"]]["shortlist"]
+        require(sorted(indexes) == list(range(expected_count)), "Every observed native request scores each literal pair exactly once")
+    return requests, {"actual_completed_forwards": len(events) // 2, "actual_completed_logical_pairs": pairs,
+                      "actual_requests": len(requests), "completed_real_input_tokens": real_tokens,
+                      "completed_allocated_input_tokens": allocated_tokens, "completed_padding_tokens": allocated_tokens - real_tokens,
+                      "generic_warmup_requests": 4, "generic_warmup_forwards": sum(len(requests[key]) for key in warm_ids),
+                      "generic_warmup_logical_pairs": 32,
+                      "benchmark_completed_scoring_requests": len(requests) - 4,
+                      "benchmark_completed_forwards": len(events) // 2 - sum(len(requests[key]) for key in warm_ids),
+                      "benchmark_completed_logical_pairs": pairs - 32,
+                      "literal_pair_inputs_rebuilt_on_cpu": len(literal_cache)}
+
+
+def audit(study):
+    study = Path(study).resolve(strict=True)
+    require(not (study / "completion.json").exists(), "Interruption audit is for original incomplete runs only")
+    originals = {path.relative_to(study).as_posix(): sha(path.read_bytes()) for path in study.rglob("*") if path.is_file()
+                 and not path.relative_to(study).as_posix().startswith(("recovered-prefix/", "interruption-audit"))}
+    plan, supervisor, interruption = [read(study / name) for name in ("frozen-plan.json", "supervisor.json", "interruption.json")]
+    digest = originals["frozen-plan.json"]
+    require(plan["stage"] == "grid" and interruption["qualification"] is False, "Interrupted grid remains ineligible")
+    require(supervisor["frozen_plan_sha256"] == digest and supervisor["error_type"] == "SupervisorInterrupted"
+            and supervisor["interrupted_signal"] == 15 and supervisor["success"] is False
+            and supervisor["main_exit_code"] == -15 and supervisor["resident_exit_code"] == 0
+            and supervisor["forced_kill"] is False and supervisor["private_auth_token_removed"] is True,
+            "Original interrupted owner status differs")
+    for label in ("main", "resident", "caffeinate"):
+        stop = supervisor[label + "_stop"]
+        require(stop["pid"] == stop["owned_group"] == supervisor[label + "_pid"]
+                and stop["owned_group_stopped"] is True and stop["errors"] == [] and stop["forced_kill"] is False,
+                "Original owned interruption cleanup is not confirmed")
+    for name in ("supervisor-start.json", "run-start.json", "reranker-start.json"):
+        require(read(study / name)["frozen_plan_sha256"] == digest, "Original startup freeze binding differs")
+    sources, changed_sources = archived_sources(study, plan)
+    require(interruption["frozen_sources_archived"] == len(sources), "Interruption source-archive count differs")
+    commit_bindings, commit_mismatches = committed_source_bindings(plan)
+    if "uncommitted_frozen_sources" in interruption:
+        require(interruption["recorded_source_commit"] == plan["source_commit"]
+                and commit_mismatches == interruption["uncommitted_frozen_sources"],
+                "Source-commit mismatch reason must match independently observed Git blobs")
+    require(supervisor["supervisor_sha256"] == sources["scripts/supervise_qwen_optimization.py"]["source_sha256"], "Original cleanup source differs from archive")
+    require(sha(Path(prototype.__file__).read_bytes()) == sources["scripts/prototype_qwen_reranker.py"]["source_sha256"], "Original CPU pair builder source changed")
+    decision_bindings = {}
+    for name, expected in plan["decision_inputs"].items():
+        observed = sha((ROOT / name).read_bytes())
+        require(observed == expected, "Original prospective decision input changed: " + name)
+        decision_bindings[name] = observed
+    ledgers, copies = {}, {}
+    recovered = {}
+    for name in LEDGERS:
+        rows, payload, info = recovered_lines((study / name).read_bytes())
+        ledgers[name], recovered[name] = info, rows
+        if not info["gzip_footer_verified"]:
+            copies[name] = payload
+    rows, pools, source_content, events = [recovered[name] for name in LEDGERS]
+    require([row["identity"] for row in rows] == plan["schedule"][:len(rows)]
+            and all(row["status"] == "completed" and row["active_phase"] == "complete" for row in rows), "Retained main searches must be an exact completed frozen prefix")
+    require(len(rows) < plan["planned_requests"] and ledgers["forwards.jsonl.gz"]["gzip_footer_verified"], "Main study is incomplete and resident event ledger is closed")
+    contents = {row["sha256"]: row["source"] for row in source_content}
+    require(len(contents) == len(source_content) and all(sha(source.encode()) == key for key, source in contents.items()), "Retained source bytes/hash inventory differs")
+    require(len({pool["pool_id"] for pool in pools}) == len(pools), "Duplicate retained candidate pool identity")
+    for pool in pools:
+        require(sha(canonical(pool["windows"])) == pool["pool_sha256"] and len(pool["windows"]) == 50
+                and all(window["source_hash"] in contents for window in pool["windows"]), "Retained original candidate pool/source binding differs")
+    require(importlib.metadata.version("tokenizers") == prototype.RUNTIME_PINS["tokenizers"], "CPU tokenizer must match original pinned version")
+    checkpoint = prototype.checkpoint_preflight(ROOT / ".cache/models/qwen3-reranker-0.6b-original", verify_weights=False)
+    from tokenizers import Tokenizer
+    builder = prototype.PairBuilder(Tokenizer.from_file(str(Path(checkpoint["directory"]) / "tokenizer.json")))
+    requests, native = native_events(events, read(study / "reranker-warmup.json"), plan, pools, contents, builder)
+    stop = read(study / "reranker-stop.json")
+    for key, value in {"attempted_forwards": native["actual_completed_forwards"], "completed_forwards": native["actual_completed_forwards"],
+                       "attempted_batch_forwards": native["actual_completed_forwards"], "completed_batch_forwards": native["actual_completed_forwards"],
+                       "attempted_pairs": native["actual_completed_logical_pairs"], "completed_pairs": native["actual_completed_logical_pairs"],
+                       "requests": native["actual_requests"], "completed_real_input_tokens": native["completed_real_input_tokens"],
+                       "completed_allocated_input_tokens": native["completed_allocated_input_tokens"], "completed_padding_tokens": native["completed_padding_tokens"]}.items():
+        require(stop[key] == value, "Resident final counter differs from complete observed native ledger: " + key)
+    require(stop["clean_stop"] is True and stop["listener_closed"] is True, "Resident listener/model lifecycle differs")
+    observed_request_ids = set()
+    for row in rows:
+        if row["configuration"]["batch_size"]:
+            response = row["reranker"]
+            require(response["batches"] == response["batch_receipts"] == requests[response["request_id"]], "Retained main scoring receipt differs from resident native events")
+            observed_request_ids.add(response["request_id"])
+        require(row["counts_after"]["attempted_query_calls"] == row["counts_after"]["completed_query_calls"]
+                == row["counts_before"]["completed_query_calls"] + 1, "Retained main query embedding counters do not reconcile")
+    native_only = [identity for identity in requests if not identity.startswith("generic-warmup-") and identity not in observed_request_ids]
+    remaining = plan["schedule"][len(rows):]
+    expected_next = "/".join(str(remaining[0][key]) for key in ("dataset", "query_id", "condition", "repetition"))
+    require(native_only == [expected_next], "Exactly one next scheduled request has native completion without a main completion row")
+    power = []
+    for event in interruption.get("power_events", []):
+        stamp = datetime.strptime(event[:25], "%Y-%m-%d %H:%M:%S %z").astimezone(timezone.utc).isoformat()
+        power.append({"utc": stamp, "event": event[26:].split()[0], "original": event})
+    lid_sleep = next((row["utc"] for row in power if "Clamshell Sleep" in row["original"]), None)
+    lid_wake = next((row["utc"] for row in reversed(power) if "lid/UserActivity" in row["original"]), None)
+    for name, expected in originals.items():
+        require(sha((study / name).read_bytes()) == expected, "Original interruption evidence changed during CPU audit: " + name)
+    last = rows[-1]
+    result = {"status": "interrupted", "interruption_evidence_checked": True, "checks_passed": False,
+              "study_complete": False, "selection_qualified": False, "latency_qualified": False, "retrieval_qualified": False,
+              "created_at_utc": datetime.now(timezone.utc).isoformat(), "auditor_sha256": sha(Path(__file__).read_bytes()),
+              "model_calls": 0, "embedding_calls": 0, "retrieval_calls": 0, "weight_bytes_read": False,
+              "frozen_plan_sha256": digest, "artifact_sha256": originals, "original_archived_implementations": sources,
+              "interruption_reason": interruption["reason"], "recorded_source_commit": plan["source_commit"],
+              "recorded_commit_source_bindings": commit_bindings, "frozen_sources_missing_from_recorded_commit": commit_mismatches,
+              "current_implementation_differences": changed_sources, "decision_input_sha256": decision_bindings,
+              "ledgers": ledgers, "planned_searches": plan["planned_requests"], "retained_completed_search_rows": len(rows),
+              "retained_completed_rows_by_condition": dict(Counter(row["identity"]["condition"] for row in rows)),
+              "last_retained_search_identity": last["identity"], "next_scheduled_identity": remaining[0],
+              "native_only_completed_request_ids": native_only, "native_counts": native,
+              "last_retained_main_embedding_counts": last["counts_after"],
+              "completed_query_embedding_lower_bound": last["counts_after"]["completed_query_calls"] + len(native_only),
+              "final_main_embedding_counters": None, "final_main_allocator_cleanup": None,
+              "final_main_owner_cleanup_receipt": None, "last_attempt_after_native_only_request": None,
+              "owner_receipt_all_groups_stopped": True, "private_auth_token_removed": True,
+              "resident_allocator_cleanup": {key: stop[key] for key in ("mlx_active_memory_after_cleanup", "mlx_process_lifetime_peak_bytes")},
+              "power_interruption": {"event_count": len(power), "lid_sleep_utc": lid_sleep, "lid_wake_utc": lid_wake,
+                                     "events": power, "clock_scope": (
+                                         "Original perf_counter durations exclude some sleep; they are not valid warm-comparison evidence."
+                                         if power else "Source-commit binding failed; no awake-interval timing qualification is inferred.")},
+              "limits": ["Entire interrupted study excluded; no outlier filtering, resumption or setup selection.",
+                         "Recovered copies contain only exact retained complete JSON-line bytes, not reconstructed missing events.",
+                         "Original missing gzip footers remain missing; originals and all archived attempted sources stay unchanged.",
+                         "Resident native inputs/tokens/padding/scalars/counters reconcile; this does not certify full retrieval/packing quality or latency.",
+                         "Main was terminated with SIGTERM and has no final completion/counter/allocator receipt; unknown values remain null.",
+                         "Resident memory is its MLX allocator, not OS RSS or combined model memory."]}
+    return result, copies
+
+
+def findings(result):
+    native = result["native_counts"]
+    missing = result["next_scheduled_identity"]
+    description = "/".join(str(missing[key]) for key in ("dataset", "query_id", "condition", "repetition"))
+    counters = result["last_retained_main_embedding_counts"]["completed_query_calls"]
+    power = result["power_interruption"]
+    cause = ("The Mac entered clamshell sleep during this run." if power["event_count"] else
+             "The run was stopped because its recorded source commit does not contain every frozen implementation byte.")
+    source_reason = (["", "Recorded source-commit mismatch: "
+                      + ", ".join("`" + name + "`" for name in result["frozen_sources_missing_from_recorded_commit"]) + "."]
+                     if result["frozen_sources_missing_from_recorded_commit"] else [])
+    power_note = ([f"- Filtered power evidence records lid sleep at {power['lid_sleep_utc']} and full lid/user wake at {power['lid_wake_utc']}. Original elapsed counters cannot establish continuous awake execution."]
+                  if power["event_count"] else [])
+    return "\n".join(["# Interrupted shortlist timing grid", "",
+        cause + " The whole partial grid is ineligible for retrieval selection or warm-latency comparison. Original files are retained; this audit does not replace a successful study certificate.", *source_reason, "",
+        f"- Retained searches: {result['retained_completed_search_rows']} / {result['planned_searches']} completed rows, in the exact frozen schedule prefix.",
+        f"- Resident: {native['benchmark_completed_scoring_requests']} benchmark scoring requests, {native['benchmark_completed_forwards']} actual benchmark forwards/pairs, plus four warmups (15 forwards / 32 pairs).",
+        f"- The next scheduled request `{description}` finished scoring but has no completed main search row. Final main embedding counters and allocator cleanup are unknown; the last retained counter is {counters} query calls, with a proved lower bound of {result['completed_query_embedding_lower_bound']} after that additional scored request.",
+        "- Three main-owned gzip ledgers lack footers. Separate recovered copies contain exact retained complete lines; their original compressed and retained-byte hashes are recorded. The resident event gzip closed normally.",
+        f"- All {len(result['original_archived_implementations'])} original frozen source files match their archived hashes. All owned process groups stopped; the resident closed normally with {result['resident_allocator_cleanup']['mlx_active_memory_after_cleanup']} allocator bytes remaining. The main exited on SIGTERM (-15), and the private authentication token was removed.",
+        *power_note, "",
+        "No quality aggregates, P95 selection, coding correctness or token savings are inferred from this partial run.", ""])
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--study", type=Path, required=True)
+    args = parser.parse_args(argv)
+    result, copies = audit(args.study)
+    study = args.study.resolve()
+    destination = study / "recovered-prefix"
+    destination.mkdir(exist_ok=False)
+    for name, payload in copies.items():
+        path = destination / name
+        with path.open("xb") as stream:
+            stream.write(gzip.compress(payload, mtime=0))
+        result["ledgers"][name]["recovered_copy"] = "recovered-prefix/" + name
+        result["ledgers"][name]["recovered_copy_compressed_sha256"] = sha(path.read_bytes())
+    with (study / "interruption-audit.json").open("x") as stream:
+        stream.write(json.dumps(result, sort_keys=True, indent=2, ensure_ascii=False, allow_nan=False) + "\n")
+    with (study / "interruption-audit.md").open("x") as stream:
+        stream.write(findings(result))
+    print(json.dumps({key: result[key] for key in ("status", "selection_qualified", "retained_completed_search_rows", "native_counts")}))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
