@@ -1,0 +1,26 @@
+diff --git a/tests/test_setup_qwen_reranker.py b/tests/test_setup_qwen_reranker.py
+index 302759c..4efc4c3 100644
+--- a/tests/test_setup_qwen_reranker.py
++++ b/tests/test_setup_qwen_reranker.py
+@@ -201,7 +201,9 @@ def test_explicit_install_can_bootstrap_without_preinstalled_python312_and_check
+     assert not any("semantic_search.qwen_worker" in " ".join(row) or "import mlx" in " ".join(row) for row in commands)
+ 
+ 
+-def test_existing_wrong_setup_refuses_all_mutations_before_install(tmp_path):
++def test_existing_wrong_setup_refuses_all_mutations_before_install(tmp_path, monkeypatch):
++    monkeypatch.setattr(setup.platform, "system", lambda: "Darwin")
++    monkeypatch.setattr(setup.platform, "machine", lambda: "arm64")
+     environment, checkpoint = prepared(tmp_path)
+     environment.mkdir(parents=True)
+     (environment / "keep.txt").write_text("untouched")
+@@ -232,7 +234,9 @@ def test_setup_environment_removes_implicit_overwrite_and_import_settings(monkey
+     assert result["PYTHONDONTWRITEBYTECODE"] == "1" and result["HF_HUB_DISABLE_TELEMETRY"] == "1"
+ 
+ 
+-def test_wrong_bootstrap_version_is_not_reinstalled(tmp_path):
++def test_wrong_bootstrap_version_is_not_reinstalled(tmp_path, monkeypatch):
++    monkeypatch.setattr(setup.platform, "system", lambda: "Darwin")
++    monkeypatch.setattr(setup.platform, "machine", lambda: "arm64")
+     environment, checkpoint = prepared(tmp_path)
+     uv = tmp_path / ".cache/bootstrap/bin/uv"
+     uv.parent.mkdir(parents=True)
