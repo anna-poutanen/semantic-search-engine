@@ -1,0 +1,67 @@
+{
+  "checked_at_utc": "2026-10-14T07:50:44.882924+00:00",
+  "checks_passed": true,
+  "classification": "Independent read-only CPU/static optional installer review; no package/model installation or inference",
+  "downloads": 0,
+  "hosted_calls": 0,
+  "limits": [
+    "Installation commands were mocked; no full fresh-machine bootstrap/package/model download was performed.",
+    "One temporary empty CPU virtual environment was created offline in test scratch space to verify uv reservation/inode/permissions; it installed no packages and imported no MLX.",
+    "A future actual installation should use new ignored destinations and preserve its receipt separately; inference remains a separate explicit action."
+  ],
+  "live_runtime_changes": 0,
+  "local_primary_parser_checks": [
+    "Pinned uv0.13.0 venv and pip help verify all explicit flags; detailed help confirms default existing-venv recreation, now avoided by exclusive owned reservation and allow-existing within it",
+    "Pinned Hugging Face Hub local CLI source accepts explicit filenames, fixed revision, local directory and max-workers; source inspected without executing a download"
+  ],
+  "material_blockers": [],
+  "model_calls": 0,
+  "package_installs": 0,
+  "pytest": {
+    "command": [
+      "PYTHONDONTWRITEBYTECODE=1",
+      ".venv/bin/python",
+      "-B",
+      "-m",
+      "pytest",
+      "-q",
+      "-p",
+      "no:cacheprovider",
+      "tests/test_setup_qwen_reranker.py"
+    ],
+    "exit_code": 0,
+    "output": ".........................                                                [100%]\n25 passed in 0.25s\n"
+  },
+  "reviewed": [
+    "Default preflight reads local metadata; no MLX/model import, downloads or live runtime changes",
+    "Native metadata child uses -I -S -B and explicit isolated site-packages; real pth sentinel remains unexecuted, system-site inclusion rejected",
+    "Exact Python3.12.15,34-package closure and pinned original native source bytes/origins required",
+    "Setup strips inherited Python/uv/pip/Hub mutation settings, isolates bootstrap/runtime/caches from project main venv",
+    "New runtime directory uses exclusive mkdir700 reservation; uv preserves it, identity/device/inode checked, only newly owned root chmod700; existing destinations untouched",
+    "Four original BF16 checkpoint files staged by fixed commit, fully hashed and atomically hard-linked without overwriting existing targets",
+    "Wrong/partial existing environments/bootstrap/model bytes refused; failed install retains partial/staged output",
+    "Docs distinguish metadata readiness from full weight identity, version pins from complete wheel/archive supply chain hashes, and setup from performance claims"
+  ],
+  "reviewed_source_gzip_sha256": {
+    "results/qwen-installer-preflight-2026-10-14/independent-review-sources/docs/qwen-reranker-setup.md.gz": "bb3bb103c31a9e3359d5382ce6a02a6848b2128183cb1e0e0dd6adc6fade88c6",
+    "results/qwen-installer-preflight-2026-10-14/independent-review-sources/scripts/setup_qwen_reranker.py.gz": "4f58c40934f695f118842ff8c188815d08a7f9e7a58de794af1610c9a9854aa4",
+    "results/qwen-installer-preflight-2026-10-14/independent-review-sources/tests/test_setup_qwen_reranker.py.gz": "6c3818ff6ce385325a85e1e131b5cc170c47bc45417b3d0e7162dca5c36e260e"
+  },
+  "ruff": {
+    "command": [
+      ".venv/bin/ruff",
+      "check",
+      "scripts/setup_qwen_reranker.py",
+      "tests/test_setup_qwen_reranker.py",
+      "--no-cache"
+    ],
+    "exit_code": 0,
+    "output": "All checks passed!\n"
+  },
+  "source_sha256": {
+    "docs/qwen-reranker-setup.md": "bd84010438533d307641e00d0b4bcfa69c3483dca544545b0dd97a59d561bf8f",
+    "scripts/setup_qwen_reranker.py": "49605065c2a53fcea8cfbeb37fb3ba151ef29bb3180fee6ebbb1d1be584dc5a4",
+    "tests/test_setup_qwen_reranker.py": "f7c199a1ff0a7f7424a6c9c3083f9423f21df4318836944db12f790f18ea5ec3"
+  },
+  "version": 1
+}
