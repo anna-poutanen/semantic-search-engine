@@ -1,0 +1,87 @@
+{
+  "accepted_contract_defects": 6,
+  "classification": "Prospective stronger grading of observed development reruns; original prior task text and grades remain unchanged",
+  "input_sha256": {
+    "benchmarks/coding_workflows_multifile.json": "e2274eae067bb4c13bd5730fdf84f34adc8ff04bd9d9dc8e76be48dfa189acac",
+    "benchmarks/multifile_checks/check_click_atomic_transactions.py": "7eed8348340a38882f53c280d5f7fdde454fd2750c688efe60378cd8f2e4340e",
+    "benchmarks/multifile_checks/check_requests_response_limit.py": "a67b4d4ce77f717e6a4af1fe1ffbce8c50861853387fb80c62c712491414bce0",
+    "benchmarks/multifile_checks/check_starlette_body_limits.py": "6d0ab0ac20af92aaffc50ca0b532afc9dd61f46912aa387f0ef241d7202a081f",
+    "benchmarks/multifile_checks/common.py": "9eef042b3deb1a44f8160aec5bc955ef9e4dabbe4dc95e8fd0c8aa7df9d36863",
+    "benchmarks/strict_multifile_checks/check_click_atomic_transactions.py": "28c2188838ddebcc32e36b621f88aca80fcd939f30c8267163c4e63169263ce1",
+    "benchmarks/strict_multifile_checks/check_requests_response_limit.py": "fbc0d3ab5be57b50ef206a3279be468fbd78a5dfddd60f7f39ae560697b8ef95",
+    "benchmarks/strict_multifile_checks/check_starlette_body_limits.py": "ac22478d83e2b706d24a618c04f64f2d02cade5958d10140ffcb803357b490b6",
+    "benchmarks/strict_multifile_checks/strict_common.py": "a3dbcd87c2c5a8ad0a4acac1750f38a96c6bad1d918f22a9415cf487013a848b",
+    "results/multifile-workflows-2026-10-13/patch-review.md": "615ca15ec8b34c88eabca77cc69e32f0cea6711d469bc9459914a24a958756f3",
+    "results/multifile-workflows-2026-10-13/supplemental-probe-revisions.json": "7ebef7071f69db86ef198648feec2a85c584c6f0551392d26a8fbdb33457f522",
+    "scripts/probe_click_atomic_resource_edges.py": "84432c5daf6c7d36ee863b81b29929d80129c71c20750c992cae4dd731e0350a",
+    "scripts/probe_response_limit_edges.py": "17f4e45e37d39d2a5f89c14fc11cc3a99af80b71312d987bea79406c465dc810"
+  },
+  "model_calls": 0,
+  "supplemental_cases": 10,
+  "tasks": {
+    "click_atomic_transactions": {
+      "components": [
+        {
+          "kind": "original",
+          "script": "benchmarks/multifile_checks/check_click_atomic_transactions.py",
+          "timeout_s": 60
+        },
+        {
+          "case_ids": [
+            "eager",
+            "lazy",
+            "default_lazy",
+            "registered_callback_cleanup_preserves_primary",
+            "registered_resource_cleanup_preserves_primary"
+          ],
+          "kind": "supplemental",
+          "script": "scripts/probe_click_atomic_resource_edges.py",
+          "timeout_s": 60
+        }
+      ],
+      "prompt_sha256": "55d3806f38b3002081ff44cb8a58f8fccc2dc1ec9f9326682b35d21a1d710feb",
+      "revision": "934813e4d421071a1b3db3973c02fe2721359a6e",
+      "source_root": "src/click",
+      "strict_script": "benchmarks/strict_multifile_checks/check_click_atomic_transactions.py"
+    },
+    "requests_response_limit": {
+      "components": [
+        {
+          "kind": "original",
+          "script": "benchmarks/multifile_checks/check_requests_response_limit.py",
+          "timeout_s": 60
+        },
+        {
+          "case_ids": [
+            "buffered_iter_lines_after_breach",
+            "cached_iterator_after_lower_limit_breach",
+            "context_manager_cleanup_preserves_size_error",
+            "hook_chain_live_replacement",
+            "hook_chain_cached_replacement"
+          ],
+          "kind": "supplemental",
+          "script": "scripts/probe_response_limit_edges.py",
+          "timeout_s": 60
+        }
+      ],
+      "prompt_sha256": "986ec59cc684a47862967a146108795d8a9a5950da0dc893779936c70fb04b3a",
+      "revision": "611c6162cbc4ac2020a2f91c7cfa4f3abf9bbb60",
+      "source_root": "src/requests",
+      "strict_script": "benchmarks/strict_multifile_checks/check_requests_response_limit.py"
+    },
+    "starlette_body_limits": {
+      "components": [
+        {
+          "kind": "original",
+          "script": "benchmarks/multifile_checks/check_starlette_body_limits.py",
+          "timeout_s": 60
+        }
+      ],
+      "prompt_sha256": "e1aff29086b15363ef8cba4ecadbcb649948cdd9d5ac3e7886be099c6270567e",
+      "revision": "4d72fd87ea1c358691a19468168f7217d8ca6a87",
+      "source_root": "starlette",
+      "strict_script": "benchmarks/strict_multifile_checks/check_starlette_body_limits.py"
+    }
+  },
+  "version": 1
+}
