@@ -1,0 +1,106 @@
+"""Evaluator-only public-API cached redirect-history hook diagnostic.
+
+No HTTP/socket/model calls. A separate unlimited request produces a genuine
+cached redirect chain. A bounded request's first hook returns that chain; the
+next hook tries to consume its intermediate response. Original grades unchanged.
+"""
+import argparse
+import hashlib
+import io
+import json
+from pathlib import Path
+import sys
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--repo", type=Path, required=True)
+    args = parser.parse_args()
+    repo = args.repo.resolve()
+    sys.path.insert(0, str(repo / "src"))
+    import requests
+
+    assert Path(requests.__file__).resolve() == repo / "src/requests/__init__.py"
+
+    class Adapter(requests.adapters.BaseAdapter):
+        def __init__(self, bodies):
+            self.bodies = iter(bodies)
+            self.responses = []
+            self.calls = 0
+
+        def send(self, request, **kwargs):
+            if "max_response_bytes" in kwargs:
+                raise AssertionError("Budget leaked to adapter")
+            status, body = next(self.bodies)
+            response = requests.Response()
+            response.request = request
+            response.url = request.url
+            response.status_code = status
+            response.raw = io.BytesIO(body)
+            if status == 302:
+                response.headers["Location"] = "/final"
+            self.responses.append(response)
+            self.calls += 1
+            return response
+
+        def close(self):
+            pass
+
+    result = {"version": 1, "classification": "Post-output supplemental contract probe; frozen grades unchanged",
+              "model_calls": 0, "network_calls": 0,
+              "probe_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+              "feature_available": hasattr(requests, "ResponseTooLarge")}
+    if not result["feature_available"]:
+        result.update(passed=None, applicability="Feature unavailable in this source snapshot")
+        print(json.dumps(result, indent=2))
+        return
+
+    calls, yielded = [], []
+    cached_adapter = Adapter([(302, b"abcdefgh"), (200, b"ok")])
+    unlimited = requests.Session()
+    unlimited.trust_env = False
+    unlimited.mount("http://", cached_adapter)
+    replacement = unlimited.get("http://history.fixture.invalid/start")
+    assert len(replacement.history) == 1 and replacement.history[0].content == b"abcdefgh"
+    assert replacement.content == b"ok"
+    original_adapter = Adapter([(200, b"")])
+    bounded = requests.Session(max_response_bytes=4)
+    bounded.trust_env = False
+    bounded.mount("http://", original_adapter)
+
+    def replace(response, **kwargs):
+        calls.append("replace")
+        return replacement
+
+    def consume_history(response, **kwargs):
+        calls.append("consume_history")
+        for chunk in response.history[0].iter_content(4):
+            yielded.append(chunk.decode("ascii"))
+
+    error = None
+    try:
+        bounded.get("http://bounded.fixture.invalid/", stream=True,
+                    hooks={"response": [replace, consume_history]})
+    except Exception as caught:
+        error = caught
+    finally:
+        bounded.close()
+        unlimited.close()
+        for response in cached_adapter.responses + original_adapter.responses:
+            try:
+                response.close()
+            except Exception:
+                pass
+    result.update(passed=isinstance(error, requests.ResponseTooLarge) and yielded == [],
+                  hook_calls=calls, yielded_before_rejection=yielded,
+                  expected_yielded_before_rejection=[],
+                  final_error_type=type(error).__name__ if error else None,
+                  final_error_limit=getattr(error, "limit", None),
+                  final_error_received=getattr(error, "received", None),
+                  offending_response_is_redirect_history=getattr(error, "response", None) is replacement.history[0],
+                  adapter_calls={"unlimited_cached_chain": cached_adapter.calls, "bounded_original": original_adapter.calls})
+    print(json.dumps(result, indent=2))
+
+
+if __name__ == "__main__":
+    main()

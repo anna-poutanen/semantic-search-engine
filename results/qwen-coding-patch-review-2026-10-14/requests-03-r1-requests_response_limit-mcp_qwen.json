@@ -1,0 +1,143 @@
+{
+  "version": 1,
+  "classification": "Independent post-output Requests patch review; frozen grades unchanged",
+  "reviewed_at_utc": "2026-10-14T08:25:51.483356+00:00",
+  "attempt": "03-r1-requests_response_limit-mcp_qwen",
+  "condition": "mcp_qwen",
+  "completed_before_review": true,
+  "published_result_sha256": "e54a650ec5c29dc1e0d7bfc1ce22dcad9d4c0975e3c0b468a72ce3028e27d845",
+  "saved_patch_sha256": "c95be31862ac671534a1c23a1a981689c6abf57a3c1544e2a0396a8713bfe070",
+  "published_patch_matches_result": true,
+  "source_snapshot_sha256": {
+    "src/requests/__init__.py": "f9010cab0ebc359eb2f3140ef9690d2060a29f0674f50581cc9d4bdfa4c431b6",
+    "src/requests/_types.py": "f0f72cfadc51bb47db1f9b9bcd3e24a1c38e9a46352a29a696cd0e0d2978a2c7",
+    "src/requests/api.py": "ae425b0c367dea161b75e1b632724cd098ffa09a58cb7bf4cdaef472be8fe0ec",
+    "src/requests/exceptions.py": "864da1880554439465d9bc6dc6c8dc1f2c42872dfc9ce080f145f7af88761903",
+    "src/requests/models.py": "b4e33dca4052b529214d8c5d3da43d982b4959e9eb918f5ed4383384f55cf71f",
+    "src/requests/sessions.py": "c3c96954eb6cb515f9d6bbe5b3dd3daa786b836f43f447756c374b5466485f1a",
+    "tests/test_response_budget.py": "bbddd7addb1fa8cb2cceed2c140a17812e429737ccf4141bb4a463db3f8020bd"
+  },
+  "file_review": {
+    "src/requests/__init__.py": "Exports the same ResponseTooLarge class as a module attribute and in __all__.",
+    "src/requests/_types.py": "Adds max_response_bytes to RequestKwargs; helper Unpack types inherit it.",
+    "src/requests/api.py": "Documents decoded byte and redirect budgets; ordinary kwargs forwarding reaches Session.request.",
+    "src/requests/exceptions.py": "Defines RequestException subclass with limit/received and response/request provenance from RequestException.",
+    "src/requests/models.py": "Uses shared live-byte accounting, cached-body accounting without recounting slices, terminal checks before advancing both live/cached iterators, and one cleanup attempt preserving the size error. Context exit skips a duplicate cleanup after a size error. Existing iter_lines split buffers remain unguarded.",
+    "src/requests/sessions.py": "Validates before transport, distinguishes omitted versus explicit None, preserves redirect overrides and Session pickle, keeps budget out of adapter kwargs, and rebinds replacement final responses between individual hooks. Replacement redirect history is bound only after the complete hook sequence.",
+    "tests/test_response_budget.py": "New 559-line regression file covers helper validation/enforcement, Session pickle, overrides, exact/zero boundaries, repeated cache reads, partial reads and preexisting content iterators, bytes before Unicode/decompression, direct/context cleanup failure, and final replacement hooks. Its post-breach iter_lines assertion creates a fresh iterator; it omits an already-buffered line iterator and replacement-history consumption in a subsequent hook."
+  },
+  "formal_grade": {
+    "correct": false,
+    "completed_correct": false,
+    "original_checks": {
+      "errors": 0,
+      "failures": 0,
+      "passed": true,
+      "skipped": 0,
+      "tests_run": 13
+    },
+    "frozen_edge_cases": {
+      "buffered_iter_lines_after_breach": false,
+      "cached_iterator_after_lower_limit_breach": true,
+      "context_manager_cleanup_preserves_size_error": true,
+      "hook_chain_cached_replacement": true,
+      "hook_chain_live_replacement": true
+    },
+    "restored_compatibility_passed": true,
+    "restored_compatibility_summary": {
+      "deselected": 0,
+      "errors": 0,
+      "failed": 0,
+      "passed": 257,
+      "skipped": 13,
+      "xfailed": 0,
+      "xpassed": 0
+    },
+    "original_test_config_edits": []
+  },
+  "source_supported_frozen_failures": [
+    "buffered_iter_lines_after_breach"
+  ],
+  "supplemental_hook_history_probe": {
+    "version": 1,
+    "classification": "Post-output supplemental contract probe; frozen grades unchanged",
+    "model_calls": 0,
+    "network_calls": 0,
+    "probe_sha256": "a8529a12a7a3dbbe4fdf159d0869f376cf1b99712ae63547244dd6f1ec4661f7",
+    "feature_available": true,
+    "passed": false,
+    "hook_calls": [
+      "replace",
+      "consume_history"
+    ],
+    "yielded_before_rejection": [
+      "abcd",
+      "efgh"
+    ],
+    "expected_yielded_before_rejection": [],
+    "final_error_type": "ResponseTooLarge",
+    "final_error_limit": 4,
+    "final_error_received": 8,
+    "offending_response_is_redirect_history": true,
+    "adapter_calls": {
+      "unlimited_cached_chain": 2,
+      "bounded_original": 1
+    }
+  },
+  "supplemental_scope_document": "results/qwen-coding-patch-review-2026-10-14/requests-supplemental-scope.md",
+  "new_defect_count": 1,
+  "reference_checker_coverage_gap_count": 1,
+  "probes_model_calls": 0,
+  "probes_network_calls": 0,
+  "probes_modify_candidate_sources": false,
+  "limits": [
+    "Only this completed snapshot is reviewed; no running coding workspace inspected.",
+    "No confirmed additional defect beyond the declared cached-history scope probe; source inspection does not prove all cases correct.",
+    "Original formal grades and reference controls remain unchanged. The strict reference also fails the same supplemental history probe, as recorded in the scope document.",
+    "Compatibility statements describe the frozen selected upstream suite, not the complete Requests suite."
+  ],
+  "frozen_failure_explanation": {
+    "buffered_iter_lines_after_breach": {
+      "observation": {
+        "crossing": {
+          "cause_type": null,
+          "context_type": null,
+          "message": "Response body exceeded 5 bytes (received 8 bytes).",
+          "notes": [],
+          "type": "ResponseTooLarge"
+        },
+        "first_line": "a",
+        "later_error": null,
+        "later_yield": "b",
+        "passed": false,
+        "raw_reads_after_crossing": 2,
+        "raw_reads_after_later": 2
+      },
+      "cause": "The already-started line iterator suspends inside yield from lines. Another reader crosses the shared byte limit, storing ResponseTooLarge, but resuming that iterator yields its next buffered line without calling _check_response_size. It performs no further raw read; the contract also requires later reads to raise.",
+      "source": "src/requests/models.py",
+      "lines": [
+        1072,
+        1089,
+        1092
+      ],
+      "contract_quote": "later read APIs must raise ResponseTooLarge without reading further"
+    }
+  },
+  "supplemental_source_explanation": {
+    "source": "src/requests/sessions.py",
+    "lines": [
+      843,
+      847,
+      855,
+      858
+    ],
+    "cause": "Only replacement final r is bound between individual hooks. Its existing cached history is bound after the full hook sequence, so a following hook sees the historical response under its earlier unlimited budget. The source subsequently detects 8 bytes against limit 4, after both four-byte chunks have already been yielded.",
+    "scope": "The declared scope is a genuine cached redirect chain produced through public APIs, returned by a response hook under a new bounded request. The test concerns binding before subsequent hook consumption, not retroactively stopping the earlier unlimited transport."
+  },
+  "source_checked_no_additional_evidence": [
+    "No changed/deleted original upstream test or configuration file; the published restored-original compatibility receipt passes 257 tests with 13 skips.",
+    "All seven published changed files reviewed. No adapter budget leak, inheritance/explicit-None redirect failure, Session pickle omission, cached-slice terminal bypass, or context cleanup masking defect found in this snapshot.",
+    "Final live/cached hook replacements are bound before the next hook; the frozen probes pass those two cases. This does not extend that protection to their redirect histories."
+  ],
+  "evaluator_copy_source_hashes_unchanged": true
+}

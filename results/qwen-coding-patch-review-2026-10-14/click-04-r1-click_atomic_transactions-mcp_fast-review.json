@@ -1,0 +1,108 @@
+{
+  "added_test_files_reviewed": [
+    "tests/test_atomic_transactions.py",
+    "tests/test_context_cleanup.py"
+  ],
+  "artifact_sha256": {
+    "click-04-r1-click_atomic_transactions-mcp_fast-authored-tests.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "click-04-r1-click_atomic_transactions-mcp_fast-authored-tests.stdout.txt": "56a6987904aab443e15b854536eac11bf95d29b5403d074c5379809c74f0609d",
+    "click-04-r1-click_atomic_transactions-mcp_fast-cpu-review.json": "58c9ee70601a6a5814148965bbffa126cb8a54bd95e1d454630be0ea03f2f060",
+    "click-04-r1-click_atomic_transactions-mcp_fast-inventory.json": "0863e8cb6c1f39df5c07ccff210c755a6bb11949917fa4e33b72cb004c79f0b0",
+    "click-04-r1-click_atomic_transactions-mcp_fast-probes.json": "6f28388182777e35c8a905a673eb7a703cc7979962b5c4c49c67a0ab0267bc2e"
+  },
+  "authored_tests": {
+    "count_interpretation": "Parameterized authored cases, not183 independent behaviors",
+    "exit_code": 0,
+    "failed": 0,
+    "passed": 183,
+    "skipped": 0
+  },
+  "classification": "Independent terminal source/test/config review and CPU diagnostics; frozen grades unchanged",
+  "configuration_or_other_edits": [],
+  "existing_tests_or_config_weakened": false,
+  "findings": [
+    {
+      "affected_frozen_cases": [
+        "eager",
+        "lazy",
+        "default_lazy"
+      ],
+      "distinct_behavior": 1,
+      "explanation": "Context.with_resource still delegates to standard ExitStack.enter_context. A later resource suppressing the callback ValueError clears the stack exception before the earlier atomic file exits, so the file receives no error and commits. Context.__exit__ returns None, so the original callback still escapes; merely preserving the outer exception does not prevent the wrong commit.",
+      "id": "registered_suppressor_commits_after_failed_callback",
+      "kind": "Frozen contract failure, not a new grading criterion",
+      "source_references": [
+        {
+          "line": 590,
+          "path": "src/click/core.py"
+        },
+        {
+          "line": 627,
+          "path": "src/click/core.py"
+        },
+        {
+          "line": 516,
+          "path": "src/click/_compat.py"
+        }
+      ],
+      "test_coverage_gap": "The added test_resource_cannot_suppress_callback_exception checks only the outer error, without an atomic file registered earlier; it therefore passes while the required transaction interaction fails."
+    },
+    {
+      "affected_supplemental_cases": [
+        "clean_commit_failure_older_suppressor_eager",
+        "clean_commit_failure_older_suppressor_lazy"
+      ],
+      "distinct_behavior": 1,
+      "explanation": "When the command exits cleanly, core normalizes its zero exit to no error and invokes ExitStack. The atomic file then raises genuine FileNotFoundError because its temp was removed. An older unrelated suppressing resource consumes that error; the stack returns normally and the CLI reports exit0.",
+      "id": "unhandled_commit_failure_hidden_by_older_suppressor",
+      "kind": "Accepted supplemental contract defect",
+      "scope_boundary": "Unhandled automatic commit during context cleanup, not a caller manually catching an explicit close exception.",
+      "scope_decision_sha256": "1541c4881c44f249efca6c82c1ea51df1a1288df1b3bca62a1624430a1bca924",
+      "source_references": [
+        {
+          "line": 619,
+          "path": "src/click/core.py"
+        },
+        {
+          "line": 627,
+          "path": "src/click/core.py"
+        },
+        {
+          "line": 491,
+          "path": "src/click/_compat.py"
+        }
+      ]
+    }
+  ],
+  "frozen_outcomes": {
+    "agent_exit_code": 0,
+    "completed": true,
+    "completed_correct": false,
+    "correct": false,
+    "failed": false,
+    "timed_out": false
+  },
+  "hosted_calls": 0,
+  "model_calls": 0,
+  "observed_primary_component_cases": {
+    "default_lazy": false,
+    "eager": false,
+    "lazy": false,
+    "registered_callback_cleanup_preserves_primary": true,
+    "registered_resource_cleanup_preserves_primary": true
+  },
+  "positive_supplemental_cases": 22,
+  "production_files_reviewed": [
+    "src/click/_compat.py",
+    "src/click/core.py",
+    "src/click/types.py",
+    "src/click/utils.py"
+  ],
+  "recorded_at_utc": "2026-10-14T08:40:18.082697+00:00",
+  "run_id": "04-r1-click_atomic_transactions-mcp_fast",
+  "source_and_frozen_result_unchanged": true,
+  "source_review_complete": true,
+  "supplemental_cases": 24,
+  "unknown_supplemental_cases": [],
+  "version": 1
+}

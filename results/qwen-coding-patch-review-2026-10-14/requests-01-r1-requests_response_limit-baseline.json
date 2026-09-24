@@ -1,0 +1,128 @@
+{
+  "version": 1,
+  "classification": "Independent post-output Requests patch review; frozen grades unchanged",
+  "reviewed_at_utc": "2026-10-14T08:06:58.396062+00:00",
+  "attempt": "01-r1-requests_response_limit-baseline",
+  "condition": "baseline",
+  "completed_before_review": true,
+  "published_result_sha256": "d10356bd097223cee0f29030e60a835213f7a0b9c177dd5610fb29df931f7c58",
+  "saved_patch_sha256": "5f06a0c3c021681659fa252f5af78bc2b615f00d637350801427652c0698367d",
+  "published_patch_matches_result": true,
+  "source_snapshot_sha256": {
+    "src/requests/__init__.py": "f9010cab0ebc359eb2f3140ef9690d2060a29f0674f50581cc9d4bdfa4c431b6",
+    "src/requests/_types.py": "f0f72cfadc51bb47db1f9b9bcd3e24a1c38e9a46352a29a696cd0e0d2978a2c7",
+    "src/requests/api.py": "56fc39edd9c1cfbcfdf5e493555da7b47f232b80427634ed0a652d87757b1f5e",
+    "src/requests/exceptions.py": "9cdf57618b15e5ae600736441c7aaaa641ee47b4b48c50a27799048771ff04aa",
+    "src/requests/hooks.py": "fc699b9cc2bd3d935c446294624f39ccbb2a0bd33aea7f7c9e0d8266fd3e6f1f",
+    "src/requests/models.py": "19ccd3b84b7b9eb4456ca529c9b0aa94bc0f6c1a203d91f9a1fcd595bc3fb506",
+    "src/requests/sessions.py": "4ef03dd2f0598f53e4039d468c6ccfefafe32e8501982694fb8fb96a19fe9b63",
+    "tests/test_response_limits.py": "f6270843220c20e6c8c68ce2146be4cecd1c0e3548c974c0e88691bf73947d24"
+  },
+  "file_review": {
+    "src/requests/__init__.py": "Public export and __all__ expose the same ResponseTooLarge class.",
+    "src/requests/_types.py": "Adds the optional budget to HTTP helper keyword typing.",
+    "src/requests/api.py": "Documents module-level helper behavior; ordinary forwarding still reaches Session.request.",
+    "src/requests/exceptions.py": "RequestException subclass stores limit/received and obtains response/request provenance through the parent constructor.",
+    "src/requests/hooks.py": "Replacement final responses receive the current budget before a later callback; replacement history receives no budget at this stage.",
+    "src/requests/models.py": "Response-wide accounting is monotonic across live reads and cached body checks; terminal checks protect new/live readers, but not existing cached/line-buffer iterators or __exit__ cleanup retries.",
+    "src/requests/sessions.py": "Validates inherited/explicit budgets, removes the custom adapter kwarg, propagates resolved limits through redirects and session pickle state; hook history limits are attached only after all hooks.",
+    "tests/test_response_limits.py": "New regression file covers validation, boundaries, cumulative reads, hooks, direct cleanup, pickle, gzip/deflate, Unicode bytes, helpers and redirect chains. It omits buffered lines/cached iterators after later breaches, context cleanup retry and replacement-history consumption before binding."
+  },
+  "formal_grade": {
+    "correct": false,
+    "completed_correct": false,
+    "original_checks": {
+      "errors": 0,
+      "failures": 0,
+      "passed": true,
+      "skipped": 0,
+      "tests_run": 13
+    },
+    "frozen_edge_cases": {
+      "buffered_iter_lines_after_breach": false,
+      "cached_iterator_after_lower_limit_breach": false,
+      "context_manager_cleanup_preserves_size_error": false,
+      "hook_chain_cached_replacement": true,
+      "hook_chain_live_replacement": true
+    },
+    "restored_compatibility_passed": true,
+    "restored_compatibility_summary": {
+      "deselected": 0,
+      "errors": 0,
+      "failed": 0,
+      "passed": 257,
+      "skipped": 13,
+      "xfailed": 0,
+      "xpassed": 0
+    },
+    "original_test_config_edits": []
+  },
+  "source_supported_frozen_failures": [
+    "buffered_iter_lines_after_breach",
+    "cached_iterator_after_lower_limit_breach",
+    "context_manager_cleanup_preserves_size_error"
+  ],
+  "supplemental_hook_history_probe": {
+    "version": 1,
+    "classification": "Post-output supplemental contract probe; frozen grades unchanged",
+    "model_calls": 0,
+    "network_calls": 0,
+    "probe_sha256": "a8529a12a7a3dbbe4fdf159d0869f376cf1b99712ae63547244dd6f1ec4661f7",
+    "feature_available": true,
+    "passed": false,
+    "hook_calls": [
+      "replace",
+      "consume_history"
+    ],
+    "yielded_before_rejection": [
+      "abcd",
+      "efgh"
+    ],
+    "expected_yielded_before_rejection": [],
+    "final_error_type": "ResponseTooLarge",
+    "final_error_limit": 4,
+    "final_error_received": 8,
+    "offending_response_is_redirect_history": true,
+    "adapter_calls": {
+      "unlimited_cached_chain": 2,
+      "bounded_original": 1
+    }
+  },
+  "strict_reference_same_probe": {
+    "version": 1,
+    "classification": "Post-output supplemental contract probe; frozen grades unchanged",
+    "model_calls": 0,
+    "network_calls": 0,
+    "probe_sha256": "a8529a12a7a3dbbe4fdf159d0869f376cf1b99712ae63547244dd6f1ec4661f7",
+    "feature_available": true,
+    "passed": false,
+    "hook_calls": [
+      "replace",
+      "consume_history"
+    ],
+    "yielded_before_rejection": [
+      "abcd",
+      "efgh"
+    ],
+    "expected_yielded_before_rejection": [],
+    "final_error_type": null,
+    "final_error_limit": null,
+    "final_error_received": null,
+    "offending_response_is_redirect_history": false,
+    "adapter_calls": {
+      "unlimited_cached_chain": 2,
+      "bounded_original": 1
+    }
+  },
+  "supplemental_scope": "A bounded request hook returns a genuine cached redirect chain; a later hook consumes its intermediate body before the inherited budget is applied. This extends the explicit per-response/redirect/cached-hook requirement. It is post-output supplemental evidence and was not in the frozen gate.",
+  "new_defect_count": 1,
+  "reference_checker_coverage_gap_count": 1,
+  "probes_model_calls": 0,
+  "probes_network_calls": 0,
+  "probes_modify_candidate_sources": false,
+  "limitations": [
+    "One completed attempt reviewed so far; five scheduled Requests attempts remain.",
+    "Source inspection and one additional public-API edge probe do not prove all possible behavior correct.",
+    "The reference/checker gap does not invalidate or silently revise the prospectively frozen grades."
+  ]
+}
