@@ -148,7 +148,7 @@ def implementation_hashes():
     result = previous.implementation_hashes()
     names = ("scripts/run_qwen_optimization.py", "scripts/resident_qwen_optimization.py",
              "scripts/qwen_reranker_batch.py", "scripts/supervise_qwen_optimization.py",
-             "scripts/qwen_optimization_pipeline.py",
+             "scripts/qwen_optimization_pipeline.py", "scripts/qwen_optimization_clock.py",
              "docs/qwen-reranker-optimization-protocol.md", "docs/qwen-reranker-batching.md")
     result.update({name: sha((ROOT / name).read_bytes()) for name in names})
     return result
@@ -192,6 +192,9 @@ def freeze_inputs(stage, configurations, reranker_python, checkpoint):
                            for entry, _, _ in entries}}
     plan["schedule"] = ([{"parity_set": group["id"], "batch_size": size} for group in parity for size in BATCHES]
                         if stage == "parity" else schedule(catalog, configurations))
+    if stage != "parity":
+        from qwen_optimization_clock import POLICY
+        plan["clock_integrity"] = POLICY
     plan["planned_requests"] = len(plan["schedule"])
     plan["planned_pair_scores"] = (sum(len(group["pairs"]) for group in parity) * len(BATCHES)
         if stage == "parity" else sum(len(catalog) * REPETITIONS * value["shortlist"]

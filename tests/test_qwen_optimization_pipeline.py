@@ -152,6 +152,7 @@ def fixture(tmp_path, monkeypatch, *, failure=False):
     schedule = [{"dataset": "fake", "query_id": "q", "condition": config["id"], "repetition": repetition}
                 for repetition in (1, 2) for config in configs]
     frozen = {"conditions": configs, "settings": pipeline.packing.SETTINGS.copy(), "schedule": schedule,
+              "clock_integrity": pipeline.clocks.POLICY.copy(),
               "planned_requests": len(schedule), "embedding": Owner.metadata.copy(), "cache_seed": {"fake": None},
               "sources": [{"id": "fake", "queries": [{"query_id": "q",
                             "groups": pipeline.previous.normalized_groups(query, sources)}]}]}
@@ -232,4 +233,71 @@ def test_changed_caps_fail_before_model_creation(tmp_path, monkeypatch):
     frozen["settings"]["max_results"] = 9
     monkeypatch.setattr(pipeline, "observed_embedder", lambda: pytest.fail("must reject before model ownership"))
     with pytest.raises(ValueError, match="packing caps"):
+        pipeline.run_pipeline(output, entries, frozen, worker, {}, "")
+
+
+class FakeClocks:
+    def __init__(self):
+        self.wall, self.perf = 1_000_000_000_000, 1_000_000_000
+
+    def wall_clock(self):
+        return self.wall
+
+    def perf_clock(self):
+        return self.perf
+
+    def suspend(self):
+        self.wall += 3_000_000_000
+        self.perf += 100_000_000
+
+
+@pytest.mark.parametrize("when", ["within_query", "between_queries", "during_setup"])
+def test_suspension_aborts_records_failed_clocks_and_closes_model_without_retry(tmp_path, monkeypatch, when):
+    output, entries, frozen, worker, owner, backends = fixture(tmp_path, monkeypatch)
+    fake = FakeClocks()
+    original_guard = pipeline.clocks.ClockIntegrity
+    monkeypatch.setattr(pipeline.clocks, "ClockIntegrity", lambda: original_guard(wall_clock=fake.wall_clock, perf_clock=fake.perf_clock))
+    original_embed = owner.embed_query
+    def embed(text):
+        result = original_embed(text)
+        if (when == "during_setup" and owner.query_calls == 1) or (when == "within_query" and owner.query_calls == 2):
+            fake.suspend()
+        return result
+    owner.embed_query = embed
+    original_append = pipeline.append
+    def append(stream, row):
+        original_append(stream, row)
+        if when == "between_queries" and row.get("status") == "completed":
+            fake.suspend()
+    monkeypatch.setattr(pipeline, "append", append)
+    with pytest.raises(pipeline.clocks.ClockIntegrityError):
+        pipeline.run_pipeline(output, entries, frozen, worker,
+                              {"url": "http://127.0.0.1:43210"}, "test-private-token")
+    completion = json.loads((output / "completion.json").read_text())
+    assert not completion["complete"] and completion["embedding_owner_closed"] and owner.closed
+    assert backends[0].status()["closed"]
+    assert completion["clock_baseline"] == {"wall_time_ns": 1_000_000_000_000, "perf_counter_ns": 1_000_000_000,
+                                             "utc": pipeline.clocks.utc_from_ns(1_000_000_000_000)}
+    assert completion["clock_integrity"] == pipeline.clocks.POLICY
+    failure = json.loads((output / "failure.json").read_text())
+    assert failure["error_type"] == "ClockIntegrityError" and not failure["clock_failure"]["consistent"]
+    searches = rows(output / "searches.jsonl.gz")
+    if when == "during_setup":
+        assert searches == [] and owner.query_calls == 1 and worker.requests == []
+        setup = json.loads((output / "setups.json").read_text())[0]
+        assert not setup["clock_end"]["consistent"] and setup["counts_after"]["completed_query_calls"] == 1
+    else:
+        assert searches[-1]["status"] == "failed"
+        assert "clock_start" in searches[-1] and "clock_end" in searches[-1]
+        assert not searches[-1]["clock_failure"]["consistent"]
+        assert owner.query_calls == 2 and worker.requests == []
+        assert completion["attempted_requests"] == (2 if when == "between_queries" else 1)
+        assert completion["completed_requests"] == (1 if when == "between_queries" else 0)
+
+
+def test_clock_policy_drift_is_rejected_before_model_ownership(tmp_path, monkeypatch):
+    output, entries, frozen, worker, _, _ = fixture(tmp_path, monkeypatch)
+    frozen["clock_integrity"] = frozen["clock_integrity"] | {"max_absolute_drift_ns": 3_000_000_000}
+    monkeypatch.setattr(pipeline, "observed_embedder", lambda: pytest.fail("must not own model"))
+    with pytest.raises(ValueError, match="clock policy differs"):
         pipeline.run_pipeline(output, entries, frozen, worker, {}, "")
