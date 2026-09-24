@@ -6,7 +6,6 @@ one embedding model and borrows it across separately owned corpus indexes.
 """
 from __future__ import annotations
 
-from datetime import datetime, timezone
 import gzip
 import json
 import math
@@ -169,6 +168,7 @@ def run_pipeline(output, entries, frozen, http, ready, token):
     backend = None
     complete = False
     completion = None
+    failure_recorded = False
     try:
         require(owner.metadata == frozen["embedding"], "Embedding owner differs from freeze")
         with packing.pinned_tokenizer(), gzip.open(output / "searches.jsonl.gz", "xt", encoding="utf-8") as ledger, \
@@ -325,6 +325,7 @@ def run_pipeline(output, entries, frozen, http, ready, token):
                     and [row["identity"] for row in rows] == frozen["schedule"])
         require(complete, "Actual search ledger does not complete exact frozen schedule")
     except BaseException as error:
+        failure_recorded = True
         if setups:
             write(output / "setups.json", previous.publish(setups))
         write(output / "failure.json", {"error_type": type(error).__name__, "error": str(error),
@@ -337,6 +338,16 @@ def run_pipeline(output, entries, frozen, http, ready, token):
                 backend.close()
         finally:
             owner.close()
+            final_clock_error = None
+            try:
+                clock_end = guard.check("pipeline/complete")
+            except clocks.ClockIntegrityError as error:
+                clock_end, final_clock_error, complete = error.receipt, error, False
+                failure_path = output / ("clock-completion-failure.json" if failure_recorded else "failure.json")
+                require(not failure_path.exists(), "Final clock failure evidence must not be overwritten")
+                write(failure_path, {"error_type": type(error).__name__, "error": str(error),
+                      "attempted_requests": len(rows), "completed_requests": sum(row["status"] == "completed" for row in rows),
+                      "clock_failure": error.receipt, "phase": "after_model_cleanup"})
             completion = {"complete": complete, "attempted_requests": len(rows),
                 "completed_requests": sum(row["status"] == "completed" for row in rows),
                 "embedding_counts": owner.counts(),
@@ -346,6 +357,10 @@ def run_pipeline(output, entries, frozen, http, ready, token):
                                                   if row.get("matches_first_observed_pool_across_repetitions") is False],
                 "embedding_owner_closed": owner._model is None,
                 "clock_baseline": guard.baseline, "clock_integrity": clocks.POLICY,
-                "finished_at_utc": datetime.now(timezone.utc).isoformat()}
+                "clock_end": clock_end,
+                "clock_failure": final_clock_error.receipt if final_clock_error is not None else None,
+                "finished_at_utc": clock_end["sample"]["utc"]}
             write(output / "completion.json", completion)
+            if final_clock_error is not None and not failure_recorded:
+                raise final_clock_error
     return completion
