@@ -152,10 +152,18 @@ def verify_clock_study(plan, rows, setups, completion):
         receipts.append(receipt)
         return sample
 
+    def contained_duration(record, fields):
+        for field in fields:
+            original.finite(record[field], "Measured interior phase remains finite: " + field, minimum=0)
+        span = record["clock_end"]["interval"]["perf_elapsed_ns"] / 1_000_000_000
+        require(sum(record[field] for field in fields) <= span + .000001,
+                "Measured setup/interior phase durations fit their independently reconstructed clock interval")
+
     for setup in setups:
         dataset = setup["dataset"]
         start = checkpoint(setup, "clock_start", "setup/" + dataset + "/start")
         checkpoint(setup, "clock_end", "setup/" + dataset + "/end", start)
+        contained_duration(setup, ("index_and_embedding_warmup_s",))
         for row in rows:
             identity = row["identity"]
             if identity["dataset"] != dataset:
@@ -163,6 +171,7 @@ def verify_clock_study(plan, rows, setups, completion):
             request = "/".join(str(identity[key]) for key in ("dataset", "query_id", "condition", "repetition"))
             start = checkpoint(row, "clock_start", request + "/start")
             checkpoint(row, "clock_end", request + "/end", start)
+            contained_duration(row, ("query_embedding_s", "candidate_retrieval_s", "reranker_http_s", "packing_s"))
     final = checkpoint(completion, "clock_end", "pipeline/complete")
     require(completion["finished_at_utc"] == final["utc"], "Actual completion UTC is the final post-cleanup clock sample")
     return {"available": True, "policy": deepcopy(CLOCK_POLICY), "baseline": baseline,
