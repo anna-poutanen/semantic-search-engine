@@ -1,0 +1,101 @@
+{
+  "added_test_files_reviewed": [
+    "tests/test_atomic_transactions.py",
+    "tests/test_context_cleanup.py"
+  ],
+  "artifact_sha256": {
+    "click-05-r1-click_atomic_transactions-mcp_qwen-authored-tests.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "click-05-r1-click_atomic_transactions-mcp_qwen-authored-tests.stdout.txt": "9b9d98e18977d691bbb6a8c9fef26006341cb20a71241b0be20155e2aab61922",
+    "click-05-r1-click_atomic_transactions-mcp_qwen-cpu-review.json": "cc8bd0bf455d7f9b944f4f29a795c6b500b4543c7085d65df40252a62faaff03",
+    "click-05-r1-click_atomic_transactions-mcp_qwen-inventory.json": "764f2e9630149406f9101221350d3da412fc1343f3c35bdef9951ea1976f7bf9",
+    "click-05-r1-click_atomic_transactions-mcp_qwen-probes.json": "36552e56be4e54246db81c679e36fa254ed409e27dcd266d3ec6cc8cf57a69b1"
+  },
+  "authored_tests": {
+    "count_interpretation": "Parameterized authored cases, not138 independent behaviors",
+    "exit_code": 0,
+    "failed": 0,
+    "passed": 138,
+    "skipped": 0
+  },
+  "classification": "Independent terminal source/test/config review and CPU diagnostics; frozen grades unchanged",
+  "configuration_or_other_edits": [],
+  "existing_tests_or_config_weakened": false,
+  "findings": [
+    {
+      "affected_frozen_cases": [
+        "eager",
+        "lazy",
+        "default_lazy"
+      ],
+      "distinct_behavior": 1,
+      "explanation": "with_resource still directly calls ExitStack.enter_context. A later truthy suppressing resource clears the callback error before the earlier atomic file exits; its delete=False path commits. The surrounding Context exits without suppressing the callback, so outer primary preservation does not establish rollback.",
+      "id": "registered_suppressor_commits_after_failed_callback",
+      "kind": "Frozen contract failure, not a new grading criterion",
+      "source_references": [
+        {
+          "line": 588,
+          "path": "src/click/core.py"
+        },
+        {
+          "line": 623,
+          "path": "src/click/core.py"
+        },
+        {
+          "line": 510,
+          "path": "src/click/_compat.py"
+        }
+      ],
+      "test_coverage_gap": "Authored tests cover standalone resource error delivery and simple clean cleanup failures, but omit separately registered suppressing resources combined with an atomic destination."
+    },
+    {
+      "affected_supplemental_cases": [
+        "clean_commit_failure_older_suppressor_eager",
+        "clean_commit_failure_older_suppressor_lazy"
+      ],
+      "distinct_behavior": 1,
+      "explanation": "A zero command exit is normalized to no error before ExitStack cleanup. A later atomic commit raises FileNotFoundError; an older unrelated suppressor clears that error, so the exception-only catch does not run and the CLI exits zero.",
+      "id": "unhandled_commit_failure_hidden_by_older_suppressor",
+      "kind": "Accepted supplemental contract defect",
+      "scope_boundary": "Unhandled automatic commit during context cleanup, not a caller manually catching an explicit close exception.",
+      "scope_decision_sha256": "1541c4881c44f249efca6c82c1ea51df1a1288df1b3bca62a1624430a1bca924",
+      "source_references": [
+        {
+          "line": 617,
+          "path": "src/click/core.py"
+        },
+        {
+          "line": 623,
+          "path": "src/click/core.py"
+        },
+        {
+          "line": 493,
+          "path": "src/click/_compat.py"
+        }
+      ]
+    }
+  ],
+  "frozen_outcomes": {
+    "agent_exit_code": 0,
+    "completed": true,
+    "completed_correct": false,
+    "correct": false,
+    "failed": false,
+    "timed_out": false
+  },
+  "hosted_calls": 0,
+  "model_calls": 0,
+  "positive_supplemental_cases": 22,
+  "production_files_reviewed": [
+    "src/click/_compat.py",
+    "src/click/core.py",
+    "src/click/types.py",
+    "src/click/utils.py"
+  ],
+  "recorded_at_utc": "2026-10-14T08:47:04.375810+00:00",
+  "run_id": "05-r1-click_atomic_transactions-mcp_qwen",
+  "source_and_frozen_result_unchanged": true,
+  "source_review_complete": true,
+  "supplemental_cases": 24,
+  "unknown_supplemental_cases": [],
+  "version": 1
+}
