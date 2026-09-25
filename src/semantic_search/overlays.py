@@ -120,7 +120,7 @@ class OverlayBackend(SearchBackend):
 
     def __init__(self, parent, entries, digest, raw, decoded, index, check):
         super().__init__(parent.repo, parent.source_root, index.db_path, index=index,
-                         embedder=BorrowedEmbedder(parent), h2o_client=parent._h2o,
+                         embedder=BorrowedEmbedder(parent), h2o_client=parent._h2o, qwen_client=parent._qwen,
                          source_exclusions=parent.source_exclusions)
         self.parent = parent
         self._policy = parent._policy

@@ -75,7 +75,7 @@ def _valid_result(row):
     if (type(row.get("start_line")) is not int or type(row.get("end_line")) is not int
             or not 1 <= row["start_line"] <= row["end_line"]):
         return False
-    for key in ("h2o_score", "retrieval_score"):
+    for key in ("h2o_score", "retrieval_score", "qwen_score"):
         score = row.get(key)
         if score is not None:
             if type(score) not in (int, float):
