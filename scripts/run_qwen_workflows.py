@@ -7,11 +7,13 @@ invoke hosted Codex; only `run` loads local models. Earlier studies are intact.
 from __future__ import annotations
 
 import argparse
+from contextlib import contextmanager
 import gzip
 import hashlib
 import json
 from pathlib import Path
 import shutil
+import signal
 import subprocess
 import sys
 import threading
@@ -20,6 +22,7 @@ import time
 import run_multifile_workflows as mf
 from qwen_optimization_clock import ClockIntegrity, ClockIntegrityError
 import qwen_workflow_evidence as evidence
+import qwen_workflow_process as process_capture
 from semantic_search.context import compact_result, serialize_context
 
 ROOT = mf.ROOT
@@ -34,6 +37,50 @@ INSTRUCTION = (
 sha = mf.old.digest
 write = mf.write_json
 read = mf.read_json
+
+
+def retain_interruption(record, error, *, signum=None):
+    """Keep known measurements while preventing an interrupted attempt qualifying."""
+    signum = signum if signum is not None else getattr(error, "signal_number", None)
+    record.update(interrupted=True, failed=True, timing_qualified=False, completed_correct=False,
+                  interruption_type=type(error).__name__, interruption_signal=signum)
+    record.setdefault("interruptions", []).append({"type": type(error).__name__,
+        "signal": signum, "received": mf.stamp()})
+
+
+@contextmanager
+def cleanup_interrupts(record):
+    """Retain soft signals without abandoning the current bounded owned cleanup."""
+    previous = {}
+    if threading.current_thread() is threading.main_thread():
+        def retain(signum, frame):
+            retain_interruption(record, KeyboardInterrupt(), signum=signum)
+            before = previous[signum]
+            if callable(before):
+                try:
+                    before(signum, frame)
+                except KeyboardInterrupt:
+                    pass
+            signal.signal(signum, signal.SIG_IGN)
+        for signum in (signal.SIGINT, signal.SIGTERM):
+            previous[signum] = signal.getsignal(signum)
+            signal.signal(signum, retain)
+    try:
+        yield
+    finally:
+        for signum, handler in previous.items():
+            signal.signal(signum, handler)
+
+
+def public_record(record, substitutions):
+    # Raw malformed JSON can contain private reasoning. Keep it only in the
+    # evaluator log; publish its receipt/hash rather than the invalid line.
+    result = dict(record)
+    if "invalid_event_lines" in result:
+        result["invalid_event_lines"] = [{**{key: value for key, value in row.items() if key != "line"},
+            "line_sha256": hashlib.sha256(row.get("line", "").encode()).hexdigest()}
+            for row in result["invalid_event_lines"]]
+    return mf.public_redact(result, substitutions)
 
 
 def prompt(task, python):
@@ -147,12 +194,41 @@ def grade(task, workspace):
                 "start": start, "end": mf.stamp()}
 
 
-def freeze_common(output, decision_path, fresh_study):
+def production_certificate(directory):
+    """Bind a successful source-current production control without running it."""
+    directory = Path(directory)
+    plan_path, certificate_path = directory / "frozen-plan.json", directory / "verification.json"
+    certificate, plan = read(certificate_path), read(plan_path)
+    if (certificate.get("checks_passed") is not True
+            or certificate.get("frozen_plan_sha256") != sha(plan_path)):
+        raise ValueError("Passing frozen production certificate required: " + str(directory))
+    sources = plan.get("source_sha256")
+    if not isinstance(sources, dict) or not sources:
+        raise ValueError("Production certificate must bind current source")
+    for name, expected in sources.items():
+        path = (ROOT / name).resolve()
+        if not path.is_relative_to(ROOT.resolve()) or sha(path) != expected:
+            raise ValueError("Production certificate source changed: " + name)
+    if "source_sha256" in certificate and certificate["source_sha256"] != sources:
+        raise ValueError("Production certificate source binding differs from plan")
+    for name, expected in certificate.get("artifact_sha256", {}).items():
+        path = (directory / name).resolve()
+        if not path.is_relative_to(directory.resolve()) or sha(path) != expected:
+            raise ValueError("Certified production artifact changed: " + name)
+    # Include every public result/ledger/receipt alongside the certificate, even
+    # older certificate formats that do not carry their own artifact map.
+    return {mf.artifact(path): sha(path) for path in directory.iterdir() if path.is_file()}
+
+
+def freeze_common(output, decision_path, fresh_study, production_parity, production_smoke):
     if output.exists():
         raise ValueError("Choose a fresh common-runtime directory")
     selected, fresh_plan = selected_profile(decision_path, fresh_study)
+    parity_binding = production_certificate(production_parity)
+    smoke_binding = production_certificate(production_smoke)
     config = mf.freeze_common(output / "base-runtime")
     files = [SELF, PROTOCOL, Path("scripts/qwen_workflow_evidence.py"),
+             Path("scripts/qwen_workflow_process.py"),
              Path("scripts/run_multifile_workflows.py"), Path("scripts/qwen_optimization_clock.py"),
              *[path.relative_to(ROOT) for path in (ROOT / "src/semantic_search").glob("*.py")]]
     for path in files:
@@ -163,9 +239,13 @@ def freeze_common(output, decision_path, fresh_study):
     config["artifact_sha256"].update({mf.artifact(decision_path): sha(decision_path),
         mf.artifact(fresh_study / "independent-audit.json"): sha(fresh_study / "independent-audit.json"),
         mf.artifact(fresh_study / "frozen-plan.json"): sha(fresh_study / "frozen-plan.json")})
+    config["artifact_sha256"].update(parity_binding)
+    config["artifact_sha256"].update(smoke_binding)
     config.update({"classification": "Three-condition observed-task development rerun with stricter prospective gates",
         "selected_profile": selected, "development_decision": mf.artifact(decision_path),
         "fresh_study": mf.artifact(fresh_study), "workflow_instruction": INSTRUCTION,
+        "production_parity": mf.artifact(production_parity),
+        "production_smoke": mf.artifact(production_smoke),
         "conditions": list(evidence.CONDITIONS), "planned_attempts": 18,
         "reranker_python": str((ROOT / ".cache/reranker-experiment/.venv/bin/python").absolute()),
         "reranker_checkpoint": str((ROOT / ".cache/models/qwen3-reranker-0.6b-original").resolve()),
@@ -357,6 +437,7 @@ def run_trial(task, trial, number, config, output, clock):
         "clock_start": clock.check("trial-start")}
     backend = server = worker = owner = None
     events = observed = []
+    measurements = None
     try:
         base_commit, base_files = mf.prepare(task, workspace)
         write(public / "base-files.json", base_files)
@@ -399,8 +480,9 @@ def run_trial(task, trial, number, config, output, clock):
         (public / "prompt.txt").write_text(mf.public_redact(user_prompt, substitutions))
         record["clock_agent_start"] = clock.check("agent-start")
         print(f"Running {name}", flush=True)
-        measurements, events, observed = mf.run_agent(command,
-            {**config, "source_root": task["source_root"]}, workspace, raw_dir)
+        measurements, events, observed = process_capture.run_agent(command,
+            {**config, "source_root": task["source_root"]}, workspace, raw_dir,
+            environment=mf.environment)
         record.update(measurements)
         record.update(evidence.provider_usage(events))
         record["clock_agent_end"] = clock.check("agent-end", since=record["clock_agent_start"]["sample"])
@@ -409,54 +491,87 @@ def run_trial(task, trial, number, config, output, clock):
     except ClockIntegrityError as error:
         record.update(timing_qualified=False, clock_failure=error.receipt,
                       infrastructure_error=str(error), failed=True)
+    except KeyboardInterrupt as error:
+        # Recover the helper's durable evidence if the signal landed between
+        # its return and the assignment/update in this caller. No usage is
+        # estimated; this is the actual checkpoint from the owned CLI attempt.
+        try:
+            if measurements is None and (raw_dir / "agent-measurements.json").is_file():
+                measurements = read(raw_dir / "agent-measurements.json")
+            if isinstance(measurements, dict):
+                record.update(measurements)
+            if not observed and (raw_dir / "observed-events.json").is_file():
+                observed = read(raw_dir / "observed-events.json")
+                events = [row["event"] for row in observed]
+            if events:
+                record.update(evidence.provider_usage(events))
+        except Exception as recovery_error:
+            record["capture_recovery_error"] = f"{type(recovery_error).__name__}: {recovery_error}"
+        retain_interruption(record, error)
     except Exception as error:
         record.update(infrastructure_error=f"{type(error).__name__}: {error}", failed=True)
     finally:
-        record["phase_timestamps"]["shutdown_start"] = mf.stamp()
-        try:
-            if server:
-                if worker is not None and worker.is_alive():
-                    server.shutdown()
-                server.server_close()
-            if worker and worker.ident is not None:
-                worker.join(5)
-                if worker.is_alive():
-                    raise RuntimeError("Search listener thread did not stop")
-            if backend:
-                backend.close()
-        except Exception as error:
-            record.update(shutdown_error=f"{type(error).__name__}: {error}", failed=True,
-                          lifecycle_qualified=False)
-        finally:
-            if owner:
-                try:
-                    owner.close()
-                    record["qwen_stop"] = owner.stop_receipt
-                    stop = record["qwen_stop"]
-                    if not isinstance(stop, dict) or stop.get("owned_group_stopped") is not True:
-                        record.update(failed=True, lifecycle_qualified=False,
-                                      qwen_shutdown_error="Owned Qwen process-group shutdown is unproved")
-                    elif stop.get("forced_kill") or stop.get("errors") or stop.get("exit_code") != 0:
-                        record.update(failed=True, qwen_shutdown_error="Owned Qwen process stopped without clean completion")
-                except Exception as error:
-                    record.update(qwen_shutdown_error=f"{type(error).__name__}: {error}", failed=True,
-                                  lifecycle_qualified=False)
-        record["phase_timestamps"]["shutdown_end"] = mf.stamp()
-        # Preserve known usage/timing before export or receipt parsing can fail.
-        write(public / "result.json", mf.public_redact(record, substitutions))
-        try:
-            record["artifact_sha256"] = mf.public_artifacts(raw_dir, public, events, observed, substitutions)
-            receipts = ([json.loads(line) for line in (raw_dir / "http-receipts.jsonl").read_text().splitlines()]
-                        if (raw_dir / "http-receipts.jsonl").exists() else [])
-            record["successful_qwen_searches"] = sum(bool(row.get("success") and row.get("response", {}).get("rerank")
-                and row.get("response", {}).get("rerank_provider") == "qwen") for row in receipts)
-            if owner is not None:
-                record["qwen_evidence"] = publish_qwen_evidence(owner, public, substitutions)
-        except Exception as error:
-            record.update(publication_error=f"{type(error).__name__}: {error}", failed=True,
-                          successful_qwen_searches=None)
-        write(public / "result.json", mf.public_redact(record, substitutions))
-    if workspace.is_dir() and "base_tree_sha256" in record:
+        with cleanup_interrupts(record):
+            record["phase_timestamps"]["shutdown_start"] = mf.stamp()
+            try:
+                if server:
+                    if worker is not None and worker.is_alive():
+                        server.shutdown()
+                    server.server_close()
+                if worker and worker.ident is not None:
+                    worker.join(5)
+                    if worker.is_alive():
+                        raise RuntimeError("Search listener thread did not stop")
+                if backend:
+                    backend.close()
+            except (Exception, KeyboardInterrupt) as error:
+                if isinstance(error, KeyboardInterrupt):
+                    retain_interruption(record, error)
+                record.update(shutdown_error=f"{type(error).__name__}: {error}", failed=True,
+                              lifecycle_qualified=False)
+            finally:
+                if owner:
+                    try:
+                        owner.close()
+                        record["qwen_stop"] = owner.stop_receipt
+                        record["qwen_final_receipts"] = getattr(owner, "receipts", {})
+                        stop = record["qwen_stop"]
+                        if not isinstance(stop, dict) or stop.get("owned_group_stopped") is not True:
+                            record.update(failed=True, lifecycle_qualified=False,
+                                          qwen_shutdown_error="Owned Qwen process-group shutdown is unproved")
+                        elif stop.get("forced_kill") or stop.get("errors") or stop.get("exit_code") != 0:
+                            record.update(failed=True, qwen_shutdown_error="Owned Qwen process stopped without clean completion")
+                        else:
+                            final = record["qwen_final_receipts"]
+                            if (final.get("auth_token_removed") is not True
+                                    or final.get("private_cleanup_errors")
+                                    or final.get("worker_stop", {}).get("clean_stop") is not True):
+                                record.update(failed=True, qwen_shutdown_error="Owned Qwen private/native cleanup is not clean")
+                    except (Exception, KeyboardInterrupt) as error:
+                        if isinstance(error, KeyboardInterrupt):
+                            retain_interruption(record, error)
+                        record.update(qwen_shutdown_error=f"{type(error).__name__}: {error}", failed=True,
+                                      lifecycle_qualified=False)
+            record["phase_timestamps"]["shutdown_end"] = mf.stamp()
+            # Preserve known usage/timing before export or receipt parsing can fail.
+            write(public / "result.json", public_record(record, substitutions))
+            try:
+                record["artifact_sha256"] = mf.public_artifacts(raw_dir, public, events, observed, substitutions)
+                receipts = ([json.loads(line) for line in (raw_dir / "http-receipts.jsonl").read_text().splitlines()]
+                            if (raw_dir / "http-receipts.jsonl").exists() else [])
+                record["successful_qwen_searches"] = sum(bool(row.get("success") and row.get("response", {}).get("rerank")
+                    and row.get("response", {}).get("rerank_provider") == "qwen") for row in receipts)
+                if owner is not None:
+                    record["qwen_evidence"] = publish_qwen_evidence(owner, public, substitutions)
+            except (Exception, KeyboardInterrupt) as error:
+                if isinstance(error, KeyboardInterrupt):
+                    retain_interruption(record, error)
+                record.update(publication_error=f"{type(error).__name__}: {error}", failed=True,
+                              successful_qwen_searches=None)
+            write(public / "result.json", public_record(record, substitutions))
+    if record.get("interrupted"):
+        record["grading_unstarted_reason"] = "Attempt interrupted; preserve evidence and stop remaining schedule"
+    elif workspace.is_dir() and "base_tree_sha256" in record:
         try:
             record["phase_timestamps"]["grading_start"] = mf.stamp()
             record["grade"] = grade(task, workspace)
@@ -468,7 +583,9 @@ def run_trial(task, trial, number, config, output, clock):
                 mf.old.git(workspace, "diff", "--binary", base_commit).stdout.decode(), substitutions))
             record["changed_files"] = mf.old.git(workspace, "diff", "--name-only", base_commit).stdout.decode().splitlines()
             record["patch_sha256"] = sha(public / "changes.patch")
-        except Exception as error:
+        except (Exception, KeyboardInterrupt) as error:
+            if isinstance(error, KeyboardInterrupt):
+                retain_interruption(record, error)
             record.update(grading_error=f"{type(error).__name__}: {error}", correct=False)
     record["completed_correct"] = evidence.complete(record) and record["correct"]
     record["phase_timestamps"]["trial_end"] = mf.stamp()
@@ -478,8 +595,10 @@ def run_trial(task, trial, number, config, output, clock):
         record["clock_end"] = clock.check("trial-end", since=record["clock_start"]["sample"])
     except ClockIntegrityError as error:
         record.update(timing_qualified=False, clock_failure=error.receipt)
-    write(public / "result.json", mf.public_redact(record, substitutions))
-    return mf.public_redact(record, substitutions)
+    except KeyboardInterrupt as error:
+        retain_interruption(record, error)
+    write(public / "result.json", public_record(record, substitutions))
+    return public_record(record, substitutions)
 
 
 def run(output):
@@ -503,7 +622,7 @@ def run(output):
             raise ValueError("Frozen runtime changed during study")
         try:
             record = run_trial(tasks[trial["task_id"]], trial, number, config, output, clock)
-        except Exception as error:
+        except (Exception, KeyboardInterrupt) as error:
             name = f"{number:02d}-r{trial['repetition']}-{trial['task_id']}-{trial['condition']}"
             directory = output / "runs" / name
             directory.mkdir(parents=True, exist_ok=True)
@@ -516,12 +635,16 @@ def run(output):
             record["completed_correct"] = False
             if isinstance(error, ClockIntegrityError):
                 record.update(timing_qualified=False, clock_failure=error.receipt)
+            if isinstance(error, KeyboardInterrupt):
+                retain_interruption(record, error)
             write(directory / "result.json", record)
         records.append(record)
         write(output / "results.json", records)
         write(output / "summary.json", evidence.summarize(records, config["schedule"]))
         print(f"Finished {record['run_id']}: correct={record['correct']}, "
               f"completed_correct={record['completed_correct']}, usage={record.get('usage')}", flush=True)
+        if record.get("interrupted"):
+            raise RuntimeError("Interrupted attempt preserved: remaining planned attempts remain unstarted")
         if not record["timing_qualified"]:
             raise RuntimeError("Clock failure: remaining planned attempts remain unstarted")
         if not record.get("lifecycle_qualified"):
@@ -542,13 +665,16 @@ def main(argv=None):
     parser.add_argument("--probe-result", type=Path)
     parser.add_argument("--development-decision", type=Path)
     parser.add_argument("--fresh-study", type=Path)
+    parser.add_argument("--production-parity", type=Path)
+    parser.add_argument("--production-smoke", type=Path)
     args = parser.parse_args(argv)
     if args.action == "validate":
         validate_manifest(args.manifest)
     elif args.action == "freeze-common":
-        if not args.development_decision or not args.fresh_study:
-            parser.error("freeze-common requires --development-decision and --fresh-study")
-        freeze_common(args.output.resolve(), args.development_decision.resolve(), args.fresh_study.resolve())
+        if not all((args.development_decision, args.fresh_study, args.production_parity, args.production_smoke)):
+            parser.error("freeze-common requires --development-decision, --fresh-study, --production-parity and --production-smoke")
+        freeze_common(args.output.resolve(), args.development_decision.resolve(), args.fresh_study.resolve(),
+                      args.production_parity.resolve(), args.production_smoke.resolve())
     elif args.action in ("probe", "freeze"):
         if not args.common_config or not args.work_root:
             parser.error("probe/freeze require --common-config and --work-root")
@@ -560,7 +686,8 @@ def main(argv=None):
             freeze(args.output.resolve(), args.work_root.resolve(), args.common_config.resolve(),
                    args.probe_result.resolve(), args.manifest)
     else:
-        run(args.output.resolve())
+        with process_capture.guarded_sigterm():
+            run(args.output.resolve())
 
 
 if __name__ == "__main__":
