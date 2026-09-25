@@ -177,13 +177,37 @@ startup/index setup and the complete production HTTP/MCP route. All absent queri
 still return candidates. The 50-candidate sequential scorer remains experimental;
 the production dense default stays unchanged.
 
-Next, reduce reranker latency with a prospectively specified shortlist and/or
-batching experiment, preserving complete delivered evidence, regressions and
-source budgets. The observed Koa results are now development evidence. Establish
-a fresh retrieval check for any tuned settings before integrating the reranker
-and repeating the coding comparison with stronger checks and complete provider
-usage receipts. This retrieval study measures no coding correctness or paid-agent
-token savings.
+Shortlist and batching validation is now complete. The
+[certified batching study](../results/qwen-batch-parity-supervised-2026-10-13/independent-findings.md)
+excludes B2/B4/B8 because scores and strong-margin orderings fail fixed parity
+limits; production uses original singleton B1 scoring. The
+[full shortlist confirmation](../results/qwen-shortlist-development-2026-10-14/independent-findings.md)
+completes 1,728 searches over all 144 development queries. Dense K32 completes
+110/118 positives and hybrid K24 completes 112/118, retaining every historical
+K50 complete result. Hybrid K24 covers one fewer required group overall because
+it trades two partial Zod groups for a complete Click case; its warm median/P95
+is 4.071/7.634 seconds.
+
+The frozen [HTTPX holdout](../results/qwen-shortlist-httpx-2026-10-14/independent-findings.md)
+completes 225 searches on 15 newly authored queries. Hybrid K24 retains every
+same-run K50 complete result and completes one additional behavior. Against
+fast hybrid, completeness stays 8/12; multi-file completion rises 1/5 to 2/5
+while required-group coverage drops 22/28 to 21/28. Warm median/P95 is
+2.967/4.492 seconds versus 6.636/10.617 for same-run K50. All groups retrieved
+in the full hybrid pool survive its prefix; the remaining delivered misses
+point to ranking and packing. These mixed outcomes support an optional
+[Qwen production adapter](qwen-reranker-integration.md), with fast dense
+retrieval unchanged as the default.
+
+The next active milestone is the [three-condition coding comparison](qwen-coding-workflow-protocol.md):
+three observed larger feature tasks, two balanced repetitions, ordinary tools
+versus fast MCP versus Qwen MCP. Strict checkers and repaired reference controls
+are frozen before coding output; original upstream compatibility is a separate
+gate. Exact production scorer parity and real HTTP/MCP saved-edit validation
+precede the hosted transport probe and eighteen frozen trials. Publish all
+attempts, actual reported usage, unknown interrupted-turn usage, cleanup and
+source receipts, then independently review patches. Retrieval gains do not
+establish coding correctness or paid-agent token savings.
 
 Use fresh development queries to improve evidence delivery and a new
 untouched holdout to assess those changes. The observed Zod misses are now

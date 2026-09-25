@@ -7,7 +7,7 @@ paid model.
 
 **Current stage: a resident local search service and MCP adapter with durable
 SQLite FTS5/vector retrieval, saved-file watching, cancellation, budgeted context,
-and optional H2O-Lightning-4B reranking in 8-bit MLX.** Qwen dense retrieval is
+and optional H2O-Lightning-4B or Qwen3-0.6B reranking.** Qwen dense retrieval is
 the fast default. Paired coding repairs now have actual agent timing, provider
 token usage, preserved patches, and independent correctness review. The CLI and
 MCP adapter use the same backend. See
@@ -162,6 +162,29 @@ Boolean confidence flooring is disabled. Ordinal scores use the shipped
 temperature calibration and are ranking signals, not certainty percentages.
 
 ## Experiments
+
+The [shortlist confirmation](results/qwen-shortlist-development-2026-10-14/independent-findings.md)
+completed all 144 development queries with three actual passes. Original
+singleton Qwen scoring at K32 delivers complete dense evidence for **110/118**
+positives; hybrid K24 delivers **112/118**, including **15/21** multi-file cases.
+Every complete result from the historical K50 condition survives. Hybrid K24
+loses two partial Zod groups while gaining a complete Click behavior; warm
+median/P95 is **4.071/7.634 seconds**. Batching is excluded because its scores
+and strong-margin orderings fail the fixed numerical parity gate.
+
+The prospectively frozen [fresh HTTPX check](results/qwen-shortlist-httpx-2026-10-14/independent-findings.md)
+has a mixed result. Hybrid K24 and fast hybrid each deliver complete evidence
+for **8/12** positives. K24 improves multi-file completion from **1/5 to 2/5**,
+but covers **21/28** required groups versus **22/28** without reranking. Its warm
+median/P95 is **2.967/4.492 seconds**, versus **6.636/10.617** for same-run K50.
+The 24-item prefix preserves all required evidence present in the full candidate
+pool; several scored implementations are still lost during ranking or packing.
+Every absent query still returns candidates. Qwen remains an optional
+[production adapter](docs/qwen-reranker-integration.md), and fast retrieval stays
+the product default. These retrieval measurements do not establish coding
+correctness or paid-agent token savings. The separately frozen
+[three-condition coding protocol](docs/qwen-coding-workflow-protocol.md) compares
+ordinary repository tools, fast MCP, and optional Qwen MCP under stronger checks.
 
 The [full Qwen reranker experiment](results/qwen-reranker-full-2026-10-13/findings.md)
 tests 144 distinct queries across eight real repositories, including fresh Koa,
