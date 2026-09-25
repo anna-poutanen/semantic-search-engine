@@ -1,0 +1,275 @@
+{
+  "all_changed_files_reviewed": true,
+  "authored_tests": {
+    "base_production": {
+      "deselected": 0,
+      "errors": 1,
+      "failed": 0,
+      "passed": 0,
+      "skipped": 0,
+      "xfailed": 0,
+      "xpassed": 0
+    },
+    "base_production_exit_code": 2,
+    "candidate": {
+      "deselected": 0,
+      "errors": 0,
+      "failed": 0,
+      "passed": 100,
+      "skipped": 0,
+      "xfailed": 0,
+      "xpassed": 0
+    },
+    "candidate_exit_code": 0,
+    "interpretation": "Base Requests lacks ResponseTooLarge, so the candidate-authored file stops at import-time collection with one error and executes zero tests. This is an availability witness, not evidence that all 100 tests distinguish behavior."
+  },
+  "bindings": {
+    "cpu_review_sha256": "375d0ff77874a8e5a867090f013bb75fe83f072df5ebc547e7086e19519e31f3",
+    "full_changed_file_and_production_source_verified": true,
+    "grade_comparison_clarification_sha256": "c59153420a1245e50c9ca05554917d2f98897027d48c7eee2f909df500318c23",
+    "reference_history_receipt_sha256": "a542fcf894028386eb92699b9bbceb34b746e2cf6b687013c0c0c7640b7703c7",
+    "terminal_patch_sha256": "07ffbb239bdca87c8916840a7b767f75b4fa3fa999162221e0bf4da07bb96957",
+    "unchanged_probe_sha256": "a8529a12a7a3dbbe4fdf159d0869f376cf1b99712ae63547244dd6f1ec4661f7"
+  },
+  "classification": "Independent post-output source review of terminal Requests trial; unchanged formal grade",
+  "condition": "mcp_qwen",
+  "file_review": {
+    "src/requests/__init__.py": "Adds the same ResponseTooLarge class from requests.exceptions to the public requests module.",
+    "src/requests/_types.py": "Adds optional max_response_bytes to RequestKwargs; method/helper type dictionaries inherit it.",
+    "src/requests/api.py": "Documents decoded bytes, redirect applicability and nonnegative-integer/None values; existing kwargs delegation reaches Session.request.",
+    "src/requests/exceptions.py": "RequestException subclass records limit/received and obtains response/request provenance from its parent constructor.",
+    "src/requests/models.py": "Counts live decoded chunks response-wide, rechecks before live reads and before yielding crossing chunks, uses max(live_total,len(cached_body)) to avoid cached reread double counting, stores the first terminal error and closes with cause preservation. Cached iter_slices and buffered iter_lines are unguarded after iterator construction/suspension. Existing context exit always closes again and can mask the size error. Added response pickle defaults preserve cache and budget.",
+    "src/requests/sessions.py": "Validates before transport; distinguishes omission from explicit None, preserves session pickle/redirect override, and removes budget before adapter kwargs. Budget is bound to the original response before dispatch_hook and final replacement after the complete hook sequence. Existing hook-created history is bound only afterward, so later callbacks can consume final or historical unbounded replacement bodies.",
+    "tests/test_response_limit.py": "New 547-line test file contains 100 passing parametrized cases: helper validation, inheritance/send/module paths, pickle, exact/zero boundaries, gzip/chunking/Unicode, redirects, live reader accounting, one cleanup failure, final hook replacements and cached history checked after dispatch. It does not cover the five frozen temporal edge cases: suspended buffered line/cache iterator, context exit after a cleanup failure, or a later hook consuming a prior replacement. The history case has one hook, so it also omits subsequent-hook history consumption."
+  },
+  "formal_grade_unchanged": {
+    "all_five_frozen_edges_failed": true,
+    "changed_original_test_or_config_files": [],
+    "completed_correct": false,
+    "correct": false,
+    "original_13_passed": true,
+    "restored_upstream": {
+      "passed": 257,
+      "skipped": 13
+    },
+    "strict_errors": 0,
+    "strict_failures": 5,
+    "strict_tests_run": 18
+  },
+  "frozen_failure_explanations": {
+    "buffered_iter_lines_after_breach": {
+      "cause": "A line iterator suspended in yield from lines resumes a cached line after another reader stores a terminal budget error; no response-size check runs between buffered line yields.",
+      "lines": [
+        1067,
+        1084,
+        1087
+      ],
+      "observation": {
+        "crossing": {
+          "cause_type": null,
+          "context_type": null,
+          "message": "Response body exceeded 5 bytes (received 8 bytes).",
+          "notes": [],
+          "type": "ResponseTooLarge"
+        },
+        "first_line": "a",
+        "later_error": null,
+        "later_yield": "b",
+        "passed": false,
+        "raw_reads_after_crossing": 2,
+        "raw_reads_after_later": 2
+      },
+      "source": "src/requests/models.py"
+    },
+    "cached_iterator_after_lower_limit_breach": {
+      "cause": "A previously created cached iter_slices iterator can yield cached bytes after a later public Session.send rebind breaches a lower limit; size checking only occurs while constructing iter_content, not at each cached next().",
+      "lines": [
+        1012,
+        1022,
+        1025,
+        1032
+      ],
+      "observation": {
+        "crossing": {
+          "cause_type": null,
+          "context_type": null,
+          "message": "Response body exceeded 3 bytes (received 4 bytes).",
+          "notes": [],
+          "type": "ResponseTooLarge"
+        },
+        "later_error": null,
+        "later_yield": "a",
+        "passed": false,
+        "raw_reads_after_crossing": 2,
+        "raw_reads_after_later": 2
+      },
+      "source": "src/requests/models.py"
+    },
+    "context_manager_cleanup_preserves_size_error": {
+      "cause": "The crossing read attempts close and chains its failure under ResponseTooLarge. Response.__exit__ retries close unconditionally, producing an outer OSError that masks the original size error.",
+      "lines": [
+        824,
+        825,
+        934,
+        937,
+        940
+      ],
+      "observation": {
+        "close_attempts": 2,
+        "outer_error": {
+          "cause_type": null,
+          "context_type": "ResponseTooLarge",
+          "message": "controlled cleanup failure",
+          "notes": [],
+          "type": "OSError"
+        },
+        "passed": false,
+        "raw_reads": 1
+      },
+      "source": "src/requests/models.py"
+    },
+    "hook_chain_cached_replacement": {
+      "cause": "The same complete-chain binding delay permits a subsequent hook to consume an oversized cached replacement before later rejection.",
+      "lines": [
+        830,
+        833,
+        834
+      ],
+      "observation": {
+        "cached_before_hook": true,
+        "error": {
+          "cause_type": null,
+          "context_type": null,
+          "message": "Response body exceeded 4 bytes (received 8 bytes).",
+          "notes": [],
+          "type": "ResponseTooLarge"
+        },
+        "expected_yielded_in_second_hook": [],
+        "hook_calls": [
+          "replace",
+          "consume"
+        ],
+        "passed": false,
+        "received": 8,
+        "yielded_in_second_hook": [
+          "abcd",
+          "efgh"
+        ]
+      },
+      "source": "src/requests/sessions.py"
+    },
+    "hook_chain_live_replacement": {
+      "cause": "dispatch_hook executes the full callback chain before the returned replacement response receives the budget. A subsequent hook can read an unbounded live replacement.",
+      "lines": [
+        830,
+        833,
+        834
+      ],
+      "observation": {
+        "cached_before_hook": false,
+        "error": {
+          "cause_type": null,
+          "context_type": null,
+          "message": "Response body exceeded 4 bytes (received 8 bytes).",
+          "notes": [],
+          "type": "ResponseTooLarge"
+        },
+        "expected_yielded_in_second_hook": [
+          "abcd"
+        ],
+        "hook_calls": [
+          "replace",
+          "consume"
+        ],
+        "passed": false,
+        "received": 8,
+        "yielded_in_second_hook": [
+          "abcd",
+          "efgh"
+        ]
+      },
+      "source": "src/requests/sessions.py"
+    }
+  },
+  "limits": [
+    "Original frozen grades are retained. The five existing edge failures and supplementary history gap remain separate.",
+    "Tests and manual source review do not prove the complete contract.",
+    "No running workspace was inspected; terminal source was only read to verify bytes.",
+    "No model, GPU, package install or external-network action was used."
+  ],
+  "no_additional_confirmed_evidence": [
+    "No modified original upstream test or configuration file.",
+    "No additional confirmed regression in helper validation, adapter kwargs, redirect override, Session pickle, live response-wide byte totals, decoded counting or first cleanup-error chaining in this terminal snapshot."
+  ],
+  "repetition": 2,
+  "reviewed_at": "2026-10-14T09:25:22.079702+00:00",
+  "run_id": "10-r2-requests_response_limit-mcp_qwen",
+  "supplemental_history_defect": {
+    "candidate_witness": {
+      "adapter_calls": {
+        "bounded_original": 1,
+        "unlimited_cached_chain": 2
+      },
+      "classification": "Post-output supplemental contract probe; frozen grades unchanged",
+      "expected_yielded_before_rejection": [],
+      "feature_available": true,
+      "final_error_limit": 4,
+      "final_error_received": 8,
+      "final_error_type": "ResponseTooLarge",
+      "hook_calls": [
+        "replace",
+        "consume_history"
+      ],
+      "model_calls": 0,
+      "network_calls": 0,
+      "offending_response_is_redirect_history": true,
+      "passed": false,
+      "probe_sha256": "a8529a12a7a3dbbe4fdf159d0869f376cf1b99712ae63547244dd6f1ec4661f7",
+      "version": 1,
+      "yielded_before_rejection": [
+        "abcd",
+        "efgh"
+      ]
+    },
+    "cause": "A genuine cached redirect history returned by a response hook is budgeted after the complete hook sequence. A later hook yields both four-byte cached chunks under a four-byte budget before subsequent rejection.",
+    "formal_grades_or_controls_changed": false,
+    "lines": [
+      833,
+      837,
+      839,
+      840
+    ],
+    "new_defect_count": 1,
+    "new_to_frozen_18_case_coverage": true,
+    "reference_checker_coverage_gap_count": 1,
+    "scope_document": "results/qwen-coding-patch-review-2026-10-14/requests-supplemental-scope.md",
+    "source": "src/requests/sessions.py",
+    "strict_reference_same_probe": {
+      "adapter_calls": {
+        "bounded_original": 1,
+        "unlimited_cached_chain": 2
+      },
+      "classification": "Post-output supplemental contract probe; frozen grades unchanged",
+      "expected_yielded_before_rejection": [],
+      "feature_available": true,
+      "final_error_limit": null,
+      "final_error_received": null,
+      "final_error_type": null,
+      "hook_calls": [
+        "replace",
+        "consume_history"
+      ],
+      "model_calls": 0,
+      "network_calls": 0,
+      "offending_response_is_redirect_history": false,
+      "passed": false,
+      "probe_sha256": "a8529a12a7a3dbbe4fdf159d0869f376cf1b99712ae63547244dd6f1ec4661f7",
+      "version": 1,
+      "yielded_before_rejection": [
+        "abcd",
+        "efgh"
+      ]
+    }
+  },
+  "version": 1
+}
