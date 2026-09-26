@@ -4,18 +4,22 @@ import type { BufferOverride, BufferBinding } from './overlays';
 
 export class ValidationError extends Error {}
 export type Retrieval = 'dense' | 'bm25' | 'hybrid';
+export type RerankProvider = 'h2o' | 'qwen';
 export interface SearchOptions {
   retrieval: Retrieval; rerank: boolean; candidates: number; max_results: number;
   source_budget: number; token_budget: number; include_dependencies: boolean;
+  rerank_provider?: RerankProvider;
 }
 export const defaultOptions: SearchOptions = {
   retrieval: 'dense', rerank: false, candidates: 4, max_results: 8,
   source_budget: 12000, token_budget: 4096, include_dependencies: true,
+  rerank_provider: 'h2o',
 };
 export interface Result {
   id: string; path: string; symbol: string; start_line: number; end_line: number;
   window_end_line: number; source: string; content_hash: string; source_hash: string;
   retrieval_score: number | null; h2o_score: number | null; truncated: boolean;
+  qwen_score?: number | null;
   origin: 'retrieval' | 'dependency'; related_to: string | null;
   source_origin?: 'saved' | 'overlay'; buffer_version?: number; buffer_hash?: string;
 }
@@ -27,6 +31,7 @@ export interface Status {
 }
 export interface SearchResponse {
   repo: string; source_root: string; query: string; retrieval: Retrieval; rerank: boolean;
+  rerank_provider?: RerankProvider;
   results: Result[]; match_status: 'candidates' | 'no_candidates' | 'insufficient_evidence';
   source_budget: number; total_source_chars: number; budget_exhausted: boolean;
   token_usage: { encoding: 'cl100k_base'; tokens: number; budget: number; truncated: boolean };
@@ -85,6 +90,9 @@ export function relativePath(value: unknown, allowRoot = false): string {
 export function validateOptions(options: SearchOptions): SearchOptions {
   if (!['dense', 'bm25', 'hybrid'].includes(options.retrieval)) { throw new ValidationError('Invalid retrieval mode'); }
   bool(options.rerank); bool(options.include_dependencies);
+  if (options.rerank_provider !== undefined && !['h2o', 'qwen'].includes(options.rerank_provider)) {
+    throw new ValidationError('Choose H2O or Qwen as the optional reranking provider');
+  }
   integer(options.candidates, 1, 50); integer(options.max_results, 1, 20);
   integer(options.source_budget, 1, 100000); integer(options.token_budget, 512, 32000);
   return options;
@@ -116,6 +124,7 @@ export function parseResult(value: unknown): Result {
     retrieval_score: score(row.retrieval_score), h2o_score: score(row.h2o_score), truncated: bool(row.truncated),
     origin: row.origin === 'retrieval' ? 'retrieval' : row.origin === 'dependency' ? 'dependency' : (() => { throw new ValidationError('Invalid context origin'); })(),
     related_to: nullableText(row.related_to) };
+  if (row.qwen_score !== undefined) { result.qwen_score = score(row.qwen_score); }
   if (row.source_origin !== undefined) {
     if (row.source_origin !== 'saved' && row.source_origin !== 'overlay') { throw new ValidationError('Invalid source origin'); }
     result.source_origin = row.source_origin;
@@ -158,6 +167,16 @@ export function validateResponseBindings(response: SearchResponse, overrides: re
 }
 export function parseSearch(value: unknown, query: string, options: SearchOptions, overrides: readonly BufferOverride[] = []): SearchResponse {
   const row = object(value);
+  const requestedProvider = options.rerank_provider ?? 'h2o';
+  if (row.rerank_provider !== undefined && row.rerank_provider !== 'h2o' && row.rerank_provider !== 'qwen') {
+    throw new ValidationError('Invalid service reranking provider');
+  }
+  // Older services omit the implicit H2O provider. An enabled Qwen request must
+  // explicitly echo Qwen so a service cannot silently deliver another scorer.
+  if (options.rerank && (requestedProvider === 'qwen' ? row.rerank_provider !== 'qwen'
+    : row.rerank_provider !== undefined && row.rerank_provider !== 'h2o')) {
+    throw new ValidationError('Service response differs from the requested reranking provider');
+  }
   if (!Array.isArray(row.results) || row.results.length > options.max_results) { throw new ValidationError('Invalid result count'); }
   const results = row.results.map(parseResult);
   const token = object(row.token_usage), index = object(row.indexstats);
@@ -176,7 +195,9 @@ export function parseSearch(value: unknown, query: string, options: SearchOption
       const buffer = object(value); return { path: relativePath(buffer.path), version: integer(buffer.version, 0), content_hash: sha(buffer.content_hash) };
     }) };
   }
-  const response: SearchResponse = { ...(scope ? { scope } : {}), repo: string(row.repo, 4096), source_root: relativePath(row.source_root, true), query,
+  const response: SearchResponse = { ...(scope ? { scope } : {}),
+    ...(row.rerank_provider === undefined ? {} : { rerank_provider: row.rerank_provider as RerankProvider }),
+    repo: string(row.repo, 4096), source_root: relativePath(row.source_root, true), query,
     retrieval: options.retrieval, rerank: options.rerank, results, match_status: row.match_status as SearchResponse['match_status'],
     source_budget: options.source_budget, total_source_chars: total, budget_exhausted: bool(row.budget_exhausted),
     token_usage: { encoding: 'cl100k_base', tokens: integer(token.tokens, 0, options.token_budget), budget: options.token_budget, truncated: bool(token.truncated) },

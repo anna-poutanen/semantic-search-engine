@@ -19,6 +19,7 @@ function validateOptions(options) {
   const url = new URL(options.url);
   assert(url.protocol === 'http:' && ['127.0.0.1', 'localhost', '[::1]'].includes(url.hostname)
     && !url.username && !url.password && !url.search && !url.hash && url.pathname === '/', 'Explicit loopback HTTP endpoint required');
+  assert(!options.qwenReranker || !options.overlays && !options.savedEdits, 'Qwen settings smoke is separate from overlay/saved-edit modes');
   return options;
 }
 function argumentsFrom(argv) {
@@ -26,8 +27,8 @@ function argumentsFrom(argv) {
   const options = { run: true };
   for (let index = 0; index < argv.length; index++) {
     const flag = argv[index]; if (flag === '--run') { continue; }
-    if (flag === '--overlays' || flag === '--saved-edits') {
-      const key = flag === '--overlays' ? 'overlays' : 'savedEdits';
+    if (flag === '--overlays' || flag === '--saved-edits' || flag === '--qwen-reranker') {
+      const key = flag === '--overlays' ? 'overlays' : flag === '--saved-edits' ? 'savedEdits' : 'qwenReranker';
       assert(!options[key], 'Duplicate package-host flag'); options[key] = true; continue;
     }
     assert(['--vsix', '--expected-sha256', '--repo', '--url', '--output'].includes(flag) && argv[index + 1], 'Unknown or incomplete package-host argument');
@@ -205,7 +206,8 @@ async function packageHost(options, dependencies = {}) {
     record.installed_inventory_before_validation = await fileInventory(extensionPath);
     record.payload_before_host = await verifyInstalled(extensionPath, archive, expected);
     await (dependencies.smoke ?? require('./smoke-host.cjs').smoke)({ repo: options.repo, url: options.url,
-      output: smokeOutput, extensionPath, overlays: options.overlays === true, savedEdits: options.savedEdits === true });
+      output: smokeOutput, extensionPath, overlays: options.overlays === true, savedEdits: options.savedEdits === true,
+      qwenReranker: options.qwenReranker === true });
     record.smoke = JSON.parse(await fs.readFile(smokeOutput, 'utf8'));
     assert(record.smoke.passed === true && record.smoke.host?.checks?.packaged_extension_path === true,
       'Host did not confirm installed package activation/path');

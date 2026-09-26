@@ -69,6 +69,21 @@ test('package launch requires explicit run/frozen SHA/absolute paths and loopbac
   }
   const relative = [...args]; relative[relative.indexOf('--vsix') + 1] = 'publisher.marketplace-id'; assert.throws(() => argumentsFrom(relative), /Absolute/);
 });
+test('Qwen package flag reaches the isolated host and rejects mixed smoke modes before install', async t => {
+  const args = ['--run', '--vsix', '/local.vsix', '--expected-sha256', 'a'.repeat(64), '--repo', '/fixture', '--url', 'http://127.0.0.1:1', '--output', '/out'];
+  assert.equal(argumentsFrom([...args, '--qwen-reranker']).qwenReranker, true);
+  for (const mode of ['--overlays', '--saved-edits']) { assert.throws(() => argumentsFrom([...args, '--qwen-reranker', mode]), /separate/); }
+  const f = await fixture(t); f.options.qwenReranker = true;
+  await assert.rejects(packageHost(f.options, f.dependencies), /separate/); assert.equal(f.calls.length, 0);
+  f.options.overlays = false;
+  f.dependencies.smoke = async (settings: Record<string, any>) => {
+    assert.equal(settings.qwenReranker, true); assert.equal(settings.overlays, false);
+    await fs.writeFile(settings.output, JSON.stringify({ passed: true, host: { checks: { packaged_extension_path: true } } }));
+    f.calls.push('qwen-smoke');
+  };
+  const receipt = await packageHost(f.options, f.dependencies); assert.equal(receipt.passed, true);
+  assert.ok(f.calls.includes('qwen-smoke')); await clean(f);
+});
 test('CLI removes running-editor routing and node injection but retains normal home/auth', () => {
   assert.deepEqual(cliEnvironment({ HOME: '/user', CODEX_HOME: '/normal', PATH: '/bin', VSCODE_IPC_HOOK_CLI: '/socket',
     VSCODE_CWD: '/private', ELECTRON_RUN_AS_NODE: '1', NODE_OPTIONS: '--require private.js' }), { HOME: '/user', CODEX_HOME: '/normal', PATH: '/bin' });
