@@ -1,0 +1,368 @@
+{
+  "all_six_original_13_and_selected_upstream_pass": true,
+  "classification": "All six observed Requests development reruns; independent patch review, frozen grades unchanged",
+  "demonstrated_failure_families": [
+    {
+      "case_ids": [
+        "buffered_iter_lines_after_breach"
+      ],
+      "classification": "Frozen edge case",
+      "failed_run_ids": [
+        "01-r1-requests_response_limit-baseline",
+        "02-r1-requests_response_limit-mcp_fast",
+        "03-r1-requests_response_limit-mcp_qwen",
+        "10-r2-requests_response_limit-mcp_qwen",
+        "12-r2-requests_response_limit-baseline"
+      ],
+      "id": "buffered_line_iterator_bypasses_terminal_error"
+    },
+    {
+      "case_ids": [
+        "cached_iterator_after_lower_limit_breach"
+      ],
+      "classification": "Frozen edge case",
+      "failed_run_ids": [
+        "01-r1-requests_response_limit-baseline",
+        "02-r1-requests_response_limit-mcp_fast",
+        "10-r2-requests_response_limit-mcp_qwen"
+      ],
+      "id": "cached_content_iterator_bypasses_terminal_error"
+    },
+    {
+      "case_ids": [
+        "context_manager_cleanup_preserves_size_error"
+      ],
+      "classification": "Frozen edge case",
+      "failed_run_ids": [
+        "01-r1-requests_response_limit-baseline",
+        "02-r1-requests_response_limit-mcp_fast",
+        "10-r2-requests_response_limit-mcp_qwen"
+      ],
+      "id": "context_cleanup_masks_size_error"
+    },
+    {
+      "case_ids": [
+        "hook_chain_live_replacement",
+        "hook_chain_cached_replacement"
+      ],
+      "classification": "One failure mechanism exercised by two frozen live/cached cases",
+      "failed_run_ids": [
+        "02-r1-requests_response_limit-mcp_fast",
+        "10-r2-requests_response_limit-mcp_qwen"
+      ],
+      "id": "later_hook_reads_unbound_final_replacement"
+    },
+    {
+      "case_ids": [
+        "genuine_cached_redirect_history_in_later_hook"
+      ],
+      "classification": "Unchanged accepted post-output supplemental case, outside frozen grades",
+      "failed_run_ids": [
+        "01-r1-requests_response_limit-baseline",
+        "02-r1-requests_response_limit-mcp_fast",
+        "03-r1-requests_response_limit-mcp_qwen",
+        "10-r2-requests_response_limit-mcp_qwen",
+        "12-r2-requests_response_limit-baseline"
+      ],
+      "id": "later_hook_reads_unbound_cached_redirect_history",
+      "shared_reference_checker_coverage_gap_count": 1
+    }
+  ],
+  "frozen_correct_snapshots": 1,
+  "frozen_edge_scenarios": 5,
+  "frozen_failure_families": 4,
+  "interpretation": [
+    "All six original 13-case and selected upstream compatibility gates pass, but five terminal snapshots still fail at least one frozen edge case.",
+    "Trial 11 fast MCP passes both frozen and unchanged supplementary checks; it timed out after 900.06455 seconds, exited -15 and has no reported completed-turn usage. Its passing snapshot is not a completed-correct result and its token usage is unknown, never zero.",
+    "No Requests condition has a normal completed-correct trial in these two repetitions. The known token/time values for failed attempts cannot establish token-efficient correct task completion.",
+    "The two live/cached final-hook cases share one binding-delay mechanism; the history case is a separate binding scope and one shared reference/checker hole, not five separate checker holes.",
+    "Authored-test pass counts are subordinate evidence: the r2 Qwen/fast files fail base import collection; baseline files collect but mostly fail missing-feature paths."
+  ],
+  "inventory": [
+    {
+      "agent_elapsed_s": 608.1453278339759,
+      "agent_exit_code": 0,
+      "candidate_authored_tests_independently_retested": null,
+      "completed": true,
+      "completed_correct": false,
+      "condition": "baseline",
+      "evidence_sha256": {
+        "results/qwen-coding-patch-review-2026-10-14/requests-01-r1-requests_response_limit-baseline.json": "430588a778907e5a3403eccbc0727c8fabbb08dd9d8b4c8836369a8727dfcf6e",
+        "results/qwen-coding-workflows-2026-10-14/runs/01-r1-requests_response_limit-baseline/result.json": "d10356bd097223cee0f29030e60a835213f7a0b9c177dd5610fb29df931f7c58"
+      },
+      "frozen_18_failures": 3,
+      "frozen_correct": false,
+      "frozen_failed_case_ids": [
+        "buffered_iter_lines_after_breach",
+        "cached_iterator_after_lower_limit_breach",
+        "context_manager_cleanup_preserves_size_error"
+      ],
+      "full_trial_elapsed_s": 611.4020953330037,
+      "history_yielded": [
+        "abcd",
+        "efgh"
+      ],
+      "original_13_pass": true,
+      "repetition": 1,
+      "reported_turns": 1,
+      "run_id": "01-r1-requests_response_limit-baseline",
+      "selected_upstream_passed": true,
+      "timed_out": false,
+      "unchanged_history_probe_passed": false,
+      "usage": {
+        "cache_write_input_tokens": 0,
+        "cached_input_tokens": 754432,
+        "input_tokens": 819359,
+        "output_tokens": 19391,
+        "reasoning_output_tokens": 7335,
+        "total_tokens": 838750,
+        "uncached_input_tokens": 64927
+      },
+      "usage_known": true
+    },
+    {
+      "agent_elapsed_s": 651.2348431250139,
+      "agent_exit_code": 0,
+      "candidate_authored_tests_independently_retested": null,
+      "completed": true,
+      "completed_correct": false,
+      "condition": "mcp_fast",
+      "evidence_sha256": {
+        "results/qwen-coding-patch-review-2026-10-14/requests-02-r1-requests_response_limit-mcp_fast.json": "4d32b4e91f9ec87b6d4191770f87ae478adb5b6e769edca4176d6483e16b78a3",
+        "results/qwen-coding-workflows-2026-10-14/runs/02-r1-requests_response_limit-mcp_fast/result.json": "70338c29773dd8930e5ed2a7596e7469be259b3ca1cbed17b853a6448258b0ce"
+      },
+      "frozen_18_failures": 5,
+      "frozen_correct": false,
+      "frozen_failed_case_ids": [
+        "buffered_iter_lines_after_breach",
+        "cached_iterator_after_lower_limit_breach",
+        "context_manager_cleanup_preserves_size_error",
+        "hook_chain_cached_replacement",
+        "hook_chain_live_replacement"
+      ],
+      "full_trial_elapsed_s": 670.598264375003,
+      "history_yielded": [
+        "abcd",
+        "efgh"
+      ],
+      "original_13_pass": true,
+      "repetition": 1,
+      "reported_turns": 1,
+      "run_id": "02-r1-requests_response_limit-mcp_fast",
+      "selected_upstream_passed": true,
+      "timed_out": false,
+      "unchanged_history_probe_passed": false,
+      "usage": {
+        "cache_write_input_tokens": 0,
+        "cached_input_tokens": 737152,
+        "input_tokens": 802353,
+        "output_tokens": 19990,
+        "reasoning_output_tokens": 7898,
+        "total_tokens": 822343,
+        "uncached_input_tokens": 65201
+      },
+      "usage_known": true
+    },
+    {
+      "agent_elapsed_s": 762.4148490419902,
+      "agent_exit_code": 0,
+      "candidate_authored_tests_independently_retested": null,
+      "completed": true,
+      "completed_correct": false,
+      "condition": "mcp_qwen",
+      "evidence_sha256": {
+        "results/qwen-coding-patch-review-2026-10-14/requests-03-r1-requests_response_limit-mcp_qwen.json": "e2d83ddf52747214d9998ede33731eab35b68bb8304f75b4ca0388210a34d651",
+        "results/qwen-coding-workflows-2026-10-14/runs/03-r1-requests_response_limit-mcp_qwen/result.json": "e54a650ec5c29dc1e0d7bfc1ce22dcad9d4c0975e3c0b468a72ce3028e27d845"
+      },
+      "frozen_18_failures": 1,
+      "frozen_correct": false,
+      "frozen_failed_case_ids": [
+        "buffered_iter_lines_after_breach"
+      ],
+      "full_trial_elapsed_s": 783.3928816249827,
+      "history_yielded": [
+        "abcd",
+        "efgh"
+      ],
+      "original_13_pass": true,
+      "repetition": 1,
+      "reported_turns": 1,
+      "run_id": "03-r1-requests_response_limit-mcp_qwen",
+      "selected_upstream_passed": true,
+      "timed_out": false,
+      "unchanged_history_probe_passed": false,
+      "usage": {
+        "cache_write_input_tokens": 0,
+        "cached_input_tokens": 696320,
+        "input_tokens": 757933,
+        "output_tokens": 21661,
+        "reasoning_output_tokens": 9864,
+        "total_tokens": 779594,
+        "uncached_input_tokens": 61613
+      },
+      "usage_known": true
+    },
+    {
+      "agent_elapsed_s": 637.4520194579964,
+      "agent_exit_code": 0,
+      "candidate_authored_tests_independently_retested": {
+        "deselected": 0,
+        "errors": 0,
+        "failed": 0,
+        "passed": 100,
+        "skipped": 0,
+        "xfailed": 0,
+        "xpassed": 0
+      },
+      "completed": true,
+      "completed_correct": false,
+      "condition": "mcp_qwen",
+      "evidence_sha256": {
+        "results/qwen-coding-patch-review-2026-10-14/requests-10-r2-requests_response_limit-mcp_qwen-cpu-review.json": "375d0ff77874a8e5a867090f013bb75fe83f072df5ebc547e7086e19519e31f3",
+        "results/qwen-coding-patch-review-2026-10-14/requests-10-r2-requests_response_limit-mcp_qwen-source-review.json": "b81d6e135ae0133c92fd20480d77a41b0b0628c4fe59b0ab5090f02574625eec",
+        "results/qwen-coding-workflows-2026-10-14/runs/10-r2-requests_response_limit-mcp_qwen/result.json": "71b0cc491fe13cd41dc100699eb674cc90700e8bff6e18eb675a47161f2aee78"
+      },
+      "frozen_18_failures": 5,
+      "frozen_correct": false,
+      "frozen_failed_case_ids": [
+        "buffered_iter_lines_after_breach",
+        "cached_iterator_after_lower_limit_breach",
+        "context_manager_cleanup_preserves_size_error",
+        "hook_chain_cached_replacement",
+        "hook_chain_live_replacement"
+      ],
+      "full_trial_elapsed_s": 658.0665253750049,
+      "history_yielded": [
+        "abcd",
+        "efgh"
+      ],
+      "original_13_pass": true,
+      "repetition": 2,
+      "reported_turns": 1,
+      "run_id": "10-r2-requests_response_limit-mcp_qwen",
+      "selected_upstream_passed": true,
+      "timed_out": false,
+      "unchanged_history_probe_passed": false,
+      "usage": {
+        "cache_write_input_tokens": 0,
+        "cached_input_tokens": 747648,
+        "input_tokens": 835629,
+        "output_tokens": 18221,
+        "reasoning_output_tokens": 6840,
+        "total_tokens": 853850,
+        "uncached_input_tokens": 87981
+      },
+      "usage_known": true
+    },
+    {
+      "agent_elapsed_s": 900.0645478330262,
+      "agent_exit_code": -15,
+      "candidate_authored_tests_independently_retested": {
+        "deselected": 0,
+        "errors": 0,
+        "failed": 0,
+        "passed": 134,
+        "skipped": 0,
+        "xfailed": 0,
+        "xpassed": 0
+      },
+      "completed": false,
+      "completed_correct": false,
+      "condition": "mcp_fast",
+      "evidence_sha256": {
+        "results/qwen-coding-patch-review-2026-10-14/requests-11-r2-requests_response_limit-mcp_fast-cpu-review.json": "60d6a5a4b82e677f524f5d98e61a6c8af7eb571d141857240e0e27fd4654d1ed",
+        "results/qwen-coding-patch-review-2026-10-14/requests-11-r2-requests_response_limit-mcp_fast-source-review.json": "92917837a85c6e1ff6681e8defefaec743cf0453dc547dd58095ded67d227eca",
+        "results/qwen-coding-workflows-2026-10-14/runs/11-r2-requests_response_limit-mcp_fast/result.json": "96ba2bb83d7fca5d9f8916be34194667c7c16808538f01c03f637df3b424c93a"
+      },
+      "frozen_18_failures": 0,
+      "frozen_correct": true,
+      "frozen_failed_case_ids": [],
+      "full_trial_elapsed_s": 918.0791338339914,
+      "history_yielded": [],
+      "original_13_pass": true,
+      "repetition": 2,
+      "reported_turns": 0,
+      "run_id": "11-r2-requests_response_limit-mcp_fast",
+      "selected_upstream_passed": true,
+      "timed_out": true,
+      "unchanged_history_probe_passed": true,
+      "usage": null,
+      "usage_known": false
+    },
+    {
+      "agent_elapsed_s": 775.1879640830157,
+      "agent_exit_code": 0,
+      "candidate_authored_tests_independently_retested": {
+        "deselected": 0,
+        "errors": 0,
+        "failed": 0,
+        "passed": 120,
+        "skipped": 0,
+        "xfailed": 0,
+        "xpassed": 0
+      },
+      "completed": true,
+      "completed_correct": false,
+      "condition": "baseline",
+      "evidence_sha256": {
+        "results/qwen-coding-patch-review-2026-10-14/requests-12-r2-requests_response_limit-baseline-cpu-review.json": "2f5d5a40c3051196f2bc04d9d3617e9b9a3d2b12c59fccf6bf6afa1c49b37d03",
+        "results/qwen-coding-patch-review-2026-10-14/requests-12-r2-requests_response_limit-baseline-source-review.json": "22368c2a9b33d5e88dce37eaa727bb204359ff6aff2c4f62ff5c9f1b60dd1134",
+        "results/qwen-coding-workflows-2026-10-14/runs/12-r2-requests_response_limit-baseline/result.json": "cad02394a24db76970548a74099a8fd79e2f67872f5aa594f221662cc4bd02f7"
+      },
+      "frozen_18_failures": 1,
+      "frozen_correct": false,
+      "frozen_failed_case_ids": [
+        "buffered_iter_lines_after_breach"
+      ],
+      "full_trial_elapsed_s": 778.216241874994,
+      "history_yielded": [
+        "abcd",
+        "efgh"
+      ],
+      "original_13_pass": true,
+      "repetition": 2,
+      "reported_turns": 1,
+      "run_id": "12-r2-requests_response_limit-baseline",
+      "selected_upstream_passed": true,
+      "timed_out": false,
+      "unchanged_history_probe_passed": false,
+      "usage": {
+        "cache_write_input_tokens": 0,
+        "cached_input_tokens": 747136,
+        "input_tokens": 815858,
+        "output_tokens": 22353,
+        "reasoning_output_tokens": 9617,
+        "total_tokens": 838211,
+        "uncached_input_tokens": 68722
+      },
+      "usage_known": true
+    }
+  ],
+  "limitations": [
+    "Observed development tasks, two repetitions per condition, not a new held-out coding benchmark or causal efficacy claim.",
+    "Unknown usage is retained; cache/reasoning tokens are subsets of input/output and are not added to total.",
+    "Supplemental findings never replace frozen formal grades or repaired references.",
+    "Review reports and exact CPU logs remain separate; no active source, package, runner, manifest or model was changed."
+  ],
+  "normal_cli_completions": 5,
+  "planned_and_terminal_requests_attempts": 6,
+  "recorded_at": "2026-10-14T09:48:21.419653+00:00",
+  "requests_completed_correct": 0,
+  "shared_reference_checker_gap": {
+    "count": 1,
+    "formal_control_or_grades_changed": false,
+    "probe_sha256": "a8529a12a7a3dbbe4fdf159d0869f376cf1b99712ae63547244dd6f1ec4661f7",
+    "reference_error_type": null,
+    "reference_yielded": [
+      "abcd",
+      "efgh"
+    ],
+    "scope": "Genuine cached redirect-history response returned by a hook must be bound before a subsequent hook consumes it; no retroactive policing of previous unlimited transport.",
+    "witness_sha256": "a542fcf894028386eb92699b9bbceb34b746e2cf6b687013c0c0c7640b7703c7"
+  },
+  "supplemental_failure_families": 1,
+  "timed_out_attempts": 1,
+  "unique_failure_families": 5,
+  "usage_known_attempts": 5,
+  "version": 1
+}
