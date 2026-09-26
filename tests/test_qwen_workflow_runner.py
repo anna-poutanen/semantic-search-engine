@@ -349,7 +349,10 @@ def test_common_freeze_binds_process_helper_and_both_production_certificates(tmp
     monkeypatch.setattr(runner, "ROOT", tmp_path)
     monkeypatch.setattr(runner, "selected_profile", lambda *args: (
         {"retrieval": "hybrid", "shortlist": 24, "batch_size": 1}, {"reranker": {}}))
-    monkeypatch.setattr(runner.mf, "freeze_common", lambda *args: {"runtime_git_revision": "commit", "artifact_sha256": {}})
+    monkeypatch.setattr(runner.mf, "freeze_common", lambda *args: {
+        "runtime_git_revision": "commit", "artifact_sha256": {},
+        "mcp": {"tool_defaults": {"retrieval": "dense", "rerank": False, "max_results": 8,
+                                  "source_budget": 12000, "token_budget": 4096, "include_dependencies": True}}})
     monkeypatch.setattr(runner.mf.old, "git", lambda root, show, spec: SimpleNamespace(
         stdout=(root / spec.split(":", 1)[1]).read_bytes()))
     monkeypatch.setattr(runner.mf, "artifact", lambda path: str(path))
@@ -361,6 +364,12 @@ def test_common_freeze_binds_process_helper_and_both_production_certificates(tmp
     monkeypatch.setattr(runner, "production_certificate", certificate)
     parity, smoke = tmp_path / "parity", tmp_path / "smoke"
     config = runner.freeze_common(tmp_path / "common", decision, fresh, parity, smoke)
+    assert config["mcp"]["probe_tool_defaults"]["retrieval"] == "dense"
+    assert config["mcp"]["condition_tool_defaults"]["mcp_fast"]["retrieval"] == "hybrid"
+    assert config["mcp"]["condition_tool_defaults"]["mcp_fast"]["rerank"] is False
+    qwen_defaults = config["mcp"]["condition_tool_defaults"]["mcp_qwen"]
+    assert qwen_defaults["rerank"] is True and qwen_defaults["rerank_provider"] == "qwen"
+    assert qwen_defaults["candidates"] == 24 and qwen_defaults["token_budget"] == 4096
     assert seen == [parity, smoke]
     assert config["artifact_sha256"]["scripts/qwen_workflow_process.py"] == runner.sha(tmp_path / "scripts/qwen_workflow_process.py")
     assert config["artifact_sha256"][str(parity / "verification.json")] == "parity"
