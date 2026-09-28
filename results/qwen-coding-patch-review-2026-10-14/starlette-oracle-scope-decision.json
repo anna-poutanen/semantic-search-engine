@@ -1,0 +1,21 @@
+{
+  "classification": "Root independent scope decision; original frozen nine probes and primary grades unchanged",
+  "formal_grades_unchanged": true,
+  "original_probe_sha256": "1b6f0b524c64e9cc3eb6f3b676c34bf0311556caca60cced07d7c873516ae0f3",
+  "raw_trial18_frozen_outcome": {
+    "failed_cases": 2,
+    "passed_cases": 7,
+    "tests_run": 9
+  },
+  "recorded_at": "2026-10-14T10:36:08.428245+00:00",
+  "required_followup": "Chunk-neutral replay and body-consumption disconnect diagnostics applied to all six terminal candidates and the original reference; base feature availability separately recorded.",
+  "root_decision": "The middleware contract requires replaying accepted bytes and delegating subsequent receives after replay. It does not require one coalesced ASGI message. Request.body must preserve ClientDisconnect; the middleware contract does not forbid calling a downstream app that may consume a captured disconnect. The two trial18 original supplemental failures therefore reflect unsupported oracle assumptions, not demonstrated candidate defects.",
+  "task_id": "starlette_body_limits",
+  "task_manifest_sha256": "607f7491f5f0dd265591513ebccbe23e0a1685612b7cc25a00dd7c4846351f84",
+  "task_prompt_sha256": "e1aff29086b15363ef8cba4ecadbcb649948cdd9d5ac3e7886be099c6270567e",
+  "unsupported_assumptions": {
+    "test_middleware_partial_disconnect_preserves_original_exception": "Assumes the middleware itself raises ClientDisconnect before downstream invocation even when downstream does not consume the body.",
+    "test_middleware_zero_empty_replay_then_every_receive_delegates": "Assumes accepted empty chunks are coalesced into a single final http.request frame."
+  },
+  "version": 1
+}
