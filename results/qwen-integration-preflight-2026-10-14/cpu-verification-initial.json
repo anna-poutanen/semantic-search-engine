@@ -1,0 +1,21 @@
+{
+  "classification": "First whole-suite CPU run after production promotion and before process helper finalization",
+  "passed": 1250,
+  "failed": 2,
+  "skipped": 1,
+  "elapsed_s": 54.61,
+  "failures": [
+    {
+      "test": "tests/test_demo_mac.py::test_owned_service_group_reaps_a_real_model_free_child",
+      "observed": "JSONDecodeError reading empty PID marker; fixture published existence before JSON completion",
+      "fix_scope": "CPU fixture readiness publication only"
+    },
+    {
+      "test": "tests/test_qwen_workflow_process.py::test_actual_sigterm_controller_retains_interim_usage_ignores_repeats_and_reaps_cpu_cli",
+      "observed": "wait_for returned None then .get AttributeError",
+      "status": "Independent helper author inspecting before stable handoff"
+    }
+  ],
+  "gpu_calls": 0,
+  "hosted_calls": 0
+}

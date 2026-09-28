@@ -25,6 +25,8 @@ def print_results(response):
     for result in response["results"]:
         score = result.get("h2o_score")
         suffix = f" relevance={score:.3f}/3" if score is not None else ""
+        if result.get("qwen_score") is not None:
+            suffix += f" qwen_difference={result['qwen_score']:.3f}"
         if result.get("truncated"):
             suffix += " (excerpt truncated by source budget)"
         print(f"\n{result['path']}:{result['start_line']}-{result['end_line']} {result['symbol']}{suffix}")
@@ -35,6 +37,14 @@ def print_results(response):
 
 def interrupt_service(signum, frame):
     raise KeyboardInterrupt
+
+
+def start_qwen_owner(args):
+    from semantic_search.qwen_reranker import QwenRerankerProcess
+    owner = QwenRerankerProcess(python=args.qwen_reranker_python,
+                               checkpoint=args.qwen_reranker_checkpoint)
+    owner.start()
+    return owner
 
 
 def main(argv=None):
@@ -63,6 +73,10 @@ def main(argv=None):
     serve.add_argument("--host", choices=("127.0.0.1", "localhost"), default="127.0.0.1")
     serve.add_argument("--port", type=int, default=8750)
     serve.add_argument("--url", default="http://127.0.0.1:8741", help="Optional H2O server URL")
+    serve.add_argument("--enable-qwen-reranker", action="store_true",
+                       help="Explicitly load the isolated pinned original B1 Qwen reranker")
+    serve.add_argument("--qwen-reranker-python", type=Path)
+    serve.add_argument("--qwen-reranker-checkpoint", type=Path)
     serve.add_argument("--no-watch", action="store_true", help="Discover changes only on searches/refreshes")
     serve.add_argument("--watch-interval", type=float, default=1.0)
     serve.add_argument("--abstention-policy", type=Path, help="Development-calibrated weak-match policy")
@@ -70,6 +84,10 @@ def main(argv=None):
     mcp.add_argument("--server", default="http://127.0.0.1:8750")
     mcp.add_argument("--agent-text-only", action="store_true",
                      help="Send one compact JSON text copy without structured output")
+    mcp.add_argument("--default-retrieval", choices=("bm25", "dense", "hybrid"), default="dense")
+    mcp.add_argument("--default-rerank", action=argparse.BooleanOptionalAction, default=False)
+    mcp.add_argument("--default-rerank-provider", choices=("h2o", "qwen"), default="h2o")
+    mcp.add_argument("--default-candidates", type=int, default=4)
     for name in ("status", "refresh"):
         command = subparsers.add_parser(name)
         command.add_argument("--server", default="http://127.0.0.1:8750")
@@ -89,8 +107,11 @@ def main(argv=None):
     search.add_argument("--include-dependencies", action="store_true", help="Use spare result slots for static callees")
     search.add_argument("--abstention-policy", type=Path, help="Standalone weak-match policy")
     reranking = search.add_mutually_exclusive_group()
-    reranking.add_argument("--rerank", action="store_true", help="Score the candidate prefix with H2O")
+    reranking.add_argument("--rerank", action="store_true", help="Score the candidate prefix with the selected local provider (H2O by default)")
     reranking.add_argument("--no-rerank", action="store_true", help="Compatibility alias for fast search (default)")
+    search.add_argument("--rerank-provider", choices=("h2o", "qwen"), default="h2o")
+    search.add_argument("--qwen-reranker-python", type=Path)
+    search.add_argument("--qwen-reranker-checkpoint", type=Path)
     search.add_argument("--lexical-only", action="store_true", help="BM25 without either model")
     search.add_argument("--index-cache", type=Path, default=Path(".cache/indexes"))
     search.add_argument("--url", default="http://127.0.0.1:8741", help="H2O URL for standalone search")
@@ -109,7 +130,11 @@ def main(argv=None):
         print(f"Shortlist benchmark saved to {args.output}")
     elif args.command == "mcp":
         from semantic_search.mcp_server import run_mcp
-        run_mcp(args.server, agent_text_only=args.agent_text_only)
+        defaults = {"retrieval": args.default_retrieval, "rerank": args.default_rerank,
+                    "rerank_provider": args.default_rerank_provider, "candidates": args.default_candidates}
+        extra = {} if defaults == {"retrieval": "dense", "rerank": False,
+            "rerank_provider": "h2o", "candidates": 4} else {"search_defaults": defaults}
+        run_mcp(args.server, agent_text_only=args.agent_text_only, **extra)
     elif args.command in {"status", "refresh"}:
         from semantic_search.client import SearchClient
         client = SearchClient(args.server)
@@ -124,24 +149,35 @@ def main(argv=None):
         extra = {"abstention_policy": args.abstention_policy} if args.abstention_policy else {}
         if args.exclude_source:
             extra["source_exclusions"] = args.exclude_source
-        backend = SearchBackend(args.repo, args.source_root,
-                                index_path(args.repo, args.source_root, args.index_cache, args.exclude_source), h2o_url=args.url, **extra)
-        server = None
+        backend = server = owner = None
         previous_handler = signal.signal(signal.SIGTERM, interrupt_service)
         try:
+            if args.enable_qwen_reranker:
+                owner = start_qwen_owner(args)
+                extra["qwen_client"] = owner.client
+            elif args.qwen_reranker_python or args.qwen_reranker_checkpoint:
+                parser.error("Qwen runtime options require --enable-qwen-reranker")
+            backend = SearchBackend(args.repo, args.source_root,
+                index_path(args.repo, args.source_root, args.index_cache, args.exclude_source),
+                h2o_url=args.url, **extra)
             backend.search("Find the implementation", max_results=1)
             server = create_server(backend, args.host, args.port)
             if not args.no_watch:
                 backend.start_watching(poll_interval=args.watch_interval)
-            print(f"Ready: http://{args.host}:{server.server_address[1]} (dense search; H2O optional)", flush=True)
+            print(f"Ready: http://{args.host}:{server.server_address[1]} (dense search; local reranking optional)", flush=True)
             server.serve_forever(poll_interval=0.2)
         except KeyboardInterrupt:
             pass
         finally:
             try:
-                if server is not None:
-                    server.server_close()
-                backend.close()
+                try:
+                    if server is not None:
+                        server.server_close()
+                    if backend is not None:
+                        backend.close()
+                finally:
+                    if owner is not None:
+                        owner.close()
             finally:
                 signal.signal(signal.SIGTERM, previous_handler)
     else:
@@ -154,11 +190,15 @@ def main(argv=None):
         settings = {"retrieval": args.retrieval, "rerank": args.rerank,
                     "candidates": args.candidates, "max_results": args.max_results,
                     "source_budget": args.source_budget}
+        if args.rerank_provider != "h2o":
+            settings["rerank_provider"] = args.rerank_provider
         if args.token_budget is not None:
             settings["token_budget"] = args.token_budget
         if args.include_dependencies:
             settings["include_dependencies"] = True
         if args.server:
+            if args.qwen_reranker_python or args.qwen_reranker_checkpoint:
+                parser.error("Configure Qwen runtime options on the resident serve command")
             if args.exclude_source:
                 parser.error("--exclude-source configures standalone --repo or serve membership")
             from semantic_search.client import SearchClient
@@ -168,12 +208,31 @@ def main(argv=None):
             extra = {"abstention_policy": args.abstention_policy} if args.abstention_policy else {}
             if args.exclude_source:
                 extra["source_exclusions"] = args.exclude_source
-            backend = SearchBackend(args.repo, args.source_root,
-                                    index_path(args.repo, args.source_root, args.index_cache, args.exclude_source), h2o_url=args.url, **extra)
+            backend = owner = None
+            previous_handler = None
+            if args.rerank and args.rerank_provider == "qwen":
+                previous_handler = signal.signal(signal.SIGTERM, interrupt_service)
             try:
+                if args.rerank and args.rerank_provider == "qwen":
+                    owner = start_qwen_owner(args)
+                    extra["qwen_client"] = owner.client
+                elif args.qwen_reranker_python or args.qwen_reranker_checkpoint:
+                    parser.error("Qwen runtime options require --rerank --rerank-provider qwen")
+                backend = SearchBackend(args.repo, args.source_root,
+                    index_path(args.repo, args.source_root, args.index_cache, args.exclude_source),
+                    h2o_url=args.url, **extra)
                 response = backend.search(args.query, **settings)
             finally:
-                backend.close()
+                try:
+                    if backend is not None:
+                        backend.close()
+                finally:
+                    try:
+                        if owner is not None:
+                            owner.close()
+                    finally:
+                        if previous_handler is not None:
+                            signal.signal(signal.SIGTERM, previous_handler)
         if args.json:
             print(json.dumps(response, indent=2))
         else:

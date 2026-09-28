@@ -33,7 +33,9 @@ class SearchArguments(BaseModel):
     query: str = Field(min_length=1, max_length=8192,
                        description="Describe the code behavior or implementation to find.")
     retrieval: Literal["bm25", "dense", "hybrid"] = "dense"
-    rerank: bool = Field(default=False, description="Use local H2O to rerank the shortlist.")
+    rerank: bool = Field(default=False, description="Rerank the candidate prefix with the configured local provider.")
+    rerank_provider: Literal["h2o", "qwen"] = Field(default="h2o",
+        description="Choose the optional local Qwen or H2O scorer; reranking adds latency.")
     candidates: int = Field(default=4, ge=1, le=50,
                             description="Number of retrieval candidates scored when rerank is true.")
     max_results: int = Field(default=8, ge=1, le=20)
@@ -113,7 +115,7 @@ SEARCH_TOOL = Tool(
         "dump the same files again. Returns saved-source excerpts with relative paths, symbols, "
         "line bounds, and hashes. Results are retrieval candidates, not proof of a match or absence. "
         "Read the returned scope; use ordinary scoped file tools for unindexed tests, fixtures or other files. "
-        "The optional local H2O reranker is slower. Source files are never changed."
+        "Optional local reranking scores only the requested candidate prefix. Source files are never changed."
     ),
     input_schema=SearchArguments.model_json_schema(),
     output_schema=SearchContext.model_json_schema(),
@@ -154,15 +156,40 @@ def _validate_context(envelope, arguments):
     return text
 
 
-def create_mcp_server(server_url="http://127.0.0.1:8750", *, client=None, agent_text_only=False):
+def search_defaults_record(search_defaults=None):
+    defaults = {"retrieval": "dense", "rerank": False, "rerank_provider": "h2o", "candidates": 4}
+    if search_defaults is not None:
+        if not isinstance(search_defaults, dict) or set(search_defaults) - set(defaults):
+            raise ValueError("MCP launch defaults accept retrieval, rerank, rerank_provider, candidates only")
+        defaults.update(search_defaults)
+    SearchArguments.model_validate({"query": "Validate launch defaults", **defaults})
+    return defaults
+
+
+def resolve_search_arguments(raw, defaults):
+    # Explicit call arguments always override the advertised launch defaults.
+    if raw is not None and not isinstance(raw, dict):
+        return SearchArguments.model_validate(raw)
+    return SearchArguments.model_validate({**defaults, **(raw or {})})
+
+
+def create_mcp_server(server_url="http://127.0.0.1:8750", *, client=None, agent_text_only=False,
+                      search_defaults=None):
     """Create the sole-tool adapter. The injected client is useful for CPU-only tests."""
+    defaults = search_defaults_record(search_defaults)
     client = client if client is not None else SearchClient(server_url)
     # A distinct opener avoids sharing a synchronous urllib opener across a cancelled
     # search worker and its cancellation worker. Both bypass environment proxies.
     cancel_client = SearchClient(client.url, timeout=2) if isinstance(client, SearchClient) else client
     # This opt-in mode advertises no structured-output schema and sends one copy
     # of the validated compact JSON. Default clients retain structured output.
-    tool = SEARCH_TOOL.model_copy(update={"output_schema": None}) if agent_text_only else SEARCH_TOOL
+    schema = SearchArguments.model_json_schema()
+    for name, value in defaults.items():
+        schema["properties"][name]["default"] = value
+    description = SEARCH_TOOL.description + " Launch defaults: " + ", ".join(
+        f"{name}={value}" for name, value in defaults.items()) + "; explicit call arguments override them."
+    tool = SEARCH_TOOL.model_copy(update={"input_schema": schema, "description": description,
+        "output_schema": None if agent_text_only else SEARCH_TOOL.output_schema})
 
     async def list_tools(ctx, params):
         return ListToolsResult(tools=[tool])
@@ -171,15 +198,18 @@ def create_mcp_server(server_url="http://127.0.0.1:8750", *, client=None, agent_
         if params.name != "search_code":
             return _error("Unknown tool. The available tool is search_code.")
         try:
-            arguments = SearchArguments.model_validate(params.arguments or {})
+            arguments = resolve_search_arguments(params.arguments, defaults)
         except ValidationError as error:
             errors = error.errors(include_url=False, include_input=False)
             detail = "; ".join(f"{'.'.join(map(str, item['loc']))}: {item['msg']}" for item in errors)
             return _error("Invalid search_code arguments: " + detail)
         request_id = uuid.uuid4().hex
+        settings = arguments.model_dump()
+        if arguments.rerank_provider == "h2o" and "rerank_provider" not in (params.arguments or {}):
+            settings.pop("rerank_provider")  # Preserve the legacy implicit H2O transport shape.
         try:
             response = await anyio.to_thread.run_sync(
-                partial(client.search, **arguments.model_dump(), request_id=request_id),
+                partial(client.search, **settings, request_id=request_id),
                 abandon_on_cancel=True,
             )
         except anyio.get_cancelled_exc_class():
@@ -230,9 +260,10 @@ async def _serve(server):
         await server.run(read_stream, write_stream, server.create_initialization_options())
 
 
-def run_mcp(server_url="http://127.0.0.1:8750", *, agent_text_only=False):
+def run_mcp(server_url="http://127.0.0.1:8750", *, agent_text_only=False, search_defaults=None):
     """Run stdio until the MCP host closes stdin. Start the search service separately."""
-    anyio.run(partial(_serve, create_mcp_server(server_url, agent_text_only=agent_text_only)))
+    anyio.run(partial(_serve, create_mcp_server(server_url, agent_text_only=agent_text_only,
+                                             search_defaults=search_defaults)))
 
 
 def main(argv=None):
@@ -241,10 +272,16 @@ def main(argv=None):
                         help="Loopback HTTP search service URL")
     parser.add_argument("--agent-text-only", action="store_true",
                         help="Return one compact JSON text copy without structuredContent/outputSchema")
+    parser.add_argument("--default-retrieval", choices=("bm25", "dense", "hybrid"), default="dense")
+    parser.add_argument("--default-rerank", action=argparse.BooleanOptionalAction, default=False)
+    parser.add_argument("--default-rerank-provider", choices=("h2o", "qwen"), default="h2o")
+    parser.add_argument("--default-candidates", type=int, default=4)
     args = parser.parse_args(argv)
     logging.basicConfig(level=logging.WARNING)
     try:
-        run_mcp(args.server, agent_text_only=args.agent_text_only)
+        run_mcp(args.server, agent_text_only=args.agent_text_only, search_defaults={
+            "retrieval": args.default_retrieval, "rerank": args.default_rerank,
+            "rerank_provider": args.default_rerank_provider, "candidates": args.default_candidates})
     except (ValueError, RuntimeError) as error:
         parser.exit(2, f"semantic-search MCP: {error}\n")
 
