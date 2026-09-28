@@ -12,6 +12,7 @@ import math
 import os
 from pathlib import Path
 import platform
+import re
 import signal
 import socket
 import sqlite3
@@ -20,6 +21,7 @@ import sys
 import tempfile
 import threading
 import time
+from urllib.parse import unquote, urlsplit
 
 import numpy as np
 
@@ -208,14 +210,58 @@ class BlockModelImports:
 
 
 def packages():
-    rows = {}
+    """Bind every physical metadata directory, including editable egg-info."""
+    rows, origins = {}, {}
     for distribution in importlib.metadata.distributions():
         name = distribution.metadata["Name"]
-        require(name not in rows, "Duplicate installed distribution: " + name)
-        record = distribution.read_text("RECORD")
-        rows[name] = {"version": distribution.version,
-                      "record_sha256": digest(record.encode()) if record is not None else None}
-    return dict(sorted(rows.items()))
+        require(isinstance(name, str) and re.fullmatch(r"[A-Za-z0-9](?:[A-Za-z0-9._-]*[A-Za-z0-9])?", name),
+                "Invalid installed distribution name")
+        canonical = re.sub(r"[-_.]+", "-", name).lower()
+        version = distribution.version
+        require(isinstance(version, str) and bool(version), "Missing installed distribution version")
+        path = getattr(distribution, "_path", None)
+        require(isinstance(path, Path), "Unsupported installed metadata origin: " + name)
+        origin = path.resolve(strict=True)
+        require(origin.is_dir(), "Installed metadata origin is not a directory: " + name)
+        metadata_files = [filename for filename in ("METADATA", "PKG-INFO") if (origin / filename).is_file()]
+        require(len(metadata_files) == 1, "Ambiguous installed metadata file: " + name)
+        direct_path = origin / "direct_url.json"
+        direct = read(direct_path) if direct_path.is_file() else None
+        if canonical == "semantic-search-engine":
+            if metadata_files[0] == "PKG-INFO":
+                require(origin == (ROOT / "src/semantic_search_engine.egg-info").resolve(),
+                        "Project egg-info origin differs from frozen project")
+            if direct is not None:
+                require(isinstance(direct, dict) and set(direct) == {"url", "dir_info"}
+                        and direct["dir_info"] == {"editable": True} and isinstance(direct["url"], str),
+                        "Project editable metadata is malformed")
+                parsed = urlsplit(direct["url"])
+                require(parsed.scheme == "file" and parsed.path.startswith("/") and not parsed.netloc and not parsed.query and not parsed.fragment
+                        and Path(unquote(parsed.path)).resolve() == ROOT.resolve(),
+                        "Project editable origin differs from frozen project")
+        instance = {"metadata_origin": artifact(origin), "declared_name": name, "version": version,
+                    "metadata_file": metadata_files[0], "metadata_sha256": sha(origin / metadata_files[0]),
+                    "record_sha256": sha(origin / "RECORD") if (origin / "RECORD").is_file() else None,
+                    "direct_url_sha256": sha(direct_path) if direct_path.is_file() else None,
+                    "direct_url": direct}
+        if canonical in rows:
+            require(rows[canonical]["declared_name"] == name, "Ambiguous canonical distribution name: " + canonical)
+            require(rows[canonical]["version"] == version, "Conflicting installed distribution versions: " + canonical)
+        else:
+            rows[canonical] = {"declared_name": name, "version": version, "instances": []}
+        key = str(origin)
+        if key in origins:
+            require(origins[key] == (canonical, instance), "Conflicting physical metadata alias: " + key)
+            continue
+        origins[key] = (canonical, instance)
+        rows[canonical]["instances"].append(instance)
+    if "semantic-search-engine" in rows:
+        require(any(instance["direct_url"] is not None for instance in rows["semantic-search-engine"]["instances"]),
+                "Project editable installation provenance is absent")
+    for row in rows.values():
+        row["instances"].sort(key=lambda instance: instance["metadata_origin"])
+    return {"schema_version": 2, "logical_distribution_count": len(rows),
+            "physical_metadata_instance_count": len(origins), "distributions": dict(sorted(rows.items()))}
 
 
 def native_sources():
