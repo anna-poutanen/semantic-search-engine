@@ -1,0 +1,54 @@
+{
+  "archived_source_gzip_sha256": {
+    "results/qwen-integration-preflight-2026-10-14/smoke-harness-review-sources/scripts/smoke_qwen_mcp.py.gz": "fe71e41f9da7c2f602098b11013320a7e497ba1ca3406f5cad41ce602eebc3e1",
+    "results/qwen-integration-preflight-2026-10-14/smoke-harness-review-sources/tests/test_smoke_qwen_mcp.py.gz": "46a55c2eab871a699e8975709276d54be05cc219802775bd746d25bc62063928"
+  },
+  "checked_at_utc": "2026-10-14T07:26:47.868017+00:00",
+  "checks_passed": true,
+  "classification": "Independent read-only CPU/static review before native production smoke; not a native certificate",
+  "hosted_calls": 0,
+  "limits": [
+    "Toy integration flow measures no retrieval quality, coding correctness or paid token savings.",
+    "Native inference is still required under the separately committed frozen plan; this review used CPU-injected scores/vectors only."
+  ],
+  "material_blockers": [],
+  "native_calls": 0,
+  "not_for_native_qualification": true,
+  "pytest": {
+    "command": [
+      ".venv/bin/python",
+      "-m",
+      "pytest",
+      "tests/test_smoke_qwen_mcp.py",
+      "-q"
+    ],
+    "exit_code": 0,
+    "output": "...................                                                      [100%]\n19 passed in 2.80s\n"
+  },
+  "reviewed": [
+    "Freeze/run verify exact committed harness, production source, frozen plan, runtime/checkpoint and fixture bytes before model owner startup",
+    "HTTP and query-only MCP use hybrid/Qwen/K24 with full50 retrieval; explicit rerank:false requires zero native forwards",
+    "One serialized compact MCP source envelope, exact tokenizer count and result/source caps, saved-source spans and hashes",
+    "61-window fixture saved edit refreshes through background watcher while only GET/status is polled:1 indexed/60 reused, followed by edited-source HTTP/MCP evidence",
+    "96 measured native singleton forwards plus1 warmup reconcile ordered native scalar/source/token identities to actual HTTP receipts",
+    "Both SIGINT and SIGTERM are retained/deferred through bounded owned cleanup; captured cancellation or cleanup error cannot certify success",
+    "Unstarted listener does not enter blocking shutdown; independent cleanup errors and partial native ledger remain in failed receipt",
+    "Owner group gone, clean worker listener/auth cleanup, no forced kill/errors, and all five strictly typed stop counters match final live status",
+    "CPU-injected flow cannot emit a native qualifying verification certificate"
+  ],
+  "ruff": {
+    "command": [
+      ".venv/bin/ruff",
+      "check",
+      "scripts/smoke_qwen_mcp.py",
+      "tests/test_smoke_qwen_mcp.py"
+    ],
+    "exit_code": 0,
+    "output": "All checks passed!\n"
+  },
+  "source_sha256": {
+    "scripts/smoke_qwen_mcp.py": "10f95e8dae9d1b15585b8b48dd4a2547dd9f8ca34015d58af9827f195c4ae7d6",
+    "tests/test_smoke_qwen_mcp.py": "46dcc2ec3c3da03ada6d13fddd938027f4f3467ac44ebf3b18d7b50c54258d31"
+  },
+  "version": 1
+}
