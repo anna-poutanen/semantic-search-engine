@@ -1,0 +1,243 @@
+"""Independent CPU reconstruction of completed native smoke; no model imports/calls."""
+import ast
+import copy
+from datetime import datetime, timezone
+import hashlib
+import importlib.metadata
+import json
+import math
+import os
+from pathlib import Path
+import re
+import socket
+import subprocess
+import sys
+from urllib.parse import urlparse
+
+import tiktoken
+from tokenizers import Tokenizer
+
+ROOT = Path.cwd()
+STUDY = ROOT / 'results/qwen-native-mcp-smoke-2026-10-14'
+COUNTERS = ('requests', 'attempted_pairs', 'completed_pairs', 'attempted_forwards', 'completed_forwards')
+SCORES = ('yes_logit', 'no_logit', 'logit_difference', 'yes_rank_signal')
+
+def require(value, reason):
+    if not value:
+        raise AssertionError(reason)
+
+def digest(raw):
+    return hashlib.sha256(raw).hexdigest()
+
+def file_digest(path):
+    out = hashlib.sha256()
+    with path.open('rb') as stream:
+        for block in iter(lambda: stream.read(1024 * 1024), b''):
+            out.update(block)
+    return out.hexdigest()
+
+def assignments(path):
+    return {node.targets[0].id: node.value for node in ast.parse(path.read_text()).body
+            if isinstance(node, ast.Assign) and isinstance(node.targets[0], ast.Name)}
+
+def compact(raw):
+    rows = []
+    for row in raw['results']:
+        rows.append({key: row[key] for key in ('path', 'symbol', 'start_line', 'end_line', 'source', 'source_hash', 'truncated')} |
+                    {'origin': row.get('origin', 'retrieval'), 'related_to': row.get('related_to')})
+    return {'query': raw['query'], 'match_status': raw['match_status'], 'results': rows,
+            'budget_exhausted': raw['budget_exhausted'],
+            'token_usage': {key: raw['token_usage'][key] for key in ('encoding', 'tokens', 'budget', 'truncated')},
+            'scope': {key: raw['scope'][key] for key in ('source_root', 'membership', 'source_exclusions', 'exclusions_omitted')}}
+
+def scalar(score):
+    require(all(type(score[key]) in (int, float) and math.isfinite(score[key]) for key in SCORES), 'finite scalar')
+    difference = score['yes_logit'] - score['no_logit']
+    signal = 1 / (1 + math.exp(-difference)) if difference >= 0 else math.exp(difference) / (1 + math.exp(difference))
+    require(score['logit_difference'] == difference and score['yes_rank_signal'] == signal, 'scalar math')
+
+def validate(result, plan, ledger, source, edited, tokenizer, core, warmup):
+    query = plan['fixture']['query']
+    defaults, caps = plan['defaults'], plan['caps']
+    require(defaults == {'retrieval': 'hybrid', 'rerank': True, 'rerank_provider': 'qwen', 'candidates': 24}, 'defaults')
+    require(caps == {'max_results': 8, 'source_budget': 12000, 'token_budget': 4096, 'include_dependencies': True}, 'caps')
+    require(result['native_inference'] is True and not result.get('failure') and not result['cleanup_errors'] and not result['interrupt_signals'], 'native run completion')
+    require([row['phase'] for row in result['steps']] == ['http_before', 'mcp_before', 'watcher_saved_edit', 'http_after', 'mcp_after', 'mcp_explicit_disable'], 'phase schedule')
+    require(result['embedding_counts'] == {'query_calls': 6, 'document_calls': 2, 'document_texts': 62}, 'embedding entry counts')
+    require(len(result['observations']) == 6 and result['observations'][0]['response']['indexstats']['indexed_windows'] == 61, 'startup observation')
+    schema = result['mcp']['schema']
+    require(schema['required'] == ['query'] and schema['additionalProperties'] is False, 'MCP schema query only')
+    for name, value in defaults.items() | caps.items():
+        require(schema['properties'][name]['default'] == value, 'MCP default schema')
+    require(len(ledger) == 194, 'native event inventory')
+    pairs = list(zip(ledger[::2], ledger[1::2], strict=True))
+    require(all(a['event'] == 'started' and b['event'] == 'completed' for a, b in pairs), 'native event ordering')
+    require([b['forward_number'] for _, b in pairs] == list(range(1, 98)), 'native forward numbering')
+    require(sum(b['warmup'] is True for _, b in pairs) == 1 and pairs[0][1]['warmup'] is True, 'warmup exclusion')
+    for a, b in pairs:
+        require(all(b[key] == value for key, value in a.items()), 'native started/completed identities')
+        require(b['batch_size'] == 1 and type(b['total_tokens']) is int and 0 < b['total_tokens'] <= 8192, 'unpadded singleton token cap')
+        scalar(b['score'])
+    rows_by_request = {b['request_id']: b for _, b in pairs}
+    require(len(rows_by_request) == 97, 'unique actual native requests')
+    encoded_prefix = tokenizer.encode(core['PREFIX'], add_special_tokens=False).ids
+    encoded_suffix = tokenizer.encode(core['SUFFIX'], add_special_tokens=False).ids
+    checked_native = []
+    def input_proof(query, text, receipt, native):
+        header = f"<Instruct>: {core['INSTRUCTION']}\n<Query>: {query}\n<Document>: "
+        ids = encoded_prefix + tokenizer.encode(header + text, add_special_tokens=False).ids + encoded_suffix
+        expected = {'source_sha256': digest(text.encode()), 'delivered_sha256': digest(text.encode()),
+                    'query_sha256': digest(query.encode()), 'total_tokens': len(ids)}
+        for key, value in expected.items():
+            require(receipt[key] == value and native[key] == value, 'literal native token/source identity')
+        require(native['input_ids_sha256'] == digest(json.dumps(ids, separators=(',', ':')).encode()), 'tokenizer input IDs')
+        require(receipt['truncated'] is False and receipt['source_utf8_bytes'] == receipt['delivered_utf8_bytes'] == len(text.encode()), 'whole source delivery')
+        require(receipt['source_lines'] == receipt['delivered_lines'] == len(text.splitlines()), 'physical source lines')
+        scalar(receipt)
+        require(native['score'] == {key: receipt[key] for key in SCORES}, 'observed native head scalars')
+        checked_native.append(native['request_id'])
+    input_proof(warmup['query'], warmup['source'], result['owner']['ready']['warmup']['result'], pairs[0][1])
+    tokens = {}
+    targets = {}
+    expected_native = []
+    encoder = tiktoken.get_encoding('cl100k_base')
+    for index, step in enumerate(result['steps']):
+        phase = step['phase']
+        if phase == 'watcher_saved_edit':
+            stats, watcher = step['status']['indexstats'], step['status']['watcher']
+            require(step['trigger_requests'] == 'GET /status only' and step['status_polls'] >= 1, 'saved edit trigger')
+            require(stats['indexed_windows'] == 1 and stats['reused_windows'] == 60 and stats['total_windows'] == 61 and stats['deleted_windows'] == 0, 'saved edit incremental index')
+            require(watcher['refresh_count'] == 1 and watcher['last_error'] is None, 'watcher refresh')
+            require(step['status']['source_manifest'] != result['observations'][0]['response']['indexstats']['source_manifest'], 'source manifest changed')
+            continue
+        observation = result['observations'][index + 1 if index < 2 else index]
+        require(observation['query'] == query, 'actual HTTP query identity')
+        response = observation['response']
+        current_source = source if phase.endswith('before') else edited
+        context = compact(step['context'] if 'context' in step else response)
+        require(context['query'] == query and context['match_status'] == 'candidates', 'context query/status')
+        count = len(encoder.encode(json.dumps(context, ensure_ascii=False, allow_nan=False, separators=(',', ':')), disallowed_special=()))
+        require(count == context['token_usage']['tokens'] and count <= 4096 and context['token_usage']['budget'] == 4096, 'actual compact token cap')
+        require(len(context['results']) <= 8 and sum(len(row['source']) for row in context['results']) <= 12000, 'compact source/result cap')
+        require(context == compact(response), 'MCP context equals actual HTTP compact response')
+        lines = re.findall(r'[^\r\n]*(?:\r\n|\r|\n)|[^\r\n]+$', current_source)
+        for row in context['results']:
+            require(row['path'] == 'src/sample.py' and row['source'] == ''.join(lines[row['start_line']-1:row['end_line']]), 'saved source span')
+            require(row['source_hash'] == digest(row['source'].encode()), 'saved source hash')
+        target = [row for row in context['results'] if row['symbol'] == 'backoff_delay']
+        require(len(target) == 1 and target[0]['truncated'] is False, 'complete toy target')
+        targets[phase] = target[0]['source_hash']
+        tokens[phase] = count
+        disabled = phase == 'mcp_explicit_disable'
+        expected_count = 0 if disabled else 24
+        require(all(step['native_after'][key]-step['native_before'][key] == expected_count for key in COUNTERS), 'actual native phase deltas')
+        settings = observation['settings']
+        for name, value in defaults.items() | caps.items():
+            require(settings[name] == (False if disabled and name == 'rerank' else value), 'actual effective HTTP defaults/caps')
+        if phase.startswith('mcp'):
+            require(step['raw_tool_arguments'] == ({'query': query, 'rerank': False} if disabled else {'query': query}), 'query-only MCP arguments')
+            require(step['effective_http_settings'] == settings, 'MCP actual HTTP receipt')
+        if disabled:
+            require(response['rerank'] is False and not response.get('reranker_receipts'), 'explicit disabled scorer')
+            continue
+        require(response['candidate_windows'] == 24 and response['retrieval_candidate_windows'] == 50 and response['reranker_batch_size'] == 1 and response['rerank_provider'] == 'qwen', 'actual Qwen prefix/full50')
+        receipts = response['reranker_receipts']
+        require(len(receipts) == 24, 'actual scored prefix receipt count')
+        spans = {}
+        for node in ast.parse(current_source).body:
+            if isinstance(node, ast.FunctionDef):
+                spans[f'src/sample.py:{node.name}:{node.lineno}-{node.end_lineno}'] = ''.join(lines[node.lineno-1:node.end_lineno])
+        ordered = sorted(receipts.items(), key=lambda item: item[1]['counts']['completed_forwards'])
+        for candidate, receipt in ordered:
+            require(candidate in spans and receipt['warmup'] is False and receipt['batch_size'] == 1, 'scored implementation identity')
+            number = receipt['counts']['completed_forwards']
+            require(all(type(receipt['counts'][key]) is int and receipt['counts'][key] == number for key in COUNTERS), 'actual cumulative native counters')
+            native = rows_by_request[receipt['request_id']]
+            require(native['forward_number'] == number, 'receipt-native cumulative identity')
+            input_proof(query, spans[candidate], receipt['result'], native)
+            expected_native.append(receipt['request_id'])
+    require(expected_native == [b['request_id'] for _, b in pairs[1:]] and len(checked_native) == 97, 'full actual native request ordering')
+    require(targets['http_before'] == targets['mcp_before'] and targets['http_after'] == targets['mcp_after'] and targets['http_before'] != targets['http_after'], 'saved edit source target identity')
+    owner = result['owner']
+    stop, worker = owner['stop'], owner['worker_stop']
+    require(stop['owned_group_stopped'] is True and stop['exit_code'] == 0 and stop['forced_kill'] is False and stop['errors'] == [], 'clean owned process stop')
+    require(owner['auth_token_removed'] is True and owner['private_cleanup_errors'] == [] and worker['auth_token_removed'] is True and worker['auth_cleanup_error'] is None and worker['clean_stop'] is True and worker['listener_closed'] is True and result['http_thread_stopped'] is True, 'auth/listener/native cleanup')
+    for key in COUNTERS:
+        require(type(worker['counts'][key]) is int and worker['counts'][key] == result['native_final_status']['counts'][key] == 97, 'final owned stop counters')
+    require(owner['batch_size'] == 1 and owner['score_caching'] is False and owner['query_caching'] is False, 'no cached scoring')
+    return {'native_forwards':97, 'warmup_forwards':1, 'measured_forwards':96, 'native_events':194,
+            'reconstructed_input_pairs':len(checked_native), 'compact_tokens':tokens, 'target_source_sha256':targets,
+            'embedding_counts':result['embedding_counts'], 'saved_edit_indexed_windows':1, 'saved_edit_reused_windows':60}
+
+if __name__ == '__main__':
+    plan_path = STUDY/'frozen-plan.json'
+    plan = json.loads(plan_path.read_text())
+    cert = json.loads((STUDY/'verification.json').read_text())
+    result = json.loads((STUDY/'results.json').read_text())
+    ledger = [json.loads(line) for line in (STUDY/'native-forwards.jsonl').read_text().splitlines()]
+    require(cert['checks_passed'] is True and cert['cpu_injected'] is False and cert['frozen_plan_sha256'] == file_digest(plan_path), 'native certificate binding')
+    for name, expected in cert['artifact_sha256'].items():
+        require(Path(name).name == name and file_digest(STUDY/name) == expected, 'public artifact binding')
+    for name, expected in plan['source_sha256'].items():
+        require(file_digest(ROOT/name) == expected and digest(subprocess.check_output(['git','show','HEAD:'+name],cwd=ROOT)) == expected, 'committed current producer source')
+    require(digest(subprocess.check_output(['git','show','HEAD:'+str(plan_path.relative_to(ROOT))],cwd=ROOT)) == file_digest(plan_path), 'committed frozen plan')
+    constants = assignments(ROOT/'scripts/smoke_qwen_mcp.py')
+    source = ast.literal_eval(constants['SOURCE'].left) + ''.join(f"\ndef format_noise_{i}(value):\n    return str(value) + '-{i}'\n" for i in range(58))
+    edited = source.replace('attempt, 60', 'attempt, 90')
+    require(digest(source.encode()) == plan['fixture']['initial_sha256'] and digest(edited.encode()) == plan['fixture']['edited_sha256'], 'frozen source fixture reconstruction')
+    core_ast = assignments(ROOT/'src/semantic_search/qwen_reranker_core.py')
+    core = {key:ast.literal_eval(core_ast[key]) for key in ('PREFIX','SUFFIX','INSTRUCTION')}
+    warmup = ast.literal_eval(assignments(ROOT/'src/semantic_search/qwen_worker.py')['WARMUP'])
+    model = result['owner']['ready']['provenance']['model']
+    require(model['weight_identity_verified'] is True and model['model_id'] == plan['runtime']['model_id'] and model['revision'] == plan['runtime']['revision'], 'actual native model identity')
+    checkpoint = ROOT / model['directory'].replace('<PROJECT>/', '')
+    for name, actual in model['files'].items():
+        require((checkpoint/name).stat().st_size == actual['size'] and file_digest(checkpoint/name) == actual['sha256'], 'actual pinned checkpoint bytes')
+    runtime = result['owner']['ready']['provenance']['runtime']
+    require(runtime['errors'] == [] and runtime['packages'] == plan['runtime']['runtime']['packages'] and runtime['supporting_source_sha256'] == plan['runtime']['runtime']['supporting_source_sha256'], 'actual native runtime binding')
+    site = ROOT/'.cache/reranker-experiment/.venv/lib/python3.12/site-packages'
+    distributions = {d.metadata['Name'].lower():d for d in importlib.metadata.distributions(path=[str(site)])}
+    for name, version in runtime['packages'].items():
+        require(distributions[name].version == version, 'current isolated runtime version')
+    for name, expected in plan['runtime']['main_packages'].items():
+        require(importlib.metadata.version(name) == expected, 'current main package version')
+    qwen_source = site/'mlx_lm/models/qwen3.py'
+    require(file_digest(qwen_source) == runtime['qwen3_source_sha256'] == runtime['imported_qwen3_source_sha256'], 'actual original Qwen3 source')
+    for name, expected in runtime['supporting_source_sha256'].items():
+        require(file_digest(qwen_source.with_name(name)) == expected, 'actual supporting Qwen source')
+    for name, expected in result['owner']['worker_source_sha256'].items():
+        require(plan['source_sha256']['src/semantic_search/'+name] == expected, 'isolated production worker source')
+    tokenizer = Tokenizer.from_file(str(checkpoint/'tokenizer.json'))
+    metrics = validate(result,plan,ledger,source,edited,tokenizer,core,warmup)
+    rejected = []
+    for name in ('token-count','saved-span','native-score','cleanup-forced-kill'):
+        corrupted = copy.deepcopy(result)
+        if name == 'token-count':corrupted['steps'][1]['context']['token_usage']['tokens'] += 1
+        if name == 'saved-span':corrupted['steps'][1]['context']['results'][0]['source'] += 'changed'
+        if name == 'native-score':next(iter(corrupted['observations'][1]['response']['reranker_receipts'].values()))['result']['logit_difference'] += .25
+        if name == 'cleanup-forced-kill':corrupted['owner']['stop']['forced_kill'] = True
+        try:validate(corrupted,plan,ledger,source,edited,tokenizer,core,warmup)
+        except AssertionError:rejected.append(name)
+        else:raise AssertionError('Negative fixture accepted:'+name)
+    owner = result['owner'];pid = owner['pid'];group = owner['owned_group']
+    require(pid == group == owner['stop']['pid'] == owner['ready']['process_group'], 'owned PID/group identity')
+    for operation in (lambda:os.kill(pid,0),lambda:os.getpgid(pid),lambda:os.killpg(group,0)):
+        try:operation()
+        except ProcessLookupError:pass
+        else:raise AssertionError('Owned process/group remains present')
+    url = urlparse(owner['ready']['url'])
+    with socket.socket() as connection:
+        connection.settimeout(.2)
+        require(connection.connect_ex((url.hostname,url.port)) != 0, 'native listener remains reachable')
+    private = ROOT/'.cache/qwen-native-mcp-smoke-2026-10-14/worker-private'
+    matched = [folder for folder in private.glob('owned-*') if json.loads((folder/'ready.json').read_text())['pid'] == pid]
+    require(len(matched) == 1 and not (matched[0]/'token.secret').exists(), 'actual auth file removed')
+    require(file_digest(matched[0]/'forwards.jsonl') == file_digest(STUDY/'native-forwards.jsonl'), 'raw private/public ledger byte identity')
+    audit = {'version':1,'checks_passed':True,'study_qualified':True,'classification':'Independent CPU audit of completed native HTTP/MCP/saved-edit integration; no coding/retrieval-quality or paid-token claim',
+             'native_calls':0,'hosted_calls':0,'checked_at_utc':datetime.now(timezone.utc).isoformat(),'metrics':metrics,'negative_cpu_fixtures_rejected':rejected,
+             'process_cleanup':{'pid':pid,'owned_group':group,'current_pid_and_group_absent':True,'current_listener_unreachable':True,'actual_auth_file_absent':True,'clean_exit_code':0,'forced_kill':False},
+             'artifact_sha256':{path.name:file_digest(path) for path in STUDY.iterdir() if path.is_file() and path.name not in ('independent-audit.json','independent-findings.md')},
+             'limits':['Toy integration only; no retrieval benchmark, coding correctness, latency comparison or paid-token measurement.','Published JSON key order is canonicalized to the frozen compact serializer; native receipt order is reconstructed from strictly checked actual cumulative forward counters.','Actual model logits are observed receipts, with scalar math/input identities independently verified; no model is rerun.']}
+    (STUDY/'independent-audit.json').write_text(json.dumps(audit,indent=2,sort_keys=True)+'\n')
+    (STUDY/'independent-findings.md').write_text('Independent CPU audit passed for the completed native smoke. All97 tokenizer/input/source/scalar receipts reconcile:96 measured singleton forwards plus1 startup warmup. Query-only MCP used hybrid/Qwen/K24; explicit rerank:false executed0 additional forwards. Compact counts were905 before edit,904 after edit and889 with reranking disabled, all under4096. Saved edit refresh indexed1 window and reused60 while polling only GET/status. Six query embeddings and62 document texts were observed. Exact committed source/runtime/checkpoint/public artifacts match; owned PID/group and listener are gone, auth is absent, and clean stop counters match.\n\nThis is toy integration evidence, not a retrieval/coding-quality or paid-token result. Four negative CPU fixtures rejected changed tokens, source, score and forced cleanup.\n')
+    print(json.dumps({'checks_passed':True,'metrics':metrics,'audit_sha256':file_digest(STUDY/'independent-audit.json')}))
