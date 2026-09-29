@@ -1,0 +1,44 @@
+{
+  "cases": [
+    "clean_commit_failure_older_suppressor_eager",
+    "clean_commit_failure_older_suppressor_lazy"
+  ],
+  "classification": "Independent root contract-scope decision, appended without editing prospective inputs or frozen grading",
+  "contract_clause": "A clean-completion commit failure such as FileNotFoundError must propagate and give the CLI a failing exit, never be silently converted to success.",
+  "distinct_defect": "Unhandled atomic commit failure hidden by an older unrelated suppressing resource",
+  "distinction": "This does not change ordinary context manager suppression semantics generally, or require propagation after a caller manually catches an explicit close exception. It applies to an unhandled atomic commit during context cleanup, including a separate suppressing resource.",
+  "formal_cases": 14,
+  "frozen_grades_changed": false,
+  "hosted_calls": 0,
+  "model_calls": 0,
+  "observed_strict_reference": {
+    "clean_commit_failure_older_suppressor_eager": {
+      "context_stack_restored": true,
+      "destination": "original",
+      "exit_code": 0,
+      "outer_error": null,
+      "passed": false,
+      "scope": "Candidate supplemental contract interpretation; frozen grades unchanged"
+    },
+    "clean_commit_failure_older_suppressor_lazy": {
+      "context_stack_restored": true,
+      "destination": "original",
+      "exit_code": 0,
+      "outer_error": null,
+      "passed": false,
+      "scope": "Candidate supplemental contract interpretation; frozen grades unchanged"
+    }
+  },
+  "probe_cases_or_oracles_changed": false,
+  "recorded_at_utc": "2026-10-14T08:26:19.675584+00:00",
+  "reference_control_formal_grade_changed": false,
+  "reviewer": "root, neutral review after preserved CPU reproduction",
+  "scope": "A clean command body registers an unrelated older resource with ctx.with_resource, then registers an atomic file, writes data and removes the actual temporary before automatic context cleanup. The unhandled FileNotFoundError is hidden and CLI reports success.",
+  "source_bindings": {
+    "click-control-strict-reference-probes.json": "15c88dfe959672b4a84feb57a5c46508a741e3887f71e4c73014c04f8a3ef261",
+    "click-scope.json": "7937847f5bfffa8b81086d4be5f948c1a422d055324ba9d80eb101d23cdda1ec",
+    "click_contract_probes.py": "7bc07dfb6b4c6b2f99b9f865e12b58a0b8c5dc54a464be625a9157a11dd01e83"
+  },
+  "verdict": "The two cases are in the existing public contract; failures are a supplemental contract defect",
+  "version": 1
+}
