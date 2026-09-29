@@ -1,0 +1,55 @@
+{
+  "base_head_at_review": "6c703d2f4ace8cd963a6594b692090c1833e8e2c",
+  "checked_at_utc": "2026-10-14T09:13:28.047699+00:00",
+  "checks_passed": true,
+  "classification": "Prospective reusable independent CPU smoke auditor source review; no new native study has been run",
+  "cpu_tests": {
+    "command": ".venv/bin/python -B -m pytest -q tests/test_audit_native_qwen_mcp.py --tb=short",
+    "elapsed_s": 1.98,
+    "failed": 0,
+    "passed": 100,
+    "skipped": 0
+  },
+  "existing_fixture_artifact_sha256": {
+    "frozen-plan.json": "22d2da28c3567896b051f651dc3c017b229b2221a36f4799ee7c8d20a7803473",
+    "independent-auditor.py.txt": "9cb45161138b71c939d75ded584dc8c3d81c341c715c843eba6b8f294e1755ab",
+    "native-forwards.jsonl": "a70e5b09af7d0eb2d8448f577d47da24d0af5f7ae2c399fa125fbf0d0d21da90",
+    "results.json": "7586d37b137a1fcb4ce03359d58125b07192c9136f00aaa5e96ea8ec31e0fea8",
+    "run-start.json": "fcd747fb596833cfc12d78a9a1e5c62703dc87e36a55022a4658d1b01960d2bf",
+    "verification.json": "66c34875eb58f801216bf04f5ff6c945ec64ec35e0492c974e6c8a507da849f7"
+  },
+  "fixture_limits": [
+    "The portable input/scalar/cap mutation fixtures use an explicitly fake character reranker tokenizer and a synthetic 256-byte context rank fixture. These CPU fixtures do not certify native model inference or true cl100k counts.",
+    "A separate cached-only test on this Mac independently reconstructed the actual retained 905/904/889 compact counts using the pinned 100256-rank cl100k file; it skips explicitly when that local file is absent on Linux CI and never downloads.",
+    "Alternate-path runtime/private/source tests use explicitly stubbed checkpoint/native source hashes and physical file witnesses. No complete real-native public/private audit was attempted during active coding trials.",
+    "The producer verifies one MCP text block equal to the compact serializer at runtime but retains structured envelopes rather than raw MCP text/block inventories. The reusable auditor checks retained structured equality and independently reconstructs token counts.",
+    "The certificate deliberately covers the exact hybrid/Qwen/K24 97-forward smoke. The producer's optional dense mode is outside this certificate.",
+    "The worker's measured pinned full weight SHA is checked against unchanged current physical witnesses; the independent audit does not reread weight bytes. The additional 34-package closure is a current post-run check against a committed lock, while the frozen producer plan binds three primary packages."
+  ],
+  "hosted_calls": 0,
+  "model_imports": 0,
+  "native_calls": 0,
+  "ruff": {
+    "checks_passed": true,
+    "command": ".venv/bin/ruff check scripts/audit_native_qwen_mcp.py tests/test_audit_native_qwen_mcp.py"
+  },
+  "source_sha256": {
+    "scripts/audit_native_qwen_mcp.py": "9bbc8cc03fae0fc5de368c8c03079136e6d3fd687186d62d028aa0b76729e53b",
+    "tests/test_audit_native_qwen_mcp.py": "5671cc552c9bedad665398f43e6d33feb3f8990f04ef1643ead1ad8e86e62662"
+  },
+  "unchanged_native_producer_sha256": "10f95e8dae9d1b15585b8b48dd4a2547dd9f8ca34015d58af9827f195c4ae7d6",
+  "unchanged_runtime_lock_sha256": "19a6993a95ed349bd445ebd99e05a2650120a1242dbe1fa291f6e9d900d3467a",
+  "validated_controls": [
+    "Exact 194 alternating native events: 96 measured singleton pairs plus one separate generic warmup; typed counts/request order/input hashes/scalar arithmetic and physical source lines.",
+    "Frozen hybrid/Qwen/K24/full50 recipe, actual MCP query-only arguments/default schema and transport/native request bindings, explicit rerank:false zero native delta.",
+    "Exact retained structured MCP envelopes and actual HTTP compact outputs, before/after source identity, result/source/token caps.",
+    "Cached-only pinned cl100k ranks; direct Encoding construction, no downloader/cache writes. Missing/corrupt ranks fail closed.",
+    "Saved edit changes one indexed window and reuses 60; GET /status-only trigger, one watcher refresh, six query embeddings and 62 document texts.",
+    "UTC frozen/start/worker cleanup order; exact public artifact inventory and committed source/plan hashes, eleven original promoted core AST functions/classes and original prompt/checkpoint/runtime pins.",
+    "Explicit alternate interpreter/checkpoint/work paths must match actual receipt origins; isolated/no-site stdlib Python metadata, full 34-package distribution closure, pinned native source files and unchanged checkpoint physical witnesses.",
+    "Exact private/public ready/stop/ledger witnesses and copied worker source inventory, private mode and auth absence including broken symlink detection; owned PID/group absence and closed loopback listener.",
+    "Failed audits are retained in a new exclusive output file; existing audit outputs cannot be overwritten."
+  ],
+  "version": 1,
+  "weight_bytes_read": false
+}
