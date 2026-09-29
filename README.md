@@ -164,6 +164,32 @@ temperature calibration and are ranking signals, not certainty percentages.
 
 ## Experiments
 
+The [completed 18-trial coding comparison](results/qwen-coding-workflows-2026-10-14/findings.md)
+retains every attempt, actual usage receipt, timeout and independent patch review.
+Ordinary tools, fast MCP and Qwen MCP each complete **2/6** tasks correctly;
+all six correct completions are on Starlette. For the two matched correct pairs,
+Qwen versus fast MCP uses **18.52% more gross tokens**, **21.30% less uncached
+input**, and **0.72% more full trial time**. Cached input accounts for the
+arithmetic difference; these counts do not establish billing or causation.
+One fast-MCP timeout has unknown usage. Coding correctness gains and the
+30% token-savings target remain unestablished.
+
+The [context-allocation development replay](results/context-allocation-development-2026-10-14/findings.md)
+reproduces all 159 original controls exactly and evaluates six packing settings
+without inference. Keeping dependencies and permitting 12 excerpts improves
+complete development evidence from **112/118 to 113/118** and already-observed
+HTTPX evidence from **8/12 to 10/12**, within the same 4,096-token cap. Median
+context size rises. These observed queries are development evidence; a fresh
+Werkzeug test is prepared before changing the eight-excerpt default.
+
+The [isolated Qwen installer validation](results/qwen-installer-validation-2026-10-14/verification.json)
+created a new environment, verified all 34 pinned packages and checkpoint bytes,
+and preserved the existing runtimes. Its installed scorer then passed
+[all 416 original singleton parity pairs](results/qwen-installed-production-parity-2026-10-14/independent-audit.json)
+and [actual HTTP/MCP saved-edit checks](results/qwen-installed-native-mcp-smoke-2026-10-14/independent-audit.json).
+This used available Mac caches and compares MLX singleton outputs; it is not a
+clean-machine installation or numerical parity with official PyTorch.
+
 The [shortlist confirmation](results/qwen-shortlist-development-2026-10-14/independent-findings.md)
 completed all 144 development queries with three actual passes. Original
 singleton Qwen scoring at K32 delivers complete dense evidence for **110/118**
