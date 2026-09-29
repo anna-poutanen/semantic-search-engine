@@ -1,10 +1,13 @@
 """Freeze/grade/argv boundaries of the new runner; no hosted/model calls."""
 import importlib.util
 import json
+import os
 from pathlib import Path
 import sys
+import signal
 from types import SimpleNamespace
 import threading
+import time
 
 import pytest
 
@@ -120,8 +123,9 @@ def trial_fixture(tmp_path, monkeypatch):
     monkeypatch.setattr(runner.mf.old, "git", lambda *a, **k: SimpleNamespace(stdout=b""))
     monkeypatch.setattr(runner, "cli_command", lambda *a: ["never-run"])
     events = [{"type": "turn.completed", "usage": {"input_tokens": 100, "output_tokens": 20}}]
-    monkeypatch.setattr(runner.mf, "run_agent", lambda *a: ({"completed": True, "agent_exit_code": 0,
-        "failed": False, "timed_out": False, "mcp_calls": 0, "agent_elapsed_s": 10}, events, []))
+    monkeypatch.setattr(runner.process_capture, "run_agent", lambda *a, **k: ({"completed": True, "agent_exit_code": 0,
+        "failed": False, "timed_out": False, "mcp_calls": 0, "agent_elapsed_s": 10,
+        "cleanup_qualified": True, "output_drain_complete": True, "lifecycle_qualified": True}, events, []))
     monkeypatch.setattr(runner.mf, "public_artifacts", lambda *a: {})
     return task, config, output
 
@@ -169,3 +173,202 @@ def test_unproved_owner_stop_blocks_next_models_and_forced_kill_is_not_clean_cor
     assert row["lifecycle_qualified"] is safe
     assert row["failed"] and row["correct"] and not row["completed_correct"]
     assert row["qwen_stop"] == stop
+
+
+@pytest.mark.parametrize("phase", ["setup", "after-cli", "grading", "publication"])
+def test_interruption_in_each_runner_phase_publishes_failed_attempt_with_known_usage(tmp_path, monkeypatch, phase):
+    task, config, output = trial_fixture(tmp_path, monkeypatch)
+    def interrupt(*args, **kwargs):
+        raise KeyboardInterrupt("injected phase interruption")
+    if phase == "setup":
+        monkeypatch.setattr(runner.mf, "prepare", interrupt)
+    elif phase == "grading":
+        actual = runner.grade
+        calls = []
+        def grade(*args):
+            calls.append(1)
+            return actual(*args) if len(calls) == 1 else interrupt()
+        monkeypatch.setattr(runner, "grade", grade)
+    elif phase == "publication":
+        monkeypatch.setattr(runner.mf, "public_artifacts", interrupt)
+    clock = runner.ClockIntegrity()
+    if phase == "after-cli":
+        actual = clock.check
+        def check(label, **kwargs):
+            return interrupt() if label == "agent-end" else actual(label, **kwargs)
+        monkeypatch.setattr(clock, "check", check)
+    row = runner.run_trial(task, {"task_id": task["id"], "repetition": 1, "condition": "baseline"},
+                           1, config, output, clock)
+    published = json.loads(next((output / "runs").glob("*/result.json")).read_text())
+    assert row["interrupted"] and row["failed"] and row["timing_qualified"] is False
+    assert published["interrupted"] and not published["completed_correct"]
+    assert row["usage"] is None if phase == "setup" else row["usage"]["total_tokens"] == 120
+    if phase in ("setup", "after-cli", "publication"):
+        assert "grading_unstarted_reason" in row
+
+
+def test_actual_cpu_cli_sigterm_retains_usage_cleanup_and_halts_remaining_schedule(tmp_path, monkeypatch):
+    actual_capture = runner.process_capture.run_agent
+    task, config, output = trial_fixture(tmp_path, monkeypatch)
+    monkeypatch.setattr(runner.process_capture, "run_agent", actual_capture)
+    monkeypatch.setattr(runner.mf, "environment", lambda *args: dict(os.environ))
+    wire = json.dumps({"type": "turn.completed", "usage": {"input_tokens": 100, "output_tokens": 20}})
+    command = [sys.executable, "-u", "-c", f"import time;print({wire!r},flush=True);time.sleep(30)"]
+    monkeypatch.setattr(runner, "cli_command", lambda *args: command)
+    trials = [{"task_id": task["id"], "repetition": 1, "condition": value}
+              for value in runner.evidence.CONDITIONS]
+    config.update(manifest="unused", timeout_s=5, schedule=trials,
+                  reranker_python_sha256=runner.sha(sys.executable))
+    (output / "frozen-config.json").write_text(json.dumps(config))
+    monkeypatch.setattr(runner.mf, "verify_runtime", lambda *args: None)
+    monkeypatch.setattr(runner, "verify_native_runtime", lambda *args: None)
+    monkeypatch.setattr(runner, "validate_manifest", lambda *args: {"tasks": [task]})
+    raw = Path(config["work_root"]) / "raw" / "01-r1-requests_response_limit-baseline"
+    sent = threading.Event()
+    cancel = threading.Event()
+    def terminate_after_actual_usage():
+        deadline = time.monotonic() + 4
+        while not cancel.is_set() and time.monotonic() < deadline:
+            checkpoint = raw / "agent-measurements.json"
+            if checkpoint.is_file() and (json.loads(checkpoint.read_bytes()).get("usage") or {}).get("total_tokens") == 120:
+                sent.set()
+                os.kill(os.getpid(), signal.SIGTERM)
+                return
+            time.sleep(.01)
+    sender = threading.Thread(target=terminate_after_actual_usage, daemon=True)
+    sender.start()
+    try:
+        with runner.process_capture.guarded_sigterm() as guard:
+            with pytest.raises(RuntimeError, match="Interrupted attempt preserved"):
+                runner.run(output)
+            assert guard["received"]
+    finally:
+        cancel.set()
+        sender.join(5)
+    rows = json.loads((output / "results.json").read_text())
+    assert sent.is_set() and len(rows) == 1 and rows[0]["interrupted"] and rows[0]["failed"]
+    assert rows[0]["usage"]["total_tokens"] == 120 and rows[0]["cleanup_qualified"]
+    assert rows[0]["output_drain_complete"] and rows[0]["lifecycle_qualified"]
+    assert rows[0]["agent_cleanup"]["owned_group_stopped"]
+    with pytest.raises(ProcessLookupError):
+        os.killpg(rows[0]["agent_process"]["pid"], 0)
+    summary = json.loads((output / "summary.json").read_text())
+    assert len(summary["missing_attempts"]) == 2 and not (output / "completion.json").exists()
+
+
+def test_public_result_keeps_invalid_line_receipts_without_private_reasoning():
+    row = {"invalid_event_lines": [{"line": "private reasoning malformed JSON", "error_type": "ValueError"}]}
+    published = runner.public_record(row, [])
+    assert "private reasoning" not in json.dumps(published)
+    assert published["invalid_event_lines"][0]["line_sha256"] == runner.hashlib.sha256(row["invalid_event_lines"][0]["line"].encode()).hexdigest()
+    assert row["invalid_event_lines"][0]["line"] == "private reasoning malformed JSON"
+
+
+def test_interrupt_at_cli_return_handoff_recovers_actual_private_checkpoint_before_publishing(tmp_path, monkeypatch):
+    task, config, output = trial_fixture(tmp_path, monkeypatch)
+    event = {"type": "turn.completed", "usage": {"input_tokens": 100, "output_tokens": 20}}
+    def interrupted_handoff(command, config, workspace, raw_dir, **kwargs):
+        runner.process_capture.write_checkpoint(raw_dir / "agent-measurements.json", {
+            "completed": True, "agent_exit_code": 0, "agent_elapsed_s": 2,
+            "usage": runner.evidence.provider_usage([event])["usage"],
+            "cleanup_qualified": True, "output_drain_complete": True, "lifecycle_qualified": True})
+        runner.process_capture.write_checkpoint(raw_dir / "observed-events.json", [{"event": event,
+            "received": runner.mf.stamp()}])
+        raise KeyboardInterrupt("signal between CLI return and caller assignment")
+    monkeypatch.setattr(runner.process_capture, "run_agent", interrupted_handoff)
+    publications = []
+    monkeypatch.setattr(runner.mf, "public_artifacts", lambda raw, public, events, observed, substitutions:
+        publications.append((events, observed)) or {})
+    row = runner.run_trial(task, {"task_id": task["id"], "repetition": 1, "condition": "baseline"},
+                           1, config, output, runner.ClockIntegrity())
+    published = json.loads(next((output / "runs").glob("*/result.json")).read_text())
+    assert published["usage"]["total_tokens"] == 120 and row["agent_elapsed_s"] == 2
+    assert row["interrupted"] and row["failed"] and not row["completed_correct"]
+    assert row["timing_qualified"] is False and row["cleanup_qualified"]
+    assert publications[0][0] == [event] and len(publications[0][1]) == 1
+
+
+def production_fixture(tmp_path, monkeypatch):
+    source = tmp_path / "source"
+    source.mkdir()
+    (source / "gate.py").write_text("frozen source")
+    monkeypatch.setattr(runner, "ROOT", source)
+    monkeypatch.setattr(runner.mf, "artifact", lambda path: str(path))
+    directory = tmp_path / "production"
+    directory.mkdir()
+    plan = {"source_sha256": {"gate.py": runner.sha(source / "gate.py")}}
+    (directory / "frozen-plan.json").write_text(json.dumps(plan))
+    (directory / "results.json").write_text('{"actual":true}')
+    certificate = {"checks_passed": True, "frozen_plan_sha256": runner.sha(directory / "frozen-plan.json"),
+                   "source_sha256": plan["source_sha256"],
+                   "artifact_sha256": {"results.json": runner.sha(directory / "results.json")}}
+    (directory / "verification.json").write_text(json.dumps(certificate))
+    return source, directory, certificate
+
+
+def test_production_certificate_binds_plan_result_verification_and_current_source(tmp_path, monkeypatch):
+    _, directory, _ = production_fixture(tmp_path, monkeypatch)
+    binding = runner.production_certificate(directory)
+    assert binding == {runner.mf.artifact(path): runner.sha(path) for path in directory.iterdir()}
+
+
+@pytest.mark.parametrize("corrupt", ["failed", "plan", "source", "result", "source-map", "missing-source"])
+def test_production_certificate_rejects_failed_stale_or_unbound_evidence(tmp_path, monkeypatch, corrupt):
+    source, directory, certificate = production_fixture(tmp_path, monkeypatch)
+    if corrupt == "failed":
+        certificate["checks_passed"] = False
+    elif corrupt == "plan":
+        certificate["frozen_plan_sha256"] = "stale"
+    elif corrupt == "source":
+        (source / "gate.py").write_text("changed")
+    elif corrupt == "result":
+        (directory / "results.json").write_text("changed")
+    elif corrupt == "source-map":
+        certificate["source_sha256"] = {"gate.py": "different"}
+    else:
+        (directory / "frozen-plan.json").write_text('{"source_sha256":{}}')
+        certificate["frozen_plan_sha256"] = runner.sha(directory / "frozen-plan.json")
+    (directory / "verification.json").write_text(json.dumps(certificate))
+    with pytest.raises(ValueError):
+        runner.production_certificate(directory)
+
+
+def test_common_freeze_binds_process_helper_and_both_production_certificates(tmp_path, monkeypatch):
+    names = [runner.SELF, runner.PROTOCOL, Path("scripts/qwen_workflow_evidence.py"),
+             Path("scripts/qwen_workflow_process.py"), Path("scripts/run_multifile_workflows.py"),
+             Path("scripts/qwen_optimization_clock.py"), Path("src/semantic_search/__init__.py"),
+             Path(".cache/reranker-experiment/.venv/bin/python")]
+    for name in names:
+        (tmp_path / name).parent.mkdir(parents=True, exist_ok=True)
+        (tmp_path / name).write_text(str(name))
+    decision, fresh = tmp_path / "decision.json", tmp_path / "fresh"
+    fresh.mkdir()
+    decision.write_text("decision")
+    for name in ("independent-audit.json", "frozen-plan.json"):
+        (fresh / name).write_text(name)
+    monkeypatch.setattr(runner, "ROOT", tmp_path)
+    monkeypatch.setattr(runner, "selected_profile", lambda *args: (
+        {"retrieval": "hybrid", "shortlist": 24, "batch_size": 1}, {"reranker": {}}))
+    monkeypatch.setattr(runner.mf, "freeze_common", lambda *args: {"runtime_git_revision": "commit", "artifact_sha256": {}})
+    monkeypatch.setattr(runner.mf.old, "git", lambda root, show, spec: SimpleNamespace(
+        stdout=(root / spec.split(":", 1)[1]).read_bytes()))
+    monkeypatch.setattr(runner.mf, "artifact", lambda path: str(path))
+    monkeypatch.setattr(runner, "verify_native_runtime", lambda *args: None)
+    seen = []
+    def certificate(path):
+        seen.append(path)
+        return {str(path / "verification.json"): str(path.name)}
+    monkeypatch.setattr(runner, "production_certificate", certificate)
+    parity, smoke = tmp_path / "parity", tmp_path / "smoke"
+    config = runner.freeze_common(tmp_path / "common", decision, fresh, parity, smoke)
+    assert seen == [parity, smoke]
+    assert config["artifact_sha256"]["scripts/qwen_workflow_process.py"] == runner.sha(tmp_path / "scripts/qwen_workflow_process.py")
+    assert config["artifact_sha256"][str(parity / "verification.json")] == "parity"
+    assert config["artifact_sha256"][str(smoke / "verification.json")] == "smoke"
+
+
+def test_freeze_common_cli_requires_both_production_gates_before_freezing(tmp_path, monkeypatch):
+    monkeypatch.setattr(runner, "freeze_common", lambda *args: pytest.fail("must require gates before freezing"))
+    with pytest.raises(SystemExit):
+        runner.main(["freeze-common", "--output", str(tmp_path), "--development-decision", "decision",
+                     "--fresh-study", "fresh"])

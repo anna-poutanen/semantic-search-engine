@@ -299,7 +299,9 @@ def test_actual_model_free_sdk_adapter_and_descendant_stop_on_timeout_or_sigint(
     script.write_text(
         'import json, os, subprocess, sys\n'
         'child = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(300)"])\n'
-        'with open(sys.argv[1], "w") as stream: json.dump([os.getpid(), child.pid], stream)\n'
+        'temporary = sys.argv[1] + ".pending"\n'
+        'with open(temporary, "w") as stream: json.dump([os.getpid(), child.pid], stream)\n'
+        'os.replace(temporary, sys.argv[1])\n'
         'try:\n'
         ' for line in sys.stdin: pass\n'
         'finally:\n'

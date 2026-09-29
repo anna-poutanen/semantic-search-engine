@@ -12,6 +12,14 @@ and the production integration, checker controls, common runtime, transport
 probe, task manifest and complete schedule have been frozen and committed.
 HTTPX results must not be used to tune the selected reranker.
 
+The promoted optional worker must match all 416 certified original singleton
+pairs exactly, including scalar results, tokenizer input hashes and whole-line
+clipping. A separately frozen native HTTP/MCP smoke must verify selected
+defaults, bounded compact output, saved edits and clean owned-process shutdown.
+Bind both passing certificates and their source plans into the common runtime.
+The HTTPX outcome is mixed: keep fast retrieval as the product default and
+treat Qwen as an experimental coding condition.
+
 ## Tasks and correctness
 
 Use the existing public feature contracts for Requests response byte budgets,
