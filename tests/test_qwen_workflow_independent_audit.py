@@ -269,3 +269,28 @@ def test_missing_native_startup_trace_stays_lower_bound_unknown(tmp_path):
     record = {"condition": "mcp_qwen", "failed": True, "completed_correct": False, "qwen_final_receipts": {}}
     result = audit.native_review(record, [], tmp_path / "raw", tmp_path / "public", {})
     assert result["counts_complete"] is False and result["worker_stop_counts"] is None
+
+
+def test_asof_snapshot_bytes_remain_immutable_when_producer_globals_advance(tmp_path):
+    study, snapshot = tmp_path / "study", tmp_path / "audit/as-of"
+    study.mkdir()
+    snapshot.parent.mkdir()
+    before = b'[{"run_id":"first"}]\n'
+    (study / "results.json").write_bytes(before)
+    (study / "summary.json").write_text('{"recorded_attempts":1}\n')
+    digests = audit.snapshot_globals(study, snapshot)
+    (study / "results.json").write_text('[{"run_id":"first"},{"run_id":"second"}]\n')
+    assert (snapshot / "results.json").read_bytes() == before
+    assert digests["results.json"] == audit.sha(snapshot / "results.json") != audit.sha(study / "results.json")
+    assert audit.read(snapshot / "snapshot-receipt.json")["artifact_sha256"] == digests
+    with pytest.raises(FileExistsError):
+        audit.snapshot_globals(study, snapshot)
+
+
+def test_concurrent_http_completion_order_is_preserved_without_losing_unique_request_ids():
+    receipts = [{"number": number} for number in (1, 3, 2)]
+    assert audit.receipt_inventory(receipts) == [1, 3, 2]
+    assert [row["number"] for row in receipts] == [1, 3, 2]
+    for invalid in ([{"number": 1}, {"number": 1}], [{"number": 1}, {"number": 3}], [{"number": True}]):
+        with pytest.raises(ValueError, match="ID inventory"):
+            audit.receipt_inventory(invalid)
