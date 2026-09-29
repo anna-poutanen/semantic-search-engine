@@ -1,0 +1,1449 @@
+[
+  {
+    "event": {
+      "thread_id": "01a1399e-3dfe-77c0-b36c-b52ab7d99df7",
+      "type": "thread.started"
+    },
+    "received": {
+      "monotonic_s": 209922.298941875,
+      "perf_counter_ns": 209922298924541,
+      "utc": "2026-10-14T08:53:54.367012+00:00",
+      "wall_time_ns": 1791968034367012000
+    }
+  },
+  {
+    "event": {
+      "type": "turn.started"
+    },
+    "received": {
+      "monotonic_s": 209922.300273083,
+      "perf_counter_ns": 209922300252375,
+      "utc": "2026-10-14T08:53:54.368340+00:00",
+      "wall_time_ns": 1791968034368340000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "id": "item_0",
+        "text": "I\u2019ll locate the request-body and middleware code, implement the limits, then run new regression tests followed by the existing HTTP integration tests.\n",
+        "type": "agent_message"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 209927.911785541,
+      "perf_counter_ns": 209927911740708,
+      "utc": "2026-10-14T08:53:59.979858+00:00",
+      "wall_time_ns": 1791968039979858000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc pwd",
+        "exit_code": null,
+        "id": "item_1",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 209931.505988916,
+      "perf_counter_ns": 209931505972666,
+      "utc": "2026-10-14T08:54:03.574113+00:00",
+      "wall_time_ns": 1791968043574113000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "<WORKSPACE>\n",
+        "command": "/bin/zsh -lc pwd",
+        "exit_code": 0,
+        "id": "item_1",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 209931.50647175,
+      "perf_counter_ns": 209931506464958,
+      "utc": "2026-10-14T08:54:03.574605+00:00",
+      "wall_time_ns": 1791968043574605000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"rg --files -g 'AGENTS.md' -g '*SKILL.md' -g 'pyproject.toml' -g 'setup.cfg' -g 'tox.ini' -g 'test*requests*' -g 'test*middleware*' -g 'test*client*' -g 'requests.py' -g 'exceptions.py' -g '*body*' -g 'conftest.py'\"",
+        "exit_code": null,
+        "id": "item_2",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 209931.562510833,
+      "perf_counter_ns": 209931562497875,
+      "utc": "2026-10-14T08:54:03.630639+00:00",
+      "wall_time_ns": 1791968043630639000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "docs/testclient.md\ntests/test_requests.py\ntests/test_testclient.py\ntests/conftest.py\ntests/middleware/test_middleware.py\npyproject.toml\nstarlette/requests.py\nstarlette/exceptions.py\nstarlette/testclient.py\nstarlette/middleware/exceptions.py\n",
+        "command": "/bin/zsh -lc \"rg --files -g 'AGENTS.md' -g '*SKILL.md' -g 'pyproject.toml' -g 'setup.cfg' -g 'tox.ini' -g 'test*requests*' -g 'test*middleware*' -g 'test*client*' -g 'requests.py' -g 'exceptions.py' -g '*body*' -g 'conftest.py'\"",
+        "exit_code": 0,
+        "id": "item_2",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 209931.563028083,
+      "perf_counter_ns": 209931563018916,
+      "utc": "2026-10-14T08:54:03.631160+00:00",
+      "wall_time_ns": 1791968043631160000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"rg -n 'async def (body|stream|json)|class (Request|ClientDisconnect|HTTPException)|def test_|fixture|trio|asyncio|TestClient' starlette/requests.py starlette/exceptions.py tests/test_requests.py tests/conftest.py pyproject.toml\"",
+        "exit_code": null,
+        "id": "item_3",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 209940.916175416,
+      "perf_counter_ns": 209940916158541,
+      "utc": "2026-10-14T08:54:12.984353+00:00",
+      "wall_time_ns": 1791968052984353000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "starlette/exceptions.py:7:class HTTPException(Exception):\ntests/conftest.py:8:from starlette.testclient import TestClient\ntests/conftest.py:9:from tests.types import TestClientFactory\ntests/conftest.py:12:@pytest.fixture\ntests/conftest.py:13:def test_client_factory(\ntests/conftest.py:14:    anyio_backend_name: Literal[\"asyncio\", \"trio\"],\ntests/conftest.py:16:) -> TestClientFactory:\ntests/conftest.py:20:        TestClient,\ntests/test_requests.py:14:from tests.types import TestClientFactory\ntests/test_requests.py:17:def test_request_url(test_client_factory: TestClientFactory) -> None:\ntests/test_requests.py:32:def test_request_query_params(test_client_factory: TestClientFactory) -> None:\ntests/test_requests.py:48:def test_request_headers(test_client_factory: TestClientFactory) -> None:\ntests/test_requests.py:76:def test_request_client(scope: Scope, expected_client: Address | None) -> None:\ntests/test_requests.py:82:def test_request_body(test_client_factory: TestClientFactory) -> None:\ntests/test_requests.py:101:def test_request_stream(test_client_factory: TestClientFactory) -> None:\ntests/test_requests.py:122:def test_request_form_urlencoded(test_client_factory: TestClientFactory) -> None:\ntests/test_requests.py:135:def test_request_form_context_manager(test_client_factory: TestClientFactory) -> None:\ntests/test_requests.py:148:def test_request_body_then_stream(test_client_factory: TestClientFactory) -> None:\ntests/test_requests.py:164:def test_request_stream_then_body(test_client_factory: TestClientFactory) -> None:\ntests/test_requests.py:183:def test_request_json(test_client_factory: TestClientFactory) -> None:\ntests/test_requests.py:195:def test_request_scope_interface() -> None:\ntests/test_requests.py:206:def test_request_raw_path(test_client_factory: TestClientFactory) -> None:\ntests/test_requests.py:219:def test_request_without_setting_receive(\ntests/test_requests.py:220:    test_client_factory: TestClientFactory,\ntests/test_requests.py:241:def test_request_disconnect(\ntests/test_requests.py:269:def test_request_is_disconnected(test_client_factory: TestClientFactory) -> None:\ntests/test_requests.py:292:def test_request_state_object() -> None:\ntests/test_requests.py:306:def test_request_state(test_client_factory: TestClientFactory) -> None:\ntests/test_requests.py:318:def test_request_cookies(test_client_factory: TestClientFactory) -> None:\ntests/test_requests.py:337:def test_cookie_lenient_parsing(test_client_factory: TestClientFactory) -> None:\ntests/test_requests.py:393:def test_cookies_edge_cases(\ntests/test_requests.py:396:    test_client_factory: TestClientFactory,\ntests/test_requests.py:432:def test_cookies_invalid(\ntests/test_requests.py:435:    test_client_factory: TestClientFactory,\ntests/test_requests.py:453:def test_chunked_encoding(test_client_factory: TestClientFactory) -> None:\ntests/test_requests.py:470:def test_request_send_push_promise(test_client_factory: TestClientFactory) -> None:\ntests/test_requests.py:486:def test_request_send_push_promise_without_push_extension(\ntests/test_requests.py:487:    test_client_factory: TestClientFactory,\ntests/test_requests.py:506:def test_request_send_push_promise_without_setting_send(\ntests/test_requests.py:507:    test_client_factory: TestClientFactory,\ntests/test_requests.py:546:async def test_request_rcv(messages: list[Message]) -> None:\ntests/test_requests.py:560:async def test_request_stream_called_twice() -> None:\ntests/test_requests.py:598:def test_request_url_outside_starlette_context(test_client_factory: TestClientFactory) -> None:\ntests/test_requests.py:611:def test_request_url_starlette_context(test_client_factory: TestClientFactory) -> None:\nstarlette/requests.py:66:class ClientDisconnect(Exception):\nstarlette/requests.py:198:class Request(HTTPConnection):\nstarlette/requests.py:218:    async def stream(self) -> typing.AsyncGenerator[bytes, None]:\nstarlette/requests.py:238:    async def body(self) -> bytes:\nstarlette/requests.py:246:    async def json(self) -> typing.Any:\n",
+        "command": "/bin/zsh -lc \"rg -n 'async def (body|stream|json)|class (Request|ClientDisconnect|HTTPException)|def test_|fixture|trio|asyncio|TestClient' starlette/requests.py starlette/exceptions.py tests/test_requests.py tests/conftest.py pyproject.toml\"",
+        "exit_code": 0,
+        "id": "item_3",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 209940.916714625,
+      "perf_counter_ns": 209940916708000,
+      "utc": "2026-10-14T08:54:12.984902+00:00",
+      "wall_time_ns": 1791968052984902000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"rg --files -g 'AGENTS.md' -g '\"'!docs/**'\"' -g '\"'!tests/**'\"' -g '\"'!starlette/**'\"' -g 'README*' -g '*requirements*' -g 'setup.*' -g 'tox.ini' -g 'pytest.ini' -g 'uv.lock'; git status --short\"",
+        "exit_code": null,
+        "id": "item_4",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 209940.926407333,
+      "perf_counter_ns": 209940926400791,
+      "utc": "2026-10-14T08:54:12.994595+00:00",
+      "wall_time_ns": 1791968052994595000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "scripts/README.md\nREADME.md\nrequirements.txt\n",
+        "command": "/bin/zsh -lc \"rg --files -g 'AGENTS.md' -g '\"'!docs/**'\"' -g '\"'!tests/**'\"' -g '\"'!starlette/**'\"' -g 'README*' -g '*requirements*' -g 'setup.*' -g 'tox.ini' -g 'pytest.ini' -g 'uv.lock'; git status --short\"",
+        "exit_code": 0,
+        "id": "item_4",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 209940.926766666,
+      "perf_counter_ns": 209940926761416,
+      "utc": "2026-10-14T08:54:12.994956+00:00",
+      "wall_time_ns": 1791968052994956000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"rg --files starlette/middleware tests/middleware; rg -n 'raise_server_exceptions|def test.*(exception|error)|class (TestClient|_TestClientTransport)' starlette/testclient.py tests/test_testclient.py; rg --files --hidden -g 'AGENTS.md' -g '\"'!.git/**'\"'\"",
+        "exit_code": null,
+        "id": "item_5",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 209940.937771375,
+      "perf_counter_ns": 209940937763958,
+      "utc": "2026-10-14T08:54:13.005959+00:00",
+      "wall_time_ns": 1791968053005959000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "tests/middleware/test_base.py\nstarlette/middleware/wsgi.py\ntests/middleware/test_wsgi.py\ntests/middleware/test_https_redirect.py\ntests/middleware/__init__.py\ntests/middleware/test_session.py\ntests/middleware/test_errors.py\ntests/middleware/test_trusted_host.py\ntests/middleware/test_middleware.py\ntests/middleware/test_gzip.py\ntests/middleware/test_cors.py\nstarlette/middleware/base.py\nstarlette/middleware/errors.py\nstarlette/middleware/exceptions.py\nstarlette/middleware/authentication.py\nstarlette/middleware/trustedhost.py\nstarlette/middleware/httpsredirect.py\nstarlette/middleware/__init__.py\nstarlette/middleware/cors.py\nstarlette/middleware/sessions.py\nstarlette/middleware/gzip.py\nstarlette/testclient.py:190:class _TestClientTransport(httpx.BaseTransport):\nstarlette/testclient.py:195:        raise_server_exceptions: bool = True,\nstarlette/testclient.py:202:        self.raise_server_exceptions = raise_server_exceptions\nstarlette/testclient.py:338:            if self.raise_server_exceptions:\nstarlette/testclient.py:341:        if self.raise_server_exceptions:\nstarlette/testclient.py:359:class TestClient(httpx.Client):\nstarlette/testclient.py:368:        raise_server_exceptions: bool = True,\nstarlette/testclient.py:388:            raise_server_exceptions=raise_server_exceptions,\ntests/test_testclient.py:170:def test_error_on_startup(test_client_factory: TestClientFactory) -> None:\ntests/test_testclient.py:179:def test_exception_in_middleware(test_client_factory: TestClientFactory) -> None:\n",
+        "command": "/bin/zsh -lc \"rg --files starlette/middleware tests/middleware; rg -n 'raise_server_exceptions|def test.*(exception|error)|class (TestClient|_TestClientTransport)' starlette/testclient.py tests/test_testclient.py; rg --files --hidden -g 'AGENTS.md' -g '\"'!.git/**'\"'\"",
+        "exit_code": 1,
+        "id": "item_5",
+        "status": "failed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 209940.938224666,
+      "perf_counter_ns": 209940938217375,
+      "utc": "2026-10-14T08:54:13.006412+00:00",
+      "wall_time_ns": 1791968053006412000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc 'cat tests/conftest.py tests/types.py pyproject.toml requirements.txt'",
+        "exit_code": null,
+        "id": "item_6",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 209951.412826166,
+      "perf_counter_ns": 209951412811833,
+      "utc": "2026-10-14T08:54:23.481066+00:00",
+      "wall_time_ns": 1791968063481066000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "from __future__ import annotations\n\nimport functools\nfrom typing import Any, Literal\n\nimport pytest\n\nfrom starlette.testclient import TestClient\nfrom tests.types import TestClientFactory\n\n\n@pytest.fixture\ndef test_client_factory(\n    anyio_backend_name: Literal[\"asyncio\", \"trio\"],\n    anyio_backend_options: dict[str, Any],\n) -> TestClientFactory:\n    # anyio_backend_name defined by:\n    # https://anyio.readthedocs.io/en/stable/testing.html#specifying-the-backends-to-run-on\n    return functools.partial(\n        TestClient,\n        backend=anyio_backend_name,\n        backend_options=anyio_backend_options,\n    )\nfrom __future__ import annotations\n\nfrom typing import TYPE_CHECKING, Protocol\n\nimport httpx\n\nfrom starlette.testclient import TestClient\nfrom starlette.types import ASGIApp\n\nif TYPE_CHECKING:\n\n    class TestClientFactory(Protocol):  # pragma: no cover\n        def __call__(\n            self,\n            app: ASGIApp,\n            base_url: str = \"http://testserver\",\n            raise_server_exceptions: bool = True,\n            root_path: str = \"\",\n            cookies: httpx._types.CookieTypes | None = None,\n            headers: dict[str, str] | None = None,\n            follow_redirects: bool = True,\n            client: tuple[str, int] = (\"testclient\", 50000),\n        ) -> TestClient: ...\nelse:  # pragma: no cover\n\n    class TestClientFactory:\n        __test__ = False\n[build-system]\nrequires = [\"hatchling\"]\nbuild-backend = \"hatchling.build\"\n\n[project]\nname = \"starlette\"\ndynamic = [\"version\"]\ndescription = \"The little ASGI library that shines.\"\nreadme = \"README.md\"\nlicense = \"BSD-3-Clause\"\nrequires-python = \">=3.9\"\nauthors = [{ name = \"Tom Christie\", email = \"tom@tomchristie.com\" }]\nclassifiers = [\n    \"Development Status :: 3 - Alpha\",\n    \"Environment :: Web Environment\",\n    \"Framework :: AnyIO\",\n    \"Intended Audience :: Developers\",\n    \"License :: OSI Approved :: BSD License\",\n    \"Operating System :: OS Independent\",\n    \"Programming Language :: Python :: 3\",\n    \"Programming Language :: Python :: 3.9\",\n    \"Programming Language :: Python :: 3.10\",\n    \"Programming Language :: Python :: 3.11\",\n    \"Programming Language :: Python :: 3.12\",\n    \"Programming Language :: Python :: 3.13\",\n    \"Topic :: Internet :: WWW/HTTP\",\n]\ndependencies = [\n    \"anyio>=3.6.2,<5\",\n    \"typing_extensions>=3.10.0; python_version < '3.10'\",\n]\n\n[project.optional-dependencies]\nfull = [\n    \"itsdangerous\",\n    \"jinja2\",\n    \"python-multipart>=0.0.18\",\n    \"pyyaml\",\n    \"httpx>=0.27.0,<0.29.0\",\n]\n\n[project.urls]\nHomepage = \"https://github.com/encode/starlette\"\nDocumentation = \"https://www.starlette.io/\"\nChangelog = \"https://www.starlette.io/release-notes/\"\nFunding = \"https://github.com/sponsors/encode\"\nSource = \"https://github.com/encode/starlette\"\n\n[tool.hatch.version]\npath = \"starlette/__init__.py\"\n\n[tool.ruff]\nline-length = 120\n\n[tool.ruff.lint]\nselect = [\n    \"E\",      # https://docs.astral.sh/ruff/rules/#error-e\n    \"F\",      # https://docs.astral.sh/ruff/rules/#pyflakes-f\n    \"I\",      # https://docs.astral.sh/ruff/rules/#isort-i\n    \"FA\",     # https://docs.astral.sh/ruff/rules/#flake8-future-annotations-fa\n    \"UP\",     # https://docs.astral.sh/ruff/rules/#pyupgrade-up\n    \"RUF100\", # https://docs.astral.sh/ruff/rules/#ruff-specific-rules-ruf\n]\nignore = [\"UP031\"] # https://docs.astral.sh/ruff/rules/printf-string-formatting/\n\n[tool.ruff.lint.isort]\ncombine-as-imports = true\n\n[tool.mypy]\nstrict = true\n\n[[tool.mypy.overrides]]\nmodule = \"starlette.testclient.*\"\nimplicit_optional = true\n\n[tool.pytest.ini_options]\naddopts = \"-rXs --strict-config --strict-markers\"\nxfail_strict = true\nfilterwarnings = [\n    # Turn warnings that aren't filtered into exceptions\n    \"error\",\n    \"ignore: run_until_first_complete is deprecated and will be removed in a future version.:DeprecationWarning\",\n    \"ignore: starlette.middleware.wsgi is deprecated and will be removed in a future release.*:DeprecationWarning\",\n    \"ignore: Async generator 'starlette.requests.Request.stream' was garbage collected before it had been exhausted.*:ResourceWarning\",\n    \"ignore: Use 'content=<...>' to upload raw bytes/text content.:DeprecationWarning\",\n]\n\n[tool.coverage.run]\nsource_pkgs = [\"starlette\", \"tests\"]\n\n[tool.coverage.report]\nexclude_lines = [\n    \"pragma: no cover\",\n    \"if typing.TYPE_CHECKING:\",\n    \"@typing.overload\",\n    \"raise NotImplementedError\",\n]\n# Optionals\n-e .[full]\n\n# Testing\ncoverage==7.6.10\nimportlib-metadata==8.5.0\nmypy==1.14.1\nruff==0.8.5\ntyping_extensions==4.12.2\ntypes-contextvars==2.4.7.3\ntypes-PyYAML==6.0.12.20241230\ntypes-dataclasses==0.6.6\npytest==8.3.4\ntrio==0.28.0\n\n# Documentation\nblack==24.10.0\nmkdocs==1.6.1\nmkdocs-material==9.5.49\nmkdocstrings-python==1.13.0\n\n# Packaging\nbuild==1.2.2.post1\ntwine==6.0.1\n",
+        "command": "/bin/zsh -lc 'cat tests/conftest.py tests/types.py pyproject.toml requirements.txt'",
+        "exit_code": 0,
+        "id": "item_6",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 209951.413584916,
+      "perf_counter_ns": 209951413580125,
+      "utc": "2026-10-14T08:54:23.481835+00:00",
+      "wall_time_ns": 1791968063481835000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"sed -n '1,90p' starlette/requests.py; sed -n '190,265p' starlette/requests.py; cat starlette/exceptions.py\"",
+        "exit_code": null,
+        "id": "item_7",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 209951.418949416,
+      "perf_counter_ns": 209951418940583,
+      "utc": "2026-10-14T08:54:23.487195+00:00",
+      "wall_time_ns": 1791968063487195000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "from __future__ import annotations\n\nimport json\nimport typing\nfrom http import cookies as http_cookies\n\nimport anyio\n\nfrom starlette._utils import AwaitableOrContextManager, AwaitableOrContextManagerWrapper\nfrom starlette.datastructures import URL, Address, FormData, Headers, QueryParams, State\nfrom starlette.exceptions import HTTPException\nfrom starlette.formparsers import FormParser, MultiPartException, MultiPartParser\nfrom starlette.types import Message, Receive, Scope, Send\n\nif typing.TYPE_CHECKING:\n    from python_multipart.multipart import parse_options_header\n\n    from starlette.applications import Starlette\n    from starlette.routing import Router\nelse:\n    try:\n        try:\n            from python_multipart.multipart import parse_options_header\n        except ModuleNotFoundError:  # pragma: no cover\n            from multipart.multipart import parse_options_header\n    except ModuleNotFoundError:  # pragma: no cover\n        parse_options_header = None\n\n\nSERVER_PUSH_HEADERS_TO_COPY = {\n    \"accept\",\n    \"accept-encoding\",\n    \"accept-language\",\n    \"cache-control\",\n    \"user-agent\",\n}\n\n\ndef cookie_parser(cookie_string: str) -> dict[str, str]:\n    \"\"\"\n    This function parses a ``Cookie`` HTTP header into a dict of key/value pairs.\n\n    It attempts to mimic browser cookie parsing behavior: browsers and web servers\n    frequently disregard the spec (RFC 6265) when setting and reading cookies,\n    so we attempt to suit the common scenarios here.\n\n    This function has been adapted from Django 3.1.0.\n    Note: we are explicitly _NOT_ using `SimpleCookie.load` because it is based\n    on an outdated spec and will fail on lots of input we want to support\n    \"\"\"\n    cookie_dict: dict[str, str] = {}\n    for chunk in cookie_string.split(\";\"):\n        if \"=\" in chunk:\n            key, val = chunk.split(\"=\", 1)\n        else:\n            # Assume an empty name per\n            # https://bugzilla.mozilla.org/show_bug.cgi?id=169091\n            key, val = \"\", chunk\n        key, val = key.strip(), val.strip()\n        if key or val:\n            # unquote using Python's algorithm.\n            cookie_dict[key] = http_cookies._unquote(val)\n    return cookie_dict\n\n\nclass ClientDisconnect(Exception):\n    pass\n\n\nclass HTTPConnection(typing.Mapping[str, typing.Any]):\n    \"\"\"\n    A base class for incoming HTTP connections, that is used to provide\n    any functionality that is common to both `Request` and `WebSocket`.\n    \"\"\"\n\n    def __init__(self, scope: Scope, receive: Receive | None = None) -> None:\n        assert scope[\"type\"] in (\"http\", \"websocket\")\n        self.scope = scope\n\n    def __getitem__(self, key: str) -> typing.Any:\n        return self.scope[key]\n\n    def __iter__(self) -> typing.Iterator[str]:\n        return iter(self.scope)\n\n    def __len__(self) -> int:\n        return len(self.scope)\n\n    # Don't use the `abc.Mapping.__eq__` implementation.\n    # Connection instances should never be considered equal\nasync def empty_receive() -> typing.NoReturn:\n    raise RuntimeError(\"Receive channel has not been made available\")\n\n\nasync def empty_send(message: Message) -> typing.NoReturn:\n    raise RuntimeError(\"Send channel has not been made available\")\n\n\nclass Request(HTTPConnection):\n    _form: FormData | None\n\n    def __init__(self, scope: Scope, receive: Receive = empty_receive, send: Send = empty_send):\n        super().__init__(scope)\n        assert scope[\"type\"] == \"http\"\n        self._receive = receive\n        self._send = send\n        self._stream_consumed = False\n        self._is_disconnected = False\n        self._form = None\n\n    @property\n    def method(self) -> str:\n        return typing.cast(str, self.scope[\"method\"])\n\n    @property\n    def receive(self) -> Receive:\n        return self._receive\n\n    async def stream(self) -> typing.AsyncGenerator[bytes, None]:\n        if hasattr(self, \"_body\"):\n            yield self._body\n            yield b\"\"\n            return\n        if self._stream_consumed:\n            raise RuntimeError(\"Stream consumed\")\n        while not self._stream_consumed:\n            message = await self._receive()\n            if message[\"type\"] == \"http.request\":\n                body = message.get(\"body\", b\"\")\n                if not message.get(\"more_body\", False):\n                    self._stream_consumed = True\n                if body:\n                    yield body\n            elif message[\"type\"] == \"http.disconnect\":  # pragma: no branch\n                self._is_disconnected = True\n                raise ClientDisconnect()\n        yield b\"\"\n\n    async def body(self) -> bytes:\n        if not hasattr(self, \"_body\"):\n            chunks: list[bytes] = []\n            async for chunk in self.stream():\n                chunks.append(chunk)\n            self._body = b\"\".join(chunks)\n        return self._body\n\n    async def json(self) -> typing.Any:\n        if not hasattr(self, \"_json\"):  # pragma: no branch\n            body = await self.body()\n            self._json = json.loads(body)\n        return self._json\n\n    async def _get_form(\n        self,\n        *,\n        max_files: int | float = 1000,\n        max_fields: int | float = 1000,\n        max_part_size: int = 1024 * 1024,\n    ) -> FormData:\n        if self._form is None:  # pragma: no branch\n            assert (\n                parse_options_header is not None\n            ), \"The `python-multipart` library must be installed to use form parsing.\"\n            content_type_header = self.headers.get(\"Content-Type\")\n            content_type: bytes\n            content_type, _ = parse_options_header(content_type_header)\nfrom __future__ import annotations\n\nimport http\nfrom collections.abc import Mapping\n\n\nclass HTTPException(Exception):\n    def __init__(self, status_code: int, detail: str | None = None, headers: Mapping[str, str] | None = None) -> None:\n        if detail is None:\n            detail = http.HTTPStatus(status_code).phrase\n        self.status_code = status_code\n        self.detail = detail\n        self.headers = headers\n\n    def __str__(self) -> str:\n        return f\"{self.status_code}: {self.detail}\"\n\n    def __repr__(self) -> str:\n        class_name = self.__class__.__name__\n        return f\"{class_name}(status_code={self.status_code!r}, detail={self.detail!r})\"\n\n\nclass WebSocketException(Exception):\n    def __init__(self, code: int, reason: str | None = None) -> None:\n        self.code = code\n        self.reason = reason or \"\"\n\n    def __str__(self) -> str:\n        return f\"{self.code}: {self.reason}\"\n\n    def __repr__(self) -> str:\n        class_name = self.__class__.__name__\n        return f\"{class_name}(code={self.code!r}, reason={self.reason!r})\"\n",
+        "command": "/bin/zsh -lc \"sed -n '1,90p' starlette/requests.py; sed -n '190,265p' starlette/requests.py; cat starlette/exceptions.py\"",
+        "exit_code": 0,
+        "id": "item_7",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 209951.419699041,
+      "perf_counter_ns": 209951419691708,
+      "utc": "2026-10-14T08:54:23.487947+00:00",
+      "wall_time_ns": 1791968063487947000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"cat starlette/middleware/httpsredirect.py starlette/middleware/trustedhost.py; sed -n '1,120p' tests/middleware/test_https_redirect.py; sed -n '1,205p' tests/test_requests.py; sed -n '510,598p' tests/test_requests.py\"",
+        "exit_code": null,
+        "id": "item_8",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 209951.420298541,
+      "perf_counter_ns": 209951420291416,
+      "utc": "2026-10-14T08:54:23.488546+00:00",
+      "wall_time_ns": 1791968063488546000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "from starlette.datastructures import URL\nfrom starlette.responses import RedirectResponse\nfrom starlette.types import ASGIApp, Receive, Scope, Send\n\n\nclass HTTPSRedirectMiddleware:\n    def __init__(self, app: ASGIApp) -> None:\n        self.app = app\n\n    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:\n        if scope[\"type\"] in (\"http\", \"websocket\") and scope[\"scheme\"] in (\"http\", \"ws\"):\n            url = URL(scope=scope)\n            redirect_scheme = {\"http\": \"https\", \"ws\": \"wss\"}[url.scheme]\n            netloc = url.hostname if url.port in (80, 443) else url.netloc\n            url = url.replace(scheme=redirect_scheme, netloc=netloc)\n            response = RedirectResponse(url, status_code=307)\n            await response(scope, receive, send)\n        else:\n            await self.app(scope, receive, send)\nfrom __future__ import annotations\n\nimport typing\n\nfrom starlette.datastructures import URL, Headers\nfrom starlette.responses import PlainTextResponse, RedirectResponse, Response\nfrom starlette.types import ASGIApp, Receive, Scope, Send\n\nENFORCE_DOMAIN_WILDCARD = \"Domain wildcard patterns must be like '*.example.com'.\"\n\n\nclass TrustedHostMiddleware:\n    def __init__(\n        self,\n        app: ASGIApp,\n        allowed_hosts: typing.Sequence[str] | None = None,\n        www_redirect: bool = True,\n    ) -> None:\n        if allowed_hosts is None:\n            allowed_hosts = [\"*\"]\n\n        for pattern in allowed_hosts:\n            assert \"*\" not in pattern[1:], ENFORCE_DOMAIN_WILDCARD\n            if pattern.startswith(\"*\") and pattern != \"*\":\n                assert pattern.startswith(\"*.\"), ENFORCE_DOMAIN_WILDCARD\n        self.app = app\n        self.allowed_hosts = list(allowed_hosts)\n        self.allow_any = \"*\" in allowed_hosts\n        self.www_redirect = www_redirect\n\n    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:\n        if self.allow_any or scope[\"type\"] not in (\n            \"http\",\n            \"websocket\",\n        ):  # pragma: no cover\n            await self.app(scope, receive, send)\n            return\n\n        headers = Headers(scope=scope)\n        host = headers.get(\"host\", \"\").split(\":\")[0]\n        is_valid_host = False\n        found_www_redirect = False\n        for pattern in self.allowed_hosts:\n            if host == pattern or (pattern.startswith(\"*\") and host.endswith(pattern[1:])):\n                is_valid_host = True\n                break\n            elif \"www.\" + host == pattern:\n                found_www_redirect = True\n\n        if is_valid_host:\n            await self.app(scope, receive, send)\n        else:\n            response: Response\n            if found_www_redirect and self.www_redirect:\n                url = URL(scope=scope)\n                redirect_url = url.replace(netloc=\"www.\" + url.netloc)\n                response = RedirectResponse(url=str(redirect_url))\n            else:\n                response = PlainTextResponse(\"Invalid host header\", status_code=400)\n            await response(scope, receive, send)\nfrom starlette.applications import Starlette\nfrom starlette.middleware import Middleware\nfrom starlette.middleware.httpsredirect import HTTPSRedirectMiddleware\nfrom starlette.requests import Request\nfrom starlette.responses import PlainTextResponse\nfrom starlette.routing import Route\nfrom tests.types import TestClientFactory\n\n\ndef test_https_redirect_middleware(test_client_factory: TestClientFactory) -> None:\n    def homepage(request: Request) -> PlainTextResponse:\n        return PlainTextResponse(\"OK\", status_code=200)\n\n    app = Starlette(\n        routes=[Route(\"/\", endpoint=homepage)],\n        middleware=[Middleware(HTTPSRedirectMiddleware)],\n    )\n\n    client = test_client_factory(app, base_url=\"https://testserver\")\n    response = client.get(\"/\")\n    assert response.status_code == 200\n\n    client = test_client_factory(app)\n    response = client.get(\"/\", follow_redirects=False)\n    assert response.status_code == 307\n    assert response.headers[\"location\"] == \"https://testserver/\"\n\n    client = test_client_factory(app, base_url=\"http://testserver:80\")\n    response = client.get(\"/\", follow_redirects=False)\n    assert response.status_code == 307\n    assert response.headers[\"location\"] == \"https://testserver/\"\n\n    client = test_client_factory(app, base_url=\"http://testserver:443\")\n    response = client.get(\"/\", follow_redirects=False)\n    assert response.status_code == 307\n    assert response.headers[\"location\"] == \"https://testserver/\"\n\n    client = test_client_factory(app, base_url=\"http://testserver:123\")\n    response = client.get(\"/\", follow_redirects=False)\n    assert response.status_code == 307\n    assert response.headers[\"location\"] == \"https://testserver:123/\"\nfrom __future__ import annotations\n\nimport sys\nfrom collections.abc import Iterator\nfrom typing import Any\n\nimport anyio\nimport pytest\n\nfrom starlette.datastructures import URL, Address, State\nfrom starlette.requests import ClientDisconnect, Request\nfrom starlette.responses import JSONResponse, PlainTextResponse, Response\nfrom starlette.types import Message, Receive, Scope, Send\nfrom tests.types import TestClientFactory\n\n\ndef test_request_url(test_client_factory: TestClientFactory) -> None:\n    async def app(scope: Scope, receive: Receive, send: Send) -> None:\n        request = Request(scope, receive)\n        data = {\"method\": request.method, \"url\": str(request.url)}\n        response = JSONResponse(data)\n        await response(scope, receive, send)\n\n    client = test_client_factory(app)\n    response = client.get(\"/123?a=abc\")\n    assert response.json() == {\"method\": \"GET\", \"url\": \"http://testserver/123?a=abc\"}\n\n    response = client.get(\"https://example.org:123/\")\n    assert response.json() == {\"method\": \"GET\", \"url\": \"https://example.org:123/\"}\n\n\ndef test_request_query_params(test_client_factory: TestClientFactory) -> None:\n    async def app(scope: Scope, receive: Receive, send: Send) -> None:\n        request = Request(scope, receive)\n        params = dict(request.query_params)\n        response = JSONResponse({\"params\": params})\n        await response(scope, receive, send)\n\n    client = test_client_factory(app)\n    response = client.get(\"/?a=123&b=456\")\n    assert response.json() == {\"params\": {\"a\": \"123\", \"b\": \"456\"}}\n\n\n@pytest.mark.skipif(\n    any(module in sys.modules for module in (\"brotli\", \"brotlicffi\")),\n    reason='urllib3 includes \"br\" to the \"accept-encoding\" headers.',\n)\ndef test_request_headers(test_client_factory: TestClientFactory) -> None:\n    async def app(scope: Scope, receive: Receive, send: Send) -> None:\n        request = Request(scope, receive)\n        headers = dict(request.headers)\n        response = JSONResponse({\"headers\": headers})\n        await response(scope, receive, send)\n\n    client = test_client_factory(app)\n    response = client.get(\"/\", headers={\"host\": \"example.org\"})\n    assert response.json() == {\n        \"headers\": {\n            \"host\": \"example.org\",\n            \"user-agent\": \"testclient\",\n            \"accept-encoding\": \"gzip, deflate\",\n            \"accept\": \"*/*\",\n            \"connection\": \"keep-alive\",\n        }\n    }\n\n\n@pytest.mark.parametrize(\n    \"scope,expected_client\",\n    [\n        ({\"client\": [\"client\", 42]}, Address(\"client\", 42)),\n        ({\"client\": None}, None),\n        ({}, None),\n    ],\n)\ndef test_request_client(scope: Scope, expected_client: Address | None) -> None:\n    scope.update({\"type\": \"http\"})  # required by Request's constructor\n    client = Request(scope).client\n    assert client == expected_client\n\n\ndef test_request_body(test_client_factory: TestClientFactory) -> None:\n    async def app(scope: Scope, receive: Receive, send: Send) -> None:\n        request = Request(scope, receive)\n        body = await request.body()\n        response = JSONResponse({\"body\": body.decode()})\n        await response(scope, receive, send)\n\n    client = test_client_factory(app)\n\n    response = client.get(\"/\")\n    assert response.json() == {\"body\": \"\"}\n\n    response = client.post(\"/\", json={\"a\": \"123\"})\n    assert response.json() == {\"body\": '{\"a\":\"123\"}'}\n\n    response = client.post(\"/\", data=\"abc\")  # type: ignore\n    assert response.json() == {\"body\": \"abc\"}\n\n\ndef test_request_stream(test_client_factory: TestClientFactory) -> None:\n    async def app(scope: Scope, receive: Receive, send: Send) -> None:\n        request = Request(scope, receive)\n        body = b\"\"\n        async for chunk in request.stream():\n            body += chunk\n        response = JSONResponse({\"body\": body.decode()})\n        await response(scope, receive, send)\n\n    client = test_client_factory(app)\n\n    response = client.get(\"/\")\n    assert response.json() == {\"body\": \"\"}\n\n    response = client.post(\"/\", json={\"a\": \"123\"})\n    assert response.json() == {\"body\": '{\"a\":\"123\"}'}\n\n    response = client.post(\"/\", data=\"abc\")  # type: ignore\n    assert response.json() == {\"body\": \"abc\"}\n\n\ndef test_request_form_urlencoded(test_client_factory: TestClientFactory) -> None:\n    async def app(scope: Scope, receive: Receive, send: Send) -> None:\n        request = Request(scope, receive)\n        form = await request.form()\n        response = JSONResponse({\"form\": dict(form)})\n        await response(scope, receive, send)\n\n    client = test_client_factory(app)\n\n    response = client.post(\"/\", data={\"abc\": \"123 @\"})\n    assert response.json() == {\"form\": {\"abc\": \"123 @\"}}\n\n\ndef test_request_form_context_manager(test_client_factory: TestClientFactory) -> None:\n    async def app(scope: Scope, receive: Receive, send: Send) -> None:\n        request = Request(scope, receive)\n        async with request.form() as form:\n            response = JSONResponse({\"form\": dict(form)})\n            await response(scope, receive, send)\n\n    client = test_client_factory(app)\n\n    response = client.post(\"/\", data={\"abc\": \"123 @\"})\n    assert response.json() == {\"form\": {\"abc\": \"123 @\"}}\n\n\ndef test_request_body_then_stream(test_client_factory: TestClientFactory) -> None:\n    async def app(scope: Scope, receive: Receive, send: Send) -> None:\n        request = Request(scope, receive)\n        body = await request.body()\n        chunks = b\"\"\n        async for chunk in request.stream():\n            chunks += chunk\n        response = JSONResponse({\"body\": body.decode(), \"stream\": chunks.decode()})\n        await response(scope, receive, send)\n\n    client = test_client_factory(app)\n\n    response = client.post(\"/\", data=\"abc\")  # type: ignore\n    assert response.json() == {\"body\": \"abc\", \"stream\": \"abc\"}\n\n\ndef test_request_stream_then_body(test_client_factory: TestClientFactory) -> None:\n    async def app(scope: Scope, receive: Receive, send: Send) -> None:\n        request = Request(scope, receive)\n        chunks = b\"\"\n        async for chunk in request.stream():\n            chunks += chunk\n        try:\n            body = await request.body()\n        except RuntimeError:\n            body = b\"<stream consumed>\"\n        response = JSONResponse({\"body\": body.decode(), \"stream\": chunks.decode()})\n        await response(scope, receive, send)\n\n    client = test_client_factory(app)\n\n    response = client.post(\"/\", data=\"abc\")  # type: ignore\n    assert response.json() == {\"body\": \"<stream consumed>\", \"stream\": \"abc\"}\n\n\ndef test_request_json(test_client_factory: TestClientFactory) -> None:\n    async def app(scope: Scope, receive: Receive, send: Send) -> None:\n        request = Request(scope, receive)\n        data = await request.json()\n        response = JSONResponse({\"json\": data})\n        await response(scope, receive, send)\n\n    client = test_client_factory(app)\n    response = client.post(\"/\", json={\"a\": \"123\"})\n    assert response.json() == {\"json\": {\"a\": \"123\"}}\n\n\ndef test_request_scope_interface() -> None:\n    \"\"\"\n    A Request can be instantiated with a scope, and presents a `Mapping`\n    interface.\n    \"\"\"\n    request = Request({\"type\": \"http\", \"method\": \"GET\", \"path\": \"/abc/\"})\n    assert request[\"method\"] == \"GET\"\n    assert dict(request) == {\"type\": \"http\", \"method\": \"GET\", \"path\": \"/abc/\"}\n    assert len(request) == 3\n\n\n    If Request is instantiated without the send channel, then\n    .send_push_promise() is not available.\n    \"\"\"\n\n    async def app(scope: Scope, receive: Receive, send: Send) -> None:\n        # the server is push-enabled\n        scope[\"extensions\"][\"http.response.push\"] = {}\n\n        data = \"OK\"\n        request = Request(scope)\n        try:\n            await request.send_push_promise(\"/style.css\")\n        except RuntimeError:\n            data = \"Send channel not available\"\n        response = JSONResponse({\"json\": data})\n        await response(scope, receive, send)\n\n    client = test_client_factory(app)\n    response = client.get(\"/\")\n    assert response.json() == {\"json\": \"Send channel not available\"}\n\n\n@pytest.mark.parametrize(\n    \"messages\",\n    [\n        [{\"body\": b\"123\", \"more_body\": True}, {\"body\": b\"\"}],\n        [{\"body\": b\"\", \"more_body\": True}, {\"body\": b\"123\"}],\n        [{\"body\": b\"12\", \"more_body\": True}, {\"body\": b\"3\"}],\n        [\n            {\"body\": b\"123\", \"more_body\": True},\n            {\"body\": b\"\", \"more_body\": True},\n            {\"body\": b\"\"},\n        ],\n    ],\n)\n@pytest.mark.anyio\nasync def test_request_rcv(messages: list[Message]) -> None:\n    messages = messages.copy()\n\n    async def rcv() -> Message:\n        return {\"type\": \"http.request\", **messages.pop(0)}\n\n    request = Request({\"type\": \"http\"}, rcv)\n\n    body = await request.body()\n\n    assert body == b\"123\"\n\n\n@pytest.mark.anyio\nasync def test_request_stream_called_twice() -> None:\n    messages: list[Message] = [\n        {\"type\": \"http.request\", \"body\": b\"1\", \"more_body\": True},\n        {\"type\": \"http.request\", \"body\": b\"2\", \"more_body\": True},\n        {\"type\": \"http.request\", \"body\": b\"3\"},\n    ]\n\n    async def rcv() -> Message:\n        return messages.pop(0)\n\n    request = Request({\"type\": \"http\"}, rcv)\n\n    s1 = request.stream()\n    s2 = request.stream()\n\n    msg = await s1.__anext__()\n    assert msg == b\"1\"\n\n    msg = await s2.__anext__()\n    assert msg == b\"2\"\n\n    msg = await s1.__anext__()\n    assert msg == b\"3\"\n\n    # at this point we've consumed the entire body\n    # so we should not wait for more body (which would hang us forever)\n    msg = await s1.__anext__()\n    assert msg == b\"\"\n    msg = await s2.__anext__()\n    assert msg == b\"\"\n\n    # and now both streams are exhausted\n    with pytest.raises(StopAsyncIteration):\n        assert await s2.__anext__()\n    with pytest.raises(StopAsyncIteration):\n        await s1.__anext__()\n\n\ndef test_request_url_outside_starlette_context(test_client_factory: TestClientFactory) -> None:\n",
+        "command": "/bin/zsh -lc \"cat starlette/middleware/httpsredirect.py starlette/middleware/trustedhost.py; sed -n '1,120p' tests/middleware/test_https_redirect.py; sed -n '1,205p' tests/test_requests.py; sed -n '510,598p' tests/test_requests.py\"",
+        "exit_code": 0,
+        "id": "item_8",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 209951.420775333,
+      "perf_counter_ns": 209951420769833,
+      "utc": "2026-10-14T08:54:23.489025+00:00",
+      "wall_time_ns": 1791968063489025000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"sed -n '190,205p' starlette/testclient.py; sed -n '270,352p' starlette/testclient.py; sed -n '125,220p' tests/test_testclient.py; rg -n 'HTTPException|class ExceptionMiddleware|class PlainTextResponse' tests/test_exceptions.py starlette/middleware/exceptions.py starlette/responses.py\"",
+        "exit_code": null,
+        "id": "item_9",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 209951.427086666,
+      "perf_counter_ns": 209951427082375,
+      "utc": "2026-10-14T08:54:23.495337+00:00",
+      "wall_time_ns": 1791968063495337000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "class _TestClientTransport(httpx.BaseTransport):\n    def __init__(\n        self,\n        app: ASGI3App,\n        portal_factory: _PortalFactoryType,\n        raise_server_exceptions: bool = True,\n        root_path: str = \"\",\n        *,\n        client: tuple[str, int],\n        app_state: dict[str, typing.Any],\n    ) -> None:\n        self.app = app\n        self.raise_server_exceptions = raise_server_exceptions\n        self.root_path = root_path\n        self.portal_factory = portal_factory\n        self.app_state = app_state\n            \"client\": self.client,\n            \"server\": [host, port],\n            \"extensions\": {\"http.response.debug\": {}},\n            \"state\": self.app_state.copy(),\n        }\n\n        request_complete = False\n        response_started = False\n        response_complete: anyio.Event\n        raw_kwargs: dict[str, typing.Any] = {\"stream\": io.BytesIO()}\n        template = None\n        context = None\n\n        async def receive() -> Message:\n            nonlocal request_complete\n\n            if request_complete:\n                if not response_complete.is_set():\n                    await response_complete.wait()\n                return {\"type\": \"http.disconnect\"}\n\n            body = request.read()\n            if isinstance(body, str):\n                body_bytes: bytes = body.encode(\"utf-8\")  # pragma: no cover\n            elif body is None:\n                body_bytes = b\"\"  # pragma: no cover\n            elif isinstance(body, GeneratorType):\n                try:  # pragma: no cover\n                    chunk = body.send(None)\n                    if isinstance(chunk, str):\n                        chunk = chunk.encode(\"utf-8\")\n                    return {\"type\": \"http.request\", \"body\": chunk, \"more_body\": True}\n                except StopIteration:  # pragma: no cover\n                    request_complete = True\n                    return {\"type\": \"http.request\", \"body\": b\"\"}\n            else:\n                body_bytes = body\n\n            request_complete = True\n            return {\"type\": \"http.request\", \"body\": body_bytes}\n\n        async def send(message: Message) -> None:\n            nonlocal raw_kwargs, response_started, template, context\n\n            if message[\"type\"] == \"http.response.start\":\n                assert not response_started, 'Received multiple \"http.response.start\" messages.'\n                raw_kwargs[\"status_code\"] = message[\"status\"]\n                raw_kwargs[\"headers\"] = [(key.decode(), value.decode()) for key, value in message.get(\"headers\", [])]\n                response_started = True\n            elif message[\"type\"] == \"http.response.body\":\n                assert response_started, 'Received \"http.response.body\" without \"http.response.start\".'\n                assert not response_complete.is_set(), 'Received \"http.response.body\" after response completed.'\n                body = message.get(\"body\", b\"\")\n                more_body = message.get(\"more_body\", False)\n                if request.method != \"HEAD\":\n                    raw_kwargs[\"stream\"].write(body)\n                if not more_body:\n                    raw_kwargs[\"stream\"].seek(0)\n                    response_complete.set()\n            elif message[\"type\"] == \"http.response.debug\":\n                template = message[\"info\"][\"template\"]\n                context = message[\"info\"][\"context\"]\n\n        try:\n            with self.portal_factory() as portal:\n                response_complete = portal.call(anyio.Event)\n                portal.call(self.app, scope, receive, send)\n        except BaseException as exc:\n            if self.raise_server_exceptions:\n                raise exc\n\n        if self.raise_server_exceptions:\n            assert response_started, \"TestClient did not receive any response.\"\n        elif not response_started:\n            raw_kwargs = {\n                \"status_code\": 500,\n                \"headers\": [],\n                \"stream\": io.BytesIO(),\n            }\n\n        raw_kwargs[\"stream\"] = httpx.ByteStream(raw_kwargs[\"stream\"].read())\n\n        response = httpx.Response(**raw_kwargs, request=request)\n        return JSONResponse(get_identity())\n\n    app = Starlette(\n        lifespan=lifespan_context,\n        routes=[Route(\"/loop_id\", endpoint=loop_id)],\n    )\n\n    client = test_client_factory(app)\n\n    with client:\n        # within a TestClient context every async request runs in the same thread\n        assert client.get(\"/loop_id\").json() == 0\n        assert client.get(\"/loop_id\").json() == 0\n\n    # that thread is also the same as the lifespan thread\n    assert startup_loop == 0\n    assert shutdown_loop == 0\n\n    # lifespan events run in the same task, this is important because a task\n    # group must be entered and exited in the same task.\n    assert startup_task is shutdown_task\n\n    # outside the TestClient context, new requests continue to spawn in new\n    # event loops in new threads\n    assert client.get(\"/loop_id\").json() == 1\n    assert client.get(\"/loop_id\").json() == 2\n\n    first_task = startup_task\n\n    with client:\n        # the TestClient context can be re-used, starting a new lifespan task\n        # in a new thread\n        assert client.get(\"/loop_id\").json() == 3\n        assert client.get(\"/loop_id\").json() == 3\n\n    assert startup_loop == 3\n    assert shutdown_loop == 3\n\n    # lifespan events still run in the same task, with the context but...\n    assert startup_task is shutdown_task\n\n    # ... the second TestClient context creates a new lifespan task.\n    assert first_task is not startup_task\n\n\ndef test_error_on_startup(test_client_factory: TestClientFactory) -> None:\n    with pytest.deprecated_call(match=\"The on_startup and on_shutdown parameters are deprecated\"):\n        startup_error_app = Starlette(on_startup=[startup])\n\n    with pytest.raises(RuntimeError):\n        with test_client_factory(startup_error_app):\n            pass  # pragma: no cover\n\n\ndef test_exception_in_middleware(test_client_factory: TestClientFactory) -> None:\n    class MiddlewareException(Exception):\n        pass\n\n    class BrokenMiddleware:\n        def __init__(self, app: ASGIApp):\n            self.app = app\n\n        async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:\n            raise MiddlewareException()\n\n    broken_middleware = Starlette(middleware=[Middleware(BrokenMiddleware)])\n\n    with pytest.raises(MiddlewareException):\n        with test_client_factory(broken_middleware):\n            pass  # pragma: no cover\n\n\ndef test_testclient_asgi2(test_client_factory: TestClientFactory) -> None:\n    def app(scope: Scope) -> ASGIInstance:\n        async def inner(receive: Receive, send: Send) -> None:\n            await send(\n                {\n                    \"type\": \"http.response.start\",\n                    \"status\": 200,\n                    \"headers\": [[b\"content-type\", b\"text/plain\"]],\n                }\n            )\n            await send({\"type\": \"http.response.body\", \"body\": b\"Hello, world!\"})\n\n        return inner\n\n    client = test_client_factory(app)  # type: ignore\n    response = client.get(\"/\")\n    assert response.text == \"Hello, world!\"\n\n\ndef test_testclient_asgi3(test_client_factory: TestClientFactory) -> None:\n    async def app(scope: Scope, receive: Receive, send: Send) -> None:\n        await send(\n            {\n                \"type\": \"http.response.start\",\ntests/test_exceptions.py:5:from starlette.exceptions import HTTPException, WebSocketException\ntests/test_exceptions.py:20:    raise HTTPException(status_code=406)\ntests/test_exceptions.py:24:    raise HTTPException(status_code=204)\ntests/test_exceptions.py:28:    raise HTTPException(status_code=304)\ntests/test_exceptions.py:32:    raise HTTPException(status_code=200, headers={\"x-potato\": \"always\"})\ntests/test_exceptions.py:35:class BadBodyException(HTTPException):\ntests/test_exceptions.py:53:        raise HTTPException(status_code=406)\ntests/test_exceptions.py:145:    assert str(HTTPException(status_code=404)) == \"404: Not Found\"\ntests/test_exceptions.py:146:    assert str(HTTPException(404, \"Not Found: foo\")) == \"404: Not Found: foo\"\ntests/test_exceptions.py:147:    assert str(HTTPException(404, headers={\"key\": \"value\"})) == \"404: Not Found\"\ntests/test_exceptions.py:151:    assert repr(HTTPException(404)) == (\"HTTPException(status_code=404, detail='Not Found')\")\ntests/test_exceptions.py:152:    assert repr(HTTPException(404, detail=\"Not Found: foo\")) == (\ntests/test_exceptions.py:153:        \"HTTPException(status_code=404, detail='Not Found: foo')\"\ntests/test_exceptions.py:156:    class CustomHTTPException(HTTPException):\ntests/test_exceptions.py:159:    assert repr(CustomHTTPException(500, detail=\"Something custom\")) == (\ntests/test_exceptions.py:160:        \"CustomHTTPException(status_code=500, detail='Something custom')\"\nstarlette/middleware/exceptions.py:10:from starlette.exceptions import HTTPException, WebSocketException\nstarlette/middleware/exceptions.py:17:class ExceptionMiddleware:\nstarlette/middleware/exceptions.py:28:            HTTPException: self.http_exception,\nstarlette/middleware/exceptions.py:65:        assert isinstance(exc, HTTPException)\nstarlette/responses.py:166:class PlainTextResponse(Response):\n",
+        "command": "/bin/zsh -lc \"sed -n '190,205p' starlette/testclient.py; sed -n '270,352p' starlette/testclient.py; sed -n '125,220p' tests/test_testclient.py; rg -n 'HTTPException|class ExceptionMiddleware|class PlainTextResponse' tests/test_exceptions.py starlette/middleware/exceptions.py starlette/responses.py\"",
+        "exit_code": 0,
+        "id": "item_9",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 209951.427529333,
+      "perf_counter_ns": 209951427525875,
+      "utc": "2026-10-14T08:54:23.495781+00:00",
+      "wall_time_ns": 1791968063495781000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"sed -n '125,220p' tests/test_testclient.py\"",
+        "exit_code": null,
+        "id": "item_10",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 209967.538900708,
+      "perf_counter_ns": 209967538889500,
+      "utc": "2026-10-14T08:54:39.607236+00:00",
+      "wall_time_ns": 1791968079607236000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "        return JSONResponse(get_identity())\n\n    app = Starlette(\n        lifespan=lifespan_context,\n        routes=[Route(\"/loop_id\", endpoint=loop_id)],\n    )\n\n    client = test_client_factory(app)\n\n    with client:\n        # within a TestClient context every async request runs in the same thread\n        assert client.get(\"/loop_id\").json() == 0\n        assert client.get(\"/loop_id\").json() == 0\n\n    # that thread is also the same as the lifespan thread\n    assert startup_loop == 0\n    assert shutdown_loop == 0\n\n    # lifespan events run in the same task, this is important because a task\n    # group must be entered and exited in the same task.\n    assert startup_task is shutdown_task\n\n    # outside the TestClient context, new requests continue to spawn in new\n    # event loops in new threads\n    assert client.get(\"/loop_id\").json() == 1\n    assert client.get(\"/loop_id\").json() == 2\n\n    first_task = startup_task\n\n    with client:\n        # the TestClient context can be re-used, starting a new lifespan task\n        # in a new thread\n        assert client.get(\"/loop_id\").json() == 3\n        assert client.get(\"/loop_id\").json() == 3\n\n    assert startup_loop == 3\n    assert shutdown_loop == 3\n\n    # lifespan events still run in the same task, with the context but...\n    assert startup_task is shutdown_task\n\n    # ... the second TestClient context creates a new lifespan task.\n    assert first_task is not startup_task\n\n\ndef test_error_on_startup(test_client_factory: TestClientFactory) -> None:\n    with pytest.deprecated_call(match=\"The on_startup and on_shutdown parameters are deprecated\"):\n        startup_error_app = Starlette(on_startup=[startup])\n\n    with pytest.raises(RuntimeError):\n        with test_client_factory(startup_error_app):\n            pass  # pragma: no cover\n\n\ndef test_exception_in_middleware(test_client_factory: TestClientFactory) -> None:\n    class MiddlewareException(Exception):\n        pass\n\n    class BrokenMiddleware:\n        def __init__(self, app: ASGIApp):\n            self.app = app\n\n        async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:\n            raise MiddlewareException()\n\n    broken_middleware = Starlette(middleware=[Middleware(BrokenMiddleware)])\n\n    with pytest.raises(MiddlewareException):\n        with test_client_factory(broken_middleware):\n            pass  # pragma: no cover\n\n\ndef test_testclient_asgi2(test_client_factory: TestClientFactory) -> None:\n    def app(scope: Scope) -> ASGIInstance:\n        async def inner(receive: Receive, send: Send) -> None:\n            await send(\n                {\n                    \"type\": \"http.response.start\",\n                    \"status\": 200,\n                    \"headers\": [[b\"content-type\", b\"text/plain\"]],\n                }\n            )\n            await send({\"type\": \"http.response.body\", \"body\": b\"Hello, world!\"})\n\n        return inner\n\n    client = test_client_factory(app)  # type: ignore\n    response = client.get(\"/\")\n    assert response.text == \"Hello, world!\"\n\n\ndef test_testclient_asgi3(test_client_factory: TestClientFactory) -> None:\n    async def app(scope: Scope, receive: Receive, send: Send) -> None:\n        await send(\n            {\n                \"type\": \"http.response.start\",\n",
+        "command": "/bin/zsh -lc \"sed -n '125,220p' tests/test_testclient.py\"",
+        "exit_code": 0,
+        "id": "item_10",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 209967.539508583,
+      "perf_counter_ns": 209967539503791,
+      "utc": "2026-10-14T08:54:39.607851+00:00",
+      "wall_time_ns": 1791968079607851000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"sed -n '1,155p' starlette/_utils.py\"",
+        "exit_code": null,
+        "id": "item_11",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 209967.539913041,
+      "perf_counter_ns": 209967539909708,
+      "utc": "2026-10-14T08:54:39.608257+00:00",
+      "wall_time_ns": 1791968079608257000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"sed -n '270,352p' starlette/testclient.py\"",
+        "exit_code": null,
+        "id": "item_12",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 209967.540258416,
+      "perf_counter_ns": 209967540255333,
+      "utc": "2026-10-14T08:54:39.608603+00:00",
+      "wall_time_ns": 1791968079608603000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "from __future__ import annotations\n\nimport asyncio\nimport functools\nimport sys\nimport typing\nfrom contextlib import contextmanager\n\nfrom starlette.types import Scope\n\nif sys.version_info >= (3, 10):  # pragma: no cover\n    from typing import TypeGuard\nelse:  # pragma: no cover\n    from typing_extensions import TypeGuard\n\nhas_exceptiongroups = True\nif sys.version_info < (3, 11):  # pragma: no cover\n    try:\n        from exceptiongroup import BaseExceptionGroup  # type: ignore[unused-ignore,import-not-found]\n    except ImportError:\n        has_exceptiongroups = False\n\nT = typing.TypeVar(\"T\")\nAwaitableCallable = typing.Callable[..., typing.Awaitable[T]]\n\n\n@typing.overload\ndef is_async_callable(obj: AwaitableCallable[T]) -> TypeGuard[AwaitableCallable[T]]: ...\n\n\n@typing.overload\ndef is_async_callable(obj: typing.Any) -> TypeGuard[AwaitableCallable[typing.Any]]: ...\n\n\ndef is_async_callable(obj: typing.Any) -> typing.Any:\n    while isinstance(obj, functools.partial):\n        obj = obj.func\n\n    return asyncio.iscoroutinefunction(obj) or (callable(obj) and asyncio.iscoroutinefunction(obj.__call__))\n\n\nT_co = typing.TypeVar(\"T_co\", covariant=True)\n\n\nclass AwaitableOrContextManager(typing.Awaitable[T_co], typing.AsyncContextManager[T_co], typing.Protocol[T_co]): ...\n\n\nclass SupportsAsyncClose(typing.Protocol):\n    async def close(self) -> None: ...  # pragma: no cover\n\n\nSupportsAsyncCloseType = typing.TypeVar(\"SupportsAsyncCloseType\", bound=SupportsAsyncClose, covariant=False)\n\n\nclass AwaitableOrContextManagerWrapper(typing.Generic[SupportsAsyncCloseType]):\n    __slots__ = (\"aw\", \"entered\")\n\n    def __init__(self, aw: typing.Awaitable[SupportsAsyncCloseType]) -> None:\n        self.aw = aw\n\n    def __await__(self) -> typing.Generator[typing.Any, None, SupportsAsyncCloseType]:\n        return self.aw.__await__()\n\n    async def __aenter__(self) -> SupportsAsyncCloseType:\n        self.entered = await self.aw\n        return self.entered\n\n    async def __aexit__(self, *args: typing.Any) -> None | bool:\n        await self.entered.close()\n        return None\n\n\n@contextmanager\ndef collapse_excgroups() -> typing.Generator[None, None, None]:\n    try:\n        yield\n    except BaseException as exc:\n        if has_exceptiongroups:  # pragma: no cover\n            while isinstance(exc, BaseExceptionGroup) and len(exc.exceptions) == 1:\n                exc = exc.exceptions[0]\n\n        raise exc\n\n\ndef get_route_path(scope: Scope) -> str:\n    path: str = scope[\"path\"]\n    root_path = scope.get(\"root_path\", \"\")\n    if not root_path:\n        return path\n\n    if not path.startswith(root_path):\n        return path\n\n    if path == root_path:\n        return \"\"\n\n    if path[len(root_path)] == \"/\":\n        return path[len(root_path) :]\n\n    return path\n",
+        "command": "/bin/zsh -lc \"sed -n '1,155p' starlette/_utils.py\"",
+        "exit_code": 0,
+        "id": "item_11",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 209967.540622291,
+      "perf_counter_ns": 209967540616333,
+      "utc": "2026-10-14T08:54:39.608964+00:00",
+      "wall_time_ns": 1791968079608964000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "            \"client\": self.client,\n            \"server\": [host, port],\n            \"extensions\": {\"http.response.debug\": {}},\n            \"state\": self.app_state.copy(),\n        }\n\n        request_complete = False\n        response_started = False\n        response_complete: anyio.Event\n        raw_kwargs: dict[str, typing.Any] = {\"stream\": io.BytesIO()}\n        template = None\n        context = None\n\n        async def receive() -> Message:\n            nonlocal request_complete\n\n            if request_complete:\n                if not response_complete.is_set():\n                    await response_complete.wait()\n                return {\"type\": \"http.disconnect\"}\n\n            body = request.read()\n            if isinstance(body, str):\n                body_bytes: bytes = body.encode(\"utf-8\")  # pragma: no cover\n            elif body is None:\n                body_bytes = b\"\"  # pragma: no cover\n            elif isinstance(body, GeneratorType):\n                try:  # pragma: no cover\n                    chunk = body.send(None)\n                    if isinstance(chunk, str):\n                        chunk = chunk.encode(\"utf-8\")\n                    return {\"type\": \"http.request\", \"body\": chunk, \"more_body\": True}\n                except StopIteration:  # pragma: no cover\n                    request_complete = True\n                    return {\"type\": \"http.request\", \"body\": b\"\"}\n            else:\n                body_bytes = body\n\n            request_complete = True\n            return {\"type\": \"http.request\", \"body\": body_bytes}\n\n        async def send(message: Message) -> None:\n            nonlocal raw_kwargs, response_started, template, context\n\n            if message[\"type\"] == \"http.response.start\":\n                assert not response_started, 'Received multiple \"http.response.start\" messages.'\n                raw_kwargs[\"status_code\"] = message[\"status\"]\n                raw_kwargs[\"headers\"] = [(key.decode(), value.decode()) for key, value in message.get(\"headers\", [])]\n                response_started = True\n            elif message[\"type\"] == \"http.response.body\":\n                assert response_started, 'Received \"http.response.body\" without \"http.response.start\".'\n                assert not response_complete.is_set(), 'Received \"http.response.body\" after response completed.'\n                body = message.get(\"body\", b\"\")\n                more_body = message.get(\"more_body\", False)\n                if request.method != \"HEAD\":\n                    raw_kwargs[\"stream\"].write(body)\n                if not more_body:\n                    raw_kwargs[\"stream\"].seek(0)\n                    response_complete.set()\n            elif message[\"type\"] == \"http.response.debug\":\n                template = message[\"info\"][\"template\"]\n                context = message[\"info\"][\"context\"]\n\n        try:\n            with self.portal_factory() as portal:\n                response_complete = portal.call(anyio.Event)\n                portal.call(self.app, scope, receive, send)\n        except BaseException as exc:\n            if self.raise_server_exceptions:\n                raise exc\n\n        if self.raise_server_exceptions:\n            assert response_started, \"TestClient did not receive any response.\"\n        elif not response_started:\n            raw_kwargs = {\n                \"status_code\": 500,\n                \"headers\": [],\n                \"stream\": io.BytesIO(),\n            }\n\n        raw_kwargs[\"stream\"] = httpx.ByteStream(raw_kwargs[\"stream\"].read())\n\n        response = httpx.Response(**raw_kwargs, request=request)\n",
+        "command": "/bin/zsh -lc \"sed -n '270,352p' starlette/testclient.py\"",
+        "exit_code": 0,
+        "id": "item_12",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 209967.541097583,
+      "perf_counter_ns": 209967541093291,
+      "utc": "2026-10-14T08:54:39.609441+00:00",
+      "wall_time_ns": 1791968079609441000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"sed -n '1,25p' tests/test_requests.py; sed -n '82,122p' tests/test_requests.py; sed -n '148,195p' tests/test_requests.py; sed -n '1,55p' tests/middleware/test_https_redirect.py; sed -n '1,75p' starlette/middleware/exceptions.py\"",
+        "exit_code": null,
+        "id": "item_13",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 209967.55214175,
+      "perf_counter_ns": 209967552134416,
+      "utc": "2026-10-14T08:54:39.620482+00:00",
+      "wall_time_ns": 1791968079620482000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "from __future__ import annotations\n\nimport sys\nfrom collections.abc import Iterator\nfrom typing import Any\n\nimport anyio\nimport pytest\n\nfrom starlette.datastructures import URL, Address, State\nfrom starlette.requests import ClientDisconnect, Request\nfrom starlette.responses import JSONResponse, PlainTextResponse, Response\nfrom starlette.types import Message, Receive, Scope, Send\nfrom tests.types import TestClientFactory\n\n\ndef test_request_url(test_client_factory: TestClientFactory) -> None:\n    async def app(scope: Scope, receive: Receive, send: Send) -> None:\n        request = Request(scope, receive)\n        data = {\"method\": request.method, \"url\": str(request.url)}\n        response = JSONResponse(data)\n        await response(scope, receive, send)\n\n    client = test_client_factory(app)\n    response = client.get(\"/123?a=abc\")\ndef test_request_body(test_client_factory: TestClientFactory) -> None:\n    async def app(scope: Scope, receive: Receive, send: Send) -> None:\n        request = Request(scope, receive)\n        body = await request.body()\n        response = JSONResponse({\"body\": body.decode()})\n        await response(scope, receive, send)\n\n    client = test_client_factory(app)\n\n    response = client.get(\"/\")\n    assert response.json() == {\"body\": \"\"}\n\n    response = client.post(\"/\", json={\"a\": \"123\"})\n    assert response.json() == {\"body\": '{\"a\":\"123\"}'}\n\n    response = client.post(\"/\", data=\"abc\")  # type: ignore\n    assert response.json() == {\"body\": \"abc\"}\n\n\ndef test_request_stream(test_client_factory: TestClientFactory) -> None:\n    async def app(scope: Scope, receive: Receive, send: Send) -> None:\n        request = Request(scope, receive)\n        body = b\"\"\n        async for chunk in request.stream():\n            body += chunk\n        response = JSONResponse({\"body\": body.decode()})\n        await response(scope, receive, send)\n\n    client = test_client_factory(app)\n\n    response = client.get(\"/\")\n    assert response.json() == {\"body\": \"\"}\n\n    response = client.post(\"/\", json={\"a\": \"123\"})\n    assert response.json() == {\"body\": '{\"a\":\"123\"}'}\n\n    response = client.post(\"/\", data=\"abc\")  # type: ignore\n    assert response.json() == {\"body\": \"abc\"}\n\n\ndef test_request_form_urlencoded(test_client_factory: TestClientFactory) -> None:\ndef test_request_body_then_stream(test_client_factory: TestClientFactory) -> None:\n    async def app(scope: Scope, receive: Receive, send: Send) -> None:\n        request = Request(scope, receive)\n        body = await request.body()\n        chunks = b\"\"\n        async for chunk in request.stream():\n            chunks += chunk\n        response = JSONResponse({\"body\": body.decode(), \"stream\": chunks.decode()})\n        await response(scope, receive, send)\n\n    client = test_client_factory(app)\n\n    response = client.post(\"/\", data=\"abc\")  # type: ignore\n    assert response.json() == {\"body\": \"abc\", \"stream\": \"abc\"}\n\n\ndef test_request_stream_then_body(test_client_factory: TestClientFactory) -> None:\n    async def app(scope: Scope, receive: Receive, send: Send) -> None:\n        request = Request(scope, receive)\n        chunks = b\"\"\n        async for chunk in request.stream():\n            chunks += chunk\n        try:\n            body = await request.body()\n        except RuntimeError:\n            body = b\"<stream consumed>\"\n        response = JSONResponse({\"body\": body.decode(), \"stream\": chunks.decode()})\n        await response(scope, receive, send)\n\n    client = test_client_factory(app)\n\n    response = client.post(\"/\", data=\"abc\")  # type: ignore\n    assert response.json() == {\"body\": \"<stream consumed>\", \"stream\": \"abc\"}\n\n\ndef test_request_json(test_client_factory: TestClientFactory) -> None:\n    async def app(scope: Scope, receive: Receive, send: Send) -> None:\n        request = Request(scope, receive)\n        data = await request.json()\n        response = JSONResponse({\"json\": data})\n        await response(scope, receive, send)\n\n    client = test_client_factory(app)\n    response = client.post(\"/\", json={\"a\": \"123\"})\n    assert response.json() == {\"json\": {\"a\": \"123\"}}\n\n\ndef test_request_scope_interface() -> None:\nfrom starlette.applications import Starlette\nfrom starlette.middleware import Middleware\nfrom starlette.middleware.httpsredirect import HTTPSRedirectMiddleware\nfrom starlette.requests import Request\nfrom starlette.responses import PlainTextResponse\nfrom starlette.routing import Route\nfrom tests.types import TestClientFactory\n\n\ndef test_https_redirect_middleware(test_client_factory: TestClientFactory) -> None:\n    def homepage(request: Request) -> PlainTextResponse:\n        return PlainTextResponse(\"OK\", status_code=200)\n\n    app = Starlette(\n        routes=[Route(\"/\", endpoint=homepage)],\n        middleware=[Middleware(HTTPSRedirectMiddleware)],\n    )\n\n    client = test_client_factory(app, base_url=\"https://testserver\")\n    response = client.get(\"/\")\n    assert response.status_code == 200\n\n    client = test_client_factory(app)\n    response = client.get(\"/\", follow_redirects=False)\n    assert response.status_code == 307\n    assert response.headers[\"location\"] == \"https://testserver/\"\n\n    client = test_client_factory(app, base_url=\"http://testserver:80\")\n    response = client.get(\"/\", follow_redirects=False)\n    assert response.status_code == 307\n    assert response.headers[\"location\"] == \"https://testserver/\"\n\n    client = test_client_factory(app, base_url=\"http://testserver:443\")\n    response = client.get(\"/\", follow_redirects=False)\n    assert response.status_code == 307\n    assert response.headers[\"location\"] == \"https://testserver/\"\n\n    client = test_client_factory(app, base_url=\"http://testserver:123\")\n    response = client.get(\"/\", follow_redirects=False)\n    assert response.status_code == 307\n    assert response.headers[\"location\"] == \"https://testserver:123/\"\nfrom __future__ import annotations\n\nimport typing\n\nfrom starlette._exception_handler import (\n    ExceptionHandlers,\n    StatusHandlers,\n    wrap_app_handling_exceptions,\n)\nfrom starlette.exceptions import HTTPException, WebSocketException\nfrom starlette.requests import Request\nfrom starlette.responses import PlainTextResponse, Response\nfrom starlette.types import ASGIApp, Receive, Scope, Send\nfrom starlette.websockets import WebSocket\n\n\nclass ExceptionMiddleware:\n    def __init__(\n        self,\n        app: ASGIApp,\n        handlers: typing.Mapping[typing.Any, typing.Callable[[Request, Exception], Response]] | None = None,\n        debug: bool = False,\n    ) -> None:\n        self.app = app\n        self.debug = debug  # TODO: We ought to handle 404 cases if debug is set.\n        self._status_handlers: StatusHandlers = {}\n        self._exception_handlers: ExceptionHandlers = {\n            HTTPException: self.http_exception,\n            WebSocketException: self.websocket_exception,\n        }\n        if handlers is not None:  # pragma: no branch\n            for key, value in handlers.items():\n                self.add_exception_handler(key, value)\n\n    def add_exception_handler(\n        self,\n        exc_class_or_status_code: int | type[Exception],\n        handler: typing.Callable[[Request, Exception], Response],\n    ) -> None:\n        if isinstance(exc_class_or_status_code, int):\n            self._status_handlers[exc_class_or_status_code] = handler\n        else:\n            assert issubclass(exc_class_or_status_code, Exception)\n            self._exception_handlers[exc_class_or_status_code] = handler\n\n    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:\n        if scope[\"type\"] not in (\"http\", \"websocket\"):\n            await self.app(scope, receive, send)\n            return\n\n        scope[\"starlette.exception_handlers\"] = (\n            self._exception_handlers,\n            self._status_handlers,\n        )\n\n        conn: Request | WebSocket\n        if scope[\"type\"] == \"http\":\n            conn = Request(scope, receive, send)\n        else:\n            conn = WebSocket(scope, receive, send)\n\n        await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)\n\n    def http_exception(self, request: Request, exc: Exception) -> Response:\n        assert isinstance(exc, HTTPException)\n        if exc.status_code in {204, 304}:\n            return Response(status_code=exc.status_code, headers=exc.headers)\n        return PlainTextResponse(exc.detail, status_code=exc.status_code, headers=exc.headers)\n\n    async def websocket_exception(self, websocket: WebSocket, exc: Exception) -> None:\n        assert isinstance(exc, WebSocketException)\n        await websocket.close(code=exc.code, reason=exc.reason)  # pragma: no cover\n",
+        "command": "/bin/zsh -lc \"sed -n '1,25p' tests/test_requests.py; sed -n '82,122p' tests/test_requests.py; sed -n '148,195p' tests/test_requests.py; sed -n '1,55p' tests/middleware/test_https_redirect.py; sed -n '1,75p' starlette/middleware/exceptions.py\"",
+        "exit_code": 0,
+        "id": "item_13",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 209967.552645333,
+      "perf_counter_ns": 209967552641083,
+      "utc": "2026-10-14T08:54:39.620989+00:00",
+      "wall_time_ns": 1791968079620989000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"<PROJECT>/.venv/bin/python -c 'import sys, importlib.metadata as m; print(sys.version); print({name: m.version(name) for name in (\\\"anyio\\\", \\\"pytest\\\", \\\"httpx\\\", \\\"trio\\\")})'\"",
+        "exit_code": null,
+        "id": "item_14",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 209967.580097125,
+      "perf_counter_ns": 209967580091500,
+      "utc": "2026-10-14T08:54:39.648439+00:00",
+      "wall_time_ns": 1791968079648439000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "3.12.15 (main, Oct  9 2026, 15:10:57) [Clang 22.1.3 ]\n{'anyio': '4.15.1', 'pytest': '8.3.5', 'httpx': '0.28.1', 'trio': '0.32.0'}\n",
+        "command": "/bin/zsh -lc \"<PROJECT>/.venv/bin/python -c 'import sys, importlib.metadata as m; print(sys.version); print({name: m.version(name) for name in (\\\"anyio\\\", \\\"pytest\\\", \\\"httpx\\\", \\\"trio\\\")})'\"",
+        "exit_code": 0,
+        "id": "item_14",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 209967.58065275,
+      "perf_counter_ns": 209967580648958,
+      "utc": "2026-10-14T08:54:39.648997+00:00",
+      "wall_time_ns": 1791968079648997000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "id": "item_15",
+        "text": "`Request.body()` already caches only after the stream finishes. I\u2019ll check the byte count before retaining each chunk and check cached bodies without rereading. The middleware will use the same validation and buffering path, then replay accepted bytes before delegating later receives to the original channel.\n",
+        "type": "agent_message"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 209991.5294095,
+      "perf_counter_ns": 209991529363791,
+      "utc": "2026-10-14T08:55:03.597847+00:00",
+      "wall_time_ns": 1791968103597847000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "changes": [
+          {
+            "kind": "update",
+            "path": "<WORKSPACE>/starlette/exceptions.py"
+          },
+          {
+            "kind": "add",
+            "path": "<WORKSPACE>/starlette/middleware/body_limit.py"
+          },
+          {
+            "kind": "update",
+            "path": "<WORKSPACE>/starlette/requests.py"
+          }
+        ],
+        "id": "item_16",
+        "status": "in_progress",
+        "type": "file_change"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 210011.809561416,
+      "perf_counter_ns": 210011809519750,
+      "utc": "2026-10-14T08:55:23.878120+00:00",
+      "wall_time_ns": 1791968123878120000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "changes": [
+          {
+            "kind": "update",
+            "path": "<WORKSPACE>/starlette/exceptions.py"
+          },
+          {
+            "kind": "add",
+            "path": "<WORKSPACE>/starlette/middleware/body_limit.py"
+          },
+          {
+            "kind": "update",
+            "path": "<WORKSPACE>/starlette/requests.py"
+          }
+        ],
+        "id": "item_16",
+        "status": "completed",
+        "type": "file_change"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 210011.887507416,
+      "perf_counter_ns": 210011887491916,
+      "utc": "2026-10-14T08:55:23.956094+00:00",
+      "wall_time_ns": 1791968123956094000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"rg -n 'AsyncMock|Mock\\\\(' tests/middleware/test_base.py tests/test_requests.py tests/test_exceptions.py tests/test_testclient.py tests/middleware/test_middleware.py\"",
+        "exit_code": null,
+        "id": "item_17",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 210026.477450208,
+      "perf_counter_ns": 210026477432083,
+      "utc": "2026-10-14T08:55:38.546118+00:00",
+      "wall_time_ns": 1791968138546118000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"rg -n 'test.*(500|error|exception)|raises\\\\(' tests/test_exceptions.py tests/test_testclient.py tests/middleware/test_errors.py tests/middleware/test_base.py\"",
+        "exit_code": null,
+        "id": "item_18",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 210026.478470291,
+      "perf_counter_ns": 210026478464791,
+      "utc": "2026-10-14T08:55:38.547151+00:00",
+      "wall_time_ns": 1791968138547151000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"rg -n 'AsyncMock|Mock\\\\(' tests/middleware/test_base.py tests/test_requests.py tests/test_exceptions.py tests/test_testclient.py tests/middleware/test_middleware.py\"",
+        "exit_code": 1,
+        "id": "item_17",
+        "status": "failed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 210026.479007,
+      "perf_counter_ns": 210026479003250,
+      "utc": "2026-10-14T08:55:38.547690+00:00",
+      "wall_time_ns": 1791968138547690000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "tests/middleware/test_errors.py:25:    client = test_client_factory(app, raise_server_exceptions=False)\ntests/middleware/test_errors.py:36:    client = test_client_factory(app, raise_server_exceptions=False)\ntests/middleware/test_errors.py:48:    client = test_client_factory(app, raise_server_exceptions=False)\ntests/middleware/test_errors.py:63:    with pytest.raises(RuntimeError):\ntests/middleware/test_errors.py:77:    with pytest.raises(RuntimeError):\ntests/middleware/test_errors.py:102:    client = test_client_factory(app, raise_server_exceptions=False)\ntests/middleware/test_base.py:92:    with pytest.raises(Exception) as ctx:\ntests/middleware/test_base.py:96:    with pytest.raises(Exception) as ctx:\ntests/middleware/test_base.py:100:    with pytest.raises(RuntimeError):\ntests/middleware/test_base.py:673:            with pytest.raises(RuntimeError, match=\"Stream consumed\"):\ntests/middleware/test_base.py:702:            with pytest.raises(RuntimeError, match=\"Stream consumed\"):\ntests/test_testclient.py:170:def test_error_on_startup(test_client_factory: TestClientFactory) -> None:\ntests/test_testclient.py:174:    with pytest.raises(RuntimeError):\ntests/test_testclient.py:175:        with test_client_factory(startup_error_app):\ntests/test_testclient.py:179:def test_exception_in_middleware(test_client_factory: TestClientFactory) -> None:\ntests/test_testclient.py:192:    with pytest.raises(MiddlewareException):\ntests/test_testclient.py:289:    assert response.json() == {\"host\": \"testclient\", \"port\": 50000}\ntests/test_exceptions.py:107:    with pytest.raises(RuntimeError):\ntests/test_exceptions.py:115:    with pytest.raises(RuntimeError, match=\"Caught handled exception, but response already started.\"):\ntests/test_exceptions.py:120:    allow_200_client = test_client_factory(app, raise_server_exceptions=False)\ntests/test_exceptions.py:126:def test_force_500_response(test_client_factory: TestClientFactory) -> None:\ntests/test_exceptions.py:137:    force_500_client = test_client_factory(app, raise_server_exceptions=False)\n",
+        "command": "/bin/zsh -lc \"rg -n 'test.*(500|error|exception)|raises\\\\(' tests/test_exceptions.py tests/test_testclient.py tests/middleware/test_errors.py tests/middleware/test_base.py\"",
+        "exit_code": 0,
+        "id": "item_18",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 210026.479599666,
+      "perf_counter_ns": 210026479594125,
+      "utc": "2026-10-14T08:55:38.548280+00:00",
+      "wall_time_ns": 1791968138548280000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"<PROJECT>/.venv/bin/python -c 'import sys, importlib.util; print(sys.version); print({name: importlib.util.find_spec(name) is not None for name in (\\\"ruff\\\", \\\"mypy\\\", \\\"pytest\\\", \\\"trio\\\")})'\"",
+        "exit_code": null,
+        "id": "item_19",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 210026.48273625,
+      "perf_counter_ns": 210026482728375,
+      "utc": "2026-10-14T08:55:38.551415+00:00",
+      "wall_time_ns": 1791968138551415000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "3.12.15 (main, Oct  9 2026, 15:10:57) [Clang 22.1.3 ]\n{'ruff': True, 'mypy': False, 'pytest': True, 'trio': True}\n",
+        "command": "/bin/zsh -lc \"<PROJECT>/.venv/bin/python -c 'import sys, importlib.util; print(sys.version); print({name: importlib.util.find_spec(name) is not None for name in (\\\"ruff\\\", \\\"mypy\\\", \\\"pytest\\\", \\\"trio\\\")})'\"",
+        "exit_code": 0,
+        "id": "item_19",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 210026.483606541,
+      "perf_counter_ns": 210026483601000,
+      "utc": "2026-10-14T08:55:38.552287+00:00",
+      "wall_time_ns": 1791968138552287000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "changes": [
+          {
+            "kind": "add",
+            "path": "<WORKSPACE>/tests/middleware/test_body_limit.py"
+          },
+          {
+            "kind": "add",
+            "path": "<WORKSPACE>/tests/test_request_body_limits.py"
+          }
+        ],
+        "id": "item_20",
+        "status": "in_progress",
+        "type": "file_change"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 210163.036205291,
+      "perf_counter_ns": 210163036157000,
+      "utc": "2026-10-14T08:57:55.105626+00:00",
+      "wall_time_ns": 1791968275105626000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "changes": [
+          {
+            "kind": "add",
+            "path": "<WORKSPACE>/tests/middleware/test_body_limit.py"
+          },
+          {
+            "kind": "add",
+            "path": "<WORKSPACE>/tests/test_request_body_limits.py"
+          }
+        ],
+        "id": "item_20",
+        "status": "completed",
+        "type": "file_change"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 210163.096511125,
+      "perf_counter_ns": 210163096494291,
+      "utc": "2026-10-14T08:57:55.165965+00:00",
+      "wall_time_ns": 1791968275165965000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc '<PROJECT>/.venv/bin/python -m ruff format --check starlette/exceptions.py starlette/requests.py starlette/middleware/body_limit.py tests/test_request_body_limits.py tests/middleware/test_body_limit.py'",
+        "exit_code": null,
+        "id": "item_21",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 210171.747162666,
+      "perf_counter_ns": 210171747150625,
+      "utc": "2026-10-14T08:58:03.816671+00:00",
+      "wall_time_ns": 1791968283816671000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc '<PROJECT>/.venv/bin/python -m ruff check starlette/exceptions.py starlette/requests.py starlette/middleware/body_limit.py tests/test_request_body_limits.py tests/middleware/test_body_limit.py'",
+        "exit_code": null,
+        "id": "item_22",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 210171.747745125,
+      "perf_counter_ns": 210171747736625,
+      "utc": "2026-10-14T08:58:03.817258+00:00",
+      "wall_time_ns": 1791968283817258000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "All checks passed!\n",
+        "command": "/bin/zsh -lc '<PROJECT>/.venv/bin/python -m ruff check starlette/exceptions.py starlette/requests.py starlette/middleware/body_limit.py tests/test_request_body_limits.py tests/middleware/test_body_limit.py'",
+        "exit_code": 0,
+        "id": "item_22",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 210171.74812175,
+      "perf_counter_ns": 210171748118958,
+      "utc": "2026-10-14T08:58:03.817640+00:00",
+      "wall_time_ns": 1791968283817640000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "Would reformat: starlette/requests.py\nWould reformat: tests/middleware/test_body_limit.py\nWould reformat: tests/test_request_body_limits.py\n3 files would be reformatted, 2 files already formatted\n",
+        "command": "/bin/zsh -lc '<PROJECT>/.venv/bin/python -m ruff format --check starlette/exceptions.py starlette/requests.py starlette/middleware/body_limit.py tests/test_request_body_limits.py tests/middleware/test_body_limit.py'",
+        "exit_code": 1,
+        "id": "item_21",
+        "status": "failed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 210171.748461958,
+      "perf_counter_ns": 210171748459666,
+      "utc": "2026-10-14T08:58:03.817981+00:00",
+      "wall_time_ns": 1791968283817981000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc '<PROJECT>/.venv/bin/python -m pytest tests/test_request_body_limits.py tests/middleware/test_body_limit.py -q --tb=short'",
+        "exit_code": null,
+        "id": "item_23",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 210171.802870458,
+      "perf_counter_ns": 210171802860000,
+      "utc": "2026-10-14T08:58:03.872381+00:00",
+      "wall_time_ns": 1791968283872381000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "........................................................................ [ 48%]\n........................................................................ [ 96%]\n......                                                                   [100%]\n150 passed in 0.11s\n",
+        "command": "/bin/zsh -lc '<PROJECT>/.venv/bin/python -m pytest tests/test_request_body_limits.py tests/middleware/test_body_limit.py -q --tb=short'",
+        "exit_code": 0,
+        "id": "item_23",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 210172.0417505,
+      "perf_counter_ns": 210172041732208,
+      "utc": "2026-10-14T08:58:04.111254+00:00",
+      "wall_time_ns": 1791968284111254000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc '<PROJECT>/.venv/bin/python -m ruff format starlette/requests.py tests/test_request_body_limits.py tests/middleware/test_body_limit.py'",
+        "exit_code": null,
+        "id": "item_24",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 210187.998086333,
+      "perf_counter_ns": 210187998070041,
+      "utc": "2026-10-14T08:58:20.067684+00:00",
+      "wall_time_ns": 1791968300067684000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "3 files reformatted\n",
+        "command": "/bin/zsh -lc '<PROJECT>/.venv/bin/python -m ruff format starlette/requests.py tests/test_request_body_limits.py tests/middleware/test_body_limit.py'",
+        "exit_code": 0,
+        "id": "item_24",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 210187.998910083,
+      "perf_counter_ns": 210187998900166,
+      "utc": "2026-10-14T08:58:20.068514+00:00",
+      "wall_time_ns": 1791968300068514000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc '<PROJECT>/.venv/bin/python -m pytest tests/test_requests.py tests/test_testclient.py tests/test_exceptions.py tests/middleware/test_base.py tests/middleware/test_middleware.py tests/middleware/test_errors.py -q --tb=short'",
+        "exit_code": null,
+        "id": "item_25",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 210188.153270791,
+      "perf_counter_ns": 210188153258833,
+      "utc": "2026-10-14T08:58:20.222874+00:00",
+      "wall_time_ns": 1791968300222874000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc 'git diff --stat'",
+        "exit_code": null,
+        "id": "item_26",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 210189.215978041,
+      "perf_counter_ns": 210189215962000,
+      "utc": "2026-10-14T08:58:21.285583+00:00",
+      "wall_time_ns": 1791968301285583000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": " starlette/exceptions.py |  7 +++++++\n starlette/requests.py   | 22 +++++++++++++++++-----\n 2 files changed, 24 insertions(+), 5 deletions(-)\n",
+        "command": "/bin/zsh -lc 'git diff --stat'",
+        "exit_code": 0,
+        "id": "item_26",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 210189.216780541,
+      "perf_counter_ns": 210189216774875,
+      "utc": "2026-10-14T08:58:21.286396+00:00",
+      "wall_time_ns": 1791968301286396000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "..s.......................................s............................. [ 32%]\n........................................................................ [ 65%]\n.............x.........................x................................ [ 98%]\n...                                                                      [100%]\n=========================== short test summary info ============================\nSKIPPED [2] tests/test_requests.py:44: urllib3 includes \"br\" to the \"accept-encoding\" headers.\n215 passed, 2 skipped, 2 xfailed in 1.27s\n",
+        "command": "/bin/zsh -lc '<PROJECT>/.venv/bin/python -m pytest tests/test_requests.py tests/test_testclient.py tests/test_exceptions.py tests/middleware/test_base.py tests/middleware/test_middleware.py tests/middleware/test_errors.py -q --tb=short'",
+        "exit_code": 0,
+        "id": "item_25",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 210189.521561375,
+      "perf_counter_ns": 210189521544000,
+      "utc": "2026-10-14T08:58:21.591167+00:00",
+      "wall_time_ns": 1791968301591167000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc 'git diff -- starlette/exceptions.py starlette/requests.py'",
+        "exit_code": null,
+        "id": "item_27",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 210203.418239041,
+      "perf_counter_ns": 210203418223750,
+      "utc": "2026-10-14T08:58:35.487926+00:00",
+      "wall_time_ns": 1791968315487926000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc 'git status --short'",
+        "exit_code": null,
+        "id": "item_28",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 210203.418912,
+      "perf_counter_ns": 210203418904208,
+      "utc": "2026-10-14T08:58:35.488607+00:00",
+      "wall_time_ns": 1791968315488607000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": " M starlette/exceptions.py\n M starlette/requests.py\n?? starlette/middleware/body_limit.py\n?? tests/middleware/test_body_limit.py\n?? tests/test_request_body_limits.py\n",
+        "command": "/bin/zsh -lc 'git status --short'",
+        "exit_code": 0,
+        "id": "item_28",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 210203.419420416,
+      "perf_counter_ns": 210203419415041,
+      "utc": "2026-10-14T08:58:35.489118+00:00",
+      "wall_time_ns": 1791968315489118000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "diff --git a/starlette/exceptions.py b/starlette/exceptions.py\nindex 9ad3527..3df0c88 100644\n--- a/starlette/exceptions.py\n+++ b/starlette/exceptions.py\n@@ -20,6 +20,13 @@ class HTTPException(Exception):\n         return f\"{class_name}(status_code={self.status_code!r}, detail={self.detail!r})\"\n \n \n+class RequestBodyTooLarge(HTTPException):\n+    def __init__(self, limit: int, received: int) -> None:\n+        self.limit = limit\n+        self.received = received\n+        super().__init__(status_code=413, detail=\"Request body too large\")\n+\n+\n class WebSocketException(Exception):\n     def __init__(self, code: int, reason: str | None = None) -> None:\n         self.code = code\ndiff --git a/starlette/requests.py b/starlette/requests.py\nindex 369f632..e120336 100644\n--- a/starlette/requests.py\n+++ b/starlette/requests.py\n@@ -8,7 +8,7 @@ import anyio\n \n from starlette._utils import AwaitableOrContextManager, AwaitableOrContextManagerWrapper\n from starlette.datastructures import URL, Address, FormData, Headers, QueryParams, State\n-from starlette.exceptions import HTTPException\n+from starlette.exceptions import HTTPException, RequestBodyTooLarge\n from starlette.formparsers import FormParser, MultiPartException, MultiPartParser\n from starlette.types import Message, Receive, Scope, Send\n \n@@ -67,6 +67,11 @@ class ClientDisconnect(Exception):\n     pass\n \n \n+def _validate_max_bytes(max_bytes: int | None) -> None:\n+    if max_bytes is not None and (isinstance(max_bytes, bool) or not isinstance(max_bytes, int) or max_bytes < 0):\n+        raise ValueError(\"max_bytes must be None or a non-negative integer\")\n+\n+\n class HTTPConnection(typing.Mapping[str, typing.Any]):\n     \"\"\"\n     A base class for incoming HTTP connections, that is used to provide\n@@ -235,12 +240,19 @@ class Request(HTTPConnection):\n                 raise ClientDisconnect()\n         yield b\"\"\n \n-    async def body(self) -> bytes:\n+    async def body(self, max_bytes: int | None = None) -> bytes:\n+        _validate_max_bytes(max_bytes)\n         if not hasattr(self, \"_body\"):\n             chunks: list[bytes] = []\n+            received = 0\n             async for chunk in self.stream():\n+                received += len(chunk)\n+                if max_bytes is not None and received > max_bytes:\n+                    raise RequestBodyTooLarge(limit=max_bytes, received=received)\n                 chunks.append(chunk)\n             self._body = b\"\".join(chunks)\n+        if max_bytes is not None and len(self._body) > max_bytes:\n+            raise RequestBodyTooLarge(limit=max_bytes, received=len(self._body))\n         return self._body\n \n     async def json(self) -> typing.Any:\n@@ -257,9 +269,9 @@ class Request(HTTPConnection):\n         max_part_size: int = 1024 * 1024,\n     ) -> FormData:\n         if self._form is None:  # pragma: no branch\n-            assert (\n-                parse_options_header is not None\n-            ), \"The `python-multipart` library must be installed to use form parsing.\"\n+            assert parse_options_header is not None, (\n+                \"The `python-multipart` library must be installed to use form parsing.\"\n+            )\n             content_type_header = self.headers.get(\"Content-Type\")\n             content_type: bytes\n             content_type, _ = parse_options_header(content_type_header)\n",
+        "command": "/bin/zsh -lc 'git diff -- starlette/exceptions.py starlette/requests.py'",
+        "exit_code": 0,
+        "id": "item_27",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 210203.420064333,
+      "perf_counter_ns": 210203420061416,
+      "utc": "2026-10-14T08:58:35.489764+00:00",
+      "wall_time_ns": 1791968315489764000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc '<PROJECT>/.venv/bin/python -m ruff check starlette/exceptions.py starlette/requests.py starlette/middleware/body_limit.py tests/test_request_body_limits.py tests/middleware/test_body_limit.py'",
+        "exit_code": null,
+        "id": "item_29",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 210203.44252675,
+      "perf_counter_ns": 210203442519541,
+      "utc": "2026-10-14T08:58:35.512223+00:00",
+      "wall_time_ns": 1791968315512223000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "All checks passed!\n",
+        "command": "/bin/zsh -lc '<PROJECT>/.venv/bin/python -m ruff check starlette/exceptions.py starlette/requests.py starlette/middleware/body_limit.py tests/test_request_body_limits.py tests/middleware/test_body_limit.py'",
+        "exit_code": 0,
+        "id": "item_29",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 210203.443128375,
+      "perf_counter_ns": 210203443124833,
+      "utc": "2026-10-14T08:58:35.512828+00:00",
+      "wall_time_ns": 1791968315512828000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "id": "item_30",
+        "text": "All 150 new regression cases passed, including HTTP TestClient cases on asyncio and Trio. The relevant existing integration tests also passed: 215 passed, with two skips and two expected failures. I\u2019m removing an unrelated formatter change from the request code and checking the final diff.\n",
+        "type": "agent_message"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 210231.797325583,
+      "perf_counter_ns": 210231797280916,
+      "utc": "2026-10-14T08:59:03.867145+00:00",
+      "wall_time_ns": 1791968343867145000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "changes": [
+          {
+            "kind": "update",
+            "path": "<WORKSPACE>/starlette/requests.py"
+          },
+          {
+            "kind": "update",
+            "path": "<WORKSPACE>/tests/test_request_body_limits.py"
+          }
+        ],
+        "id": "item_31",
+        "status": "in_progress",
+        "type": "file_change"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 210238.316929333,
+      "perf_counter_ns": 210238316885750,
+      "utc": "2026-10-14T08:59:10.386787+00:00",
+      "wall_time_ns": 1791968350386787000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "changes": [
+          {
+            "kind": "update",
+            "path": "<WORKSPACE>/starlette/requests.py"
+          },
+          {
+            "kind": "update",
+            "path": "<WORKSPACE>/tests/test_request_body_limits.py"
+          }
+        ],
+        "id": "item_31",
+        "status": "completed",
+        "type": "file_change"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 210238.382131708,
+      "perf_counter_ns": 210238382115708,
+      "utc": "2026-10-14T08:59:10.452019+00:00",
+      "wall_time_ns": 1791968350452019000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc 'git status --short'",
+        "exit_code": null,
+        "id": "item_32",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 210266.718751791,
+      "perf_counter_ns": 210266718735625,
+      "utc": "2026-10-14T08:59:38.788802+00:00",
+      "wall_time_ns": 1791968378788802000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": " M starlette/exceptions.py\n M starlette/requests.py\n?? starlette/middleware/body_limit.py\n?? tests/middleware/test_body_limit.py\n?? tests/test_request_body_limits.py\n",
+        "command": "/bin/zsh -lc 'git status --short'",
+        "exit_code": 0,
+        "id": "item_32",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 210266.719456833,
+      "perf_counter_ns": 210266719449500,
+      "utc": "2026-10-14T08:59:38.789516+00:00",
+      "wall_time_ns": 1791968378789516000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc 'git diff --check'",
+        "exit_code": null,
+        "id": "item_33",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 210266.720273291,
+      "perf_counter_ns": 210266720268958,
+      "utc": "2026-10-14T08:59:38.790336+00:00",
+      "wall_time_ns": 1791968378790336000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc 'git diff --check'",
+        "exit_code": 0,
+        "id": "item_33",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 210266.720802125,
+      "perf_counter_ns": 210266720795875,
+      "utc": "2026-10-14T08:59:38.790863+00:00",
+      "wall_time_ns": 1791968378790863000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc 'git diff -- starlette/exceptions.py starlette/requests.py'",
+        "exit_code": null,
+        "id": "item_34",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 210266.721409041,
+      "perf_counter_ns": 210266721401708,
+      "utc": "2026-10-14T08:59:38.791468+00:00",
+      "wall_time_ns": 1791968378791468000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "diff --git a/starlette/exceptions.py b/starlette/exceptions.py\nindex 9ad3527..3df0c88 100644\n--- a/starlette/exceptions.py\n+++ b/starlette/exceptions.py\n@@ -20,6 +20,13 @@ class HTTPException(Exception):\n         return f\"{class_name}(status_code={self.status_code!r}, detail={self.detail!r})\"\n \n \n+class RequestBodyTooLarge(HTTPException):\n+    def __init__(self, limit: int, received: int) -> None:\n+        self.limit = limit\n+        self.received = received\n+        super().__init__(status_code=413, detail=\"Request body too large\")\n+\n+\n class WebSocketException(Exception):\n     def __init__(self, code: int, reason: str | None = None) -> None:\n         self.code = code\ndiff --git a/starlette/requests.py b/starlette/requests.py\nindex 369f632..927982c 100644\n--- a/starlette/requests.py\n+++ b/starlette/requests.py\n@@ -8,7 +8,7 @@ import anyio\n \n from starlette._utils import AwaitableOrContextManager, AwaitableOrContextManagerWrapper\n from starlette.datastructures import URL, Address, FormData, Headers, QueryParams, State\n-from starlette.exceptions import HTTPException\n+from starlette.exceptions import HTTPException, RequestBodyTooLarge\n from starlette.formparsers import FormParser, MultiPartException, MultiPartParser\n from starlette.types import Message, Receive, Scope, Send\n \n@@ -67,6 +67,11 @@ class ClientDisconnect(Exception):\n     pass\n \n \n+def _validate_max_bytes(max_bytes: int | None) -> None:\n+    if max_bytes is not None and (isinstance(max_bytes, bool) or not isinstance(max_bytes, int) or max_bytes < 0):\n+        raise ValueError(\"max_bytes must be None or a non-negative integer\")\n+\n+\n class HTTPConnection(typing.Mapping[str, typing.Any]):\n     \"\"\"\n     A base class for incoming HTTP connections, that is used to provide\n@@ -235,12 +240,19 @@ class Request(HTTPConnection):\n                 raise ClientDisconnect()\n         yield b\"\"\n \n-    async def body(self) -> bytes:\n+    async def body(self, max_bytes: int | None = None) -> bytes:\n+        _validate_max_bytes(max_bytes)\n         if not hasattr(self, \"_body\"):\n             chunks: list[bytes] = []\n+            received = 0\n             async for chunk in self.stream():\n+                received += len(chunk)\n+                if max_bytes is not None and received > max_bytes:\n+                    raise RequestBodyTooLarge(limit=max_bytes, received=received)\n                 chunks.append(chunk)\n             self._body = b\"\".join(chunks)\n+        if max_bytes is not None and len(self._body) > max_bytes:\n+            raise RequestBodyTooLarge(limit=max_bytes, received=len(self._body))\n         return self._body\n \n     async def json(self) -> typing.Any:\n",
+        "command": "/bin/zsh -lc 'git diff -- starlette/exceptions.py starlette/requests.py'",
+        "exit_code": 0,
+        "id": "item_34",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 210266.721930166,
+      "perf_counter_ns": 210266721924041,
+      "utc": "2026-10-14T08:59:38.791991+00:00",
+      "wall_time_ns": 1791968378791991000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc '<PROJECT>/.venv/bin/python -m ruff check starlette/exceptions.py starlette/requests.py starlette/middleware/body_limit.py tests/test_request_body_limits.py tests/middleware/test_body_limit.py'",
+        "exit_code": null,
+        "id": "item_35",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 210266.742798833,
+      "perf_counter_ns": 210266742795416,
+      "utc": "2026-10-14T08:59:38.812862+00:00",
+      "wall_time_ns": 1791968378812862000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc '<PROJECT>/.venv/bin/python -m ruff format --check starlette/exceptions.py starlette/middleware/body_limit.py tests/test_request_body_limits.py tests/middleware/test_body_limit.py'",
+        "exit_code": null,
+        "id": "item_36",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 210266.743347083,
+      "perf_counter_ns": 210266743343916,
+      "utc": "2026-10-14T08:59:38.813411+00:00",
+      "wall_time_ns": 1791968378813411000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "All checks passed!\n",
+        "command": "/bin/zsh -lc '<PROJECT>/.venv/bin/python -m ruff check starlette/exceptions.py starlette/requests.py starlette/middleware/body_limit.py tests/test_request_body_limits.py tests/middleware/test_body_limit.py'",
+        "exit_code": 0,
+        "id": "item_35",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 210266.74387075,
+      "perf_counter_ns": 210266743867583,
+      "utc": "2026-10-14T08:59:38.813935+00:00",
+      "wall_time_ns": 1791968378813935000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "4 files already formatted\n",
+        "command": "/bin/zsh -lc '<PROJECT>/.venv/bin/python -m ruff format --check starlette/exceptions.py starlette/middleware/body_limit.py tests/test_request_body_limits.py tests/middleware/test_body_limit.py'",
+        "exit_code": 0,
+        "id": "item_36",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 210266.744387458,
+      "perf_counter_ns": 210266744384666,
+      "utc": "2026-10-14T08:59:38.814452+00:00",
+      "wall_time_ns": 1791968378814452000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "id": "item_37",
+        "text": "Implemented bounded `Request.body()`, public `RequestBodyTooLarge`, and `RequestBodyLimitMiddleware`, preserving caching, disconnects, and endpoint errors. Added two regression test files; upstream tests remain unchanged.\n\nChecks: 150 new tests and 215 existing tests passed across asyncio and Trio; 2 skipped, 2 expected failures. Ruff and whitespace checks passed.",
+        "type": "agent_message"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 210278.9672715,
+      "perf_counter_ns": 210278967224583,
+      "utc": "2026-10-14T08:59:51.037360+00:00",
+      "wall_time_ns": 1791968391037360000
+    }
+  },
+  {
+    "event": {
+      "type": "turn.completed",
+      "usage": {
+        "cache_write_input_tokens": 0,
+        "cached_input_tokens": 256768,
+        "input_tokens": 317798,
+        "output_tokens": 11220,
+        "reasoning_output_tokens": 3600
+      }
+    },
+    "received": {
+      "monotonic_s": 210279.002146958,
+      "perf_counter_ns": 210279002090666,
+      "utc": "2026-10-14T08:59:51.072225+00:00",
+      "wall_time_ns": 1791968391072225000
+    }
+  }
+]

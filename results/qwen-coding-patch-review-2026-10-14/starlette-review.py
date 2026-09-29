@@ -28,11 +28,21 @@ def digest(path):
 
 def write(path, value):
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(value, indent=2, sort_keys=True) + "\n")
+    path.write_text(json.dumps(redacted(value), indent=2, sort_keys=True) + "\n")
 
 
 def redact(text):
-    return text.replace(str(ROOT), "<PROJECT>")
+    return text.replace(str(ROOT), "<PROJECT>").replace(str(Path.home()), "<HOME>")
+
+
+def redacted(value):
+    if isinstance(value, str):
+        return redact(value)
+    if isinstance(value, dict):
+        return {key: redacted(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [redacted(item) for item in value]
+    return value
 
 
 def tree(path):
@@ -137,10 +147,22 @@ def review(run_id):
         raise ValueError("Independent pinned archive does not match the frozen fixture")
     candidate = RAW / "candidates" / run_id
     archive(task, candidate)
+    subprocess.run(["git", "init", "--quiet"], cwd=candidate, check=True)
     subprocess.run(["git", "apply", "--unsafe-paths", str(patch)], cwd=candidate, check=True)
     after = tree(candidate)
     changed = {path: {"base_sha256": before.get(path), "candidate_sha256": after.get(path)}
                for path in sorted(set(before) | set(after)) if before.get(path) != after.get(path)}
+    if sorted(changed) != sorted(result["changed_files"]):
+        raise ValueError("Reconstructed patch file changes do not match the terminal inventory")
+    config = json.loads((STUDY / "frozen-config.json").read_text())
+    terminal = Path(config["work_root"]) / "workspaces" / run_id
+    changed_terminal_hashes = {path: digest(terminal / path) if (terminal / path).is_file() else None
+                               for path in changed}
+    if any(changed_terminal_hashes[path] != item["candidate_sha256"]
+           for path, item in changed.items()):
+        raise ValueError("Reconstructed changed-file bytes do not match the terminal source copy")
+    if tree(terminal / "starlette") != tree(candidate / "starlette"):
+        raise ValueError("Reconstructed full production source differs from the terminal source copy")
     new_tests = [path for path in changed if path.startswith("tests/") and path.endswith(".py")
                  and path not in before and path in after]
     production = [path for path in changed if path.startswith("starlette/")]
@@ -156,7 +178,9 @@ def review(run_id):
     added = None
     restored_added = None
     if new_tests:
-        command = [python, "-B", "-m", "pytest", "-q", "-o", "addopts=", "--tb=short", *new_tests]
+        command = [python, "-B", "-m", "pytest", "-q", "-o", "addopts=", "--tb=short",
+                   "-W", "ignore:The anyio.abc.BlockingPortal alias is deprecated:DeprecationWarning",
+                   "-W", "ignore:The `cancellable=` keyword argument:DeprecationWarning", *new_tests]
         added = run(command, candidate, "candidate-added-tests", run_id)
         restored = RAW / "restored-production" / run_id
         shutil.copytree(candidate, restored)
@@ -197,6 +221,8 @@ def review(run_id):
                             "study_tasks_sha256": digest(STUDY / "tasks.json")},
                "method": "Fresh pinned archive plus captured terminal patch; no active workspace reads",
                "changed_files": changed, "changed_production_files": production,
+               "terminal_changed_file_sha256": changed_terminal_hashes,
+               "terminal_full_production_source_exact": True,
                "new_test_files": new_tests, "changed_original_tests_or_configuration": original_test_config_changes,
                "added_configuration": added_configs, "candidate_source_sha256": tree(candidate / "starlette"),
                "supplemental": supplemental, "independent_strict_grade": strict,

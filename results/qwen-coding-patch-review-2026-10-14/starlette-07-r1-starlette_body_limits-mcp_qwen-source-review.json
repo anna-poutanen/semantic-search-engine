@@ -1,0 +1,96 @@
+{
+  "artifact_sha256": {
+    "results/qwen-coding-patch-review-2026-10-14/starlette-07-r1-starlette_body_limits-mcp_qwen-added-tests-v2.json": "ac98ec282dd662c3034a73c1cdb1c4a9f8c33d521b0444ac752fd39effc1a915",
+    "results/qwen-coding-patch-review-2026-10-14/starlette-07-r1-starlette_body_limits-mcp_qwen-terminal-binding.json": "d49c988fd0558504c943d60e4d6409ed9b3c59ffdb2b4c9d6e15dce4f2042e0b",
+    "results/qwen-coding-patch-review-2026-10-14/starlette-07-r1-starlette_body_limits-mcp_qwen-v2.json": "7663354a85aef8f0d743487765290a22dffca58ba18d0c1fcf4799d6b53ff34c",
+    "results/qwen-coding-patch-review-2026-10-14/starlette-pre-output-inventory.json": "906f72039486b1df89d2094b3759ebf52c2444cbb2e4bdfe363f7e4d29ef81e7",
+    "results/qwen-coding-patch-review-2026-10-14/starlette-probe-controls.json": "5a87314147ab6e23deaa1f78f37a4e307cf4a29e056a0e4bc393377bcd92d94c",
+    "results/qwen-coding-patch-review-2026-10-14/starlette-probe-plan.json": "535bc5e9571cb54db8b8c36270b755941ae530333f939ccb934794828dfdebeb",
+    "results/qwen-coding-patch-review-2026-10-14/starlette-publication-normalization.json": "2b99ee4a8527e3b03ea0fd606459f06b61e8416218a9eac887e3eb491d6fd4a8",
+    "results/qwen-coding-patch-review-2026-10-14/starlette-review-v2-executed.py.txt": "f1364799a23e78a232f5d0392630418e2e71078e1f5fd738fc161c7dd6a24598",
+    "results/qwen-coding-patch-review-2026-10-14/starlette-review-v3-executed.py.txt": "18cc08283da057b14f6e31e5111a751fa363ff4a0a407551571ca174987b6298"
+  },
+  "classification": "Independent source review and supplemental evidence; frozen grades unchanged",
+  "demonstrated_additional_contract_defects": 0,
+  "evaluator_incidents": [
+    {
+      "classification": "Review infrastructure error, not candidate defect",
+      "description": "First invocation left the fresh pinned base unchanged because nested git apply filtered the Git diff. Exact original source/results/logs are retained. Corrected isolated repositories plus terminal changed-file and full production-byte comparisons prove reconstruction.",
+      "kind": "invalid_reconstruction",
+      "receipt": "results/qwen-coding-patch-review-2026-10-14/starlette-invalid-reconstruction-v1/explanation.json"
+    },
+    {
+      "classification": "Review command configuration, not candidate defect",
+      "description": "First authored-test invocation was blocked by known AnyIO deprecation warnings. The repeated candidate/base commands use the same two narrow warning exemptions already frozen for compatibility; original executions are retained.",
+      "kind": "authored_test_import_warning"
+    }
+  ],
+  "examined_file_sha256": {
+    "docs/middleware.md": "a266e9cd4a35a7e73ca3091de65faec5eee94916a1dbafb524ba9851f5a719b1",
+    "docs/requests.md": "74ac9323ef3a7ad78e4d543f6853d8c282af7014deb03300f99acad8a9051935",
+    "starlette/exceptions.py": "b28de970c39dd352ae374737196b7009eca684494d30a96167b800a9b6ae5ea6",
+    "starlette/middleware/body_limit.py": "9f2cdf00a3080c4055e5ca625f722219d2d5b1ce2193698daff220c9396ceec6",
+    "starlette/requests.py": "4f3b8530a0c3c32e0360d92ab24cd13f66ff95349b2405e5ba77abb590905f04",
+    "tests/middleware/test_body_limit.py": "adb162895bbba3a6ec3610225367a7ff23ade1a2434e9e6bc52b1993d76ff68c",
+    "tests/test_request_body_limits.py": "08e188216b9997e642a0382bf9e40a15a3181ee51f7ccd47aaa00efcaf7ba8e7"
+  },
+  "formal_grade_unchanged": {
+    "completed_correct": true,
+    "correct": true,
+    "strict_passed": true,
+    "upstream_passed": true
+  },
+  "independently_reproduced": {
+    "base_production_authored_test_collection_errors": 2,
+    "candidate_authored_parameterized_cases_passed": 143,
+    "strict_cases_passed": 10,
+    "supplemental_cases_passed": 9,
+    "upstream_passed": 269,
+    "upstream_skipped": 2
+  },
+  "limits": [
+    "No additional demonstrated contract defect was found in these files and exercised paths; this does not prove every possible Starlette behavior.",
+    "Parameterized authored test counts are cases, not a count of distinct behavioral guarantees.",
+    "Base-production collection errors show missing feature imports, not 143 independently failing runtime checks."
+  ],
+  "model_calls": 0,
+  "network_calls": 0,
+  "reviewed_at": "2026-10-14T09:02:32.466135+00:00",
+  "run_id": "07-r1-starlette_body_limits-mcp_qwen",
+  "source_checks": [
+    {
+      "files": [
+        "starlette/requests.py"
+      ],
+      "finding": "The new bound is validated before cached or streaming reads. Actual non-empty streamed bytes are accumulated, the first crossing raises before appending that chunk, and _body is assigned only after successful completion. Cached lower bounds reject without rereceiving. Existing json and stream implementations are otherwise unchanged."
+    },
+    {
+      "files": [
+        "starlette/exceptions.py"
+      ],
+      "finding": "The public error inherits HTTPException, fixes status 413 and the requested detail, and preserves the limit/received attributes."
+    },
+    {
+      "files": [
+        "starlette/middleware/body_limit.py"
+      ],
+      "finding": "Only bounded HTTP requests buffer. Oversize handling occurs before downstream invocation; the downstream call is outside the RequestBodyTooLarge catch, preserving endpoint exceptions. Accepted bytes replay once, then every subsequent receive delegates to the original channel."
+    },
+    {
+      "files": [
+        "docs/middleware.md",
+        "docs/requests.md"
+      ],
+      "finding": "Documentation matches the requested disabled/default limits, actual-byte counting, error, partial-stream and replay behavior."
+    },
+    {
+      "files": [
+        "tests/middleware/test_body_limit.py",
+        "tests/test_request_body_limits.py"
+      ],
+      "finding": "Added tests exercise original integration fixtures and both asynchronous backends rather than replacing existing tests. Exact base inventory comparison confirms no existing test/configuration was changed."
+    }
+  ],
+  "source_review_findings": [],
+  "version": 1
+}
