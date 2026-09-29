@@ -56,6 +56,7 @@ Later source-reviewed fixtures retain their own pinned notices:
 | [Koa](https://github.com/koajs/koa) | `2fecd029c6ce6b79d65158d28a76538f7f6b0378` | MIT, [Koa notice](results/koa-clause-preflight-2026-10-13/NOTICE.md) |
 | [HTTPX](https://github.com/encode/httpx) | 0.28.1, `26d48e0634e6ee9cdc0533996db289ce4b430177` | BSD-3-Clause, [HTTPX_LICENSE.txt](benchmarks/HTTPX_LICENSE.txt) and [corpus notice](benchmarks/HTTPX_CORPUS_NOTICE.md) |
 | [Django](https://github.com/django/django) | 5.2, `9e7cc2b628fe8fd3895986af9b7fc9525034c1b0` | BSD-3-Clause, [DJANGO_LICENSE.txt](results/django-index-preflight-2026-10-14/DJANGO_LICENSE.txt) |
+| [Werkzeug](https://github.com/pallets/werkzeug) | 3.1.3, `6389612fd1ee1bd93579eed5026e8fd471d04abd` | BSD-3-Clause, [Werkzeug notice](results/werkzeug-context-preflight-2026-10-14/NOTICE.md) |
 
 Published inventories, source snapshots and result excerpts retain these
 upstream notices. The ignored checkouts are downloaded separately.

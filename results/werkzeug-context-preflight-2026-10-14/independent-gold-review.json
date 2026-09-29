@@ -1,0 +1,658 @@
+{
+  "absent_reviews": [
+    {
+      "checks_passed": true,
+      "id": "werkzeug_http2_connection_engine",
+      "reason": "All source files were parsed for definition/import inventory and transport/security/cache terms. The server inherits stdlib HTTP/1 handling, constructs a WSGI environ, writes textual HTTP/1 headers/chunks and closes the connection; the proxy uses stdlib HTTPConnection/HTTPSConnection. No local binary HTTP/2 frame, concurrent stream multiplexing or HPACK codec implementation appears in this scope. Related HTTP/header/WSGI utilities do not satisfy the combined behavior.",
+      "reviewed_decoys": [
+        "serving.py:WSGIRequestHandler/run_wsgi/BaseWSGIServer",
+        "middleware/http_proxy.py:ProxyMiddleware.proxy_to",
+        "http.py and sansio/request.py header/URL parsing"
+      ],
+      "scope": "All 52 tracked src/werkzeug Python files, with external servers/dependencies and excluded JS/TS outside scope."
+    },
+    {
+      "checks_passed": true,
+      "id": "werkzeug_session_csrf_tokens",
+      "reason": "Debugger authentication was explicitly inspected because it creates a random application-wide secret and validates a PIN cookie. Its secret is created once per debugger object, the command check uses query args, and successful PIN authentication sets a timestamp/hash cookie without rotating a per-session anti-forgery token. This is related security functionality but not the requested session-bound token/form-validation/login-rotation lifecycle. LocalProxy session examples and generic salts/cookies/forms do not implement that lifecycle.",
+      "reviewed_decoys": [
+        "security.py:gen_salt/password helpers",
+        "debug/__init__.py:DebuggedApplication.__init__/__call__/pin_auth/check_pin_trust",
+        "local.py:LocalProxy session examples",
+        "http.py cookie helpers",
+        "formparser.py/request.py input parsing"
+      ],
+      "scope": "The same 52-file Python source scope; no claim about caller apps or external frameworks/extensions."
+    },
+    {
+      "checks_passed": true,
+      "id": "werkzeug_persistent_response_cache",
+      "reason": "Cache directives and static-file paths only emit/evaluate headers; request caches are per-object data; proxying opens the upstream connection and streams that current response directly. SharedDataMiddleware reads configured static files and may return 304, not a persisted fetched-response store. Temporary multipart upload storage and test-client cookies do not persist complete HTTP responses with later fresh lookup and upstream stale-body revalidation. The complete requested engine is absent within the frozen source scope.",
+      "reviewed_decoys": [
+        "datastructures/cache_control.py",
+        "sansio/request.py and sansio/response.py cache_control properties",
+        "utils.py:cached_property/send_file",
+        "wrappers/request.py:get_data/get_json",
+        "wrappers/response.py:make_conditional",
+        "middleware/shared_data.py:SharedDataMiddleware.__call__",
+        "middleware/http_proxy.py:ProxyMiddleware.proxy_to",
+        "test.py multipart TemporaryFile and cookie storage"
+      ],
+      "scope": "The same 52-file Python source scope, excluding outside cache backends and app middleware."
+    }
+  ],
+  "actual_cross_file_query_ids": [
+    "werkzeug_bounded_wsgi_input",
+    "werkzeug_multipart_memory_uploads",
+    "werkzeug_numeric_route_capture",
+    "werkzeug_untrusted_file_path",
+    "werkzeug_conditional_response_validators",
+    "werkzeug_cache_directive_serialization",
+    "werkzeug_entity_tag_membership",
+    "werkzeug_quoted_duplicate_cookies"
+  ],
+  "all_source_blobs_match_git": true,
+  "all_windows_independently_reconstructed": true,
+  "artifact_sha256": {
+    "benchmarks/werkzeug_context_queries.json": "7e61a39f937137c1850a9ce884a1363483123cc0c82f0db3dbb057c3dc3228a1",
+    "results/werkzeug-context-preflight-2026-10-14/WERKZEUG_LICENSE.txt": "3b49dcee4105eb37bac10faf1be260408fe85d252b8e9df2e0979fc1e094437b",
+    "results/werkzeug-context-preflight-2026-10-14/authoring-receipt.json": "e40ccddff36bf159244e5d7496baa1b3d9a2056caa33c7229db39d3f2ab982b9",
+    "results/werkzeug-context-preflight-2026-10-14/eligibility.json": "e383cff7b48e3d552dfd626c59dd9bc6c0be10c0e63e603799336f776bb0dfee",
+    "results/werkzeug-context-preflight-2026-10-14/protocol.md": "5440b29489704c262bb12d2157b0f8b6973e5a0c12ef7c6ee8eb7c53baf2a9d4",
+    "results/werkzeug-context-preflight-2026-10-14/source-freeze.json": "a12aa641b05b593dd46276059919507e975d4d609dd03f2702853b9e95f7cd9b",
+    "results/werkzeug-context-preflight-2026-10-14/window-inventory.json": "c530b00388f09d4eec12e7cea83a553370409ed4b73f975ac5df8b41fc7d4c3b"
+  },
+  "artifact_sha256_after": {
+    "benchmarks/werkzeug_context_queries.json": "7e61a39f937137c1850a9ce884a1363483123cc0c82f0db3dbb057c3dc3228a1",
+    "results/werkzeug-context-preflight-2026-10-14/WERKZEUG_LICENSE.txt": "3b49dcee4105eb37bac10faf1be260408fe85d252b8e9df2e0979fc1e094437b",
+    "results/werkzeug-context-preflight-2026-10-14/authoring-receipt.json": "e40ccddff36bf159244e5d7496baa1b3d9a2056caa33c7229db39d3f2ab982b9",
+    "results/werkzeug-context-preflight-2026-10-14/eligibility.json": "e383cff7b48e3d552dfd626c59dd9bc6c0be10c0e63e603799336f776bb0dfee",
+    "results/werkzeug-context-preflight-2026-10-14/protocol.md": "5440b29489704c262bb12d2157b0f8b6973e5a0c12ef7c6ee8eb7c53baf2a9d4",
+    "results/werkzeug-context-preflight-2026-10-14/source-freeze.json": "a12aa641b05b593dd46276059919507e975d4d609dd03f2702853b9e95f7cd9b",
+    "results/werkzeug-context-preflight-2026-10-14/window-inventory.json": "c530b00388f09d4eec12e7cea83a553370409ed4b73f975ac5df8b41fc7d4c3b"
+  },
+  "checks_passed": true,
+  "classification": "Independent prospective semantic gold and scoped-absence source review; no retrieval outcomes observed",
+  "created_at_utc": "2026-10-14T11:29:03.405928+00:00",
+  "embedding_calls": 0,
+  "full_definition_and_exact_source_hash_required": true,
+  "git_fsck_strict_exit_code": 0,
+  "independent_proof_sha256": {
+    "results/werkzeug-context-preflight-2026-10-14/independent-source-audit.py": "7872c845aaf7f0dc7d54fde10c10fa06e42f0f1af9777ad0c261593373d4f95c",
+    "results/werkzeug-context-preflight-2026-10-14/independent-source-proof.json": "397eb0e0f3298fdd3134226937ff6fe9c9b785ddae46cd085ca3daaa9a355208"
+  },
+  "index_calls": 0,
+  "label_edits": 0,
+  "limitations": [
+    "Semantic review is source inspection, not execution or a claim of full HTTP/security conformance.",
+    "Scoped absent labels are not an abstention calibration test.",
+    "The 15 source-authored queries are a prospective repository holdout, not a general coding-correctness benchmark.",
+    "This certificate authorizes no inference itself; runtime producer freeze/commit and lifecycle/native audit remain separate."
+  ],
+  "model_calls": 0,
+  "multi_file_positive_queries": 8,
+  "no_prior_outcomes": true,
+  "or_alternative_groups": 0,
+  "positive_queries": 12,
+  "positive_reviews": [
+    {
+      "behavior_review": "The request property calls get_input_stream with max_content_length. The WSGI helper rejects oversized declared lengths, chooses an empty unknown-length fallback, and uses is_max=True for terminated streams. LimitedStream clips reads, accounts _pos, and calls on_exhausted after its maximum; ordinary declared-length exhaustion returns EOF. Constructor state and default non-shallow configuration were also inspected.",
+      "callee_scope_review": "get_content_length and LimitedStream.__init__/on_disconnect are local supporting helpers; io stream operations and WSGI termination are delegated. The task does not require safe draining of an undeclared unterminated body.",
+      "checks_passed": true,
+      "id": "werkzeug_bounded_wsgi_input",
+      "multi_file": true,
+      "required_groups": 4,
+      "target_definitions": [
+        {
+          "definition_lines": [
+            319,
+            353
+          ],
+          "eligible_window_ids": [
+            "src/werkzeug/wrappers/request.py:Request.stream:318-353"
+          ],
+          "evidence_sha256": "f82caec20177147d4180d2353b32e09499d03db11acc23e1a9c62fbaea5c7c92",
+          "path": "src/werkzeug/wrappers/request.py",
+          "symbol": "Request.stream"
+        },
+        {
+          "definition_lines": [
+            129,
+            194
+          ],
+          "eligible_window_ids": [
+            "src/werkzeug/wsgi.py:get_input_stream:129-194"
+          ],
+          "evidence_sha256": "58dd52dc8dbea03ce1c824454474e53f07d78e9786bf12a2d1382f943ce84d62",
+          "path": "src/werkzeug/wsgi.py",
+          "symbol": "get_input_stream"
+        },
+        {
+          "definition_lines": [
+            520,
+            566
+          ],
+          "eligible_window_ids": [
+            "src/werkzeug/wsgi.py:LimitedStream.readinto:520-566"
+          ],
+          "evidence_sha256": "a4dbb4d5c7547344179fc2946e0331174151bf24c408ce4b1af8b3be52dd4b6f",
+          "path": "src/werkzeug/wsgi.py",
+          "symbol": "LimitedStream.readinto"
+        },
+        {
+          "definition_lines": [
+            468,
+            481
+          ],
+          "eligible_window_ids": [
+            "src/werkzeug/wsgi.py:LimitedStream.on_exhausted:468-481"
+          ],
+          "evidence_sha256": "10771bd409520b5a81c714910a6534355cbfb80bfd87af92cfe2056f142cfc06",
+          "path": "src/werkzeug/wsgi.py",
+          "symbol": "LimitedStream.on_exhausted"
+        }
+      ]
+    },
+    {
+      "behavior_review": "get_json indexes separate silent/nonsilent cache slots, checks force or is_json, parses the buffered bytes, caches successes in both slots and a silent ValueError only in the silent slot. The default hook distinguishes BadRequest for parse failure from UnsupportedMediaType for media-type rejection.",
+      "callee_scope_review": "get_data and is_json are local supporting behaviors; json_module supplies the actual JSON grammar. The target is cache/error orchestration with the stated body/media-type assumptions.",
+      "checks_passed": true,
+      "id": "werkzeug_json_silent_cache_errors",
+      "multi_file": false,
+      "required_groups": 2,
+      "target_definitions": [
+        {
+          "definition_lines": [
+            576,
+            629
+          ],
+          "eligible_window_ids": [
+            "src/werkzeug/wrappers/request.py:Request.get_json:576-629"
+          ],
+          "evidence_sha256": "e870f4373f6c478fdca63432f016db86291759670568deae7249bd4ec1524078",
+          "path": "src/werkzeug/wrappers/request.py",
+          "symbol": "Request.get_json"
+        },
+        {
+          "definition_lines": [
+            631,
+            650
+          ],
+          "eligible_window_ids": [
+            "src/werkzeug/wrappers/request.py:Request.on_json_loading_failed:631-650"
+          ],
+          "evidence_sha256": "363f35e46285e1b80dffa9f298640e1b9915455c17b2de28fbb075d8a0c09fbd",
+          "path": "src/werkzeug/wrappers/request.py",
+          "symbol": "Request.on_json_loading_failed"
+        }
+      ]
+    },
+    {
+      "behavior_review": "Outer parse accumulates each field with a per-field size limit, separately calls buffer admission, writes file chunks to stream_factory output and seeks file streams to zero before FileStorage construction. receive_data rejects len(buffer)+len(data) above its own limit.",
+      "callee_scope_review": "MultipartDecoder.next_event, get_part_charset, _chunk_iter and FileStorage are local supporting implementations, not outside-corpus dependencies. Supplied valid framing/part headers and caller-provided stream_factory restrict this task to admission and aggregation/wiring, not a complete multipart parser implementation.",
+      "checks_passed": true,
+      "id": "werkzeug_multipart_memory_uploads",
+      "multi_file": true,
+      "required_groups": 3,
+      "target_definitions": [
+        {
+          "definition_lines": [
+            351,
+            415
+          ],
+          "eligible_window_ids": [
+            "src/werkzeug/formparser.py:MultiPartParser.parse:351-415"
+          ],
+          "evidence_sha256": "df19c724ecd8c309a6adf93d87a55363c67a1b326c8e9b5397198ad52f9ef779",
+          "path": "src/werkzeug/formparser.py",
+          "symbol": "MultiPartParser.parse"
+        },
+        {
+          "definition_lines": [
+            136,
+            147
+          ],
+          "eligible_window_ids": [
+            "src/werkzeug/sansio/multipart.py:MultipartDecoder.receive_data:136-147"
+          ],
+          "evidence_sha256": "08eb008477f12d57c8f07184d0a1f0242172eac13149bd1ea9564b50d8368979",
+          "path": "src/werkzeug/sansio/multipart.py",
+          "symbol": "MultipartDecoder.receive_data"
+        },
+        {
+          "definition_lines": [
+            333,
+            349
+          ],
+          "eligible_window_ids": [
+            "src/werkzeug/formparser.py:MultiPartParser.start_file_streaming:333-349"
+          ],
+          "evidence_sha256": "ac86d244366742d77fd47ad36ef5b429b6732a7a8feb5d74fdac193ef221494e",
+          "path": "src/werkzeug/formparser.py",
+          "symbol": "MultiPartParser.start_file_streaming"
+        }
+      ]
+    },
+    {
+      "behavior_review": "The matcher traverses registered static/dynamic transitions, extracts capture groups, invokes configured converter.to_python and changes ValidationError to NoMatch. NumberConverter enforces fixed string length and min/max before returning its numeric conversion.",
+      "callee_scope_review": "Precompiled registered rules and configured numeric conversion are assumed. NumberConverter configuration is local. This does not promise retry of all alternative candidates after conversion failure, nor absorb arbitrary conversion exceptions.",
+      "checks_passed": true,
+      "id": "werkzeug_numeric_route_capture",
+      "multi_file": true,
+      "required_groups": 2,
+      "target_definitions": [
+        {
+          "definition_lines": [
+            69,
+            202
+          ],
+          "eligible_window_ids": [
+            "src/werkzeug/routing/matcher.py:StateMachineMatcher.match:69-202"
+          ],
+          "evidence_sha256": "2d9dbca0a24e4fab5b077ba7cbd175d056296693f26fd3eaeee08fc35aafe8ba",
+          "path": "src/werkzeug/routing/matcher.py",
+          "symbol": "StateMachineMatcher.match"
+        },
+        {
+          "definition_lines": [
+            152,
+            160
+          ],
+          "eligible_window_ids": [
+            "src/werkzeug/routing/converters.py:NumberConverter.to_python:152-160"
+          ],
+          "evidence_sha256": "1c246f5325b4f0baa63d9579608bdaa7143bcd916403953a103159825aae490d",
+          "path": "src/werkzeug/routing/converters.py",
+          "symbol": "NumberConverter.to_python"
+        }
+      ]
+    },
+    {
+      "behavior_review": "safe_join normalizes each untrusted component and rejects alternate separators, absolute paths and parent escapes. send_from_directory converts safe-join failure or a nonregular/nonexistent path to NotFound and delegates the accepted path to send_file.",
+      "callee_scope_review": "send_file is local, while os.path primitives are standard-library calls. The directory/application root is trusted. This is lexical protection under host path rules, with no symlink-containment claim.",
+      "checks_passed": true,
+      "id": "werkzeug_untrusted_file_path",
+      "multi_file": true,
+      "required_groups": 2,
+      "target_definitions": [
+        {
+          "definition_lines": [
+            538,
+            577
+          ],
+          "eligible_window_ids": [
+            "src/werkzeug/utils.py:send_from_directory:538-577"
+          ],
+          "evidence_sha256": "531b133c884f26ca5dc9e65f4971cf6a2d7d20ab1088971c636ca64dcab0c652",
+          "path": "src/werkzeug/utils.py",
+          "symbol": "send_from_directory"
+        },
+        {
+          "definition_lines": [
+            134,
+            166
+          ],
+          "eligible_window_ids": [
+            "src/werkzeug/security.py:safe_join:134-166"
+          ],
+          "evidence_sha256": "466916d32697fcd6e12f21b4cef051faa6fa30198799b6ca87f44b2686486928",
+          "path": "src/werkzeug/security.py",
+          "symbol": "safe_join"
+        }
+      ]
+    },
+    {
+      "behavior_review": "Response.make_conditional limits changes to GET/HEAD, calls the WSGI validator adaptor and chooses 412 when a supplied If-Match precondition causes an unmodified decision, otherwise 304. The sans-I/O function compares normalized dates, uses contains_weak for If-None-Match and is_strong for If-Match.",
+      "callee_scope_review": "Local ETag/date parsing and membership helpers were distinguished from standard datetime/hash primitives. Scope excludes Range/body suppression/full WSGI emission. This describes the pinned algorithm, not complete RFC conformance: If-Match uses is_strong, which does not apply star_tag wildcard membership.",
+      "checks_passed": true,
+      "id": "werkzeug_conditional_response_validators",
+      "multi_file": true,
+      "required_groups": 3,
+      "target_definitions": [
+        {
+          "definition_lines": [
+            705,
+            776
+          ],
+          "eligible_window_ids": [
+            "src/werkzeug/wrappers/response.py:Response.make_conditional:705-776"
+          ],
+          "evidence_sha256": "c6e0bdd31831da018d9d653496aeb539c4c85f334db0f558b22345cfe5a469cd",
+          "path": "src/werkzeug/wrappers/response.py",
+          "symbol": "Response.make_conditional"
+        },
+        {
+          "definition_lines": [
+            1087,
+            1122
+          ],
+          "eligible_window_ids": [
+            "src/werkzeug/http.py:is_resource_modified:1087-1122"
+          ],
+          "evidence_sha256": "b794efd0be4ef8b26d9cf0a734ccb163e8d6fac36cfad8240b50cc0d712f2edd",
+          "path": "src/werkzeug/http.py",
+          "symbol": "is_resource_modified"
+        },
+        {
+          "definition_lines": [
+            17,
+            93
+          ],
+          "eligible_window_ids": [
+            "src/werkzeug/sansio/http.py:is_resource_modified:17-93"
+          ],
+          "evidence_sha256": "3e15187f465f00b05322e7f5c2d08b16083fca833d1eb49fcf280c8d0d230ecf",
+          "path": "src/werkzeug/sansio/http.py",
+          "symbol": "is_resource_modified"
+        }
+      ]
+    },
+    {
+      "behavior_review": "The middleware saves all original environment values and separately selects each forwarded value with its configured count. _get_real_value returns values[-trusted] only with enough parsed items. Host/port handling checks IPv6 brackets.",
+      "callee_scope_review": "parse_list_header is a local wrapper over a standard parser. Trust is supplied configuration, not authentication or IP-range discovery; the downstream WSGI app is caller code.",
+      "checks_passed": true,
+      "id": "werkzeug_trusted_forwarded_hops",
+      "multi_file": false,
+      "required_groups": 2,
+      "target_definitions": [
+        {
+          "definition_lines": [
+            126,
+            183
+          ],
+          "eligible_window_ids": [
+            "src/werkzeug/middleware/proxy_fix.py:ProxyFix.__call__:126-183"
+          ],
+          "evidence_sha256": "8f3095e4bf32878aea7529470eab2f674e0130795f1f16d731ab22f9f81e4834",
+          "path": "src/werkzeug/middleware/proxy_fix.py",
+          "symbol": "ProxyFix.__call__"
+        },
+        {
+          "definition_lines": [
+            105,
+            124
+          ],
+          "eligible_window_ids": [
+            "src/werkzeug/middleware/proxy_fix.py:ProxyFix._get_real_value:105-124"
+          ],
+          "evidence_sha256": "c1d5e38c01c9ea97512d4114719e5f32cd3841af6a65a673b583a8d9e567d291",
+          "path": "src/werkzeug/middleware/proxy_fix.py",
+          "symbol": "ProxyFix._get_real_value"
+        }
+      ]
+    },
+    {
+      "behavior_review": "Generation obtains a salt and emits actual_method$salt$hash. _hash_internal selects scrypt/pbkdf2 parameters and returns the effective method string. Verification rejects missing separator fields and compares the derived hash with hmac.compare_digest.",
+      "callee_scope_review": "gen_salt is a local helper inspected to call secrets.choice, not an external package implementation. hashlib/hmac supply cryptographic primitives. Unsupported method/cost errors propagate; no blanket malformed-input or contemporary password-policy claim is credited.",
+      "checks_passed": true,
+      "id": "werkzeug_salted_password_format",
+      "multi_file": false,
+      "required_groups": 3,
+      "target_definitions": [
+        {
+          "definition_lines": [
+            73,
+            109
+          ],
+          "eligible_window_ids": [
+            "src/werkzeug/security.py:generate_password_hash:73-109"
+          ],
+          "evidence_sha256": "408db3b68083c29994c2dd874e7d8e8fc7122731dff02c4a3644f85d73a26ed8",
+          "path": "src/werkzeug/security.py",
+          "symbol": "generate_password_hash"
+        },
+        {
+          "definition_lines": [
+            25,
+            70
+          ],
+          "eligible_window_ids": [
+            "src/werkzeug/security.py:_hash_internal:25-70"
+          ],
+          "evidence_sha256": "239ecdc08e467c4c79186739ac25606e18c6fbb1ba5b4eb4a5ef46d6f8bca2b0",
+          "path": "src/werkzeug/security.py",
+          "symbol": "_hash_internal"
+        },
+        {
+          "definition_lines": [
+            112,
+            131
+          ],
+          "eligible_window_ids": [
+            "src/werkzeug/security.py:check_password_hash:112-131"
+          ],
+          "evidence_sha256": "935923019dc795d082ca66f8c664274cb89889478f3392da342645dc73f9cbb3",
+          "path": "src/werkzeug/security.py",
+          "symbol": "check_password_hash"
+        }
+      ]
+    },
+    {
+      "behavior_review": "The cache-control method calls dump_header. Its mapping branch emits bare valueless keys, quotes ordinary values, passes already-encoded starred keys through, and comma-joins. quote_header_value tests the token character set and escapes backslash/quote before quoting.",
+      "callee_scope_review": "All three required implementations are local. Existing populated directive mapping and ordinary nonempty directive keys are assumed; callbacks, freshness evaluation and a cache engine are outside this task.",
+      "checks_passed": true,
+      "id": "werkzeug_cache_directive_serialization",
+      "multi_file": true,
+      "required_groups": 3,
+      "target_definitions": [
+        {
+          "definition_lines": [
+            143,
+            145
+          ],
+          "eligible_window_ids": [
+            "src/werkzeug/datastructures/cache_control.py:_CacheControl.to_header:143-145"
+          ],
+          "evidence_sha256": "d145412856d40e755420e33627c3d729fff4b40644110da43dcee6227e7d69db",
+          "path": "src/werkzeug/datastructures/cache_control.py",
+          "symbol": "_CacheControl.to_header"
+        },
+        {
+          "definition_lines": [
+            239,
+            284
+          ],
+          "eligible_window_ids": [
+            "src/werkzeug/http.py:dump_header:239-284"
+          ],
+          "evidence_sha256": "e65b488027ae9a722c80d85975c41bf51a4e806db9d74acedcdecd2763f4241c",
+          "path": "src/werkzeug/http.py",
+          "symbol": "dump_header"
+        },
+        {
+          "definition_lines": [
+            139,
+            172
+          ],
+          "eligible_window_ids": [
+            "src/werkzeug/http.py:quote_header_value:139-172"
+          ],
+          "evidence_sha256": "26ffa77a5caa4ef1e458f8e878e6622aa1c8dcfc7b6027dcdf940170163758d5",
+          "path": "src/werkzeug/http.py",
+          "symbol": "quote_header_value"
+        }
+      ]
+    },
+    {
+      "behavior_review": "The dispatcher tests the whole path first and removes final slash segments until a mount matches, maintaining the remainder. It concatenates the selected prefix to SCRIPT_NAME, sets PATH_INFO and invokes the matching or fallback app.",
+      "callee_scope_review": "Mounts/fallback are configured already, and execution of the supplied app is external caller behavior. No rule compilation or arbitrary prefix matching is implied.",
+      "checks_passed": true,
+      "id": "werkzeug_mounted_wsgi_dispatch",
+      "multi_file": false,
+      "required_groups": 1,
+      "target_definitions": [
+        {
+          "definition_lines": [
+            62,
+            81
+          ],
+          "eligible_window_ids": [
+            "src/werkzeug/middleware/dispatcher.py:DispatcherMiddleware.__call__:62-81"
+          ],
+          "evidence_sha256": "c8e7cac29157253c86b017b5a0f9261ce9e244c3b58ec18065960d7c7e4ce6f5",
+          "path": "src/werkzeug/middleware/dispatcher.py",
+          "symbol": "DispatcherMiddleware.__call__"
+        }
+      ]
+    },
+    {
+      "behavior_review": "parse_etags separates strong/weak sets or returns star_tag=True. Construction preserves these sets; contains handles wildcard then strong membership; contains_weak adds weak membership. Both direct set helpers are required, so names or an incomplete wrapper cannot satisfy the six groups.",
+      "callee_scope_review": "Regex and frozenset are standard primitives. The six singleton groups are distinct behaviors connected by actual calls, not OR-equivalent alternatives. Scope uses ordinary parser grammar and excludes resource hashing/arbitrary escaped delimiter parsing.",
+      "checks_passed": true,
+      "id": "werkzeug_entity_tag_membership",
+      "multi_file": true,
+      "required_groups": 6,
+      "target_definitions": [
+        {
+          "definition_lines": [
+            946,
+            972
+          ],
+          "eligible_window_ids": [
+            "src/werkzeug/http.py:parse_etags:946-972"
+          ],
+          "evidence_sha256": "e7d7ac2bd4286b98d025d57df188cfe6e9bff6ee9400834b4b2f523aec561ea6",
+          "path": "src/werkzeug/http.py",
+          "symbol": "parse_etags"
+        },
+        {
+          "definition_lines": [
+            11,
+            23
+          ],
+          "eligible_window_ids": [
+            "src/werkzeug/datastructures/etag.py:ETags.__init__:11-23"
+          ],
+          "evidence_sha256": "aecde4d74b29543943fba1ccc0f4d773c75b4a4fef3a1a3bfb7a79d249f51796",
+          "path": "src/werkzeug/datastructures/etag.py",
+          "symbol": "ETags.__init__"
+        },
+        {
+          "definition_lines": [
+            45,
+            51
+          ],
+          "eligible_window_ids": [
+            "src/werkzeug/datastructures/etag.py:ETags.contains:45-51"
+          ],
+          "evidence_sha256": "1a5dc705d47824caeb95698290a73a83151380faefc886c5a8e309278e6e10d3",
+          "path": "src/werkzeug/datastructures/etag.py",
+          "symbol": "ETags.contains"
+        },
+        {
+          "definition_lines": [
+            41,
+            43
+          ],
+          "eligible_window_ids": [
+            "src/werkzeug/datastructures/etag.py:ETags.contains_weak:41-43"
+          ],
+          "evidence_sha256": "3e8f76d23e67ff7fec6d56fbff7bc5846de5b8f6b29202e56d6ddbf960a75058",
+          "path": "src/werkzeug/datastructures/etag.py",
+          "symbol": "ETags.contains_weak"
+        },
+        {
+          "definition_lines": [
+            37,
+            39
+          ],
+          "eligible_window_ids": [
+            "src/werkzeug/datastructures/etag.py:ETags.is_strong:37-39"
+          ],
+          "evidence_sha256": "d8686545239e4dcf4b9aafbacce53915688715bd9b2cc091446d26b65c982d7a",
+          "path": "src/werkzeug/datastructures/etag.py",
+          "symbol": "ETags.is_strong"
+        },
+        {
+          "definition_lines": [
+            33,
+            35
+          ],
+          "eligible_window_ids": [
+            "src/werkzeug/datastructures/etag.py:ETags.is_weak:33-35"
+          ],
+          "evidence_sha256": "c7e78cc8ef7ec80bd5c1752a218f8ecff214f7f7dbf47164a14d885423eb83ef",
+          "path": "src/werkzeug/datastructures/etag.py",
+          "symbol": "ETags.is_weak"
+        }
+      ]
+    },
+    {
+      "behavior_review": "The WSGI adapter obtains HTTP_COOKIE or the given string, recovers the transport encoding, and calls the sans-I/O parser. That parser builds ordered pairs and substitutes quoted escapes with a helper converting octal bytes before UTF-8 replacement decoding. MultiDict iterable construction appends duplicate values in order.",
+      "callee_scope_review": "MultiDict is local supporting storage, not an external dependency. The promise concerns order of repeated values for each name, not retaining arbitrary interleaving when flattened from MultiDict. Invalid quoted decoded bytes use replacement; malformed transport/unquoted text is not universally tolerated.",
+      "checks_passed": true,
+      "id": "werkzeug_quoted_duplicate_cookies",
+      "multi_file": true,
+      "required_groups": 3,
+      "target_definitions": [
+        {
+          "definition_lines": [
+            1184,
+            1218
+          ],
+          "eligible_window_ids": [
+            "src/werkzeug/http.py:parse_cookie:1184-1218"
+          ],
+          "evidence_sha256": "5e281395ed5a6c84c993b3f3161ee08fcc4336cb0aa00f5cb03e43ef85dd6135",
+          "path": "src/werkzeug/http.py",
+          "symbol": "parse_cookie"
+        },
+        {
+          "definition_lines": [
+            122,
+            166
+          ],
+          "eligible_window_ids": [
+            "src/werkzeug/sansio/http.py:parse_cookie:122-166"
+          ],
+          "evidence_sha256": "70cae17068df05cdef58060206304c0e0c3568f001a587e75cad65e7855f4868",
+          "path": "src/werkzeug/sansio/http.py",
+          "symbol": "parse_cookie"
+        },
+        {
+          "definition_lines": [
+            113,
+            119
+          ],
+          "eligible_window_ids": [
+            "src/werkzeug/sansio/http.py:_cookie_unslash_replace:113-119"
+          ],
+          "evidence_sha256": "2b21f7cba1a5e0344e589e4cc423c9ce9bdfa90cbf15474614d4b9b1b913b6ba",
+          "path": "src/werkzeug/sansio/http.py",
+          "symbol": "_cookie_unslash_replace"
+        }
+      ]
+    }
+  ],
+  "producer_helpers_imported": false,
+  "protocol_review": {
+    "baseline_max_results": 8,
+    "dependencies": true,
+    "diagnostic_cannot_rescue_primary": true,
+    "diagnostic_max_results": 20,
+    "freshness_limit": "Previously unranked local implementation repository/settings; source was read to author/review gold. Prior Flask external references, installed dependencies and model pretraining are not excluded.",
+    "individual_baseline_complete_retention_required": true,
+    "primary_max_results": 12,
+    "reranking_candidates": 24,
+    "retrieval_pool": 50,
+    "source_budget": 12000,
+    "strict_gain_required_for_improvement_claim": true,
+    "token_budget": 4096
+  },
+  "query_count": 15,
+  "required_groups": 34,
+  "retrieval_calls": 0,
+  "reviewer": "/root/large_index_audit",
+  "scoped_absent_queries": 3,
+  "semantic_issues_requiring_label_correction": [],
+  "source_file_count": 52,
+  "source_pin": {
+    "annotated_tag_object": "aefbcabecec911dc6fa95791e50be264bf5e8415",
+    "git_clean": true,
+    "git_tree": "307954153426c43960b35906da0a4d82d8eced81",
+    "revision": "6389612fd1ee1bd93579eed5026e8fd471d04abd"
+  },
+  "version": 1,
+  "werkzeug_runtime_imported": false,
+  "window_count": 1025
+}
