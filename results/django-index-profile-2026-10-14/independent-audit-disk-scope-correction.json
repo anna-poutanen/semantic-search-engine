@@ -1,0 +1,398 @@
+{
+  "auditor_sha256": "a24992727e690458d7cd32351e44dca2322cd53b68f864836cecc766b6f401aa",
+  "complete_inventory": true,
+  "created_at_utc": "2026-10-14T11:44:10.997714+00:00",
+  "exact_dense_id_order": true,
+  "fresh_reopen_layer": "durable SQLite index and source extraction; not service startup",
+  "kind": "independent_django_index_profile_audit",
+  "latency": {
+    "api": {
+      "bm25": {
+        "first_use_s": 0.648431042,
+        "warm": {
+          "count": 80,
+          "max_s": 0.671509916,
+          "median_s": 0.5961616249999999,
+          "min_s": 0.581136625,
+          "p95_s": 0.6256564973000001
+        }
+      },
+      "dense": {
+        "first_use_s": 0.682743667,
+        "warm": {
+          "count": 80,
+          "max_s": 0.769486083,
+          "median_s": 0.6579737914999999,
+          "min_s": 0.632722709,
+          "p95_s": 0.71816988335
+        }
+      },
+      "hybrid": {
+        "first_use_s": 0.664273458,
+        "warm": {
+          "count": 80,
+          "max_s": 0.761158208,
+          "median_s": 0.6835965829999999,
+          "min_s": 0.655456584,
+          "p95_s": 0.7172923121499999
+        }
+      }
+    },
+    "store": {
+      "bm25": {
+        "first_use_s": 0.004391333,
+        "warm": {
+          "count": 80,
+          "max_s": 0.040431084,
+          "median_s": 0.007905958,
+          "min_s": 0.001350792,
+          "p95_s": 0.01167580385
+        }
+      },
+      "dense": {
+        "first_use_s": 0.022365625,
+        "warm": {
+          "count": 80,
+          "max_s": 0.03484475,
+          "median_s": 0.021835,
+          "min_s": 0.0214025,
+          "p95_s": 0.02308829375
+        }
+      },
+      "hybrid": {
+        "first_use_s": 0.026776667,
+        "warm": {
+          "count": 80,
+          "max_s": 0.038025583,
+          "median_s": 0.030786708500000003,
+          "min_s": 0.023297584,
+          "p95_s": 0.0342934027
+        }
+      }
+    }
+  },
+  "limitations": [
+    "Django5.2 is a fixed historical source release, not the latest patched release or a deployed service.",
+    "This experiment profiles one machine and one repository, using a cached checkpoint but a genuinely empty document index.",
+    "Eight source-authored examples are too small and selected to establish general retrieval quality or coding-agent efficiency.",
+    "SQLite dense retrieval scans all active vectors exactly; this is not ANN scaling evidence.",
+    "Renaming changes the rendered document path and requires13 new embeddings; deletion keeps old cached vectors for branch return.",
+    "Watcher/debounce, unsaved editor overlays, reranking and external database/service execution are outside this profile."
+  ],
+  "max_dense_score_error": 9.973158475728994e-07,
+  "model_imports_or_inference": false,
+  "native_counts": {
+    "attempted_forwards": 2514,
+    "completed_forwards": 2514,
+    "document_inputs": 9111,
+    "query_inputs": 234
+  },
+  "numerical_queries": 8,
+  "owned_group_gone": true,
+  "ownership_command_serialization": {
+    "expected_frozen_argv_exact": true,
+    "private_argv_exact": true,
+    "private_owned_proof_sha256": "d8987c9222520b02ce091f3bf49628489d0e7065f8982d3796bc0eb636cf02d6",
+    "publication": "literal <PROJECT> prefix redaction after raw argv hash",
+    "published_command_sha256": "63d3cfcbfb81a2fc8fe567e51d4fdbdb10f160dd4db2da7799eb68bdacd784fa",
+    "raw_command_sha256": "853bbf3c2c0ed73bf6cdf5e49d8a2664f76c9c821a78475f26c35acda5f69736"
+  },
+  "passed": true,
+  "physical_disk_phase_proof": {
+    "all_other_header_bytes_exact": true,
+    "all_retained_page_bytes_exact": true,
+    "final_snapshot_sha256": "dc5e41f6ce428e3d378b079ed83c1fc0cd084392d53934176f4192a5c3b24fd7",
+    "limitations": "Removed worker-preexit WAL/SHM bytes cannot be retrospectively hashed. Their recorded sizes are pre-exit observations, not post-exit disk or independent cold-storage measurements.",
+    "postexit_main_sha256": "e293f0d699a799d40e2d4ebc8900d336d91a491bb94065c0b1fe7310f6dcf0d4",
+    "postexit_physical_files": {
+      "index.sqlite3": 144465920
+    },
+    "postexit_scope": "Independent read after clean owned worker exit; no WAL/SHM remain",
+    "postexit_total_bytes": 144465920,
+    "read_only_raw_file_proof": true,
+    "sqlite_backup_counter_fields": {
+      "file_change_counter": {
+        "postexit_main_file": 13,
+        "worker_final_snapshot": 1
+      },
+      "schema_cookie": {
+        "postexit_main_file": 10,
+        "worker_final_snapshot": 1
+      },
+      "version_valid_for": {
+        "postexit_main_file": 13,
+        "worker_final_snapshot": 1
+      }
+    },
+    "worker_preexit_observation": {
+      "files": {
+        "index.sqlite3": 144465920,
+        "index.sqlite3-shm": 294912,
+        "index.sqlite3-wal": 141686832
+      },
+      "total_bytes": 286447664
+    },
+    "worker_preexit_scope": "After model/SQLiteIndex close methods, before worker process exit; WAL/SHM still present"
+  },
+  "production_helpers_imported": false,
+  "prospective_only": false,
+  "source_authored_examples": [
+    {
+      "candidate_complete": true,
+      "delivered_complete": true,
+      "payload_tokens": 955,
+      "provider": "bm25",
+      "query_id": "django_local_cache_get_literal",
+      "source_chars": 1694
+    },
+    {
+      "candidate_complete": true,
+      "delivered_complete": true,
+      "payload_tokens": 928,
+      "provider": "dense",
+      "query_id": "django_local_cache_get_literal",
+      "source_chars": 1556
+    },
+    {
+      "candidate_complete": true,
+      "delivered_complete": true,
+      "payload_tokens": 892,
+      "provider": "hybrid",
+      "query_id": "django_local_cache_get_literal",
+      "source_chars": 1459
+    },
+    {
+      "candidate_complete": true,
+      "delivered_complete": true,
+      "payload_tokens": 1189,
+      "provider": "bm25",
+      "query_id": "django_local_cache_get_behavioral",
+      "source_chars": 2789
+    },
+    {
+      "candidate_complete": true,
+      "delivered_complete": true,
+      "payload_tokens": 878,
+      "provider": "dense",
+      "query_id": "django_local_cache_get_behavioral",
+      "source_chars": 1306
+    },
+    {
+      "candidate_complete": true,
+      "delivered_complete": true,
+      "payload_tokens": 1146,
+      "provider": "hybrid",
+      "query_id": "django_local_cache_get_behavioral",
+      "source_chars": 2468
+    },
+    {
+      "candidate_complete": true,
+      "delivered_complete": true,
+      "payload_tokens": 1037,
+      "provider": "bm25",
+      "query_id": "django_validate_page_number_literal",
+      "source_chars": 2194
+    },
+    {
+      "candidate_complete": true,
+      "delivered_complete": true,
+      "payload_tokens": 869,
+      "provider": "dense",
+      "query_id": "django_validate_page_number_literal",
+      "source_chars": 1495
+    },
+    {
+      "candidate_complete": true,
+      "delivered_complete": true,
+      "payload_tokens": 869,
+      "provider": "hybrid",
+      "query_id": "django_validate_page_number_literal",
+      "source_chars": 1495
+    },
+    {
+      "candidate_complete": true,
+      "delivered_complete": true,
+      "payload_tokens": 1365,
+      "provider": "bm25",
+      "query_id": "django_validate_page_number_behavioral",
+      "source_chars": 3109
+    },
+    {
+      "candidate_complete": true,
+      "delivered_complete": true,
+      "payload_tokens": 899,
+      "provider": "dense",
+      "query_id": "django_validate_page_number_behavioral",
+      "source_chars": 1495
+    },
+    {
+      "candidate_complete": true,
+      "delivered_complete": true,
+      "payload_tokens": 899,
+      "provider": "hybrid",
+      "query_id": "django_validate_page_number_behavioral",
+      "source_chars": 1495
+    },
+    {
+      "candidate_complete": true,
+      "delivered_complete": true,
+      "payload_tokens": 1248,
+      "provider": "bm25",
+      "query_id": "django_timestamp_signature_age_literal",
+      "source_chars": 2897
+    },
+    {
+      "candidate_complete": true,
+      "delivered_complete": true,
+      "payload_tokens": 1103,
+      "provider": "dense",
+      "query_id": "django_timestamp_signature_age_literal",
+      "source_chars": 2197
+    },
+    {
+      "candidate_complete": true,
+      "delivered_complete": true,
+      "payload_tokens": 1248,
+      "provider": "hybrid",
+      "query_id": "django_timestamp_signature_age_literal",
+      "source_chars": 2897
+    },
+    {
+      "candidate_complete": true,
+      "delivered_complete": true,
+      "payload_tokens": 1300,
+      "provider": "bm25",
+      "query_id": "django_timestamp_signature_age_behavioral",
+      "source_chars": 3129
+    },
+    {
+      "candidate_complete": true,
+      "delivered_complete": true,
+      "payload_tokens": 1005,
+      "provider": "dense",
+      "query_id": "django_timestamp_signature_age_behavioral",
+      "source_chars": 1740
+    },
+    {
+      "candidate_complete": true,
+      "delivered_complete": true,
+      "payload_tokens": 1300,
+      "provider": "hybrid",
+      "query_id": "django_timestamp_signature_age_behavioral",
+      "source_chars": 3129
+    },
+    {
+      "candidate_complete": true,
+      "delivered_complete": true,
+      "payload_tokens": 1203,
+      "provider": "bm25",
+      "query_id": "django_commit_callback_registration_literal",
+      "source_chars": 3323
+    },
+    {
+      "candidate_complete": true,
+      "delivered_complete": true,
+      "payload_tokens": 793,
+      "provider": "dense",
+      "query_id": "django_commit_callback_registration_literal",
+      "source_chars": 1114
+    },
+    {
+      "candidate_complete": true,
+      "delivered_complete": true,
+      "payload_tokens": 1104,
+      "provider": "hybrid",
+      "query_id": "django_commit_callback_registration_literal",
+      "source_chars": 2849
+    },
+    {
+      "candidate_complete": true,
+      "delivered_complete": false,
+      "payload_tokens": 1139,
+      "provider": "bm25",
+      "query_id": "django_commit_callback_registration_behavioral",
+      "source_chars": 2956
+    },
+    {
+      "candidate_complete": true,
+      "delivered_complete": true,
+      "payload_tokens": 1138,
+      "provider": "dense",
+      "query_id": "django_commit_callback_registration_behavioral",
+      "source_chars": 2943
+    },
+    {
+      "candidate_complete": true,
+      "delivered_complete": false,
+      "payload_tokens": 1160,
+      "provider": "hybrid",
+      "query_id": "django_commit_callback_registration_behavioral",
+      "source_chars": 3050
+    }
+  ],
+  "stages": [
+    {
+      "active_windows": 9097,
+      "cached_documents": 9097,
+      "elapsed_s": 395.931923417,
+      "model_fingerprint": "2605d7e4c477b8b8dc107f31b02c7fc4e7fc419945e8727c7a5c14a02fe70c45",
+      "stage": "initial"
+    },
+    {
+      "active_windows": 9097,
+      "cached_documents": 9097,
+      "elapsed_s": 3.892888583,
+      "model_fingerprint": "2605d7e4c477b8b8dc107f31b02c7fc4e7fc419945e8727c7a5c14a02fe70c45",
+      "stage": "fresh_process_reopen"
+    },
+    {
+      "active_windows": 9097,
+      "cached_documents": 9098,
+      "elapsed_s": 6.082781792,
+      "model_fingerprint": "2605d7e4c477b8b8dc107f31b02c7fc4e7fc419945e8727c7a5c14a02fe70c45",
+      "stage": "saved_edit"
+    },
+    {
+      "active_windows": 9084,
+      "cached_documents": 9098,
+      "elapsed_s": 6.006035542,
+      "model_fingerprint": "2605d7e4c477b8b8dc107f31b02c7fc4e7fc419945e8727c7a5c14a02fe70c45",
+      "stage": "delete_file"
+    },
+    {
+      "active_windows": 9097,
+      "cached_documents": 9098,
+      "elapsed_s": 6.033423666,
+      "model_fingerprint": "2605d7e4c477b8b8dc107f31b02c7fc4e7fc419945e8727c7a5c14a02fe70c45",
+      "stage": "restore_edited_file"
+    },
+    {
+      "active_windows": 9097,
+      "cached_documents": 9111,
+      "elapsed_s": 6.485362042,
+      "model_fingerprint": "2605d7e4c477b8b8dc107f31b02c7fc4e7fc419945e8727c7a5c14a02fe70c45",
+      "stage": "rename_edited_file"
+    },
+    {
+      "active_windows": 9097,
+      "cached_documents": 9111,
+      "elapsed_s": 6.177799834,
+      "model_fingerprint": "2605d7e4c477b8b8dc107f31b02c7fc4e7fc419945e8727c7a5c14a02fe70c45",
+      "stage": "rename_back"
+    },
+    {
+      "active_windows": 9097,
+      "cached_documents": 9111,
+      "elapsed_s": 6.052891209,
+      "model_fingerprint": "2605d7e4c477b8b8dc107f31b02c7fc4e7fc419945e8727c7a5c14a02fe70c45",
+      "stage": "restore_pristine_file"
+    },
+    {
+      "active_windows": 9097,
+      "cached_documents": 9111,
+      "elapsed_s": 3.831269125,
+      "model_fingerprint": "2605d7e4c477b8b8dc107f31b02c7fc4e7fc419945e8727c7a5c14a02fe70c45",
+      "stage": "final_fresh_process_reopen"
+    }
+  ]
+}
