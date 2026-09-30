@@ -391,3 +391,44 @@ def test_http_rejects_cross_record_settings_source_caps_and_binding_corruptions(
         host["receipts"].pop()
     with pytest.raises((AssertionError, ValueError)):
         audit.validate_http(observations, host, repo, encoding)
+
+
+def post_output_host_preparation_fixture():
+    """Post-output auditor correction: literal native receipt schema, no rerun."""
+    preparation = {
+        "version": "1.141.0", "commit": "2a59476c9bfcb90b3ddc372c36762471b7dfad1c", "platform": "darwin-arm64",
+        "executable_relative": ".cache/vscode-host/vscode-darwin-arm64-1.141.0/Visual Studio Code.app/Contents/MacOS/Code",
+        "executable_sha256": "e9760eca0a62d96ff2bb334ef5c8d3b677a6275a2dd0cf5a63c356b7a19435a2",
+        "expected_official_archive_sha256": "9b4ae386e3cf738d7ba990237ddf0a18092c924a1bcae465ed4697964745f42d",
+        "archive_hash_note": "Expected hash recorded from official update metadata; downloader separately validates its SHA-256 response header.",
+        "official_metadata_url": "https://update.code.visualstudio.com/api/update/darwin-arm64/stable/latest",
+        "metadata_checked_utc": "2026-10-13", "test_electron_version": "3.1.0", "prepared_utc": "2026-10-14T11:33:33.935Z",
+        "launched": False, "service_started": False,
+    }
+    config = {"version": "1.141.0", "commit": "2a59476c9bfcb90b3ddc372c36762471b7dfad1c", "platform": "darwin-arm64",
+              "expected_executable_sha256": "e9760eca0a62d96ff2bb334ef5c8d3b677a6275a2dd0cf5a63c356b7a19435a2",
+              "expected_archive_sha256": "9b4ae386e3cf738d7ba990237ddf0a18092c924a1bcae465ed4697964745f42d",
+              "test_electron_version": "3.1.0"}
+    return preparation, config
+
+
+def test_post_output_auditor_correction_accepts_actual_measured_host_preparation_fields():
+    audit.validate_host_preparation(*post_output_host_preparation_fixture())
+
+
+@pytest.mark.parametrize("change", ["measuredsha", "missingmeasured", "archive", "legacysubstitute",
+                                  "version", "commit", "platform", "test_electron_version"])
+def test_post_output_auditor_correction_rejects_wrong_or_substituted_preparation_evidence(change):
+    preparation, config = post_output_host_preparation_fixture()
+    if change == "measuredsha":
+        preparation["executable_sha256"] = "0" * 64
+    elif change == "missingmeasured":
+        del preparation["executable_sha256"]
+    elif change == "archive":
+        preparation["expected_official_archive_sha256"] = "0" * 64
+    elif change == "legacysubstitute":
+        preparation["expected_executable_sha256"] = preparation.pop("executable_sha256")
+    else:
+        preparation[change] = "wrong-pinned-value"
+    with pytest.raises((AssertionError, ValueError, KeyError)):
+        audit.validate_host_preparation(preparation, config)
