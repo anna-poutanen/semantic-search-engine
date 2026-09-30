@@ -1,0 +1,191 @@
+{
+  "all_changed_files_reviewed": true,
+  "authored_tests": {
+    "base_production": {
+      "deselected": 0,
+      "errors": 0,
+      "failed": 119,
+      "passed": 1,
+      "skipped": 0,
+      "xfailed": 0,
+      "xpassed": 0
+    },
+    "base_production_exit_code": 1,
+    "candidate": {
+      "deselected": 0,
+      "errors": 0,
+      "failed": 0,
+      "passed": 120,
+      "skipped": 0,
+      "xfailed": 0,
+      "xpassed": 0
+    },
+    "candidate_exit_code": 0,
+    "interpretation": "Both authored files collect on base Requests: 119 fail and the unlimited-response pickle case passes. Many base failures are missing-feature TypeError/AttributeError paths, so this is not 119 separate correctness proofs."
+  },
+  "bindings": {
+    "cpu_review_sha256": "2f5d5a40c3051196f2bc04d9d3617e9b9a3d2b12c59fccf6bf6afa1c49b37d03",
+    "full_changed_file_and_production_source_verified": true,
+    "strict_reference_history_witness_sha256": "a542fcf894028386eb92699b9bbceb34b746e2cf6b687013c0c0c7640b7703c7",
+    "terminal_patch_sha256": "9507e2c213bceefdaf71ed818c0378c1223d07c0513fb30483ddec63289462dc",
+    "terminal_result_sha256": "cad02394a24db76970548a74099a8fd79e2f67872f5aa594f221662cc4bd02f7",
+    "unchanged_probe_sha256": "a8529a12a7a3dbbe4fdf159d0869f376cf1b99712ae63547244dd6f1ec4661f7"
+  },
+  "classification": "Independent post-output source review of final terminal Requests baseline; unchanged formal grade",
+  "condition": "baseline",
+  "file_review": {
+    "src/requests/__init__.py": "Adds ResponseTooLarge from requests.exceptions to the public module and __all__, preserving class identity.",
+    "src/requests/_types.py": "Adds max_response_bytes to optional RequestKwargs; existing helper/method typed dictionaries inherit it.",
+    "src/requests/api.py": "Documents the optional decoded-byte limit and unlimited None default; existing kwargs forwarding reaches Session.request.",
+    "src/requests/exceptions.py": "RequestException subclass records limit/received and passes the offending response to the parent for request provenance.",
+    "src/requests/hooks.py": "Propagates the current Response budget to each non-None final hook replacement before the next hook and fills missing final request provenance. It does not bind replacement.history at that point.",
+    "src/requests/models.py": "Checked live/cached chunk generators recheck sticky errors before advancing, preserve response-wide decoded totals and avoid cached duplicate counting. First size failure closes with cleanup cause preservation; context exit rethrows the stored active error if close fails. Existing iter_lines remains a generator with unguarded buffered yield from lines. Response unpickle initializes new fields; preserving the Session setting is handled separately.",
+    "src/requests/sessions.py": "Validates before transport, distinguishes omitted and explicit None, keeps effective override through redirects, strips budget from adapter kwargs, and preserves Session pickle. Original/final response binding surrounds hook dispatch, while hook-created history is bound after the entire callback sequence.",
+    "tests/test_response_limit.py": "New 383-line in-memory suite covers validation, helper/public error identity, inheritance/send/Session pickle, boundaries, cumulative live reads, cached rereads, Unicode byte counts, cleanup chaining, final hook replacement timing and context exit. Assertions on later iter_lines create a fresh iterator rather than resuming already-buffered lines. No replacement-history consumer inside a later hook is covered.",
+    "tests/test_response_limit_http.py": "New 236-line loopback-only suite binds 127.0.0.1 and exercises gzip/deflate, exact/zero boundaries, advertised lengths, chunked Unicode, intermediate/final redirects, independent totals, explicit override/None redirect propagation, disabled redirects and convenience eager errors."
+  },
+  "formal_grade_unchanged": {
+    "agent_exit_code": 0,
+    "changed_original_test_or_config_files": [],
+    "completed": true,
+    "completed_correct": false,
+    "correct": false,
+    "edge_case_passes": {
+      "buffered_iter_lines_after_breach": false,
+      "cached_iterator_after_lower_limit_breach": true,
+      "context_manager_cleanup_preserves_size_error": true,
+      "hook_chain_cached_replacement": true,
+      "hook_chain_live_replacement": true
+    },
+    "original_13_passed": true,
+    "restored_upstream": {
+      "passed": 257,
+      "skipped": 13
+    },
+    "strict_errors": 0,
+    "strict_failures": 1,
+    "strict_tests_run": 18,
+    "timed_out": false
+  },
+  "frozen_failure_explanation": {
+    "buffered_iter_lines_after_breach": {
+      "cause": "An already-started line generator suspends in yield from lines. A separate reader crosses the shared byte limit, but its next buffered line is returned without checking the sticky error. No new raw read occurs, yet the later API must raise.",
+      "lines": [
+        1071,
+        1087,
+        1090
+      ],
+      "observation": {
+        "crossing": {
+          "cause_type": null,
+          "context_type": null,
+          "message": "Decoded response exceeded 5 bytes (received 8 bytes).",
+          "notes": [],
+          "type": "ResponseTooLarge"
+        },
+        "first_line": "a",
+        "later_error": null,
+        "later_yield": "b",
+        "passed": false,
+        "raw_reads_after_crossing": 2,
+        "raw_reads_after_later": 2
+      },
+      "source": "src/requests/models.py"
+    }
+  },
+  "independent_grade_agrees": true,
+  "limits": [
+    "Frozen formal grades and repaired reference controls remain unchanged.",
+    "Manual source inspection and passing tests do not prove the complete contract.",
+    "Compatibility is the frozen selected upstream suite, not every Requests test.",
+    "Only terminal source reads were used for byte verification; no active trial workspace was read.",
+    "No GPU, hosted model, package installation or external-network action was used."
+  ],
+  "no_additional_confirmed_evidence": [
+    "No original upstream test or configuration file was changed.",
+    "Live/cached final replacement hooks, cached iterator lower-limit check and context cleanup all pass the unchanged frozen edge cases.",
+    "No further confirmed defect beyond the frozen buffered-line case and accepted supplemental history case in this review."
+  ],
+  "repetition": 2,
+  "reviewed_at": "2026-10-14T09:48:21.415557+00:00",
+  "run_id": "12-r2-requests_response_limit-baseline",
+  "source_unchanged_after_review": true,
+  "supplemental_history_defect": {
+    "candidate_witness": {
+      "adapter_calls": {
+        "bounded_original": 1,
+        "unlimited_cached_chain": 2
+      },
+      "classification": "Post-output supplemental contract probe; frozen grades unchanged",
+      "expected_yielded_before_rejection": [],
+      "feature_available": true,
+      "final_error_limit": 4,
+      "final_error_received": 8,
+      "final_error_type": "ResponseTooLarge",
+      "hook_calls": [
+        "replace",
+        "consume_history"
+      ],
+      "model_calls": 0,
+      "network_calls": 0,
+      "offending_response_is_redirect_history": true,
+      "passed": false,
+      "probe_sha256": "a8529a12a7a3dbbe4fdf159d0869f376cf1b99712ae63547244dd6f1ec4661f7",
+      "version": 1,
+      "yielded_before_rejection": [
+        "abcd",
+        "efgh"
+      ]
+    },
+    "cause": "The hook dispatcher propagates the budget to the replacement final response only. Its genuine cached redirect history is bound after all callbacks, so the next hook receives abcd and efgh before late rejection of eight cached bytes at limit four.",
+    "formal_grades_or_controls_changed": false,
+    "lines": {
+      "src/requests/hooks.py": [
+        47,
+        50,
+        51
+      ],
+      "src/requests/sessions.py": [
+        827,
+        831,
+        833,
+        834
+      ]
+    },
+    "new_defect_count": 1,
+    "new_to_frozen_18_case_coverage": true,
+    "scope_document": "results/qwen-coding-patch-review-2026-10-14/requests-supplemental-scope.md",
+    "shared_reference_checker_gap_count": 1,
+    "source": [
+      "src/requests/hooks.py",
+      "src/requests/sessions.py"
+    ],
+    "strict_reference_same_probe": {
+      "adapter_calls": {
+        "bounded_original": 1,
+        "unlimited_cached_chain": 2
+      },
+      "classification": "Post-output supplemental contract probe; frozen grades unchanged",
+      "expected_yielded_before_rejection": [],
+      "feature_available": true,
+      "final_error_limit": null,
+      "final_error_received": null,
+      "final_error_type": null,
+      "hook_calls": [
+        "replace",
+        "consume_history"
+      ],
+      "model_calls": 0,
+      "network_calls": 0,
+      "offending_response_is_redirect_history": false,
+      "passed": false,
+      "probe_sha256": "a8529a12a7a3dbbe4fdf159d0869f376cf1b99712ae63547244dd6f1ec4661f7",
+      "version": 1,
+      "yielded_before_rejection": [
+        "abcd",
+        "efgh"
+      ]
+    }
+  },
+  "version": 1
+}
