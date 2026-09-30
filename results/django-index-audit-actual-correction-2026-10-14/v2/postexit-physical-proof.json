@@ -1,0 +1,36 @@
+{
+  "all_other_header_bytes_exact": true,
+  "all_retained_page_bytes_exact": true,
+  "final_snapshot_sha256": "dc5e41f6ce428e3d378b079ed83c1fc0cd084392d53934176f4192a5c3b24fd7",
+  "limitations": "Removed worker-preexit WAL/SHM bytes cannot be retrospectively hashed. Their recorded sizes are pre-exit observations, not post-exit disk or independent cold-storage measurements.",
+  "postexit_main_sha256": "e293f0d699a799d40e2d4ebc8900d336d91a491bb94065c0b1fe7310f6dcf0d4",
+  "postexit_physical_files": {
+    "index.sqlite3": 144465920
+  },
+  "postexit_scope": "Independent read after clean owned worker exit; no WAL/SHM remain",
+  "postexit_total_bytes": 144465920,
+  "read_only_raw_file_proof": true,
+  "sqlite_backup_counter_fields": {
+    "file_change_counter": {
+      "postexit_main_file": 13,
+      "worker_final_snapshot": 1
+    },
+    "schema_cookie": {
+      "postexit_main_file": 10,
+      "worker_final_snapshot": 1
+    },
+    "version_valid_for": {
+      "postexit_main_file": 13,
+      "worker_final_snapshot": 1
+    }
+  },
+  "worker_preexit_observation": {
+    "files": {
+      "index.sqlite3": 144465920,
+      "index.sqlite3-shm": 294912,
+      "index.sqlite3-wal": 141686832
+    },
+    "total_bytes": 286447664
+  },
+  "worker_preexit_scope": "After model/SQLiteIndex close methods, before worker process exit; WAL/SHM still present"
+}
