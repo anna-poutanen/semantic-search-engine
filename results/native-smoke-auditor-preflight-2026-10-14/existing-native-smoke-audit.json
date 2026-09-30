@@ -1,0 +1,96 @@
+{
+  "artifact_sha256": {
+    "frozen-plan.json": "22d2da28c3567896b051f651dc3c017b229b2221a36f4799ee7c8d20a7803473",
+    "native-forwards.jsonl": "a70e5b09af7d0eb2d8448f577d47da24d0af5f7ae2c399fa125fbf0d0d21da90",
+    "results.json": "7586d37b137a1fcb4ce03359d58125b07192c9136f00aaa5e96ea8ec31e0fea8",
+    "run-start.json": "fcd747fb596833cfc12d78a9a1e5c62703dc87e36a55022a4658d1b01960d2bf",
+    "verification.json": "66c34875eb58f801216bf04f5ff6c945ec64ec35e0492c974e6c8a507da849f7"
+  },
+  "auditor_sha256": "9bbc8cc03fae0fc5de368c8c03079136e6d3fd687186d62d028aa0b76729e53b",
+  "checked_at_utc": "2026-10-14T09:29:25.743753+00:00",
+  "checks_passed": true,
+  "classification": "Independent CPU audit of completed native HTTP/MCP/saved-edit integration",
+  "explicit_paths": {
+    "checkpoint": "<PROJECT>/.cache/models/qwen3-reranker-0.6b-original",
+    "reranker_python": "<PROJECT>/.cache/reranker-experiment/.venv/bin/python",
+    "study": "<PROJECT>/results/qwen-native-mcp-smoke-2026-10-14",
+    "work_dir": "<WORK>"
+  },
+  "frozen_plan_sha256": "22d2da28c3567896b051f651dc3c017b229b2221a36f4799ee7c8d20a7803473",
+  "hosted_calls": 0,
+  "limits": [
+    "Toy integration only; no retrieval benchmark, coding correctness, latency comparison or paid-token measurement.",
+    "Observed model scalars and actual input hashes are checked without rerunning a model.",
+    "The measured pinned weight hash is checked against unchanged physical file witnesses; weight bytes are not reread.",
+    "The full installed package closure is an additional post-run check against the committed 34-package lock; the producer's frozen plan records three primary reranker packages.",
+    "The smoke producer verified one MCP text block equal to the compact serializer at runtime; raw MCP text/block inventories are not retained. This audit independently checks retained structured HTTP/MCP equality and reconstructed compact token counts."
+  ],
+  "metrics": {
+    "compact_tokens": {
+      "http_after": 904,
+      "http_before": 905,
+      "mcp_after": 904,
+      "mcp_before": 905,
+      "mcp_explicit_disable": 889
+    },
+    "embedding_counts": {
+      "document_calls": 2,
+      "document_texts": 62,
+      "query_calls": 6
+    },
+    "measured_forwards": 96,
+    "native_events": 194,
+    "native_forwards": 97,
+    "reconstructed_input_pairs": 97,
+    "saved_edit_indexed_windows": 1,
+    "saved_edit_reused_windows": 60,
+    "target_source_sha256": {
+      "http_after": "e53c47269992fbe48624cbe6efd1f6260afc5b98d6c4bf7ea87c57b5e640a291",
+      "http_before": "3f2d8bf096c914a3943a3a08a92aa604a54782abb1b890f20afc2a4ad24d2565",
+      "mcp_after": "e53c47269992fbe48624cbe6efd1f6260afc5b98d6c4bf7ea87c57b5e640a291",
+      "mcp_before": "3f2d8bf096c914a3943a3a08a92aa604a54782abb1b890f20afc2a4ad24d2565",
+      "mcp_explicit_disable": "e53c47269992fbe48624cbe6efd1f6260afc5b98d6c4bf7ea87c57b5e640a291"
+    },
+    "warmup_forwards": 1
+  },
+  "native_calls": 0,
+  "native_imports_in_audit": 0,
+  "offline_context_tokenizer": {
+    "mergeable_rank_count": 100256,
+    "network_reads": 0,
+    "ranks_path": "<PROJECT>/.cache/tokenizers/9b5ad71b2ce5302211f9c61530b329a4922fc6a4",
+    "sha256": "223921b76ee99bde995b7ff738513eef100fb51d18c93597a113bcffe865b2a7"
+  },
+  "process_cleanup": {
+    "actual_auth_file_absent": true,
+    "clean_exit_code": 0,
+    "current_listener_unreachable": true,
+    "current_pid_and_group_absent": true,
+    "forced_kill": false,
+    "owned_group": 47743,
+    "pid": 47743,
+    "private_public_witnesses_exact": true
+  },
+  "runtime": {
+    "checkpoint_physical_witnesses_unchanged": true,
+    "core_ast_equal_functions": [
+      "sha256",
+      "file_hash",
+      "runtime_preflight",
+      "verified_qwen3_module",
+      "checkpoint_preflight",
+      "file_witness",
+      "verify_witnesses",
+      "physical_lines",
+      "PairBuilder",
+      "binary_score",
+      "score_pair"
+    ],
+    "runtime_lock_sha256": "19a6993a95ed349bd445ebd99e05a2650120a1242dbe1fa291f6e9d900d3467a",
+    "runtime_package_count": 34,
+    "weight_bytes_read_in_audit": false
+  },
+  "source_commit": "9438cf7d51d22b97929843bda72374fc732d3312",
+  "study_qualified": true,
+  "version": 1
+}
