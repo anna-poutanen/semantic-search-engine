@@ -1,0 +1,149 @@
+{
+  "all_changed_files_reviewed": true,
+  "authored_tests": {
+    "base_production": {
+      "deselected": 0,
+      "errors": 1,
+      "failed": 0,
+      "passed": 0,
+      "skipped": 0,
+      "xfailed": 0,
+      "xpassed": 0
+    },
+    "base_production_exit_code": 2,
+    "candidate": {
+      "deselected": 0,
+      "errors": 0,
+      "failed": 0,
+      "passed": 134,
+      "skipped": 0,
+      "xfailed": 0,
+      "xpassed": 0
+    },
+    "candidate_exit_code": 0,
+    "interpretation": "Base Requests lacks ResponseTooLarge; the candidate-authored test file has one import-time collection error and executes zero tests. This is an availability witness, not 134 independent behavioral discriminations."
+  },
+  "bindings": {
+    "cpu_review_sha256": "60d6a5a4b82e677f524f5d98e61a6c8af7eb571d141857240e0e27fd4654d1ed",
+    "full_changed_file_and_production_source_verified": true,
+    "same_frozen_reference_witness_sha256": "a542fcf894028386eb92699b9bbceb34b746e2cf6b687013c0c0c7640b7703c7",
+    "terminal_patch_sha256": "af9f7cb1ddb736865b8cb8c3b968e6425bc74e1ac8f75b55d0310bca82911b41",
+    "terminal_result_sha256": "96ba2bb83d7fca5d9f8916be34194667c7c16808538f01c03f637df3b424c93a",
+    "unchanged_probe_sha256": "a8529a12a7a3dbbe4fdf159d0869f376cf1b99712ae63547244dd6f1ec4661f7"
+  },
+  "checks": {
+    "all_five_frozen_edges_pass": true,
+    "changed_original_test_or_config_files": [],
+    "independent_grade_agrees": true,
+    "original_13_passed": true,
+    "production_and_changed_files_unchanged_after_review": true,
+    "restored_upstream": {
+      "passed": 257,
+      "skipped": 13
+    },
+    "strict_errors": 0,
+    "strict_failures": 0,
+    "strict_tests_run": 18
+  },
+  "classification": "Independent post-output source review of terminal timed-out Requests trial; unchanged formal grade",
+  "condition": "mcp_fast",
+  "file_review": {
+    "src/requests/__init__.py": "Adds ResponseTooLarge from requests.exceptions to the public module and __all__, retaining class identity.",
+    "src/requests/_types.py": "Adds optional max_response_bytes to RequestKwargs; existing helper/method dictionaries inherit it.",
+    "src/requests/api.py": "Documents the optional decoded-byte body limit and unlimited None default; kwargs already delegate to Session.request.",
+    "src/requests/exceptions.py": "RequestException subclass records limit/received and forwards response/request provenance through keyword arguments.",
+    "src/requests/models.py": "Adds a common iterator wrapper that checks sticky size errors before every next() and records live byte length before return. Live and cached content, Unicode-decoding wrapper, and buffered iter_lines use it; cached rereads do not double count. First crossing closes with cause preservation. Context exit may close again but explicitly preserves the active stored ResponseTooLarge if that cleanup fails. Response pickle preserves budget/count with safe old-state defaults.",
+    "src/requests/sessions.py": "Distinguishes omitted values from explicit None; validates before adapter transport, strips the custom adapter keyword, preserves Session pickle and forwards effective overrides through redirects. Inserts an enforcing hook before the original hook chain and after each callback, binding both replacement final responses and their historical responses before the next callback. Supplies original request provenance to a replacement final Response when absent.",
+    "tests/test_response_limit.py": "New 562-line file has 134 passing parametrized tests for error/public attributes, session pickle, validation/inheritance/direct send, helper routes, real loopback gzip/deflate/Unicode/chunked/empty/redirect bodies, cumulative stream totals, cache rereads, buffered lines after another reader breaches, context cleanup masking, and live/cached hook final bodies. Fixtures bind to 127.0.0.1; static adapters use no sockets. The unchanged independent history probe supplies the subsequent-hook redirect-history case."
+  },
+  "formal_grade_and_completion_unchanged": {
+    "actual_unreported_token_usage": "unknown, never zero",
+    "agent_elapsed_s": 900.0645478330262,
+    "agent_exit_code": -15,
+    "cleanup_clean": true,
+    "cleanup_qualified": true,
+    "completed": false,
+    "completed_correct": false,
+    "correct": true,
+    "interpretation": "Frozen correctness gate passes for the retained snapshot, but the agent hit the 900-second timeout, was terminated with exit -15, and reported no completed-turn usage. This is not a normal completed-correct trial or a known token-efficiency result.",
+    "lifecycle_qualified": true,
+    "reported_turns": 0,
+    "timed_out": true,
+    "usage": null,
+    "usage_errors": [],
+    "usage_scope": "Reported completed-turn usage; interrupted-turn and per-request usage unknown"
+  },
+  "limits": [
+    "Passing the declared CPU probes and manual source inspection does not prove all contract behaviors correct.",
+    "No original frozen grade, control, prompt, package environment or runner file was changed.",
+    "Compatibility is the frozen selected upstream suite, not every Requests test.",
+    "No active trial workspace was inspected; terminal workspace reads only verify bytes.",
+    "No GPU, hosted model, package installation or external-network action was used."
+  ],
+  "repetition": 2,
+  "reviewed_at": "2026-10-14T09:34:25.897313+00:00",
+  "run_id": "11-r2-requests_response_limit-mcp_fast",
+  "source_support_for_passes": {
+    "context_cleanup_error_preservation": {
+      "lines": [
+        851,
+        853,
+        854,
+        856,
+        858,
+        860
+      ],
+      "observation": "A failing context cleanup rethrows the exact active stored ResponseTooLarge with the cleanup failure as its cause; it does not replace it with an outer OSError.",
+      "source": "src/requests/models.py"
+    },
+    "final_and_history_hook_binding": {
+      "lines": [
+        811,
+        814,
+        815,
+        816,
+        824,
+        826
+      ],
+      "observation": "The enforcer binds the full final/history response collection before initial hooks and immediately after each hook. In the unchanged cached-history probe it rejects the eight-byte historical response at limit four before the later consumer hook runs.",
+      "source": "src/requests/sessions.py"
+    },
+    "sticky_cached_and_buffered_iterators": {
+      "lines": [
+        751,
+        752,
+        754,
+        1047,
+        1049,
+        1052,
+        1115
+      ],
+      "observation": "Every returned iterator advances through the shared wrapper, including cached slices and a suspended line generator, so its next() rechecks the response terminal error before yielding buffered data.",
+      "source": "src/requests/models.py"
+    }
+  },
+  "supplemental_new_defects_found": 0,
+  "unchanged_supplemental_history_probe": {
+    "adapter_calls": {
+      "bounded_original": 1,
+      "unlimited_cached_chain": 2
+    },
+    "classification": "Post-output supplemental contract probe; frozen grades unchanged",
+    "expected_yielded_before_rejection": [],
+    "feature_available": true,
+    "final_error_limit": 4,
+    "final_error_received": 8,
+    "final_error_type": "ResponseTooLarge",
+    "hook_calls": [
+      "replace"
+    ],
+    "model_calls": 0,
+    "network_calls": 0,
+    "offending_response_is_redirect_history": true,
+    "passed": true,
+    "probe_sha256": "a8529a12a7a3dbbe4fdf159d0869f376cf1b99712ae63547244dd6f1ec4661f7",
+    "version": 1,
+    "yielded_before_rejection": []
+  },
+  "version": 1
+}
