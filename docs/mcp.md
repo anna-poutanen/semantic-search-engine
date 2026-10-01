@@ -1,6 +1,6 @@
 # Local MCP code search
 
-The stdio adapter exposes one tool, `search_code`, through the official Python MCP SDK (`mcp==2.3.0`). It forwards searches to the resident loopback HTTP service. Qwen, SQLite, and optional H2O stay in their existing service processes; launching an MCP connection does not load model weights.
+The stdio adapter exposes one tool, `search_code`, through the official Python MCP SDK (`mcp==2.3.0`). It forwards searches to the resident loopback HTTP service. Qwen embeddings, SQLite, and optional H2O or Qwen reranking stay in their service processes; launching an MCP connection does not load model weights.
 
 ## Start the services
 
@@ -21,7 +21,7 @@ Follow [the local setup instructions](../README.md#run-on-an-apple-silicon-mac) 
   --repo .cache/corpora/requests --source-root src/requests
 ```
 
-Keep that terminal running. The service prints `Ready` after initial indexing and warmup. The repository and source root are fixed by this service; the MCP tool cannot select a different filesystem location. Start `.venv/bin/python scripts/serve_mac.py` in another terminal only if you intend to set `rerank: true`.
+Keep that terminal running. The service prints `Ready` after initial indexing and warmup. The repository and source root are fixed by this service; the MCP tool cannot select a different filesystem location. For H2O reranking, start `.venv/bin/python scripts/serve_mac.py` in another terminal. For Qwen reranking, follow the [separate installer](qwen-reranker-setup.md) and start this search service with `--enable-qwen-reranker` as described in [Qwen integration](qwen-reranker-integration.md).
 
 An MCP host starts the adapter as a subprocess using either command:
 
@@ -46,6 +46,20 @@ do not by themselves establish provider token savings. The
 [MCP specification](https://modelcontextprotocol.io/specification/2025-11-25/server/tools)
 permits text results without an output schema; an advertised output schema
 requires conforming structured results.
+
+An explicitly enabled Qwen service can be paired with per-launch MCP defaults:
+
+```sh
+.venv/bin/semantic-search mcp --server http://127.0.0.1:8750 \
+  --agent-text-only --default-retrieval hybrid --default-rerank \
+  --default-rerank-provider qwen --default-candidates 24
+```
+
+The advertised tool schema reflects these launch defaults. Explicit tool
+arguments override them, including `rerank: false`. The adapter starts no
+reranker and does not fall back if the selected service lacks Qwen support.
+The table below gives the ordinary launch defaults. Qwen is optional and slower;
+its measured retrieval gains vary by codebase.
 
 The server guidance asks the agent to start with five results and a 2,000-token
 budget, use those excerpts directly, and read only missing imports, callers, or
@@ -80,7 +94,8 @@ Only `query` is required. Unknown fields and implicit conversions such as `"fals
 |---|---|---|
 | `query` | Required | Nonblank valid Unicode description, up to 8,192 characters |
 | `retrieval` | `"dense"` | `"dense"`, `"bm25"`, or `"hybrid"` |
-| `rerank` | `false` | Enable local H2O scoring of the retrieval shortlist |
+| `rerank` | `false` | Enable the selected local scorer on the retrieval shortlist |
+| `rerank_provider` | `"h2o"` | `"h2o"` or `"qwen"`; used when reranking is enabled |
 | `candidates` | `4` | 1–50 windows scored when reranking; not a count of guaranteed matches |
 | `max_results` | `8` | 1–20 total excerpts, including optional dependency context |
 | `source_budget` | `12000` | 0–100,000 source characters across excerpts; metadata is additional |
@@ -101,7 +116,7 @@ Example call arguments:
 }
 ```
 
-Dense retrieval is the fast default. Reranking scores only the requested prefix and does not append an unscored retrieval tail. Dependency excerpts are separately marked context references; expansion makes no additional H2O calls. A helper already scored in the prefix can retain that score in HTTP diagnostics, while newly added helpers have no H2O judgment. Neither establishes a verified match. Dependency expansion preserves up to the first five retrieved anchors and adds at most two resolved callees per anchor when space allows. It uses bounded static resolution, not a complete runtime call graph.
+Dense retrieval is the fast default. Qwen retrieves the full fifty-window pool before scoring only the requested prefix with sequential singleton forwards; neither reranker appends an unscored retrieval tail. Dependency excerpts are separately marked context references; expansion makes no additional reranker calls. A helper already scored in the prefix can retain that score in HTTP diagnostics, while newly added helpers have no reranker judgment. Neither establishes a verified match. Dependency expansion preserves up to the first five retrieved anchors and adds at most two resolved callees per anchor when space allows. It uses bounded static resolution, not a complete runtime call graph.
 
 ## Returned context and budgets
 
@@ -118,7 +133,7 @@ Successful calls contain the same compact JSON envelope in both `structuredConte
 
 Each result has `path`, `symbol`, `start_line`, `end_line`, `source`, `source_hash`, `truncated`, `origin`, and `related_to`. Paths are repository-relative; line bounds are inclusive and one-based. `source_hash` is SHA-256 of the returned excerpt encoded as UTF-8. `origin` is `"retrieval"` or `"dependency"`; a dependency's `related_to` identifies its retrieved anchor. HTTP diagnostic metadata, scores, and index statistics are omitted from the compact tool envelope.
 
-Both budgets preserve whole source lines and update the last returned line and excerpt hash. A window that cannot fit even one complete line is omitted. A truncated excerpt can omit essential evidence: it does not establish that the full implementation was preserved. A query whose empty-result metadata already exceeds its token budget returns an actionable error. Smaller output budgets do not reduce indexing or H2O input work.
+Both budgets preserve whole source lines and update the last returned line and excerpt hash. A window that cannot fit even one complete line is omitted. A truncated excerpt can omit essential evidence: it does not establish that the full implementation was preserved. A query whose empty-result metadata already exceeds its token budget returns an actionable error. Smaller output budgets do not reduce indexing or reranker input work.
 
 Read `scope` before repeating a query for tests, fixtures or documentation.
 Files outside `source_root` or excluded by the configured policy require ordinary
@@ -138,7 +153,7 @@ rejects an older service response without scope metadata.
 
 ## Cancellation and limitations
 
-The adapter allocates a request ID for each call. A host's MCP cancellation is forwarded to `/cancel` on the resident service with a bounded, shielded cleanup. Queued requests are cancelled before they start, and active work checks cancellation between indexing batches, retrieval, and H2O scores. A single Metal forward already running cannot be interrupted. Cancelled work stops before subsequent model calls or delivery of its result.
+The adapter allocates a request ID for each call. A host's MCP cancellation is forwarded to `/cancel` on the resident service with a bounded, shielded cleanup. Queued requests are cancelled before they start, and active work checks cancellation between indexing batches, retrieval, and reranker scores. A single Metal forward already running cannot be interrupted. Cancelled work stops before subsequent model calls or delivery of its result.
 
 Searches use saved implementations under the configured source root. Python works
 without an optional parser; JavaScript/TypeScript require the pinned language
