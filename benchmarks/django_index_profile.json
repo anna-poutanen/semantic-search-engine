@@ -1,0 +1,409 @@
+{
+  "classification": "Prospective large real-codebase persistent-index profile with source-authored examples",
+  "corpus": ".cache/corpora/django-5.2-index-profile",
+  "embedding": {
+    "batch_size": 4,
+    "checkpoint_download_cache_allowed": true,
+    "dimensions": 1024,
+    "dtype": "bfloat16",
+    "first_index_document_vector_cache_allowed": false,
+    "id": "Qwen/Qwen3-Embedding-0.6B",
+    "max_tokens": 8192,
+    "native_inference_required": true,
+    "quantized": false,
+    "revision": "97b0c614be4d77ee51c0cef4e5f07c00f9eb65b3",
+    "truncation": "right"
+  },
+  "language": "python",
+  "limitations": [
+    "Django5.2 is a fixed historical source release, not the latest patched release or a deployed service.",
+    "This experiment profiles one machine and one repository, using a cached checkpoint but a genuinely empty document index.",
+    "Eight source-authored examples are too small and selected to establish general retrieval quality or coding-agent efficiency.",
+    "SQLite dense retrieval scans all active vectors exactly; this is not ANN scaling evidence.",
+    "Renaming changes the rendered document path and requires13 new embeddings; deletion keeps old cached vectors for branch return.",
+    "Watcher/debounce, unsaved editor overlays, reranking and external database/service execution are outside this profile."
+  ],
+  "mutation": {
+    "behavior_change": false,
+    "edited_document_sha256": "6dcdaed0859a1aa0298e914d9ba1e6fc5f2f019ec30b5e0bd748951ae6afd2bc",
+    "edited_file_sha256": "ccedb844949d4b968b28f494ca856b119b96114111f29ef81f0b39bacfe13a63",
+    "edited_window_id": "django/core/cache/backends/locmem.py:LocMemCache.get:35-43",
+    "original_clone_must_remain_clean": true,
+    "original_file_sha256": "47d83983d286e9a93d1b5d91e1168c9d5abb7a5e62f495ee7e8bec84d44c3087",
+    "path": "django/core/cache/backends/locmem.py",
+    "renamed_path": "django/core/cache/backends/locmem_profile_copy.py",
+    "replacement_line_after": "        return pickle.loads(pickled)  # saved-index-profile-edit",
+    "replacement_line_before": "        return pickle.loads(pickled)",
+    "tracked_rename_command": "git mv"
+  },
+  "numpy_validation": {
+    "independent_float32_conversion_and_float64_cosine": true,
+    "max_cosine_absolute_error": 3e-06,
+    "near_tie_mismatches_preserved_as_mismatches": true,
+    "query_count": 8,
+    "require_exact_id_order": true,
+    "top_k": 10,
+    "verification_excluded_from_query_timings": true
+  },
+  "persistence_sequence": [
+    {
+      "cached_documents_after": 9097,
+      "deleted_windows": 0,
+      "indexed_windows": 9097,
+      "new_unique_documents": 9097,
+      "reused_windows": 0,
+      "stage": "initial",
+      "total_windows": 9097
+    },
+    {
+      "cached_documents_after": 9097,
+      "deleted_windows": 0,
+      "forbid_document_and_query_inference": true,
+      "indexed_windows": 0,
+      "new_unique_documents": 0,
+      "reused_windows": 9097,
+      "stage": "fresh_process_reopen",
+      "total_windows": 9097
+    },
+    {
+      "cached_documents_after": 9098,
+      "deleted_windows": 0,
+      "indexed_windows": 1,
+      "new_unique_documents": 1,
+      "reused_windows": 9096,
+      "stage": "saved_edit",
+      "total_windows": 9097
+    },
+    {
+      "cached_documents_after": 9098,
+      "deleted_windows": 13,
+      "indexed_windows": 0,
+      "new_unique_documents": 0,
+      "reused_windows": 9084,
+      "stage": "delete_file",
+      "total_windows": 9084
+    },
+    {
+      "cached_documents_after": 9098,
+      "deleted_windows": 0,
+      "indexed_windows": 0,
+      "new_unique_documents": 0,
+      "reused_windows": 9097,
+      "stage": "restore_edited_file",
+      "total_windows": 9097
+    },
+    {
+      "cached_documents_after": 9111,
+      "deleted_windows": 13,
+      "indexed_windows": 13,
+      "new_unique_documents": 13,
+      "reused_windows": 9084,
+      "stage": "rename_edited_file",
+      "total_windows": 9097
+    },
+    {
+      "cached_documents_after": 9111,
+      "deleted_windows": 13,
+      "indexed_windows": 0,
+      "new_unique_documents": 0,
+      "reused_windows": 9097,
+      "stage": "rename_back",
+      "total_windows": 9097
+    },
+    {
+      "cached_documents_after": 9111,
+      "deleted_windows": 0,
+      "indexed_windows": 0,
+      "new_unique_documents": 0,
+      "reused_windows": 9097,
+      "stage": "restore_pristine_file",
+      "total_windows": 9097
+    },
+    {
+      "cached_documents_after": 9111,
+      "deleted_windows": 0,
+      "forbid_document_and_query_inference": true,
+      "indexed_windows": 0,
+      "new_unique_documents": 0,
+      "reused_windows": 9097,
+      "stage": "final_fresh_process_reopen",
+      "total_windows": 9097
+    }
+  ],
+  "quality_scope": {
+    "classification": "Source-authored examples only",
+    "no_absent_query_or_abstention_claim": true,
+    "no_retrieval_tuning": true,
+    "not_general_benchmark": true,
+    "not_pretraining_holdout": true
+  },
+  "queries": [
+    {
+      "id": "django_local_cache_get_literal",
+      "kind": "present",
+      "notes": "One full local implementation span is required; this example does not require proving its external callees' behavior.",
+      "query": "LocMemCache.get _has_expired pickle.loads",
+      "query_style": "literal",
+      "split": "source_authored_profile_example",
+      "target_groups": [
+        [
+          {
+            "definition_lines": [
+              35,
+              43
+            ],
+            "eligible_window_id": "django/core/cache/backends/locmem.py:LocMemCache.get:35-43",
+            "evidence_lines": [
+              35,
+              43
+            ],
+            "evidence_sha256": "3f4add2bc2e57bd17c1843ec808fade7140bacc5e2966141a5725c2e61c02c62",
+            "path": "django/core/cache/backends/locmem.py",
+            "source_file_sha256": "47d83983d286e9a93d1b5d91e1168c9d5abb7a5e62f495ee7e8bec84d44c3087",
+            "symbol": "LocMemCache.get"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "django_local_cache_get_behavioral",
+      "kind": "present",
+      "notes": "One full local implementation span is required; this example does not require proving its external callees' behavior.",
+      "query": "Look up an in-memory cache key under a lock, remove expired entries and return a caller default, otherwise mark the entry as most recently used and deserialize its stored value.",
+      "query_style": "behavioral",
+      "split": "source_authored_profile_example",
+      "target_groups": [
+        [
+          {
+            "definition_lines": [
+              35,
+              43
+            ],
+            "eligible_window_id": "django/core/cache/backends/locmem.py:LocMemCache.get:35-43",
+            "evidence_lines": [
+              35,
+              43
+            ],
+            "evidence_sha256": "3f4add2bc2e57bd17c1843ec808fade7140bacc5e2966141a5725c2e61c02c62",
+            "path": "django/core/cache/backends/locmem.py",
+            "source_file_sha256": "47d83983d286e9a93d1b5d91e1168c9d5abb7a5e62f495ee7e8bec84d44c3087",
+            "symbol": "LocMemCache.get"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "django_validate_page_number_literal",
+      "kind": "present",
+      "notes": "One full local implementation span is required; this example does not require proving its external callees' behavior.",
+      "query": "Paginator.validate_number PageNotAnInteger EmptyPage",
+      "query_style": "literal",
+      "split": "source_authored_profile_example",
+      "target_groups": [
+        [
+          {
+            "definition_lines": [
+              60,
+              72
+            ],
+            "eligible_window_id": "django/core/paginator.py:Paginator.validate_number:60-72",
+            "evidence_lines": [
+              60,
+              72
+            ],
+            "evidence_sha256": "4043a7f1497f3a3e17ecd162eacb06feb10e3db8ea413c9cb79d8e0c097e3bf7",
+            "path": "django/core/paginator.py",
+            "source_file_sha256": "605476104d16d9c2e112e5d2588ebb737dc3ade5554b1973f71463a86b39d337",
+            "symbol": "Paginator.validate_number"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "django_validate_page_number_behavioral",
+      "kind": "present",
+      "notes": "One full local implementation span is required; this example does not require proving its external callees' behavior.",
+      "query": "Validate a one-based page number: reject a float with a fractional part, coerce an integer, distinguish non-numeric input from values below one or beyond the last page, and return the valid number.",
+      "query_style": "behavioral",
+      "split": "source_authored_profile_example",
+      "target_groups": [
+        [
+          {
+            "definition_lines": [
+              60,
+              72
+            ],
+            "eligible_window_id": "django/core/paginator.py:Paginator.validate_number:60-72",
+            "evidence_lines": [
+              60,
+              72
+            ],
+            "evidence_sha256": "4043a7f1497f3a3e17ecd162eacb06feb10e3db8ea413c9cb79d8e0c097e3bf7",
+            "path": "django/core/paginator.py",
+            "source_file_sha256": "605476104d16d9c2e112e5d2588ebb737dc3ade5554b1973f71463a86b39d337",
+            "symbol": "Paginator.validate_number"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "django_timestamp_signature_age_literal",
+      "kind": "present",
+      "notes": "One full local implementation span is required; this example does not require proving its external callees' behavior.",
+      "query": "TimestampSigner.unsign max_age SignatureExpired",
+      "query_style": "literal",
+      "split": "source_authored_profile_example",
+      "target_groups": [
+        [
+          {
+            "definition_lines": [
+              262,
+              277
+            ],
+            "eligible_window_id": "django/core/signing.py:TimestampSigner.unsign:262-277",
+            "evidence_lines": [
+              262,
+              277
+            ],
+            "evidence_sha256": "59d4d1f69d8af2345b263dc275a94d248f4e730cdea69f82a00370fa49ff2915",
+            "path": "django/core/signing.py",
+            "source_file_sha256": "e7eb8300227c5b14c99b07f03e85d120ee274abdafe34df66935703da3cbc560",
+            "symbol": "TimestampSigner.unsign"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "django_timestamp_signature_age_behavioral",
+      "kind": "present",
+      "notes": "One full local implementation span is required; this example does not require proving its external callees' behavior.",
+      "query": "Verify a signed value, decode its base62 timestamp, accept a duration or numeric age limit, and raise an expiration exception when the signature is older than that limit.",
+      "query_style": "behavioral",
+      "split": "source_authored_profile_example",
+      "target_groups": [
+        [
+          {
+            "definition_lines": [
+              262,
+              277
+            ],
+            "eligible_window_id": "django/core/signing.py:TimestampSigner.unsign:262-277",
+            "evidence_lines": [
+              262,
+              277
+            ],
+            "evidence_sha256": "59d4d1f69d8af2345b263dc275a94d248f4e730cdea69f82a00370fa49ff2915",
+            "path": "django/core/signing.py",
+            "source_file_sha256": "e7eb8300227c5b14c99b07f03e85d120ee274abdafe34df66935703da3cbc560",
+            "symbol": "TimestampSigner.unsign"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "django_commit_callback_registration_literal",
+      "kind": "present",
+      "notes": "One full local implementation span is required; this example does not require proving its external callees' behavior.",
+      "query": "django.db.transaction.on_commit get_connection robust",
+      "query_style": "literal",
+      "split": "source_authored_profile_example",
+      "target_groups": [
+        [
+          {
+            "definition_lines": [
+              129,
+              134
+            ],
+            "eligible_window_id": "django/db/transaction.py:on_commit:129-134",
+            "evidence_lines": [
+              129,
+              134
+            ],
+            "evidence_sha256": "f27ad28f28fd8f80da1012d2c05d4b2437a93b82ceff16ad640077d6b189aca1",
+            "path": "django/db/transaction.py",
+            "source_file_sha256": "c217206480449d535a3ebc5dc5ebe18ecdcad7a29637ac8902721734ff3eb8bc",
+            "symbol": "on_commit"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "django_commit_callback_registration_behavioral",
+      "kind": "present",
+      "notes": "One full local implementation span is required; this example does not require proving its external callees' behavior.",
+      "query": "Delegate registration of a transaction-commit callback to the selected database connection while passing through the option to tolerate callback failures.",
+      "query_style": "behavioral",
+      "split": "source_authored_profile_example",
+      "target_groups": [
+        [
+          {
+            "definition_lines": [
+              129,
+              134
+            ],
+            "eligible_window_id": "django/db/transaction.py:on_commit:129-134",
+            "evidence_lines": [
+              129,
+              134
+            ],
+            "evidence_sha256": "f27ad28f28fd8f80da1012d2c05d4b2437a93b82ceff16ad640077d6b189aca1",
+            "path": "django/db/transaction.py",
+            "source_file_sha256": "c217206480449d535a3ebc5dc5ebe18ecdcad7a29637ac8902721734ff3eb8bc",
+            "symbol": "on_commit"
+          }
+        ]
+      ]
+    }
+  ],
+  "query_authoring": "Eight unchanged texts were authored from four pinned local implementation spans before any Django embeddings, index, queries or retrieval output. Literal and behavioral text pairs share a target.",
+  "query_count": 8,
+  "repo_url": "https://github.com/django/django.git",
+  "retrieval": {
+    "dense_is_exact_scan": true,
+    "hybrid_fetch_depth": 50,
+    "include_dependencies": false,
+    "measured_sweeps_per_provider": 10,
+    "percentile_method": "numpy linear",
+    "providers": [
+      "bm25",
+      "dense",
+      "hybrid"
+    ],
+    "quality_candidates": 50,
+    "quality_max_results": 5,
+    "quality_source_budget": 12000,
+    "quality_token_budget": 2000,
+    "queries_per_sweep": 8,
+    "raw_top_k": 10,
+    "rerank": false,
+    "rrf_k": 60,
+    "sqlite_vec_version": "0.1.9",
+    "warmup_sweeps_per_provider": 3
+  },
+  "revision": "9e7cc2b628fe8fd3895986af9b7fc9525034c1b0",
+  "source_exclusions": [
+    "django/**/*.js",
+    "django/**/*.jsx",
+    "django/**/*.mjs",
+    "django/**/*.cjs",
+    "django/**/*.ts",
+    "django/**/*.mts",
+    "django/**/*.cts",
+    "django/**/*.tsx"
+  ],
+  "source_file_count": 883,
+  "source_inventory_sha256": "b47d922ab61fa8a02530eeb41c3c7122d40d0e23e9323f430d1f8693cbfc0a9e",
+  "source_preflight": "results/django-index-preflight-2026-10-14/source-preflight.json",
+  "source_preflight_sha256": "f0e68e9a677487da75f555171cdd12b5ec1b4895dd38cd4f65aa72e9ab184a4f",
+  "source_root": "django",
+  "source_tag": "5.2",
+  "source_window_count": 9097,
+  "source_window_settings": {
+    "max_lines": 160,
+    "overlap_lines": 40
+  },
+  "target_groups_semantics": "OR within each group; AND across groups. Credit requires a verified delivered source excerpt to contain the complete specified inclusive span and exact saved bytes.",
+  "unique_document_count": 9097,
+  "version": 1,
+  "window_inventory_sha256": "a1538789b2814509da63a6af070835dee89a9ef218404e4bc349d8fdd22af72f"
+}
