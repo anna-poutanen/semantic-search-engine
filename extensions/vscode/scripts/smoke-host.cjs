@@ -27,11 +27,13 @@ function argumentsFrom(argv) {
     const key = argv[i]; if (key === '--run') { continue; }
     if (key === '--overlays') { if (result.overlays) { throw new Error('Duplicate overlay smoke flag'); } result.overlays = true; continue; }
     if (key === '--saved-edits') { if (result.savedEdits) { throw new Error('Duplicate saved-edit smoke flag'); } result.savedEdits = true; continue; }
+    if (key === '--qwen-reranker') { if (result.qwenReranker) { throw new Error('Duplicate Qwen reranker smoke flag'); } result.qwenReranker = true; continue; }
     if (!['--repo', '--url', '--output'].includes(key) || !argv[i + 1]) { throw new Error('Use --run --repo ABSOLUTE_FIXTURE --url LOOPBACK_URL --output ABSOLUTE_JSON'); }
     if (Object.hasOwn(result, key.slice(2))) { throw new Error('Duplicate smoke argument'); }
     result[key.slice(2)] = argv[++i];
   }
   if (!result.repo || !result.url || !result.output || !path.isAbsolute(result.repo) || !path.isAbsolute(result.output)) { throw new Error('Absolute fixture/output paths and URL are required'); }
+  if (result.qwenReranker && (result.overlays || result.savedEdits)) { throw new Error('Qwen settings smoke is separate from overlay/saved-edit modes'); }
   return result;
 }
 function redact(value, replacements) {
@@ -39,6 +41,20 @@ function redact(value, replacements) {
   if (Array.isArray(value)) { return value.map(item => redact(item, replacements)); }
   if (value && typeof value === 'object') { return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, redact(item, replacements)])); }
   return value;
+}
+function qwenReceiptChecks(records) {
+  const searches = records.filter(row => row.endpoint === '/search' && row.status === 200);
+  const qwen = searches.filter(row => row.request?.rerank === true && row.request?.rerank_provider === 'qwen');
+  const expectedSettings = row => row.request.retrieval === 'hybrid' && row.request.candidates === 24
+    && row.request.max_results === 5 && row.request.token_budget === 2000 && row.request.source_budget === 12000
+    && row.request.include_dependencies === false;
+  const settingsFast = searches.filter(row => row.request?.rerank === false && row.request?.retrieval === 'hybrid'
+    && row.request?.candidates === 24 && !Object.hasOwn(row.request, 'rerank_provider'));
+  return { two_qwen_searches: qwen.length === 2,
+    saved_and_dirty_qwen: qwen.some(row => !row.request.overlays?.length) && qwen.some(row => row.request.overlays?.length === 1),
+    configured_qwen_request_settings: qwen.length === 2 && qwen.every(expectedSettings),
+    configured_qwen_response_identity: qwen.length === 2 && qwen.every(row => row.response?.rerank === true && row.response?.rerank_provider === 'qwen'),
+    rerank_off_omits_provider: settingsFast.length === 1 && expectedSettings(settingsFast[0]) && settingsFast[0].response?.rerank === false };
 }
 async function smoke(options) {
   const repo = await fs.realpath(options.repo), output = path.resolve(options.output);
@@ -49,7 +65,8 @@ async function smoke(options) {
   const mixed = entries.length === 3 && Object.keys(mixedSources).every(filename => entries.includes(path.basename(filename))
     && before.files[filename]?.source === mixedSources[filename]);
   if (!mixed && (entries.length !== 1 || entries[0] !== 'inventory.py')) { throw new Error('Smoke must use the exact Python-only or mixed-language host-fixture.cjs scope'); }
-  if ((options.overlays || options.savedEdits) && !mixed) { throw new Error('Extended smoke requires the mixed fixture'); }
+  if ((options.overlays || options.savedEdits || options.qwenReranker) && !mixed) { throw new Error('Extended smoke requires the mixed fixture'); }
+  if (options.qwenReranker && (options.overlays || options.savedEdits)) { throw new Error('Qwen settings smoke is separate from overlay/saved-edit modes'); }
   const preflight = await forward(options.url, '/status', 'GET', Buffer.alloc(0));
   const backend = JSON.parse(preflight.body.toString('utf8'));
   if (preflight.status !== 200 || await fs.realpath(backend.repo) !== repo || backend.source_root !== 'src' || backend.windows !== (mixed ? 5 : 3) || !backend.ready || backend.closed) { throw new Error('Start a ready local backend indexing this exact fixture before launching the host'); }
@@ -74,6 +91,8 @@ async function smoke(options) {
     started_utc: new Date().toISOString(), host_preparation: prepared.record,
     backend_status: backend, fixture_mode: mixed ? 'mixed' : 'python', overlay_smoke: options.overlays === true,
     saved_edit_smoke: options.savedEdits === true,
+    qwen_reranker_smoke: options.qwenReranker === true,
+    workspace_settings_write_policy: options.qwenReranker ? 'Temporary normal fixture folder settings are restored; no user profile settings are changed' : 'No workspace settings writes',
     source_write_policy: options.savedEdits ? 'Controlled fixture edits are restored; final equality does not claim no intervening writes' : 'No fixture source writes',
     source_before_sha256: before.sha256, source_before_manifest_sha256: before.source_manifest_sha256,
     launch_arguments: args, node_version: process.version, passed: false,
@@ -88,6 +107,7 @@ async function smoke(options) {
         SEMANTIC_SEARCH_HOST_RESULT: hostResult, SEMANTIC_SEARCH_HOST_QUERY: query,
         SEMANTIC_SEARCH_HOST_OVERLAYS: options.overlays ? '1' : '0',
         SEMANTIC_SEARCH_HOST_SAVED_EDITS: options.savedEdits ? '1' : '0',
+        SEMANTIC_SEARCH_HOST_QWEN_RERANKER: options.qwenReranker ? '1' : '0',
         SEMANTIC_SEARCH_HOST_EXTENSION_PATH: options.extensionPath ? extensionPath : '',
         SEMANTIC_SEARCH_HOST_RECEIPT_STARTS: receiptStarts,
         SEMANTIC_SEARCH_HOST_CASES: JSON.stringify(mixed ? cases : cases.slice(0, 1)) }, stdio: ['ignore', 'pipe', 'pipe'] });
@@ -117,10 +137,12 @@ async function smoke(options) {
       ...(options.savedEdits ? { source_restored_after_controlled_edits: before.source_manifest_sha256 === after.source_manifest_sha256 }
         : { source_unchanged: before.source_manifest_sha256 === after.source_manifest_sha256 }),
       receipts_without_transport_error: relay.records.every(row => !row.transport_error) };
+    if (options.qwenReranker) { record.independent_receipt_checks.qwen_workspace_settings = qwenReceiptChecks(relay.records); }
     record.passed = ended.code === 0 && !timedOut && record.host.passed === true && searches.length >= 2 && cancelLinked
       && sourceChecks.length > 0 && sourceChecks.every(exact) && record.independent_receipt_checks.overlay_input_bindings_verified
       && before.source_manifest_sha256 === after.source_manifest_sha256
-      && relay.records.every(row => !row.transport_error);
+      && relay.records.every(row => !row.transport_error)
+      && (!options.qwenReranker || Object.values(record.independent_receipt_checks.qwen_workspace_settings).every(Boolean));
     if (!record.passed) { process.exitCode = 1; }
   } catch (error) { record.error = error.message; process.exitCode = 1; }
   finally {
@@ -140,5 +162,5 @@ async function smoke(options) {
     console.log(JSON.stringify({ passed: record.passed, output, checks: record.independent_receipt_checks ?? null }));
   }
 }
-module.exports = { argumentsFrom, redact, smoke, createRunDirectory };
+module.exports = { argumentsFrom, redact, smoke, createRunDirectory, qwenReceiptChecks };
 if (require.main === module) { Promise.resolve().then(() => smoke(argumentsFrom(process.argv.slice(2)))).catch(error => { console.error(error.message); process.exitCode = 1; }); }

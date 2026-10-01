@@ -1,5 +1,5 @@
 import * as path from 'node:path';
-import { SearchOptions, validateOptions, validateQuery, ValidationError } from './schema';
+import { defaultOptions, SearchOptions, validateOptions, validateQuery, ValidationError } from './schema';
 
 export interface ConnectRequest { workspacePath: string; serviceUrl: string; }
 export interface FindRequest { query: string; options?: Partial<SearchOptions>; includeUnsaved?: boolean; }
@@ -27,7 +27,7 @@ export function parseFindRequest(value: unknown, defaults: SearchOptions): { que
   if (typeof row.query !== 'string') { throw new ValidationError('Supply a search query'); }
   validateQuery(row.query);
   const overrides = row.options === undefined ? {} : record(row.options);
-  keys(overrides, Object.keys(defaults));
+  keys(overrides, Object.keys(defaultOptions));
   const options = { ...defaults, ...overrides } as SearchOptions;
   validateOptions(options);
   return { query: row.query, options, ...(row.includeUnsaved === undefined ? {} : { includeUnsaved: row.includeUnsaved }) };

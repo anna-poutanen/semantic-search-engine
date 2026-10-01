@@ -6,7 +6,7 @@ exact captured excerpt, and open its verified current source range. Dependency
 rows are marked **context reference**; they are not verified query matches.
 
 Saved, explicit dirty-buffer and saved-edit mixed-language workflows have passed
-in an actual VS Code Development Host with the resident Qwen backend. CPU tests,
+in an actual VS Code Development Host with resident Qwen embeddings. CPU tests,
 VSIX packaging and those fixture checks are separate evidence; see
 [receipts and remaining acceptance cases](docs/development-host.md).
 
@@ -126,11 +126,26 @@ extension state. The normal editor shows the source requested by the user.
 ## Settings and local build
 
 Resource-scoped `semanticSearch.*` settings expose `serviceUrl`, `retrieval`,
-`rerank`, `candidates`, `maxResults`, `sourceBudget`, `tokenBudget`, and
+`rerank`, `rerankProvider`, `candidates`, `maxResults`, `sourceBudget`, `tokenBudget`, and
 `includeDependencies`. Defaults are dense/no rerank, 4 candidates, 8 results,
 12,000 source characters, a 4,096 `cl100k_base` compact-context cap, and static
 dependency context. The token cap is not a coding model's paid-token counter.
-Optional H2O reranking requires its separately running local server.
+With `rerank` off, retrieval stays fast. Turning it on uses `rerankProvider`:
+`h2o` preserves the existing optional H2O service, while `qwen` selects the
+experimental local Qwen reranker. Both add latency and require separate setup.
+Qwen requires a search service started with `--enable-qwen-reranker`;
+selecting a provider never starts or installs a model. For the measured hybrid
+Qwen setup, explicitly set `retrieval` to `hybrid` and `candidates` to `24`.
+Provider selection does not change these other settings automatically. Quality
+gains vary by codebase; fast retrieval remains the default.
+
+Saved and explicit dirty-buffer searches share this provider setting. Enabled
+Qwen responses must identify Qwen; the extension rejects an omitted or different
+provider rather than presenting results as Qwen reranked. Legacy fast and H2O
+requests retain their existing wire shape. The Qwen provider change has CPU
+transport/schema coverage; earlier Development Host checks used embeddings
+without Qwen reranking. Actual editor/native reranker validation is a separate
+remaining gate. See the [Qwen setup and settings guide](https://github.com/anna-poutanen/semantic-search-engine/blob/main/docs/vscode-qwen-reranker.md).
 
 Build tooling uses Node ≥22 (verified locally with Node 24.12.0 / npm 11.6.2):
 
