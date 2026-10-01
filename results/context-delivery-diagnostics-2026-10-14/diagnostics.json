@@ -1,0 +1,1797 @@
+{
+  "version": 1,
+  "classification": "CPU-only post-hoc source-bound diagnostic; no selector evaluation",
+  "created_at_utc": "2026-10-14T10:17:26.965224+00:00",
+  "producer_sha256": "2dc9e594e876e95cd3a54b89c923696c4b04963a48a5e425d1f6fd0f4d2c10d2",
+  "configuration": "hybrid_k24_b1",
+  "quality_repetition": 1,
+  "inputs_sha256": {
+    "results/qwen-shortlist-development-2026-10-14/frozen-plan.json": "ac08a9d93398f21aa286aef0c6a7bbe60d155aff6bff74144a7943f7ad8252a5",
+    "results/qwen-shortlist-development-2026-10-14/searches.jsonl.gz": "ab9b392221c8448e627adad71abdcfeac05269df3adcded529c959aa51df3e6c",
+    "results/qwen-shortlist-development-2026-10-14/candidate-pools.jsonl.gz": "48aa2d15e979c721f3d997b69123a2136463e1382f046d14f58750d8b6d65b49",
+    "results/qwen-shortlist-development-2026-10-14/source-content.jsonl.gz": "ea6f77718440eea2a48f2b84d043a55dc071204fd7f785bfb5c402d947c01b5b",
+    "results/qwen-shortlist-development-2026-10-14/independent-audit.json": "5a9735b3e1a39e323528f4ef54db72add9f8c8b93e31f23393c80949a540be59",
+    "results/qwen-shortlist-httpx-2026-10-14/frozen-plan.json": "0c7ee47fa7ea3d7a36f4cbc7661f4634f31d0c9afcf6c967996084e607c5b216",
+    "results/qwen-shortlist-httpx-2026-10-14/searches.jsonl.gz": "c28f1b788ab30434fdb23eae2da1b7c671df62ab010bc80b13426a4c4ba308d0",
+    "results/qwen-shortlist-httpx-2026-10-14/candidate-pools.jsonl.gz": "82ee86ab64b1b681f453906e4a6a71050c524fec5205c76acfd338f2fd79141f",
+    "results/qwen-shortlist-httpx-2026-10-14/source-content.jsonl.gz": "99eb4af24302f518863abd318449f66fb2d4b8db2a0f7f6b57aaebb509f65f0f",
+    "results/qwen-shortlist-httpx-2026-10-14/independent-audit.json": "40130c0531cd47356d13006f7d0bb527bf687d00bf56619d95258835eba68aa4"
+  },
+  "frozen_packer_sha256": {
+    "development": {
+      "src/semantic_search/backend.py": "6d90e948f31f89929bb93c99dffa84446d3a0d621f6eeaf95078706173c30d9b",
+      "src/semantic_search/context.py": "fb9ce00075272d0e0ca9064d5c79e8ca45abc94c60b95c2cabf1c3b98ee2cb85",
+      "scripts/run_clause_fusion.py": "c794a16f37f22da214ca470546dc1572e79a11f87f48efe58fe08754fd564125"
+    },
+    "httpx": {
+      "src/semantic_search/backend.py": "6d90e948f31f89929bb93c99dffa84446d3a0d621f6eeaf95078706173c30d9b",
+      "src/semantic_search/context.py": "fb9ce00075272d0e0ca9064d5c79e8ca45abc94c60b95c2cabf1c3b98ee2cb85",
+      "scripts/run_clause_fusion.py": "c794a16f37f22da214ca470546dc1572e79a11f87f48efe58fe08754fd564125"
+    }
+  },
+  "studies": {
+    "development": {
+      "first_repetition_queries": 144,
+      "present_queries": 118,
+      "missing_required_groups_with_full_evidence_in_scored24": [
+        {
+          "dataset": "starlette",
+          "query_id": "starlette_exception_registration_and_dispatch",
+          "group": 1,
+          "targets": [
+            {
+              "evidence_lines": [
+                51,
+                62
+              ],
+              "evidence_sha256": "d4644d7ce0081d64a839ccdc023faa9f960f5bb961fe29b6fbba0a952e6b7677",
+              "path": "starlette/middleware/exceptions.py",
+              "symbol": "ExceptionMiddleware.__call__",
+              "source_file_sha256": "43de9a717cfd6d121464e4402a396c6dc685b88d3e9bad5c49799f16afcd0fad",
+              "required_physical_lines": 12
+            }
+          ],
+          "candidate_rank": 8,
+          "scored_rank": 6,
+          "first_distinct_scored_rank": 6,
+          "matching_scored_windows": [
+            {
+              "end_line": 62,
+              "id": "starlette/middleware/exceptions.py:ExceptionMiddleware.__call__:46-62",
+              "path": "starlette/middleware/exceptions.py",
+              "source_hash": "c0b5cb274777981dd6750c836d4c38faa03366a8794136419a865d42cb455abe",
+              "start_line": 46,
+              "symbol": "ExceptionMiddleware.__call__",
+              "scored_rank": 6
+            }
+          ],
+          "cause": "dependency_slots_displace_scored_anchor",
+          "duplicate_exclusion": false,
+          "dependency_slots_proven_used": 3,
+          "dependency_slots_proven_additional_to_earlier_scored_symbols": 3,
+          "required_window_partially_delivered": false,
+          "packing_clipped_other_delivered_windows": false,
+          "actual_same_path_whole_line_intervals": [
+            {
+              "id": "starlette/middleware/exceptions.py:ExceptionMiddleware.add_exception_handler:35-44",
+              "path": "starlette/middleware/exceptions.py",
+              "start_line": 35,
+              "end_line": 44,
+              "origin": "retrieval",
+              "related_to": null,
+              "truncated": false,
+              "source_hash": "1237cc76b4a36c3a5361d954c940c1594a367948a26e16aca0ccd645ddf55c62"
+            },
+            {
+              "id": "starlette/middleware/exceptions.py:ExceptionMiddleware.__init__:18-33",
+              "path": "starlette/middleware/exceptions.py",
+              "start_line": 18,
+              "end_line": 33,
+              "origin": "retrieval",
+              "related_to": null,
+              "truncated": false,
+              "source_hash": "57d529015392c709a873e4e135f2c51c450dff2f488ea465a5df540cf278db97"
+            }
+          ],
+          "actual_evidence_line_intersections": [],
+          "delivered_rows": [
+            {
+              "id": "starlette/_exception_handler.py:wrap_app_handling_exceptions:23-65",
+              "origin": "retrieval",
+              "related_to": null,
+              "start_line": 23,
+              "end_line": 65
+            },
+            {
+              "id": "starlette/_exception_handler.py:wrap_app_handling_exceptions.wrapped_app:31-63",
+              "origin": "retrieval",
+              "related_to": null,
+              "start_line": 31,
+              "end_line": 63
+            },
+            {
+              "id": "starlette/middleware/errors.py:ServerErrorMiddleware.__call__:150-187",
+              "origin": "retrieval",
+              "related_to": null,
+              "start_line": 150,
+              "end_line": 187
+            },
+            {
+              "id": "starlette/middleware/exceptions.py:ExceptionMiddleware.add_exception_handler:35-44",
+              "origin": "retrieval",
+              "related_to": null,
+              "start_line": 35,
+              "end_line": 44
+            },
+            {
+              "id": "starlette/middleware/exceptions.py:ExceptionMiddleware.__init__:18-33",
+              "origin": "retrieval",
+              "related_to": null,
+              "start_line": 18,
+              "end_line": 33
+            },
+            {
+              "id": "starlette/_exception_handler.py:_lookup_exception_handler:16-20",
+              "origin": "dependency",
+              "related_to": "starlette/_exception_handler.py:wrap_app_handling_exceptions.wrapped_app:31-63",
+              "start_line": 16,
+              "end_line": 20
+            },
+            {
+              "id": "starlette/_utils.py:is_async_callable:35-39",
+              "origin": "dependency",
+              "related_to": "starlette/_exception_handler.py:wrap_app_handling_exceptions.wrapped_app:31-63",
+              "start_line": 35,
+              "end_line": 39
+            },
+            {
+              "id": "starlette/middleware/errors.py:ServerErrorMiddleware.debug_response:250-257",
+              "origin": "dependency",
+              "related_to": "starlette/middleware/errors.py:ServerErrorMiddleware.__call__:150-187",
+              "start_line": 250,
+              "end_line": 257
+            }
+          ],
+          "delivered_source_chars": 6159,
+          "prior_audited_compact_tokens": 2169,
+          "budget_exhausted": false
+        },
+        {
+          "dataset": "rich",
+          "query_id": "rich_centered_panel_composition",
+          "group": 2,
+          "targets": [
+            {
+              "evidence_lines": [
+                169,
+                182
+              ],
+              "evidence_sha256": "07548b91301618a728de67383cb8f256f4d881e0a983c4cc4a6a2a210b3e5d25",
+              "path": "rich/align.py",
+              "symbol": "Align.__rich_console__.generate_segments",
+              "source_file_sha256": "83195f82f8b86a1f0446683c469185b56635678581b969beeaa488512171e1b4",
+              "required_physical_lines": 14
+            }
+          ],
+          "candidate_rank": 3,
+          "scored_rank": 8,
+          "first_distinct_scored_rank": 8,
+          "matching_scored_windows": [
+            {
+              "end_line": 225,
+              "id": "rich/align.py:Align.__rich_console__:135-225",
+              "path": "rich/align.py",
+              "source_hash": "87bcf95dddb7c49eb0871ce17925c790a7c23a97099ba5a6d90b59de8bb0c614",
+              "start_line": 135,
+              "symbol": "Align.__rich_console__",
+              "scored_rank": 8
+            },
+            {
+              "end_line": 190,
+              "id": "rich/align.py:Align.__rich_console__.generate_segments:153-190",
+              "path": "rich/align.py",
+              "source_hash": "c39d3a2d1e7b05a88d769b6d51f843e7b976c0d0ac01bcd8fcc293797101aa49",
+              "start_line": 153,
+              "symbol": "Align.__rich_console__.generate_segments",
+              "scored_rank": 10
+            }
+          ],
+          "cause": "dependency_slots_displace_scored_anchor",
+          "duplicate_exclusion": false,
+          "dependency_slots_proven_used": 3,
+          "dependency_slots_proven_additional_to_earlier_scored_symbols": 3,
+          "required_window_partially_delivered": false,
+          "packing_clipped_other_delivered_windows": false,
+          "actual_same_path_whole_line_intervals": [
+            {
+              "id": "rich/align.py:Align.__init__:39-64",
+              "path": "rich/align.py",
+              "start_line": 39,
+              "end_line": 64,
+              "origin": "retrieval",
+              "related_to": null,
+              "truncated": false,
+              "source_hash": "12e77b6ceeaab5b676e22d9e736bd0cc51ba054ba88474a1e243740c5e50caf2"
+            }
+          ],
+          "actual_evidence_line_intersections": [],
+          "delivered_rows": [
+            {
+              "id": "rich/markdown.py:Heading.__rich_console__:148-164",
+              "origin": "retrieval",
+              "related_to": null,
+              "start_line": 148,
+              "end_line": 164
+            },
+            {
+              "id": "rich/padding.py:Padding.__repr__:76-77",
+              "origin": "retrieval",
+              "related_to": null,
+              "start_line": 76,
+              "end_line": 77
+            },
+            {
+              "id": "rich/padding.py:Padding.__rich_console__:79-123",
+              "origin": "retrieval",
+              "related_to": null,
+              "start_line": 79,
+              "end_line": 123
+            },
+            {
+              "id": "rich/panel.py:Panel.__rich_console__:141-276",
+              "origin": "retrieval",
+              "related_to": null,
+              "start_line": 141,
+              "end_line": 276
+            },
+            {
+              "id": "rich/align.py:Align.__init__:39-64",
+              "origin": "retrieval",
+              "related_to": null,
+              "start_line": 39,
+              "end_line": 64
+            },
+            {
+              "id": "rich/measure.py:Measurement.get:78-122",
+              "origin": "dependency",
+              "related_to": "rich/padding.py:Padding.__rich_console__:79-123",
+              "start_line": 78,
+              "end_line": 122
+            },
+            {
+              "id": "rich/segment.py:Segment.line:184-187",
+              "origin": "dependency",
+              "related_to": "rich/panel.py:Panel.__rich_console__:141-276",
+              "start_line": 184,
+              "end_line": 187
+            },
+            {
+              "id": "rich/panel.py:Panel.__rich_console__.align_text:160-205",
+              "origin": "dependency",
+              "related_to": "rich/panel.py:Panel.__rich_console__:141-276",
+              "start_line": 160,
+              "end_line": 205
+            }
+          ],
+          "delivered_source_chars": 11670,
+          "prior_audited_compact_tokens": 3449,
+          "budget_exhausted": false
+        },
+        {
+          "dataset": "zod",
+          "query_id": "zod_custom_refinement_issue_context",
+          "group": 1,
+          "targets": [
+            {
+              "declaration_anchor": "export function superRefine<T>(",
+              "definition_lines": [
+                2825,
+                2830
+              ],
+              "evidence_lines": [
+                2829,
+                2829
+              ],
+              "evidence_sha256": "9d7dd48fc2b2dc74977b0103d41e8034c6571c7158f502e467f5c13d1a6e8d62",
+              "path": "packages/zod/src/v4/classic/schemas.ts",
+              "source_file_sha256": "95b134b255f29fe5ac4dda3f64f85eaabd73a6476910abb175e59de1440fc16e",
+              "symbol": "superRefine",
+              "required_physical_lines": 1
+            }
+          ],
+          "candidate_rank": 21,
+          "scored_rank": 11,
+          "first_distinct_scored_rank": 11,
+          "matching_scored_windows": [
+            {
+              "end_line": 2830,
+              "id": "packages/zod/src/v4/classic/schemas.ts:superRefine:2825-2830",
+              "path": "packages/zod/src/v4/classic/schemas.ts",
+              "source_hash": "99a9e86077a01ae201290671024441fc726d12a525970d678ea9a028d391d834",
+              "start_line": 2825,
+              "symbol": "superRefine",
+              "scored_rank": 11
+            }
+          ],
+          "cause": "outside_eight_symbol_eligible_prefix",
+          "duplicate_exclusion": false,
+          "dependency_slots_proven_used": 3,
+          "dependency_slots_proven_additional_to_earlier_scored_symbols": 3,
+          "required_window_partially_delivered": false,
+          "packing_clipped_other_delivered_windows": false,
+          "actual_same_path_whole_line_intervals": [
+            {
+              "id": "packages/zod/src/v4/classic/schemas.ts:ZodTransform.inst._zod.parse:2257-2287",
+              "path": "packages/zod/src/v4/classic/schemas.ts",
+              "start_line": 2257,
+              "end_line": 2287,
+              "origin": "retrieval",
+              "related_to": null,
+              "truncated": false,
+              "source_hash": "f3dbf9a35b253dde5d78eee2a22cc40698c6d09f343deb867847b933487ac79b"
+            }
+          ],
+          "actual_evidence_line_intersections": [],
+          "delivered_rows": [
+            {
+              "id": "packages/zod/src/v4/core/api.ts:_superRefine:1708-1731",
+              "origin": "retrieval",
+              "related_to": null,
+              "start_line": 1708,
+              "end_line": 1731
+            },
+            {
+              "id": "packages/zod/src/v4/core/api.ts:_superRefine.ch:1712-1729",
+              "origin": "retrieval",
+              "related_to": null,
+              "start_line": 1712,
+              "end_line": 1729
+            },
+            {
+              "id": "packages/zod/src/v4/core/schemas.ts:handleRefineResult:5140-5153",
+              "origin": "retrieval",
+              "related_to": null,
+              "start_line": 5140,
+              "end_line": 5153
+            },
+            {
+              "id": "packages/zod/src/v4/classic/schemas.ts:ZodTransform.inst._zod.parse:2257-2287",
+              "origin": "retrieval",
+              "related_to": null,
+              "start_line": 2257,
+              "end_line": 2287
+            },
+            {
+              "id": "packages/zod/src/v4/core/util.ts:finalizeIssue:957-992",
+              "origin": "retrieval",
+              "related_to": null,
+              "start_line": 957,
+              "end_line": 992
+            },
+            {
+              "id": "packages/zod/src/v4/core/api.ts:_check:1734-1742",
+              "origin": "dependency",
+              "related_to": "packages/zod/src/v4/core/api.ts:_superRefine:1708-1731",
+              "start_line": 1734,
+              "end_line": 1742
+            },
+            {
+              "id": "packages/zod/src/v4/core/util.ts:issue:1050-1062",
+              "origin": "dependency",
+              "related_to": "packages/zod/src/v4/core/schemas.ts:handleRefineResult:5140-5153",
+              "start_line": 1050,
+              "end_line": 1062
+            },
+            {
+              "id": "packages/zod/src/v4/core/util.ts:unwrapMessage:933-935",
+              "origin": "dependency",
+              "related_to": "packages/zod/src/v4/core/util.ts:finalizeIssue:957-992",
+              "start_line": 933,
+              "end_line": 935
+            }
+          ],
+          "delivered_source_chars": 5713,
+          "prior_audited_compact_tokens": 2537,
+          "budget_exhausted": false
+        },
+        {
+          "dataset": "zod",
+          "query_id": "zod_metadata_attachment_registry",
+          "group": 1,
+          "targets": [
+            {
+              "declaration_anchor": "export function meta<T>(",
+              "definition_lines": [
+                1758,
+                1768
+              ],
+              "evidence_lines": [
+                1759,
+                1768
+              ],
+              "evidence_sha256": "8d8a8d07b9dc1a9b1c82630f45c494bf757f04a849c922451269ff92c803eca5",
+              "path": "packages/zod/src/v4/core/api.ts",
+              "source_file_sha256": "9ad4da853ced907f2e5764e5a390f087c0bc8633638a993c50699f0827a5bf5d",
+              "symbol": "meta",
+              "required_physical_lines": 10
+            }
+          ],
+          "candidate_rank": 8,
+          "scored_rank": 8,
+          "first_distinct_scored_rank": 7,
+          "matching_scored_windows": [
+            {
+              "end_line": 1768,
+              "id": "packages/zod/src/v4/core/api.ts:meta:1758-1768",
+              "path": "packages/zod/src/v4/core/api.ts",
+              "source_hash": "c8c346a752073104c5565520a7cbf9e298c0fb2bdbacf47cc05f85f5fa9bec38",
+              "start_line": 1758,
+              "symbol": "meta",
+              "scored_rank": 8
+            }
+          ],
+          "cause": "dependency_slots_displace_scored_anchor",
+          "duplicate_exclusion": false,
+          "dependency_slots_proven_used": 2,
+          "dependency_slots_proven_additional_to_earlier_scored_symbols": 2,
+          "required_window_partially_delivered": false,
+          "packing_clipped_other_delivered_windows": true,
+          "actual_same_path_whole_line_intervals": [],
+          "actual_evidence_line_intersections": [],
+          "delivered_rows": [
+            {
+              "id": "packages/zod/src/v4/core/registries.ts:$ZodRegistry.<instance-initializers:1>:30-31",
+              "origin": "retrieval",
+              "related_to": null,
+              "start_line": 30,
+              "end_line": 31
+            },
+            {
+              "id": "packages/zod/src/v4/core/registries.ts:$ZodRegistry._map:30-30",
+              "origin": "retrieval",
+              "related_to": null,
+              "start_line": 30,
+              "end_line": 30
+            },
+            {
+              "id": "packages/zod/src/v4/core/to-json-schema.ts:finalize:568-727",
+              "origin": "retrieval",
+              "related_to": null,
+              "start_line": 568,
+              "end_line": 727
+            },
+            {
+              "id": "packages/zod/src/v4/core/json-schema-processors.ts:toJSONSchema:886-934",
+              "origin": "retrieval",
+              "related_to": null,
+              "start_line": 886,
+              "end_line": 934
+            },
+            {
+              "id": "packages/zod/src/v4/core/registries.ts:$ZodRegistry.add:33-43",
+              "origin": "retrieval",
+              "related_to": null,
+              "start_line": 33,
+              "end_line": 43
+            },
+            {
+              "id": "packages/zod/src/v4/core/to-json-schema.ts:finalize.flattenRef:576-654",
+              "origin": "dependency",
+              "related_to": "packages/zod/src/v4/core/to-json-schema.ts:finalize:568-727",
+              "start_line": 576,
+              "end_line": 654
+            },
+            {
+              "id": "packages/zod/src/v4/core/to-json-schema.ts:compactTypeUnion:444-465",
+              "origin": "dependency",
+              "related_to": "packages/zod/src/v4/core/to-json-schema.ts:finalize:568-727",
+              "start_line": 444,
+              "end_line": 454
+            }
+          ],
+          "delivered_source_chars": 11984,
+          "prior_audited_compact_tokens": 4087,
+          "budget_exhausted": true
+        }
+      ],
+      "causes": {
+        "dependency_slots_displace_scored_anchor": 3,
+        "outside_eight_symbol_eligible_prefix": 1
+      },
+      "existing_groups_delivered_only_by_dependencies": [
+        {
+          "dataset": "starlette",
+          "query_id": "starlette_sync_endpoint_worker",
+          "group": 2,
+          "targets": [
+            {
+              "evidence_lines": [
+                36,
+                37
+              ],
+              "evidence_sha256": "640348714aa0b013be29a6cadb6e674fc0498b580b6d17699f5b3d853934c909",
+              "path": "starlette/concurrency.py",
+              "symbol": "run_in_threadpool",
+              "source_file_sha256": "ce3058cfd50f697a542b1d6a573a1c5501e5c430e2f74c0e3942ae6d78d75932",
+              "required_physical_lines": 2
+            }
+          ],
+          "candidate_rank": 28,
+          "inside_raw_retrieval_first_eight": false,
+          "scored_rank": null,
+          "inside_first_eight_distinct_scored_windows": false,
+          "delivered_by": [
+            {
+              "id": "starlette/concurrency.py:run_in_threadpool:35-37",
+              "origin": "dependency",
+              "related_to": "starlette/background.py:BackgroundTask.__call__:24-28",
+              "start_line": 35,
+              "end_line": 37
+            }
+          ]
+        },
+        {
+          "dataset": "koa",
+          "query_id": "koa_stream_response_lifecycle",
+          "group": 1,
+          "targets": [
+            {
+              "declaration_anchor": "module.exports = (stream) => {",
+              "definition_lines": [
+                7,
+                20
+              ],
+              "evidence_lines": [
+                7,
+                20
+              ],
+              "evidence_sha256": "0dc7f68e2322a3c56e7d9ae71ac5f191a713bda13284acd374c6f53092f7f01b",
+              "path": "lib/is-stream.js",
+              "source_file_sha256": "8d3d310d81005cfc2aaa5d523afab9c2204c7a69b00565cf332d302c2ca7092d",
+              "symbol": "module.exports",
+              "required_physical_lines": 14
+            }
+          ],
+          "candidate_rank": 7,
+          "inside_raw_retrieval_first_eight": true,
+          "scored_rank": 8,
+          "inside_first_eight_distinct_scored_windows": true,
+          "delivered_by": [
+            {
+              "id": "lib/is-stream.js:module.exports:7-20",
+              "origin": "dependency",
+              "related_to": "lib/response.js:module.exports.set body:148-245",
+              "start_line": 7,
+              "end_line": 20
+            }
+          ]
+        }
+      ],
+      "pinned_source_files_verified": {
+        "flask/src/flask/app.py": "510b83880097af4450933561cba96e5a1c432bf53ea9264ca947da53752e3a2b",
+        "flask/src/flask/sansio/scaffold.py": "d6578d2b5f06d227482e4110f8b750d04c8d94c9525c8857f9183f727ee2858b",
+        "flask/src/flask/sansio/app.py": "cf5df9f2972be7cad9878df7ea321804617d769f47823984abbe0a9b1cbc460b",
+        "flask/src/flask/views.py": "d0d5ceecd117533169c924cdbb01ea5bb0ee74b7b1c4b22855f73f0e4dea0ee7",
+        "flask/src/flask/ctx.py": "e21952d044159438765eb27848b0fe4c75f83faee8645181a09a1eccb1d5cab7",
+        "flask/src/flask/helpers.py": "4e2b647be02a93f655ddd058105c5ed8e9ffe3daef398ef3dd21e3a3817623fb",
+        "flask/src/flask/cli.py": "1f476f816464b4250caaf6cc6fdf3f5fc956456a7da61cb7d0a1e03e3e7e5f3b",
+        "flask/src/flask/debughelpers.py": "75c8258dc3487e1d0857dc5d3c7ca471fac1a254282570fa57e56d71aada037e",
+        "flask/src/flask/sansio/blueprints.py": "da960c5792daf2f1cef8c14113d9c95c8ce389a9689abb395fe867f4054d0ba1",
+        "flask/src/flask/logging.py": "f2c33758c4ee6e2d5c05bd9cfe53e45a937427c74c02aae029160b2e2d5d0952",
+        "flask/src/flask/json/__init__.py": "b402bd0b89b87250f932bf4b8e2bec7af7130a8ebdc3ff5a0bba3865e9984173",
+        "flask/src/flask/wrappers.py": "8d492fe2655e93622ae21c3177846faab20c6faf41bf43c49438162e6779391a",
+        "flask/src/flask/json/provider.py": "cefdd0dfdde6bb6f73e7b853aa789de432e2af52a8c920c1c2af17228235b72c",
+        "flask/src/flask/testing.py": "629d481658aaec7076a55913eda38c270ec45d430b34b2f9d38b2eec2b0ad3da",
+        "flask/src/flask/json/tag.py": "0e168dc2e20e85db7647be28382f58e19f19a6bc4562245be5d50fe5bcb220dc",
+        "flask/src/flask/config.py": "3e2a85d033da9ba1d6d051f8087d61a574c17b7d0d4b38cf10ec2bcf56fa92dd",
+        "flask/src/flask/sessions.py": "26fa7cc311b841f8409ad93933d3a3a52b068150c6f15fc3cd0c107e7a9aaf9d",
+        "flask/src/flask/blueprints.py": "a79404da5635f0622d6ddaff44a46967c0e8d7b8343ef4062206644940e15f69",
+        "flask/src/flask/templating.py": "3ed7a044a96c911267e855b7359d9f159f06321f75fbe678a6656923d5e0989e",
+        "requests/src/requests/sessions.py": "3d2089736ced93b2b405624a943f866d22652b17df06a85eb010f86272fc3e7d",
+        "requests/src/requests/cookies.py": "05d12b965c76f229803e17aef1c9969d712e4f4d0f6a06c05e0a47212fd5b417",
+        "requests/src/requests/utils.py": "b879cb3f671cf1c28e8ff9b2b02151bcdb8974b4820a514cfdd1f5a038443cd2",
+        "requests/src/requests/api.py": "4d15480ac046f089209798e8650476ef4a28ebe6f81b400758f8ef42ec6b5509",
+        "requests/src/requests/structures.py": "ba9460c39078f25e6f1d2a24ac941ac6f8d2ee97197fa8c8d0c262d8a1e67a02",
+        "requests/src/requests/adapters.py": "cc9b1b02694fee0353481fbad84fe3ddbedec4441dba54df7914c63f2aa85937",
+        "requests/src/requests/models.py": "a3351c3c12a86bf5ed211533875350bc4791e9327a685f8c19ba54343e471e26",
+        "requests/src/requests/auth.py": "fdc8bb34a8a5a088b169ca13277d107b0bc94ee63ed5e89dd4f5569d9b2bb04c",
+        "requests/src/requests/_types.py": "84dec9789a8e839807242448a9aa86acd12c440211921e32f43afcbc422a629c",
+        "requests/src/requests/_internal_utils.py": "4c7d8d132c9898fc7d715e473f3ac74785ddc4ab96d2c9240f87835dc6d981ff",
+        "requests/src/requests/help.py": "e5845e93980b2e25be418fb7fe0b8e6e999fef8f84afc5a43f4546efdc24691f",
+        "requests/src/requests/exceptions.py": "c5e18f3352454968e337bb3056f0867df2f37c0a0d2c1a77dc05e7e0b3c0411b",
+        "requests/src/requests/compat.py": "4a51c5ab07b015c298d6ea69d71502979cd3ed6b935d88e4433ce5341dacf584",
+        "requests/src/requests/__init__.py": "80534322a1a3167d8775829ee220a6acf4fe455f3f778c4b8e94bcf7fadfa0b5",
+        "requests/src/requests/status_codes.py": "1950f47c89cf18019787e07d8ce48f66d6b38e622f7d94d70a90247fee6c040e",
+        "click/src/click/types.py": "043e50aaae21fbc91ac0198e2332659aae31cd38407f8c02bda38b652043371d",
+        "click/src/click/parser.py": "878b2775ca45e4e1eb65037cbc3f0859be4e072bd6ec005b8514e8c68beba92f",
+        "click/src/click/termui.py": "74bc624bbd143af21805d6bf9c411968f0053950d5991b35b043ccb8b0e8c10a",
+        "click/src/click/_termui_impl.py": "6b9cfb23d80e15e326bbb19bebf44fc90f063ee54fd4479b962c5c5923d240f9",
+        "click/src/click/testing.py": "dd103c6a709fed367cfb94401798add937be6965c100be552dab109cc882d994",
+        "click/src/click/utils.py": "71ef88acef6294823be8b1a4537e78a4e7476dea4cf147ed7cd1fb49f314ff6f",
+        "click/src/click/core.py": "4359c455d72d670bc83ce96de2f7c7928d136271c2784e3450412e97c5a9cafb",
+        "click/src/click/shell_completion.py": "4d1d1d5c419cbd66fd128dda6901171a19ef352dc51781f841cb8b9ef02f628e",
+        "click/src/click/exceptions.py": "57bcc34fa7a6a89f22365d241753f99291662cc590d53d4beda34d28ce18474c",
+        "click/src/click/_compat.py": "2062a1fc9e5075f2842e2b6745f4c61e779e8d6c680b0fcd5fdb5f31b75c837c",
+        "click/src/click/formatting.py": "16b7f4fb95b7dfe968c98fe2f6aaf05d1f3e4939d6de6e60bf2c4b554772c729",
+        "click/src/click/decorators.py": "eede85f905a8c2d2e1e85ffa97ee18578638c8d4dca85404bbd8b7ef3233ebcb",
+        "click/src/click/_winconsole.py": "e63bb78d091c643d16dbb584306aa610fe32fdcad45733c2aac5ff1586fb04ed",
+        "click/src/click/globals.py": "72e27a05ba34ef79601049a18ebdfde0f78cf901665ccf828bec267ec77b1f98",
+        "click/src/click/_textwrap.py": "d747d0eb839c05432e2bb985be1f37eb7feea0ec4f95122d64198acd12438286",
+        "starlette/starlette/datastructures.py": "8a7347a833948318e88d255ce45379a0bd378b3b903369c8803ce7eddce109b8",
+        "starlette/starlette/requests.py": "42f82cd915ca36d1385ff71450d5acba296c15f448529dcd1e69657690b31ef1",
+        "starlette/starlette/routing.py": "4ee51c69b075c2027ebd89a1073795f9b17331ff3bafba27cdbd18d71e17b1fc",
+        "starlette/starlette/schemas.py": "90a551146fe489c0fc81e12795f1e812c04213ef0cb1d5f23c4d153387f6436e",
+        "starlette/starlette/concurrency.py": "ce3058cfd50f697a542b1d6a573a1c5501e5c430e2f74c0e3942ae6d78d75932",
+        "starlette/starlette/middleware/wsgi.py": "d2f2ecb5c6a557e92ad98caa411f4d08b88f360a245bb9c3bf246a4298ffe624",
+        "starlette/starlette/applications.py": "f4aaf99f0763d5e94a31ff6b7a348b95852fac093ffd4d04815b2a705685bd67",
+        "starlette/starlette/templating.py": "73cf06a6150359c2e250a49524dbe71c8e57a7a7197bd1d85fb55bfebfa95449",
+        "starlette/starlette/staticfiles.py": "6bb7c71a63452c617884112f7cb3580e2f996d2eb66d557044f47082f94ad18a",
+        "starlette/starlette/convertors.py": "44177baba5329e5265e313ff3170eb466b47f0de79adef1dfd241aced9b03d0c",
+        "starlette/starlette/responses.py": "8385788cb9ebf216113c54109458484761354c35b062eda1257fa5f994d1929f",
+        "starlette/starlette/_utils.py": "bdca2bb6035c8fe01ab5a00655f37bac8715c51ca1e963325197c451527830e6",
+        "starlette/starlette/formparsers.py": "616f51627abfec27308bcbb6a91e38e73dec57ff0feabf853bdc68d29eb9ea5e",
+        "starlette/starlette/config.py": "c425e041380c69ebb25da1d1168afb10988054c51d8e7bba1e0c33e2bafab145",
+        "starlette/starlette/testclient.py": "9f61ab5c5693f840d196e8140b81eac52bcce336fc629d01d1f50099fb9959d4",
+        "starlette/starlette/middleware/cors.py": "fa287827199e45a2a19afd3be8370913ec1dd0ad8525ba36de0cd974bac96f4d",
+        "starlette/starlette/middleware/base.py": "7c4c6d0e8cb58d440f230a862bac1e291957daac403e2ceb519ec6335bae1558",
+        "starlette/starlette/middleware/gzip.py": "1a2d42aedda5f4616663ee7f68cea9475a67b3edd2e03f1f40531439f76d7de9",
+        "starlette/starlette/middleware/errors.py": "6e899351f408a3b088c27650f1f173e0108363989d427aecae1192a593621feb",
+        "starlette/starlette/endpoints.py": "4601571c0c3cfcab60a9e6b94f97b88c4598ef72db07cdb6a1dc7a2d723effa2",
+        "starlette/starlette/websockets.py": "33ff209909ad8411efa9d55f2c8cece32b90a6ea7b07ce77b4f49a35007f50ca",
+        "starlette/starlette/middleware/httpsredirect.py": "48d4e579a6002c6a084d5ef1c1b89ce2007a55874cf1895e6bfca4722533df58",
+        "starlette/starlette/middleware/trustedhost.py": "7576d6db60b7458369dd3b1d7c2b84d0c352f9564570df01fd2df062bcc44e6f",
+        "starlette/starlette/middleware/sessions.py": "0a96ea97f0536a756a0db84f19da14acdbc720a7fd0f762e738f1c2597ab1535",
+        "starlette/starlette/_exception_handler.py": "38ce07e3c7798b2bfcfe87f1043632d4f7e5b091a5af8d231593c8dc36194d08",
+        "starlette/starlette/middleware/exceptions.py": "43de9a717cfd6d121464e4402a396c6dc685b88d3e9bad5c49799f16afcd0fad",
+        "starlette/starlette/authentication.py": "f5d9727b2903321a3182623d845559dfcbaef0d97a93635989aa1aeb4ed9f217",
+        "starlette/starlette/exceptions.py": "b48a619596bc12c41f2b0dfec70e49dd93751a3691e147317c92baf40776846f",
+        "starlette/starlette/middleware/authentication.py": "7ed59555b113c6baf480ec2dc7050bc30dfad9692dd6cf62395bb8b352c9e772",
+        "starlette/starlette/background.py": "e74cc143fe74955f5819119ebc15054380cec22b14e3ba5457f3df8811bd0a0e",
+        "rich/rich/text.py": "bfebc2386f204bf0f940384e854d7de3bf3ec842460172958bc89808293b3bf3",
+        "rich/rich/syntax.py": "358d43448a97064144c6e76ac66e4adc1257142b6d37adc017fdc8640bed2cc8",
+        "rich/rich/_wrap.py": "1654aca26e445f42d5900dca5b2df8c879c27cbb6a5fe6487a95ca87eef4ae97",
+        "rich/rich/cells.py": "2ab4248f9f8b821082a492d23502320198e775ce1b9c4a8e1268b962e67d5026",
+        "rich/rich/segment.py": "ee039dc123ebceed1ada0466c410edbb7bb64bc886e6cf65ef0941e7c74a332d",
+        "rich/rich/table.py": "457dba53ca07574b3553e825e96ab295f7ac98e4f6aaded556d32d0b5f3e3e4d",
+        "rich/rich/containers.py": "73fe7a4f171e74662a0dea4704c4ee65d5088a38ad010827a31f9075ed19d6aa",
+        "rich/rich/ansi.py": "02fb352c76d275cc8ebc339da442d952850b7018987b063be9e341a7ab85061b",
+        "rich/rich/rule.py": "ba63b6d568f0d0571801e4c1dd4ba634b0ac0d685e8f3c678e57f65708978832",
+        "rich/rich/tree.py": "4283b0838db816477019f47c2b4b59e90eeab7358d0143ff9b8b05698b86ea7c",
+        "rich/rich/markdown.py": "7838bb74c37b4500f9bb6d6dbaa08e4a935619974a9b21ad2a669936ddb9eeb0",
+        "rich/rich/jupyter.py": "1bda4e26647811220561277830a1aa987a82b6cb71d28456a7279382fe78f977",
+        "rich/rich/pretty.py": "790b38dfb024b18682076a8efddfb3e9ed0317fb7917529f5df6b51e2f986b41",
+        "rich/rich/live.py": "0e1cc03c49e34f142eabdff4636c61d8c53041c3ff6863e47a72df2844ec9703",
+        "rich/rich/progress.py": "b4b981187ac07f1210c5f07692ad48a4d5d354536ebe5f5b5ddfd090b41437c4",
+        "rich/rich/style.py": "692a1435b5607cfd4f02776e02a81b6e5e00310cbaebcaacd92d45130af73aab",
+        "rich/rich/_ratio.py": "776937f109e424a8641c0aaa4ac7aa310f99baf81bc27a1c44a84c42af3811d2",
+        "rich/rich/_pick.py": "7af0edf10378945e428b0ad421794e2429ed8ad0423ac23764b3c42005512c95",
+        "rich/rich/console.py": "ce04b0bd10cf8835e1eb043f91b9cd4b17dffaceeeba58d599a4dea183f287a1",
+        "rich/rich/panel.py": "7c544772f897bd6864dd5df3c796709ac6ff44bf4a2777ac0feb14d0d604572c",
+        "rich/rich/_win32_console.py": "a3640dfc8471d746e218fdc0a759de6aa5fc1411a550a4a658ce8ac3839283e5",
+        "rich/rich/bar.py": "95d6d51cecca24e9df95536ebf5c52ee0e9d2d7d84df03275e474f6e9cc94dcb",
+        "rich/rich/padding.py": "87c5e7222bcbacdb65c48def40f2875e1e210308ce26a671d2c94cd33de0d7f3",
+        "rich/rich/traceback.py": "8422ce8a0e14c2d73b7f416ab1e124159f18530cef18e962f01386e75ee68a98",
+        "rich/rich/measure.py": "1e6ac8257f2c5914c76e087c33111acbff37564a8d5bfef4b3c68a3f965c608f",
+        "rich/rich/align.py": "83195f82f8b86a1f0446683c469185b56635678581b969beeaa488512171e1b4",
+        "rich/rich/__init__.py": "961d9672820e269e4ce7f95b02c494306bfca2225eba644e6b31c7fc060c4bc2",
+        "rich/rich/progress_bar.py": "9994cfa4953071f71d8100934f3de4c98f9f73bf5d74bc2dc7a1a18717e8d3ae",
+        "rich/rich/layout.py": "591f0f092ae8627b5e213df36b0c50de4dda775b103b9c061b54993a8781b813",
+        "rich/rich/control.py": "231fab3bc661481daad4189acebe25ef6672030dbb1fda2bec4962a56555a343",
+        "rich/rich/styled.py": "c258d5b154d76c004c319be4ce43b8dd9124ffe8abcc4b6f52243eb0d9e2910f",
+        "rich/rich/prompt.py": "934094216fb7239e631a4f14dced5688485d17ac976b612259e46a461b895d60",
+        "rich/rich/_windows_renderer.py": "77bf7dc4e9f12db0820b31aef7e53b60b988424c6dc5020115043a8aee2f7927",
+        "rich/rich/markup.py": "6eda6bdbbd412e18824758cd825467bf606923355c35e7d8c1231e5bdb5e0db7",
+        "rich/rich/file_proxy.py": "4e5f531cc0d9f8f9395a6f2c23580683f5390e1bac9b10fe159d1f51b714d16d",
+        "rich/rich/screen.py": "acbfe3db05fee127ae20e236a0e95ce35f103fd100bc3e7d1889d4984004ea34",
+        "rich/rich/emoji.py": "d634d11c5c2f431635722ba5db631d11971673b6eb7e3293f051ba6635e3e5d3",
+        "rich/rich/_log_render.py": "c41282c6a88ee05664f1e1b9e9ff1cac576b989c45ac9b1013757717e7c57a47",
+        "rich/rich/color.py": "dc74942d50e3eea4245d47455afefc24e8926737f2e72d6791c6219dadbde95d",
+        "rich/rich/palette.py": "02be9952b607885b7af91af693e93d17c57b87180960735daa3936bd55ec2e07",
+        "rich/rich/color_triplet.py": "de585091d25bbd63e82c33be0276089805a626f579765818342559f7b39168de",
+        "rich/rich/__main__.py": "5af879deb98e33259e51ecaa507a67d4f5ec1e505ce1355c427aabc38ea77fd6",
+        "rich/rich/terminal_theme.py": "d63e7eb9f25f9ef940a3942c8bf0026625c39b0317cea826141c8e6d3f7ec896",
+        "rich/rich/_loop.py": "855ffa08b7683e6d2f6b6d96a70e332aa334458b33dd36715e3d0fa12fbd7834",
+        "rich/rich/highlighter.py": "1bfb27fbc0ca8ccd6c1232c6fe8738a2f9169a25295af8fc6d78b4c9e7762e76",
+        "rich/rich/box.py": "e3aac0d1e04a2c172a361097984292e29375773dfa1745738b9da1c954feb727",
+        "rich/rich/columns.py": "1d45f429c326f5db0a362d757d36e233f876883b65f3248269573195a944ceaf",
+        "rich/rich/constrain.py": "d5520fb82f0082d296adc9dc42b8c1758a80dc9556cacbba8d9a35aeb87b73b4",
+        "rich/rich/scope.py": "95fe907adfdee09398df89708584801be3415d8281718bbab7f8a0bff2681a88",
+        "rich/rich/diagnose.py": "668a43d84a5656d9a62a9b606d74feb0e324009ec31ab312517522694d8667bf",
+        "rich/rich/logging.py": "6aa669b26204138e7ec1b9d9a969c468d49d43cf5c6c671a2f6ebe655d29a23d",
+        "rich/rich/live_render.py": "41a881f1db468a409db2ca17a641269a21f9e5fc53fbd6f32e404ef696c1beb5",
+        "rich/rich/_inspect.py": "40cd399441671684da16aa676f1fb304423a93ca082ab0f772f8c43903612a28",
+        "rich/rich/protocol.py": "5adfb61d977aece622a295240933b3ee5337f2fca8e6bdc711067d4ce3c39794",
+        "rich/rich/_emoji_replace.py": "9fe91c7adb04531d99526850adf78c35cfad79e1a1a6e490e45f153c1b32bc3a",
+        "rich/rich/spinner.py": "3d3e6a8173c6dd9a6a463ee7dc4650e8d5b9ea6c7795d66a64253b804332664e",
+        "rich/rich/status.py": "9243e987761e019068f97fb8c0fa7c813a99c94e3ae8d2f06410383d94d37b0a",
+        "express/lib/request.js": "a9fda39c4472aeaa4d696f4324f58cc1d036f84ed04145d6d56a12a59578e751",
+        "express/lib/response.js": "efe24afe2978d0bf2ad52d5b163a7af0d25d965e5dfc75979c4fcc883c60a510",
+        "express/lib/view.js": "74f4171b66263e22481820bc5975708f7dd8a61484f570aac7c5b4ab77ecbd79",
+        "express/lib/application.js": "6d7e08355025786982d17042fc0355b6a5e9339545dc27e2782b3aaa28a7bc04",
+        "express/lib/utils.js": "4bd3bf9c911e086d1911954708de7a6c384ed924360e3fd1d4a43c98bd68b112",
+        "express/lib/express.js": "4f35e8273a5e78c35e778d14e4a8c80a81ca3e1fc8047dc87d2077b860404572",
+        "zod/packages/zod/src/v4/core/core.ts": "f3ab5ea2f1e49379b25ee99cecf6dc0a2c02aa77fce87400f010a49f2b670463",
+        "zod/packages/zod/src/v4/core/parse.ts": "855bda0c95d79be1562fb1f48db4eefb7697276675b7debeb389aaba1b61e9e6",
+        "zod/packages/zod/src/v4/core/compile.ts": "6c2a8810813117e864a95dd1e8512af7ce53e6b4b02d1f0dbc1dfa78850afff0",
+        "zod/packages/zod/src/v4/core/schemas.ts": "9a495df5c8e614f1435f8f79618e768e9f3e5a2bc76d784b2c060f51c8e0312e",
+        "zod/packages/zod/src/v4/core/to-json-schema.ts": "31c83b46fb2c25c0a80bde9f8d8c26609f4c0255e253d07613c96f67645eb779",
+        "zod/packages/zod/src/v4/core/memoizer.ts": "8415a081f35e1bf160ed3fe39733e6a886afe90a6a9b32c48395d33e623facf7",
+        "zod/packages/zod/src/v4/classic/schemas.ts": "95b134b255f29fe5ac4dda3f64f85eaabd73a6476910abb175e59de1440fc16e",
+        "zod/packages/zod/src/v4/core/checks.ts": "d813140472a55ab36e845f4eaadbb3deae6d0597f90bef6c3f51366ac8dbfd4c",
+        "zod/packages/zod/src/v4/core/util.ts": "e0ce7d4abc5e43373c59db83cad29f918edf6965df1bb8e54157a4f04d224863",
+        "zod/packages/zod/src/v4/classic/parse.ts": "e68cc3082aba565ba2b9edb803a094720530f6c3924df841f581da03eccefe19",
+        "zod/packages/zod/src/v4/core/errors.ts": "ad19a7ec2af7abc5ed11a0ba279a015272adff8d2548ac531fc9216b0a37112a",
+        "zod/packages/zod/src/v4/classic/from-json-schema.ts": "1b27140e0709c0cc65786808c2f929289c980bc6c3142264860bdffac8b0cdf6",
+        "zod/packages/zod/src/v4/locales/he.ts": "c7e3ea54233d4ea08ead08f59f2fa7fa8cf50367e21ca760b3fb470ce644bbb6",
+        "zod/packages/zod/src/v4/core/json-schema-processors.ts": "298cce21323ecf8d60a936df8b67e244ceff3e2cc3f0d3003d3afe8658d5730c",
+        "zod/packages/zod/src/v4/locales/lt.ts": "e59093f5643faa15b01f74aacd9361c60868affa1c7e33219b994c793419101a",
+        "zod/packages/zod/src/v4/locales/de.ts": "cc93160b08b262cba3182d31ab5104099c6f4ce04422ccedab44d94336b0b255",
+        "zod/packages/zod/src/v4/locales/vi.ts": "9e9301c21db206f4e5ca144941cd3a03c60536799925115fe6e6311579dad240",
+        "zod/packages/zod/src/v4/locales/en.ts": "0d37224233efc2631383537e5759ebf80be4bdf4fa5e122362a8c4ede5e7f616",
+        "zod/packages/zod/src/v4/locales/tk.ts": "e801ce6e6b3825ecd926c1af631aaf7cc3d65c5e3e45c6e4908ee66d9ec7d20d",
+        "zod/packages/zod/src/v4/locales/it.ts": "5cecfaa76f614f4da1bf31ca6de31c409837256d468410ae0e7bf96fc87dd19b",
+        "zod/packages/zod/src/v4/locales/ja.ts": "07745bc34ad55848ef6cb3965dcfc16a61974775bb928736250e2e1afdbaaaa6",
+        "zod/packages/zod/src/v4/locales/es.ts": "3b253829d71f5e2776291cfb15aa9e5d05d5bd1384dff11d0a50667900daee39",
+        "zod/packages/zod/src/v4/locales/sv.ts": "c7f2615f0f4457ee4936cb53cc4a0a4a71a68b555f0a81af0d1c814a33d83c2e",
+        "zod/packages/zod/src/v4/locales/ar.ts": "58aa613b594b9cf7a1382ff297b0ca1aa249fbf5c2746d74f3eef69ad5326e01",
+        "zod/packages/zod/src/v4/locales/ne.ts": "2fc46cd6b102fa081d45e9764929ba9dde0c2f5fdd12591fdda9c7a338c50ed8",
+        "zod/packages/zod/src/v4/locales/gu.ts": "4d104cb9d6a35402e861a8b44ae7dfbb914cfc02df9a43501b245e67b4716a00",
+        "zod/packages/zod/src/v4/locales/ru.ts": "199389d57a9661e657559acd4b7ad54ed20bfc20e3e594e5102bcf57c0e5c170",
+        "zod/packages/zod/src/v4/locales/pt.ts": "ba3bf933dfcf642232d335c0dd71a0a6ca92e28462c3f4e923589b487f4aac73",
+        "zod/packages/zod/src/v4/locales/el.ts": "56e6ce2e0004bb6aa8e5ef3ca80fb254d000c1989207004e1083b6516ef2a4eb",
+        "zod/packages/zod/src/v4/locales/kn.ts": "a45c7d27167c5c9000a8161d3bd5945703dca14ce928b1f625b5b36c071dc966",
+        "zod/packages/zod/src/v4/locales/hi.ts": "a8f269cddf7a28b674cfde9e9bff1b8219a4a8c284664ba86b637a550bb0d15e",
+        "zod/packages/zod/src/v4/locales/nn.ts": "a33b18dd9bf70086d31fb22f591482a0f7e5bee9c0486f6798e1be9d57139170",
+        "zod/packages/zod/src/v4/locales/no.ts": "2864d0cc97f186498037653f904f242ced4f70601eba309558bab30a24d811c3",
+        "zod/packages/zod/src/v4/locales/ta.ts": "9bca4b321c147e046c86e132188469cff31933691ae0d5feba012ff3e0ed2061",
+        "zod/packages/zod/src/v4/locales/da.ts": "d8ff6a5a40e07479242b2967cd0339b306b17b5fbbd0a0e65a695ff1abe2c7eb",
+        "zod/packages/zod/src/v4/locales/uz.ts": "ff7494c9b81a2450190de3cafb3496578ca7ae6e05ce98497267cc92a727097a",
+        "zod/packages/zod/src/v4/core/api.ts": "9ad4da853ced907f2e5764e5a390f087c0bc8633638a993c50699f0827a5bf5d",
+        "zod/packages/zod/src/v4/locales/hy.ts": "8af65e996ce0d9d596750eac66dd8ad18637ed80aac25500aeafc4c2b866da4a",
+        "zod/packages/zod/src/v4/locales/bn.ts": "0b06c4b216c733ca067b39f65fe17f24db0d4d79650d723dc63a275aec95cdf8",
+        "zod/packages/zod/src/v4/locales/ms.ts": "013b78ee92c162cd4a8852283048fa5fe433b5671f547c4b82df28a852568277",
+        "zod/packages/zod/src/v4/locales/pl.ts": "d10def1a353db5e4006764537aec74599e4c474a55137be9cec19a2d239dc846",
+        "zod/packages/zod/src/v4/locales/ca.ts": "1274da07478f0a1bbc63beb732645cfc36ee006dce06f9eac97fcd088924b65a",
+        "zod/packages/zod/src/v4/locales/ur.ts": "70319ac80fe8cee5754fbf19bb36f8fd5d31c9b61a28c6731a988340a655a397",
+        "zod/packages/zod/src/v4/locales/th.ts": "a9c9f89d4c3736787207d82942f904f171f800905b726185c8ded76d647ec2e3",
+        "zod/packages/zod/src/v4/locales/az.ts": "ae7015b8ec93aac089f5ddf3f6b1733832e83de860ad1d67ee7d7353f2c6b284",
+        "zod/packages/zod/src/v4/locales/nl.ts": "63d32609d303b51ca3dc62c56474f6d6839278879e9351fdbb3d125496daf921",
+        "zod/packages/zod/src/v4/mini/schemas.ts": "0564e616637aa02917854cb0ee22bbc64172c78a111cb422ba1f577d556432ee",
+        "zod/packages/zod/src/v4/core/visit.ts": "04108723a4a821de6f420a6adfe8e5dbca08e68bf30e7d9b079fab23d701ad69",
+        "zod/packages/zod/src/v4/core/regexes.ts": "fd08a3d605812f51ac57e5c5b327682f99aaf741cff30a9363cb4f6afc60cdc9",
+        "zod/packages/zod/src/v4/core/json-schema-generator.ts": "8404f82a03975ac4ad31072332a46a5f94468db308b7369d6dccd0d11f882c87",
+        "zod/packages/zod/src/v4/classic/in-out.ts": "2f483a2fc77ea92e1e049eae34e8415e563ffbdf662b7c97d0d31b4d0a4739f1",
+        "zod/packages/zod/src/v4/mini/in-out.ts": "07a59ae15726dff6e12b845c9b53bb7fa9e4107ed01258e0a5468889def108c2",
+        "zod/packages/zod/src/v4/classic/deep-partial.ts": "1062f37dcd0689481c69d6af005eb05299818f1383e8c524fdd877d3b12dd6bd",
+        "zod/packages/zod/src/v4/core/registries.ts": "699d7991cefa6282b97537b67e7a701465e50107b02d216b8da271a95672c47f",
+        "koa/lib/response.js": "cf8de7b8ae32b7d7b58d57dd7c88db04d68a6ebaf8e5b50e58a33f1bcdf8c511",
+        "koa/lib/application.js": "d693bbeda65c4f55a9d888e3cf255187cefbdbc93572cb4a4897ccbbb8e6c5ac",
+        "koa/lib/request.js": "b15a74f8020e9aa11d6ce70c15f00120eca1e2ecd701db21291e8b522376fe46",
+        "koa/lib/context.js": "93fdd5eddf6c1c331f81fff88f624a03ec59c987c796f93835dbea804e29d831",
+        "koa/lib/only.js": "ab7febafa4bc552b844dc57e00a6c187df1fef75915319da6b4682945a9a2db8",
+        "koa/lib/search-params.js": "bbe11c3d24a568a67b37b77369e9977ae7460fae14ac2f4da17666bb999da2d2",
+        "koa/lib/is-stream.js": "8d3d310d81005cfc2aaa5d523afab9c2204c7a69b00565cf332d302c2ca7092d"
+      },
+      "actual_excerpts_verified": 933
+    },
+    "httpx": {
+      "first_repetition_queries": 15,
+      "present_queries": 12,
+      "missing_required_groups_with_full_evidence_in_scored24": [
+        {
+          "dataset": "httpx",
+          "query_id": "httpx_json_request_encoding_and_headers",
+          "group": 1,
+          "targets": [
+            {
+              "declaration_anchor": "def __init__(",
+              "definition_lines": [
+                383,
+                439
+              ],
+              "evidence_lines": [
+                383,
+                439
+              ],
+              "evidence_sha256": "23b22679c8fb43190f18e4d00f018e9e9c6f806fca22234486740d001cd52b36",
+              "path": "httpx/_models.py",
+              "source_file_sha256": "e3ffc6bb2bf580bc6e6428708a6f247d036220e709f5a72b785392babbd97e6b",
+              "symbol": "Request.__init__",
+              "required_physical_lines": 57
+            }
+          ],
+          "candidate_rank": 9,
+          "scored_rank": 9,
+          "first_distinct_scored_rank": 9,
+          "matching_scored_windows": [
+            {
+              "end_line": 439,
+              "id": "httpx/_models.py:Request.__init__:383-439",
+              "path": "httpx/_models.py",
+              "source_hash": "23b22679c8fb43190f18e4d00f018e9e9c6f806fca22234486740d001cd52b36",
+              "start_line": 383,
+              "symbol": "Request.__init__",
+              "scored_rank": 9
+            }
+          ],
+          "cause": "outside_eight_symbol_eligible_prefix",
+          "duplicate_exclusion": false,
+          "dependency_slots_proven_used": 2,
+          "dependency_slots_proven_additional_to_earlier_scored_symbols": 2,
+          "required_window_partially_delivered": false,
+          "packing_clipped_other_delivered_windows": false,
+          "actual_same_path_whole_line_intervals": [
+            {
+              "id": "httpx/_models.py:Request._prepare:441-460",
+              "path": "httpx/_models.py",
+              "start_line": 441,
+              "end_line": 460,
+              "origin": "retrieval",
+              "related_to": null,
+              "truncated": false,
+              "source_hash": "2512f2c35f01fe341f99e1c6f88e680bd82ae89b7e9a812b129829724921bb2c"
+            }
+          ],
+          "actual_evidence_line_intersections": [],
+          "delivered_rows": [
+            {
+              "id": "httpx/_content.py:encode_json:176-183",
+              "origin": "retrieval",
+              "related_to": null,
+              "start_line": 176,
+              "end_line": 183
+            },
+            {
+              "id": "httpx/_content.py:encode_text:160-165",
+              "origin": "retrieval",
+              "related_to": null,
+              "start_line": 160,
+              "end_line": 165
+            },
+            {
+              "id": "httpx/_content.py:encode_content:107-133",
+              "origin": "retrieval",
+              "related_to": null,
+              "start_line": 107,
+              "end_line": 133
+            },
+            {
+              "id": "httpx/_content.py:encode_urlencoded_data:136-149",
+              "origin": "retrieval",
+              "related_to": null,
+              "start_line": 136,
+              "end_line": 149
+            },
+            {
+              "id": "httpx/_content.py:encode_html:168-173",
+              "origin": "retrieval",
+              "related_to": null,
+              "start_line": 168,
+              "end_line": 173
+            },
+            {
+              "id": "httpx/_utils.py:peek_filelike_length:95-117",
+              "origin": "dependency",
+              "related_to": "httpx/_content.py:encode_content:107-133",
+              "start_line": 95,
+              "end_line": 117
+            },
+            {
+              "id": "httpx/_utils.py:primitive_value_to_str:15-27",
+              "origin": "dependency",
+              "related_to": "httpx/_content.py:encode_urlencoded_data:136-149",
+              "start_line": 15,
+              "end_line": 27
+            },
+            {
+              "id": "httpx/_models.py:Request._prepare:441-460",
+              "origin": "retrieval",
+              "related_to": null,
+              "start_line": 441,
+              "end_line": 460
+            }
+          ],
+          "delivered_source_chars": 5007,
+          "prior_audited_compact_tokens": 2087,
+          "budget_exhausted": false
+        },
+        {
+          "dataset": "httpx",
+          "query_id": "httpx_json_request_encoding_and_headers",
+          "group": 2,
+          "targets": [
+            {
+              "declaration_anchor": "def encode_request(",
+              "definition_lines": [
+                186,
+                218
+              ],
+              "evidence_lines": [
+                186,
+                218
+              ],
+              "evidence_sha256": "6651ed432577431e4bd1617f2c8eab330b2ff249e4ee500e02694fadbf74d8ff",
+              "path": "httpx/_content.py",
+              "source_file_sha256": "2c61b3ac94d1dcebcde0c6f519554d2d7917247fbaa0a97002db4ef69e70ff28",
+              "symbol": "encode_request",
+              "required_physical_lines": 33
+            }
+          ],
+          "candidate_rank": 5,
+          "scored_rank": 8,
+          "first_distinct_scored_rank": 8,
+          "matching_scored_windows": [
+            {
+              "end_line": 218,
+              "id": "httpx/_content.py:encode_request:186-218",
+              "path": "httpx/_content.py",
+              "source_hash": "6651ed432577431e4bd1617f2c8eab330b2ff249e4ee500e02694fadbf74d8ff",
+              "start_line": 186,
+              "symbol": "encode_request",
+              "scored_rank": 8
+            }
+          ],
+          "cause": "dependency_slots_displace_scored_anchor",
+          "duplicate_exclusion": false,
+          "dependency_slots_proven_used": 2,
+          "dependency_slots_proven_additional_to_earlier_scored_symbols": 2,
+          "required_window_partially_delivered": false,
+          "packing_clipped_other_delivered_windows": false,
+          "actual_same_path_whole_line_intervals": [
+            {
+              "id": "httpx/_content.py:encode_json:176-183",
+              "path": "httpx/_content.py",
+              "start_line": 176,
+              "end_line": 183,
+              "origin": "retrieval",
+              "related_to": null,
+              "truncated": false,
+              "source_hash": "30372895d631a8b5200f61f3cad175aa09b48db43be3b717291d7ef9f93f658e"
+            },
+            {
+              "id": "httpx/_content.py:encode_text:160-165",
+              "path": "httpx/_content.py",
+              "start_line": 160,
+              "end_line": 165,
+              "origin": "retrieval",
+              "related_to": null,
+              "truncated": false,
+              "source_hash": "33cb9c4d599751626ff73ea91432019a05aa0b97d676d90dbbf1b362d2032f2c"
+            },
+            {
+              "id": "httpx/_content.py:encode_content:107-133",
+              "path": "httpx/_content.py",
+              "start_line": 107,
+              "end_line": 133,
+              "origin": "retrieval",
+              "related_to": null,
+              "truncated": false,
+              "source_hash": "0442068de8032cbe7cc657444105a1e69cf96921880421808ca87e19212d5b17"
+            },
+            {
+              "id": "httpx/_content.py:encode_urlencoded_data:136-149",
+              "path": "httpx/_content.py",
+              "start_line": 136,
+              "end_line": 149,
+              "origin": "retrieval",
+              "related_to": null,
+              "truncated": false,
+              "source_hash": "cf65b36debda98d7df59185c9f3001d77b02050611f7d1fc3250b37adb6e3291"
+            },
+            {
+              "id": "httpx/_content.py:encode_html:168-173",
+              "path": "httpx/_content.py",
+              "start_line": 168,
+              "end_line": 173,
+              "origin": "retrieval",
+              "related_to": null,
+              "truncated": false,
+              "source_hash": "71bac2c99774ab5b98018ec87b137746c0bdde729f6fd3ef5925cd6f417bca5c"
+            }
+          ],
+          "actual_evidence_line_intersections": [],
+          "delivered_rows": [
+            {
+              "id": "httpx/_content.py:encode_json:176-183",
+              "origin": "retrieval",
+              "related_to": null,
+              "start_line": 176,
+              "end_line": 183
+            },
+            {
+              "id": "httpx/_content.py:encode_text:160-165",
+              "origin": "retrieval",
+              "related_to": null,
+              "start_line": 160,
+              "end_line": 165
+            },
+            {
+              "id": "httpx/_content.py:encode_content:107-133",
+              "origin": "retrieval",
+              "related_to": null,
+              "start_line": 107,
+              "end_line": 133
+            },
+            {
+              "id": "httpx/_content.py:encode_urlencoded_data:136-149",
+              "origin": "retrieval",
+              "related_to": null,
+              "start_line": 136,
+              "end_line": 149
+            },
+            {
+              "id": "httpx/_content.py:encode_html:168-173",
+              "origin": "retrieval",
+              "related_to": null,
+              "start_line": 168,
+              "end_line": 173
+            },
+            {
+              "id": "httpx/_utils.py:peek_filelike_length:95-117",
+              "origin": "dependency",
+              "related_to": "httpx/_content.py:encode_content:107-133",
+              "start_line": 95,
+              "end_line": 117
+            },
+            {
+              "id": "httpx/_utils.py:primitive_value_to_str:15-27",
+              "origin": "dependency",
+              "related_to": "httpx/_content.py:encode_urlencoded_data:136-149",
+              "start_line": 15,
+              "end_line": 27
+            },
+            {
+              "id": "httpx/_models.py:Request._prepare:441-460",
+              "origin": "retrieval",
+              "related_to": null,
+              "start_line": 441,
+              "end_line": 460
+            }
+          ],
+          "delivered_source_chars": 5007,
+          "prior_audited_compact_tokens": 2087,
+          "budget_exhausted": false
+        },
+        {
+          "dataset": "httpx",
+          "query_id": "httpx_stacked_content_decoding",
+          "group": 3,
+          "targets": [
+            {
+              "declaration_anchor": "def decode(self, data: bytes) -> bytes:",
+              "definition_lines": [
+                216,
+                219
+              ],
+              "evidence_lines": [
+                216,
+                219
+              ],
+              "evidence_sha256": "b26b60a6d4beefdbf40dd8fc6b43f7de70949da7773cbb2fdea86935f7800f5d",
+              "path": "httpx/_decoders.py",
+              "source_file_sha256": "a74757f08d0d1077b1b37506a784ac66eb62321b17aeb5a5ebe1a7a956f488a3",
+              "symbol": "MultiDecoder.decode",
+              "required_physical_lines": 4
+            }
+          ],
+          "candidate_rank": 20,
+          "scored_rank": 17,
+          "first_distinct_scored_rank": 17,
+          "matching_scored_windows": [
+            {
+              "end_line": 219,
+              "id": "httpx/_decoders.py:MultiDecoder.decode:216-219",
+              "path": "httpx/_decoders.py",
+              "source_hash": "b26b60a6d4beefdbf40dd8fc6b43f7de70949da7773cbb2fdea86935f7800f5d",
+              "start_line": 216,
+              "symbol": "MultiDecoder.decode",
+              "scored_rank": 17
+            }
+          ],
+          "cause": "outside_eight_symbol_eligible_prefix",
+          "duplicate_exclusion": false,
+          "dependency_slots_proven_used": 2,
+          "dependency_slots_proven_additional_to_earlier_scored_symbols": 1,
+          "required_window_partially_delivered": false,
+          "packing_clipped_other_delivered_windows": false,
+          "actual_same_path_whole_line_intervals": [
+            {
+              "id": "httpx/_decoders.py:MultiDecoder.__init__:208-214",
+              "path": "httpx/_decoders.py",
+              "start_line": 208,
+              "end_line": 214,
+              "origin": "retrieval",
+              "related_to": null,
+              "truncated": false,
+              "source_hash": "f54e7afff9a7e3bdcf11966113b5fb187d82551f2b723cf980722cd3f8e530cb"
+            }
+          ],
+          "actual_evidence_line_intersections": [],
+          "delivered_rows": [
+            {
+              "id": "httpx/_models.py:Response._get_content_decoder:699-722",
+              "origin": "retrieval",
+              "related_to": null,
+              "start_line": 699,
+              "end_line": 722
+            },
+            {
+              "id": "httpx/_decoders.py:MultiDecoder.__init__:208-214",
+              "origin": "retrieval",
+              "related_to": null,
+              "start_line": 208,
+              "end_line": 214
+            },
+            {
+              "id": "httpx/_models.py:Response.aiter_text:1007-1026",
+              "origin": "retrieval",
+              "related_to": null,
+              "start_line": 1007,
+              "end_line": 1026
+            },
+            {
+              "id": "httpx/_models.py:Response.iter_text:907-924",
+              "origin": "retrieval",
+              "related_to": null,
+              "start_line": 907,
+              "end_line": 924
+            },
+            {
+              "id": "httpx/_models.py:Response.aiter_bytes:982-1005",
+              "origin": "retrieval",
+              "related_to": null,
+              "start_line": 982,
+              "end_line": 1005
+            },
+            {
+              "id": "httpx/_exceptions.py:request_context:366-379",
+              "origin": "dependency",
+              "related_to": "httpx/_models.py:Response.aiter_text:1007-1026",
+              "start_line": 366,
+              "end_line": 379
+            },
+            {
+              "id": "httpx/_models.py:Response.iter_bytes:884-905",
+              "origin": "dependency",
+              "related_to": "httpx/_models.py:Response.iter_text:907-924",
+              "start_line": 884,
+              "end_line": 905
+            },
+            {
+              "id": "httpx/_models.py:Headers.encoding:166-189",
+              "origin": "retrieval",
+              "related_to": null,
+              "start_line": 166,
+              "end_line": 189
+            }
+          ],
+          "delivered_source_chars": 6578,
+          "prior_audited_compact_tokens": 2278,
+          "budget_exhausted": false
+        },
+        {
+          "dataset": "httpx",
+          "query_id": "httpx_stacked_content_decoding",
+          "group": 4,
+          "targets": [
+            {
+              "declaration_anchor": "def flush(self) -> bytes:",
+              "definition_lines": [
+                221,
+                225
+              ],
+              "evidence_lines": [
+                221,
+                225
+              ],
+              "evidence_sha256": "dc3469789352f853208be884b95a98d405747c2453735f4eef94d20d09eec99a",
+              "path": "httpx/_decoders.py",
+              "source_file_sha256": "a74757f08d0d1077b1b37506a784ac66eb62321b17aeb5a5ebe1a7a956f488a3",
+              "symbol": "MultiDecoder.flush",
+              "required_physical_lines": 5
+            }
+          ],
+          "candidate_rank": 24,
+          "scored_rank": 19,
+          "first_distinct_scored_rank": 19,
+          "matching_scored_windows": [
+            {
+              "end_line": 225,
+              "id": "httpx/_decoders.py:MultiDecoder.flush:221-225",
+              "path": "httpx/_decoders.py",
+              "source_hash": "dc3469789352f853208be884b95a98d405747c2453735f4eef94d20d09eec99a",
+              "start_line": 221,
+              "symbol": "MultiDecoder.flush",
+              "scored_rank": 19
+            }
+          ],
+          "cause": "outside_eight_symbol_eligible_prefix",
+          "duplicate_exclusion": false,
+          "dependency_slots_proven_used": 2,
+          "dependency_slots_proven_additional_to_earlier_scored_symbols": 1,
+          "required_window_partially_delivered": false,
+          "packing_clipped_other_delivered_windows": false,
+          "actual_same_path_whole_line_intervals": [
+            {
+              "id": "httpx/_decoders.py:MultiDecoder.__init__:208-214",
+              "path": "httpx/_decoders.py",
+              "start_line": 208,
+              "end_line": 214,
+              "origin": "retrieval",
+              "related_to": null,
+              "truncated": false,
+              "source_hash": "f54e7afff9a7e3bdcf11966113b5fb187d82551f2b723cf980722cd3f8e530cb"
+            }
+          ],
+          "actual_evidence_line_intersections": [],
+          "delivered_rows": [
+            {
+              "id": "httpx/_models.py:Response._get_content_decoder:699-722",
+              "origin": "retrieval",
+              "related_to": null,
+              "start_line": 699,
+              "end_line": 722
+            },
+            {
+              "id": "httpx/_decoders.py:MultiDecoder.__init__:208-214",
+              "origin": "retrieval",
+              "related_to": null,
+              "start_line": 208,
+              "end_line": 214
+            },
+            {
+              "id": "httpx/_models.py:Response.aiter_text:1007-1026",
+              "origin": "retrieval",
+              "related_to": null,
+              "start_line": 1007,
+              "end_line": 1026
+            },
+            {
+              "id": "httpx/_models.py:Response.iter_text:907-924",
+              "origin": "retrieval",
+              "related_to": null,
+              "start_line": 907,
+              "end_line": 924
+            },
+            {
+              "id": "httpx/_models.py:Response.aiter_bytes:982-1005",
+              "origin": "retrieval",
+              "related_to": null,
+              "start_line": 982,
+              "end_line": 1005
+            },
+            {
+              "id": "httpx/_exceptions.py:request_context:366-379",
+              "origin": "dependency",
+              "related_to": "httpx/_models.py:Response.aiter_text:1007-1026",
+              "start_line": 366,
+              "end_line": 379
+            },
+            {
+              "id": "httpx/_models.py:Response.iter_bytes:884-905",
+              "origin": "dependency",
+              "related_to": "httpx/_models.py:Response.iter_text:907-924",
+              "start_line": 884,
+              "end_line": 905
+            },
+            {
+              "id": "httpx/_models.py:Headers.encoding:166-189",
+              "origin": "retrieval",
+              "related_to": null,
+              "start_line": 166,
+              "end_line": 189
+            }
+          ],
+          "delivered_source_chars": 6578,
+          "prior_audited_compact_tokens": 2278,
+          "budget_exhausted": false
+        },
+        {
+          "dataset": "httpx",
+          "query_id": "httpx_async_incremental_text_lines",
+          "group": 2,
+          "targets": [
+            {
+              "declaration_anchor": "def decode(self, text: str) -> list[str]:",
+              "definition_lines": [
+                333,
+                369
+              ],
+              "evidence_lines": [
+                333,
+                369
+              ],
+              "evidence_sha256": "8097e3e9f92ed5129bb7a461b65fcb8845a138d822ce4977efabf2728db774a5",
+              "path": "httpx/_decoders.py",
+              "source_file_sha256": "a74757f08d0d1077b1b37506a784ac66eb62321b17aeb5a5ebe1a7a956f488a3",
+              "symbol": "LineDecoder.decode",
+              "required_physical_lines": 37
+            }
+          ],
+          "candidate_rank": 3,
+          "scored_rank": 6,
+          "first_distinct_scored_rank": 6,
+          "matching_scored_windows": [
+            {
+              "end_line": 369,
+              "id": "httpx/_decoders.py:LineDecoder.decode:333-369",
+              "path": "httpx/_decoders.py",
+              "source_hash": "8097e3e9f92ed5129bb7a461b65fcb8845a138d822ce4977efabf2728db774a5",
+              "start_line": 333,
+              "symbol": "LineDecoder.decode",
+              "scored_rank": 6
+            }
+          ],
+          "cause": "dependency_slots_displace_scored_anchor",
+          "duplicate_exclusion": false,
+          "dependency_slots_proven_used": 3,
+          "dependency_slots_proven_additional_to_earlier_scored_symbols": 3,
+          "required_window_partially_delivered": false,
+          "packing_clipped_other_delivered_windows": false,
+          "actual_same_path_whole_line_intervals": [],
+          "actual_evidence_line_intersections": [],
+          "delivered_rows": [
+            {
+              "id": "httpx/_models.py:Response.aiter_lines:1028-1035",
+              "origin": "retrieval",
+              "related_to": null,
+              "start_line": 1028,
+              "end_line": 1035
+            },
+            {
+              "id": "httpx/_models.py:Response.iter_lines:926-933",
+              "origin": "retrieval",
+              "related_to": null,
+              "start_line": 926,
+              "end_line": 933
+            },
+            {
+              "id": "httpx/_models.py:Response.aiter_text:1007-1026",
+              "origin": "retrieval",
+              "related_to": null,
+              "start_line": 1007,
+              "end_line": 1026
+            },
+            {
+              "id": "httpx/_models.py:Response.iter_text:907-924",
+              "origin": "retrieval",
+              "related_to": null,
+              "start_line": 907,
+              "end_line": 924
+            },
+            {
+              "id": "httpx/_content.py:AsyncIteratorByteStream.__aiter__:75-89",
+              "origin": "retrieval",
+              "related_to": null,
+              "start_line": 75,
+              "end_line": 89
+            },
+            {
+              "id": "httpx/_exceptions.py:request_context:366-379",
+              "origin": "dependency",
+              "related_to": "httpx/_models.py:Response.aiter_lines:1028-1035",
+              "start_line": 366,
+              "end_line": 379
+            },
+            {
+              "id": "httpx/_models.py:Response.aiter_bytes:982-1005",
+              "origin": "dependency",
+              "related_to": "httpx/_models.py:Response.aiter_text:1007-1026",
+              "start_line": 982,
+              "end_line": 1005
+            },
+            {
+              "id": "httpx/_models.py:Response.iter_bytes:884-905",
+              "origin": "dependency",
+              "related_to": "httpx/_models.py:Response.iter_text:907-924",
+              "start_line": 884,
+              "end_line": 905
+            }
+          ],
+          "delivered_source_chars": 5651,
+          "prior_audited_compact_tokens": 2088,
+          "budget_exhausted": false
+        },
+        {
+          "dataset": "httpx",
+          "query_id": "httpx_async_incremental_text_lines",
+          "group": 3,
+          "targets": [
+            {
+              "declaration_anchor": "def flush(self) -> list[str]:",
+              "definition_lines": [
+                371,
+                378
+              ],
+              "evidence_lines": [
+                371,
+                378
+              ],
+              "evidence_sha256": "db49090f74d5195c86c44718142ca9330427c0a7e45c92ebb5e5c6923693f7c8",
+              "path": "httpx/_decoders.py",
+              "source_file_sha256": "a74757f08d0d1077b1b37506a784ac66eb62321b17aeb5a5ebe1a7a956f488a3",
+              "symbol": "LineDecoder.flush",
+              "required_physical_lines": 8
+            }
+          ],
+          "candidate_rank": 10,
+          "scored_rank": 10,
+          "first_distinct_scored_rank": 10,
+          "matching_scored_windows": [
+            {
+              "end_line": 378,
+              "id": "httpx/_decoders.py:LineDecoder.flush:371-378",
+              "path": "httpx/_decoders.py",
+              "source_hash": "db49090f74d5195c86c44718142ca9330427c0a7e45c92ebb5e5c6923693f7c8",
+              "start_line": 371,
+              "symbol": "LineDecoder.flush",
+              "scored_rank": 10
+            }
+          ],
+          "cause": "outside_eight_symbol_eligible_prefix",
+          "duplicate_exclusion": false,
+          "dependency_slots_proven_used": 3,
+          "dependency_slots_proven_additional_to_earlier_scored_symbols": 3,
+          "required_window_partially_delivered": false,
+          "packing_clipped_other_delivered_windows": false,
+          "actual_same_path_whole_line_intervals": [],
+          "actual_evidence_line_intersections": [],
+          "delivered_rows": [
+            {
+              "id": "httpx/_models.py:Response.aiter_lines:1028-1035",
+              "origin": "retrieval",
+              "related_to": null,
+              "start_line": 1028,
+              "end_line": 1035
+            },
+            {
+              "id": "httpx/_models.py:Response.iter_lines:926-933",
+              "origin": "retrieval",
+              "related_to": null,
+              "start_line": 926,
+              "end_line": 933
+            },
+            {
+              "id": "httpx/_models.py:Response.aiter_text:1007-1026",
+              "origin": "retrieval",
+              "related_to": null,
+              "start_line": 1007,
+              "end_line": 1026
+            },
+            {
+              "id": "httpx/_models.py:Response.iter_text:907-924",
+              "origin": "retrieval",
+              "related_to": null,
+              "start_line": 907,
+              "end_line": 924
+            },
+            {
+              "id": "httpx/_content.py:AsyncIteratorByteStream.__aiter__:75-89",
+              "origin": "retrieval",
+              "related_to": null,
+              "start_line": 75,
+              "end_line": 89
+            },
+            {
+              "id": "httpx/_exceptions.py:request_context:366-379",
+              "origin": "dependency",
+              "related_to": "httpx/_models.py:Response.aiter_lines:1028-1035",
+              "start_line": 366,
+              "end_line": 379
+            },
+            {
+              "id": "httpx/_models.py:Response.aiter_bytes:982-1005",
+              "origin": "dependency",
+              "related_to": "httpx/_models.py:Response.aiter_text:1007-1026",
+              "start_line": 982,
+              "end_line": 1005
+            },
+            {
+              "id": "httpx/_models.py:Response.iter_bytes:884-905",
+              "origin": "dependency",
+              "related_to": "httpx/_models.py:Response.iter_text:907-924",
+              "start_line": 884,
+              "end_line": 905
+            }
+          ],
+          "delivered_source_chars": 5651,
+          "prior_audited_compact_tokens": 2088,
+          "budget_exhausted": false
+        },
+        {
+          "dataset": "httpx",
+          "query_id": "httpx_immutable_query_parameter_updates",
+          "group": 2,
+          "targets": [
+            {
+              "declaration_anchor": "def merge(self, params: QueryParamTypes | None = None) -> QueryParams:",
+              "definition_lines": [
+                582,
+                598
+              ],
+              "evidence_lines": [
+                582,
+                598
+              ],
+              "evidence_sha256": "c240889f06b0cc9989458bd58640713fcd1ad4e7542f9108e52b00f8ecdeb243",
+              "path": "httpx/_urls.py",
+              "source_file_sha256": "757f7d551d4348e1e9828f40abb3f360ee0529dc6a2a3c32369f20adff1d1cdd",
+              "symbol": "QueryParams.merge",
+              "required_physical_lines": 17
+            }
+          ],
+          "candidate_rank": 2,
+          "scored_rank": 6,
+          "first_distinct_scored_rank": 6,
+          "matching_scored_windows": [
+            {
+              "end_line": 598,
+              "id": "httpx/_urls.py:QueryParams.merge:582-598",
+              "path": "httpx/_urls.py",
+              "source_hash": "c240889f06b0cc9989458bd58640713fcd1ad4e7542f9108e52b00f8ecdeb243",
+              "start_line": 582,
+              "symbol": "QueryParams.merge",
+              "scored_rank": 6
+            }
+          ],
+          "cause": "dependency_slots_displace_scored_anchor",
+          "duplicate_exclusion": false,
+          "dependency_slots_proven_used": 3,
+          "dependency_slots_proven_additional_to_earlier_scored_symbols": 3,
+          "required_window_partially_delivered": false,
+          "packing_clipped_other_delivered_windows": false,
+          "actual_same_path_whole_line_intervals": [
+            {
+              "id": "httpx/_urls.py:QueryParams.add:552-565",
+              "path": "httpx/_urls.py",
+              "start_line": 552,
+              "end_line": 565,
+              "origin": "retrieval",
+              "related_to": null,
+              "truncated": false,
+              "source_hash": "ced8a72ca555029a462c63c8d5e3a518a3ec98f081b1c9287bad95ecb9201ee5"
+            },
+            {
+              "id": "httpx/_urls.py:QueryParams.update:631-635",
+              "path": "httpx/_urls.py",
+              "start_line": 631,
+              "end_line": 635,
+              "origin": "retrieval",
+              "related_to": null,
+              "truncated": false,
+              "source_hash": "d938b626f17968e61f27a1923a0881997fdee55511c31282ed606a66b152af2e"
+            },
+            {
+              "id": "httpx/_urls.py:URL.copy_merge_params:351-352",
+              "path": "httpx/_urls.py",
+              "start_line": 351,
+              "end_line": 352,
+              "origin": "retrieval",
+              "related_to": null,
+              "truncated": false,
+              "source_hash": "84c4eb51947a591c99c3db2bdf4a1f739f9b10268338be6fbe580200b4ee2da1"
+            },
+            {
+              "id": "httpx/_urls.py:QueryParams.__setitem__:637-641",
+              "path": "httpx/_urls.py",
+              "start_line": 637,
+              "end_line": 641,
+              "origin": "retrieval",
+              "related_to": null,
+              "truncated": false,
+              "source_hash": "503a1fbbe6a611935545234f4f6409ddd662cd274d0463742c321aeb89e0a71a"
+            },
+            {
+              "id": "httpx/_urls.py:URL.copy_set_param:342-343",
+              "path": "httpx/_urls.py",
+              "start_line": 342,
+              "end_line": 343,
+              "origin": "retrieval",
+              "related_to": null,
+              "truncated": false,
+              "source_hash": "c0211d49701ca3366a78c77ca3aea1513236c9e6abf9e41732b8473f8012a296"
+            },
+            {
+              "id": "httpx/_urls.py:QueryParams.get_list:526-535",
+              "path": "httpx/_urls.py",
+              "start_line": 526,
+              "end_line": 535,
+              "origin": "dependency",
+              "related_to": "httpx/_urls.py:QueryParams.add:552-565",
+              "truncated": false,
+              "source_hash": "076649293827d9594a8c5ce9578a4479ab8c9becfe9aa57e7c375699ca4414c5"
+            },
+            {
+              "id": "httpx/_urls.py:URL.copy_with:327-340",
+              "path": "httpx/_urls.py",
+              "start_line": 327,
+              "end_line": 340,
+              "origin": "dependency",
+              "related_to": "httpx/_urls.py:URL.copy_merge_params:351-352",
+              "truncated": false,
+              "source_hash": "d907c8a99771ec2cf13428b2ef4bb0b595a1fe6548354e070d51bce2ec2cbbe5"
+            }
+          ],
+          "actual_evidence_line_intersections": [],
+          "delivered_rows": [
+            {
+              "id": "httpx/_urls.py:QueryParams.add:552-565",
+              "origin": "retrieval",
+              "related_to": null,
+              "start_line": 552,
+              "end_line": 565
+            },
+            {
+              "id": "httpx/_urls.py:QueryParams.update:631-635",
+              "origin": "retrieval",
+              "related_to": null,
+              "start_line": 631,
+              "end_line": 635
+            },
+            {
+              "id": "httpx/_urls.py:URL.copy_merge_params:351-352",
+              "origin": "retrieval",
+              "related_to": null,
+              "start_line": 351,
+              "end_line": 352
+            },
+            {
+              "id": "httpx/_urls.py:QueryParams.__setitem__:637-641",
+              "origin": "retrieval",
+              "related_to": null,
+              "start_line": 637,
+              "end_line": 641
+            },
+            {
+              "id": "httpx/_urls.py:URL.copy_set_param:342-343",
+              "origin": "retrieval",
+              "related_to": null,
+              "start_line": 342,
+              "end_line": 343
+            },
+            {
+              "id": "httpx/_urls.py:QueryParams.get_list:526-535",
+              "origin": "dependency",
+              "related_to": "httpx/_urls.py:QueryParams.add:552-565",
+              "start_line": 526,
+              "end_line": 535
+            },
+            {
+              "id": "httpx/_utils.py:primitive_value_to_str:15-27",
+              "origin": "dependency",
+              "related_to": "httpx/_urls.py:QueryParams.add:552-565",
+              "start_line": 15,
+              "end_line": 27
+            },
+            {
+              "id": "httpx/_urls.py:URL.copy_with:327-340",
+              "origin": "dependency",
+              "related_to": "httpx/_urls.py:URL.copy_merge_params:351-352",
+              "start_line": 327,
+              "end_line": 340
+            }
+          ],
+          "delivered_source_chars": 2384,
+          "prior_audited_compact_tokens": 1498,
+          "budget_exhausted": false
+        }
+      ],
+      "causes": {
+        "outside_eight_symbol_eligible_prefix": 4,
+        "dependency_slots_displace_scored_anchor": 3
+      },
+      "existing_groups_delivered_only_by_dependencies": [
+        {
+          "dataset": "httpx",
+          "query_id": "httpx_redirect_header_safety",
+          "group": 2,
+          "targets": [
+            {
+              "declaration_anchor": "def _same_origin(url: URL, other: URL) -> bool:",
+              "definition_lines": [
+                83,
+                91
+              ],
+              "evidence_lines": [
+                83,
+                91
+              ],
+              "evidence_sha256": "f74d70eb52bde59830037b83eef5c8d7de883a6b2cadbd0eab1a38839188a263",
+              "path": "httpx/_client.py",
+              "source_file_sha256": "c43f941baefe58c91e96d00039e1868fe719d91453026d7db1647194563bff8d",
+              "symbol": "_same_origin",
+              "required_physical_lines": 9
+            }
+          ],
+          "candidate_rank": 5,
+          "inside_raw_retrieval_first_eight": true,
+          "scored_rank": 15,
+          "inside_first_eight_distinct_scored_windows": false,
+          "delivered_by": [
+            {
+              "id": "httpx/_client.py:_same_origin:83-91",
+              "origin": "dependency",
+              "related_to": "httpx/_client.py:BaseClient._redirect_headers:546-571",
+              "start_line": 83,
+              "end_line": 91
+            }
+          ]
+        },
+        {
+          "dataset": "httpx",
+          "query_id": "httpx_redirect_header_safety",
+          "group": 4,
+          "targets": [
+            {
+              "declaration_anchor": "def _port_or_default(url: URL) -> int | None:",
+              "definition_lines": [
+                77,
+                80
+              ],
+              "evidence_lines": [
+                77,
+                80
+              ],
+              "evidence_sha256": "a5922ed1aab8072737ad0eb1df44dce8ff8bf57d0bfcdea0084b13092d7941fc",
+              "path": "httpx/_client.py",
+              "source_file_sha256": "c43f941baefe58c91e96d00039e1868fe719d91453026d7db1647194563bff8d",
+              "symbol": "_port_or_default",
+              "required_physical_lines": 4
+            }
+          ],
+          "candidate_rank": null,
+          "inside_raw_retrieval_first_eight": false,
+          "scored_rank": null,
+          "inside_first_eight_distinct_scored_windows": false,
+          "delivered_by": [
+            {
+              "id": "httpx/_client.py:_port_or_default:77-80",
+              "origin": "dependency",
+              "related_to": "httpx/_client.py:_is_https_redirect:62-74",
+              "start_line": 77,
+              "end_line": 80
+            }
+          ]
+        }
+      ],
+      "pinned_source_files_verified": {
+        "httpx/httpx/_content.py": "2c61b3ac94d1dcebcde0c6f519554d2d7917247fbaa0a97002db4ef69e70ff28",
+        "httpx/httpx/_models.py": "e3ffc6bb2bf580bc6e6428708a6f247d036220e709f5a72b785392babbd97e6b",
+        "httpx/httpx/_client.py": "c43f941baefe58c91e96d00039e1868fe719d91453026d7db1647194563bff8d",
+        "httpx/httpx/_multipart.py": "28e1c465997aa28860f663da2b2caedf8e6aab5ac92e0df94d41b7600cd70776",
+        "httpx/httpx/_api.py": "aff660b388c8a5c3c92ea2b975b6d26b2aa8fe254c2856b164277ea0e1f12c4b",
+        "httpx/httpx/_main.py": "0a0f4631a6e24d3fecc1a0df5202118ad4b0c4b44c4b05033a6ecb7521aa940e",
+        "httpx/httpx/_urlparse.py": "640987e3b38d7e4c6bae3f8f3d88467a21e36fa0232824be00d58837838bfca6",
+        "httpx/httpx/_utils.py": "fd355ea802afc4990a1ddcfb74579be2cd0b66a41781e1645d281f88704aff5a",
+        "httpx/httpx/_auth.py": "62bdd0c1a5122b5eeb198c7eee3f85762705233cf863d14557ed45e3eed15d7e",
+        "httpx/httpx/_decoders.py": "a74757f08d0d1077b1b37506a784ac66eb62321b17aeb5a5ebe1a7a956f488a3",
+        "httpx/httpx/_exceptions.py": "6f15bb7f1ce054c01d3536f04f4567ab4e202435b5fe023f1858903ee3328cbd",
+        "httpx/httpx/_transports/asgi.py": "1d17e20d830fb78c101f6805807660e1cfa2dec6e5a3a6cbe464ea7044fec73f",
+        "httpx/httpx/_transports/default.py": "03379a454c95c0271c4f2c8d25ec437f49f57457f3cf2769748420bf0ecf2e79",
+        "httpx/httpx/_transports/wsgi.py": "35c3d7dd76a9fc4c0215958efce692c9036e227098c7540c35b3bc1807a2ea36",
+        "httpx/httpx/_types.py": "272878d4642aec039ebfc20e58a0c083bcc26ef1c07ee7e65b983f3e24ed12b6",
+        "httpx/httpx/_urls.py": "757f7d551d4348e1e9828f40abb3f360ee0529dc6a2a3c32369f20adff1d1cdd",
+        "httpx/httpx/_config.py": "a4fa7653ec2271f70ab05f8a6111352d876dddee84446788a1767c1a3a372d67",
+        "httpx/httpx/_transports/mock.py": "3d3a34779ebb4484d7c46ae48ba90deffebbc300317f088c0dcb972626428c4a",
+        "httpx/httpx/_status_codes.py": "0d89fedae7c180c797cb9b3cc77fd307bc2302e00031ec136a43eb9b9ad712c7"
+      },
+      "actual_excerpts_verified": 96
+    }
+  },
+  "prior_containment_replay_inputs_sha256": {
+    "results/context-packing-development-2026-10-13/gold-scoring.json": "aefaa93234111d20d39779d53527e340dcbff8e1484fddbdccb7e43c5de336f8",
+    "results/context-packing-development-2026-10-13/gold-scoring.md": "8fa77ad2887804be89502a81fa745c0a5665197a1ba6c2f8a7d8648ebac2df50"
+  },
+  "calls": {
+    "model": 0,
+    "retrieval": 0,
+    "network": 0,
+    "hosted_agent": 0
+  },
+  "limits": [
+    "Retained original rank/source/packing outputs; not prospective evaluation of a new selector.",
+    "All development repositories and HTTPX outcomes are now observed.",
+    "Prior audit supplies exact compact token counts; this diagnostic does not rerun tokenization.",
+    "No provider token savings, fresh speed measurement, or coding correctness follows from source coverage."
+  ]
+}
