@@ -343,6 +343,15 @@ def source_window(identifier, after):
     return "".join(lines[start - 1:end])
 
 
+def receipt_inventory(receipts):
+    numbers = [row["number"] for row in receipts]
+    require(all(type(number) is int and number > 0 for number in numbers)
+            and sorted(numbers) == list(range(1, len(receipts) + 1)), "Actual HTTP receipt ID inventory differs")
+    # IDs are assigned at request entry; the journal is appended at completion.
+    # Concurrent valid calls can complete out of ID order. Preserve that order.
+    return numbers
+
+
 def source_receipt(receipt, raw, source_root, encoder):
     snapshots = {}
     for phase in ("before", "after"):
@@ -771,7 +780,7 @@ def audit_trial(record, task, config, study, baseline, encoder):
         patch = git(workspace, "diff", "--binary", record["base_commit"]).decode()
         require((public / "changes.patch").read_text() == safe(patch, substitutions), "Published source patch differs from final candidate")
     receipts = jsonl(raw / "http-receipts.jsonl")
-    require([row["number"] for row in receipts] == list(range(1, len(receipts) + 1)), "Actual HTTP receipt order/count differs")
+    receipt_inventory(receipts)
     sources = [source_receipt(receipt, raw, task["source_root"], encoder) for receipt in receipts]
     items = {}
     for event in events:
@@ -836,7 +845,27 @@ def audit_trial(record, task, config, study, baseline, encoder):
         "result_sha256": sha(public / "result.json")}
 
 
-def audit(study, require_complete=False):
+GLOBAL_INPUTS = ("frozen-config.json", "tasks.json", "run-start.json", "results.json", "summary.json", "completion.json")
+
+
+def snapshot_globals(study, destination):
+    destination.mkdir(exist_ok=False)
+    hashes = {}
+    for name in GLOBAL_INPUTS:
+        path = study / name
+        if path.is_file():
+            raw = path.read_bytes()
+            with (destination / name).open("xb") as stream:
+                stream.write(raw)
+            hashes[name] = digest(raw)
+    with (destination / "snapshot-receipt.json").open("x") as stream:
+        stream.write(json.dumps({"captured_at_utc": datetime.now(timezone.utc).isoformat(),
+            "artifact_sha256": hashes, "scope": "Exact as-of input bytes; producer globals may subsequently advance"}, indent=2, sort_keys=True) + "\n")
+    return hashes
+
+
+def audit(study, require_complete=False, input_snapshot=None):
+    inputs = study if input_snapshot is None else input_snapshot
     config_path = study / "frozen-config.json"
     config = read(config_path)
     committed_config = git(ROOT, "show", "HEAD:" + str(config_path.relative_to(ROOT)))
@@ -871,7 +900,7 @@ def audit(study, require_complete=False):
     require(independent_parity["checks_passed"] is True, "Independent production B1 certificate required")
     for name, expected in independent_parity["artifact_sha256"].items():
         require(sha(parity / name) == expected, "Independently audited production parity artifact changed")
-    raw_records = read(study / "results.json") if (study / "results.json").is_file() else []
+    raw_records = read(inputs / "results.json") if (inputs / "results.json").is_file() else []
     expected = [f"{number:02d}-r{trial['repetition']}-{trial['task_id']}-{trial['condition']}"
                 for number, trial in enumerate(schedule(), 1)]
     require([row["run_id"] for row in raw_records] == expected[:len(raw_records)] and len(raw_records) <= 18,
@@ -879,15 +908,15 @@ def audit(study, require_complete=False):
     for row, planned in zip(raw_records, schedule()):
         require(all(typed_equal(row[key], value) for key, value in planned.items()), "Actual trial identity differs")
     if require_complete:
-        require(len(raw_records) == 18 and (study / "completion.json").is_file(), "Full18 terminal attempts and final receipt required")
-    start = read(study / "run-start.json")
+        require(len(raw_records) == 18 and (inputs / "completion.json").is_file(), "Full18 terminal attempts and final receipt required")
+    start = read(inputs / "run-start.json")
     frozen_hash = sha(config_path)
     require(start["frozen_config_sha256"] == frozen_hash, "Actual run-start frozen binding differs")
     baseline = start["clock"]
     encoder = offline_encoding()
     tasks = {task["id"]: task for task in manifest["tasks"]}
     outcomes = [audit_trial(row, tasks[row["task_id"]], config, study, baseline, encoder) for row in raw_records]
-    summary = read(study / "summary.json") if (study / "summary.json").exists() else None
+    summary = read(inputs / "summary.json") if (inputs / "summary.json").exists() else None
     chronology = [baseline]
     for row in raw_records:
         chronology.extend(row[key]["sample"] for key in ("clock_start", "clock_agent_start", "clock_agent_end", "clock_end") if row.get(key))
@@ -909,7 +938,7 @@ def audit(study, require_complete=False):
         require(typed_equal(summary["comparisons"], pairs), "Independent paired-measurement reconciliation failed")
         expected_positions = {condition: {str(position): 2 for position in (1, 2, 3)} for condition in CONDITIONS}
         require(summary["condition_position_counts"] == expected_positions, "Prospective balanced position counts differ")
-    completion = read(study / "completion.json") if (study / "completion.json").exists() else None
+    completion = read(inputs / "completion.json") if (inputs / "completion.json").exists() else None
     if completion:
         require(completion["recorded_attempts"] == 18 == len(raw_records) and completion["frozen_config_sha256"] == frozen_hash,
                 "Actual final completion inventory/freeze binding differs")
@@ -918,6 +947,9 @@ def audit(study, require_complete=False):
         require(all(completion["clock"]["sample"][key] >= chronology[-1][key] for key in ("wall_time_ns", "perf_counter_ns")),
                 "Final completion clock chronology differs")
     missing = schedule()[len(raw_records):]
+    if input_snapshot is not None:
+        for name in ("frozen-config.json", "tasks.json", "run-start.json"):
+            require(sha(inputs / name) == sha(study / name), "Immutable global input changed during audit: " + name)
     return {"checks_passed": True, "classification": "Independent CPU evidence audit; observed strict coding development rerun",
         "audited_at_utc": datetime.now(timezone.utc).isoformat(), "auditor_sha256": sha(Path(__file__)),
         "auditor_dependency_sha256": {"scripts/audit_production_qwen.py": sha(Path(__file__).with_name("audit_production_qwen.py"))},
@@ -929,7 +961,11 @@ def audit(study, require_complete=False):
         "conditions": recomputed, "comparisons": pairs, "attempts": outcomes,
         "model_calls_in_audit": 0, "hosted_calls_in_audit": 0, "retrieval_calls_in_audit": 0,
         "tokenization_in_audit": "Pinned offline cl100k context counts and pinned original Qwen tokenizer only; no model forwards",
-        "artifact_sha256": {path.name: sha(path) for path in sorted(study.iterdir()) if path.is_file()},
+        "artifact_sha256": {path.name: sha(path) for path in sorted(study.iterdir()) if path.is_file() and path.name not in GLOBAL_INPUTS}
+            | {name: sha(inputs / name) for name in GLOBAL_INPUTS if (inputs / name).is_file()},
+        "global_input_scope": "Immutable as-of snapshot bytes" if input_snapshot is not None else "As observed during this audit; mutable producer globals may subsequently advance",
+        "global_input_snapshots": {name: {"file": "as-of/" + name, "sha256": sha(inputs / name)} for name in GLOBAL_INPUTS
+            if input_snapshot is not None and (inputs / name).is_file()},
         "limits": ["These are previously observed development coding tasks, not fresh coding validation.",
             "Completed-turn reported input plus output is gross observed usage; interrupted-turn and per-request billing remain unknown.",
             "Cached input, cache writes and reasoning tokens are subsets, never additional gross tokens.",
@@ -948,7 +984,9 @@ def main():
     require(not args.output.exists(), "Preserve earlier audits; fresh output directory required")
     args.output.mkdir(parents=True)
     try:
-        result = audit(args.study.resolve(), args.require_complete)
+        snapshot = args.output / "as-of"
+        snapshot_globals(args.study.resolve(), snapshot)
+        result = audit(args.study.resolve(), args.require_complete, input_snapshot=snapshot)
     except Exception as error:
         result = {"checks_passed": False, "error_type": type(error).__name__, "error": str(error),
                   "auditor_sha256": sha(Path(__file__)), "model_calls_in_audit": 0, "hosted_calls_in_audit": 0}
