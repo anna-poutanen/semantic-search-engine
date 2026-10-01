@@ -48,7 +48,7 @@ def expected_schedule(ids):
             for condition in configs[shift:] + configs[:shift]:
                 rows.append({"phase": "measured", "pass": repeat, "query_id": query, "config_id": condition})
     for position, row in enumerate(rows):
-        row["request_id"] = f"context-{position:03d}-{row['phase']}-{row['config_id']}-{row['query_id']}"
+        row["request_id"] = f"context-{position:03d}-{row['phase']}-{row['config_id']}"
     return rows
 
 
