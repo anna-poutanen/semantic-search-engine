@@ -1,0 +1,45 @@
+{
+  "active_workspace_reads": 0,
+  "additional_demonstrated_contract_defects": [],
+  "all_changed_files_reviewed": true,
+  "authored_parameterized_cases_passed": 148,
+  "authored_test_evaluator_filters": "Two explicitly recorded pre-existing AnyIO deprecation warnings are ignored by the supplementary authored-test command; the frozen strict/upstream commands remain unchanged.",
+  "classification": "Root independent manual review of terminal Starlette fast-MCP patch after source-exact evaluator reconstruction",
+  "formal_grades_changed": false,
+  "frozen_strict_checks_passed": 10,
+  "hosted_calls": 0,
+  "limits": [
+    "Manual source review and nineteen bounded behavioral checks plus retained upstream selections do not prove every possible ASGI interaction.",
+    "Restoring only base production yields two expected missing-feature collection errors in authored tests; this is not an independent mutation sensitivity proof for each case."
+  ],
+  "model_calls": 0,
+  "new_test_files": [
+    "tests/middleware/test_body_limit.py",
+    "tests/test_request_body_limits.py"
+  ],
+  "original_test_or_config_edits": [],
+  "recorded_at_utc": "2026-10-14T09:15:37.773730+00:00",
+  "review_sha256": "64595adf522f324e16fcff29c320163ff5617761916497ac44a2fc71e2cadd45",
+  "reviewed_behaviors": [
+    "Shared limit validation rejects bool/negative/noninteger before reads, including cached body.",
+    "Request.body counts actual received byte chunks, checks before buffering the crossing chunk, and only caches complete accepted body.",
+    "Cached body lower bounds raise limit/received exception attributes without destroying cached body/JSON or rereading transport.",
+    "Middleware buffers only limited HTTP requests, rejects before application, ignores misleading Content-Length, and replays accepted bytes once before delegating every later receive.",
+    "Disconnects and endpoint exceptions preserve their ordinary failure behavior; non-HTTP and unlimited requests bypass buffering.",
+    "Added tests cover UTF8 bytes, zero/equal/large bounds, empty/omitted chunks, cached JSON/body, partial disconnect, rejection stopping reads, and endpoint failures."
+  ],
+  "reviewed_changed_files": [
+    "docs/middleware.md",
+    "docs/requests.md",
+    "starlette/_utils.py",
+    "starlette/exceptions.py",
+    "starlette/middleware/body_limit.py",
+    "starlette/requests.py",
+    "tests/middleware/test_body_limit.py",
+    "tests/test_request_body_limits.py"
+  ],
+  "run_id": "09-r1-starlette_body_limits-mcp_fast",
+  "supplemental_preoutput_checks_passed": 9,
+  "upstream_passed": 269,
+  "upstream_skipped": 2
+}

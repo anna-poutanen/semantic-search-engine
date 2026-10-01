@@ -1,0 +1,67 @@
+{
+  "artifact_sha256": {
+    "results/qwen-coding-patch-review-2026-10-14/starlette-08-r1-starlette_body_limits-baseline.json": "0b530abe18737798da23f7cb44274399e83c85947772c5b9e9cc8599e7775a1c",
+    "results/qwen-coding-patch-review-2026-10-14/starlette-pre-output-inventory.json": "906f72039486b1df89d2094b3759ebf52c2444cbb2e4bdfe363f7e4d29ef81e7",
+    "results/qwen-coding-patch-review-2026-10-14/starlette-probe-controls.json": "5a87314147ab6e23deaa1f78f37a4e307cf4a29e056a0e4bc393377bcd92d94c",
+    "results/qwen-coding-patch-review-2026-10-14/starlette-probe-plan.json": "535bc5e9571cb54db8b8c36270b755941ae530333f939ccb934794828dfdebeb",
+    "results/qwen-coding-patch-review-2026-10-14/starlette-review.py": "f54e29fdaab886fb595a4d2f5d9e7d60280287ef92f740248bd827afd979a025"
+  },
+  "classification": "Independent source review and supplemental evidence; frozen formal grades unchanged",
+  "demonstrated_additional_contract_defects": 0,
+  "examined_file_sha256": {
+    "starlette/exceptions.py": "b28de970c39dd352ae374737196b7009eca684494d30a96167b800a9b6ae5ea6",
+    "starlette/middleware/body_limit.py": "2f396f8a037ab5b726e764e5967a02ca20b8ea1d7901ebb2e7016dff2b37b74f",
+    "starlette/requests.py": "8735e606164d8c5618b9b7c5cfa7e50b7944829597550d85f236c5c4ec65f6d5",
+    "tests/middleware/test_body_limit.py": "9844166295a81447c196d4a53839a8af2117c3fcbebfee7ef71e05bc8b19564c",
+    "tests/test_request_body_limits.py": "d725284a83edcf26f81c1b742b168df5fc16f0d47556cccc92266c20e9b2329e"
+  },
+  "formal_grade_unchanged": {
+    "completed_correct": true,
+    "correct": true,
+    "strict_passed": true,
+    "upstream_passed": true
+  },
+  "independently_reproduced": {
+    "base_production_authored_test_collection_errors": 2,
+    "candidate_authored_parameterized_cases_passed": 150,
+    "strict_cases_passed": 10,
+    "supplemental_cases_passed": 9,
+    "upstream_passed": 269,
+    "upstream_skipped": 2
+  },
+  "limits": [
+    "No additional demonstrated contract defect was found in examined files and exercised paths; this does not prove every possible Starlette behavior.",
+    "Parameterized authored test counts are cases, not counts of independent behavioral guarantees.",
+    "Base-production collection errors reflect the absent feature, not 150 independently failing runtime tests."
+  ],
+  "model_calls": 0,
+  "network_calls": 0,
+  "review_infrastructure_incidents": [],
+  "reviewed_at": "2026-10-14T09:05:16.067232+00:00",
+  "run_id": "08-r1-starlette_body_limits-baseline",
+  "source_checks": [
+    {
+      "files": [
+        "starlette/requests.py",
+        "starlette/middleware/body_limit.py"
+      ],
+      "finding": "A shared validator excludes booleans, negative integers and other types before reads. Request.body accumulates actual streamed bytes, rejects before caching a crossing chunk, and checks cached bodies without additional receive calls. Middleware buffers bounded HTTP scopes, catches only the buffer-size error, replays accepted bytes once, then delegates subsequent receives. The downstream app call remains outside the catch so endpoint errors propagate."
+    },
+    {
+      "files": [
+        "starlette/exceptions.py"
+      ],
+      "finding": "The public exception is an HTTPException with status 413, requested plain-text detail and limit/received attributes."
+    },
+    {
+      "files": [
+        "tests/middleware/test_body_limit.py",
+        "tests/test_request_body_limits.py"
+      ],
+      "finding": "New regression files exercise low-level chunked streams, exact bounds, caches, malformed/lying Content-Length, repeated requests, exception preservation and the original TestClient fixtures. They pass as 150 parameterized cases. No existing tests/configuration changed."
+    }
+  ],
+  "source_review_findings": [],
+  "terminal_changed_files_and_full_production_exact": true,
+  "version": 1
+}

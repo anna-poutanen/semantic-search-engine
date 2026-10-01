@@ -1,0 +1,9 @@
+# Terminal trace observations through trial07
+
+Both Requests MCP attempts received `Response.iter_lines` at lines994–1032. Qwen's entire second payload was1706tokens, and its `iter_lines` row was not truncated. Independent patch review still found a suspended buffered-line reader could continue yielding after another reader exhausted the response budget. Fast MCP retained that defect as well. Source exposure did not establish reasoning about generator suspension or the new terminal-error contract.
+
+Both Click MCP attempts received `Context.with_resource`, `Context.__exit__` and `Context.close`. The relevant rows in the retained traces are listed with exact excerpt hashes in `observations.json`; each declared source hash was independently recomputed. Their frozen checks and independent review still found an unrelated truthy resource exit could clear the exception before an earlier atomic file exited, causing a commit during failed cleanup. The outer callback exception surviving is insufficient to prove the destination rolled back.
+
+These are post-output observations on four terminal development attempts, not a new benchmark or exact causal attribution. Having a definition in context does not prove it was read or used, or that every necessary implementation was retrieved. The unchanged independent prefix07 audit validates retained source locations, actual MCP↔HTTP linkage, counters, usage and clocks. Frozen grades are unchanged, and the active trial08 workspace was never inspected.
+
+The examples support testing suspended readers and ordering interactions among independent cleanup resources in future coding workflows. Changing ranking alone cannot be assumed to repair these behavioral mistakes. Any new workflow comparison needs a separately frozen prompt and task/check inventory; these observations do not establish token savings.
