@@ -1,0 +1,141 @@
+'use strict';
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const os = require('node:os');
+const crypto = require('node:crypto');
+const h = require('../scripts/ordinary_vscode_profile.cjs');
+const side = require('../scripts/ordinary_vscode_sidecar/extension.cjs');
+function owned() {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'ordinary-cpu-'));
+  const owner = {root, nonce: crypto.randomBytes(24).toString('hex'), handles: new Set(), interrupted: false};
+  fs.writeFileSync(path.join(root, 'owner.json'), JSON.stringify({nonce: owner.nonce})); return owner;
+}
+async function remove(owner) {
+  for (const handle of owner.handles) { if (!handle.stop) { await h.stopOwned(owner, handle); } }
+  fs.rmSync(owner.root, {recursive: true});
+}
+const defaultBody = () => ({query: 'Return local message', retrieval: 'dense', rerank: false, candidates: 4,
+  max_results: 8, source_budget: 12000, token_budget: 4096, include_dependencies: true, request_id: 'owned-1'});
+test('ordinary argv has explicit isolated dirs, never development/test host or disable extensions', () => {
+  for (const mode of ['trusted', 'restricted']) {
+    const argv = h.launchArgs(mode, '/owned/repository', '/owned/data', '/owned/extensions');
+    assert.ok(argv.includes('--user-data-dir=/owned/data')); assert.ok(argv.includes('--extensions-dir=/owned/extensions'));
+    assert.ok(argv.every(item => !/extension(Development|Tests)Path|disable-extensions|enable-proposed-api/.test(item)));
+    assert.equal(argv.includes('--disable-workspace-trust'), mode === 'trusted');
+    assert.equal(h.settings()['security.workspace.trust.enabled'], true);
+  }
+});
+test('CLI requires explicit prepare/run, absolute exclusive output and frozen plan hash', () => {
+  assert.deepEqual(h.args(['--prepare', '--output', '/new/plan.json']), {'--prepare': true, '--output': '/new/plan.json'});
+  for (const argv of [[], ['--run', '--output', '/new'], ['--prepare', '--run', '--output', '/new'],
+    ['--prepare', '--output', 'relative'], ['--prepare', '--output', '/new', '--output', '/again'], ['--prepare', '--wat', 'x']]) {
+    assert.throws(() => h.args(argv));
+  }
+});
+test('environment removes editor overrides, injections, inherited probe/model vars, proxies and Git hooks', () => {
+  const result = h.environment({PATH: '/safe', HOME: '/owned-home', NODE_OPTIONS: '--require bad', NODE_USE_ENV_PROXY: '1',
+    VSCODE_IPC_HOOK: 'bad', ELECTRON_RUN_AS_NODE: '1', SEMANTIC_QWEN_PYTHON: 'bad', ORDINARY_PROFILE_NONCE: 'bad',
+    HTTP_PROXY: 'bad', GIT_CONFIG_COUNT: '1'});
+  assert.equal(result.PATH, '/safe'); assert.equal(result.HOME, '/owned-home');
+  for (const key of ['NODE_OPTIONS', 'VSCODE_IPC_HOOK', 'NODE_USE_ENV_PROXY', 'ELECTRON_RUN_AS_NODE', 'SEMANTIC_QWEN_PYTHON',
+    'ORDINARY_PROFILE_NONCE', 'HTTP_PROXY', 'GIT_CONFIG_COUNT']) { assert.equal(result[key], undefined); }
+  assert.equal(result.GIT_CONFIG_GLOBAL, '/dev/null');
+});
+test('default schema fixture passes unchanged shipped parser and literal physical span checks', () => {
+  const body = defaultBody(), response = h.fixtureResponse('/owned/repository', body);
+  assert.equal(response.code, 200); assert.equal(response.body.model_loaded, false);
+  const schema = require('../extensions/vscode/dist/src/schema.js');
+  const parsed = schema.parseSearch(response.body, body.query, schema.defaultOptions);
+  assert.equal(parsed.results[0].source_hash, h.sha(h.SOURCE)); assert.equal(parsed.results[0].window_end_line, 2);
+  assert.equal(parsed.total_source_chars, [...h.SOURCE].length); assert.equal(parsed.token_usage.tokens, 128);
+});
+for (const [key, value] of [['retrieval', 'hybrid'], ['candidates', 24], ['max_results', 12], ['include_dependencies', false],
+  ['token_budget', 8000], ['source_budget', 5000], ['rerank_provider', 'h2o']]) {
+  test('fixture detects product default/request drift: ' + key, () => { assert.throws(() => h.fixtureResponse('/repo', {...defaultBody(), [key]: value})); });
+}
+test('Qwen fixture denial uses real structured error contract; never supplies scores/inference', () => {
+  const response = h.fixtureResponse('/repo', {...defaultBody(), rerank: true, rerank_provider: 'qwen'});
+  assert.deepEqual(response, {code: 400, body: {error: {code: 'invalid_request', message: 'Qwen reranking is not configured'}}});
+});
+test('inventory refuses symlinks and hashes every actual file', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ordinary-inventory-'));
+  try {
+    fs.writeFileSync(path.join(dir, 'entry'), 'abc'); assert.equal(h.inventory(dir).entry.sha256, h.sha('abc'));
+    fs.symlinkSync(path.join(dir, 'entry'), path.join(dir, 'alias')); assert.throws(() => h.inventory(dir), /symlinks/);
+  } finally { fs.rmSync(dir, {recursive: true}); }
+});
+test('installed payload verification rejects member or literal byte substitution', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ordinary-install-'));
+  const manifest = {publisher: 'owned', name: 'probe', version: '1.0.0', main: './entry.cjs'};
+  const archive = {manifest, members: {'extension/package.json': Buffer.from(JSON.stringify(manifest)),
+    'extension/entry.cjs': Buffer.from('exact'), 'extension.vsixmanifest': Buffer.from('container')}};
+  try {
+    fs.writeFileSync(path.join(dir, 'package.json'), JSON.stringify({...manifest, __metadata: {test: true}}));
+    fs.writeFileSync(path.join(dir, 'entry.cjs'), 'exact'); fs.writeFileSync(path.join(dir, '.vsixmanifest'), 'container');
+    assert.equal(h.verifyInstalled(dir, archive, 'owned.probe', '1.0.0').manifest_normalized_matches, true);
+    fs.writeFileSync(path.join(dir, 'entry.cjs'), 'wrong'); assert.throws(() => h.verifyInstalled(dir, archive, 'owned.probe', '1.0.0'), /bytes differ/);
+    fs.writeFileSync(path.join(dir, 'entry.cjs'), 'exact'); fs.writeFileSync(path.join(dir, 'extra'), 'unknown');
+    assert.throws(() => h.verifyInstalled(dir, archive, 'owned.probe', '1.0.0'), /membership differs/);
+  } finally { fs.rmSync(dir, {recursive: true}); }
+});
+test('real CPU child PID/PGID/nonce is owned before return, output retained and stop proved', async () => {
+  const owner = owned();
+  try {
+    const handle = h.startOwned(owner, process.execPath, ['-e', 'console.log("owned");setInterval(()=>{},1000)']);
+    assert.ok(owner.handles.has(handle)); assert.equal(handle.pid, handle.pgid); assert.equal(handle.actual_pgid_verified, true);
+    await new Promise(resolve => setTimeout(resolve, 100));
+    const receipt = await h.stopOwned(owner, handle); await handle.exit;
+    assert.equal(receipt.clean, true); assert.equal(receipt.forced_kill, false); assert.match(handle.stdout, /owned/);
+  } finally { await remove(owner); }
+});
+test('spoofed nonce/foreign handle cannot signal any group', async () => {
+  const owner = owned();
+  try {
+    assert.throws(() => h.signalOwned(owner, {pid: process.pid, pgid: process.pid, nonce: owner.nonce}, 'SIGTERM'), /Unowned/);
+    const handle = h.startOwned(owner, process.execPath, ['-e', 'setInterval(()=>{},1000)']);
+    handle.nonce = 'bad'; assert.throws(() => h.signalOwned(owner, handle, 'SIGTERM')); handle.nonce = owner.nonce;
+  } finally { await remove(owner); }
+});
+test('bounded real CPU command times out, preserves cleanup and rejects qualification', async () => {
+  const owner = owned();
+  try {
+    await assert.rejects(h.command(owner, process.execPath, ['-e', 'setInterval(()=>{},1000)'], {timeoutMs: 70}), /timed out/);
+    const [handle] = owner.handles; assert.equal(handle.stop.group_absent, true); assert.equal(handle.stop.clean, true);
+  } finally { await remove(owner); }
+});
+test('failed spawn refuses absent PID without unhandled error or unsafe cleanup', async () => {
+  const owner = owned();
+  try { assert.throws(() => h.startOwned(owner, '/missing/ordinary-cpu-command', []), /no owned PID/); await new Promise(resolve => setTimeout(resolve, 20)); }
+  finally { await remove(owner); }
+});
+test('interrupted owner halts new commands before spawning', async () => {
+  const owner = owned();
+  try { owner.interrupted = true; assert.throws(() => h.startOwned(owner, process.execPath, [])); assert.equal(owner.handles.size, 0); }
+  finally { await remove(owner); }
+});
+test('sidecar refuses missing ownership synchronously before any command/await', () => {
+  assert.throws(() => side.ownership({}), /assert|expression/i);
+});
+test('restricted ordinary sidecar never force activates target and requires every command denied', async () => {
+  const owner = owned();
+  try {
+    const result = path.join(owner.root, 'result.json'); let calls = 0;
+    const vscode = {version: '1.141.0', env: {}, workspace: {isTrusted: false, workspaceFolders: [{uri: {fsPath: owner.root}}]},
+      extensions: {getExtension: () => undefined}, commands: {getCommands: async () => [], executeCommand: async () => { calls++; throw new Error('command not found'); }}};
+    const row = await side.probe(vscode, {root: owner.root, nonce: owner.nonce, repository: owner.root, mode: 'restricted', result}, {ORDINARY_PROFILE_URL: 'http://127.0.0.1:1'});
+    assert.equal(row.passed, true); assert.equal(row.observed_trusted, false); assert.equal(row.extension_available, false);
+    assert.equal(calls, 3); assert.equal(row.model_calls, 0); assert.equal(fs.existsSync(result), true);
+  } finally { await remove(owner); }
+});
+test('restricted ordinary sidecar retains failed command success instead of claiming denial', async () => {
+  const owner = owned();
+  try {
+    const result = path.join(owner.root, 'result.json');
+    const vscode = {version: '1.141.0', env: {}, workspace: {isTrusted: false, workspaceFolders: [{uri: {fsPath: owner.root}}]},
+      extensions: {getExtension: () => ({isActive: false})}, commands: {getCommands: async () => [], executeCommand: async () => ({phase: 'ready'})}};
+    const row = await side.probe(vscode, {root: owner.root, nonce: owner.nonce, repository: owner.root, mode: 'restricted', result});
+    assert.equal(row.passed, false); assert.match(row.error, /must be unavailable or deny/);
+  } finally { await remove(owner); }
+});
