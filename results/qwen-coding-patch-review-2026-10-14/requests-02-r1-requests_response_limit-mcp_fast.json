@@ -1,0 +1,104 @@
+{
+  "version": 1,
+  "classification": "Independent post-output Requests patch review; frozen grades unchanged",
+  "reviewed_at_utc": "2026-10-14T08:12:49.550003+00:00",
+  "attempt": "02-r1-requests_response_limit-mcp_fast",
+  "condition": "mcp_fast",
+  "completed_before_review": true,
+  "published_result_sha256": "70338c29773dd8930e5ed2a7596e7469be259b3ca1cbed17b853a6448258b0ce",
+  "saved_patch_sha256": "426540dcda464165c679efebe3b38ee655ebe5812fe265bdd2961f4042e4afc2",
+  "published_patch_matches_result": true,
+  "source_snapshot_sha256": {
+    "docs/api.rst": "82a0e4a8a7c676ec19a5dd3e7d8135e5d4c449f2e76a09e0829f0805d01a74bb",
+    "src/requests/__init__.py": "ffcb7ee7ca02809efa9e407a5095cb6b21b798424307ee688d972c81c9cccd22",
+    "src/requests/_types.py": "f0f72cfadc51bb47db1f9b9bcd3e24a1c38e9a46352a29a696cd0e0d2978a2c7",
+    "src/requests/api.py": "14c4904d9bb835cd2ce52f390700b51699b21a1a0fa64649ea4751c35f23f5bf",
+    "src/requests/exceptions.py": "a747089d081d7bd9233654c896b84a9c9b70f7f61a6b6c03cf6066cbfd20227b",
+    "src/requests/models.py": "78a5dfa79cb22557d94e015a3b0dc1890977c19f5292561ff64224e8de301445",
+    "src/requests/sessions.py": "8f7670cdf43a8fe3135d46d8d34ea78ae0c8784f9ff21c044a47458ac9a116e8",
+    "tests/test_response_limits.py": "cb9bd1c5a00d48de8db978ecbb706065160e5e54e980666330d528e5f83cd355"
+  },
+  "file_review": {
+    "docs/api.rst": "Documents the new public exception.",
+    "src/requests/__init__.py": "Exports ResponseTooLarge as a module attribute.",
+    "src/requests/_types.py": "Adds budget keyword typing for helpers.",
+    "src/requests/api.py": "Documents the response/redirect budget; ordinary kwargs forwarding reaches Session.request.",
+    "src/requests/exceptions.py": "Defines RequestException subclass with limit/received and response/request provenance.",
+    "src/requests/models.py": "Shares live/cached byte accounting and terminal errors, but leaves cached iterator/line buffers unguarded and __exit__ cleanup retry unchanged.",
+    "src/requests/sessions.py": "Validates budgets before transport and preserves overrides/redirects/session pickle; attaches replacement/history budgets only after all hooks.",
+    "tests/test_response_limits.py": "New regression file covers normal read APIs, fresh iterators, direct cleanup failure, single final replacement hooks, compression, Unicode bytes and redirects; it omits later buffered/cached terminal reads, context cleanup retry and hook-chain replacement reads."
+  },
+  "formal_grade": {
+    "correct": false,
+    "completed_correct": false,
+    "original_checks": {
+      "errors": 0,
+      "failures": 0,
+      "passed": true,
+      "skipped": 0,
+      "tests_run": 13
+    },
+    "frozen_edge_cases": {
+      "buffered_iter_lines_after_breach": false,
+      "cached_iterator_after_lower_limit_breach": false,
+      "context_manager_cleanup_preserves_size_error": false,
+      "hook_chain_cached_replacement": false,
+      "hook_chain_live_replacement": false
+    },
+    "restored_compatibility_passed": true,
+    "restored_compatibility_summary": {
+      "deselected": 0,
+      "errors": 0,
+      "failed": 0,
+      "passed": 257,
+      "skipped": 13,
+      "xfailed": 0,
+      "xpassed": 0
+    },
+    "original_test_config_edits": []
+  },
+  "source_supported_frozen_failures": [
+    "buffered_iter_lines_after_breach",
+    "cached_iterator_after_lower_limit_breach",
+    "context_manager_cleanup_preserves_size_error",
+    "hook_chain_cached_replacement",
+    "hook_chain_live_replacement"
+  ],
+  "supplemental_hook_history_probe": {
+    "version": 1,
+    "classification": "Post-output supplemental contract probe; frozen grades unchanged",
+    "model_calls": 0,
+    "network_calls": 0,
+    "probe_sha256": "a8529a12a7a3dbbe4fdf159d0869f376cf1b99712ae63547244dd6f1ec4661f7",
+    "feature_available": true,
+    "passed": false,
+    "hook_calls": [
+      "replace",
+      "consume_history"
+    ],
+    "yielded_before_rejection": [
+      "abcd",
+      "efgh"
+    ],
+    "expected_yielded_before_rejection": [],
+    "final_error_type": "ResponseTooLarge",
+    "final_error_limit": 4,
+    "final_error_received": 8,
+    "offending_response_is_redirect_history": true,
+    "adapter_calls": {
+      "unlimited_cached_chain": 2,
+      "bounded_original": 1
+    }
+  },
+  "supplemental_scope_document": "results/qwen-coding-patch-review-2026-10-14/requests-supplemental-scope.md",
+  "new_defect_count": 1,
+  "reference_checker_coverage_gap_count": 1,
+  "probes_model_calls": 0,
+  "probes_network_calls": 0,
+  "probes_modify_candidate_sources": false,
+  "limits": [
+    "Only this completed snapshot is reviewed; no running Requests workspace inspected.",
+    "No confirmed additional defect beyond the declared cached-history scope probe; source inspection does not prove all cases correct.",
+    "Original formal grades and reference controls remain unchanged."
+  ]
+}
