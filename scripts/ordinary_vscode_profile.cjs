@@ -45,9 +45,24 @@ function settings() {
     'security.workspace.trust.enabled': true, 'security.workspace.trust.startupPrompt': 'never',
     'security.workspace.trust.banner': 'never', 'window.restoreWindows': 'none'};
 }
+function ipcPathReceipt(userData, version = config.version) {
+  const filename = path.join(userData, version.slice(0, 4) + '-main.sock');
+  const bytes = Buffer.byteLength(filename, 'utf8');
+  assert.ok(bytes <= 103, 'Owned Code Unix socket path exceeds macOS 103-byte limit');
+  return {path: filename, utf8_bytes: bytes, maximum_bytes: 103, version_prefix: version.slice(0, 4)};
+}
+function shortOwnedRoot() {
+  // /tmp is deliberately shorter than the macOS per-user os.tmpdir() path.
+  const base = fs.realpathSync('/tmp'); assert.ok(fs.statSync(base).isDirectory());
+  const root = fs.mkdtempSync(path.join(base, 'ssp-')); fs.chmodSync(root, 0o700);
+  assert.equal(fs.realpathSync(root), root);
+  for (const mode of ['trusted', 'restricted']) { ipcPathReceipt(path.join(root, mode, 'user-data')); }
+  return root;
+}
 function launchArgs(mode, workspace, userData, extensions) {
   assert.ok(['trusted', 'restricted'].includes(mode));
   for (const name of [workspace, userData, extensions]) { assert.ok(path.isAbsolute(name)); }
+  ipcPathReceipt(userData);
   return [workspace, '--new-window', `--user-data-dir=${userData}`, `--extensions-dir=${extensions}`,
     '--disable-updates', '--skip-welcome', '--skip-release-notes', '--no-cached-data',
     ...(mode === 'trusted' ? ['--disable-workspace-trust'] : [])];
@@ -77,6 +92,7 @@ function prepare() {
       helper: {path: path.relative(ROOT, __filename), sha256: sha(fs.readFileSync(__filename))}},
     expected: {id: `${target.publisher}.${target.name}`, version: target.version,
       sidecar_id: 'semantic-search-evaluation.semantic-search-profile-probe', sidecar_version: '0.0.1'},
+    owned_profile_location_policy: {canonical_base: fs.realpathSync('/tmp'), prefix: 'ssp-', maximum_socket_path_bytes: 103},
     modes: ['trusted', 'restricted'], fixture: {source: SOURCE, sha256: sha(SOURCE), token_count_is_placeholder: true},
     limits: ['Trusted profile explicitly disables workspace trust; trust-enabled trusted-folder UX is not established.',
       'Restricted profile retains trust enablement without extension support overrides or forced activation.',
@@ -85,7 +101,7 @@ function prepare() {
 }
 function checkPlan(plan) {
   const observed = prepare();
-  for (const key of ['schema', 'deadline_utc', 'host', 'node', 'vsce', 'source', 'expected', 'modes', 'fixture']) {
+  for (const key of ['schema', 'deadline_utc', 'host', 'node', 'vsce', 'source', 'expected', 'owned_profile_location_policy', 'modes', 'fixture']) {
     assert.ok(same(plan[key], observed[key]), 'Prepared input drift: ' + key);
   }
 }
@@ -295,9 +311,7 @@ async function fixture(repository) {
 async function run(plan, output, planBinding = null) {
   checkPlan(plan); assert.ok(path.isAbsolute(output)); assert.ok(Date.now() < DEADLINE - 45000, 'Deadline leaves insufficient cleanup budget');
   fs.mkdirSync(output, {mode: 0o700}); // Exclusive run guard, before ownership/launch.
-  const cache = path.join(ROOT, '.cache/ordinary-vscode-profile'); fs.mkdirSync(cache, {recursive: true, mode: 0o700});
-  assert.equal(fs.realpathSync(cache), cache);
-  const root = fs.mkdtempSync(path.join(cache, 'run-')); fs.chmodSync(root, 0o700);
+  const root = shortOwnedRoot();
   const owner = {root, nonce: crypto.randomBytes(24).toString('hex'), handles: new Set(), interrupted: false, deadline: DEADLINE, signals: []};
   exclusive(path.join(root, 'owner.json'), {nonce: owner.nonce, launcher_pid: process.pid, created_utc: new Date().toISOString()});
   const receipt = {schema: 1, classification: 'Ordinary installed-profile zero-model authored HTTP acceptance', passed: false,
@@ -330,7 +344,7 @@ async function run(plan, output, planBinding = null) {
       const emptyTemplate = path.join(directory, 'empty-git-template'); fs.mkdirSync(emptyTemplate);
       await command(owner, '/usr/bin/git', ['init', '--quiet', '--template=' + emptyTemplate, repository]);
       await command(owner, '/usr/bin/git', ['-C', repository, 'add', 'src/ordinary.py']);
-      const row = {mode, passed: false, settings: settings(), trust_disabled_cli: mode === 'trusted', installs: [], installed_before: []}; receipt.modes.push(row);
+      const row = {mode, passed: false, ipc_path: ipcPathReceipt(userData), settings: settings(), trust_disabled_cli: mode === 'trusted', installs: [], installed_before: []}; receipt.modes.push(row);
       for (const name of ['product', 'sidecar']) {
         row.installs.push(await command(owner, plan.host.cli, [`--user-data-dir=${userData}`, `--extensions-dir=${extensions}`,
           '--install-extension', path.join(root, name + '.vsix'), '--force', '--do-not-sync'], {timeoutMs: 60000}));
@@ -404,7 +418,7 @@ function args(argv) {
   if (result['--run']) { assert.ok(path.isAbsolute(result['--plan'] ?? '') && /^[a-f0-9]{64}$/.test(result['--expected-plan-sha256'] ?? '')); }
   return result;
 }
-module.exports = {SOURCE, DEADLINE, sha, canonical, same, inventory, environment, settings, launchArgs, prepare, checkPlan,
+module.exports = {SOURCE, DEADLINE, sha, canonical, same, inventory, environment, settings, ipcPathReceipt, shortOwnedRoot, launchArgs, prepare, checkPlan,
   startOwned, assertOwner, signalOwned, stopOwned, command, readArchive, checkArchiveBindings, verifyInstalled, fixtureResponse, fixture, pidAlive, captureSidecar, probeSidecarGone, finalizePublication, run, args};
 if (require.main === module) {
   (async () => {

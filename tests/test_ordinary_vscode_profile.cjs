@@ -297,3 +297,18 @@ test('actual promise timeout is not classified as Restricted Mode denial', async
     assert.equal(side.denialKind(error, 'semanticSearch.find'), null); return true;
   });
 });
+
+test('canonical short owned profile keeps actual Code IPC socket below macOS byte cap', () => {
+  const root = h.shortOwnedRoot();
+  try {
+    assert.equal(fs.realpathSync(root), root); assert.equal(fs.statSync(root).mode & 0o777, 0o700);
+    for (const mode of ['trusted', 'restricted']) {
+      const userData = path.join(root, mode, 'user-data'), receipt = h.ipcPathReceipt(userData, '1.141.0');
+      assert.ok(receipt.utf8_bytes <= 103); assert.equal(receipt.path, path.join(userData, '1.14-main.sock'));
+      assert.ok(h.launchArgs(mode, path.join(root, mode, 'repository'), userData, path.join(root, mode, 'extensions')).length > 0);
+    }
+    assert.throws(() => h.ipcPathReceipt('/' + 'a'.repeat(100), '1.141.0'), /103-byte/);
+    assert.throws(() => h.launchArgs('trusted', '/owned/repo', '/' + 'a'.repeat(100), '/owned/extensions'), /103-byte/);
+    assert.throws(() => h.ipcPathReceipt('/' + 'é'.repeat(47), '1.141.0'), /103-byte/);
+  } finally { fs.rmSync(root, {recursive: true}); }
+});
