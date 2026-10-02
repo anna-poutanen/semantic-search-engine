@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 from datetime import datetime, timezone
+from email.parser import BytesParser
 import gzip
 import hashlib
 import importlib.metadata
@@ -24,6 +25,7 @@ import sqlite3
 import subprocess
 import sys
 import tokenize
+from urllib.parse import unquote, urlsplit
 
 import numpy as np
 
@@ -393,13 +395,85 @@ def file_sha(path):
     return value.hexdigest()
 
 
+def package_inventory(distributions=None, root=ROOT):
+    """Independently inventory physical installation metadata without imports.
+
+    Same logical name/version may have distinct physical installation records.
+    Every origin and metadata/RECORD/direct URL byte hash remains in the result;
+    only identical repeated discoveries of one physical origin are collapsed.
+    """
+    root = Path(root).resolve()
+    grouped, seen_origins = {}, {}
+    distributions = importlib.metadata.distributions() if distributions is None else distributions
+    for distribution in distributions:
+        name, version = distribution.metadata["Name"], distribution.version
+        require(isinstance(name, str) and re.fullmatch(r"[A-Za-z0-9](?:[A-Za-z0-9._-]*[A-Za-z0-9])?", name),
+                "Invalid physical distribution name")
+        require(isinstance(version, str) and version, "Missing physical distribution version")
+        canonical = re.sub(r"[-_.]+", "-", name.lower())
+        location = getattr(distribution, "_path", None)
+        require(isinstance(location, Path), "Unsupported physical metadata origin")
+        origin = location.resolve(strict=True)
+        require(origin.is_dir(), "Physical metadata origin must be a directory")
+        metadata_names = [value for value in ("METADATA", "PKG-INFO") if (origin / value).is_file()]
+        require(len(metadata_names) == 1, "Exactly one physical metadata file required")
+        metadata_name = metadata_names[0]
+        metadata_bytes = (origin / metadata_name).read_bytes()
+        headers = BytesParser().parsebytes(metadata_bytes, headersonly=True)
+        require(headers.get_all("Name") == [name] and headers.get_all("Version") == [version],
+                "Physical metadata name/version differs from discovered distribution")
+        direct_file = origin / "direct_url.json"
+        direct_bytes = direct_file.read_bytes() if direct_file.is_file() else None
+        direct_url = decode(direct_bytes) if direct_bytes is not None else None
+        if canonical == "semantic-search-engine":
+            if metadata_name == "PKG-INFO":
+                require(origin == (root / "src/semantic_search_engine.egg-info").resolve(),
+                        "Editable project egg-info origin differs")
+            if direct_url is not None:
+                require(isinstance(direct_url, dict) and set(direct_url) == {"url", "dir_info"}
+                        and typed_equal(direct_url["dir_info"], {"editable": True})
+                        and isinstance(direct_url["url"], str), "Editable project direct URL is malformed")
+                parsed = urlsplit(direct_url["url"])
+                require(parsed.scheme == "file" and not parsed.netloc and not parsed.query and not parsed.fragment
+                        and parsed.path.startswith("/") and Path(unquote(parsed.path)).resolve() == root,
+                        "Editable project direct URL points to another origin")
+        record = origin / "RECORD"
+        instance = {"metadata_origin": origin.relative_to(root).as_posix() if origin.is_relative_to(root) else str(origin),
+                    "declared_name": name, "version": version, "metadata_file": metadata_name,
+                    "metadata_sha256": sha(metadata_bytes),
+                    "record_sha256": file_sha(record) if record.is_file() else None,
+                    "direct_url_sha256": sha(direct_bytes) if direct_bytes is not None else None,
+                    "direct_url": direct_url}
+        prior = grouped.get(canonical)
+        if prior is None:
+            grouped[canonical] = {"declared_name": name, "version": version, "instances": []}
+        else:
+            require(prior["declared_name"] == name, "Ambiguous canonical distribution declaration")
+            require(prior["version"] == version, "Conflicting physical distribution versions")
+        physical = str(origin)
+        if physical in seen_origins:
+            require(typed_equal(seen_origins[physical], [canonical, instance]), "Conflicting repeated physical origin")
+        else:
+            seen_origins[physical] = [canonical, instance]
+            grouped[canonical]["instances"].append(instance)
+    project = grouped.get("semantic-search-engine")
+    if project is not None:
+        require(any(row["direct_url"] is not None for row in project["instances"]),
+                "Editable project installation provenance absent")
+    for row in grouped.values():
+        row["instances"] = sorted(row["instances"], key=lambda instance: instance["metadata_origin"])
+    return {"schema_version": 2, "logical_distribution_count": len(grouped),
+            "physical_metadata_instance_count": len(seen_origins), "distributions": dict(sorted(grouped.items()))}
+
+
 def verify_bindings(plan):
     require(plan.get("fresh_reopen_layer") == "source extraction + durable SQLite index; not SearchBackend/service startup",
             "Fresh reopen layer is mislabeled")
     bindings = plan["source_sha256"]
     required = ("scripts/run_django_index_profile.py", "scripts/django_index_profile_core.py",
                 "scripts/audit_django_index_profile.py", "tests/test_audit_django_index_profile.py",
-                "benchmarks/django_index_profile.json", "docs/large-index-profile-protocol.md")
+                "benchmarks/django_index_profile.json", "docs/large-index-profile-protocol.md",
+                "docs/large-index-runtime-metadata-amendment.md")
     require(all(name in bindings for name in required), "Executed runner/checker/frozen inputs must all be sourcebound")
     for name, expected in bindings.items():
         path = local_path(name)
@@ -427,14 +501,7 @@ def verify_bindings(plan):
             and runtime["prefix"] == artifact_path(sys.prefix)
             and runtime["base_prefix"] == artifact_path(sys.base_prefix),
             "Actual Python import paths/prefix/working directory differ from prospective runtime")
-    distributions = {}
-    for distribution in importlib.metadata.distributions():
-        name = distribution.metadata["Name"]
-        require(name not in distributions, "Duplicate installed runtime distribution")
-        record = distribution.read_text("RECORD")
-        distributions[name] = {"version": distribution.version,
-                               "record_sha256": sha(record.encode()) if record is not None else None}
-    require(typed_equal(distributions, runtime["packages"]), "Actual complete package closure differs")
+    require(typed_equal(package_inventory(), runtime["packages"]), "Actual complete physical package closure differs")
     checkpoint = plan["checkpoint"]
     require(checkpoint.get("download_cached") is True and checkpoint.get("weights_loaded_during_freeze") is False
             and checkpoint.get("full_weight_hash_verified_during_run_before_inference") is True,

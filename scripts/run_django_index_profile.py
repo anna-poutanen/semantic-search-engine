@@ -27,6 +27,7 @@ ROOT = core.ROOT
 MANIFEST = ROOT / "benchmarks/django_index_profile.json"
 PREPARATION = ROOT / "results/django-index-preflight-2026-10-14"
 PROTOCOL = ROOT / "docs/large-index-profile-protocol.md"
+RUNTIME_AMENDMENT = ROOT / "docs/large-index-runtime-metadata-amendment.md"
 
 
 def git(repo, *args):
@@ -49,7 +50,7 @@ def source_files():
             ROOT / "scripts/audit_django_index_profile.py", ROOT / "tests/test_audit_django_index_profile.py",
             ROOT / "pyproject.toml", ROOT / "requirements-mac.lock",
             *sorted((ROOT / "src/semantic_search").glob("*.py")),
-            MANIFEST, PROTOCOL, *sorted(path for path in PREPARATION.rglob("*") if path.is_file())]
+            MANIFEST, PROTOCOL, RUNTIME_AMENDMENT, *sorted(path for path in PREPARATION.rglob("*") if path.is_file())]
 
 
 def verify_hashes(bindings):
