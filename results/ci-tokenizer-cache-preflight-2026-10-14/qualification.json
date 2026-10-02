@@ -1,0 +1,62 @@
+{
+  "checks_passed": true,
+  "ci_behavior": {
+    "cache_directory": "${{ github.workspace }}/.cache/tokenizers",
+    "content_sha256": "223921b76ee99bde995b7ff738513eef100fb51d18c93597a113bcffe865b2a7",
+    "filename_sha1": "9b5ad71b2ce5302211f9c61530b329a4922fc6a4",
+    "job_environment": "TIKTOKEN_CACHE_DIR points to that exact repository cache directory",
+    "network_scope": "Only CI setup downloader fetches public rank bytes; model/benchmark/offline test code is unchanged.",
+    "preparation_order": "After dependencies, before pytest",
+    "url": "https://openaipublic.blob.core.windows.net/encodings/cl100k_base.tiktoken",
+    "validation": "URL-derived SHA1 name and SHA256 bytes checked before atomic publication; destination re-read and checked before success. Existing valid cache needs no network; existing corrupt cache fails without deletion or replacement."
+  },
+  "cpu_elapsed_s": 0.02,
+  "created_at_utc": "2026-10-14T12:44:05.373146+00:00",
+  "failed_ci_runs_reported_by_root": [
+    "38563794657",
+    "38563237765"
+  ],
+  "failure_context": "Seven fresh Linux failures: offline replay lacked ignored cl100k rank cache; six MCP integration tests attempted download through their deliberately failing proxy. Original logs remain on GitHub; no additional local network fetch performed during warm benchmark.",
+  "limitations": "Ten injected CPU fault cases and workflow/source review passed locally. Full fresh Linux CI awaits the push-triggered run; no local downloader or full core/MCP test suite was run during active native timing.",
+  "local_existing_tokenizer_cache_changed": false,
+  "local_network_calls": 0,
+  "mcp_child_environment_review": {
+    "TIKTOKEN_CACHE_DIR_automatically_inherited": false,
+    "read_only_source_sha256": {
+      ".venv/lib/python3.12/site-packages/mcp/client/stdio.py": "c4a9de7119f35366037dbf8d51ab5cb6438e15e120730f65f32cdacdeea9328a",
+      "scripts/replay_context_allocation.py": "6828778d86f3422f9688a0007080364a9bb398613b06a87a82a814b71cac4d4a",
+      "src/semantic_search/context.py": "fb9ce00075272d0e0ca9064d5c79e8ca45abc94c60b95c2cabf1c3b98ee2cb85",
+      "tests/test_mcp_server.py": "bb74862ee60ccb89a9b2440cc1d5a5582e66e0846012f6fe9ebb88051a2aa00b"
+    },
+    "safe_inherited_unix_variables": [
+      "HOME",
+      "LOGNAME",
+      "PATH",
+      "SHELL",
+      "TERM",
+      "USER"
+    ],
+    "sdk": "mcp2.3.0",
+    "test_explicit_child_env": "Proxy variables only, NO_PROXY empty",
+    "why_the_cache_is_available": "The editable source context.encoding() defaults to its repository root/.cache/tokenizers when the child lacks TIKTOKEN_CACHE_DIR. Tests launch from the same repository; CI populates exactly that fallback before child startup. Parent/offline subprocess tests use the matching job environment. No SDK allowlist or existing tests need modification."
+  },
+  "model_calls": 0,
+  "new_helper_cpu_tests_passed": 10,
+  "ruff_exit_code": 0,
+  "scope": "Linux core CI tokenizer initialization only; no production/context/replay/pyproject/native-runtime changes",
+  "source_sha256": {
+    ".github/workflows/tests.yml": "ed7e582385569f2f47667fa95f334250c5bae734924356db2cd76fa06afc70da",
+    "scripts/prepare_ci_tokenizer_cache.py": "0dfad2efc674a6d747cd1e7df285e3603a703a0f8cd28ca368035fcfa9d8ddea",
+    "tests/test_ci_tokenizer_cache.py": "0da6307affd5849203c16654478151bb75c049259b388854c1d67a45f40eb051"
+  },
+  "source_sha256_after": {
+    ".github/workflows/tests.yml": "ed7e582385569f2f47667fa95f334250c5bae734924356db2cd76fa06afc70da",
+    "scripts/prepare_ci_tokenizer_cache.py": "0dfad2efc674a6d747cd1e7df285e3603a703a0f8cd28ca368035fcfa9d8ddea",
+    "tests/test_ci_tokenizer_cache.py": "0da6307affd5849203c16654478151bb75c049259b388854c1d67a45f40eb051"
+  },
+  "validation_artifact_sha256": {
+    "results/ci-tokenizer-cache-preflight-2026-10-14/cpu-result.json": "e406ca9a8fe817b96b826dfda730a3a2e5a2d2eec639f01fa9134d0322964794",
+    "results/ci-tokenizer-cache-preflight-2026-10-14/pytest.log": "4c78d91fecebd9ff2601366b209fedef5a34c74b72f29aadd727b0d4e4957970",
+    "results/ci-tokenizer-cache-preflight-2026-10-14/ruff.log": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+  }
+}
