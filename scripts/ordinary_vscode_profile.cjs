@@ -63,7 +63,7 @@ function launchArgs(mode, workspace, userData, extensions) {
   assert.ok(['trusted', 'restricted'].includes(mode));
   for (const name of [workspace, userData, extensions]) { assert.ok(path.isAbsolute(name)); }
   ipcPathReceipt(userData);
-  return [workspace, '--new-window', `--user-data-dir=${userData}`, `--extensions-dir=${extensions}`,
+  return [workspace, '--new-window', `--user-data-dir=${userData}`, `--extensions-dir=${extensions}`, `--shared-data-dir=${path.join(path.dirname(userData), 'shared-data')}`,
     '--disable-updates', '--skip-welcome', '--skip-release-notes', '--no-cached-data',
     ...(mode === 'trusted' ? ['--disable-workspace-trust'] : [])];
 }
@@ -148,15 +148,19 @@ function startOwned(owner, command, args, options = {}) {
   return handle;
 }
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
-async function stopOwned(owner, handle) {
+async function stopOwned(owner, handle, options = {}) {
   assertOwner(owner, handle);
   const receipt = {pid: handle.pid, pgid: handle.pgid, nonce: owner.nonce, actual_pgid_verified: handle.actual_pgid_verified === true,
-    forced_kill: false, errors: [], group_absent: false, started_utc: new Date().toISOString()};
+    forced_kill: false, errors: [], signals_sent: [], group_absent: false, graceful_quit_requested: handle.quit_requested === true, started_utc: new Date().toISOString()};
   try {
-    if (groupAlive(handle.pgid)) { signalOwned(owner, handle, 'SIGTERM'); }
+    if (handle.kind === 'editor' && handle.quit_requested && !owner.interrupted) {
+      const waitMs = Math.max(0, Math.min(options.gracefulWaitMs ?? 20000, (owner.deadline ?? DEADLINE) - Date.now() - 7000));
+      receipt.graceful_wait = await waitForGracefulExit(handle, waitMs);
+    }
+    if (groupAlive(handle.pgid)) { receipt.signals_sent.push('SIGTERM'); signalOwned(owner, handle, 'SIGTERM'); }
     let until = Date.now() + 3000;
     while (groupAlive(handle.pgid) && Date.now() < until) { await delay(25); }
-    if (groupAlive(handle.pgid)) { receipt.forced_kill = true; signalOwned(owner, handle, 'SIGKILL'); }
+    if (groupAlive(handle.pgid)) { receipt.forced_kill = true; receipt.signals_sent.push('SIGKILL'); signalOwned(owner, handle, 'SIGKILL'); }
     until = Date.now() + 3000;
     while (groupAlive(handle.pgid) && Date.now() < until) { await delay(25); }
     receipt.group_absent = !groupAlive(handle.pgid);
@@ -178,6 +182,25 @@ async function command(owner, executable, args, options = {}) {
 }
 function pidAlive(pid) {
   try { process.kill(pid, 0); return true; } catch (error) { if (error.code === 'ESRCH') { return false; } throw error; }
+}
+async function waitForGracefulExit(handle, timeoutMs = 20000) {
+  const until = Date.now() + timeoutMs, started = Date.now();
+  const receipt = {timeout_ms: timeoutMs, pid_absent: false, group_absent: false, signals_sent: []};
+  do {
+    receipt.pid_absent = !pidAlive(handle.pid); receipt.group_absent = !groupAlive(handle.pgid);
+    if (receipt.pid_absent && receipt.group_absent) { break; }
+    if (Date.now() >= until) { break; }
+    await delay(25);
+  } while (true);
+  receipt.graceful_exit_observed = receipt.pid_absent && receipt.group_absent;
+  receipt.elapsed_ms = Date.now() - started; return receipt;
+}
+function captureQuitRequest(owner, handle, resultFile, requestFile) {
+  const request = json(requestFile); assertOwner(owner, handle);
+  assert.equal(request.nonce, owner.nonce); assert.equal(request.command, 'workbench.action.quit');
+  assert.equal(request.after_terminal_proof, true); assert.equal(request.proof_sha256, sha(fs.readFileSync(resultFile)));
+  assert.equal(request.process_pid, handle.sidecar_identity.process_pid);
+  handle.quit_requested = true; handle.quit_request = request; return request;
 }
 function captureSidecar(owner, handle, filename) {
   const observed = json(filename); assertOwner(owner, handle);
@@ -346,7 +369,7 @@ async function run(plan, output, planBinding = null) {
       await command(owner, '/usr/bin/git', ['-C', repository, 'add', 'src/ordinary.py']);
       const row = {mode, passed: false, ipc_path: ipcPathReceipt(userData), settings: settings(), trust_disabled_cli: mode === 'trusted', installs: [], installed_before: []}; receipt.modes.push(row);
       for (const name of ['product', 'sidecar']) {
-        row.installs.push(await command(owner, plan.host.cli, [`--user-data-dir=${userData}`, `--extensions-dir=${extensions}`,
+        row.installs.push(await command(owner, plan.host.cli, [`--user-data-dir=${userData}`, `--extensions-dir=${extensions}`, `--shared-data-dir=${path.join(directory, 'shared-data')}`,
           '--install-extension', path.join(root, name + '.vsix'), '--force', '--do-not-sync'], {timeoutMs: 60000}));
       }
       const installed = fs.readdirSync(extensions).filter(name => fs.lstatSync(path.join(extensions, name)).isDirectory());
@@ -361,6 +384,7 @@ async function run(plan, output, planBinding = null) {
         ORDINARY_PROFILE_NONCE: owner.nonce, ORDINARY_PROFILE_MODE: mode, ORDINARY_PROFILE_RESULT: result,
         ORDINARY_PROFILE_REPO: repository, ORDINARY_PROFILE_TARGET: target, ORDINARY_PROFILE_URL: service.url, ORDINARY_PROFILE_SOURCE: SOURCE}});
       handle.sidecar_owner_file = path.join(directory, 'sidecar-owner.json');
+      handle.quit_request_file = path.join(directory, 'quit-request.json'); handle.proof_file = result;
       exclusive(path.join(directory, 'launch-owner.json'), {nonce: owner.nonce, pid: handle.pid, pgid: handle.pgid});
       const until = Math.min(DEADLINE - 8000, Date.now() + 110000);
       while (!fs.existsSync(result) && Date.now() < until && !handle.settled && !owner.interrupted && !handle.overflow) { await delay(50); }
@@ -369,8 +393,12 @@ async function run(plan, output, planBinding = null) {
       row.sidecar = json(result); assert.equal(row.sidecar.nonce, owner.nonce);
       row.sidecar_identity = captureSidecar(owner, handle, handle.sidecar_owner_file);
       assert.equal(row.sidecar.passed, true);
+      const quitUntil = Date.now() + 1000;
+      while (!fs.existsSync(handle.quit_request_file) && Date.now() < quitUntil && !owner.interrupted) { await delay(10); }
+      row.quit_request = captureQuitRequest(owner, handle, result, handle.quit_request_file);
       row.host_cleanup = await stopOwned(owner, handle); row.sidecar_cleanup = await probeSidecarGone(handle.sidecar_identity); handle.sidecar_stop = row.sidecar_cleanup;
       row.host = publicHandle(handle); assert.ok(row.host_cleanup.clean); assert.ok(row.sidecar_cleanup.proved_absent, 'Sidecar PID/group still alive or unproved');
+      assert.ok(!fs.existsSync(path.join(directory, 'quit-error.json')), 'Public graceful quit command rejected');
       row.product_http = service.records; row.listener_closed = await service.close(); service = undefined;
       row.installed_after = [verifyInstalled(target, archives.product, plan.expected.id, plan.expected.version),
         verifyInstalled(sidecar, archives.sidecar, plan.expected.sidecar_id, plan.expected.sidecar_version)];
@@ -394,6 +422,9 @@ async function run(plan, output, planBinding = null) {
       for (const handle of owner.handles) {
         if (handle.kind === 'editor' && !handle.sidecar_identity && fs.existsSync(handle.sidecar_owner_file)) {
           try { captureSidecar(owner, handle, handle.sidecar_owner_file); } catch (error) { handle.sidecar_capture_error = error.message; }
+        }
+        if (handle.sidecar_identity && !handle.quit_requested && fs.existsSync(handle.quit_request_file)) {
+          try { captureQuitRequest(owner, handle, handle.proof_file, handle.quit_request_file); } catch (error) { handle.quit_capture_error = error.message; }
         }
         if (!handle.stop) { await stopOwned(owner, handle); }
         if (handle.sidecar_identity && !handle.sidecar_stop) { handle.sidecar_stop = await probeSidecarGone(handle.sidecar_identity); }
@@ -419,7 +450,7 @@ function args(argv) {
   return result;
 }
 module.exports = {SOURCE, DEADLINE, sha, canonical, same, inventory, environment, settings, ipcPathReceipt, shortOwnedRoot, launchArgs, prepare, checkPlan,
-  startOwned, assertOwner, signalOwned, stopOwned, command, readArchive, checkArchiveBindings, verifyInstalled, fixtureResponse, fixture, pidAlive, captureSidecar, probeSidecarGone, finalizePublication, run, args};
+  startOwned, assertOwner, signalOwned, stopOwned, command, readArchive, checkArchiveBindings, verifyInstalled, fixtureResponse, fixture, pidAlive, waitForGracefulExit, captureQuitRequest, captureSidecar, probeSidecarGone, finalizePublication, run, args};
 if (require.main === module) {
   (async () => {
     const options = args(process.argv.slice(2));
