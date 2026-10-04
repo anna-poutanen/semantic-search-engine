@@ -87,8 +87,23 @@ export class ServiceClient implements SearchApi {
     validateQuery(query); validateOptions(options);
     if (!/^[A-Za-z0-9_-]{1,64}$/.test(requestId)) { throw new ValidationError('Invalid request ID'); }
     validateOverrides(overlays);
-    const payload = { query, ...options, request_id: requestId, ...(overlays.length ? { overlays } : {}) };
-    return parseSearch(await this.request('/search', payload, signal, this.timeoutMs, overlays.length ? MAX_OVERLAY_BODY_BYTES : 65536), query, options, overlays);
+    const { rerank_provider, ...settings } = options;
+    const qwen = options.rerank && rerank_provider === 'qwen';
+    // Preserve the old fast/H2O request shape for existing local services.
+    const payload = { query, ...settings, ...(qwen ? { rerank_provider: 'qwen' } : {}),
+      request_id: requestId, ...(overlays.length ? { overlays } : {}) };
+    try {
+      return parseSearch(await this.request('/search', payload, signal, this.timeoutMs, overlays.length ? MAX_OVERLAY_BODY_BYTES : 65536), query, options, overlays);
+    } catch (error) {
+      if (qwen && error instanceof ServiceError && error.code === 'invalid_request'
+          && error.message.startsWith('Qwen reranking is not configured')) {
+        throw new ServiceError('Qwen reranking is not configured. After setting up Qwen, start the local service with --enable-qwen-reranker, or turn off semanticSearch.rerank for fast search.', error.code, error.status);
+      }
+      if (qwen && error instanceof ServiceError && error.code === 'invalid_request' && error.message === 'Unknown search option') {
+        throw new ServiceError('The local service does not support Qwen reranking. Update it to a Qwen-capable version and enable Qwen, or turn off semanticSearch.rerank for fast search.', error.code, error.status);
+      }
+      throw error;
+    }
   }
   async cancel(requestId: string): Promise<boolean> {
     if (!/^[A-Za-z0-9_-]{1,64}$/.test(requestId)) { throw new ValidationError('Invalid request ID'); }

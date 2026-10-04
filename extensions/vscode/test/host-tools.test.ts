@@ -8,7 +8,7 @@ import { test } from 'node:test';
 import { hash } from '../src/schema';
 
 const { createFixture, source, mixedSources } = require('../../scripts/host-fixture.cjs');
-const { argumentsFrom, redact, createRunDirectory } = require('../../scripts/smoke-host.cjs');
+const { argumentsFrom, redact, createRunDirectory, qwenReceiptChecks } = require('../../scripts/smoke-host.cjs');
 const { startRelay, forward } = require('../../scripts/host-relay.cjs');
 type Relay = { url: string; records: Record<string, any>[]; close(): Promise<void> };
 async function fixture(t: { after(fn: () => Promise<void>): void }): Promise<string> {
@@ -46,6 +46,30 @@ test('host launch requires explicit run and complete absolute fixture/output arg
     { repo: '/fixture', url: 'http://127.0.0.1:1', output: '/out' });
   assert.deepEqual(redact({ source: '/home/user/fixture/a', nested: ['/home/user/private'] },
     [['/home/user/fixture', '<fixture>'], ['/home/user', '<home>']]), { source: '<fixture>/a', nested: ['<home>/private'] });
+});
+test('Qwen host flag is explicit and separate from other dirty/saved-edit smoke modes', () => {
+  const base = ['--run', '--repo', '/fixture', '--url', 'http://127.0.0.1:1', '--output', '/out'];
+  assert.deepEqual(argumentsFrom([...base, '--qwen-reranker']), { repo: '/fixture', url: 'http://127.0.0.1:1', output: '/out', qwenReranker: true });
+  assert.throws(() => argumentsFrom([...base, '--qwen-reranker', '--qwen-reranker']), /Duplicate/);
+  for (const mode of ['--overlays', '--saved-edits']) { assert.throws(() => argumentsFrom([...base, '--qwen-reranker', mode]), /separate/); }
+});
+test('prospective Qwen receipt gate requires real saved/dirty provider identity and the configured fast-off request', () => {
+  const request = { retrieval: 'hybrid', rerank: true, rerank_provider: 'qwen', candidates: 24,
+    max_results: 5, token_budget: 2000, source_budget: 12000, include_dependencies: false };
+  const saved = { endpoint: '/search', status: 200, request, response: { rerank: true, rerank_provider: 'qwen' } };
+  const dirty = { ...saved, request: { ...request, overlays: [{ path: 'src/delta.ts' }] } };
+  const { rerank_provider: _provider, ...fastRequest } = request;
+  const fast = { ...saved, request: { ...fastRequest, rerank: false }, response: { rerank: false } };
+  const valid = [saved, dirty, fast]; assert.ok(Object.values(qwenReceiptChecks(valid)).every(Boolean));
+  for (const rows of [[], [saved, fast], [saved, dirty], [saved, dirty, fast, saved],
+    [saved, { ...dirty, request: { ...dirty.request, candidates: 4 } }, fast],
+    [saved, { ...dirty, response: { rerank: true, rerank_provider: 'h2o' } }, fast],
+    [saved, { ...dirty, response: { rerank: true } }, fast],
+    [saved, { ...dirty, request: { ...request } }, fast],
+    [saved, dirty, { ...fast, request: { ...fast.request, rerank_provider: 'qwen' } }],
+    [saved, dirty, { ...fast, response: { rerank: true } }]]) {
+    assert.ok(Object.values(qwenReceiptChecks(rows)).some(value => value === false));
+  }
 });
 test('fixture preparation creates saved tracked generic source without starting a service/model', async t => {
   const repo = await fixture(t);

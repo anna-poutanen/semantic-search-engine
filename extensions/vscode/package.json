@@ -124,7 +124,18 @@
           "type": "boolean",
           "default": false,
           "scope": "resource",
-          "description": "Optional H2O reranking requires its separately running local service."
+          "description": "Off: fast retrieval. On: use the selected optional local reranker, which adds latency and requires separate setup."
+        },
+        "semanticSearch.rerankProvider": {
+          "type": "string",
+          "enum": ["h2o", "qwen"],
+          "enumDescriptions": [
+            "H2O: existing optional reranker; requires its separately running local service.",
+            "Qwen: experimental optional reranker; requires a search service started with Qwen enabled. Quality gains vary by codebase, and searches take longer."
+          ],
+          "default": "h2o",
+          "scope": "resource",
+          "description": "Local scorer used when rerank is on. Fast retrieval remains the default. The extension starts and installs no models."
         },
         "semanticSearch.candidates": {
           "type": "integer",

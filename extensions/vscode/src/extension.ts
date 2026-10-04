@@ -7,6 +7,7 @@ import { StaleEvidenceError } from './evidence';
 import { parseConnectRequest, parseFindRequest, resultIndex } from './commands';
 import { sourceTextFromEditor } from './source';
 import { EditorBuffer, verifyEditorBuffer } from './overlays';
+import { searchOptions } from './settings';
 
 export interface ExtensionApi {
   getState(): Readonly<ViewState>;
@@ -109,10 +110,7 @@ export function activate(context: vscode.ExtensionContext): ExtensionApi {
   };
   const options = (): SearchOptions => {
     if (!folder) { throw new ValidationError('Connect to the selected repository first'); }
-    const cfg = vscode.workspace.getConfiguration('semanticSearch', folder.uri);
-    return { retrieval: cfg.get('retrieval', 'dense'), rerank: cfg.get('rerank', false), candidates: cfg.get('candidates', 4),
-      max_results: cfg.get('maxResults', 8), source_budget: cfg.get('sourceBudget', 12000), token_budget: cfg.get('tokenBudget', 4096),
-      include_dependencies: cfg.get('includeDependencies', true) };
+    return searchOptions(vscode.workspace.getConfiguration('semanticSearch', folder.uri));
   };
   const resolveEntry = (row: unknown): Entry => {
     const entry = typeof row === 'number' ? controller.state.entries[resultIndex(row, controller.state.entries.length)] : row as Entry;
