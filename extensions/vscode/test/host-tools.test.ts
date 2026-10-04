@@ -8,7 +8,7 @@ import { test } from 'node:test';
 import { hash } from '../src/schema';
 
 const { createFixture, source, mixedSources } = require('../../scripts/host-fixture.cjs');
-const { argumentsFrom, redact, createRunDirectory, qwenReceiptChecks } = require('../../scripts/smoke-host.cjs');
+const { argumentsFrom, redact, createRunDirectory, qwenReceiptChecks, relayClosureChecks } = require('../../scripts/smoke-host.cjs');
 const { startRelay, forward } = require('../../scripts/host-relay.cjs');
 type Relay = { url: string; records: Record<string, any>[]; close(): Promise<void> };
 async function fixture(t: { after(fn: () => Promise<void>): void }): Promise<string> {
@@ -69,6 +69,21 @@ test('prospective Qwen receipt gate requires real saved/dirty provider identity 
     [saved, dirty, { ...fast, request: { ...fast.request, rerank_provider: 'qwen' } }],
     [saved, dirty, { ...fast, response: { rerank: true } }]]) {
     assert.ok(Object.values(qwenReceiptChecks(rows)).some(value => value === false));
+  }
+});
+test('host publication rejects unfinished or transport-error evidence added by relay close', () => {
+  const closed = { records_stable: true, unfinished_receipts: 0, forced_incomplete_receipts: 0 };
+  const clean = [{ endpoint: '/search', status: 200 }];
+  assert.ok(Object.values(relayClosureChecks(closed, clean)).every(Boolean));
+  for (const [closure, rows] of [
+    [{ ...closed, records_stable: false }, clean],
+    [{ ...closed, unfinished_receipts: 1 }, clean],
+    [{ ...closed, forced_incomplete_receipts: 1 }, clean],
+    [closed, [...clean, { endpoint: '/search', incomplete: true }]],
+    [closed, [...clean, { endpoint: '/search', transport_error: 'late handler unfinished' }]],
+    [closed, [...clean, { endpoint: '/search', hold_released_by_close: true }]]
+  ] as [Record<string, unknown>, Record<string, unknown>[]][]) {
+    assert.ok(Object.values(relayClosureChecks(closure, rows)).some(value => value === false));
   }
 });
 test('fixture preparation creates saved tracked generic source without starting a service/model', async t => {
