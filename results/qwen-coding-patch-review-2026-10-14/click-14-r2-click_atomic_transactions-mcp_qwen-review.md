@@ -1,0 +1,15 @@
+# Click second Qwen terminal patch review
+
+Trial `14-r2-click_atomic_transactions-mcp_qwen` changes four production files and adds two regression-test files. All six changed files and the complete patch were reviewed. No existing tests or configuration were changed.
+
+The unchanged frozen feature checker passes its original9 cases, but the strict14 set has5 failures: the eager, lazy and default-lazy suppression rollback cases plus independent registered callback/resource cleanup replacing the primary exception. Retained upstream compatibility passes307 tests with1 skip. The added tests pass235 parameterized cases in the evaluator copy; this is not235 distinct behaviors.
+
+`Context.with_resource` delegates directly to `ExitStack.enter_context` (core.py:587). A later truthy suppressor clears the callback error within `ExitStack.__exit__` (core.py:615); the earlier file wrapper forwards the cleared error (types.py:663), and the atomic file commits with delete=False (_compat.py:493). Preserving the outer callback exception does not establish rollback.
+
+Unlike the earlier reviewed candidates, Context cleanup has no catch preserving the callback primary: it only resets the stack in finally (core.py:608–618). The file-specific abort cleanup handler (_compat.py:500) does not cover independent registered callbacks/resources. Six unchanged supplemental variants confirm this existing frozen defect: a registered callback raising SystemExit(0) incorrectly returns successful CLI exit0 after a failing callback, while a registered resource raising KeyboardInterrupt replaces the primary with Abort/SystemExit1. Destinations roll back and contexts restore, but the original error identity and cleanup diagnostic are lost. Authored context tests check cleanup errors after a clean body, not this composition.
+
+The unchanged24 supplemental diagnostics pass16 cases with no unknown results. The other two failures are the previously accepted clean-commit defect: an older unrelated registered suppressor hides the real `FileNotFoundError` from atomic `os.replace` (_compat.py:478), causing a zero CLI exit. This is within the explicit automatic clean-commit clause and does not extend to callers manually catching explicit close errors. The accepted scope decision remains separate and unchanged.
+
+These are three distinct behaviors, with parameter and fault-type variants retained separately. Every diagnostic used the evaluator-only copy. Before-and-after hashes match for recursive production sources, all changed files, all original tests/configuration, and the public result. Frozen graders were not rerun or edited, and their grades remain unchanged. No model, hosted, installation, or download calls occurred.
+
+Evidence: [inventory](click-14-r2-click_atomic_transactions-mcp_qwen-inventory.json), [CPU receipt](click-14-r2-click_atomic_transactions-mcp_qwen-cpu-review.json), [24 diagnostic receipts](click-14-r2-click_atomic_transactions-mcp_qwen-probes.json), [machine-readable review](click-14-r2-click_atomic_transactions-mcp_qwen-review.json), [accepted scope decision](click-scope-decision-clean-commit.json).
