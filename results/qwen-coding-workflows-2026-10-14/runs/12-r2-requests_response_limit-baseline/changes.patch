@@ -1,0 +1,982 @@
+diff --git a/src/requests/__init__.py b/src/requests/__init__.py
+index 1093ff8..b0e156c 100644
+--- a/src/requests/__init__.py
++++ b/src/requests/__init__.py
+@@ -177,6 +177,7 @@ from .exceptions import (
+     JSONDecodeError,
+     ReadTimeout,
+     RequestException,
++    ResponseTooLarge,
+     Timeout,
+     TooManyRedirects,
+     URLRequired,
+@@ -195,6 +196,7 @@ __all__ = (
+     "Request",
+     "RequestException",
+     "Response",
++    "ResponseTooLarge",
+     "Session",
+     "Timeout",
+     "TooManyRedirects",
+diff --git a/src/requests/_types.py b/src/requests/_types.py
+index 6c2f59d..e757d0b 100644
+--- a/src/requests/_types.py
++++ b/src/requests/_types.py
+@@ -164,6 +164,7 @@ if TYPE_CHECKING:
+         proxies: dict[str, str] | None
+         hooks: HooksInputType | None
+         stream: bool | None
++        max_response_bytes: int | None
+         verify: VerifyType | None
+         cert: CertType
+ 
+diff --git a/src/requests/api.py b/src/requests/api.py
+index eeb3b54..841ee55 100644
+--- a/src/requests/api.py
++++ b/src/requests/api.py
+@@ -52,6 +52,8 @@ def request(
+             the server's TLS certificate, or a string, in which case it must be a path
+             to a CA bundle to use. Defaults to ``True``.
+     :param stream: (optional) if ``False``, the response content will be immediately downloaded.
++    :param max_response_bytes: (optional) Maximum decoded bytes per response.
++        ``None`` (the default) allows unlimited response bodies.
+     :param cert: (optional) if String, path to ssl client cert file (.pem). If Tuple, ('cert', 'key') pair.
+     :return: :class:`Response <Response>` object
+     :rtype: requests.Response
+diff --git a/src/requests/exceptions.py b/src/requests/exceptions.py
+index cb5e951..ad57c1c 100644
+--- a/src/requests/exceptions.py
++++ b/src/requests/exceptions.py
+@@ -35,6 +35,18 @@ class RequestException(IOError):
+         super().__init__(*args, **kwargs)
+ 
+ 
++class ResponseTooLarge(RequestException):
++    """The decoded response body exceeded its byte budget."""
++
++    def __init__(self, limit: int, received: int, response: Response) -> None:
++        self.limit = limit
++        self.received = received
++        super().__init__(
++            f"Decoded response exceeded {limit} bytes (received {received} bytes).",
++            response=response,
++        )
++
++
+ class InvalidJSONError(RequestException):
+     """A JSON error occurred."""
+ 
+diff --git a/src/requests/hooks.py b/src/requests/hooks.py
+index 11ff9e9..2142368 100644
+--- a/src/requests/hooks.py
++++ b/src/requests/hooks.py
+@@ -44,5 +44,9 @@ def dispatch_hook(
+         for hook in hook_list:
+             _hook_data = hook(hook_data, **kwargs)
+             if _hook_data is not None:
++                if hasattr(hook_data, "_max_response_bytes"):
++                    if _hook_data.request is None:
++                        _hook_data.request = hook_data.request
++                    _hook_data._set_max_response_bytes(hook_data._max_response_bytes)
+                 hook_data = _hook_data
+     return hook_data
+diff --git a/src/requests/models.py b/src/requests/models.py
+index 17b39cd..6fbae7c 100644
+--- a/src/requests/models.py
++++ b/src/requests/models.py
+@@ -62,6 +62,7 @@ from .exceptions import (
+     InvalidJSONError,
+     InvalidURL,
+     MissingSchema,
++    ResponseTooLarge,
+     StreamConsumedError,
+ )
+ from .exceptions import JSONDecodeError as RequestsJSONDecodeError
+@@ -766,6 +767,9 @@ class Response:
+         self._content = False
+         self._content_consumed = False
+         self._next = None
++        self._max_response_bytes: int | None = None
++        self._response_bytes_received = 0
++        self._response_too_large: ResponseTooLarge | None = None
+ 
+         #: Integer Code of responded HTTP Status, e.g. 404 or 200.
+         self.status_code = None  # type: ignore[assignment]
+@@ -813,7 +817,15 @@ class Response:
+         return self
+ 
+     def __exit__(self, *args: Any) -> None:
+-        self.close()
++        try:
++            self.close()
++        except Exception as cleanup_error:
++            if (
++                self._response_too_large is not None
++                and args[1] is self._response_too_large
++            ):
++                raise self._response_too_large from cleanup_error
++            raise
+ 
+     def __getstate__(self) -> dict[str, Any]:
+         # Consume everything; accessing the content attribute makes
+@@ -824,6 +836,9 @@ class Response:
+         return {attr: getattr(self, attr, None) for attr in self.__attrs__}
+ 
+     def __setstate__(self, state: dict[str, Any]) -> None:
++        self._max_response_bytes = None
++        self._response_bytes_received = 0
++        self._response_too_large = None
+         for name, value in state.items():
+             setattr(self, name, value)
+ 
+@@ -932,6 +947,9 @@ class Response:
+         `encoding` on the response.
+         """
+ 
++        self._check_response_size()
++        self._count_cached_content()
++
+         def generate() -> Generator[bytes, None, None]:
+             # Special case for urllib3.
+             if hasattr(self.raw, "stream"):
+@@ -955,6 +973,19 @@ class Response:
+ 
+             self._content_consumed = True
+ 
++        def checked_chunks(chunks: Iterator[bytes], live: bool) -> Iterator[bytes]:
++            while True:
++                # Check before advancing even an iterator created before failure.
++                self._check_response_size()
++                try:
++                    chunk = next(chunks)
++                except StopIteration:
++                    return
++                if live:
++                    self._response_bytes_received += len(chunk)
++                self._check_response_size()
++                yield chunk
++
+         if self._content_consumed and isinstance(self._content, bool):
+             raise StreamConsumedError()
+         elif chunk_size is not None and not isinstance(
+@@ -971,11 +1002,38 @@ class Response:
+         else:
+             chunks = generate()
+ 
++        chunks = checked_chunks(chunks, live=not self._content_consumed)
+         if decode_unicode:
+             chunks = stream_decode_response_unicode(chunks, self)
+ 
+         return chunks
+ 
++    def _set_max_response_bytes(self, limit: int | None) -> None:
++        self._max_response_bytes = limit
++        self._check_response_size()
++        self._count_cached_content()
++
++    def _count_cached_content(self) -> None:
++        if isinstance(self._content, bytes):
++            # Cached bytes may already have been counted while reading the wire.
++            self._response_bytes_received = max(
++                self._response_bytes_received, len(self._content)
++            )
++            self._check_response_size()
++
++    def _check_response_size(self) -> None:
++        if self._response_too_large is not None:
++            raise self._response_too_large
++        limit = self._max_response_bytes
++        if limit is not None and self._response_bytes_received > limit:
++            error = ResponseTooLarge(limit, self._response_bytes_received, self)
++            self._response_too_large = error
++            try:
++                self.close()
++            except Exception as cleanup_error:
++                raise error from cleanup_error
++            raise error
++
+     @overload
+     def iter_lines(
+         self,
+@@ -1035,6 +1093,8 @@ class Response:
+     def content(self) -> bytes:
+         """Content of the response, in bytes."""
+ 
++        self._check_response_size()
++        self._count_cached_content()
+         if self._content is False:
+             # Read the contents.
+             if self._content_consumed:
+diff --git a/src/requests/sessions.py b/src/requests/sessions.py
+index d11355b..76dabcf 100644
+--- a/src/requests/sessions.py
++++ b/src/requests/sessions.py
+@@ -73,6 +73,21 @@ else:
+     preferred_clock = time.time
+ 
+ 
++class _SessionDefault:
++    """Sentinel distinguishing an omitted limit from explicit None."""
++
++
++_DEFAULT_RESPONSE_BYTES = _SessionDefault()
++
++
++def _validate_max_response_bytes(value: Any) -> int | None:
++    if value is not None and (
++        isinstance(value, bool) or not isinstance(value, int) or value < 0
++    ):
++        raise ValueError("max_response_bytes must be None or a non-negative integer")
++    return value
++
++
+ def merge_setting(
+     request_setting: Any, session_setting: Any, dict_class: type = OrderedDict
+ ) -> Any:
+@@ -417,6 +432,7 @@ class Session(SessionRedirectMixin):
+     hooks: dict[str, list[_t.HookType]]
+     params: MutableMapping[str, Any]
+     stream: bool
++    max_response_bytes: int | None
+     verify: _t.VerifyType
+     cert: _t.CertType
+     max_redirects: int
+@@ -437,9 +453,13 @@ class Session(SessionRedirectMixin):
+         "stream",
+         "trust_env",
+         "max_redirects",
++        "max_response_bytes",
+     ]
+ 
+-    def __init__(self) -> None:
++    def __init__(self, max_response_bytes: int | None = None) -> None:
++        #: Maximum decoded bytes per response, or None for unlimited bodies.
++        self.max_response_bytes = _validate_max_response_bytes(max_response_bytes)
++
+         #: A case-insensitive dictionary of headers to be sent on each
+         #: :class:`Request <Request>` sent from this
+         #: :class:`Session <Session>`.
+@@ -572,6 +592,7 @@ class Session(SessionRedirectMixin):
+         verify: _t.VerifyType | None = None,
+         cert: _t.CertType = None,
+         json: _t.JsonType = None,
++        max_response_bytes: int | None | _SessionDefault = _DEFAULT_RESPONSE_BYTES,
+     ) -> Response:
+         """Constructs a :class:`Request <Request>`, prepares it and sends it.
+         Returns :class:`Response <Response>` object.
+@@ -614,8 +635,16 @@ class Session(SessionRedirectMixin):
+             may be useful during local development or testing.
+         :param cert: (optional) if String, path to ssl client cert file (.pem).
+             If Tuple, ('cert', 'key') pair.
++        :param max_response_bytes: (optional) Maximum decoded bytes per response,
++            including redirects. Omission uses the session setting; ``None``
++            disables the budget for this request and its redirect chain.
+         :rtype: requests.Response
+         """
++        max_response_bytes = _validate_max_response_bytes(
++            self.max_response_bytes
++            if max_response_bytes is _DEFAULT_RESPONSE_BYTES
++            else max_response_bytes
++        )
+         if isinstance(url, bytes):
+             url = url.decode("utf-8")
+ 
+@@ -646,6 +675,7 @@ class Session(SessionRedirectMixin):
+         send_kwargs = {
+             "timeout": timeout,
+             "allow_redirects": allow_redirects,
++            "max_response_bytes": max_response_bytes,
+         }
+         send_kwargs.update(settings)
+         resp = self.send(prep, **send_kwargs)
+@@ -752,8 +782,13 @@ class Session(SessionRedirectMixin):
+     def send(self, request: PreparedRequest, **kwargs: Any) -> Response:
+         """Send a given PreparedRequest.
+ 
++        :param max_response_bytes: Maximum decoded bytes per response. Omission
++            uses the session setting; ``None`` disables the budget.
+         :rtype: requests.Response
+         """
++        max_response_bytes = _validate_max_response_bytes(
++            kwargs.pop("max_response_bytes", self.max_response_bytes)
++        )
+         # Set defaults that the hooks can utilize to ensure they always have
+         # the correct parameters to reproduce the previous request.
+         kwargs.setdefault("stream", self.stream)
+@@ -788,20 +823,25 @@ class Session(SessionRedirectMixin):
+         r.elapsed = timedelta(seconds=elapsed)
+ 
+         # Response manipulation hooks
++        r._set_max_response_bytes(max_response_bytes)
+         r = dispatch_hook("response", hooks, r, **kwargs)
++        r._set_max_response_bytes(max_response_bytes)
+ 
+         # Persist cookies
+         if r.history:
+             # If the hooks create history then we want those cookies too
+             for resp in r.history:
++                resp._set_max_response_bytes(max_response_bytes)
+                 extract_cookies_to_jar(self.cookies, resp.request, resp.raw)
+ 
+         extract_cookies_to_jar(self.cookies, request, r.raw)
+ 
++        redirect_kwargs = dict(kwargs, max_response_bytes=max_response_bytes)
++
+         # Resolve redirects if allowed.
+         if allow_redirects:
+             # Redirect resolving generator.
+-            gen = self.resolve_redirects(r, request, **kwargs)
++            gen = self.resolve_redirects(r, request, **redirect_kwargs)
+             history = [resp for resp in gen]
+         else:
+             history = []
+@@ -818,7 +858,9 @@ class Session(SessionRedirectMixin):
+         if not allow_redirects:
+             try:
+                 r._next = next(  # type: ignore[assignment]  # yield_requests=True returns PreparedRequest
+-                    self.resolve_redirects(r, request, yield_requests=True, **kwargs)
++                    self.resolve_redirects(
++                        r, request, yield_requests=True, **redirect_kwargs
++                    )
+                 )
+             except StopIteration:
+                 pass
+@@ -901,6 +943,7 @@ class Session(SessionRedirectMixin):
+         return state
+ 
+     def __setstate__(self, state: dict[str, Any]) -> None:
++        self.max_response_bytes = None
+         for attr, value in state.items():
+             setattr(self, attr, value)
+ 
+diff --git a/tests/test_response_limit.py b/tests/test_response_limit.py
+new file mode 100644
+index 0000000..6fe1612
+--- /dev/null
++++ b/tests/test_response_limit.py
+@@ -0,0 +1,383 @@
++"""Regression coverage for decoded response budgets without network access."""
++
++import io
++import pickle
++from unittest.mock import Mock
++
++import pytest
++
++import requests
++from requests.adapters import BaseAdapter
++
++
++class CountingBody(io.BytesIO):
++    def __init__(self, content, close_error=None):
++        super().__init__(content)
++        self.reads = 0
++        self.closes = 0
++        self.close_error = close_error
++
++    def read(self, size=-1):
++        self.reads += 1
++        return super().read(size)
++
++    def close(self):
++        self.closes += 1
++        if self.close_error is not None:
++            raise self.close_error
++        super().close()
++
++
++class StreamingBody(CountingBody):
++    def stream(self, size, decode_content):
++        assert decode_content is True
++        while True:
++            chunk = self.read(size)
++            if not chunk:
++                return
++            yield chunk
++
++
++class MemoryAdapter(BaseAdapter):
++    def __init__(self, body=b"abcdefghij", raw_type=CountingBody):
++        self.body = body
++        self.raw_type = raw_type
++        self.calls = []
++        self.responses = []
++
++    # A strict signature also checks that the budget never reaches transport.
++    def send(
++        self, request, stream=False, timeout=None, verify=True, cert=None, proxies=None
++    ):
++        self.calls.append(request)
++        response = requests.Response()
++        response.status_code = 200
++        response.url = request.url
++        response.request = request
++        response.connection = self
++        response.encoding = "utf-8"
++        response.raw = self.raw_type(self.body)
++        self.responses.append(response)
++        return response
++
++    def close(self):
++        pass
++
++
++@pytest.fixture
++def memory_session():
++    with requests.Session() as session:
++        session.trust_env = False
++        adapter = MemoryAdapter()
++        session.mount("http://", adapter)
++        yield session, adapter
++
++
++URL = "http://localhost/body"
++INVALID_LIMITS = [-1, True, False, 1.0, "1", b"1", [], {}, object(), float("inf")]
++
++
++@pytest.mark.parametrize("limit", INVALID_LIMITS)
++@pytest.mark.parametrize("entry", ["constructor", "request", "send", "session_setting"])
++def test_invalid_limits_fail_before_transport(memory_session, limit, entry):
++    session, adapter = memory_session
++    with pytest.raises(ValueError, match="max_response_bytes"):
++        if entry == "constructor":
++            requests.Session(max_response_bytes=limit)
++        elif entry == "request":
++            session.request("GET", URL, max_response_bytes=limit)
++        elif entry == "send":
++            session.send(
++                requests.Request("GET", URL).prepare(), max_response_bytes=limit
++            )
++        else:
++            session.max_response_bytes = limit
++            session.get(URL)
++    assert adapter.calls == []
++
++
++@pytest.mark.parametrize("entry", ["request", "send"])
++def test_session_inheritance_and_explicit_overrides(memory_session, entry):
++    session, _ = memory_session
++
++    def send(**kwargs):
++        if entry == "send":
++            return session.send(requests.Request("GET", URL).prepare(), **kwargs)
++        return session.get(URL, **kwargs)
++
++    assert session.max_response_bytes is None
++    assert send().content == b"abcdefghij"
++    session.max_response_bytes = 3
++    with pytest.raises(requests.ResponseTooLarge):
++        send()
++    assert send(max_response_bytes=None).content == b"abcdefghij"
++    assert send(max_response_bytes=10).content == b"abcdefghij"
++    with pytest.raises(requests.ResponseTooLarge) as exc:
++        send(max_response_bytes=2)
++    assert exc.value.limit == 2
++    assert session.max_response_bytes == 3
++
++
++@pytest.mark.parametrize(
++    "method", ["get", "options", "head", "post", "put", "patch", "delete", "request"]
++)
++@pytest.mark.parametrize("module_level", [False, True])
++def test_public_helpers_surface_the_same_exception(
++    memory_session, monkeypatch, method, module_level
++):
++    session, adapter = memory_session
++    if module_level:
++        monkeypatch.setattr(requests.sessions, "Session", lambda: session)
++    owner = requests if module_level else session
++    args = ("GET", URL) if method == "request" else (URL,)
++    with pytest.raises(requests.ResponseTooLarge) as exc:
++        getattr(owner, method)(*args, max_response_bytes=3)
++    assert requests.ResponseTooLarge is requests.exceptions.ResponseTooLarge
++    assert isinstance(exc.value, requests.exceptions.RequestException)
++    assert exc.value.limit == 3
++    assert exc.value.received == 10
++    assert exc.value.response is adapter.responses[0]
++    assert exc.value.request is adapter.calls[0]
++    assert adapter.responses[0].raw.closes == 1
++
++
++@pytest.mark.parametrize("limit", [None, 0, 7])
++def test_session_setting_survives_pickling(limit):
++    with requests.Session(max_response_bytes=limit) as session:
++        session.trust_env = False
++        restored = pickle.loads(pickle.dumps(session))
++    with restored:
++        assert restored.max_response_bytes == limit
++        adapter = MemoryAdapter(b"12345678")
++        restored.mount("http://", adapter)
++        if limit is None:
++            assert restored.get(URL).content == b"12345678"
++        else:
++            with pytest.raises(requests.ResponseTooLarge) as exc:
++                restored.get(URL)
++            assert exc.value.limit == limit
++
++
++def test_old_pickled_session_defaults_to_unlimited():
++    with requests.Session() as session:
++        state = session.__getstate__()
++    state.pop("max_response_bytes")
++    restored = requests.Session.__new__(requests.Session)
++    restored.__setstate__(state)
++    assert restored.max_response_bytes is None
++    restored.close()
++
++
++@pytest.mark.parametrize("stream", [False, True])
++@pytest.mark.parametrize("body,limit", [(b"", 0), (b"x", 1), (b"abc", 3)])
++def test_empty_and_exact_boundary_bodies(memory_session, stream, body, limit):
++    session, adapter = memory_session
++    adapter.body = body
++    response = session.get(URL, stream=stream, max_response_bytes=limit)
++    assert response.content == body
++    assert response.text == body.decode()
++    for _ in range(2):
++        assert b"".join(response.iter_content(1)) == body
++
++
++def assert_read_apis_stay_failed(response, error):
++    reads = response.raw.reads
++    for read in (
++        lambda: response.content,
++        lambda: response.text,
++        lambda: response.json(),
++        lambda: list(response.iter_content(1)),
++        lambda: list(response.iter_content(1, decode_unicode=True)),
++        lambda: list(response.iter_lines()),
++    ):
++        with pytest.raises(requests.ResponseTooLarge) as exc:
++            read()
++        assert exc.value is error
++        assert response.raw.reads == reads
++
++
++@pytest.mark.parametrize("raw_type", [CountingBody, StreamingBody])
++def test_live_total_persists_across_iterators(memory_session, raw_type):
++    session, adapter = memory_session
++    adapter.raw_type = raw_type
++    response = session.get(URL, stream=True, max_response_bytes=6)
++    first = response.iter_content(4)
++    second = response.iter_content(2)
++    unused = response.iter_content(1)
++    assert next(first) == b"abcd"
++    assert next(second) == b"ef"
++    with pytest.raises(requests.ResponseTooLarge) as exc:
++        next(first)
++    assert exc.value.received == 10
++    assert exc.value.response is response
++    assert response.raw.reads == 3
++    assert response.raw.closes == 1
++    for iterator in (second, unused):
++        with pytest.raises(requests.ResponseTooLarge) as later:
++            next(iterator)
++        assert later.value is exc.value
++        assert response.raw.reads == 3
++    assert_read_apis_stay_failed(response, exc.value)
++
++
++@pytest.mark.parametrize("read", ["content", "text"])
++def test_partial_iterator_then_eager_read_uses_live_total(memory_session, read):
++    session, _ = memory_session
++    response = session.get(URL, stream=True, max_response_bytes=8)
++    iterator = response.iter_content(3)
++    assert next(iterator) == b"abc"
++    with pytest.raises(requests.ResponseTooLarge) as exc:
++        getattr(response, read)
++    assert exc.value.received == 10
++    assert_read_apis_stay_failed(response, exc.value)
++
++
++def test_partial_iterator_then_cached_reads_do_not_count_twice(memory_session):
++    session, _ = memory_session
++    response = session.get(URL, stream=True, max_response_bytes=10)
++    iterator = response.iter_content(3)
++    assert next(iterator) == b"abc"
++    # Preserve Requests' existing behavior: .content contains the unread suffix.
++    assert response.content == b"defghij"
++    assert response.text == "defghij"
++    assert b"".join(response.iter_content(2)) == b"defghij"
++    assert response.content == b"defghij"
++
++
++def test_unicode_stream_counts_bytes_before_decoding(memory_session):
++    session, adapter = memory_session
++    adapter.body = "ééé".encode()
++    response = session.get(URL, stream=True, max_response_bytes=4)
++    iterator = response.iter_content(2, decode_unicode=True)
++    assert next(iterator) == "é"
++    assert next(iterator) == "é"
++    with pytest.raises(requests.ResponseTooLarge) as exc:
++        next(iterator)
++    assert exc.value.received == 6
++
++
++def test_close_failure_keeps_size_error_and_cause(memory_session):
++    session, adapter = memory_session
++    cleanup_error = RuntimeError("close failed")
++    adapter.raw_type = lambda body: CountingBody(body, cleanup_error)
++    response = session.get(URL, stream=True, max_response_bytes=1)
++    with pytest.raises(requests.ResponseTooLarge) as exc:
++        response.content
++    assert exc.value.__cause__ is cleanup_error
++    assert exc.value.received == 10
++    assert response.raw.closes == 1
++    assert_read_apis_stay_failed(response, exc.value)
++    response.raw.close_error = None
++    response.close()
++
++
++@pytest.mark.parametrize("stream", [False, True])
++@pytest.mark.parametrize("limit", [None, 0, 3, 4])
++def test_cached_response_returned_by_hook_is_budgeted(memory_session, stream, limit):
++    session, _ = memory_session
++    cached = requests.Response()
++    cached.status_code = 200
++    cached._content = b"data"
++    cached._content_consumed = True
++    cached.encoding = "utf-8"
++    cached.close = Mock()
++
++    def replace(response, **kwargs):
++        response.close()
++        return cached
++
++    kwargs = dict(stream=stream, max_response_bytes=limit, hooks={"response": replace})
++    if limit is not None and limit < 4:
++        with pytest.raises(requests.ResponseTooLarge) as exc:
++            session.get(URL, **kwargs)
++        assert exc.value.response is cached
++        assert exc.value.request is cached.request
++        assert cached.request.url == URL
++        assert exc.value.received == 4
++        cached.close.assert_called_once_with()
++        with pytest.raises(requests.ResponseTooLarge) as later:
++            cached.content
++        assert later.value is exc.value
++    else:
++        response = session.get(URL, **kwargs)
++        assert response is cached
++        assert response.text == "data"
++        assert list(response.iter_content(2)) == [b"da", b"ta"]
++        assert response.content == b"data"
++
++
++def test_hook_body_read_is_budgeted(memory_session):
++    session, adapter = memory_session
++
++    def read_body(response, **kwargs):
++        response.text
++
++    with pytest.raises(requests.ResponseTooLarge) as exc:
++        session.get(
++            URL, stream=True, max_response_bytes=2, hooks={"response": read_body}
++        )
++    assert exc.value.response is adapter.responses[0]
++    assert adapter.responses[0].raw.closes == 1
++
++
++@pytest.mark.parametrize("cached", [False, True])
++def test_replacement_budget_applies_before_next_hook(memory_session, cached):
++    session, _ = memory_session
++    replacement = requests.Response()
++    replacement.status_code = 200
++    replacement.raw = CountingBody(b"oversized")
++    if cached:
++        replacement._content = b"oversized"
++        replacement._content_consumed = True
++    later_hook = Mock(side_effect=lambda response, **kwargs: response.content)
++
++    def replace(response, **kwargs):
++        response.close()
++        return replacement
++
++    with pytest.raises(requests.ResponseTooLarge) as exc:
++        session.get(
++            URL,
++            stream=True,
++            max_response_bytes=3,
++            hooks={"response": [replace, later_hook]},
++        )
++    assert exc.value.response is replacement
++    assert exc.value.request.url == URL
++    if cached:
++        later_hook.assert_not_called()
++    else:
++        later_hook.assert_called_once()
++    replacement.close()
++
++
++def test_response_context_preserves_size_error_when_close_fails(memory_session):
++    session, adapter = memory_session
++    cleanup_error = RuntimeError("close failed")
++    adapter.raw_type = lambda body: CountingBody(body, cleanup_error)
++    with pytest.raises(requests.ResponseTooLarge) as exc:
++        with session.get(URL, stream=True, max_response_bytes=1) as response:
++            response.content
++    assert exc.value.__cause__ is cleanup_error
++    assert exc.value.response is response
++    response.raw.close_error = None
++    response.close()
++
++
++def test_hook_cached_read_does_not_reset_or_double_count(memory_session):
++    session, _ = memory_session
++
++    def read_body(response, **kwargs):
++        assert response.content == b"abcdefghij"
++        return response
++
++    response = session.get(URL, max_response_bytes=10, hooks={"response": read_body})
++    assert response.text == "abcdefghij"
++    assert list(response.iter_content(5)) == [b"abcde", b"fghij"]
++
++
++def test_unlimited_streaming_response_pickle_remains_readable(memory_session):
++    session, _ = memory_session
++    response = pickle.loads(pickle.dumps(session.get(URL, stream=True)))
++    assert response.content == b"abcdefghij"
++    assert list(response.iter_content(5)) == [b"abcde", b"fghij"]
+diff --git a/tests/test_response_limit_http.py b/tests/test_response_limit_http.py
+new file mode 100644
+index 0000000..0f92ead
+--- /dev/null
++++ b/tests/test_response_limit_http.py
+@@ -0,0 +1,236 @@
++"""Loopback integration tests for decompression and redirect response budgets."""
++
++import gzip
++import threading
++import zlib
++from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
++
++import pytest
++
++import requests
++
++DECODED_BODY = "é".encode() * 2048
++
++
++@pytest.fixture
++def budget_server():
++    paths = []
++
++    class Handler(BaseHTTPRequestHandler):
++        def log_message(self, *args):
++            pass
++
++        def do_HEAD(self):
++            self.respond(head=True)
++
++        def do_GET(self):
++            self.respond()
++
++        def respond(self, head=False):
++            paths.append(self.path)
++            status = 200
++            headers = {}
++            body = b"abcdef"
++            chunked = self.path == "/chunked"
++            if self.path == "/empty":
++                body = b""
++            elif self.path in ("/gzip", "/deflate", "/gzip-small", "/gzip-empty"):
++                decoded = DECODED_BODY
++                if self.path == "/gzip-small":
++                    decoded = b"hi"
++                elif self.path == "/gzip-empty":
++                    decoded = b""
++                encoding = "deflate" if self.path == "/deflate" else "gzip"
++                body = (
++                    zlib.compress(decoded)
++                    if encoding == "deflate"
++                    else gzip.compress(decoded)
++                )
++                headers["Content-Encoding"] = encoding
++                headers["Content-Type"] = "text/plain; charset=utf-8"
++            elif self.path.startswith("/redirect/"):
++                sizes = self.path.removeprefix("/redirect/").split("/")
++                body = b"x" * int(sizes[0])
++                if len(sizes) > 1:
++                    status = 302
++                    headers["Location"] = "/redirect/" + "/".join(sizes[1:])
++            elif chunked:
++                body = "ééé".encode()
++                headers["Transfer-Encoding"] = "chunked"
++                headers["Content-Type"] = "text/plain; charset=utf-8"
++
++            self.send_response(status)
++            for name, value in headers.items():
++                self.send_header(name, value)
++            if not chunked:
++                self.send_header("Content-Length", str(len(body)))
++            self.end_headers()
++            if head:
++                return
++            try:
++                if chunked:
++                    for start in range(0, len(body), 2):
++                        chunk = body[start : start + 2]
++                        self.wfile.write(
++                            f"{len(chunk):x}\r\n".encode() + chunk + b"\r\n"
++                        )
++                    self.wfile.write(b"0\r\n\r\n")
++                else:
++                    self.wfile.write(body)
++            except (BrokenPipeError, ConnectionResetError):
++                pass
++
++    server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
++    thread = threading.Thread(
++        target=server.serve_forever, kwargs={"poll_interval": 0.01}
++    )
++    thread.start()
++    try:
++        yield f"http://127.0.0.1:{server.server_port}", paths
++    finally:
++        server.shutdown()
++        server.server_close()
++        thread.join()
++
++
++@pytest.fixture
++def session():
++    with requests.Session() as session:
++        session.trust_env = False
++        yield session
++
++
++@pytest.mark.parametrize("path", ["/gzip", "/deflate"])
++@pytest.mark.parametrize("stream", [False, True])
++def test_budget_counts_decompressed_bytes(budget_server, session, path, stream):
++    base, paths = budget_server
++    with pytest.raises(requests.ResponseTooLarge) as exc:
++        response = session.get(base + path, stream=stream, max_response_bytes=128)
++        list(response.iter_content(64))
++    error = exc.value
++    assert int(error.response.headers["Content-Length"]) < error.limit
++    assert error.limit == 128
++    assert error.received == (192 if stream else len(DECODED_BODY))
++    assert error.request.url == base + path
++    assert error.response.raw.closed
++    assert paths == [path]
++    with pytest.raises(requests.ResponseTooLarge) as later:
++        error.response.text
++    assert later.value is error
++
++
++@pytest.mark.parametrize("path", ["/gzip", "/deflate"])
++@pytest.mark.parametrize("stream", [False, True])
++def test_decompressed_exact_boundary_and_cached_rereads(
++    budget_server, session, path, stream
++):
++    base, _ = budget_server
++    response = session.get(
++        base + path, stream=stream, max_response_bytes=len(DECODED_BODY)
++    )
++    assert response.content == DECODED_BODY
++    assert response.text == "é" * 2048
++    assert "".join(response.iter_content(7, decode_unicode=True)) == response.text
++    assert b"".join(response.iter_content(13)) == DECODED_BODY
++
++
++@pytest.mark.parametrize(
++    "path,limit,expected",
++    [("/empty", 0, b""), ("/gzip-empty", 0, b""), ("/gzip-small", 2, b"hi")],
++)
++@pytest.mark.parametrize("stream", [False, True])
++def test_content_length_does_not_determine_budget(
++    budget_server, session, path, limit, expected, stream
++):
++    base, _ = budget_server
++    response = session.get(base + path, stream=stream, max_response_bytes=limit)
++    assert response.content == expected
++
++
++def test_zero_budget_head_ignores_advertised_body_length(budget_server):
++    base, _ = budget_server
++    response = requests.head(base + "/plain", max_response_bytes=0, timeout=5)
++    assert response.headers["Content-Length"] == "6"
++    assert response.content == b""
++
++
++def test_chunked_unicode_stream_crosses_on_decoded_bytes(budget_server, session):
++    base, _ = budget_server
++    response = session.get(base + "/chunked", stream=True, max_response_bytes=4)
++    chunks = response.iter_content(2, decode_unicode=True)
++    assert next(chunks) == "é"
++    assert next(chunks) == "é"
++    with pytest.raises(requests.ResponseTooLarge) as exc:
++        next(chunks)
++    assert exc.value.received == 6
++    assert response.raw.closed
++
++
++@pytest.mark.parametrize("sizes,index", [("7/1", 0), ("2/7/1", 1), ("2/2/7", 2)])
++@pytest.mark.parametrize("stream", [False, True])
++def test_every_redirect_response_has_its_own_budget(
++    budget_server, session, sizes, index, stream
++):
++    base, paths = budget_server
++    with pytest.raises(requests.ResponseTooLarge) as exc:
++        response = session.get(
++            base + "/redirect/" + sizes, stream=stream, max_response_bytes=3
++        )
++        response.content
++    offending_path = "/redirect/" + "/".join(sizes.split("/")[index:])
++    assert exc.value.response.url == base + offending_path
++    assert exc.value.received == 7
++    assert exc.value.response.raw.closed
++    assert len(paths) == index + 1
++
++
++@pytest.mark.parametrize("stream", [False, True])
++def test_redirect_totals_are_independent(budget_server, session, stream):
++    base, _ = budget_server
++    response = session.get(
++        base + "/redirect/3/3/3", stream=stream, max_response_bytes=3
++    )
++    assert [item.content for item in response.history] == [b"xxx", b"xxx"]
++    assert response.content == b"xxx"
++    assert list(response.iter_content(1)) == [b"x", b"x", b"x"]
++
++
++@pytest.mark.parametrize("entry", ["request", "send"])
++@pytest.mark.parametrize("override", [None, 7])
++def test_override_applies_to_entire_redirect_chain(
++    budget_server, session, entry, override
++):
++    base, _ = budget_server
++    session.max_response_bytes = 0
++    url = base + "/redirect/7/7/7"
++    if entry == "send":
++        response = session.send(
++            requests.Request("GET", url).prepare(), max_response_bytes=override
++        )
++    else:
++        response = session.get(url, max_response_bytes=override)
++    assert response.content == b"xxxxxxx"
++    assert [item.content for item in response.history] == [b"xxxxxxx", b"xxxxxxx"]
++    assert session.max_response_bytes == 0
++
++
++def test_disabled_redirects_still_budget_the_redirect_body(budget_server, session):
++    base, paths = budget_server
++    with pytest.raises(requests.ResponseTooLarge) as exc:
++        session.get(
++            base + "/redirect/7/1",
++            allow_redirects=False,
++            stream=True,
++            max_response_bytes=3,
++        )
++    assert exc.value.response.status_code == 302
++    assert paths == ["/redirect/7/1"]
++
++
++@pytest.mark.parametrize("entry", ["session", "module"])
++def test_eager_convenience_request_raises_size_error(budget_server, session, entry):
++    base, _ = budget_server
++    owner = session if entry == "session" else requests
++    with pytest.raises(requests.ResponseTooLarge) as exc:
++        owner.get(base + "/gzip", max_response_bytes=128, timeout=5)
++    assert exc.value.received == len(DECODED_BODY)
