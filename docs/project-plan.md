@@ -75,7 +75,7 @@ This follows the agreed plan in **Choose a project for YC roles** on October 12,
 Python, TypeScript and JavaScript are implemented.
 C# and non-Mac deployment follow validation of the core. Serialize GPU work and
 reuse resident model processes. Dense retrieval remains the fast default, with
-H2O available as an optional shortlist reranker. Static dependencies are context
+H2O and Qwen available as optional shortlist rerankers. Static dependencies are context
 references, and weak-match rejection is not proof that a behavior is absent.
 
 ## Evaluation gates
@@ -199,15 +199,42 @@ point to ranking and packing. These mixed outcomes support an optional
 [Qwen production adapter](qwen-reranker-integration.md), with fast dense
 retrieval unchanged as the default.
 
-The next active milestone is the [three-condition coding comparison](qwen-coding-workflow-protocol.md):
-three observed larger feature tasks, two balanced repetitions, ordinary tools
-versus fast MCP versus Qwen MCP. Strict checkers and repaired reference controls
-are frozen before coding output; original upstream compatibility is a separate
-gate. Exact production scorer parity and real HTTP/MCP saved-edit validation
-precede the hosted transport probe and eighteen frozen trials. Publish all
-attempts, actual reported usage, unknown interrupted-turn usage, cleanup and
-source receipts, then independently review patches. Retrieval gains do not
-establish coding correctness or paid-agent token savings.
+The [three-condition coding comparison](../results/qwen-coding-workflows-2026-10-14/findings.md)
+is complete: three observed larger feature tasks, two balanced repetitions,
+ordinary tools versus fast MCP versus Qwen MCP. All eighteen attempts and
+independent patch reviews are published. Each condition completes 2/6 correctly,
+all on Starlette. A fast-MCP Requests snapshot passes strict checks but times out
+without completed-turn usage; its tokens remain unknown. One baseline Click
+attempt retains a provider 503 error and is excluded from normal comparisons.
+For the two matched correct pairs, Qwen versus fast MCP uses 18.52% more gross
+tokens, 21.30% less uncached input and 0.72% more full trial time. Exact cache
+accounting explains the count difference without identifying a causal effect or
+bill. The strict gates, upstream compatibility, supplemental defects, raw probes
+and reference/checker limitations are preserved. The 30% token target is unmet.
+
+The [fresh isolated optional-reranker installation](../results/qwen-installer-validation-2026-10-14/verification.json)
+passes with all 34 package records and full checkpoint verification. Its actual
+installed runtime passes all 416 original singleton score/tokenizer parity pairs
+and real HTTP/MCP saved-edit checks. These validations use existing Mac caches
+and do not establish clean-machine installation or official PyTorch parity.
+
+The [context-allocation development replay](../results/context-allocation-development-2026-10-14/findings.md)
+is complete: all 159 original eight-excerpt controls reproduce exactly, followed
+by 954 CPU outputs across six settings. Twelve excerpts with dependencies retain
+every baseline complete result and improve development completeness 112 to 113
+of 118 and observed HTTPX completeness 8 to 10 of 12. Twenty with dependencies
+also qualifies; disabling dependencies loses individual baseline successes.
+Larger context consumes more of the unchanged 4,096-token cap. Twelve with
+dependencies is selected as the primary fresh test before Werkzeug outcomes;
+twenty is diagnostic and cannot rescue a failed primary gate. The default stays
+eight until the fresh test and its independent review are complete.
+
+Current work is the real 9,097-window Django indexing profile, a native Qwen
+VS Code settings check in an isolated Development Host, and a source-authored
+Werkzeug holdout for the fixed 8/12/20-excerpt comparison. Queries, source
+identities, runtime gates and measurement rules are frozen before outcomes.
+The Django run is active; editor and holdout inference run sequentially after
+owned cleanup. Their preparation receipts are not completed runtime evidence.
 
 Use fresh development queries to improve evidence delivery and a new
 untouched holdout to assess those changes. The observed Zod misses are now
