@@ -1,0 +1,40 @@
+FF.FFFF                                                                  [100%]
+=================================== FAILURES ===================================
+__ test_registry_close_cancels_active_requests_and_rejects_late_entries[None] __
+tests/test_cancellation_shutdown.py:37: in test_registry_close_cancels_active_requests_and_rejects_late_entries
+    registry.close()
+E   AttributeError: 'CancellationRegistry' object has no attribute 'close'
+_ test_registry_close_cancels_active_requests_and_rejects_late_entries[late-named] _
+tests/test_cancellation_shutdown.py:37: in test_registry_close_cancels_active_requests_and_rejects_late_entries
+    registry.close()
+E   AttributeError: 'CancellationRegistry' object has no attribute 'close'
+_ test_backend_shutdown_rejects_registration_before_obtaining_backend_lock[None] _
+tests/test_cancellation_shutdown.py:94: in test_backend_shutdown_rejects_registration_before_obtaining_backend_lock
+    with pytest.raises(SearchCancelled):
+E   Failed: DID NOT RAISE <class 'semantic_search.cancellation.SearchCancelled'>
+_ test_backend_shutdown_rejects_registration_before_obtaining_backend_lock[late-refresh] _
+tests/test_cancellation_shutdown.py:94: in test_backend_shutdown_rejects_registration_before_obtaining_backend_lock
+    with pytest.raises(SearchCancelled):
+E   Failed: DID NOT RAISE <class 'semantic_search.cancellation.SearchCancelled'>
+___ test_final_refresh_snapshot_cancellation_prevents_query_embedding[None] ____
+tests/test_cancellation_shutdown.py:132: in test_final_refresh_snapshot_cancellation_prevents_query_embedding
+    assert embedder.query_calls == []
+E   AssertionError: assert ['alpha'] == []
+E     
+E     Left contains one more item: 'alpha'
+E     Use -v to get more diff
+_ test_final_refresh_snapshot_cancellation_prevents_query_embedding[refresh-boundary] _
+tests/test_cancellation_shutdown.py:132: in test_final_refresh_snapshot_cancellation_prevents_query_embedding
+    assert embedder.query_calls == []
+E   AssertionError: assert ['alpha'] == []
+E     
+E     Left contains one more item: 'alpha'
+E     Use -v to get more diff
+=========================== short test summary info ============================
+FAILED tests/test_cancellation_shutdown.py::test_registry_close_cancels_active_requests_and_rejects_late_entries[None]
+FAILED tests/test_cancellation_shutdown.py::test_registry_close_cancels_active_requests_and_rejects_late_entries[late-named]
+FAILED tests/test_cancellation_shutdown.py::test_backend_shutdown_rejects_registration_before_obtaining_backend_lock[None]
+FAILED tests/test_cancellation_shutdown.py::test_backend_shutdown_rejects_registration_before_obtaining_backend_lock[late-refresh]
+FAILED tests/test_cancellation_shutdown.py::test_final_refresh_snapshot_cancellation_prevents_query_embedding[None]
+FAILED tests/test_cancellation_shutdown.py::test_final_refresh_snapshot_cancellation_prevents_query_embedding[refresh-boundary]
+6 failed, 1 passed in 0.22s
