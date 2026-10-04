@@ -241,11 +241,23 @@ are complete and independently audited. Audit receipt/schema corrections are
 explicitly preserved and do not change their native outputs. The editor proves
 saved/dirty/off provider settings on a five-window fixture in an isolated
 Development Host; ordinary installed-profile activation remains separate.
-Current work is the independently source-reviewed Werkzeug holdout for the
-fixed 8/12/20-excerpt comparison, followed by ordinary profile/package checks.
-Queries, source identities and measurement rules are frozen before outcomes,
-and native studies run sequentially after owned cleanup. Preparation receipts
-alone are not completed runtime evidence.
+The [completed Werkzeug continuation](../results/context-holdout-werkzeug-v2-2026-10-14/findings.md)
+passes independent execution/source auditing but fails the primary twelve-excerpt
+quality gate: both eight and twelve complete 7/12 behaviors and 4/8 multi-file
+behaviors. Twelve covers 28/34 groups versus 27/34, with higher compact context
+use. The diagnostic twenty-excerpt condition completes 8/12 and cannot rescue
+the primary. An original overlong-ID prefix and two audit-envelope failures are
+retained; the unchanged technical continuation and narrowly qualified audit
+correction are explicit. The default remains eight.
+
+The [offline beta kit](beta-evaluation.md) is implemented and its collector smoke
+uses zero external testers. CI now prepares the exact pinned tokenizer cache
+before offline tests. A [reviewed shutdown/CLI fix](../results/production-fixes-2026-10-14/verification.json)
+cancels anonymous active requests, rejects resident policy misconfiguration and
+corrects token clipping guidance; six regressions and 116 related checks pass.
+Ordinary installed-profile/package checks are in progress, with failed socket
+path and shutdown attempts preserved. Preparation receipts alone are not
+completed runtime evidence.
 
 Use fresh development queries to improve evidence delivery and a new
 untouched holdout to assess those changes. The observed Zod misses are now

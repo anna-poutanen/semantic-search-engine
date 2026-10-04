@@ -179,8 +179,19 @@ reproduces all 159 original controls exactly and evaluates six packing settings
 without inference. Keeping dependencies and permitting 12 excerpts improves
 complete development evidence from **112/118 to 113/118** and already-observed
 HTTPX evidence from **8/12 to 10/12**, within the same 4,096-token cap. Median
-context size rises. These observed queries are development evidence; a fresh
-Werkzeug test is prepared before changing the eight-excerpt default.
+context size rises. The [completed Werkzeug continuation](results/context-holdout-werkzeug-v2-2026-10-14/findings.md)
+delivers **7/12** complete behaviors and **4/8** multi-file behaviors with either
+eight or twelve excerpts; twelve covers one additional supporting group but
+fails the frozen complete-improvement gate. Twenty is diagnostic. The default
+stays eight, and this repository is now observed development evidence.
+
+The [real Django persistence profile](results/django-index-profile-2026-10-14/findings.md)
+indexes **9,097** production windows in **395.93 seconds** and validates all nine
+edit/delete/rename/reopen stages. A fresh CPU reopen reuses every vector in
+**3.89 seconds**; that excludes model/service startup. Warm in-process dense and
+hybrid backend P95 is about **0.72 seconds**, without reranking or HTTP transport.
+The final SQLite database is **144.5 MB**. Larger scales and throughput remain
+unmeasured.
 
 The [isolated Qwen installer validation](results/qwen-installer-validation-2026-10-14/verification.json)
 created a new environment, verified all 34 pinned packages and checkpoint bytes,
