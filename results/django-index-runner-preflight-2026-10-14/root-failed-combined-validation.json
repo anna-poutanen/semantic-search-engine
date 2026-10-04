@@ -1,0 +1,32 @@
+{
+  "benchmark_source_changed": false,
+  "classification": "Root CPU rerun failure retained; native execution and final qualification pending investigation",
+  "command": [
+    ".venv/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/test_django_index_profile.py",
+    "tests/test_audit_django_index_profile.py"
+  ],
+  "failed_case": "test_owned_cpu_session_cleanup_does_not_touch_unrelated_process",
+  "failed_cases": 1,
+  "failure": "assert receipt[\"owned_group_stopped\"] and not receipt[\"forced_kill\"] and not receipt[\"errors\"]\nE assert (False)",
+  "focused_probe": "root-owned-stop-probe.json",
+  "hosted_calls": 0,
+  "model_calls": 0,
+  "passed": false,
+  "passed_cases": 119,
+  "receipt_limit": "The original failed assertion did not retain its cleanup receipt; a subsequent independently owned focused probe passed and is retained separately, so that success does not erase the initial failure.",
+  "recorded_at_utc": "2026-10-14T09:54:56.343363+00:00",
+  "reported_duration_s": 1.93,
+  "source_hashes_captured_after_failure": {
+    "scripts/audit_django_index_profile.py": "bf442a081c5bdef4de1ae09933c3f86e923c12874892fa2e1cabab78c88f3898",
+    "scripts/django_index_profile_core.py": "d20f2366f8cefb91a3aec7aac9a56522c5b557254e55eccadee24f7a9e320a23",
+    "scripts/run_django_index_profile.py": "4937dc450cbc29274491d7bbe4023fcc1af02755fa9ff1df2b9a06bedcfb586b",
+    "tests/test_audit_django_index_profile.py": "d3cc6cffc2b60217457f977eebb4841bb9f6f78b426657555044a151496f055e",
+    "tests/test_django_index_profile.py": "20ec0e37ad6b51a1c85d7a91a58005270b338c6b2bad66c7940976cae30ec785"
+  },
+  "test_observed_utc": "2026-10-14T09:52:35+00:00"
+}

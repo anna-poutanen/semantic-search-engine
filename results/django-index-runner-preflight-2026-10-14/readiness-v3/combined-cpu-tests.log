@@ -1,0 +1,419 @@
+F.......FFFF.......FFFF.FFF.F.F.....................FFF................. [ 60%]
+................................................                         [100%]
+=================================== FAILURES ===================================
+________ test_recording_preserves_actual_math_and_original_matrix_order ________
+
+tmp_path = PosixPath('/Users/annapoutanen/personal-projects/semantic-search-engine/.cache/django-index-cpu-readiness-v3/test_recording_preserves_actua0')
+snippets = []
+
+    def test_recording_preserves_actual_math_and_original_matrix_order(tmp_path, snippets):
+        instance, journal = recorded(tmp_path, list(reversed(snippets)))
+        texts = [core.document(snippet) for snippet in reversed(snippets)]
+        plain = FakeBase(batch_size=1)
+        expected = plain.embed_documents(texts)
+>       actual = instance.embed_documents(texts)
+
+tests/test_django_index_profile.py:103: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/django_index_profile_core.py:585: in embed_documents
+    return self._record("documents", texts, texts, lambda: super(Recorded, self).embed_documents(texts, cancel_check=cancel_check))
+scripts/django_index_profile_core.py:546: in _record
+    require(isinstance(texts, list) and texts and all(isinstance(text, str) and text.strip() for text in texts), "Nonempty literal embedding inputs required")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = [], message = 'Nonempty literal embedding inputs required'
+
+    def require(value, message):
+        if not value:
+>           raise ValueError(message)
+E           ValueError: Nonempty literal embedding inputs required
+
+scripts/django_index_profile_core.py:31: ValueError
+_ test_bad_native_outputs_preserve_started_attempt_without_false_completion[nan] _
+
+tmp_path = PosixPath('/Users/annapoutanen/personal-projects/semantic-search-engine/.cache/django-index-cpu-readiness-v3/test_bad_native_outputs_preser0')
+snippets = [], fault = 'nan'
+
+    @pytest.mark.parametrize("fault", ["nan", "zero", "shape", "dtype"])
+    def test_bad_native_outputs_preserve_started_attempt_without_false_completion(tmp_path, snippets, fault):
+        class Broken(FakeBase):
+            def _embed_batch(self, tokens):
+                result = super()._embed_batch(tokens)
+                if fault == "nan":
+                    result[0, 0] = np.nan
+                elif fault == "zero":
+                    result[:] = 0
+                elif fault == "shape":
+                    result = result[:, :2]
+                else:
+                    result = result.astype(np.float64)
+                return result
+        instance, journal = recorded(tmp_path, snippets, Broken)
+        with pytest.raises(ValueError, match="Native batch output invalid"):
+>           instance.embed_documents([core.document(snippets[0])])
+E           IndexError: list index out of range
+
+tests/test_django_index_profile.py:161: IndexError
+_ test_bad_native_outputs_preserve_started_attempt_without_false_completion[zero] _
+
+tmp_path = PosixPath('/Users/annapoutanen/personal-projects/semantic-search-engine/.cache/django-index-cpu-readiness-v3/test_bad_native_outputs_preser1')
+snippets = [], fault = 'zero'
+
+    @pytest.mark.parametrize("fault", ["nan", "zero", "shape", "dtype"])
+    def test_bad_native_outputs_preserve_started_attempt_without_false_completion(tmp_path, snippets, fault):
+        class Broken(FakeBase):
+            def _embed_batch(self, tokens):
+                result = super()._embed_batch(tokens)
+                if fault == "nan":
+                    result[0, 0] = np.nan
+                elif fault == "zero":
+                    result[:] = 0
+                elif fault == "shape":
+                    result = result[:, :2]
+                else:
+                    result = result.astype(np.float64)
+                return result
+        instance, journal = recorded(tmp_path, snippets, Broken)
+        with pytest.raises(ValueError, match="Native batch output invalid"):
+>           instance.embed_documents([core.document(snippets[0])])
+E           IndexError: list index out of range
+
+tests/test_django_index_profile.py:161: IndexError
+_ test_bad_native_outputs_preserve_started_attempt_without_false_completion[shape] _
+
+tmp_path = PosixPath('/Users/annapoutanen/personal-projects/semantic-search-engine/.cache/django-index-cpu-readiness-v3/test_bad_native_outputs_preser2')
+snippets = [], fault = 'shape'
+
+    @pytest.mark.parametrize("fault", ["nan", "zero", "shape", "dtype"])
+    def test_bad_native_outputs_preserve_started_attempt_without_false_completion(tmp_path, snippets, fault):
+        class Broken(FakeBase):
+            def _embed_batch(self, tokens):
+                result = super()._embed_batch(tokens)
+                if fault == "nan":
+                    result[0, 0] = np.nan
+                elif fault == "zero":
+                    result[:] = 0
+                elif fault == "shape":
+                    result = result[:, :2]
+                else:
+                    result = result.astype(np.float64)
+                return result
+        instance, journal = recorded(tmp_path, snippets, Broken)
+        with pytest.raises(ValueError, match="Native batch output invalid"):
+>           instance.embed_documents([core.document(snippets[0])])
+E           IndexError: list index out of range
+
+tests/test_django_index_profile.py:161: IndexError
+_ test_bad_native_outputs_preserve_started_attempt_without_false_completion[dtype] _
+
+tmp_path = PosixPath('/Users/annapoutanen/personal-projects/semantic-search-engine/.cache/django-index-cpu-readiness-v3/test_bad_native_outputs_preser3')
+snippets = [], fault = 'dtype'
+
+    @pytest.mark.parametrize("fault", ["nan", "zero", "shape", "dtype"])
+    def test_bad_native_outputs_preserve_started_attempt_without_false_completion(tmp_path, snippets, fault):
+        class Broken(FakeBase):
+            def _embed_batch(self, tokens):
+                result = super()._embed_batch(tokens)
+                if fault == "nan":
+                    result[0, 0] = np.nan
+                elif fault == "zero":
+                    result[:] = 0
+                elif fault == "shape":
+                    result = result[:, :2]
+                else:
+                    result = result.astype(np.float64)
+                return result
+        instance, journal = recorded(tmp_path, snippets, Broken)
+        with pytest.raises(ValueError, match="Native batch output invalid"):
+>           instance.embed_documents([core.document(snippets[0])])
+E           IndexError: list index out of range
+
+tests/test_django_index_profile.py:161: IndexError
+______ test_physical_database_checks_detect_stale_or_corrupt_content[fts] ______
+
+durable = (<semantic_search.store.SQLiteIndex object at 0x1047eeae0>, <test_django_index_profile.TinyEmbedder object at 0x1047efdd0>, array([], shape=(0, 3), dtype=float32))
+snippets = [], corruption = 'fts'
+
+    @pytest.mark.parametrize("corruption", ["fts", "active_vector", "cached_vector", "source", "extra_fts"])
+    def test_physical_database_checks_detect_stale_or_corrupt_content(durable, snippets, corruption):
+        index, embedder, _ = durable
+        assert core.inspect_database(index, snippets, embedder.vectors, embedder.metadata)["all_source_and_cached_and_active_vectors_exact"]
+        with sqlite3.connect(index.db_path) as connection:
+            if corruption == "fts":
+>               connection.execute("UPDATE snippets_fts SET terms='wrong' WHERE id=?", (snippets[0].id,))
+E               IndexError: list index out of range
+
+tests/test_django_index_profile.py:238: IndexError
+_ test_physical_database_checks_detect_stale_or_corrupt_content[active_vector] _
+
+durable = (<semantic_search.store.SQLiteIndex object at 0x10486b260>, <test_django_index_profile.TinyEmbedder object at 0x10486a1b0>, array([], shape=(0, 3), dtype=float32))
+snippets = [], corruption = 'active_vector'
+
+    @pytest.mark.parametrize("corruption", ["fts", "active_vector", "cached_vector", "source", "extra_fts"])
+    def test_physical_database_checks_detect_stale_or_corrupt_content(durable, snippets, corruption):
+        index, embedder, _ = durable
+        assert core.inspect_database(index, snippets, embedder.vectors, embedder.metadata)["all_source_and_cached_and_active_vectors_exact"]
+        with sqlite3.connect(index.db_path) as connection:
+            if corruption == "fts":
+                connection.execute("UPDATE snippets_fts SET terms='wrong' WHERE id=?", (snippets[0].id,))
+            elif corruption == "active_vector":
+>               connection.execute("UPDATE active_vectors SET vector=? WHERE snippet_id=?", (np.array([1., 0., 0.], dtype='<f4').tobytes(), snippets[0].id))
+E               IndexError: list index out of range
+
+tests/test_django_index_profile.py:240: IndexError
+_ test_physical_database_checks_detect_stale_or_corrupt_content[cached_vector] _
+
+durable = (<semantic_search.store.SQLiteIndex object at 0x104868bc0>, <test_django_index_profile.TinyEmbedder object at 0x104869760>, array([], shape=(0, 3), dtype=float32))
+snippets = [], corruption = 'cached_vector'
+
+    @pytest.mark.parametrize("corruption", ["fts", "active_vector", "cached_vector", "source", "extra_fts"])
+    def test_physical_database_checks_detect_stale_or_corrupt_content(durable, snippets, corruption):
+        index, embedder, _ = durable
+        assert core.inspect_database(index, snippets, embedder.vectors, embedder.metadata)["all_source_and_cached_and_active_vectors_exact"]
+        with sqlite3.connect(index.db_path) as connection:
+            if corruption == "fts":
+                connection.execute("UPDATE snippets_fts SET terms='wrong' WHERE id=?", (snippets[0].id,))
+            elif corruption == "active_vector":
+                connection.execute("UPDATE active_vectors SET vector=? WHERE snippet_id=?", (np.array([1., 0., 0.], dtype='<f4').tobytes(), snippets[0].id))
+            elif corruption == "cached_vector":
+                connection.execute("UPDATE embeddings SET vector=?", (np.array([1., 0., 0.], dtype='<f8').tobytes(),))
+            elif corruption == "source":
+                connection.execute("UPDATE snippets SET text='forged source' WHERE id=?", (snippets[0].id,))
+            else:
+                connection.execute("INSERT INTO snippets_fts VALUES ('stale-id','stale')")
+>       with pytest.raises(ValueError):
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/test_django_index_profile.py:247: Failed
+____ test_physical_database_checks_detect_stale_or_corrupt_content[source] _____
+
+durable = (<semantic_search.store.SQLiteIndex object at 0x10486b770>, <test_django_index_profile.TinyEmbedder object at 0x10486b590>, array([], shape=(0, 3), dtype=float32))
+snippets = [], corruption = 'source'
+
+    @pytest.mark.parametrize("corruption", ["fts", "active_vector", "cached_vector", "source", "extra_fts"])
+    def test_physical_database_checks_detect_stale_or_corrupt_content(durable, snippets, corruption):
+        index, embedder, _ = durable
+        assert core.inspect_database(index, snippets, embedder.vectors, embedder.metadata)["all_source_and_cached_and_active_vectors_exact"]
+        with sqlite3.connect(index.db_path) as connection:
+            if corruption == "fts":
+                connection.execute("UPDATE snippets_fts SET terms='wrong' WHERE id=?", (snippets[0].id,))
+            elif corruption == "active_vector":
+                connection.execute("UPDATE active_vectors SET vector=? WHERE snippet_id=?", (np.array([1., 0., 0.], dtype='<f4').tobytes(), snippets[0].id))
+            elif corruption == "cached_vector":
+                connection.execute("UPDATE embeddings SET vector=?", (np.array([1., 0., 0.], dtype='<f8').tobytes(),))
+            elif corruption == "source":
+>               connection.execute("UPDATE snippets SET text='forged source' WHERE id=?", (snippets[0].id,))
+E               IndexError: list index out of range
+
+tests/test_django_index_profile.py:244: IndexError
+_ test_incremental_edit_delete_restore_and_path_rename_reembed_only_missing_documents _
+
+tmp_path = PosixPath('/Users/annapoutanen/personal-projects/semantic-search-engine/.cache/django-index-cpu-readiness-v3/test_incremental_edit_delete_r0')
+snippets = []
+durable = (<semantic_search.store.SQLiteIndex object at 0x1048737a0>, <test_django_index_profile.TinyEmbedder object at 0x1048722a0>, array([], shape=(0, 3), dtype=float32))
+
+    def test_incremental_edit_delete_restore_and_path_rename_reembed_only_missing_documents(tmp_path, snippets, durable):
+        from semantic_search.corpus import extract_snippets
+        index, embedder, _ = durable
+        repo = tmp_path / "repo"
+        path = repo / "src/items.py"
+        original = path.read_text()
+        edited = original.replace("return 1", "return 1  # saved change", 1)
+        path.write_text(edited)
+        changed = extract_snippets(repo, "src", max_lines=160, overlap_lines=40)
+        _, stats = index.refresh(changed, embedder)
+>       assert (stats["indexed_windows"], stats["reused_windows"]) == (1, 1)
+E       assert (0, 0) == (1, 1)
+E         
+E         At index 0 diff: 0 != 1
+E         Use -v to get more diff
+
+tests/test_django_index_profile.py:261: AssertionError
+_ test_real_fresh_cpu_process_reuses_vectors_without_model_imports_or_inference _
+
+tmp_path = PosixPath('/Users/annapoutanen/personal-projects/semantic-search-engine/.cache/django-index-cpu-readiness-v3/test_real_fresh_cpu_process_re0')
+snippets = []
+durable = (<semantic_search.store.SQLiteIndex object at 0x1048716d0>, <test_django_index_profile.TinyEmbedder object at 0x104871af0>, array([], shape=(0, 3), dtype=float32))
+
+    def test_real_fresh_cpu_process_reuses_vectors_without_model_imports_or_inference(tmp_path, snippets, durable):
+        request, receipt = reopen_request(tmp_path, snippets, durable)
+        completed = child_reopen(request)
+        assert completed.returncode == 0, completed.stderr
+        result = core.read(receipt)
+        assert result["passed"] and result["fresh_process"] and result["parent_pid"] == os.getpid()
+        assert result["native_imports"] == result["blocked_import_attempts"] == []
+        assert result["document_inference_calls"] == result["query_inference_calls"] == 0
+>       assert result["stats"]["indexed_windows"] == 0 and result["stats"]["reused_windows"] == 2
+E       assert (0 == 0 and 0 == 2)
+
+tests/test_django_index_profile.py:309: AssertionError
+_ test_fresh_child_refuses_drift_and_wrong_ownership_before_inference[source] __
+
+tmp_path = PosixPath('/Users/annapoutanen/personal-projects/semantic-search-engine/.cache/django-index-cpu-readiness-v3/test_fresh_child_refuses_drift0')
+snippets = []
+durable = (<semantic_search.store.SQLiteIndex object at 0x104870dd0>, <test_django_index_profile.TinyEmbedder object at 0x104870560>, array([], shape=(0, 3), dtype=float32))
+fault = 'source'
+
+    @pytest.mark.parametrize("fault", ["source", "matrix", "fts", "owner"])
+    def test_fresh_child_refuses_drift_and_wrong_ownership_before_inference(tmp_path, snippets, durable, fault):
+        request, receipt = reopen_request(tmp_path, snippets, durable)
+        if fault == "source":
+            path = tmp_path / "repo/src/items.py"
+            path.write_text("GLOBAL = 123\n" + path.read_text())
+        elif fault == "matrix":
+            (tmp_path / "reference.npy").write_bytes(b"corrupt")
+        elif fault == "fts":
+            with sqlite3.connect(durable[0].db_path) as connection:
+                connection.execute("UPDATE snippets_fts SET terms='forged'")
+        completed = child_reopen(request, os.getpid() + 100000 if fault == "owner" else None)
+>       assert completed.returncode == 1
+E       AssertionError: assert 0 == 1
+E        +  where 0 = CompletedProcess(args=['/Users/annapoutanen/personal-projects/semantic-search-engine/.venv/bin/python', '-B', '/Users/...eadiness-v3/test_fresh_child_refuses_drift0/request.json', '--owner-pid', '81393'], returncode=0, stdout='', stderr='').returncode
+
+tests/test_django_index_profile.py:325: AssertionError
+___ test_fresh_child_refuses_drift_and_wrong_ownership_before_inference[fts] ___
+
+tmp_path = PosixPath('/Users/annapoutanen/personal-projects/semantic-search-engine/.cache/django-index-cpu-readiness-v3/test_fresh_child_refuses_drift2')
+snippets = []
+durable = (<semantic_search.store.SQLiteIndex object at 0x1048727b0>, <test_django_index_profile.TinyEmbedder object at 0x104872a20>, array([], shape=(0, 3), dtype=float32))
+fault = 'fts'
+
+    @pytest.mark.parametrize("fault", ["source", "matrix", "fts", "owner"])
+    def test_fresh_child_refuses_drift_and_wrong_ownership_before_inference(tmp_path, snippets, durable, fault):
+        request, receipt = reopen_request(tmp_path, snippets, durable)
+        if fault == "source":
+            path = tmp_path / "repo/src/items.py"
+            path.write_text("GLOBAL = 123\n" + path.read_text())
+        elif fault == "matrix":
+            (tmp_path / "reference.npy").write_bytes(b"corrupt")
+        elif fault == "fts":
+            with sqlite3.connect(durable[0].db_path) as connection:
+                connection.execute("UPDATE snippets_fts SET terms='forged'")
+        completed = child_reopen(request, os.getpid() + 100000 if fault == "owner" else None)
+>       assert completed.returncode == 1
+E       AssertionError: assert 0 == 1
+E        +  where 0 = CompletedProcess(args=['/Users/annapoutanen/personal-projects/semantic-search-engine/.venv/bin/python', '-B', '/Users/...eadiness-v3/test_fresh_child_refuses_drift2/request.json', '--owner-pid', '81393'], returncode=0, stdout='', stderr='').returncode
+
+tests/test_django_index_profile.py:325: AssertionError
+____ test_independent_numeric_check_detects_changed_sqlite_rank_and_scores _____
+
+tmp_path = PosixPath('/Users/annapoutanen/personal-projects/semantic-search-engine/.cache/django-index-cpu-readiness-v3/test_independent_numeric_check0')
+snippets = []
+
+    def test_independent_numeric_check_detects_changed_sqlite_rank_and_scores(tmp_path, snippets):
+        from semantic_search.store import SQLiteIndex
+        class Orthogonal:
+            metadata = {"id": "orthogonal", "dimensions": 3}
+            def embed_documents(self, texts):
+                return np.array([[1., 0., 0.], [0., 1., 0.]], dtype=np.float32)
+        index = SQLiteIndex(tmp_path / "numeric.sqlite3")
+        matrix, _ = index.refresh(snippets, Orthogonal())
+        query = np.array([1., .1, 0.], dtype=np.float32)
+        result = core.verify_numeric(index, snippets, matrix.astype(np.float32), [query], top_k=1)
+>       assert result["checks_passed"]
+E       assert False
+
+tests/test_django_index_profile.py:341: AssertionError
+__ test_work_reservation_failure_retains_claimed_failed_attempt_without_spawn __
+
+tmp_path = PosixPath('/Users/annapoutanen/personal-projects/semantic-search-engine/.cache/django-index-cpu-readiness-v3/test_work_reservation_failure_0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x1048704a0>
+
+    def test_work_reservation_failure_retains_claimed_failed_attempt_without_spawn(tmp_path, monkeypatch):
+        output, work = fake_parent_plan(tmp_path, monkeypatch)
+        original = Path.mkdir
+        def refuse(self, *args, **kwargs):
+            if self == work:
+                raise OSError("planned CPU work-reservation failure")
+            return original(self, *args, **kwargs)
+        monkeypatch.setattr(Path, "mkdir", refuse)
+        monkeypatch.setattr(runner.subprocess, "Popen", lambda *args, **kwargs: pytest.fail("Reservation failure must never spawn"))
+>       assert runner.run(output) == 1
+
+tests/test_django_index_profile.py:546: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/run_django_index_profile.py:684: in run
+    core.require(core.artifact(output) == plan["output"], "Frozen output path differs")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = False, message = 'Frozen output path differs'
+
+    def require(value, message):
+        if not value:
+>           raise ValueError(message)
+E           ValueError: Frozen output path differs
+
+scripts/django_index_profile_core.py:31: ValueError
+___ test_native_spawn_failure_preserves_attempt_and_owned_work_without_retry ___
+
+tmp_path = PosixPath('/Users/annapoutanen/personal-projects/semantic-search-engine/.cache/django-index-cpu-readiness-v3/test_native_spawn_failure_pres0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x104869940>
+
+    def test_native_spawn_failure_preserves_attempt_and_owned_work_without_retry(tmp_path, monkeypatch):
+        output, work = fake_parent_plan(tmp_path, monkeypatch)
+        def broken(*args, **kwargs):
+            raise OSError("planned CPU spawn failure")
+        monkeypatch.setattr(runner.subprocess, "Popen", broken)
+>       assert runner.run(output) == 1
+
+tests/test_django_index_profile.py:561: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/run_django_index_profile.py:684: in run
+    core.require(core.artifact(output) == plan["output"], "Frozen output path differs")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = False, message = 'Frozen output path differs'
+
+    def require(value, message):
+        if not value:
+>           raise ValueError(message)
+E           ValueError: Frozen output path differs
+
+scripts/django_index_profile_core.py:31: ValueError
+_______ test_truncated_worker_publication_cannot_be_qualified_as_success _______
+
+tmp_path = PosixPath('/Users/annapoutanen/personal-projects/semantic-search-engine/.cache/django-index-cpu-readiness-v3/test_truncated_worker_publicat0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10486ab40>
+
+    def test_truncated_worker_publication_cannot_be_qualified_as_success(tmp_path, monkeypatch):
+        output, work = fake_parent_plan(tmp_path, monkeypatch)
+        original = subprocess.Popen
+        def cpu_only_worker(command, **kwargs):
+            code = "from pathlib import Path; Path(" + repr(str(output / "worker-result.json")) + ").write_text('{truncated')"
+            return original([sys.executable, "-B", "-c", code], **kwargs)
+        monkeypatch.setattr(runner.subprocess, "Popen", cpu_only_worker)
+>       assert runner.run(output) == 1
+
+tests/test_django_index_profile.py:576: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/run_django_index_profile.py:684: in run
+    core.require(core.artifact(output) == plan["output"], "Frozen output path differs")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = False, message = 'Frozen output path differs'
+
+    def require(value, message):
+        if not value:
+>           raise ValueError(message)
+E           ValueError: Frozen output path differs
+
+scripts/django_index_profile_core.py:31: ValueError
+=========================== short test summary info ============================
+FAILED tests/test_django_index_profile.py::test_recording_preserves_actual_math_and_original_matrix_order
+FAILED tests/test_django_index_profile.py::test_bad_native_outputs_preserve_started_attempt_without_false_completion[nan]
+FAILED tests/test_django_index_profile.py::test_bad_native_outputs_preserve_started_attempt_without_false_completion[zero]
+FAILED tests/test_django_index_profile.py::test_bad_native_outputs_preserve_started_attempt_without_false_completion[shape]
+FAILED tests/test_django_index_profile.py::test_bad_native_outputs_preserve_started_attempt_without_false_completion[dtype]
+FAILED tests/test_django_index_profile.py::test_physical_database_checks_detect_stale_or_corrupt_content[fts]
+FAILED tests/test_django_index_profile.py::test_physical_database_checks_detect_stale_or_corrupt_content[active_vector]
+FAILED tests/test_django_index_profile.py::test_physical_database_checks_detect_stale_or_corrupt_content[cached_vector]
+FAILED tests/test_django_index_profile.py::test_physical_database_checks_detect_stale_or_corrupt_content[source]
+FAILED tests/test_django_index_profile.py::test_incremental_edit_delete_restore_and_path_rename_reembed_only_missing_documents
+FAILED tests/test_django_index_profile.py::test_real_fresh_cpu_process_reuses_vectors_without_model_imports_or_inference
+FAILED tests/test_django_index_profile.py::test_fresh_child_refuses_drift_and_wrong_ownership_before_inference[source]
+FAILED tests/test_django_index_profile.py::test_fresh_child_refuses_drift_and_wrong_ownership_before_inference[fts]
+FAILED tests/test_django_index_profile.py::test_independent_numeric_check_detects_changed_sqlite_rank_and_scores
+FAILED tests/test_django_index_profile.py::test_work_reservation_failure_retains_claimed_failed_attempt_without_spawn
+FAILED tests/test_django_index_profile.py::test_native_spawn_failure_preserves_attempt_and_owned_work_without_retry
+FAILED tests/test_django_index_profile.py::test_truncated_worker_publication_cannot_be_qualified_as_success
+17 failed, 103 passed in 1.61s
