@@ -106,9 +106,13 @@ The provider change has TypeScript and CPU loopback HTTP coverage for defaults,
 legacy H2O requests, saved/dirty Qwen requests, response identity, malformed
 scores and service errors. Those fixtures perform no inference. Earlier actual
 Development Host checks validated Qwen embeddings and source workflows without
-Qwen reranking. A normal editor/native Qwen reranker check and updated VSIX
-packaging remain separate gates; see the
-[prospective validation receipt](../results/vscode-qwen-preflight-2026-10-14/plan.json).
+Qwen reranking. The [actual optional-Qwen host check](../results/vscode-qwen-native-2026-10-14/findings.md)
+now passes saved, dirty and reranking-off cases with normal fixture folder
+settings. Its independent audit reconciles ten measured singleton forwards plus
+one startup warmup, exact source/token evidence and clean owned shutdown. The
+five-window fixture establishes integration; ordinary installed-profile
+activation, updated VSIX packaging and broader retrieval quality remain
+separate gates.
 
 For a later actual Development Host check, use a fresh mixed-language fixture
 and an externally started Qwen-enabled service, then run the extension's
@@ -121,7 +125,7 @@ npm run host:smoke -- --run --qwen-reranker \
   --output /absolute/new-qwen-host-receipt.json
 ```
 
-This prospective case changes normal fixture folder settings, searches saved
+This explicit case changes normal fixture folder settings, searches saved
 source and one unsaved TypeScript buffer with Qwen, checks fast retrieval after
 reranking is disabled, then restores the settings and discards the unsaved
 buffer. Independent HTTP receipts must confirm the selected provider and request
