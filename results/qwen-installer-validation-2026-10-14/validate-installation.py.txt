@@ -1,0 +1,140 @@
+"""Explicit isolated installation check; run only after the final18 audit passes."""
+from pathlib import Path
+import datetime
+import hashlib
+import importlib.metadata
+import json
+import os
+import subprocess
+import sys
+import time
+
+ROOT = Path(__file__).resolve().parents[2]
+OUT = Path(__file__).resolve().parent
+sys.path.insert(0, str(ROOT / "scripts"))
+from run_django_index_profile import coding_completion, coding_guard
+from django_index_profile_core import Signals
+from qwen_workflow_process import stop_owned
+
+GUARD = None
+
+
+def sha(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def publish(value):
+    return value.replace(str(ROOT), "<PROJECT>").replace(str(Path.home()), "<HOME>")
+
+
+def save(name, value):
+    text = json.dumps(value, indent=2, sort_keys=True, allow_nan=False) + "\n"
+    with (OUT / name).open("x") as stream:
+        stream.write(publish(text))
+
+
+def utc():
+    return datetime.datetime.now(datetime.timezone.utc).isoformat()
+
+
+def run_command(name, argv, timeout=900):
+    start = time.monotonic()
+    child = None
+    timed_out, interrupted = False, None
+    try:
+        with GUARD.defer():
+            child = subprocess.Popen(argv, cwd=ROOT, stdout=subprocess.PIPE,
+                                     stderr=subprocess.PIPE, text=True, start_new_session=True)
+            owned = {"pid": child.pid, "parent_pid": os.getpid(),
+                     "process_group": os.getpgid(child.pid), "argv": argv}
+            assert owned["process_group"] == child.pid
+            save(name + "-start.json", {"started_utc": utc(), "owned": owned})
+        stdout, stderr = child.communicate(timeout=timeout)
+    except subprocess.TimeoutExpired:
+        timed_out = True
+    except BaseException as error:
+        interrupted = error
+    finally:
+        if child is not None:
+            with GUARD.defer(raise_pending=False):
+                cleanup = stop_owned(child)
+                stdout, stderr = child.communicate(timeout=10)
+                for suffix, value in (("stdout.txt", stdout), ("stderr.txt", stderr)):
+                    with (OUT / (name + "." + suffix)).open("x") as stream:
+                        stream.write(publish(value))
+                result = {"finished_utc": utc(), "elapsed_s": time.monotonic() - start,
+                          "exit_code": child.returncode, "timeout": timed_out, "cleanup": cleanup,
+                          "interrupted": None if interrupted is None else type(interrupted).__name__,
+                          "stdout_sha256": sha(OUT / (name + ".stdout.txt")),
+                          "stderr_sha256": sha(OUT / (name + ".stderr.txt"))}
+                save(name + "-command.json", result)
+    if interrupted is not None:
+        raise interrupted
+    assert child.returncode == 0 and not timed_out and cleanup["owned_group_stopped"]
+    assert not cleanup["forced_kill"] and not cleanup["errors"]
+    return json.loads(stdout)
+
+
+def package_versions():
+    return dict(sorted((d.metadata["Name"], d.version)
+                       for d in importlib.metadata.distributions()))
+
+
+def witness(path):
+    stat = path.stat()
+    return {"bytes": stat.st_size, "device": stat.st_dev, "inode": stat.st_ino,
+            "mtime_ns": stat.st_mtime_ns}
+
+
+def main():
+    assert sys.argv[1:] == ["--run"], "Use explicit --run after the final18 audit"
+    coding = coding_completion(ROOT / "results/qwen-coding-audit-final-2026-10-14/independent-audit.json")
+    coding_exit = coding_guard()
+    plan = json.loads((OUT / "frozen-plan.json").read_text())
+    sources_before = {name: sha(ROOT / name) for name in plan["source_sha256"]}
+    assert sources_before == plan["source_sha256"]
+    destinations = {name: ROOT / path for name, path in plan["destinations"].items()}
+    assert all(not path.exists() and not path.is_symlink() for path in destinations.values())
+    packages_before = package_versions()
+    original_checkpoint = ROOT / ".cache/models/qwen3-reranker-0.6b-original"
+    witness_before = {name: witness(original_checkpoint / name) for name in
+                      ("config.json", "tokenizer_config.json", "tokenizer.json", "model.safetensors")}
+    save("validation-start.json", {"started_utc": utc(), "coding": coding,
+        "coding_driver_exit": coding_exit, "frozen_plan_sha256": sha(OUT / "frozen-plan.json"),
+        "validation_source_sha256": sha(Path(__file__)), "source_sha256": sources_before,
+        "main_packages": packages_before, "original_checkpoint_witness": witness_before,
+        "destinations_absent": True, "model_calls": 0,
+        "classification": "Fresh isolated destinations on existing Mac with available caches; not a clean-machine benchmark"})
+    base = [str(ROOT / ".venv/bin/python"), "-B", "scripts/setup_qwen_reranker.py"]
+    original_before = run_command("original-before", base + ["--dry-run"], 30)
+    assert original_before["ready"] and original_before["model_calls"] == 0
+    installation = run_command("install", [str(ROOT / item) if item == ".venv/bin/python" else item
+                                            for item in plan["commands"][0]])
+    verified = run_command("verify", [str(ROOT / item) if item == ".venv/bin/python" else item
+                                       for item in plan["commands"][1]], 60)
+    original_after = run_command("original-after", base + ["--dry-run"], 30)
+    packages_after = package_versions()
+    sources_after = {name: sha(ROOT / name) for name in sources_before}
+    witness_after = {name: witness(original_checkpoint / name) for name in witness_before}
+    checks = {"explicit_install_passed": installation.get("checks_passed") is True,
+              "new_runtime_verified": verified["ready"] and verified["runtime"]["status"] == "valid",
+              "all_checkpoint_hashes_verified": verified["checkpoint"]["weight_identity_verified"] is True,
+              "zero_model_calls": installation["model_calls"] == verified["model_calls"] == 0,
+              "main_packages_unchanged": packages_before == packages_after,
+              "bound_sources_unchanged": sources_before == sources_after,
+              "original_runtime_unchanged": original_before["runtime"] == original_after["runtime"],
+              "original_checkpoint_metadata_unchanged": original_before["checkpoint"] == original_after["checkpoint"],
+              "original_checkpoint_physical_witness_unchanged": witness_before == witness_after}
+    save("verification.json", {"checks_passed": all(checks.values()), "checks": checks,
+        "finished_utc": utc(), "source_sha256_after": sources_after, "main_packages_after": packages_after,
+        "original_checkpoint_witness_after": witness_after,
+        "limits": ["Existing caches may affect setup time; package and Python archives are version-pinned rather than fully archive-hash locked.",
+                   "No inference or retrieval/coding outcome is measured by installation. Original weight byte identity is supplied by the completed worker audit plus unchanged physical witnesses, not an independent old-weight reread.",
+                   "New native parity and HTTP/MCP checks remain separate subsequent gates."]})
+    assert all(checks.values())
+    print(json.dumps({"checks_passed": True, "model_calls": 0, "output": str(OUT.relative_to(ROOT))}))
+
+
+if __name__ == "__main__":
+    with Signals() as GUARD:
+        main()
