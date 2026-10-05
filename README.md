@@ -14,8 +14,9 @@ MCP adapter use the same backend. See
 [the project plan](docs/project-plan.md), [the service API](docs/backend-api.md),
 and [MCP setup](docs/mcp.md).
 
-The [GitHub preview release](https://github.com/anna-poutanen/semantic-search-engine/releases/tag/v0.1.0-preview.1)
-includes the verified VS Code package. See [the preview guide](docs/release-preview.md)
+The [GitHub preview release](https://github.com/anna-poutanen/semantic-search-engine/releases/tag/v0.1.0-preview.2)
+includes the exact package tested in ordinary installed profiles and Restricted
+Mode. See [the preview guide](docs/release-preview.md)
 for installation, demonstrations and measured limits.
 
 For a small reproducible walkthrough, see [the demo guide](docs/demo.md).
