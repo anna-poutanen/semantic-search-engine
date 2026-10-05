@@ -36,7 +36,13 @@ This follows the agreed plan in **Choose a project for YC roles** on October 12,
    indexes 107 Zod production files into 1,802 windows in 108.23 seconds;
    reopening takes 2.06 seconds and reuses every document vector without inference.
    Actual VS Code saved-edit, watcher-before-query, rename, deletion and invalid
-   source checks also pass. Larger repositories remain unmeasured.
+   source checks also pass. The [real Django profile](../results/django-index-profile-2026-10-14/findings.md)
+   now validates 9,097 windows: initial refresh takes 395.93 seconds, all nine
+   edit/delete/rename/reopen stages pass, and warm dense/hybrid backend P95 is
+   about 0.72 seconds. Its 3.89-second fresh CPU reopen covers durable indexing
+   and source extraction, rather than model/service startup. Final database
+   size is 144.5 MB after worker exit; larger scales and concurrent throughput
+   remain unmeasured.
 5. **MCP (adapter and repeated multi-file study complete):** one stdio
    `search_code` tool uses the resident service with strict schemas, cancellation,
    eight-result context, and a default 4,096-token compact `cl100k_base` JSON cap.
@@ -229,12 +235,17 @@ dependencies is selected as the primary fresh test before Werkzeug outcomes;
 twenty is diagnostic and cannot rescue a failed primary gate. The default stays
 eight until the fresh test and its independent review are complete.
 
-Current work is the real 9,097-window Django indexing profile, a native Qwen
-VS Code settings check in an isolated Development Host, and a source-authored
-Werkzeug holdout for the fixed 8/12/20-excerpt comparison. Queries, source
-identities, runtime gates and measurement rules are frozen before outcomes.
-The Django run is active; editor and holdout inference run sequentially after
-owned cleanup. Their preparation receipts are not completed runtime evidence.
+The [real 9,097-window Django profile](../results/django-index-profile-2026-10-14/findings.md)
+and [native Qwen editor check](../results/vscode-qwen-native-2026-10-14/findings.md)
+are complete and independently audited. Audit receipt/schema corrections are
+explicitly preserved and do not change their native outputs. The editor proves
+saved/dirty/off provider settings on a five-window fixture in an isolated
+Development Host; ordinary installed-profile activation remains separate.
+Current work is the independently source-reviewed Werkzeug holdout for the
+fixed 8/12/20-excerpt comparison, followed by ordinary profile/package checks.
+Queries, source identities and measurement rules are frozen before outcomes,
+and native studies run sequentially after owned cleanup. Preparation receipts
+alone are not completed runtime evidence.
 
 Use fresh development queries to improve evidence delivery and a new
 untouched holdout to assess those changes. The observed Zod misses are now
