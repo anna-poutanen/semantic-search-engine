@@ -1,0 +1,25 @@
+{
+  "applies_equally_to": [
+    "07-r1-starlette_body_limits-mcp_qwen",
+    "08-r1-starlette_body_limits-baseline",
+    "09-r1-starlette_body_limits-mcp_fast",
+    "16-r2-starlette_body_limits-mcp_fast",
+    "17-r2-starlette_body_limits-baseline",
+    "18-r2-starlette_body_limits-mcp_qwen",
+    "original-reference"
+  ],
+  "case_ids": [
+    "empty_chunk_replay_then_disconnect_delegation",
+    "partial_disconnect_preserved_by_body_consumption"
+  ],
+  "classification": "Post-output diagnostic amendment; frozen original nine-case probes and formal grades remain unchanged",
+  "diagnostic_sha256": "b8fb0cd49c0cc9faec403ff364092450dcee215d4756d88e0a59594ebf1d8132",
+  "frozen_at": "2026-10-14T10:35:21.786070+00:00",
+  "model_calls": 0,
+  "network_calls": 0,
+  "original_probe_sha256": "1b6f0b524c64e9cc3eb6f3b676c34bf0311556caca60cced07d7c873516ae0f3",
+  "reason": "Trial18 preserved original request chunk messages and replayed partial disconnect to downstream body consumption. Two frozen supplemental probes assumed unrequested message coalescing or immediate middleware ClientDisconnect regardless of whether the downstream app consumes the body. Diagnostics observe chunk-neutral replay and required body-read ClientDisconnect preservation; original failed probes are not dropped or relabeled.",
+  "task_manifest_sha256": "607f7491f5f0dd265591513ebccbe23e0a1685612b7cc25a00dd7c4846351f84",
+  "terminal18_result_sha256": "f674a7a25aac84a2788231220ee75dc0c868ec1d2f044c9a78410e99fed17450",
+  "version": 1
+}
