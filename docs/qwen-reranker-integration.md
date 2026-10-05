@@ -2,14 +2,13 @@
 
 This integration is opt-in. Dense retrieval without reranking remains the default. Legacy `rerank=true` selects H2O unless `rerank_provider=qwen` is explicit. Qwen uses only the original BF16 checkpoint and sequential unpadded B1 forwards; batches 2/4/8 failed the frozen precision gate and are unavailable.
 
-Create a separate Python 3.12 environment for the exact dependency closure in `requirements-qwen-reranker.lock`. Do not add MLX-LM to the main embedding environment. The already validated local runtime is `.cache/reranker-experiment/.venv/bin/python`. The already downloaded checkpoint is `.cache/models/qwen3-reranker-0.6b-original`. These ignored paths are local prerequisites, not files shipped in this repository.
+Use the [optional installer](qwen-reranker-setup.md) to create a separate Python 3.12.15 environment for the exact dependency closure in `requirements-qwen-reranker.lock`. The main embedding environment stays separate. The default runtime is `.cache/reranker-experiment/.venv/bin/python`, and the checkpoint is `.cache/models/qwen3-reranker-0.6b-original`. These ignored paths are local prerequisites, not files shipped in this repository.
 
 For a fresh installation, dependency installation and checkpoint download are explicit setup operations:
 
 ```sh
-python3.12 -m venv .cache/reranker-experiment/.venv
-.cache/bootstrap/bin/uv pip install --python .cache/reranker-experiment/.venv/bin/python -r requirements-qwen-reranker.lock
-.cache/reranker-experiment/.venv/bin/hf download Qwen/Qwen3-Reranker-0.6B --revision e61197ed45024b0ed8a2d74b80b4d909f1255473 --local-dir .cache/models/qwen3-reranker-0.6b-original
+python3 scripts/setup_qwen_reranker.py --install
+python3 scripts/setup_qwen_reranker.py --verify-weights
 ```
 
 These setup commands access package/model hosts; searches and worker startup never install packages, download a model, execute Hub code, or call hosted inference. The worker checks pinned config/tokenizer hashes, the full 1,191,588,280-byte weight hash before import, package versions, native Qwen3/base/RoPE source origins and bytes, and checkpoint file witnesses around scoring. Witnesses detect changes; they are not an adversarial filesystem lock.
