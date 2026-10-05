@@ -531,3 +531,99 @@ def test_native_receipt_corruptions_cannot_create_a_false_success(tmp_path, monk
         Path(operations[0]["matrix_file"]).write_bytes(b"overwritten")
     with pytest.raises(ValueError):
         audit.verify_operations(*arguments)
+
+
+def physical_distribution(path, name="example-package", version="1.0", metadata_file="METADATA", direct_url=None):
+    path.mkdir(parents=True)
+    (path / metadata_file).write_text(f"Metadata-Version: 2.4\nName: {name}\nVersion: {version}\n\n")
+    if metadata_file == "METADATA":
+        (path / "RECORD").write_bytes(b"literal,physical,record\n")
+    if direct_url is not None:
+        (path / "direct_url.json").write_text(json.dumps(direct_url))
+    return SimpleNamespace(_path=path, metadata={"Name": name}, version=version)
+
+
+def test_dist_and_egg_metadata_instances_remain_separate_under_one_logical_distribution(tmp_path):
+    installed = physical_distribution(tmp_path / "installed/example.dist-info")
+    source = physical_distribution(tmp_path / "source/example.egg-info", metadata_file="PKG-INFO")
+    inventory = audit.package_inventory([source, installed], root=tmp_path)
+    assert inventory["logical_distribution_count"] == 1
+    assert inventory["physical_metadata_instance_count"] == 2
+    instances = inventory["distributions"]["example-package"]["instances"]
+    assert [row["metadata_origin"] for row in instances] == ["installed/example.dist-info", "source/example.egg-info"]
+    assert instances[0]["record_sha256"] == audit.sha(b"literal,physical,record\n")
+    assert instances[1]["record_sha256"] is None
+    assert instances[0]["metadata_sha256"] == audit.file_sha(installed._path / "METADATA")
+
+
+def test_repeated_discovery_of_one_resolved_directory_deduplicates_only_identical_records(tmp_path):
+    first = physical_distribution(tmp_path / "physical.dist-info")
+    alias = tmp_path / "metadata-alias"
+    alias.symlink_to(first._path, target_is_directory=True)
+    same = SimpleNamespace(_path=alias, metadata=first.metadata, version=first.version)
+    inventory = audit.package_inventory([first, same], root=tmp_path)
+    assert inventory["physical_metadata_instance_count"] == 1
+    def mutated():
+        yield first
+        (first._path / "RECORD").write_bytes(b"changed record")
+        yield same
+    with pytest.raises(ValueError, match="repeated physical"):
+        audit.package_inventory(mutated(), root=tmp_path)
+
+
+@pytest.mark.parametrize("name,version,match", [("example-package", "2.0", "versions"),
+                                              ("Example_Package", "1.0", "canonical")])
+def test_metadata_version_conflicts_and_ambiguous_canonical_spellings_fail(tmp_path, name, version, match):
+    first = physical_distribution(tmp_path / "first.dist-info")
+    second = physical_distribution(tmp_path / "second.dist-info", name, version)
+    with pytest.raises(ValueError, match=match):
+        audit.package_inventory([first, second], root=tmp_path)
+
+
+@pytest.mark.parametrize("damage", ["ambiguous", "unsupported", "forged_name", "forged_version"])
+def test_physical_metadata_names_and_origins_are_independently_checked(tmp_path, damage):
+    distribution = physical_distribution(tmp_path / "example.dist-info")
+    if damage == "ambiguous":
+        (distribution._path / "PKG-INFO").write_text("another metadata file")
+    elif damage == "unsupported":
+        distribution._path = "not a physical pathlib origin"
+    elif damage == "forged_name":
+        distribution.metadata["Name"] = "forged-package"
+    else:
+        distribution.version = "9.0"
+    with pytest.raises(ValueError):
+        audit.package_inventory([distribution], root=tmp_path)
+
+
+def test_known_editable_project_retains_exact_origin_url_metadata_and_record_hashes(tmp_path):
+    direct = {"url": tmp_path.as_uri(), "dir_info": {"editable": True}}
+    installed = physical_distribution(tmp_path / ".venv/project.dist-info", "semantic-search-engine", "0.1.0", direct_url=direct)
+    source = physical_distribution(tmp_path / "src/semantic_search_engine.egg-info", "semantic-search-engine", "0.1.0", "PKG-INFO")
+    actual = audit.package_inventory([source, installed], root=tmp_path)
+    instances = actual["distributions"]["semantic-search-engine"]["instances"]
+    assert actual["logical_distribution_count"] == 1 and actual["physical_metadata_instance_count"] == 2
+    assert instances[0]["direct_url"] == direct
+    assert instances[0]["direct_url_sha256"] == audit.file_sha(installed._path / "direct_url.json")
+    assert instances[1]["metadata_file"] == "PKG-INFO"
+
+
+@pytest.mark.parametrize("damage", ["foreign_url", "relative_url", "remote_url", "hosted_file_url",
+                                    "foreign_egg", "missing_direct", "coerced_editable"])
+def test_foreign_or_ambiguous_editable_installation_cannot_pass(tmp_path, damage):
+    direct = {"url": tmp_path.as_uri(), "dir_info": {"editable": True}}
+    if damage == "foreign_url":
+        direct["url"] = (tmp_path / "other").as_uri()
+    elif damage == "relative_url":
+        direct["url"] = "file:"
+    elif damage == "remote_url":
+        direct["url"] = "https://example.com/project"
+    elif damage == "hosted_file_url":
+        direct["url"] = "file://localhost" + str(tmp_path)
+    elif damage == "coerced_editable":
+        direct["dir_info"]["editable"] = 1
+    installed = physical_distribution(tmp_path / ".venv/project.dist-info", "semantic-search-engine", "0.1.0",
+                                      direct_url=None if damage == "missing_direct" else direct)
+    source = physical_distribution(tmp_path / ("other.egg-info" if damage == "foreign_egg" else "src/semantic_search_engine.egg-info"),
+                                   "semantic-search-engine", "0.1.0", "PKG-INFO")
+    with pytest.raises(ValueError):
+        audit.package_inventory([installed, source], root=tmp_path)

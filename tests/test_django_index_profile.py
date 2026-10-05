@@ -629,3 +629,105 @@ def test_loader_helper_sources_and_actual_origins_are_bound_without_importing_mo
     assert origins["mlx_vlm.utils"] == {"path": str(helper), "sha256": sources[str(helper)]}
     # No loader helper code is executed: these synthetic modules expose only a
     # file identity, while the source binding is independently read and hashed.
+
+
+def metadata_distribution(origin, name="Example-Package", version="1.0", metadata_file="METADATA"):
+    from types import SimpleNamespace
+    origin.mkdir(parents=True, exist_ok=True)
+    (origin / metadata_file).write_text(f"Name: {name}\nVersion: {version}\n")
+    return SimpleNamespace(_path=origin, metadata={"Name": name}, version=version)
+
+
+def test_package_inventory_retains_distinct_same_version_metadata_and_byte_hashes(tmp_path, monkeypatch):
+    dist = metadata_distribution(tmp_path / "site/example.dist-info")
+    egg = metadata_distribution(tmp_path / "source/example.egg-info", metadata_file="PKG-INFO")
+    (dist._path / "RECORD").write_bytes(b"installed.py,sha256=example,12\r\n")
+    monkeypatch.setattr(core.importlib.metadata, "distributions", lambda: [egg, dist])
+    inventory = core.packages()
+    assert inventory["logical_distribution_count"] == 1 and inventory["physical_metadata_instance_count"] == 2
+    instances = inventory["distributions"]["example-package"]["instances"]
+    assert [row["metadata_origin"] for row in instances] == sorted([str(dist._path), str(egg._path)])
+    by_origin = {row["metadata_origin"]: row for row in instances}
+    assert by_origin[str(dist._path)]["record_sha256"] == core.digest(b"installed.py,sha256=example,12\r\n")
+    assert by_origin[str(egg._path)]["record_sha256"] is None
+    for row in instances:
+        assert row["metadata_sha256"] == core.sha(Path(row["metadata_origin"]) / row["metadata_file"])
+    monkeypatch.setattr(core.importlib.metadata, "distributions", lambda: [dist, egg])
+    assert core.packages() == inventory
+    (dist._path / "METADATA").write_bytes(b"Name: Example-Package\nVersion: 1.0\nChanged: true\n")
+    assert core.packages() != inventory
+
+
+def test_package_inventory_deduplicates_only_identical_physical_aliases(tmp_path, monkeypatch):
+    from types import SimpleNamespace
+    dist = metadata_distribution(tmp_path / "actual.dist-info")
+    alias = tmp_path / "alias.dist-info"
+    alias.symlink_to(dist._path, target_is_directory=True)
+    copy = SimpleNamespace(_path=alias, metadata=dist.metadata, version=dist.version)
+    monkeypatch.setattr(core.importlib.metadata, "distributions", lambda: [dist, copy])
+    inventory = core.packages()
+    assert inventory["physical_metadata_instance_count"] == 1
+    assert inventory["distributions"]["example-package"]["instances"][0]["metadata_origin"] == str(dist._path)
+
+
+@pytest.mark.parametrize("name,version,match", [
+    ("Example-Package", "2.0", "Conflicting installed distribution versions"),
+    ("example_package", "1.0", "Ambiguous canonical distribution name"),
+])
+def test_package_inventory_refuses_version_conflicts_and_canonical_ambiguity(tmp_path, monkeypatch, name, version, match):
+    first = metadata_distribution(tmp_path / "first.dist-info")
+    second = metadata_distribution(tmp_path / "second.dist-info", name=name, version=version)
+    monkeypatch.setattr(core.importlib.metadata, "distributions", lambda: [first, second])
+    with pytest.raises(ValueError, match=match):
+        core.packages()
+
+
+@pytest.mark.parametrize("damage", ["metadata", "unsupported-origin"])
+def test_package_inventory_refuses_ambiguous_or_unsupported_metadata(tmp_path, monkeypatch, damage):
+    dist = metadata_distribution(tmp_path / "example.dist-info")
+    if damage == "metadata":
+        (dist._path / "PKG-INFO").write_text("Name: Example-Package\nVersion: 1.0\n")
+    else:
+        dist._path = str(dist._path)
+    monkeypatch.setattr(core.importlib.metadata, "distributions", lambda: [dist])
+    with pytest.raises(ValueError, match="Ambiguous installed metadata|Unsupported installed metadata"):
+        core.packages()
+
+
+@pytest.mark.parametrize("wrong_origin", [False, True])
+def test_editable_project_metadata_retains_both_origins_and_refuses_wrong_url(tmp_path, monkeypatch, wrong_origin):
+    monkeypatch.setattr(core, "ROOT", tmp_path)
+    dist = metadata_distribution(tmp_path / ".venv/site/project.dist-info", "semantic-search-engine", "0.1.0")
+    egg = metadata_distribution(tmp_path / "src/semantic_search_engine.egg-info", "semantic-search-engine", "0.1.0", "PKG-INFO")
+    destination = tmp_path / "different-project" if wrong_origin else tmp_path
+    direct = {"url": destination.as_uri(), "dir_info": {"editable": True}}
+    (dist._path / "direct_url.json").write_text(json.dumps(direct))
+    monkeypatch.setattr(core.importlib.metadata, "distributions", lambda: [egg, dist])
+    if wrong_origin:
+        with pytest.raises(ValueError, match="Project editable origin differs"):
+            core.packages()
+    else:
+        inventory = core.packages()
+        assert inventory["physical_metadata_instance_count"] == 2
+        row = inventory["distributions"]["semantic-search-engine"]["instances"][0]
+        assert row["direct_url"] == direct and row["direct_url_sha256"] == core.sha(dist._path / "direct_url.json")
+
+
+@pytest.mark.parametrize("wrong_egg_origin", [False, True])
+def test_editable_project_metadata_refuses_missing_installation_provenance(tmp_path, monkeypatch, wrong_egg_origin):
+    monkeypatch.setattr(core, "ROOT", tmp_path)
+    origin = tmp_path / ("wrong.egg-info" if wrong_egg_origin else "src/semantic_search_engine.egg-info")
+    egg = metadata_distribution(origin, "semantic-search-engine", "0.1.0", "PKG-INFO")
+    monkeypatch.setattr(core.importlib.metadata, "distributions", lambda: [egg])
+    with pytest.raises(ValueError, match="Project egg-info origin|Project editable installation provenance"):
+        core.packages()
+
+
+@pytest.mark.parametrize("url", ["file:", "https://example.com/project", "file://localhost/project"])
+def test_editable_project_metadata_requires_absolute_local_file_url(tmp_path, monkeypatch, url):
+    monkeypatch.setattr(core, "ROOT", tmp_path)
+    dist = metadata_distribution(tmp_path / "project.dist-info", "semantic-search-engine", "0.1.0")
+    (dist._path / "direct_url.json").write_text(json.dumps({"url": url, "dir_info": {"editable": True}}))
+    monkeypatch.setattr(core.importlib.metadata, "distributions", lambda: [dist])
+    with pytest.raises(ValueError, match="Project editable origin differs"):
+        core.packages()
