@@ -1,0 +1,356 @@
+"""CPU fault checks for native holdout planning, source credit and HTTP wiring."""
+from __future__ import annotations
+
+import contextvars
+from copy import deepcopy
+import hashlib
+import importlib.util
+import json
+from pathlib import Path
+import sys
+import threading
+from types import SimpleNamespace
+
+import numpy as np
+import pytest
+
+SCRIPTS = Path(__file__).resolve().parents[1] / "scripts"
+sys.path.insert(0, str(SCRIPTS))
+spec = importlib.util.spec_from_file_location("native_context_holdout", SCRIPTS / "run_context_holdout.py")
+runner = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(runner)
+
+
+def digest(text):
+    return hashlib.sha256(text.encode()).hexdigest()
+
+
+def test_schedule_is_balanced_per_query_not_only_total_counts():
+    ids = [f"case{number}" for number in range(15)]
+    rows = runner.schedule(ids)
+    assert len(rows) == 138 and len({row["request_id"] for row in rows}) == 138
+    assert [row["query_id"] for row in rows[:3]] == [ids[0]] * 3
+    measured = rows[3:]
+    for number in range(3):
+        selected = [row for row in measured if row["pass"] == number]
+        assert [selected[position]["query_id"] for position in range(0, 45, 3)] == ids[number:] + ids[:number]
+    for query in ids:
+        orders = [[row["config_id"] for row in measured if row["pass"] == number and row["query_id"] == query] for number in range(3)]
+        for position in range(3):
+            assert {order[position] for order in orders} == {"baseline8", "primary12", "diagnostic20"}
+    assert runner.schedule(ids) == rows
+
+
+@pytest.mark.parametrize("ids", [["q"] * 15, [str(number) for number in range(14)]])
+def test_schedule_refuses_incomplete_or_duplicate_inventory(ids):
+    with pytest.raises(ValueError):
+        runner.schedule(ids)
+
+
+def target(path, source, low=1):
+    high = low + len(runner.physical_lines(source)) - 1
+    return {"path": path, "evidence_lines": [low, high], "evidence_sha256": digest(source)}
+
+
+def excerpt(path, source, low=1):
+    return {"path": path, "source": source, "start_line": low, "end_line": low + len(runner.physical_lines(source)) - 1}
+
+
+def test_evidence_requires_full_body_bytes_and_all_groups_with_or_alternatives():
+    first, second = "def first():\n    return second()\n", "def second():\n    return 42\n"
+    query = {"kind": "present", "target_groups": [[target("src/werkzeug/a.py", first), target("src/werkzeug/a.py", first, 9)],
+                                                   [target("src/werkzeug/b.py", second)]]}
+    rows = [excerpt("src/werkzeug/a.py", first), excerpt("src/werkzeug/b.py", second)]
+    assert runner.evidence(query, rows) == {"kind": "present", "group_ranks": [1, 2], "complete": True, "multi_file": True}
+    assert not runner.evidence(query, rows[:1])["complete"]
+    assert not runner.evidence(query, [excerpt("src/werkzeug/a.py", "def first():\n"), rows[1]])["complete"]
+    corrupt = deepcopy(rows)
+    corrupt[0]["source"] = first.replace("second", "another")
+    assert not runner.evidence(query, corrupt)["complete"]
+
+
+def test_absent_query_does_not_receive_vacuous_complete_credit():
+    assert runner.evidence({"kind": "absent", "target_groups": []}, [excerpt("src/werkzeug/a.py", "def unrelated():\n    pass\n")])["complete"] is None
+
+
+def quality_rows(primary_complete=4, diagnostic_complete=12):
+    rows = []
+    for number in range(3):
+        for config, count in (("baseline8", 3), ("primary12", primary_complete), ("diagnostic20", diagnostic_complete)):
+            for case in range(15):
+                present = case < 12
+                complete = case < count if present else None
+                rows.append({"phase": "measured", "pass": number, "config_id": config, "query_id": f"q{case}",
+                             "evidence": {"kind": "present" if present else "absent", "group_ranks": [1] if complete else [None] if present else [],
+                                          "complete": complete, "multi_file": case < 4}})
+    return rows
+
+
+def test_primary_gate_demands_gain_and_diagnostic_cannot_rescue():
+    assert runner.primary_gate(quality_rows())["primary12_passed"]
+    result = runner.primary_gate(quality_rows(primary_complete=3))
+    assert not result["primary12_passed"] and not result["diagnostic20_can_rescue_primary12"] and not result["default_changed"]
+
+
+def test_primary_gate_rejects_control_loss_even_when_total_complete_improves():
+    rows = quality_rows(primary_complete=5)
+    row = next(row for row in rows if row["pass"] == 1 and row["config_id"] == "primary12" and row["query_id"] == "q0")
+    row["evidence"].update(complete=False, group_ranks=[None])
+    result = runner.primary_gate(rows)
+    assert not result["primary12_passed"] and not result["passes"][1]["comparisons"]["baseline_complete_retained"]
+
+
+@pytest.mark.parametrize("damage", ["missing", "duplicate", "wrong-case"])
+def test_primary_gate_refuses_incomplete_trial_inventory(damage):
+    rows = quality_rows()
+    if damage == "missing":
+        rows.pop()
+    elif damage == "duplicate":
+        rows[-1] = deepcopy(rows[-2])
+    else:
+        rows[-1]["query_id"] = "unknown"
+    with pytest.raises(ValueError):
+        runner.primary_gate(rows)
+
+
+@pytest.mark.parametrize("damage", ["bool", "missing", "backward", "uncompleted", "extra-forward"])
+def test_actual_native_counter_contract_fails_closed(damage):
+    before = dict.fromkeys(runner.COUNTERS, 1)
+    after = dict.fromkeys(runner.COUNTERS, 25)
+    if damage == "bool":
+        after["requests"] = True
+    elif damage == "missing":
+        after.pop("requests")
+    elif damage == "backward":
+        after["requests"] = 0
+    elif damage == "uncompleted":
+        after["completed_forwards"] = 24
+    else:
+        after["completed_forwards"] = 26
+    with pytest.raises(ValueError):
+        runner.native_delta(before, after)
+
+
+class FakeBuilder:
+    def build(self, query, source):
+        ids = [ord(char) for char in query + source]
+        return {"input_ids": ids, "query_sha256": digest(query), "source_sha256": digest(source), "delivered_sha256": digest(source),
+                "source_lines": len(runner.physical_lines(source)), "delivered_lines": len(runner.physical_lines(source)),
+                "source_utf8_bytes": len(source.encode()), "delivered_utf8_bytes": len(source.encode()),
+                "truncated": False, "total_tokens": len(ids)}
+
+
+class FakeScorer:
+    """Explicit CPU transport fake; never classified as actual native evidence."""
+    safe_for_embedding = True
+    def __init__(self):
+        self.calls = []
+    def score(self, query, snippet, *, request_id):
+        self.calls.append((query, snippet.id, request_id))
+        built = FakeBuilder().build(query, snippet.text)
+        result = {key: value for key, value in built.items() if key != "input_ids"}
+        result.update(yes_logit=1.0, no_logit=0.0, logit_difference=1.0, yes_rank_signal=.7310585786300049)
+        return SimpleNamespace(score=1.0, response={"request_id": request_id, "batch_size": 1, "result": result})
+
+
+class FakeEmbedder:
+    metadata = {"id": "context-holdout-cpu-fake", "dimensions": 4}
+    def __init__(self):
+        self.document_inputs = self.query_inputs = 0
+    def embed_documents(self, texts, *, cancel_check=None):
+        self.document_inputs += len(texts)
+        return np.array([[1., (int(digest(text)[:3], 16) % 7) + 1., 2., 3.] for text in texts])
+    def embed_query(self, query):
+        self.query_inputs += 1
+        return np.array([1., 2., 2., 3.])
+    def close(self):
+        pass
+
+
+def test_real_http_backend_exercises_full50_prefix24_context_and_source_caps_with_cpu_fakes(tmp_path):
+    from semantic_search.backend import SearchBackend
+    from semantic_search.client import SearchClient
+    from semantic_search.server import create_server
+    repo = tmp_path / "repo"
+    source = repo / "src/werkzeug/example.py"
+    source.parent.mkdir(parents=True)
+    source.write_text("".join(f"def function_{number}():\n    return {number}\n\n" for number in range(60)))
+    active = contextvars.ContextVar("cpu-http-request", default=None)
+    attempts = []
+    scorer, embedder = FakeScorer(), FakeEmbedder()
+    class BoundBackend(SearchBackend):
+        def search(self, query, **settings):
+            row = {"request_id": settings["request_id"]}
+            attempts.append(row)
+            token = active.set(row)
+            try:
+                return super().search(query, **settings)
+            finally:
+                active.reset(token)
+    backend = BoundBackend(repo, "src/werkzeug", tmp_path / "fresh.sqlite3", embedder=embedder,
+                           qwen_client=runner.ObservedScorer(scorer, active))
+    backend.refresh()
+    assert embedder.document_inputs == 60
+    backend._hybrid = runner.ObservedHybrid(backend._hybrid, active)
+    server = create_server(backend, port=0)
+    thread = threading.Thread(target=server.serve_forever, kwargs={"poll_interval": .01})
+    thread.start()
+    try:
+        client = SearchClient(f"http://127.0.0.1:{server.server_address[1]}")
+        response = client.search("Find the implementation returning an integer.", **runner.SETTINGS, max_results=12, request_id="cpu-http")
+        assert len(attempts) == 1 and len(attempts[0]["full_pool"]) == 50 and len(scorer.calls) == 24
+        assert embedder.query_inputs == 1 and embedder.document_inputs == 60
+        runner.verify_pairs(attempts[0], response, FakeBuilder())
+        proof = runner.full_source_proof(response, repo, response["query"], 12)
+        assert proof["payload_tokens"] <= 4096 and proof["source_characters"] <= 12000
+        assert [pair["snippet_id"] for pair in attempts[0]["literal_pairs"]] == [row["id"] for row in attempts[0]["full_pool"][:24]]
+        original = response["results"][0]["source"]
+        response["results"][0]["source"] = original.replace("return", "raise ")
+        with pytest.raises(ValueError, match="source bytes"):
+            runner.full_source_proof(response, repo, response["query"], 12)
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=2)
+    assert not thread.is_alive()
+
+
+def test_gold_review_requires_semantic_review_not_syntactic_eligibility(tmp_path, monkeypatch):
+    monkeypatch.setattr(runner.core, "ROOT", tmp_path)
+    files = [tmp_path / name for name in ("manifest.json", "source-freeze.json", "window-inventory.json", "eligibility.json")]
+    for path in files:
+        path.write_text("{}")
+    review = tmp_path / "review.json"
+    receipt = {"checks_passed": True, "model_calls": 0, "retrieval_calls": 0,
+               "artifact_sha256": {path.name: runner.core.sha(path) for path in files}}
+    review.write_text(json.dumps(receipt))
+    with pytest.raises(ValueError, match="zero outcomes"):
+        runner.gold_gate(review, files[0], files[1], files[3])
+    receipt["no_prior_outcomes"] = True
+    review.write_text(json.dumps(receipt))
+    assert len(runner.gold_gate(review, files[0], files[1], files[3])) == 5
+    files[-1].write_text('{"changed":true}')
+    with pytest.raises(ValueError, match="exact manifest"):
+        runner.gold_gate(review, files[0], files[1], files[3])
+
+
+def test_loopback_guard_refuses_external_connections_without_blocking_local_server():
+    import socket
+    with runner.loopback_only():
+        with pytest.raises(ValueError, match="External network"):
+            socket.socket().connect(("192.0.2.1", 443))
+        with pytest.raises(ValueError, match="External DNS"):
+            socket.getaddrinfo("example.com", 443)
+
+
+def test_deadline_refuses_expired_attempt():
+    with pytest.raises(ValueError, match="deadline"):
+        runner.check_deadline({"deadline_utc": "2000-01-01T00:00:00+00:00"})
+
+
+def synthetic_native_ledger():
+    """CPU-only invented receipts used to test rejection, never native results."""
+    records, events, number = [], [], 0
+    ids = [11, 22]
+    token_hash = digest(json.dumps(ids, separators=(",", ":")))
+    score = {"yes_logit": 1., "no_logit": 0., "logit_difference": 1., "yes_rank_signal": .7310585786300049}
+    def add(identity):
+        nonlocal number
+        number += 1
+        identity = {**identity, "forward_number": number}
+        events.extend([{**identity, "event": "started"}, {**identity, "event": "completed", "score": score}])
+    add({"request_id": "generic-warmup", "warmup": True, "batch_size": 1, "source_sha256": digest("warm source"),
+         "query_sha256": digest("warm query"), "delivered_sha256": digest("warm source"), "total_tokens": 2,
+         "input_ids_sha256": token_hash})
+    for call in range(138):
+        pairs = []
+        for position in range(24):
+            identity = {"request_id": f"call-{call}-{position}", "warmup": False, "batch_size": 1,
+                        "source_sha256": digest("literal source"), "query_sha256": digest("literal query"),
+                        "delivered_sha256": digest("literal source"), "total_tokens": 2, "input_ids_sha256": token_hash}
+            add(identity)
+            pairs.append({"request_id": identity["request_id"], "input_ids": ids[:], "input_ids_sha256": token_hash,
+                          "receipt": {"result": {key: identity[key] for key in ("source_sha256", "query_sha256", "delivered_sha256", "total_tokens")} | score}})
+        records.append({"literal_pairs": pairs})
+    return events, records, dict.fromkeys(runner.COUNTERS, 3313)
+
+
+def test_synthetic_ledger_complete_contract_has_all3313_forwards():
+    events, records, counts = synthetic_native_ledger()
+    raw = "\n".join(json.dumps(row) for row in events).encode()
+    checked = runner.verify_native_ledger(raw, records, counts)
+    assert checked["started"] == checked["completed"] == 3313 and checked["measured"] == 3240 and checked["http_warmup"] == 72
+
+
+@pytest.mark.parametrize("damage", ["missing-completion", "input-hash", "literal-ids", "source-hash", "start-source", "order", "bool-count"])
+def test_synthetic_native_ledger_mutations_cannot_qualify(damage):
+    events, records, counts = synthetic_native_ledger()
+    if damage == "missing-completion":
+        events.pop()
+    elif damage == "input-hash":
+        events[3]["input_ids_sha256"] = "0" * 64
+    elif damage == "literal-ids":
+        records[0]["literal_pairs"][0]["input_ids"][0] = 99
+    elif damage == "source-hash":
+        events[3]["source_sha256"] = "0" * 64
+    elif damage == "start-source":
+        events[2]["source_sha256"] = "0" * 64
+    elif damage == "order":
+        events[3]["forward_number"] = 3
+    else:
+        counts["completed_forwards"] = True
+    raw = "\n".join(json.dumps(row) for row in events).encode()
+    with pytest.raises(ValueError):
+        runner.verify_native_ledger(raw, records, counts)
+
+
+def django_receipt(tmp_path, *, passed=False):
+    directory = tmp_path / "django"
+    directory.mkdir()
+    plan, worker, parent = [directory / name for name in ("frozen-plan.json", "worker-result.json", "parent-result.json")]
+    plan.write_text('{"kind":"cpu-fake-predecessor-plan"}')
+    outcome = {"pid": 999991, "cleanup": {"model_released": True, "index_closed": True}, "cleanup_signals": {"received": []}}
+    worker.write_text(json.dumps(outcome))
+    record = {"complete": True, "checks_passed": passed, "exit_code": 0 if passed else 1,
+              "worker_result_sha256": runner.core.sha(worker), "frozen_plan_sha256": runner.core.sha(plan),
+              "ownership": {"pid": 999991, "owned_group": 999991},
+              "cleanup": {"pid": 999991, "owned_group_stopped": True, "forced_kill": False, "errors": [], "exit_code": 0 if passed else 1}}
+    parent.write_text(json.dumps(record))
+    return parent, worker, record
+
+
+def test_serial_gate_allows_unrelated_failed_outcome_only_after_structurally_clean_terminal_cleanup(tmp_path, monkeypatch):
+    path, _, _ = django_receipt(tmp_path)
+    probes = []
+    def gone(pid, number):
+        probes.append((pid, number))
+        raise ProcessLookupError
+    monkeypatch.setattr(runner.os, "kill", gone)
+    monkeypatch.setattr(runner.os, "killpg", gone)
+    receipt = runner.serial_gate([path])[0]
+    assert receipt["prior_checks_passed"] is False and "failed" in receipt["classification"]
+    assert probes == [(999991, 0), (999991, 0)] and len(receipt["artifact_sha256"]) == 3
+
+
+@pytest.mark.parametrize("damage", ["active-group", "forced", "incomplete", "model-live", "worker-mutated"])
+def test_serial_gate_rejects_unsafe_or_unbound_predecessor(tmp_path, monkeypatch, damage):
+    path, worker, record = django_receipt(tmp_path)
+    def gone(pid, number):
+        if damage == "active-group":
+            return
+        raise ProcessLookupError
+    monkeypatch.setattr(runner.os, "kill", gone)
+    monkeypatch.setattr(runner.os, "killpg", gone)
+    if damage == "forced":
+        record["cleanup"]["forced_kill"] = True
+    elif damage == "incomplete":
+        record["complete"] = False
+    elif damage in ("model-live", "worker-mutated"):
+        value = json.loads(worker.read_text())
+        value["cleanup"]["model_released"] = False
+        worker.write_text(json.dumps(value))
+        if damage == "model-live":
+            record["worker_result_sha256"] = runner.core.sha(worker)
+    path.write_text(json.dumps(record))
+    with pytest.raises(ValueError):
+        runner.serial_gate([path])
