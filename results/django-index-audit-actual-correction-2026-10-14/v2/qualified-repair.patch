@@ -1,0 +1,91 @@
+--- scripts/audit_django_index_profile_actual_correction.py
++++ scripts/audit_django_index_profile_actual_correction_v2.py
+@@ -484,7 +484,7 @@
+         require(sha(committed) == expected, "Executed source was not committed before freeze")
+     require(file_sha(ROOT / "scripts/audit_django_index_profile.py") == bindings["scripts/audit_django_index_profile.py"],
+             "Original prospective auditor changed after execution")
+-    correction = read(ROOT / "results/django-index-audit-actual-correction-2026-10-14/qualification.json")
++    correction = read(ROOT / "results/django-index-audit-actual-correction-2026-10-14/v2/qualification.json")
+     require(correction.get("checks_passed") is True and
+             correction["original_auditor_sha256"] == bindings["scripts/audit_django_index_profile.py"] and
+             correction["corrected_source_sha256"] == file_sha(Path(__file__)),
+@@ -979,6 +979,58 @@
+             "private_argv_exact": True, "expected_frozen_argv_exact": True}
+ 
+ 
++def verify_postexit_disk(database, worker_disk, final_snapshot):
++    """Verify exact retained pages while separating pre-exit and post-exit files."""
++    verify_disk(worker_disk)
++    database = Path(database)
++    snapshot, _ = bound_artifact(final_snapshot, ROOT)
++    actual = {path.name: path.stat().st_size for path in
++              (database, Path(str(database) + "-wal"), Path(str(database) + "-shm")) if path.exists()}
++    require(set(worker_disk["files"]) == {database.name, database.name + "-wal", database.name + "-shm"},
++            "Recorded worker-preexit disk file inventory differs")
++    require(actual == {database.name: final_snapshot["bytes"]}
++            and worker_disk["files"][database.name] == final_snapshot["bytes"],
++            "Post-exit main file size/inventory differs from final durable snapshot")
++    current_hash = hashlib.sha256()
++    with database.open("rb") as current, snapshot.open("rb") as saved:
++        current_header, saved_header = current.read(100), saved.read(100)
++        require(len(current_header) == len(saved_header) == 100
++                and current_header[:16] == saved_header[:16] == b"SQLite format 3\x00",
++                "Post-exit/snapshot SQLite file header is invalid")
++        current_hash.update(current_header)
++        left, right = bytearray(current_header), bytearray(saved_header)
++        counters = {}
++        for start, end, name in ((24, 28, "file_change_counter"), (40, 44, "schema_cookie"),
++                                 (92, 96, "version_valid_for")):
++            counters[name] = {"worker_final_snapshot": int.from_bytes(right[start:end], "big"),
++                              "postexit_main_file": int.from_bytes(left[start:end], "big")}
++            left[start:end] = right[start:end] = b"\x00" * (end - start)
++        require(left == right, "Post-exit SQLite header differs outside backup counter fields")
++        pagesize = int.from_bytes(current_header[16:18], "big")
++        pagesize = 65536 if pagesize == 1 else pagesize
++        require(pagesize >= 512 and pagesize & (pagesize - 1) == 0
++                and actual[database.name] % pagesize == 0
++                and int.from_bytes(current_header[28:32], "big") * pagesize == actual[database.name],
++                "Post-exit SQLite page count/size differs")
++        compared = 100
++        while True:
++            left_chunk, right_chunk = current.read(1024 * 1024), saved.read(1024 * 1024)
++            require(left_chunk == right_chunk, "Post-exit retained SQLite page bytes differ from final snapshot")
++            if not left_chunk:
++                break
++            current_hash.update(left_chunk)
++            compared += len(left_chunk)
++        require(compared == actual[database.name], "Post-exit database read length differs")
++    return {"worker_preexit_observation": worker_disk,
++            "worker_preexit_scope": "After model/SQLiteIndex close methods, before worker process exit; WAL/SHM still present",
++            "postexit_physical_files": actual, "postexit_total_bytes": sum(actual.values()),
++            "postexit_scope": "Independent read after clean owned worker exit; no WAL/SHM remain",
++            "postexit_main_sha256": current_hash.hexdigest(), "final_snapshot_sha256": final_snapshot["sha256"],
++            "sqlite_backup_counter_fields": counters, "all_other_header_bytes_exact": True,
++            "all_retained_page_bytes_exact": True, "read_only_raw_file_proof": True,
++            "limitations": "Removed worker-preexit WAL/SHM bytes cannot be retrospectively hashed. Their recorded sizes are pre-exit observations, not post-exit disk or independent cold-storage measurements."}
++
++
+ def audit(study):
+     manifest, sources, states = prospective_inputs()
+     study = Path(study).resolve()
+@@ -1049,9 +1101,8 @@
+             "Resident native model allocations remain after cleanup")
+     verify_disk(worker["disk_closed"])
+     database = local_path(plan["work"]) / "index.sqlite3"
+-    actual_disk = {path.name: path.stat().st_size for path in
+-                   (database, Path(str(database) + "-wal"), Path(str(database) + "-shm")) if path.exists()}
+-    require(actual_disk == worker["disk_closed"]["files"], "Current closed database/WAL/SHM witness differs")
++    final_stage = read(study / "stages/final_fresh_process_reopen.json")
++    disk_proof = verify_postexit_disk(database, worker["disk_closed"], final_stage["database_snapshot"])
+     require(len(worker["model_initialization"]) == 1, "Model must initialize once inside initial indexing")
+     initialization = worker["model_initialization"][0]
+     require(initialization["model_class"] == "mlx_embeddings.models.qwen3.Model"
+@@ -1179,7 +1230,7 @@
+             "source_authored_examples": quality,
+             "fresh_reopen_layer": "durable SQLite index and source extraction; not service startup",
+             "limitations": manifest["limitations"], "owned_group_gone": True,
+-            "ownership_command_serialization": command_proof}
++            "ownership_command_serialization": command_proof, "physical_disk_phase_proof": disk_proof}
+ 
+ 
+ def main(argv=None):
