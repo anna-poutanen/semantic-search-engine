@@ -270,8 +270,18 @@ A second [cancellation review](../results/cancellation-shutdown-preflight-2026-1
 closes admission atomically during shutdown and checks cancellation before a
 query forward. Historical audit tests now use immutable source fixtures, so
 future product changes do not rebind earlier experiments. Full Linux core and
-editor CI passes. The [C# source-support plan](csharp-source-plan.md) is prepared;
-C# remains unimplemented pending isolated grammar and source safety acceptance.
+editor CI passes. Future host helpers now isolate [shared storage](host-shared-storage.md);
+the published VSIX remains byte-identical. The installed lexical CLI smoke
+checks five actual processes, mixed-language literal excerpts, reopen/edit,
+malformed-source rejection and recovery with model/network guards; its Linux
+execution is part of CI.
+
+The [C# source-support plan](csharp-source-plan.md) is prepared and an
+[isolated actual grammar smoke](../results/csharp-parser-smoke-2026-10-14/findings.md)
+passes the pinned wheels, ABI 15, seven valid fixtures and two invalid fixtures.
+The main model environment is unchanged. C# remains unimplemented in the product;
+source extraction, cache/dispatch, editor and retrieval acceptance are separate
+remaining steps.
 
 Use fresh development queries to improve evidence delivery and a new
 untouched holdout to assess those changes. The observed Zod misses are now
