@@ -82,8 +82,10 @@ def windows_for(source, path, definitions, max_lines=160, overlap_lines=40):
         offset += len(line.encode("utf-8"))
     result = []
     for definition in definitions:
-        if not (0 <= definition.start_byte <= definition.body_start_byte
-                < definition.body_end_byte <= definition.end_byte <= len(raw)):
+        if (any(type(value) is not int for value in (definition.start_byte, definition.end_byte,
+                definition.body_start_byte, definition.body_end_byte))
+                or not (0 <= definition.start_byte <= definition.body_start_byte
+                < definition.body_end_byte <= definition.end_byte <= len(raw))):
             raise ValueError("Definition/body bytes must be inside exact source")
         start = bisect_right(offsets, definition.start_byte)
         final = bisect_right(offsets, definition.end_byte - 1)
@@ -130,10 +132,14 @@ def _name(node, raw):
 
 
 def _nonempty_block(body):
+    condition = body.child_by_field_name("condition") if body.type.startswith("preproc_") else None
     for child in body.named_children:
-        if child.type in {"comment", "empty_statement"}:
+        if child == condition or child.type in {"comment", "empty_statement", "local_function_statement"}:
             continue
-        if child.type != "block" or _nonempty_block(child):
+        if child.type in {"block", "preproc_if", "preproc_elif", "preproc_else"}:
+            if _nonempty_block(child):
+                return True
+        elif not child.type.startswith("preproc_") and child.type.endswith("_statement"):
             return True
     return False
 

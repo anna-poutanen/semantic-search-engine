@@ -65,6 +65,9 @@ class PortableInvariantTests(unittest.TestCase):
         bad = prototype.Definition('bad','method',0,4,1,5)
         with self.assertRaises(ValueError):
             prototype.windows_for('code','code.cs',[bad])
+        for offset in (True, 0.0):
+            with self.subTest(offset=offset), self.assertRaises(ValueError):
+                prototype.windows_for('code','code.cs',[prototype.Definition('bad','method',offset,4,1,3)])
 
     def test_root_error_rejected_even_without_explicit_error_nodes(self):
         parser = SimpleNamespace(parse=lambda raw: SimpleNamespace(root_node=SimpleNamespace(has_error=True)))
@@ -156,6 +159,15 @@ interface I { int Declaration(); }
             self.extract('class C { int Broken() { return value + ; } }')
         with self.assertRaises(UnicodeDecodeError):
             self.extract(b'\xffclass C {}'.decode('utf-8'))
+
+    def test_directive_only_bodies_omit_condition_names_but_keep_branch_statements(self):
+        empty = 'class C { void M() {\n#if DEBUG\n// comment\n#else\n// another comment\n#endif\n} }'
+        definitions, _ = self.extract(empty)
+        self.assertEqual(definitions, [])
+        for source in (empty.replace('// comment', 'return;'), empty.replace('// another comment', 'return;')):
+            with self.subTest(source=source):
+                definitions, _ = self.extract(source)
+                self.assertEqual(len(definitions), 1)
 
 
 if __name__ == '__main__':
