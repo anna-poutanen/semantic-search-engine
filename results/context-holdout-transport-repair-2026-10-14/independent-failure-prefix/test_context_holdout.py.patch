@@ -1,0 +1,22 @@
+--- frozen/tests/test_context_holdout.py
++++ transport-repair/tests/test_context_holdout.py
+@@ -39,6 +39,19 @@
+         for position in range(3):
+             assert {order[position] for order in orders} == {"baseline8", "primary12", "diagnostic20"}
+     assert runner.schedule(ids) == rows
++
++
++def test_post_attempt_request_ids_fit_actual_service_contract_without_changing_queries():
++    from semantic_search.cancellation import validate_request_id
++    manifest = json.loads((SCRIPTS.parent / "benchmarks/werkzeug_context_queries.json").read_text())
++    ids = [item["id"] for item in manifest["queries"]]
++    for identifiers in (ids, ["long_" + "x" * 200 + str(i) for i in range(15)]):
++        rows = runner.schedule(identifiers)
++        assert len({row["request_id"] for row in rows}) == 138
++        assert {row["query_id"] for row in rows} == set(identifiers)
++        for row in rows:
++            validate_request_id(row["request_id"])
++            assert len(row["request_id"]) <= 64
+ 
+ 
+ @pytest.mark.parametrize("ids", [["q"] * 15, [str(number) for number in range(14)]])

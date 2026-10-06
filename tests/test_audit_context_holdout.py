@@ -31,6 +31,17 @@ def test_independent_schedule_has_exact_all_case_balance():
             assert {order[position] for order in orders} == set(audit.CONFIGS)
 
 
+def test_transport_repair_keeps_actual_frozen_ids_and_uses_bounded_unique_requests():
+    import re
+    manifest = json.loads((SCRIPTS.parent / "benchmarks/werkzeug_context_queries.json").read_text())
+    ids = [item["id"] for item in manifest["queries"]]
+    rows = audit.expected_schedule(ids)
+    assert len({row["request_id"] for row in rows}) == 138
+    assert {row["query_id"] for row in rows} == set(ids)
+    assert all(re.fullmatch(r"[A-Za-z0-9_-]{1,64}", row["request_id"]) for row in rows)
+    assert [row["query_id"] for row in rows[:3]] == [ids[0]] * 3
+
+
 @pytest.mark.parametrize("ids", [["q"] * 15, [f"q{i}" for i in range(14)]])
 def test_independent_schedule_rejects_inventory_damage(ids):
     with pytest.raises(ValueError):

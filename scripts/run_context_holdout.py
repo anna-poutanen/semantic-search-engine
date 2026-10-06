@@ -78,7 +78,7 @@ def schedule(query_ids):
             for config in ids[rotation:] + ids[:rotation]:
                 rows.append({"phase": "measured", "pass": number, "query_id": query, "config_id": config})
     for number, row in enumerate(rows):
-        row["request_id"] = f"context-{number:03d}-{row['phase']}-{row['config_id']}-{row['query_id']}"
+        row["request_id"] = f"context-{number:03d}-{row['phase']}-{row['config_id']}"
     return rows
 
 

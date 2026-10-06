@@ -41,6 +41,19 @@ def test_schedule_is_balanced_per_query_not_only_total_counts():
     assert runner.schedule(ids) == rows
 
 
+def test_post_attempt_request_ids_fit_actual_service_contract_without_changing_queries():
+    from semantic_search.cancellation import validate_request_id
+    manifest = json.loads((SCRIPTS.parent / "benchmarks/werkzeug_context_queries.json").read_text())
+    ids = [item["id"] for item in manifest["queries"]]
+    for identifiers in (ids, ["long_" + "x" * 200 + str(i) for i in range(15)]):
+        rows = runner.schedule(identifiers)
+        assert len({row["request_id"] for row in rows}) == 138
+        assert {row["query_id"] for row in rows} == set(identifiers)
+        for row in rows:
+            validate_request_id(row["request_id"])
+            assert len(row["request_id"]) <= 64
+
+
 @pytest.mark.parametrize("ids", [["q"] * 15, [str(number) for number in range(14)]])
 def test_schedule_refuses_incomplete_or_duplicate_inventory(ids):
     with pytest.raises(ValueError):
