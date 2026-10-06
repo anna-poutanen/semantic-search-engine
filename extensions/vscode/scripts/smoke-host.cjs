@@ -1,9 +1,10 @@
 'use strict';
 const fs = require('node:fs/promises');
+const fsSync = require('node:fs');
 const path = require('node:path');
 const os = require('node:os');
 const crypto = require('node:crypto');
-const { spawn } = require('node:child_process');
+const { runOwnedHost } = require('./owned-host.cjs');
 const config = require('./host-config.cjs');
 const { prepareHost } = require('./prepare-host.cjs');
 const { startRelay, snapshot, forward } = require('./host-relay.cjs');
@@ -56,6 +57,12 @@ function qwenReceiptChecks(records) {
     configured_qwen_response_identity: qwen.length === 2 && qwen.every(row => row.response?.rerank === true && row.response?.rerank_provider === 'qwen'),
     rerank_off_omits_provider: settingsFast.length === 1 && expectedSettings(settingsFast[0]) && settingsFast[0].response?.rerank === false };
 }
+function relayClosureChecks(closure, records) {
+  return { records_stable: closure?.records_stable === true,
+    no_unfinished_receipts: closure?.unfinished_receipts === 0 && closure?.forced_incomplete_receipts === 0,
+    final_receipts_without_transport_error: records.every(row => !row.transport_error && !row.incomplete),
+    no_hold_released_by_close: records.every(row => !row.hold_released_by_close) };
+}
 async function smoke(options) {
   const repo = await fs.realpath(options.repo), output = path.resolve(options.output);
   const extensionPath = options.extensionPath || config.root;
@@ -99,10 +106,13 @@ async function smoke(options) {
     limits: ['Fresh fixture only; no private repository or query.', 'Trusted-path host disables Workspace Trust only in isolated user data; Restricted Mode is not proven.',
       'One test query response is held at the receipt relay until cancel arrives; cancellation receipts/view suppression do not prove interruption of a running Metal forward.',
       'HTTP receipt intervals include this observer; no inference performance claim.'] };
-  let child, timeout, killTimer, timedOut = false; const stdout = [], stderr = []; let outSize = 0, errSize = 0;
+  let owned; const stdout = [], stderr = []; let outSize = 0, errSize = 0;
   try {
-    const ended = await new Promise((resolve, reject) => {
-      child = spawn(prepared.executable, args, { detached: true, env: { ...process.env,
+    const ended = await runOwnedHost(prepared.executable, args, {
+      ownershipFile: process.env.SEMANTIC_SEARCH_HOST_OWNERSHIP_FILE || path.join(directory, 'host-ownership.json'),
+      nonce: process.env.SEMANTIC_SEARCH_HOST_OWNERSHIP_NONCE || crypto.randomUUID(),
+      deferSignalRestoration: true,
+      env: { ...process.env,
         SEMANTIC_SEARCH_HOST_REPO: repo, SEMANTIC_SEARCH_HOST_URL: relay.url,
         SEMANTIC_SEARCH_HOST_RESULT: hostResult, SEMANTIC_SEARCH_HOST_QUERY: query,
         SEMANTIC_SEARCH_HOST_OVERLAYS: options.overlays ? '1' : '0',
@@ -110,14 +120,13 @@ async function smoke(options) {
         SEMANTIC_SEARCH_HOST_QWEN_RERANKER: options.qwenReranker ? '1' : '0',
         SEMANTIC_SEARCH_HOST_EXTENSION_PATH: options.extensionPath ? extensionPath : '',
         SEMANTIC_SEARCH_HOST_RECEIPT_STARTS: receiptStarts,
-        SEMANTIC_SEARCH_HOST_CASES: JSON.stringify(mixed ? cases : cases.slice(0, 1)) }, stdio: ['ignore', 'pipe', 'pipe'] });
-      const stop = signal => { try { process.kill(-child.pid, signal); } catch {} };
-      timeout = setTimeout(() => { timedOut = true; stop('SIGTERM'); killTimer = setTimeout(() => stop('SIGKILL'), 3000); }, 300000);
-      child.on('error', reject); child.on('close', (code, signal) => resolve({ code, signal }));
-      child.stdout.on('data', bytes => { outSize += bytes.length; if (outSize <= 256 * 1024) { stdout.push(bytes); } });
-      child.stderr.on('data', bytes => { errSize += bytes.length; if (errSize <= 256 * 1024) { stderr.push(bytes); } });
+        SEMANTIC_SEARCH_HOST_CASES: JSON.stringify(mixed ? cases : cases.slice(0, 1)) }, timeoutMs: 300000,
+      stdout: bytes => { outSize += bytes.length; if (outSize <= 256 * 1024) { stdout.push(bytes); } },
+      stderr: bytes => { errSize += bytes.length; if (errSize <= 256 * 1024) { stderr.push(bytes); } }
     });
-    record.exit = ended; record.timed_out = timedOut;
+    owned = ended;
+    const { restoreSignals, ...observedExit } = ended;
+    record.exit = observedExit; record.timed_out = ended.timed_out;
     record.host = JSON.parse(await fs.readFile(hostResult, 'utf8'));
     const after = await snapshot(repo); record.source_after_sha256 = after.sha256;
     record.source_after_manifest_sha256 = after.source_manifest_sha256;
@@ -138,7 +147,7 @@ async function smoke(options) {
         : { source_unchanged: before.source_manifest_sha256 === after.source_manifest_sha256 }),
       receipts_without_transport_error: relay.records.every(row => !row.transport_error) };
     if (options.qwenReranker) { record.independent_receipt_checks.qwen_workspace_settings = qwenReceiptChecks(relay.records); }
-    record.passed = ended.code === 0 && !timedOut && record.host.passed === true && searches.length >= 2 && cancelLinked
+    record.passed = ended.completed_cleanly === true && record.host.passed === true && searches.length >= 2 && cancelLinked
       && sourceChecks.length > 0 && sourceChecks.every(exact) && record.independent_receipt_checks.overlay_input_bindings_verified
       && before.source_manifest_sha256 === after.source_manifest_sha256
       && relay.records.every(row => !row.transport_error)
@@ -146,21 +155,31 @@ async function smoke(options) {
     if (!record.passed) { process.exitCode = 1; }
   } catch (error) { record.error = error.message; process.exitCode = 1; }
   finally {
-    clearTimeout(timeout); clearTimeout(killTimer);
-    if (child?.pid) { try { process.kill(-child.pid, 'SIGTERM'); } catch {} }
-    await relay.close();
-    record.finished_utc = new Date().toISOString();
+    try {
+    record.relay_close = await relay.close();
+    record.relay_close_checks = relayClosureChecks(record.relay_close, relay.records);
+    record.passed = record.passed && !(owned?.interrupted.length) && Object.values(record.relay_close_checks).every(Boolean);
+    if (!record.passed) { process.exitCode = 1; }
     record.receipts = relay.records;
     record.stdout = Buffer.concat(stdout).toString('utf8'); record.stderr = Buffer.concat(stderr).toString('utf8');
     record.stdout_bytes_observed = outSize; record.stderr_bytes_observed = errSize;
     record.stdout_truncated = outSize > 256 * 1024; record.stderr_truncated = errSize > 256 * 1024;
+    await fs.mkdir(path.dirname(output), { recursive: true });
+    try { await fs.rm(directory, { recursive: true, force: true }); }
+    catch (error) { record.profile_cleanup_error = error.message; record.passed = false; }
+    record.owned_profile_removed = !fsSync.existsSync(directory);
+    // No await separates the final interrupt observation, synchronous receipt
+    // publication and guard restoration: queued callbacks cannot alter a
+    // previously serialized passing record during an asynchronous write/remove.
+    record.passed = record.passed && record.owned_profile_removed && !(owned?.interrupted.length);
+    if (!record.passed) { process.exitCode = 1; }
+    record.finished_utc = new Date().toISOString();
     const publicRecord = redact(record, replacements);
     for (const receipt of publicRecord.receipts) { if (receipt.response) { receipt.redacted_response_sha256 = sha(JSON.stringify(receipt.response)); } }
-    await fs.mkdir(path.dirname(output), { recursive: true });
-    await fs.writeFile(output, JSON.stringify(publicRecord, null, 2) + '\n');
-    await fs.rm(directory, { recursive: true, force: true });
+    fsSync.writeFileSync(output, JSON.stringify(publicRecord, null, 2) + '\n');
     console.log(JSON.stringify({ passed: record.passed, output, checks: record.independent_receipt_checks ?? null }));
+    } finally { owned?.restoreSignals(); }
   }
 }
-module.exports = { argumentsFrom, redact, smoke, createRunDirectory, qwenReceiptChecks };
+module.exports = { argumentsFrom, redact, smoke, createRunDirectory, qwenReceiptChecks, relayClosureChecks };
 if (require.main === module) { Promise.resolve().then(() => smoke(argumentsFrom(process.argv.slice(2)))).catch(error => { console.error(error.message); process.exitCode = 1; }); }
