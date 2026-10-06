@@ -1,0 +1,12 @@
+{
+  "classification": "Preserved first CPU-only test failure; no editor/model was launched",
+  "tests": 22,
+  "passed": 16,
+  "failed": 6,
+  "cause": "Mac /var temp paths resolve to /private/var; fake owned paths and installed fixture were not canonical. startOwned originally checked canonical ownership only after spawn. Tests exposed two test children; exact detached PGIDs 19361 and 19362 were inspected as children of this test process then terminated with SIGTERM.",
+  "fix": "Canonical test paths; reject noncanonical owner root synchronously before spawning.",
+  "initial_source_sha256": "1f959d0ee8c7861773d4a5a1a46cfaef7a77194c589a592783747b7e1a0ae16e",
+  "initial_test_sha256": "37ce85ad9309abc9bf9448b0e90b512f3e3a780751c717e6dd9de8da1427948d",
+  "model_calls": 0,
+  "editor_launches": 0
+}
