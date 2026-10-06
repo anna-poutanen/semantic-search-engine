@@ -274,14 +274,18 @@ editor CI passes. Future host helpers now isolate [shared storage](host-shared-s
 the published VSIX remains byte-identical. The installed lexical CLI smoke
 checks five actual processes, mixed-language literal excerpts, reopen/edit,
 malformed-source rejection and recovery with model/network guards; its Linux
-execution is part of CI.
+[actual Linux CI receipt](../results/linux-cli-ci-2026-10-14/verification.json)
+passes the same five guarded processes, in addition to the full core/editor suites.
 
 The [C# source-support plan](csharp-source-plan.md) is prepared and an
 [isolated actual grammar smoke](../results/csharp-parser-smoke-2026-10-14/findings.md)
 passes the pinned wheels, ABI 15, seven valid fixtures and two invalid fixtures.
 The main model environment is unchanged. C# remains unimplemented in the product;
-source extraction, cache/dispatch, editor and retrieval acceptance are separate
-remaining steps.
+A [standalone extractor prototype](csharp-extractor-prototype.md) now exercises
+named methods/constructors, literal overload identities and exact 160/40-line
+windows in that isolated environment. It is disconnected from the engine.
+Cache/dispatch integration, source membership, editor enablement and a frozen
+real-codebase retrieval evaluation remain.
 
 Use fresh development queries to improve evidence delivery and a new
 untouched holdout to assess those changes. The observed Zod misses are now
