@@ -3,12 +3,16 @@ on: [push, pull_request]
 jobs:
   core:
     runs-on: ubuntu-latest
+    env:
+      TIKTOKEN_CACHE_DIR: ${{ github.workspace }}/.cache/tokenizers
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
       - run: python -m pip install -e '.[mcp,test,languages]'
+      - name: Prepare verified offline tokenizer cache
+        run: python scripts/prepare_ci_tokenizer_cache.py --cache-dir "$TIKTOKEN_CACHE_DIR"
       - run: python -m pytest -q
   editor:
     runs-on: ubuntu-latest
