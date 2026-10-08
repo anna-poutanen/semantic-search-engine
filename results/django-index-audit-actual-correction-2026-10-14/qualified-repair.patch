@@ -1,0 +1,71 @@
+--- scripts/audit_django_index_profile.py
++++ scripts/audit_django_index_profile_actual_correction.py
+@@ -482,8 +482,13 @@
+         committed = subprocess.run(["git", "-C", str(ROOT), "show", plan["source_commit"] + ":" + relative],
+                                    capture_output=True, check=True, timeout=30).stdout
+         require(sha(committed) == expected, "Executed source was not committed before freeze")
+-    require(file_sha(Path(__file__)) == bindings["scripts/audit_django_index_profile.py"],
+-            "Actual auditor source differs from committed prospective checker")
++    require(file_sha(ROOT / "scripts/audit_django_index_profile.py") == bindings["scripts/audit_django_index_profile.py"],
++            "Original prospective auditor changed after execution")
++    correction = read(ROOT / "results/django-index-audit-actual-correction-2026-10-14/qualification.json")
++    require(correction.get("checks_passed") is True and
++            correction["original_auditor_sha256"] == bindings["scripts/audit_django_index_profile.py"] and
++            correction["corrected_source_sha256"] == file_sha(Path(__file__)),
++            "Corrected auditor must match independently qualified immutable repair")
+     for name in ("native_source_sha256", "tokenizer_cache_sha256"):
+         require(plan[name], "Missing native/tokenizer implementation closure")
+         for path, expected in plan[name].items():
+@@ -947,6 +952,33 @@
+     return manifest, sources, stages
+ 
+ 
++def verify_owned_command(ownership, plan, study):
++    """The native hash binds raw absolute argv, before public path redaction."""
++    require(type(ownership["owner_pid"]) is int and ownership["owner_pid"] > 1,
++            "Owned parent identity must be a strict process ID")
++    published = ownership["command"]
++    require(isinstance(published, list) and all(type(value) is str for value in published),
++            "Owned published command must be an exact string argv")
++    actual = [value.replace("<PROJECT>", str(ROOT)) for value in published]
++    expected = [str(local_path(plan["runtime"]["executable"])), "-B",
++                str(ROOT / "scripts/run_django_index_profile.py"), "--_worker",
++                str(Path(study).resolve()), "--owner-pid", str(ownership["owner_pid"])]
++    require(actual == expected, "Owned command differs from exact frozen interpreter/worker/study/parent argv")
++    require(ownership["command_sha256"] == sha(json.dumps(actual).encode()),
++            "Owned raw absolute command hash differs")
++    private_path = local_path(plan["work"]) / "owned-process.json"
++    private = read(private_path)
++    require(private["command"] == actual and private["command_sha256"] == ownership["command_sha256"],
++            "Current private owned argv/hash differs from published restoration")
++    expected_private = {**ownership, "command": actual}
++    require(typed_equal(private, expected_private), "Private owned proof identity/clock/schema differs")
++    return {"publication": "literal <PROJECT> prefix redaction after raw argv hash",
++            "raw_command_sha256": ownership["command_sha256"],
++            "published_command_sha256": sha(json.dumps(published).encode()),
++            "private_owned_proof_sha256": sha(private_path.read_bytes()),
++            "private_argv_exact": True, "expected_frozen_argv_exact": True}
++
++
+ def audit(study):
+     manifest, sources, states = prospective_inputs()
+     study = Path(study).resolve()
+@@ -990,7 +1022,7 @@
+             and ownership["start_new_session"] is True and worker["pid"] == ownership["pid"]
+             and worker["parent_pid"] == ownership["owner_pid"] and worker["owned_process"] == ownership,
+             "Native process ownership proof differs")
+-    require(ownership["command_sha256"] == sha(json.dumps(ownership["command"]).encode()), "Owned command hash differs")
++    command_proof = verify_owned_command(ownership, plan, study)
+     try:
+         os.killpg(ownership["owned_group"], 0)
+     except ProcessLookupError:
+@@ -1146,7 +1178,8 @@
+             "max_dense_score_error": latency.pop("max_dense_score_error"), "latency": latency,
+             "source_authored_examples": quality,
+             "fresh_reopen_layer": "durable SQLite index and source extraction; not service startup",
+-            "limitations": manifest["limitations"], "owned_group_gone": True}
++            "limitations": manifest["limitations"], "owned_group_gone": True,
++            "ownership_command_serialization": command_proof}
+ 
+ 
+ def main(argv=None):
