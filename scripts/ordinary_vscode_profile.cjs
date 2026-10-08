@@ -12,7 +12,9 @@ const EXT = path.join(ROOT, 'extensions/vscode');
 const SIDECAR = path.join(__dirname, 'ordinary_vscode_sidecar');
 const config = require(path.join(EXT, 'scripts/host-config.cjs'));
 const SOURCE = 'def ordinary_message():\n    return "owned ordinary profile fixture"\n';
-const DEADLINE = Date.parse('2026-10-14T13:37:05Z');
+const DEFAULT_TIMEOUT_SECONDS = 600;
+const MAX_TIMEOUT_SECONDS = 900;
+const CLEANUP_BUDGET_MS = 45000;
 const sha = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
 const json = filename => JSON.parse(fs.readFileSync(filename, 'utf8'));
 const canonical = value => Array.isArray(value) ? value.map(canonical) : value && typeof value === 'object'
@@ -67,7 +69,42 @@ function launchArgs(mode, workspace, userData, extensions) {
     '--disable-updates', '--skip-welcome', '--skip-release-notes', '--no-cached-data',
     ...(mode === 'trusted' ? ['--disable-workspace-trust'] : [])];
 }
-function prepare() {
+function frozenDeadline(value) {
+  assert.equal(typeof value, 'string', 'Frozen deadline must be an ISO UTC timestamp');
+  const deadline = Date.parse(value);
+  assert.ok(Number.isFinite(deadline) && new Date(deadline).toISOString() === value, 'Frozen deadline must be canonical ISO UTC');
+  return deadline;
+}
+function preparationDeadline(options = {}, now = Date.now()) {
+  assert.ok(!(options.deadline_utc !== undefined && options.timeout_seconds !== undefined), 'Choose deadline or timeout, not both');
+  let deadline;
+  if (options.deadline_utc !== undefined) { deadline = frozenDeadline(options.deadline_utc); }
+  else {
+    const seconds = options.timeout_seconds === undefined ? DEFAULT_TIMEOUT_SECONDS : Number(options.timeout_seconds);
+    assert.ok(Number.isFinite(seconds) && seconds > 0 && seconds <= MAX_TIMEOUT_SECONDS, 'Timeout must be finite, positive and at most 900 seconds');
+    deadline = now + seconds * 1000;
+  }
+  assert.ok(deadline > now + CLEANUP_BUDGET_MS && deadline <= now + MAX_TIMEOUT_SECONDS * 1000,
+    'Preparation deadline must leave 45 seconds cleanup and be within 900 seconds');
+  return new Date(deadline).toISOString();
+}
+function runDeadline(plan, now = Date.now()) {
+  const deadline = frozenDeadline(plan.deadline_utc);
+  assert.ok(now < deadline - CLEANUP_BUDGET_MS, 'Deadline leaves insufficient cleanup budget');
+  return deadline;
+}
+function ownerDeadline(owner) {
+  assert.ok(Number.isFinite(owner.deadline), 'Owned operation requires the frozen plan deadline');
+  return owner.deadline;
+}
+function validateProductManifest(target) {
+  assert.equal(target.capabilities.untrustedWorkspaces.supported, false);
+  assert.equal(`${target.publisher}.${target.name}`, 'anna-poutanen.semantic-search-local');
+  assert.match(target.version, /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-(?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*))*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/, 'Product version must be semver');
+  assert.equal(target.license, 'MIT'); assert.equal(target.main, './dist/src/extension.js');
+}
+function prepare(deadlineUtc = preparationDeadline()) {
+  frozenDeadline(deadlineUtc);
   const base = path.join(config.cache, `vscode-${config.platform}-${config.version}`);
   const app = path.join(base, 'Visual Studio Code.app/Contents');
   const executable = path.join(app, 'MacOS/Code'), cli = path.join(app, 'Resources/app/bin/code');
@@ -77,20 +114,20 @@ function prepare() {
   assert.equal(json(path.join(app, 'Resources/app/package.json')).version, config.version);
   const vsce = path.join(EXT, 'node_modules/@vscode/vsce'); assert.equal(json(path.join(vsce, 'package.json')).version, '4.0.0');
   const target = json(path.join(EXT, 'package.json'));
-  assert.equal(target.capabilities.untrustedWorkspaces.supported, false);
-  assert.equal(`${target.publisher}.${target.name}`, 'anna-poutanen.semantic-search-local');
-  assert.equal(target.version, '0.1.0'); assert.equal(target.main, './dist/src/extension.js');
+  validateProductManifest(target);
+  const license = fs.readFileSync(path.join(ROOT, 'LICENSE'));
+  assert.ok(license.equals(fs.readFileSync(path.join(EXT, 'LICENSE'))), 'Product MIT license must match project license exactly');
   const excluded = name => /^(node_modules|\.cache|\.git)(\/|$)/.test(name) || name.endsWith('.vsix');
   return {schema: 1, classification: 'Prospective CPU-only metadata freeze; no packaging/install/editor/model execution',
-    prepared_utc: new Date().toISOString(), deadline_utc: new Date(DEADLINE).toISOString(),
+    prepared_utc: new Date().toISOString(), deadline_utc: deadlineUtc,
     model_calls: 0, inference_calls: 0, editor_launches: 0,
     host: {executable, cli, version: config.version, commit: config.commit,
       executable_sha256: config.expected_executable_sha256, cli_sha256: sha(fs.readFileSync(cli))},
     node: {executable: process.execPath, version: process.version, sha256: sha(fs.readFileSync(process.execPath))},
     vsce: {path: vsce, version: '4.0.0', files: inventory(vsce, name => name.startsWith('node_modules/'))},
-    source: {target: inventory(EXT, excluded), sidecar: inventory(SIDECAR),
+    source: {target: inventory(EXT, excluded), sidecar: inventory(SIDECAR), project_license: {bytes: license.length, sha256: sha(license)},
       helper: {path: path.relative(ROOT, __filename), sha256: sha(fs.readFileSync(__filename))}},
-    expected: {id: `${target.publisher}.${target.name}`, version: target.version,
+    expected: {id: `${target.publisher}.${target.name}`, version: target.version, license: target.license,
       sidecar_id: 'semantic-search-evaluation.semantic-search-profile-probe', sidecar_version: '0.0.1'},
     owned_profile_location_policy: {canonical_base: fs.realpathSync('/tmp'), prefix: 'ssp-', maximum_socket_path_bytes: 103},
     modes: ['trusted', 'restricted'], fixture: {source: SOURCE, sha256: sha(SOURCE), token_count_is_placeholder: true},
@@ -99,14 +136,18 @@ function prepare() {
       'Authored loopback schema fixture uses no model/retrieval/tokenizer; token count is a placeholder.',
       'Local VSIX install and ordinary Code only; no development/test-host arguments and no user profile use.']};
 }
-function checkPlan(plan) {
-  const observed = prepare();
+function checkPlan(plan, observe = prepare) {
+  const observed = observe(plan.deadline_utc);
   for (const key of ['schema', 'deadline_utc', 'host', 'node', 'vsce', 'source', 'expected', 'owned_profile_location_policy', 'modes', 'fixture']) {
     assert.ok(same(plan[key], observed[key]), 'Prepared input drift: ' + key);
   }
 }
 function groupAlive(pid) {
-  try { process.kill(-pid, 0); return true; } catch (error) { if (error.code === 'ESRCH') { return false; } throw error; }
+  try { process.kill(-pid, 0); return true; } catch (error) {
+    if (error.code === 'ESRCH') { return false; }
+    if (error.code === 'EPERM') { return true; } // Denied probe never establishes absence; poll through Darwin reaping.
+    throw error;
+  }
 }
 function assertOwner(owner, handle) {
   const disk = json(path.join(owner.root, 'owner.json'));
@@ -122,7 +163,7 @@ function signalOwned(owner, handle, signal) {
 function startOwned(owner, command, args, options = {}) {
   assert.equal(fs.realpathSync(owner.root), owner.root);
   assert.equal(json(path.join(owner.root, 'owner.json')).nonce, owner.nonce);
-  assert.ok(!owner.interrupted); assert.ok(Date.now() < (owner.deadline ?? DEADLINE));
+  assert.ok(!owner.interrupted); assert.ok(Date.now() < ownerDeadline(owner));
   const child = spawn(command, args, {cwd: options.cwd ?? ROOT, env: options.env ?? environment(),
     detached: true, stdio: ['ignore', 'pipe', 'pipe']});
   const handle = {nonce: owner.nonce, pid: child.pid, pgid: child.pid, command, arguments: args,
@@ -154,7 +195,7 @@ async function stopOwned(owner, handle, options = {}) {
     forced_kill: false, errors: [], signals_sent: [], group_absent: false, graceful_quit_requested: handle.quit_requested === true, started_utc: new Date().toISOString()};
   try {
     if (handle.kind === 'editor' && handle.quit_requested && !owner.interrupted) {
-      const waitMs = Math.max(0, Math.min(options.gracefulWaitMs ?? 20000, (owner.deadline ?? DEADLINE) - Date.now() - 7000));
+      const waitMs = Math.max(0, Math.min(options.gracefulWaitMs ?? 20000, ownerDeadline(owner) - Date.now() - 7000));
       receipt.graceful_wait = await waitForGracefulExit(handle, waitMs);
     }
     if (groupAlive(handle.pgid)) { receipt.signals_sent.push('SIGTERM'); signalOwned(owner, handle, 'SIGTERM'); }
@@ -173,7 +214,7 @@ function publicHandle(handle) {
 }
 async function command(owner, executable, args, options = {}) {
   const handle = startOwned(owner, executable, args, options);
-  const until = Math.min((owner.deadline ?? DEADLINE) - 6000, Date.now() + (options.timeoutMs ?? 60000));
+  const until = Math.min(ownerDeadline(owner) - 6000, Date.now() + (options.timeoutMs ?? 60000));
   try {
     while (!handle.settled && Date.now() < until && !owner.interrupted && !handle.overflow) { await delay(20); }
     assert.ok(handle.settled && !owner.interrupted && !handle.overflow && !handle.error, 'Owned command interrupted/failed/timed out');
@@ -181,7 +222,11 @@ async function command(owner, executable, args, options = {}) {
   } finally { await stopOwned(owner, handle); assert.ok(handle.stop.clean, 'Owned command cleanup not proved clean'); }
 }
 function pidAlive(pid) {
-  try { process.kill(pid, 0); return true; } catch (error) { if (error.code === 'ESRCH') { return false; } throw error; }
+  try { process.kill(pid, 0); return true; } catch (error) {
+    if (error.code === 'ESRCH') { return false; }
+    if (error.code === 'EPERM') { return true; } // Conservative until a later ESRCH proves actual absence.
+    throw error;
+  }
 }
 async function waitForGracefulExit(handle, timeoutMs = 20000) {
   const until = Date.now() + timeoutMs, started = Date.now();
@@ -241,7 +286,7 @@ async function finalizePublication(owner, receipt, output, remove = fsp.rm) {
   // No await between the last interruption sample and exclusive publication.
   receipt.observed_signals = [...(owner.signals ?? [])]; receipt.interrupted = owner.interrupted;
   receipt.passed = receipt.passed === true && receipt.all_owned_cleanup_clean
-    && receipt.all_editor_sidecars_proved_absent && receipt.owned_profile_removed && !receipt.interrupted;
+    && receipt.all_editor_sidecars_proved_absent && receipt.owned_profile_removed && !receipt.interrupted && Date.now() < ownerDeadline(owner);
   receipt.finished_utc = new Date().toISOString(); exclusive(path.join(output, 'receipt.json'), receipt);
 }
 async function readArchive(filename) {
@@ -276,6 +321,11 @@ function checkArchiveBindings(archive, plan, name) {
   const executable = name === 'product' ? Object.keys(expected).filter(key => key.startsWith('dist/src/')) : ['extension.cjs'];
   assert.ok(executable.length > 0);
   for (const key of executable) { assert.ok(same(payload[key], expected[key]), 'Packaged frozen executable drift: ' + key); }
+  if (name === 'product') {
+    assert.equal(archive.manifest.license, 'MIT');
+    assert.ok(same(payload.LICENSE, expected.LICENSE), 'Packaged MIT license drift');
+    assert.ok(same(payload.LICENSE, plan.source.project_license), 'Packaged license differs from project MIT license');
+  }
   assert.ok(same(archive.manifest, json(path.join(name === 'product' ? EXT : SIDECAR, 'package.json'))), 'Packaged manifest drift');
   return {executable_files: Object.fromEntries(executable.map(key => [key, payload[key]])), manifest_matches_source: true};
 }
@@ -332,14 +382,14 @@ async function fixture(repository) {
     async close() { server.closeAllConnections(); if (server.listening) { await new Promise(resolve => server.close(resolve)); } return !server.listening; }};
 }
 async function run(plan, output, planBinding = null) {
-  checkPlan(plan); assert.ok(path.isAbsolute(output)); assert.ok(Date.now() < DEADLINE - 45000, 'Deadline leaves insufficient cleanup budget');
+  const deadline = runDeadline(plan); checkPlan(plan); assert.ok(path.isAbsolute(output)); runDeadline(plan);
   fs.mkdirSync(output, {mode: 0o700}); // Exclusive run guard, before ownership/launch.
   const root = shortOwnedRoot();
-  const owner = {root, nonce: crypto.randomBytes(24).toString('hex'), handles: new Set(), interrupted: false, deadline: DEADLINE, signals: []};
+  const owner = {root, nonce: crypto.randomBytes(24).toString('hex'), handles: new Set(), interrupted: false, deadline, signals: []};
   exclusive(path.join(root, 'owner.json'), {nonce: owner.nonce, launcher_pid: process.pid, created_utc: new Date().toISOString()});
   const receipt = {schema: 1, classification: 'Ordinary installed-profile zero-model authored HTTP acceptance', passed: false,
     plan_canonical_sha256: sha(JSON.stringify(canonical(plan))), plan_file: planBinding, source: plan.source, host: plan.host, limits: plan.limits,
-    started_utc: new Date().toISOString(), model_calls: 0, inference_calls: 0, modes: [], owned_root: root};
+    started_utc: new Date().toISOString(), deadline_utc: plan.deadline_utc, model_calls: 0, inference_calls: 0, modes: [], owned_root: root};
   let service;
   const interrupted = signal => { owner.signals.push(signal); owner.interrupted = true; for (const handle of owner.handles) { try { signalOwned(owner, handle, 'SIGTERM'); } catch {} } };
   const onSigint = () => interrupted('SIGINT'), onSigterm = () => interrupted('SIGTERM');
@@ -348,7 +398,7 @@ async function run(plan, output, planBinding = null) {
     const packModule = path.join(plan.vsce.path, 'out/package.js');
     for (const [name, cwd] of [['product', EXT], ['sidecar', SIDECAR]]) {
       const filename = path.join(root, name + '.vsix');
-      const script = `require(${JSON.stringify(packModule)}).pack(${JSON.stringify({cwd, packagePath: filename, dependencies: false, skipLicense: true,
+      const script = `require(${JSON.stringify(packModule)}).pack(${JSON.stringify({cwd, packagePath: filename, dependencies: false, skipLicense: name !== 'product',
         baseContentUrl: 'https://github.com/anna-poutanen/semantic-search-engine/blob/main/extensions/vscode',
         baseImagesUrl: 'https://github.com/anna-poutanen/semantic-search-engine/raw/main/extensions/vscode'})}).catch(e=>{console.error(e.message);process.exitCode=1})`;
       await command(owner, process.execPath, ['-e', script], {cwd});
@@ -386,7 +436,7 @@ async function run(plan, output, planBinding = null) {
       handle.sidecar_owner_file = path.join(directory, 'sidecar-owner.json');
       handle.quit_request_file = path.join(directory, 'quit-request.json'); handle.proof_file = result;
       exclusive(path.join(directory, 'launch-owner.json'), {nonce: owner.nonce, pid: handle.pid, pgid: handle.pgid});
-      const until = Math.min(DEADLINE - 8000, Date.now() + 110000);
+      const until = Math.min(owner.deadline - 8000, Date.now() + 110000);
       while (!fs.existsSync(result) && Date.now() < until && !handle.settled && !owner.interrupted && !handle.overflow) { await delay(50); }
       assert.ok(fs.existsSync(result) && !owner.interrupted && !handle.error && !handle.overflow, 'Ordinary sidecar did not produce a terminal proof');
       fs.copyFileSync(result, path.join(output, mode + '-sidecar-result.json'), fs.constants.COPYFILE_EXCL);
@@ -440,21 +490,27 @@ async function run(plan, output, planBinding = null) {
 function args(argv) {
   const result = {};
   for (let i = 0; i < argv.length; i++) {
-    const key = argv[i]; assert.ok(['--prepare', '--run', '--plan', '--expected-plan-sha256', '--output'].includes(key));
+    const key = argv[i]; assert.ok(['--prepare', '--run', '--plan', '--expected-plan-sha256', '--output', '--deadline-utc', '--timeout-seconds'].includes(key));
     assert.ok(!Object.hasOwn(result, key));
     result[key] = ['--prepare', '--run'].includes(key) ? true : argv[++i]; assert.ok(result[key]);
   }
   assert.equal(Boolean(result['--prepare']) + Boolean(result['--run']), 1, 'Choose explicit --prepare or --run');
   assert.ok(path.isAbsolute(result['--output'] ?? ''));
-  if (result['--run']) { assert.ok(path.isAbsolute(result['--plan'] ?? '') && /^[a-f0-9]{64}$/.test(result['--expected-plan-sha256'] ?? '')); }
+  if (result['--run']) {
+    assert.ok(path.isAbsolute(result['--plan'] ?? '') && /^[a-f0-9]{64}$/.test(result['--expected-plan-sha256'] ?? ''));
+    assert.ok(result['--deadline-utc'] === undefined && result['--timeout-seconds'] === undefined, 'Run deadline comes only from frozen plan');
+  } else { preparationDeadline({deadline_utc: result['--deadline-utc'], timeout_seconds: result['--timeout-seconds']}); }
   return result;
 }
-module.exports = {SOURCE, DEADLINE, sha, canonical, same, inventory, environment, settings, ipcPathReceipt, shortOwnedRoot, launchArgs, prepare, checkPlan,
-  startOwned, assertOwner, signalOwned, stopOwned, command, readArchive, checkArchiveBindings, verifyInstalled, fixtureResponse, fixture, pidAlive, waitForGracefulExit, captureQuitRequest, captureSidecar, probeSidecarGone, finalizePublication, run, args};
+module.exports = {SOURCE, DEFAULT_TIMEOUT_SECONDS, MAX_TIMEOUT_SECONDS, CLEANUP_BUDGET_MS, frozenDeadline, preparationDeadline, runDeadline, ownerDeadline, validateProductManifest, sha, canonical, same, inventory, environment, settings, ipcPathReceipt, shortOwnedRoot, launchArgs, prepare, checkPlan,
+  startOwned, assertOwner, signalOwned, stopOwned, command, readArchive, checkArchiveBindings, verifyInstalled, fixtureResponse, fixture, pidAlive, groupAlive, waitForGracefulExit, captureQuitRequest, captureSidecar, probeSidecarGone, finalizePublication, run, args};
 if (require.main === module) {
   (async () => {
     const options = args(process.argv.slice(2));
-    if (options['--prepare']) { exclusive(options['--output'], prepare()); console.log(JSON.stringify({prepared: true, model_calls: 0, editor_launches: 0})); }
+    if (options['--prepare']) {
+      const deadline = preparationDeadline({deadline_utc: options['--deadline-utc'], timeout_seconds: options['--timeout-seconds']});
+      exclusive(options['--output'], prepare(deadline)); console.log(JSON.stringify({prepared: true, model_calls: 0, editor_launches: 0, deadline_utc: deadline}));
+    }
     else {
       assert.equal(sha(fs.readFileSync(options['--plan'])), options['--expected-plan-sha256']);
       const result = await run(json(options['--plan']), options['--output'],
