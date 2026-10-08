@@ -32,11 +32,11 @@ this kit changes no agent or editor settings. The ordinary CLI/MCP workflow
 searches saved source; explicit dirty-buffer search is an editor feature.
 
 The updated downloadable package is the
-[v0.1.0-preview.2 GitHub release](https://github.com/anna-poutanen/semantic-search-engine/releases/tag/v0.1.0-preview.2).
+[v0.1.1-preview.1 GitHub release](https://github.com/anna-poutanen/semantic-search-engine/releases/tag/v0.1.1-preview.1).
 Follow the [preview installation guide](release-preview.md). Its exact asset was
 installed and tested in ordinary Code profiles, including Restricted Mode;
 optional Qwen controls are included, while actual model setup stays separate.
-The manifest is still `0.1.0`; accept replacement of preview 1 and reload, or use
+The MIT-licensed manifest is `0.1.1`; accept the update and reload, or use
 CLI installation with `--force`. Baseline dense/off evaluation does not require
 optional reranking. [Qwen editor setup](vscode-qwen-reranker.md)
 
@@ -135,7 +135,7 @@ Summarize independent sessions by workflow, version and public revision, retaini
 full/partial/error denominators and observed regressions. Verify and publish any
 updated VSIX before changing the release handoff. Ordinary-profile evidence and
 broader repository/workflow behavior remain separate gates. The preview package
-is currently `UNLICENSED`; the project's distribution-license decision remains
-an existing readiness item, and this kit adds no license grant. Any future
+now includes the project MIT license. Upstream source, model weights and
+separately installed dependencies retain their licenses. Any future
 paid-token or workflow-benefit claim needs actual consumer usage and correctness
 evidence, not a smaller local context cap or feedback counts alone.

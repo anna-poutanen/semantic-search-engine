@@ -14,6 +14,7 @@ import shlex
 import shutil
 import signal
 import subprocess
+import tempfile
 import time
 import urllib.request
 import uuid
@@ -55,8 +56,12 @@ def prepare(destination):
         raise ValueError("Git is required; install the macOS command line tools with: xcode-select --install")
     if target.is_relative_to(ROOT):
         relative = target.relative_to(ROOT).as_posix()
-        ignored = subprocess.run(["git", "-C", str(ROOT), "check-ignore", "--quiet", "--", relative], check=False)
-        if ignored.returncode != 0:
+        checkout = subprocess.run(["git", "-C", str(ROOT), "rev-parse", "--is-inside-work-tree"],
+                                  stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=False)
+        ignored = subprocess.run(["git", "-C", str(ROOT), "check-ignore", "--quiet", "--", relative],
+                                 stderr=subprocess.DEVNULL, check=False) if checkout.returncode == 0 else None
+        if ((ignored is not None and ignored.returncode != 0)
+                or (ignored is None and not target.is_relative_to(ROOT / ".cache/demos"))):
             raise ValueError("A demo inside this project must use an ignored destination such as .cache/demos/My Demo")
     target.parent.mkdir(parents=True, exist_ok=True)
     target.mkdir()  # Exclusive even if a competing creator appeared after the check.
@@ -65,8 +70,13 @@ def prepare(destination):
     for name, source in SOURCES.items():
         (repo / name).write_bytes(source.encode("utf-8"))
     (repo / ".gitignore").write_text(".semantic-search/\n", encoding="utf-8")
-    subprocess.run(["git", "-C", str(repo), "init", "--quiet"], check=True)
-    subprocess.run(["git", "-C", str(repo), "add", "--", "src", ".gitignore"], check=True)
+    # Ambient templates, hooks, aliases and GIT_DIR must not alter the authored toy.
+    environment = {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
+    environment.update(GIT_CONFIG_NOSYSTEM="1", GIT_CONFIG_GLOBAL=os.devnull)
+    with tempfile.TemporaryDirectory(prefix="semantic-search-empty-git-template-") as template:
+        subprocess.run(["git", "-C", str(repo), "init", "--quiet", "--initial-branch=main", f"--template={template}"],
+                       env=environment, check=True)
+        subprocess.run(["git", "-C", str(repo), "add", "--", "src", ".gitignore"], env=environment, check=True)
     return repo
 
 

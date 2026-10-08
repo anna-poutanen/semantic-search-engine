@@ -365,3 +365,32 @@ def test_owned_service_group_reaps_a_real_model_free_child(tmp_path):
         if process.poll() is None:
             os.killpg(process.pid, signal.SIGKILL)
             process.wait(timeout=3)
+
+
+def test_source_zip_without_git_allows_only_designated_demo_cache(tmp_path):
+    project = tmp_path / "Downloaded App"
+    project.mkdir()
+    with patch.object(demo, "ROOT", project):
+        with pytest.raises(ValueError, match="ignored destination"):
+            demo.prepare(project / "src/not-a-demo")
+        repo = demo.prepare(project / ".cache/demos/My Demo")
+    assert (repo / ".git").is_dir()
+    assert set(subprocess.check_output(["git", "-C", str(repo), "ls-files"]).decode().splitlines()) == {".gitignore", *demo.SOURCES}
+
+
+def test_demo_does_not_inherit_user_git_templates_or_repository_environment(tmp_path):
+    project = tmp_path / "App"
+    project.mkdir()
+    template = tmp_path / "user-template"
+    template.mkdir()
+    (template / "sentinel").write_text("Do not copy this")
+    config = tmp_path / "userconfig"
+    config.write_text(f'[init]\n  templateDir = "{template}"\n')
+    unrelated = tmp_path / "other-repo"
+    unrelated.mkdir()
+    subprocess.run(["git", "-C", str(unrelated), "init", "--quiet"], check=True)
+    with patch.object(demo, "ROOT", project), patch.dict(os.environ, {"GIT_CONFIG_GLOBAL": str(config), "GIT_DIR": str(unrelated / ".git")}):
+        repo = demo.prepare(tmp_path / "toy")
+    assert not (repo / ".git/sentinel").exists()
+    assert subprocess.check_output(["git", "-C", str(unrelated), "ls-files"]) == b""
+    assert set(subprocess.check_output(["git", "-C", str(repo), "ls-files"]).decode().splitlines()) == {".gitignore", *demo.SOURCES}

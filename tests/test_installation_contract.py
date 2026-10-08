@@ -212,5 +212,5 @@ def test_fresh_runtime_distribution_inventory():
     other = {"semantic-search-engine", "pytest", "pluggy", "iniconfig", "setuptools", "wheel"}
     assert not (installed - {canonical(name) for name in pins} - other)
     assert pinned_uv_version(subprocess.check_output([ROOT / ".cache/bootstrap/bin/uv", "--version"], text=True))
-    assert importlib.metadata.version("semantic-search-engine") == "0.1.0"
+    assert importlib.metadata.version("semantic-search-engine") == tomllib.loads((ROOT / "pyproject.toml").read_text())["project"]["version"]
     assert (Path(expected) / "bin/semantic-search").is_file()

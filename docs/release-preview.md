@@ -74,13 +74,13 @@ The backend remains a separately started local process; the extension installs
 no model or Python environment.
 
 Download the verified VSIX from the
-[GitHub preview release](https://github.com/anna-poutanen/semantic-search-engine/releases/tag/v0.1.0-preview.2),
+[GitHub preview release](https://github.com/anna-poutanen/semantic-search-engine/releases/tag/v0.1.1-preview.1),
 then use **Extensions: Install from VSIX**. Connect it to the separately started
-service indexing the same trusted local workspace folder. The 53,874-byte asset
-has SHA-256 `e798b21af047e1aca6b13d4d6e14aa5c6ec0069225eb5cdd611c9f93724aed60`;
-GitHub's uploaded asset digest is checked against the tested local package.
-The manifest remains version `0.1.0`; replacing preview 1 may require accepting
-the replacement and reloading, or CLI installation with `--force`.
+service indexing the same trusted local workspace folder. The release includes
+SHA-256 checksums for its assets. The earlier 53,874-byte preview 2 package and
+its recorded digest remain historical acceptance evidence.
+The current package is version `0.1.1` and includes the MIT license. The small Mac
+ZIP also includes a guided launcher; start with [the getting-started guide](getting-started.md).
 
 Separate native acceptance checks observed actual false Workspace Trust,
 multi-folder selection/removal and offline failure handling. These exercised
@@ -122,6 +122,7 @@ or paid-token benefit. Cancellation is cooperative;
 an active Metal forward can finish before it is observed. Source proofs do not
 lock files against changes after the final check.
 
-This is a GitHub portfolio preview, with no Marketplace publication. The
-extension package remains `UNLICENSED`; no distribution license grant is implied
-by the published preview artifact.
+This is a GitHub portfolio preview, with no Marketplace publication. Original project code and the current extension are MIT licensed. Separately
+installed dependencies and model weights retain their licenses, as described in
+[third-party notices](../THIRD_PARTY_NOTICES.md). Historical preview artifacts
+retain the metadata with which they were published.
