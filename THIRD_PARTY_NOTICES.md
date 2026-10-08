@@ -1,5 +1,18 @@
 # Third-party notices
 
+The project's original code and documentation are licensed under the MIT
+license in [LICENSE](LICENSE), copyright (c) 2026 Anna Poutanen. Third-party
+code, source excerpts, model weights, and dependencies retain their own
+licenses and notices described below. The project's MIT license does not
+replace those licenses.
+
+The Python package contains this project's runtime source and license files.
+The VS Code extension package contains this project's editor adapter and its
+MIT license. Neither package includes model weights, benchmark corpus
+checkouts, or the separately installed Python model runtimes. In particular,
+the optional `mlx-embeddings` dependency retains GPL-3.0-or-later; it is not
+relicensed by this project.
+
 ## Pallets Flask
 
 The benchmark refers to Flask source at commit
@@ -82,6 +95,17 @@ The optional Mac dependency `mlx-embeddings==0.1.0` is licensed under
 GPL-3.0-or-later, copyright 2024 Prince Canuma. Its package includes its license;
 the dependency's source is not vendored in this repository:
 https://github.com/Blaizzy/mlx-embeddings
+
+## Optional Qwen3 reranker
+
+Original Qwen3-Reranker-0.6B weights are downloaded separately at revision
+`e61197ed45024b0ed8a2d74b80b4d909f1255473` and are not redistributed here.
+The model retains its Apache-2.0 license:
+https://huggingface.co/Qwen/Qwen3-Reranker-0.6B
+
+The optional MLX and MLX LM runtimes are installed separately, retaining their
+upstream license files:
+https://github.com/ml-explore/mlx and https://github.com/ml-explore/mlx-lm
 
 ## Persistent retrieval, context counting, and MCP
 
