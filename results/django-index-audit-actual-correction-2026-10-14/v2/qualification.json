@@ -1,0 +1,57 @@
+{
+  "actual_audit_rerun": false,
+  "all_original_executed_source_bindings_unchanged": true,
+  "all_prior_v1_cases_preserved": 95,
+  "checks_passed": true,
+  "classification": "Second independent auditor repair: separate worker-preexit observation from strictly verified postexit durable main-file image",
+  "corrected_source_sha256": "a24992727e690458d7cd32351e44dca2322cd53b68f864836cecc766b6f401aa",
+  "corrected_tests_sha256": "ae40e2dede601d0dfec555df4e6a10392642d751022a1ac853247b115d7aad2b",
+  "cpu_mutation_tests_passed": 107,
+  "known_prior_failure": "ValueError: Current closed database/WAL/SHM witness differs",
+  "limitations": [
+    "The worker-preexit sidecar byte sizes are retained observations, not independently reproducible postexit artifacts.",
+    "This CPU qualification is not a complete actual-results certificate; root must run the new auditor with a new output filename."
+  ],
+  "model_calls": 0,
+  "new_disk_scope_cases": 12,
+  "new_inference": false,
+  "no_native_vector_source_quality_or_numerical_threshold_changes": true,
+  "original_auditor_sha256": "b0cc43b8d5d313b82b0ef2973d05b90d0c80a331265100e22370bd8620353f1f",
+  "original_failure_sha256": "affc86707aa5ad29e0f6fb5c3b29007398dd21f89c4d07821fcfee78f44f34ed",
+  "physical_proof_sha256": "09bcc4e25dcd14a7aa06508dedc72994a125efed2f5c3fd647f12a35c91dbabc",
+  "prior_v1_auditor_sha256": "0f5f8276a294d675000a5ff4a123580e4fafddd61c6057bf8734367bc9225374",
+  "prior_v1_failure_sha256": "401bafe9a2fa5f9f932bd22c12a15fbc2e6e7edbd952a10183720845d5650003",
+  "production_helpers_imported": false,
+  "pytest_exit_code": 0,
+  "pytest_log_sha256": "9c86c5dc46b764e82a6c6cad0a3e5b1e89d667cde451037c4c90982909968737",
+  "recorded_at_utc": "2026-10-14T11:43:21.192779+00:00",
+  "repair_patch_sha256": "1857b343852cd7446d78dbd6a2dafde2e00cafdd73895eebec405776dde07241",
+  "retrieval_calls": 0,
+  "ruff_exit_code": 0,
+  "ruff_log_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+  "source_after": {
+    "scripts/audit_django_index_profile.py": "b0cc43b8d5d313b82b0ef2973d05b90d0c80a331265100e22370bd8620353f1f",
+    "scripts/audit_django_index_profile_actual_correction.py": "0f5f8276a294d675000a5ff4a123580e4fafddd61c6057bf8734367bc9225374",
+    "scripts/audit_django_index_profile_actual_correction_v2.py": "a24992727e690458d7cd32351e44dca2322cd53b68f864836cecc766b6f401aa",
+    "tests/test_audit_django_index_profile.py": "8c681389c1d02a0fa6a11a44aee29c6ecf097cc009d0681c4af4525680b5e595",
+    "tests/test_audit_django_index_profile_actual_correction.py": "fe486b8c600db556c73f8aa49254e7de6a2ba773f7fcc9e963468b382a87a08a",
+    "tests/test_audit_django_index_profile_actual_correction_v2.py": "ae40e2dede601d0dfec555df4e6a10392642d751022a1ac853247b115d7aad2b"
+  },
+  "source_before": {
+    "scripts/audit_django_index_profile.py": "b0cc43b8d5d313b82b0ef2973d05b90d0c80a331265100e22370bd8620353f1f",
+    "scripts/audit_django_index_profile_actual_correction.py": "0f5f8276a294d675000a5ff4a123580e4fafddd61c6057bf8734367bc9225374",
+    "scripts/audit_django_index_profile_actual_correction_v2.py": "a24992727e690458d7cd32351e44dca2322cd53b68f864836cecc766b6f401aa",
+    "tests/test_audit_django_index_profile.py": "8c681389c1d02a0fa6a11a44aee29c6ecf097cc009d0681c4af4525680b5e595",
+    "tests/test_audit_django_index_profile_actual_correction.py": "fe486b8c600db556c73f8aa49254e7de6a2ba773f7fcc9e963468b382a87a08a",
+    "tests/test_audit_django_index_profile_actual_correction_v2.py": "ae40e2dede601d0dfec555df4e6a10392642d751022a1ac853247b115d7aad2b"
+  },
+  "source_explanation": "The worker observes disk_closed after SQLiteIndex.close, whose implementation says connections are closed per operation and has no body. The worker also retains the empty-schema sqlite3 connection variable: entering/exiting a sqlite3 connection context manages transactions without explicit connection.close. That reference remains within worker scope when disk_closed is sampled. Native parent records clean exit and group disappearance later. Removed sidecar bytes were not retained and cannot be re-hashed. The page/header comparison independently proves retained image equality without asserting a retrospective exact WAL lifecycle.",
+  "strict_repair_checks": [
+    "Require worker-preexit recorded file schema and internally consistent physical byte sum.",
+    "Require postexit physical inventory to contain only the main database with size exactly equal to final hash-bound SQLite backup and the recorded main-file size.",
+    "Compare all retained page bytes and every header byte except three separately recorded SQLite backup counter fields.",
+    "Require valid SQLite magic, page size/page count/file length, and exact final backup artifact SHA.",
+    "Preserve preexit and postexit sizes as separate labeled observations in the certificate.",
+    "Keep the prior exact raw argv/private ownership restoration repair and all original committed source guards."
+  ]
+}
