@@ -312,3 +312,72 @@ test('canonical short owned profile keeps actual Code IPC socket below macOS byt
     assert.throws(() => h.ipcPathReceipt('/' + 'é'.repeat(47), '1.141.0'), /103-byte/);
   } finally { fs.rmSync(root, {recursive: true}); }
 });
+test('proof publication is complete and atomic before sidecar public quit invocation', async () => {
+  const owner = owned();
+  try {
+    const mode = 'trusted'; fs.mkdirSync(path.join(owner.root, mode));
+    const ownedSidecar = {root: owner.root, nonce: owner.nonce, mode, process_pid: 4321, result: path.join(owner.root, mode, 'proof.json')};
+    const proof = {nonce: owner.nonce, mode, passed: true, checks: {actual_test: true}};
+    let invoked = false;
+    side.publishProof(ownedSidecar.result, proof);
+    const vscode = {commands: {executeCommand: command => {
+      invoked = true; assert.equal(command, 'workbench.action.quit');
+      assert.deepEqual(JSON.parse(fs.readFileSync(ownedSidecar.result)), proof);
+      assert.equal(fs.existsSync(ownedSidecar.result + '.publishing'), false);
+      const request = JSON.parse(fs.readFileSync(path.join(owner.root, mode, 'quit-request.json')));
+      assert.equal(request.after_terminal_proof, true); assert.equal(request.proof_sha256, h.sha(fs.readFileSync(ownedSidecar.result)));
+      return Promise.resolve();
+    }}};
+    await side.requestQuitAfterProof(vscode, ownedSidecar); assert.equal(invoked, true);
+  } finally { await remove(owner); }
+});
+test('sidecar cannot request public quit before proof exists or when publication is duplicate', async () => {
+  const owner = owned();
+  try {
+    fs.mkdirSync(path.join(owner.root, 'trusted'));
+    const ownedSidecar = {root: owner.root, nonce: owner.nonce, mode: 'trusted', result: path.join(owner.root, 'trusted/proof.json')};
+    let calls = 0; const vscode = {commands: {executeCommand: () => { calls++; }}};
+    assert.throws(() => side.requestQuitAfterProof(vscode, ownedSidecar), /ENOENT/); assert.equal(calls, 0);
+    const original = {nonce: owner.nonce, mode: 'trusted', passed: true}; side.publishProof(ownedSidecar.result, original);
+    assert.throws(() => side.publishProof(ownedSidecar.result, {...original, passed: false}), /EEXIST/);
+    assert.deepEqual(JSON.parse(fs.readFileSync(ownedSidecar.result)), original); assert.equal(calls, 0);
+  } finally { await remove(owner); }
+});
+test('rejected public quit remains separate lifecycle failure evidence', async () => {
+  const owner = owned();
+  try {
+    fs.mkdirSync(path.join(owner.root, 'trusted'));
+    const ownedSidecar = {root: owner.root, nonce: owner.nonce, mode: 'trusted', result: path.join(owner.root, 'trusted/proof.json')};
+    side.publishProof(ownedSidecar.result, {nonce: owner.nonce, mode: 'trusted', passed: true});
+    await assert.rejects(side.requestQuitAfterProof({commands: {executeCommand: async () => { throw new Error('quit rejected'); }}}, ownedSidecar), /quit rejected/);
+    assert.equal(JSON.parse(fs.readFileSync(path.join(owner.root, 'trusted/quit-error.json'))).error, 'quit rejected');
+    assert.equal(JSON.parse(fs.readFileSync(ownedSidecar.result)).passed, true);
+  } finally { await remove(owner); }
+});
+test('editor parent waits for actual normal PID/group exit after proof instead of sending TERM', async () => {
+  const owner = owned();
+  try {
+    const handle = h.startOwned(owner, process.execPath, ['-e', 'setTimeout(()=>process.exit(0),150)'], {kind: 'editor'});
+    handle.quit_requested = true;
+    const receipt = await h.stopOwned(owner, handle, {gracefulWaitMs: 1000}); await handle.exit;
+    assert.equal(receipt.clean, true); assert.equal(receipt.graceful_wait.graceful_exit_observed, true);
+    assert.equal(receipt.graceful_wait.pid_absent, true); assert.equal(receipt.graceful_wait.group_absent, true);
+    assert.deepEqual(receipt.signals_sent, []); assert.equal(handle.code, 0); assert.equal(handle.signal, null);
+  } finally { await remove(owner); }
+});
+test('editor graceful timeout retains evidence before strict bounded TERM fallback', async () => {
+  const owner = owned();
+  try {
+    const handle = h.startOwned(owner, process.execPath, ['-e', 'setInterval(()=>{},1000)'], {kind: 'editor'});
+    handle.quit_requested = true;
+    const receipt = await h.stopOwned(owner, handle, {gracefulWaitMs: 40}); await handle.exit;
+    assert.equal(receipt.graceful_wait.graceful_exit_observed, false); assert.ok(receipt.graceful_wait.elapsed_ms >= 40);
+    assert.deepEqual(receipt.signals_sent, ['SIGTERM']); assert.equal(receipt.group_absent, true); assert.equal(receipt.forced_kill, false);
+  } finally { await remove(owner); }
+});
+test('ordinary launch explicitly isolates the supported pinned Code shared-data directory', () => {
+  for (const mode of ['trusted', 'restricted']) {
+    const argv = h.launchArgs(mode, '/owned/repository', '/owned/' + mode + '/user-data', '/owned/' + mode + '/extensions');
+    assert.ok(argv.includes('--shared-data-dir=/owned/' + mode + '/shared-data'));
+  }
+});
