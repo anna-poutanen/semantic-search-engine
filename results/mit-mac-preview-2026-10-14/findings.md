@@ -73,3 +73,10 @@ Linux dense setup, Marketplace distribution and external beta outcomes remain.
 Original code is MIT; `mlx-embeddings` is a separately installed GPL-3.0-or-later
 component. Model weights and other dependencies retain their documented terms.
 [Upstream notice](NOTICE.md) covers the Requests transcript excerpts.
+
+The [published release](published-release.json) records all three uploaded assets;
+GitHub's digest and size for each match the tested local bytes. The release tag
+points to `d6f4772375a1522916a62dd7a86607356d97d5c3`, whose [GitHub CI](github-ci.json)
+passed both core and editor jobs. The owned temporary extraction and its caches
+were removed after closed-listener checks; [cleanup](cleanup.json) retains that
+outcome. Tested release assets remain locally under ignored `.cache/releases/`.
