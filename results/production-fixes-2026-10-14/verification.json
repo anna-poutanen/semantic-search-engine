@@ -1,0 +1,36 @@
+{
+  "after_fix_related": {
+    "command": ".venv/bin/python -m pytest tests/test_cancellation.py tests/test_cli.py tests/test_backend.py tests/test_server.py tests/test_client.py tests/test_watcher.py tests/test_mcp_server.py tests/test_qwen_production_backend.py tests/test_qwen_production_signals.py tests/test_qwen_production_interfaces.py tests/test_overlays.py -q",
+    "elapsed_s": 20.23,
+    "failed": 0,
+    "passed": 116
+  },
+  "before_fix_targeted": {
+    "actual_fake_score_calls_during_anonymous_close": 2,
+    "failed": 6,
+    "passed": 20
+  },
+  "checks_passed": true,
+  "created_at_utc": "2026-10-14T12:48:31.207227+00:00",
+  "kind": "CPU qualification of anonymous shutdown and CLI configuration/budget fixes",
+  "limitations": [
+    "This is CPU regression evidence with authored fixtures and fake scorers, not a new model-quality or native-latency measurement",
+    "A native forward already running can finish before cooperative cancellation is observed",
+    "Completed frozen model experiments and original audit artifacts were not modified"
+  ],
+  "model_calls": 0,
+  "new_regressions": 6,
+  "source_sha256": {
+    "src/semantic_search/cancellation.py": "051c6cb8f8f99cb0b2da4eb93b6500d3b35bbc4605cf7038dbb90a4409af795b",
+    "src/semantic_search/cli.py": "1e06e65da1b44a52f90af4bdc91cc3030bdb27c8bc048893d013fc41977028be",
+    "tests/test_cancellation.py": "c9805cd2b624ee8894f9bf31475ae578dd241fcd93b2a18f438e43f56b2ab361",
+    "tests/test_cli.py": "c4a12954fb2fe4e7d156bdfaa5ca798ef7b218767da6590b8768aaca33f0c475"
+  },
+  "verified": [
+    "Backend close cancels anonymous work after the paused first fake score; the second score is skipped and no embedding model is initialized",
+    "Overlapping anonymous and named events cancel together, cleanup removes anonymous events, and fresh requests remain usable",
+    "Named cancellation IDs, duplicate protection, pre-dispatch tombstones and exception cleanup retain existing test coverage",
+    "Resident CLI --abstention-policy is rejected before creating an HTTP client",
+    "CLI names both available context caps and recommends the cap that clipped output; excerpts do not misattribute token clipping to source characters"
+  ]
+}
