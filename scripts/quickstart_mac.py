@@ -130,7 +130,7 @@ def check_model(directory):
     if not all((directory / name).is_file() for name in MODEL_FILES):
         raise ValueError("Embedding checkpoint is incomplete")
     config = json.loads((directory / "config.json").read_text())
-    if config.get("model_type") != "qwen3" or config.get("hidden_size") != 1024 or config.get("quantization") or config.get("quantization_config"):
+    if not isinstance(config, dict) or config.get("model_type") != "qwen3" or config.get("hidden_size") != 1024 or config.get("quantization") or config.get("quantization_config"):
         raise ValueError("Expected the original unquantized Qwen3 embedding configuration")
     metadata = directory / ".cache/huggingface/download/model.safetensors.metadata"
     rows = metadata.read_text().splitlines() if metadata.is_file() else []
@@ -160,7 +160,10 @@ def setup_model(python):
     except (OSError, ValueError):
         print("Downloading pinned Qwen embedding weights (~1.1 GiB). Interrupted downloads can resume…", flush=True)
         # A complete but modified file could otherwise be accepted by the Hub cache.
-        force = ["--force-download"] if (directory / "model.safetensors").is_file() else []
+        weight = directory / "model.safetensors"
+        corrupt_weight = weight.is_file() and digest(weight) != WEIGHTS_SHA
+        complete_but_invalid = all((directory / name).is_file() for name in MODEL_FILES)
+        force = ["--force-download"] if corrupt_weight or complete_but_invalid else []
         run(python.parent / "hf", "download", MODEL_ID, "--revision", MODEL_REVISION, "--local-dir", directory, *force)
         marker = check_model(directory)
     marker_path.write_text(json.dumps(marker, indent=2) + "\n")
@@ -287,7 +290,7 @@ def main(argv=None):
         if args.setup_only:
             print(f"\nSetup complete. Start the demo with: bash {str(ROOT / 'Get Started.command')!r}")
         elif args.check:
-            run(python, ROOT / "scripts/demo_mac.py", "--run", "--python", python)
+            run(python, ROOT / "scripts/demo_mac.py", "--run", "--quiet", "--python", python)
         else:
             if repo is None:
                 repo = prepare(fresh_destination())

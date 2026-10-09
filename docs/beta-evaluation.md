@@ -9,9 +9,11 @@ and actual coding-agent usage are different measurements.
 
 ## Prepare a local session
 
-Use an Apple Silicon Mac and a Git checkout of this project. Follow the existing
-[Mac setup and CLI instructions](../README.md#run-on-an-apple-silicon-mac) and
-[backend guide](backend-api.md). The embedding setup downloads the pinned model;
+For a quick try, use the [guided Mac download](getting-started.md). The collector
+recipe below requires an Apple Silicon Mac and the full Git checkout, including
+benchmark data and collector scripts omitted from the small ZIP. Follow the
+[developer setup](../README.md#developer-setup-and-experiments-on-an-apple-silicon-mac)
+to create its separate `.venv`, and the [backend guide](backend-api.md). The embedding setup downloads the pinned model;
 the feedback collector below performs no setup or downloads. Start with the
 public Requests checkout for a reproducible source root:
 

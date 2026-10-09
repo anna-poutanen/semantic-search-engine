@@ -2,6 +2,8 @@
 
 The stdio adapter exposes one tool, `search_code`, through the official Python MCP SDK (`mcp==2.3.0`). It forwards searches to the resident loopback HTTP service. Qwen embeddings, SQLite, and optional H2O or Qwen reranking stay in their service processes; launching an MCP connection does not load model weights.
 
+For the small Mac download, follow [the getting-started MCP instructions](getting-started.md#optional-vs-code-and-mcp). The developer recipe below uses the full repository and its `.venv`.
+
 ## Start the services
 
 From the project directory, install the optional adapter dependency into the existing environment:
@@ -10,7 +12,7 @@ From the project directory, install the optional adapter dependency into the exi
 .cache/bootstrap/bin/uv pip install --python .venv/bin/python -e '.[mcp]'
 ```
 
-Follow [the local setup instructions](../README.md#run-on-an-apple-silicon-mac) if Qwen and the Mac runtime are not installed. Start the search service for the repository you want the agent to search. For the pinned Requests example:
+Follow [the local setup instructions](../README.md#developer-setup-and-experiments-on-an-apple-silicon-mac) if Qwen and the Mac runtime are not installed. Start the search service for the repository you want the agent to search. For the pinned Requests example:
 
 ```sh
 .venv/bin/python scripts/fetch_corpus.py \

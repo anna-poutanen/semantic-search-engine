@@ -179,7 +179,7 @@ def test_explicit_noninteractive_modes_use_the_separate_runtime_and_correct_disp
     prepare.assert_not_called()
     interactive.assert_not_called()
     if mode == "--check":
-        run.assert_called_once_with(python, tmp_path / "scripts/demo_mac.py", "--run", "--python", python)
+        run.assert_called_once_with(python, tmp_path / "scripts/demo_mac.py", "--run", "--quiet", "--python", python)
     else:
         run.assert_not_called()
 

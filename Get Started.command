@@ -3,6 +3,7 @@
 set -eu
 ROOT="$(cd "$(dirname "$0")" && pwd -P)"
 fail() { printf '\nSetup stopped: %s\n' "$1" >&2; exit 1; }
+checksum() { LC_ALL=C LC_CTYPE=C LANG=C /usr/bin/shasum -a 256 "$1" | /usr/bin/awk '{print $1}'; }
 if [ "${1:-}" = "--help" ]; then
   printf '%s\n' 'Semantic Search — Apple Silicon Mac quickstart' \
     'bash "Get Started.command"                 Install and open the interactive toy demo' \
@@ -30,7 +31,7 @@ trap 'exit 130' INT
 trap 'exit 143' TERM
 if [ -e "$UV" ] || [ -L "$UV" ]; then
   [ -f "$UV" ] && [ ! -L "$UV" ] && [ -f "$UV.sha256" ] || fail 'Unrecognized cached uv binary; move .cache/quickstart/bootstrap aside and retry.'
-  ACTUAL="$(/usr/bin/shasum -a 256 "$UV" | /usr/bin/awk '{print $1}')"
+  ACTUAL="$(checksum "$UV")"
   [ "$ACTUAL" = "$(/bin/cat "$UV.sha256")" ] || fail 'Cached uv changed; move .cache/quickstart/bootstrap aside and retry.'
 else
   printf '\nDownloading the pinned local setup tool (uv 0.13.0, 14 MB)…\n'
@@ -38,12 +39,12 @@ else
   /usr/bin/curl --fail --location --proto '=https' --tlsv1.2 --retry 2 --connect-timeout 30 \
     'https://github.com/astral-sh/uv/releases/download/0.13.0/uv-aarch64-apple-darwin.tar.gz' \
     --output "$DOWNLOAD/uv.tar.gz"
-  ACTUAL="$(/usr/bin/shasum -a 256 "$DOWNLOAD/uv.tar.gz" | /usr/bin/awk '{print $1}')"
+  ACTUAL="$(checksum "$DOWNLOAD/uv.tar.gz")"
   [ "$ACTUAL" = "$UV_SHA" ] || fail 'Downloaded uv checksum differs from the pinned release.'
   /usr/bin/tar -xOf "$DOWNLOAD/uv.tar.gz" uv-aarch64-apple-darwin/uv > "$DOWNLOAD/uv"
   /bin/chmod 755 "$DOWNLOAD/uv"
   /bin/mv "$DOWNLOAD/uv" "$UV"
-  /usr/bin/shasum -a 256 "$UV" | /usr/bin/awk '{print $1}' > "$UV.sha256"
+  checksum "$UV" > "$UV.sha256"
 fi
 case "$("$UV" --version)" in 'uv 0.13.0'|'uv 0.13.0 ('*) ;; *) fail 'Expected the pinned uv 0.13.0 release.' ;; esac
 export UV_PYTHON_INSTALL_DIR="$WORK/python"
