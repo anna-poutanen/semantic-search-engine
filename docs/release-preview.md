@@ -89,6 +89,12 @@ public activation, and actual Restricted Mode disablement. Its four trusted
 fixture HTTP requests and zero restricted requests are integration evidence,
 with no model inference; trust-prompt UX remains untested.
 
+The [MIT Mac download qualification](../results/mit-mac-preview-2026-10-14/findings.md)
+records the exact 213,501-byte source ZIP and 55,345-byte VSIX, actual first
+download into empty project-local caches on the existing Mac, final cached
+HTTP/MCP checks, interactive toy/Requests sessions, and ordinary-profile
+installation with byte-exact license binding. This is not external beta evidence.
+
 ## Quality and measurement limits
 
 The separate [106-query Python study](../results/retrieval-quality-2026-10-12/findings.md)
