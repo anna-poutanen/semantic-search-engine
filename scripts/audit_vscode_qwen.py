@@ -220,6 +220,13 @@ def validate_host(host):
     require(host["exit"]["code"] == 0 and host["exit"]["completed_cleanly"] is True and host["exit"]["interrupted"] == [], "Clean editor exit")
 
 
+def validate_host_preparation(preparation, config):
+    for key in ("version", "commit", "platform", "test_electron_version"):
+        equal(preparation[key], config[key], "Actual prepared host pin")
+    equal(preparation["executable_sha256"], config["expected_executable_sha256"], "Measured prepared executable pin")
+    equal(preparation["expected_official_archive_sha256"], config["expected_archive_sha256"], "Actual official host archive pin")
+
+
 def local(value, root, work):
     require(type(value) is str, "Local path string")
     value = value.replace("<WORK>", str(work)).replace("<PROJECT>", str(root)).replace("<HOME>", str(Path.home()))
@@ -642,9 +649,7 @@ def audit(study, work, *, root=ROOT):
     embedding = validate_embedding(result["search_attempts"], result["embedding_entries"], result["observations"], result["embedding_counts"])
     validate_document_inputs(result["embedding_entries"], result["search_attempts"], repo)
     validate_host(host)
-    for key in ("version", "commit", "platform", "test_electron_version", "expected_executable_sha256"):
-        equal(host["host_preparation"][key], plan["host_runtime"]["config"][key], "Actual prepared host pin")
-    equal(host["host_preparation"]["expected_official_archive_sha256"], plan["host_runtime"]["config"]["expected_archive_sha256"], "Actual official host archive pin")
+    validate_host_preparation(host["host_preparation"], plan["host_runtime"]["config"])
     http = validate_http(result["observations"], host, repo, offline_encoding(root))
     cleanup = cleanup_proof(root, work, result, host, private)
     validate_clocks(plan, start, result, certificate, host)
