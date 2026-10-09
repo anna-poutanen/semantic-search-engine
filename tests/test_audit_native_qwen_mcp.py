@@ -18,6 +18,18 @@ SPEC = importlib.util.spec_from_file_location(
 )
 audit = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(audit)
+HISTORICAL_FIXTURE = ROOT / "tests/fixtures/native_qwen_mcp_sources_9438cf7.json.gz"
+HISTORICAL_SHA256 = "25d797ead8d73f23c253782d2902c968480fdb0d0eda5aff2676ed76357458cc"
+HISTORICAL = audit.decode(gzip.decompress(HISTORICAL_FIXTURE.read_bytes()))
+
+
+def historical_bytes(name):
+    """Exact historical Git bytes, independent of today's product source."""
+    return HISTORICAL["files"][name].encode("utf-8")
+
+
+def historical_assignments(name):
+    return audit.assignments(SimpleNamespace(read_text=lambda: HISTORICAL["files"][name]))
 
 
 class CPUTokenizer:
@@ -27,18 +39,18 @@ class CPUTokenizer:
 
 
 def literal_core():
-    values = audit.assignments(ROOT / "src/semantic_search/qwen_reranker_core.py")
+    values = historical_assignments("src/semantic_search/qwen_reranker_core.py")
     return {name: ast.literal_eval(values[name]) for name in audit.CORE_CONSTANTS}
 
 
 def literal_fixture():
-    values = audit.assignments(ROOT / "scripts/smoke_qwen_mcp.py")
+    values = historical_assignments("scripts/smoke_qwen_mcp.py")
     source = ast.literal_eval(values["SOURCE"].left) + "".join(
         f"\ndef format_noise_{index}(value):\n    return str(value) + '-{index}'\n"
         for index in range(58)
     )
     warmup = ast.literal_eval(
-        audit.assignments(ROOT / "src/semantic_search/qwen_worker.py")["WARMUP"]
+        historical_assignments("src/semantic_search/qwen_worker.py")["WARMUP"]
     )
     return source, source.replace("attempt, 60", "attempt, 90"), literal_core(), warmup
 
@@ -680,7 +692,7 @@ def private_witnesses(tmp_path, monkeypatch):
     source = private / "runtime/semantic_search"
     source.mkdir(parents=True)
     for name in audit.COPIED:
-        (source / name).write_bytes((ROOT / "src/semantic_search" / name).read_bytes())
+        (source / name).write_bytes(historical_bytes("src/semantic_search/" + name))
 
     def absent(*args):
         raise ProcessLookupError("CPU fixture absent owned process")
@@ -810,33 +822,58 @@ def test_unproved_private_cleanup_cannot_pass(
 
 @pytest.fixture
 def frozen_sources(tmp_path, monkeypatch):
+    """Historical temporary working tree plus separately bound committed bytes.
+
+    This fixture intentionally models the experiment's source revision. It must
+    not require later production changes to keep matching that older revision,
+    and shallow CI checkouts need no access to historical Git objects.
+    """
     root = tmp_path / "project"
     study = root / "results/alternate-smoke"
     study.mkdir(parents=True)
     plan = audit.read(STUDY / "frozen-plan.json")
     (study / "frozen-plan.json").write_bytes((STUDY / "frozen-plan.json").read_bytes())
-    for name in plan["source_sha256"]:
+    committed = {}
+    for name, expected in plan["source_sha256"].items():
+        raw = historical_bytes(name)
+        assert audit.digest(raw) == expected
         path = root / name
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_bytes((ROOT / name).read_bytes())
+        path.write_bytes(raw)
+        committed[(plan["source_commit"], name)] = raw
+        committed[("HEAD", name)] = raw
+    committed[("HEAD", str((study / "frozen-plan.json").relative_to(root)))] = (
+        STUDY / "frozen-plan.json"
+    ).read_bytes()
     original = ROOT / "results/qwen-batch-parity-supervised-2026-10-13"
     prototype = gzip.decompress(
         (original / "frozen-sources/scripts/prototype_qwen_reranker.py.gz").read_bytes()
     )
+    original_plan = audit.read(original / "frozen-plan.json")
+    committed[(original_plan["source_commit"], "scripts/prototype_qwen_reranker.py")] = prototype
 
     def git(root_, revision, name):
-        if name == "scripts/prototype_qwen_reranker.py":
-            return prototype
-        return (root_ / name).read_bytes()
+        assert root_ == root
+        return committed[(revision, name)]
 
     monkeypatch.setattr(audit, "git_bytes", git)
-    return root, study, plan, original
+    return root, study, plan, original, committed
+
+
+def test_historical_source_snapshot_is_exactly_the_original_frozen_inventory():
+    plan = audit.read(STUDY / "frozen-plan.json")
+    assert audit.file_digest(HISTORICAL_FIXTURE) == HISTORICAL_SHA256
+    assert HISTORICAL["version"] == 1
+    assert HISTORICAL["source_commit"] == plan["source_commit"]
+    assert HISTORICAL["frozen_plan_sha256"] == audit.file_digest(STUDY / "frozen-plan.json")
+    assert set(HISTORICAL["files"]) == set(plan["source_sha256"])
+    assert {name: audit.digest(historical_bytes(name)) for name in HISTORICAL["files"]} == plan["source_sha256"]
 
 
 def test_exact_frozen_sources_reference_ast_and_fixture_can_bind_alternate_study(
     frozen_sources,
 ):
-    source, edited, core, warmup = audit.source_proof(*frozen_sources)
+    source, edited, core, warmup = audit.source_proof(*frozen_sources[:4])
     assert source != edited and "attempt, 90" in edited
     assert (
         len(core["PINS"]) == 4 and warmup["query"] == "Locate addition of two values."
@@ -848,6 +885,10 @@ def test_exact_frozen_sources_reference_ast_and_fixture_can_bind_alternate_study
     [
         ("missing-source", "source inventory"),
         ("changed-source", "producer bytes"),
+        ("changed-frozen-hash", "producer bytes"),
+        ("changed-source-commit", "producer bytes"),
+        ("changed-head-commit", "producer bytes"),
+        ("changed-committed-plan", "Frozen plan committed"),
         ("fixture-hash", "fixture reconstruction"),
         ("changed-core-ast", "scorer AST"),
         ("changed-core-prompt", "runtime pins"),
@@ -857,11 +898,19 @@ def test_exact_frozen_sources_reference_ast_and_fixture_can_bind_alternate_study
 def test_source_and_original_ast_proof_rejects_plausible_changed_bindings(
     frozen_sources, change, reason
 ):
-    root, study, plan, original = frozen_sources
+    root, study, plan, original, committed = frozen_sources
     if change == "missing-source":
         plan["source_sha256"].pop("src/semantic_search/client.py")
     elif change == "changed-source":
         (root / "src/semantic_search/client.py").write_text("changed\n")
+    elif change == "changed-frozen-hash":
+        plan["source_sha256"]["src/semantic_search/client.py"] = "0" * 64
+    elif change in {"changed-source-commit", "changed-head-commit"}:
+        revision = plan["source_commit"] if change == "changed-source-commit" else "HEAD"
+        committed[(revision, "src/semantic_search/client.py")] = b"changed committed source\n"
+    elif change == "changed-committed-plan":
+        name = str((study / "frozen-plan.json").relative_to(root))
+        committed[("HEAD", name)] = b"changed committed plan\n"
     elif change == "fixture-hash":
         plan["fixture"]["edited_sha256"] = "0" * 64
     elif change == "changed-support-pins":
@@ -880,7 +929,12 @@ def test_source_and_original_ast_proof_rejects_plausible_changed_bindings(
                 "Names, comments, or related topics alone are now sufficient.",
             )
         path.write_text(text)
-        plan["source_sha256"][str(path.relative_to(root))] = audit.file_digest(path)
+        name = str(path.relative_to(root))
+        plan["source_sha256"][name] = audit.file_digest(path)
+        # Deliberately bind all three source copies to this changed candidate:
+        # the independent original AST/prompt guard must still reject it.
+        committed[(plan["source_commit"], name)] = path.read_bytes()
+        committed[("HEAD", name)] = path.read_bytes()
     with pytest.raises(ValueError, match=reason):
         audit.source_proof(root, study, plan, original)
 
