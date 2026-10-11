@@ -49,6 +49,11 @@ def interrupt_service(signum, frame):
     raise KeyboardInterrupt
 
 
+def print_progress(event):
+    """One flushed, machine-readable line for a launcher following startup."""
+    print("Progress: " + json.dumps(event, separators=(",", ":"), allow_nan=False), flush=True)
+
+
 def start_qwen_owner(args):
     from semantic_search.qwen_reranker import QwenRerankerProcess
     owner = QwenRerankerProcess(python=args.qwen_reranker_python,
@@ -89,6 +94,8 @@ def main(argv=None):
     serve.add_argument("--qwen-reranker-checkpoint", type=Path)
     serve.add_argument("--no-watch", action="store_true", help="Discover changes only on searches/refreshes")
     serve.add_argument("--watch-interval", type=float, default=1.0)
+    serve.add_argument("--progress", action="store_true",
+                       help="Print indexing phase/count JSON lines for a local launcher")
     serve.add_argument("--abstention-policy", type=Path, help="Development-calibrated weak-match policy")
     mcp = subparsers.add_parser("mcp", help="Expose search_code over MCP stdio")
     mcp.add_argument("--server", default="http://127.0.0.1:8750")
@@ -159,6 +166,8 @@ def main(argv=None):
         extra = {"abstention_policy": args.abstention_policy} if args.abstention_policy else {}
         if args.exclude_source:
             extra["source_exclusions"] = args.exclude_source
+        if args.progress:
+            extra["progress"] = print_progress
         backend = server = owner = None
         previous_handler = signal.signal(signal.SIGTERM, interrupt_service)
         try:
@@ -174,6 +183,9 @@ def main(argv=None):
             server = create_server(backend, args.host, args.port)
             if not args.no_watch:
                 backend.start_watching(poll_interval=args.watch_interval)
+            if args.progress:
+                print_progress({"phase": "ready", "completed": 1, "total": 1,
+                                "unit": "service"})
             print(f"Ready: http://{args.host}:{server.server_address[1]} (dense search; local reranking optional)", flush=True)
             server.serve_forever(poll_interval=0.2)
         except KeyboardInterrupt:

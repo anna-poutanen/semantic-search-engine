@@ -30,12 +30,15 @@ class CancellableEmbedder:
     def metadata(self):
         return self.embedder.metadata
 
-    def embed_documents(self, texts):
+    def embed_documents(self, texts, *, progress_callback=None):
         self.check()
-        if "cancel_check" in inspect.signature(self.embedder.embed_documents).parameters:
-            result = self.embedder.embed_documents(texts, cancel_check=self.check)
-        else:
-            result = self.embedder.embed_documents(texts)
+        parameters = inspect.signature(self.embedder.embed_documents).parameters
+        extra = {}
+        if "cancel_check" in parameters:
+            extra["cancel_check"] = self.check
+        if progress_callback is not None and "progress_callback" in parameters:
+            extra["progress_callback"] = progress_callback
+        result = self.embedder.embed_documents(texts, **extra)
         self.check()
         return result
 
@@ -64,7 +67,7 @@ class SearchBackend:
 
     def __init__(self, repo, source_root="src/flask", db_path=None, *, index=None,
                  embedder=None, h2o_url="http://127.0.0.1:8741", h2o_client=None,
-                 abstention_policy=None, source_exclusions=(), qwen_client=None):
+                 abstention_policy=None, source_exclusions=(), qwen_client=None, progress=None):
         self.repo = Path(repo).resolve()
         if not self.repo.is_dir():
             raise ValueError("repo must be an existing directory")
@@ -82,6 +85,9 @@ class SearchBackend:
         self.db_path = Path(db_path) if db_path else self.repo / f".semantic-search/{namespace}.sqlite3"
         self._index = index
         self._embedder = embedder
+        if progress is not None and not callable(progress):
+            raise ValueError("progress must be a callback")
+        self._progress = progress
         try:
             parsed = urlsplit(h2o_url)
             if (parsed.scheme != "http" or parsed.hostname not in ("localhost", "127.0.0.1", "::1")
@@ -150,14 +156,24 @@ class SearchBackend:
             self._index = SQLiteIndex(self.db_path)
         return self._index
 
-    def _snapshot(self):
+    def _snapshot(self, *, report_progress=False):
         """Hash actual saved bytes and file membership, including the Git ref."""
         root = (self.repo / self.source_root).resolve()
         if not root.is_relative_to(self.repo) or not root.is_dir():
             raise SourceSnapshotError("Source directory is missing or outside repo")
         try:
+            if report_progress:
+                self._report_progress({"phase": "scan", "completed": 0, "unit": "files"})
             files = _source_files(self.repo, root, self.source_exclusions)
-            raw = {str(p.relative_to(self.repo)): p.read_bytes() for p in files}
+            raw = {}
+            for completed, path in enumerate(files, 1):
+                raw[str(path.relative_to(self.repo))] = path.read_bytes()
+                if report_progress and (completed % 32 == 0 or completed == len(files)):
+                    self._report_progress({"phase": "scan", "completed": completed,
+                                           "total": len(files), "unit": "files"})
+            if report_progress and not files:
+                self._report_progress({"phase": "scan", "completed": 0,
+                                       "total": 0, "unit": "files"})
         except (OSError, ValueError) as error:
             raise SourceSnapshotError(f"Source changed while reading: {error}") from error
         # Tracked membership is supplied by _source_files. Outside Git, all
@@ -176,6 +192,11 @@ class SearchBackend:
                     "files": {path: hashlib.sha256(data).hexdigest() for path, data in raw.items()}}
         digest = hashlib.sha256(json.dumps(manifest, sort_keys=True).encode()).hexdigest()
         return digest, raw
+
+    def _report_progress(self, event):
+        """Opt-in counts for a local launcher; never include source paths or text."""
+        if self._progress is not None:
+            self._progress(event)
 
     def _confirm_snapshot(self, expected):
         if self._snapshot()[0] != expected:
@@ -196,7 +217,8 @@ class SearchBackend:
     def _refresh(self, require_vectors=True, cancel_check=lambda: None):
         started = time.perf_counter()
         cancel_check()
-        digest, raw = self._snapshot()
+        digest, raw = (self._snapshot(report_progress=True) if self._progress is not None
+                       else self._snapshot())
         unchanged = digest == self._manifest
         fingerprint = self._embedding_fingerprint() if require_vectors else None
         if unchanged and (not require_vectors or (self._vectors_manifest == digest
@@ -208,11 +230,16 @@ class SearchBackend:
                      "elapsed_s": time.perf_counter() - started}
             self._last_stats, self._last_error = stats, None
             cancel_check()
+            self._report_progress({"phase": "indexed", "completed": len(self._snippets),
+                                   "total": len(self._snippets), "unit": "windows",
+                                   "memory_cache_hit": True})
             return stats
         if unchanged:
             snippets = self._snippets
             references = self._references
         else:
+            self._report_progress({"phase": "extract", "completed": 0,
+                                   "total": len(raw), "unit": "files"})
             decoded = self._validate_source(raw)
             try:
                 snippets = extract_snippets(self.repo, self.source_root, max_lines=160,
@@ -229,6 +256,9 @@ class SearchBackend:
             self._confirm_snapshot(digest)
             from semantic_search.relations import ReferenceGraph
             references = ReferenceGraph(decoded, snippets)
+            self._report_progress({"phase": "extract", "completed": len(raw),
+                                   "total": len(raw), "unit": "files",
+                                   "windows": len(snippets)})
         stats = {"indexed_windows": 0, "reused_windows": 0, "deleted_windows": 0,
                  "total_windows": len(snippets)}
         dense = hybrid = None
@@ -239,8 +269,12 @@ class SearchBackend:
             self._confirm_snapshot(digest)
             cancel_check()
         if require_vectors:
+            extra = {}
+            if (self._progress is not None
+                    and "progress" in inspect.signature(index.refresh).parameters):
+                extra["progress"] = self._report_progress
             vectors, stats = index.refresh(snippets, CancellableEmbedder(self._get_embedder(), cancel_check),
-                                           before_commit=before_commit)
+                                           before_commit=before_commit, **extra)
             if snippets:
                 dense = PersistentDenseRetriever(index)
         else:
@@ -258,6 +292,11 @@ class SearchBackend:
         stats = {**stats, "memory_cache_hit": False, "source_manifest": digest,
                  "source_files": len(raw), "elapsed_s": time.perf_counter() - started}
         self._last_stats, self._last_error = stats, None
+        self._report_progress({"phase": "indexed", "completed": len(snippets),
+                               "total": len(snippets), "unit": "windows",
+                               "memory_cache_hit": False,
+                               "reused_windows": stats["reused_windows"],
+                               "indexed_windows": stats["indexed_windows"]})
         return stats
 
     def refresh(self, request_id=None):

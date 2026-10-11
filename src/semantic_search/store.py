@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import inspect
 import json
 import sqlite3
 import threading
@@ -268,7 +269,7 @@ class SQLiteIndex:
                 "total_windows": len(snippets), "elapsed_s": time.perf_counter() - started,
                 "model_fingerprint": None}
 
-    def refresh(self, snippets, embedder, *, before_commit=None):
+    def refresh(self, snippets, embedder, *, before_commit=None, progress=None):
         """Return vectors in input order; replace the snapshot after validation only."""
         started = time.perf_counter()
         snippets, documents, hashes = _documents(snippets)
@@ -313,10 +314,36 @@ class SQLiteIndex:
                         cached[document_hash] = values[0]
 
             missing = [key for key in unique_documents if key not in cached]
+            if progress is not None:
+                progress({"phase": "cache", "completed": len(cached),
+                          "total": len(unique_documents), "unit": "documents",
+                          "cached_documents": len(cached), "pending_documents": len(missing),
+                          "windows": len(snippets)})
             new_vectors = {}
             if missing:
-                values = _matrix(embedder.embed_documents([unique_documents[key] for key in missing]),
+                last_completed = 0
+
+                def report_batch(completed, total):
+                    nonlocal last_completed
+                    if (type(completed) is not int or type(total) is not int
+                            or total != len(missing) or not last_completed <= completed <= total):
+                        raise ValueError("Embedding progress must count completed documents")
+                    if progress is not None and completed != last_completed:
+                        progress({"phase": "embed", "completed": completed,
+                                  "total": total, "unit": "documents"})
+                    last_completed = completed
+
+                extra = {}
+                if progress is not None:
+                    progress({"phase": "embed", "completed": 0,
+                              "total": len(missing), "unit": "documents"})
+                    if "progress_callback" in inspect.signature(embedder.embed_documents).parameters:
+                        extra["progress_callback"] = report_batch
+                values = _matrix(embedder.embed_documents(
+                    [unique_documents[key] for key in missing], **extra),
                                  len(missing), dimensions)
+                if progress is not None:
+                    report_batch(len(missing), len(missing))
                 dimensions = values.shape[1]
                 new_vectors = dict(zip(missing, values))
             vectors_by_hash = cached | new_vectors
@@ -324,6 +351,9 @@ class SQLiteIndex:
                       else np.empty((0, dimensions or 0), dtype=np.float64))
             active = {"model_fingerprint": fingerprint, "embedding": metadata,
                       "dimensions": dimensions, "updated_at": datetime.now(timezone.utc).isoformat()}
+            if progress is not None:
+                progress({"phase": "save", "completed": 0,
+                          "total": len(snippets), "unit": "windows"})
             with closing(self._connect()) as connection, connection:
                 connection.execute("BEGIN IMMEDIATE")
                 previous_ids = {row[0] for row in connection.execute("SELECT id FROM snippets")}
@@ -348,6 +378,9 @@ class SQLiteIndex:
                     for position, snippet in enumerate(snippets)])
                 connection.execute("INSERT OR REPLACE INTO metadata VALUES ('active', ?)",
                                    (json.dumps(active, sort_keys=True),))
+            if progress is not None:
+                progress({"phase": "save", "completed": len(snippets),
+                          "total": len(snippets), "unit": "windows"})
             reused = sum(key in cached for key in hashes)
             return matrix, {"indexed_windows": len(snippets) - reused, "reused_windows": reused,
                             "deleted_windows": len(previous_ids - {snippet.id for snippet in snippets}),
