@@ -53,7 +53,7 @@ space. The service refreshes saved changes when you search. The own-repository
 prompt asks for descriptions relevant to your project; it does not show or
 substitute toy queries.
 
-Startup prints the current indexing phase and actual file/window or batch counts,
+Startup prints the current indexing phase and actual file/document/window counts,
 then reports the repository, source scope and indexed-window count when ready.
 It waits up to **30 minutes** for indexing and embedding initialization, separately
 from the **120-second** timeout for each HTTP search. Increase those limits for a
@@ -81,7 +81,16 @@ supported files within it. An empty index means there are no eligible indexed
 implementations; it does not prove that a behavior is absent from the codebase.
 
 The terminal prints the service's chosen `http://127.0.0.1:PORT` address. Keep that
-terminal open while using another client. Each launcher uses an available port.
+terminal open while using another client. By default, `--port 0` selects an
+available port. For an MCP configuration you want to reuse across restarts, choose
+the same fixed port each time:
+
+```bash
+bash "Get Started.command" --repo "/absolute/path/to/your/repo" --source-root src --port 8750
+```
+
+If that port is occupied, the launcher explains how to choose another port or
+return to `--port 0`.
 
 ## Optional VS Code and MCP
 
@@ -115,9 +124,11 @@ The generated server runs this command and argument list:
 ```
 
 The tool is `search_code`. Keep the launcher running while the MCP client searches.
-The service picks a fresh available port each time, so use the new session's
-snippet after restarting. Generated snippets contain local paths and should stay
-local. The launcher changes no editor settings or client MCP configuration.
+With the default available-port choice, use the new session's snippet after
+restarting; a fixed `--port` keeps its service address stable. Enter **:mcp** in the
+search prompt to print the current portable configuration. Generated snippets
+contain local paths and should stay local. The launcher changes no editor settings
+or client MCP configuration.
 Local retrieval runs without hosted inference. Your MCP client may send returned
 code to its chosen coding model. Terminal delivery limits do not change the MCP
 tool's own arguments or client defaults.
@@ -141,6 +152,9 @@ bootstrap downloads in diagnostic mode. `--skip-weight-check` skips reading the
 full weight file and leaves physical weight integrity unverified. Missing runtime
 or model checks are expected before the first setup. The Python report excludes
 repository paths, filenames, queries, source, environment variables and logs.
+During a running session, enter **:doctor** in the search prompt for the same local
+diagnostic checks. If an HTTP search fails, the prompt stays open so you can fix
+the saved source or query and try again; enter **q** to close the service.
 
 The small ZIP also includes the local feedback collector. Record your own counts
 after trying a few searches; the following counts are an example, not measured
