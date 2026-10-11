@@ -1,0 +1,72 @@
+{
+  "created_utc": "2026-10-14T12:59:49.078325+00:00",
+  "purpose": "Qualification of terminal shutdown admission and final-refresh cancellation repairs.",
+  "source_sha256_before": {
+    "src/semantic_search/backend.py": "304f16132a8fbc6c7ea5435ff146222b9d73d8bdaf8094aa3d113eab3094e92b",
+    "src/semantic_search/cancellation.py": "a211f7fde68e6acf842eac3274e2b1673b437c06a9ed197aa46153b8a9b2aa26",
+    "tests/test_cancellation.py": "2db90c6a2816442649f4de1393a9e9c69043d680a7e7126df2b53aed1cdde112",
+    "tests/test_cancellation_shutdown.py": "9bd132bb00507e0c86a584246312cb813346fd6fcbd54a9a8b327b607aa5a629"
+  },
+  "source_sha256_after": {
+    "src/semantic_search/backend.py": "304f16132a8fbc6c7ea5435ff146222b9d73d8bdaf8094aa3d113eab3094e92b",
+    "src/semantic_search/cancellation.py": "a211f7fde68e6acf842eac3274e2b1673b437c06a9ed197aa46153b8a9b2aa26",
+    "tests/test_cancellation.py": "2db90c6a2816442649f4de1393a9e9c69043d680a7e7126df2b53aed1cdde112",
+    "tests/test_cancellation_shutdown.py": "9bd132bb00507e0c86a584246312cb813346fd6fcbd54a9a8b327b607aa5a629"
+  },
+  "source_unchanged": true,
+  "cpu_regression_command": [
+    ".venv/bin/python",
+    "-B",
+    "-c",
+    "import importlib.abc, socket, sys\nclass NoModels(importlib.abc.MetaPathFinder):\n    def find_spec(self, fullname, path=None, target=None):\n        if fullname.split('.')[0] in {'mlx', 'mlx_lm', 'mlx_vlm', 'torch', 'transformers'}:\n            raise RuntimeError('Native/model import blocked: ' + fullname)\nsys.meta_path.insert(0, NoModels())\ndef blocked(*args, **kwargs):\n    raise RuntimeError('Network blocked in CPU regression qualification')\nsocket.socket.connect = blocked\nsocket.socket.connect_ex = blocked\nsocket.socket.sendto = blocked\nimport pytest\nraise SystemExit(pytest.main(['-q', '-p', 'no:cacheprovider', 'tests/test_cancellation_shutdown.py']))\n"
+  ],
+  "cpu_regression_returncode": 0,
+  "cpu_regressions_passed": 7,
+  "ruff_command": [
+    ".venv/bin/ruff",
+    "check",
+    "src/semantic_search/backend.py",
+    "src/semantic_search/cancellation.py",
+    "tests/test_cancellation.py",
+    "tests/test_cancellation_shutdown.py"
+  ],
+  "ruff_returncode": 0,
+  "whitespace_returncode": 0,
+  "checks_passed": true,
+  "guard": {
+    "blocked_model_import_prefixes": [
+      "mlx",
+      "mlx_lm",
+      "mlx_vlm",
+      "torch",
+      "transformers"
+    ],
+    "blocked_socket_methods": [
+      "connect",
+      "connect_ex",
+      "sendto"
+    ],
+    "network_calls": 0,
+    "model_calls": 0,
+    "embeddings": "Injected two-dimensional CPU stub only."
+  },
+  "old_source_evidence": {
+    "path": "results/cancellation-shutdown-preflight-2026-10-14/old-source-v1/verification.json",
+    "sha256": "63b83bef7acd25c44fc7f781043c5ffe13d6907d62c5d114dae684d5403c7cda",
+    "observed_result": "6 failed, 1 passed on unchanged old source"
+  },
+  "changes": [
+    "CancellationRegistry.close atomically ends admission and cancels all registered named and anonymous events under its existing lock.",
+    "CancellationRegistry.request checks terminal state while holding the same registration lock; ordinary cancel_all remains reusable.",
+    "SearchBackend.close establishes the terminal admission barrier before watcher stop or model lock acquisition.",
+    "SearchBackend.search checks its cancellation callback immediately after refresh and before obtaining/embed_query on the query embedder.",
+    "Existing running-anonymous shutdown test now observes registry.close; request ID wire validation, source labels, native evidence, and model settings are unchanged."
+  ],
+  "practical_limit": "Cancellation is cooperative. A native forward already executing finishes before the next cancellation check; this patch does not preempt a running forward.",
+  "artifact_sha256": {
+    "results/cancellation-shutdown-preflight-2026-10-14/fixed-source-v1/pytest.log": "22dda2ca00ae6324a6f97b96c400ce0c3cb8bf22b31857fc022eeba879e7e569",
+    "results/cancellation-shutdown-preflight-2026-10-14/fixed-source-v1/related-suite.json": "0063eb23af16b8fa85c6bb60172f4f989312c9ad00cb38861541971c03a9d789",
+    "results/cancellation-shutdown-preflight-2026-10-14/fixed-source-v1/ruff.log": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+    "results/cancellation-shutdown-preflight-2026-10-14/fixed-source-v1/whitespace.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

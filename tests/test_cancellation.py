@@ -134,10 +134,10 @@ class CancellationTests(unittest.TestCase):
             (repo / "src").mkdir()
             (repo / "src/code.py").write_text("def alpha():\n    return 1\n\ndef beta():\n    return 2\n")
             backend = SearchBackend(repo, "src", repo / "index.sqlite3", h2o_client=PausedScorer())
-            original_cancel_all = backend._requests.cancel_all
+            original_registry_close = backend._requests.close
 
-            def cancel_all():
-                original_cancel_all()
+            def registry_close():
+                original_registry_close()
                 cancellation_requested.set()
 
             def search():
@@ -153,7 +153,7 @@ class CancellationTests(unittest.TestCase):
                     close_failures.append(error)
 
             worker, closer = threading.Thread(target=search), threading.Thread(target=close)
-            with patch.object(backend._requests, "cancel_all", cancel_all):
+            with patch.object(backend._requests, "close", registry_close):
                 worker.start()
                 try:
                     self.assertTrue(first_score.wait(2))
