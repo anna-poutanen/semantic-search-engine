@@ -34,7 +34,9 @@ changes no client settings. Snippets contain local runtime paths and the chosen
 port, so keep them local and use the new snippet after each restart with the
 default available-port choice. Choose the same fixed `--port 8750` on successive
 starts to retain a stable address, or `--port 0` if it is occupied. Enter `:mcp`
-in the search prompt to print the portable snippet. The ordinary
+in the search prompt to print the portable snippet. Copy the full server entry,
+including `env.TIKTOKEN_CACHE_DIR`, to reuse the warmed tokenizer cache from a GUI
+client. The ordinary
 CLI/MCP workflow searches saved source; explicit dirty-buffer search is an editor
 feature.
 
