@@ -9,13 +9,37 @@ and actual coding-agent usage are different measurements.
 
 ## Prepare a local session
 
-For a quick try, use the [guided Mac download](getting-started.md). The collector
-recipe below requires an Apple Silicon Mac and the full Git checkout, including
-benchmark data and collector scripts omitted from the small ZIP. Follow the
-[developer setup](../README.md#developer-setup-and-experiments-on-an-apple-silicon-mac)
-to create its separate `.venv`, and the [backend guide](backend-api.md). The embedding setup downloads the pinned model;
-the feedback collector below performs no setup or downloads. Start with the
-public Requests checkout for a reproducible source root:
+Use the [guided Mac download](getting-started.md) on an Apple Silicon Mac. The
+small ZIP includes diagnostics, generated MCP snippets and the feedback collector;
+testers do not need the research checkout or benchmark datasets. From its extracted
+folder, start a checkout you already have:
+
+```sh
+bash "Get Started.command" --repo "/absolute/path/to/your/repo" --source-root src
+```
+
+Wait for `Ready` and keep that terminal open. The launcher shows indexing phases
+and counts, then the source scope and indexed-window count. Own-repository terminal
+searches default to 8 results, 12,000 source characters, a 4,096-token response
+budget and dependency inclusion; the toy has smaller limits and sample queries.
+Startup can wait 30 minutes, with a separate 120-second HTTP request timeout.
+`--startup-timeout`, `--request-timeout`, `--max-results`, `--source-budget`,
+`--token-budget` and `--no-dependencies` are explicit session options. Record changes
+to these settings when comparing sessions; larger delivery caps alone are not
+evidence of better retrieval or paid-token savings.
+
+Use the ready session's `mcp.json` or `vscode-mcp.json` snippet for your client, or
+connect the included VSIX to the printed local service address. The launcher
+changes no client settings. Snippets contain local runtime paths and the chosen
+port, so keep them local and use the new snippet after each restart. The ordinary
+CLI/MCP workflow searches saved source; explicit dirty-buffer search is an editor
+feature.
+
+For a reproducible Requests source root in the full developer checkout, follow
+the [developer setup](../README.md#developer-setup-and-experiments-on-an-apple-silicon-mac)
+and [backend guide](backend-api.md). This alternative uses the separate `.venv`
+and benchmark fetcher, which are not required for the downloaded own-repository
+workflow:
 
 ```sh
 python3 scripts/setup_mac.py --runtime-only
@@ -27,18 +51,13 @@ python3 scripts/setup_mac.py --runtime-only
   --repo .cache/corpora/requests --source-root src/requests
 ```
 
-Wait for `Ready` and keep that service terminal open. In another terminal, use
-the [CLI/API examples](backend-api.md), [MCP setup](mcp.md), or
-[VS Code guide](../extensions/vscode/README.md). Configure an MCP host manually;
-this kit changes no agent or editor settings. The ordinary CLI/MCP workflow
-searches saved source; explicit dirty-buffer search is an editor feature.
+The [CLI/API examples](backend-api.md), [MCP setup](mcp.md) and
+[VS Code guide](../extensions/vscode/README.md) also cover the full checkout.
 
 The updated downloadable package is the
-[v0.1.1-preview.1 GitHub release](https://github.com/anna-poutanen/semantic-search-engine/releases/tag/v0.1.1-preview.1).
-Follow the [preview installation guide](release-preview.md). Its exact asset was
-installed and tested in ordinary Code profiles, including Restricted Mode;
-optional Qwen controls are included, while actual model setup stays separate.
-The MIT-licensed manifest is `0.1.1`; accept the update and reload, or use
+[v0.1.2-preview.1 GitHub release](https://github.com/anna-poutanen/semantic-search-engine/releases/tag/v0.1.2-preview.1).
+Follow the [preview installation guide](release-preview.md). The MIT-licensed
+manifest is `0.1.2`; accept the update and reload, or use
 CLI installation with `--force`. Baseline dense/off evaluation does not require
 optional reranking. [Qwen editor setup](vscode-qwen-reranker.md)
 
@@ -67,8 +86,8 @@ Use partial or leave the task outcome unattempted when uncertain. Changes to
 source, query wording, result/token limits or reranking make a different session;
 keep its feedback record separate.
 
-The [ordinary installed-profile acceptance](../results/ordinary-vscode-profile-v3-2026-10-14/findings.md)
-passes public activation and actual Restricted Mode disablement in two fresh
+The earlier [ordinary installed-profile acceptance](../results/ordinary-vscode-profile-v3-2026-10-14/findings.md)
+passed public activation and actual Restricted Mode disablement in two fresh
 profiles. It uses a zero-model HTTP fixture and explicitly disables trust for
 the trusted phase, so independent users and trust-prompt UX remain valuable
 feedback. The existing [Development Host checks](packaged-editor-host.md) and
@@ -76,13 +95,29 @@ feedback. The existing [Development Host checks](packaged-editor-host.md) and
 
 ## Record a small local feedback file
 
-The standalone collector uses only Python's standard library. It defaults to
-offline, sends no feedback, imports no models, opens no repository, and writes
-a new local JSON file chosen by the tester. Run it in the same environment as
-the backend if you want installed package versions; missing versions are `null`.
+Run the offline diagnostic first if setup or indexing failed:
 
 ```sh
-.venv/bin/python scripts/collect_beta_feedback.py \
+bash "Get Started.command" --doctor --repo "/absolute/path/to/your/repo" --source-root src
+```
+
+It checks machine/disk/Git/runtime/checkpoint and optional eligible-file counts,
+without model loading, package installation, service startup or network access.
+Without an existing Python 3.12 or newer, the shell prints a basic preflight and
+missing-Python guidance rather than downloading anything. The report excludes
+repository paths, filenames, source, queries, environment variables and logs.
+`--skip-weight-check` explicitly skips physical weight integrity; missing checks
+before setup do not imply a tested runtime.
+
+The standalone collector uses only Python's standard library. It defaults to
+offline, sends no feedback, imports no models, opens no repository, and writes
+a new local JSON file chosen by the tester. The downloaded launcher routes
+`--feedback` to this collector without package or model installation; if it needs
+a Python interpreter, it may download the local setup tool and managed Python.
+Installed versions missing from the selected interpreter are `null`.
+
+```sh
+bash "Get Started.command" --feedback \
   --output /tmp/semantic-search-beta-first-session.json \
   --public-project requests --revision PUBLIC_40_CHARACTER_GIT_COMMIT \
   --interface vscode --workflow saved_search \
@@ -90,7 +125,8 @@ the backend if you want installed package versions; missing versions are `null`.
   --note partial_implementation --note timeout
 ```
 
-Supply the public checkout's complete commit manually; the script does not run
+These counts are illustrative; replace them with your observed outcomes. Supply
+the public checkout's complete commit manually; the script does not run
 Git or collect a repository path. Omit the project/revision if it is not one of
 the allowlisted public projects. `--task-outcome completed|not_completed|not_attempted`
 is optional; it is a tester observation, not independently verified correctness.
@@ -108,13 +144,14 @@ An explicit option may add **one bounded local GET `/status`**, independent of
 proxy settings and with redirects refused:
 
 ```sh
-.venv/bin/python scripts/collect_beta_feedback.py \
+bash "Get Started.command" --feedback \
   --output /tmp/semantic-search-beta-status.json \
   --interface cli --workflow service_restart \
   --attempts 1 --full 1 --server http://127.0.0.1:8750
 ```
 
-Only numeric loopback HTTP addresses are accepted. The service address itself
+Use the actual ready session's port in place of `8750`. Only numeric loopback
+HTTP addresses are accepted. The service address itself
 is not retained. The status allowlist contains boolean `ready`, `closed`,
 `embedding_initialized`, `dense_ready`; integer `windows`; watcher booleans
 `running`, `pending` and integer `refresh_count`; and, **only if advertised**,
@@ -130,6 +167,12 @@ contacts no tester, and supplies no messaging integration. Expanded explanations
 or screenshots should be separately reviewed rather than inserted into this
 minimal collector. Preserve failures and partial outcomes alongside successes;
 external authored sessions remain a small sample, not a general quality claim.
+
+In the full developer checkout, the equivalent entry point is
+`.venv/bin/python scripts/collect_beta_feedback.py` with the same collector
+arguments. Run `bash "Get Started.command" --feedback --help` in the small download
+for its allowlisted fields. Feedback and diagnostics are available without the
+optional H2O or Qwen reranker.
 
 ## Portfolio readiness after feedback
 
