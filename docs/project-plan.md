@@ -68,14 +68,18 @@ This follows the agreed plan in **Choose a project for YC roles** on October 12,
    separate integration checks from retrieval quality. Separate
    [native guard checks](../results/editor-acceptance-2026-10-13/findings.md)
    observe actual false trust, multi-folder removal and offline errors with an
-   authored HTTP fixture. Ordinary editor-profile activation remains untested.
+   authored HTTP fixture. The [ordinary installed-profile acceptance](../results/ordinary-vscode-profile-v3-2026-10-14/findings.md)
+   also passes: public-command activation, defaults, previews/navigation and
+   Restricted Mode with zero product HTTP. Its zero-model fixture and explicit
+   trust-disabled trusted phase remain separate from the real-model studies.
 7. **Portfolio preview (published; external beta remains):** the fast Mac installer omits optional H2O;
    a new environment passed dependency checks and real Qwen inference. These
    runs used available user-level caches, rather than a clean machine. Python,
    JavaScript and TypeScript are integrated. The
    [real HTTP/MCP demo](../results/demo-2026-10-13/findings.md) passes, and the
-   [GitHub preview](https://github.com/anna-poutanen/semantic-search-engine/releases/tag/v0.1.0-preview.1)
-   ships the exact installed and tested VSIX. External beta users and a licensing
+   [GitHub preview](https://github.com/anna-poutanen/semantic-search-engine/releases/tag/v0.1.0-preview.2)
+   ships the updated exact installed and tested VSIX, including optional Qwen
+   controls. External beta users and a licensing
    decision remain.
 
 Python, TypeScript and JavaScript are implemented.
@@ -255,9 +259,19 @@ uses zero external testers. CI now prepares the exact pinned tokenizer cache
 before offline tests. A [reviewed shutdown/CLI fix](../results/production-fixes-2026-10-14/verification.json)
 cancels anonymous active requests, rejects resident policy misconfiguration and
 corrects token clipping guidance; six regressions and 116 related checks pass.
-Ordinary installed-profile/package checks are in progress, with failed socket
-path and shutdown attempts preserved. Preparation receipts alone are not
-completed runtime evidence.
+The [ordinary profile/package acceptance](../results/ordinary-vscode-profile-v3-2026-10-14/findings.md)
+is complete and independently reconciled. Trusted public commands activate the
+normally installed product; actual Restricted Mode denies it without HTTP.
+The failed socket path and shutdown attempts remain preserved. The successful
+run uses owned shared storage and public graceful quit. Its exact 53,874-byte
+VSIX is the preview 2 asset. Preparation alone is not runtime evidence.
+
+A second [cancellation review](../results/cancellation-shutdown-preflight-2026-10-14/fixed-source-v1/qualification.json)
+closes admission atomically during shutdown and checks cancellation before a
+query forward. Historical audit tests now use immutable source fixtures, so
+future product changes do not rebind earlier experiments. Full Linux core and
+editor CI passes. The [C# source-support plan](csharp-source-plan.md) is prepared;
+C# remains unimplemented pending isolated grammar and source safety acceptance.
 
 Use fresh development queries to improve evidence delivery and a new
 untouched holdout to assess those changes. The observed Zod misses are now
