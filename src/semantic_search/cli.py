@@ -6,10 +6,10 @@ from pathlib import Path
 from semantic_search.corpus import extract_snippets
 from semantic_search.experiment import run_experiment, unique_symbols
 from semantic_search.model import H2OClient
-from semantic_search.retrieval import BM25Retriever
+from semantic_search.retrieval import BM25Retriever, DenseRetriever, HybridRetriever
 
 
-def main():
+def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     subparsers = parser.add_subparsers(dest="command", required=True)
     benchmark = subparsers.add_parser("benchmark")
@@ -19,30 +19,79 @@ def main():
     benchmark.add_argument("--candidates", type=int, default=10)
     benchmark.add_argument("--max-lines", type=int, default=160)
     benchmark.add_argument("--url", default="http://127.0.0.1:8741")
+    shortlist = subparsers.add_parser("shortlist-benchmark")
+    shortlist.add_argument("--repo", type=Path, default=Path(".cache/corpora/flask"))
+    shortlist.add_argument("--dataset", type=Path, default=Path("benchmarks/flask_queries.json"))
+    shortlist.add_argument("--output", type=Path, required=True)
+    shortlist.add_argument("--index-cache", type=Path, default=Path(".cache/indexes"))
+    shortlist.add_argument("--url", default="http://127.0.0.1:8741")
+    shortlist.add_argument("--prior-run", type=Path, default=Path("results/flask-h2o-q8-2026-10-12"),
+                           help="Prior exact-input H2O judgments to reuse for quality checks")
     search = subparsers.add_parser("search")
     search.add_argument("query")
     search.add_argument("--repo", type=Path, required=True)
     search.add_argument("--source-root", default="src/flask")
-    search.add_argument("--candidates", type=int, default=10)
+    search.add_argument("--retrieval", choices=("bm25", "dense", "hybrid"), default="dense")
+    search.add_argument("--candidates", type=int, default=4,
+                        help="Number of source windows scored by H2O (default: 4)")
     search.add_argument("--max-results", type=int, default=5)
-    search.add_argument("--lexical-only", action="store_true")
+    search.add_argument("--no-rerank", action="store_true",
+                        help="Skip H2O; fetch max(--candidates, --max-results) source windows")
+    search.add_argument("--lexical-only", action="store_true",
+                        help="Compatibility alias for --retrieval bm25 --no-rerank")
+    search.add_argument("--index-cache", type=Path, default=Path(".cache/indexes"),
+                        help="Persistent content-addressed embedding cache")
     search.add_argument("--url", default="http://127.0.0.1:8741")
-    args = parser.parse_args()
-    if args.candidates < 1:
-        parser.error("--candidates must be positive")
+    args = parser.parse_args(argv)
     if args.command == "benchmark":
+        if args.candidates < 1:
+            parser.error("--candidates must be positive")
         if args.max_lines <= 40:
             parser.error("--max-lines must exceed the 40-line overlap")
         result = run_experiment(args.repo, args.dataset, args.output, args.url,
                                 args.candidates, args.max_lines)
         print(json.dumps(result["metrics"], indent=2))
+    elif args.command == "shortlist-benchmark":
+        from semantic_search.shortlist import run_shortlist_experiment
+
+        run_shortlist_experiment(args.repo, args.dataset, args.output,
+                                args.index_cache, args.url, args.prior_run)
+        print(f"Shortlist benchmark saved to {args.output}")
     else:
+        if not args.query.strip():
+            parser.error("query must be nonempty")
+        if args.candidates < 1:
+            parser.error("--candidates must be positive")
         if args.max_results < 1:
             parser.error("--max-results must be positive")
+        if args.lexical_only:
+            args.retrieval, args.no_rerank = "bm25", True
+        candidate_count = max(args.candidates, args.max_results) if args.no_rerank else args.candidates
         snippets = extract_snippets(args.repo, args.source_root, max_lines=160, overlap_lines=40)
-        pairs = BM25Retriever(snippets).search(args.query, args.candidates)
+        if args.retrieval == "bm25":
+            pairs = BM25Retriever(snippets).search(args.query, candidate_count)
+        else:
+            from semantic_search.embeddings import QwenEmbedder
+            from semantic_search.index import build_or_load_index
+
+            embedder = QwenEmbedder()
+            try:
+                vectors, _ = build_or_load_index(snippets, embedder, args.index_cache)
+                dense = DenseRetriever(snippets, vectors)
+                vector = embedder.embed_query(args.query)
+                if args.retrieval == "dense":
+                    pairs = dense.search(vector, candidate_count)
+                else:
+                    hybrid = HybridRetriever(BM25Retriever(snippets), dense, rrf_k=60, fetch_depth=50)
+                    pairs = hybrid.search(args.query, vector, candidate_count)
+            finally:
+                embedder.close()
+        pairs = pairs[:candidate_count]
+        if args.no_rerank:
+            print(f"{args.retrieval} retrieval only: fetched {len(pairs)} of up to "
+                  f"{candidate_count} source windows; returning up to {args.max_results} symbols.")
         scores = {}
-        if not args.lexical_only:
+        if not args.no_rerank:
             client = H2OClient(args.url)
             scores = {s.id: client.score(args.query, s).score for s, _ in pairs}
             pairs.sort(key=lambda pair: (-scores[pair[0].id], -pair[1], pair[0].id))
