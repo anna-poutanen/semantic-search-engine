@@ -14,6 +14,8 @@ jobs:
       - name: Prepare verified offline tokenizer cache
         run: python scripts/prepare_ci_tokenizer_cache.py --cache-dir "$TIKTOKEN_CACHE_DIR"
       - run: python -m pytest -q
+      - name: Exercise installed lexical CLI without models
+        run: python scripts/smoke_cpu_cli.py --output results/local/cpu-cli-ci.json
   editor:
     runs-on: ubuntu-latest
     defaults:
