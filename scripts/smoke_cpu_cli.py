@@ -122,11 +122,28 @@ def cli_command(cli, repo, indexes):
             "--index-cache", str(indexes)]
 
 
+def isolated_environment(base=None):
+    """Keep the user's ordinary environment, replacing inherited Git controls."""
+    env = {name: value for name, value in (os.environ if base is None else base).items()
+           if not name.startswith("GIT_")}
+    env.update(GIT_CONFIG_NOSYSTEM="1", GIT_CONFIG_GLOBAL=os.devnull,
+               GIT_CONFIG_SYSTEM=os.devnull, GIT_ATTR_NOSYSTEM="1")
+    return env
+
+
+def initialize_repository(repo, template, tracked, env):
+    template.mkdir()  # A fresh owned empty template supplies no user hooks/config.
+    subprocess.run(["git", "-C", str(repo), "init", "--quiet", "--template=" + str(template)],
+                   env=env, check=True, capture_output=True, timeout=10)
+    subprocess.run(["git", "-C", str(repo), "add", "--", *tracked],
+                   env=env, check=True, capture_output=True, timeout=10)
+
+
 def guard_environment(directory, cache):
     directory.mkdir()
     (directory / "sitecustomize.py").write_text(GUARD_SOURCE, encoding="utf-8")
     log = directory / "events.jsonl"
-    env = os.environ.copy()
+    env = isolated_environment()
     env.update(PYTHONPATH=str(directory), PYTHONDONTWRITEBYTECODE="1",
                CPU_CLI_GUARD_LOG=str(log), TIKTOKEN_CACHE_DIR=str(cache))
     return env, log
@@ -149,9 +166,8 @@ def run_smoke(cli, cache):
                    "src/broken.d.ts": "declare ???"}
         for name, text in ignored.items():
             (repo / name).write_text(text, encoding="utf-8")
-        subprocess.run(["git", "-C", str(repo), "init", "--quiet"], check=True, capture_output=True, timeout=10)
-        subprocess.run(["git", "-C", str(repo), "add", "--", *sources, *ignored],
-                       check=True, capture_output=True, timeout=10)
+        initialize_repository(repo, directory / "empty-git-template", [*sources, *ignored],
+                              isolated_environment())
         (repo / "src/untracked.py").write_text("def malformed_untracked(\n", encoding="utf-8")
         env, log = guard_environment(directory / "guard", cache)
         command = cli_command(cli, repo, indexes)
@@ -194,6 +210,10 @@ def run_smoke(cli, cache):
     return {"checks_passed": True, "created_at_utc": datetime.now(timezone.utc).isoformat(),
             "platform": platform.system(), "cli_processes": 5, "guard_installations": 5,
             "model_import_attempts": 0, "socket_connection_attempts": 0,
+            "git_isolation": {"inherited_git_variables_removed": True,
+                              "global_config": os.devnull, "system_config": os.devnull,
+                              "no_system_config": True, "no_system_attributes": True,
+                              "explicit_empty_owned_template": True},
             "owned_temporary_directory_removed": not directory.exists(),
             "helper_sha256": sha(Path(__file__).read_bytes()),
             "gold_source_sha256": {name: sha(text.encode()) for name, text in SOURCES.items()},

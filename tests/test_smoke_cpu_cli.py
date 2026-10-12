@@ -2,6 +2,7 @@
 import copy
 import importlib.util
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -76,3 +77,29 @@ def test_child_guard_blocks_before_model_import_or_socket_connection(tmp_path, s
     assert child.returncode != 0
     events = [json.loads(line) for line in log.read_text().splitlines()]
     assert [row["event"] for row in events] == ["guard_installed", event]
+
+
+def test_inherited_git_configuration_cannot_override_owned_git_or_cli_controls(tmp_path, monkeypatch):
+    overrides = {"GIT_CONFIG_GLOBAL": "/user/config", "GIT_CONFIG_SYSTEM": "/system/config",
+                 "GIT_CONFIG_COUNT": "1", "GIT_CONFIG_KEY_0": "core.hooksPath",
+                 "GIT_CONFIG_VALUE_0": "/user/hooks", "GIT_TEMPLATE_DIR": "/user/template",
+                 "GIT_DIR": "/user/repo/.git", "GIT_WORK_TREE": "/user/repo",
+                 "GIT_ATTR_NOSYSTEM": "0", "GIT_CONFIG_NOSYSTEM": "0"}
+    for name, value in overrides.items():
+        monkeypatch.setenv(name, value)
+    inherited_home = os.environ.get("HOME")
+    expected = {"GIT_CONFIG_GLOBAL": os.devnull, "GIT_CONFIG_SYSTEM": os.devnull,
+                "GIT_CONFIG_NOSYSTEM": "1", "GIT_ATTR_NOSYSTEM": "1"}
+    git_env = smoke.isolated_environment()
+    child_env, _ = smoke.guard_environment(tmp_path / "guard", tmp_path)
+    for env in (git_env, child_env):
+        assert {name: value for name, value in env.items() if name.startswith("GIT_")} == expected
+        assert env.get("HOME") == inherited_home
+    calls = []
+    monkeypatch.setattr(smoke.subprocess, "run", lambda command, **kwargs: calls.append((command, kwargs)))
+    template, repo = tmp_path / "empty-template", tmp_path / "repo"
+    smoke.initialize_repository(repo, template, ["src/code.py"], git_env)
+    assert template.is_dir() and not list(template.iterdir())
+    assert calls[0][0] == ["git", "-C", str(repo), "init", "--quiet", "--template=" + str(template)]
+    assert calls[1][0] == ["git", "-C", str(repo), "add", "--", "src/code.py"]
+    assert all(call[1]["env"] == git_env and call[1]["timeout"] == 10 for call in calls)
