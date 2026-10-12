@@ -183,8 +183,8 @@ async function packageHost(options, dependencies = {}) {
     const resolveCli = dependencies.resolveCli ?? require('@vscode/test-electron').resolveCliArgsFromVSCodeExecutablePath;
     // Skip SDK default cache profiles; explicit owned directories are mandatory.
     const [cli, ...prefix] = resolveCli(prepared.executable, { reuseMachineInstall: true });
-    assert(path.isAbsolute(cli) && !prefix.some(arg => arg.startsWith('--user-data-dir') || arg.startsWith('--extensions-dir')), 'Unexpected SDK CLI profile arguments');
-    const args = [...prefix, `--user-data-dir=${userData}`, `--extensions-dir=${extensions}`,
+    assert(path.isAbsolute(cli) && !prefix.some(arg => arg.startsWith('--user-data-dir') || arg.startsWith('--extensions-dir') || arg.startsWith('--shared-data-dir')), 'Unexpected SDK CLI profile arguments');
+    const args = [...prefix, `--user-data-dir=${userData}`, `--extensions-dir=${extensions}`, `--shared-data-dir=${path.join(directory, 'shared-data')}`,
       '--install-extension', options.vsix, '--force', '--do-not-sync'];
     record.install_command = [cli, ...args];
     const installed = await (dependencies.runCommand ?? runCommand)(cli, args, { env: cliEnvironment(process.env), timeoutMs: 60000, limit: 256 * 1024 });

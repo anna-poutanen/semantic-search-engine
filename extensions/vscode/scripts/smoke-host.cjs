@@ -63,6 +63,11 @@ function relayClosureChecks(closure, records) {
     final_receipts_without_transport_error: records.every(row => !row.transport_error && !row.incomplete),
     no_hold_released_by_close: records.every(row => !row.hold_released_by_close) };
 }
+function launchArguments(repo, extensionPath, userData, extensions) {
+  return [repo, `--extensionDevelopmentPath=${extensionPath}`, `--extensionTestsPath=${path.join(config.root, 'dist/test/host/index.js')}`,
+    `--user-data-dir=${userData}`, `--extensions-dir=${extensions}`, `--shared-data-dir=${path.join(path.dirname(userData), 'shared-data')}`,
+    '--disable-extensions', '--disable-workspace-trust', '--disable-updates', '--skip-welcome', '--skip-release-notes', '--no-cached-data'];
+}
 async function smoke(options) {
   const repo = await fs.realpath(options.repo), output = path.resolve(options.output);
   const extensionPath = options.extensionPath || config.root;
@@ -89,9 +94,7 @@ async function smoke(options) {
   const relay = await startRelay(options.url, repo, { holdQuery: query + ' Cancellation transport smoke.',
     onSearchStart: starts => fs.writeFile(receiptStarts, JSON.stringify(starts)) });
   const hostResult = path.join(directory, 'host-result.json');
-  const args = [repo, `--extensionDevelopmentPath=${extensionPath}`, `--extensionTestsPath=${path.join(config.root, 'dist/test/host/index.js')}`,
-    `--user-data-dir=${userData}`, `--extensions-dir=${extensions}`, '--disable-extensions', '--disable-workspace-trust',
-    '--disable-updates', '--skip-welcome', '--skip-release-notes', '--no-cached-data'];
+  const args = launchArguments(repo, extensionPath, userData, extensions);
   const replacements = [[repo, '<fixture>'], [directory, '<host-run>'], [extensionPath, '<extension>'],
     ...(extensionPath !== config.root ? [[config.root, '<extension-source>']] : []), [os.homedir(), '<home>']];
   const record = { protocol: 'explicit editor fixture integration smoke, not a ranking benchmark',
@@ -181,5 +184,5 @@ async function smoke(options) {
     } finally { owned?.restoreSignals(); }
   }
 }
-module.exports = { argumentsFrom, redact, smoke, createRunDirectory, qwenReceiptChecks, relayClosureChecks };
+module.exports = { argumentsFrom, launchArguments, redact, smoke, createRunDirectory, qwenReceiptChecks, relayClosureChecks };
 if (require.main === module) { Promise.resolve().then(() => smoke(argumentsFrom(process.argv.slice(2)))).catch(error => { console.error(error.message); process.exitCode = 1; }); }

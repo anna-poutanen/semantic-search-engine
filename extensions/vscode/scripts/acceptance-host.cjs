@@ -32,7 +32,7 @@ function settings(mode) {
 }
 function launchArguments(mode, workspaceFile, extensionPath, userData, extensions) {
   return [workspaceFile, `--extensionDevelopmentPath=${extensionPath}`, `--extensionTestsPath=${path.join(config.root, 'dist/test/host/acceptance.js')}`,
-    `--user-data-dir=${userData}`, `--extensions-dir=${extensions}`, '--disable-extensions',
+    `--user-data-dir=${userData}`, `--extensions-dir=${extensions}`, `--shared-data-dir=${path.join(path.dirname(userData), 'shared-data')}`, '--disable-extensions',
     ...(mode === 'trusted' ? ['--disable-workspace-trust'] : []), '--disable-updates', '--skip-welcome', '--skip-release-notes', '--no-cached-data'];
 }
 async function protocolInventory() {
@@ -149,8 +149,8 @@ async function acceptanceHost(options, dependencies = {}) {
     record.test_electron_version = config.test_electron_version;
     const resolveCli = dependencies.resolveCli ?? require('@vscode/test-electron').resolveCliArgsFromVSCodeExecutablePath;
     const [cli, ...prefix] = resolveCli(prepared.executable, { reuseMachineInstall: true });
-    assert(path.isAbsolute(cli) && !prefix.some(arg => /^--(user-data-dir|extensions-dir)/.test(arg)), 'Unexpected native CLI profile defaults');
-    const args = [...prefix, `--user-data-dir=${userData}`, `--extensions-dir=${extensions}`, '--install-extension', options.vsix, '--force', '--do-not-sync'];
+    assert(path.isAbsolute(cli) && !prefix.some(arg => /^--(user-data-dir|extensions-dir|shared-data-dir)/.test(arg)), 'Unexpected native CLI profile defaults');
+    const args = [...prefix, `--user-data-dir=${userData}`, `--extensions-dir=${extensions}`, `--shared-data-dir=${path.join(directory, 'shared-data')}`, '--install-extension', options.vsix, '--force', '--do-not-sync'];
     const install = await (dependencies.runCommand ?? runCommand)(cli, args, { env: cliEnvironment(process.env), timeoutMs: 60000, limit: 256 * 1024 });
     record.install_arguments = [cli, ...args]; record.install_receipt = { code: install.code, signal: install.signal,
       stdout: install.stdout.toString('utf8'), stderr: install.stderr.toString('utf8'), owned_process_group_stopped: install.owned_process_group_stopped ?? null };
