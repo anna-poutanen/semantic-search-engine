@@ -1,0 +1,333 @@
+{
+  "repo_url": "https://github.com/pallets/flask",
+  "revision": "d086db856be187255b8ec61ef409357393020f32",
+  "source_root": "src/flask",
+  "queries": [
+    {
+      "id": "request_dispatch_pipeline",
+      "query": "Where is the incoming request processed so that an early hook can supply the result, otherwise the route handler runs, and exceptions are converted into a response?",
+      "targets": [
+        {
+          "path": "src/flask/app.py",
+          "symbol": "Flask.full_dispatch_request",
+          "evidence_lines": [
+            1012,
+            1019
+          ]
+        }
+      ],
+      "decoys": [
+        {
+          "path": "src/flask/app.py",
+          "symbol": "Flask.dispatch_request"
+        },
+        {
+          "path": "src/flask/app.py",
+          "symbol": "Flask.preprocess_request"
+        }
+      ],
+      "notes": "The target orchestrates preprocess_request, route dispatch, handle_user_exception, and finalization. dispatch_request alone omits the hook and exception pipeline. preprocess_request implements only the early-hook stage, without dispatch or response finalization.",
+      "kind": "present"
+    },
+    {
+      "id": "view_return_conversion",
+      "query": "A route returns a body together with a status and extra headers, or returns a dictionary to be sent as JSON. Where are those different return values turned into an HTTP response?",
+      "targets": [
+        {
+          "path": "src/flask/app.py",
+          "symbol": "Flask.make_response",
+          "evidence_lines": [
+            1285,
+            1362
+          ]
+        }
+      ],
+      "decoys": [
+        {
+          "path": "src/flask/helpers.py",
+          "symbol": "make_response"
+        },
+        {
+          "path": "src/flask/json/provider.py",
+          "symbol": "DefaultJSONProvider.response"
+        }
+      ],
+      "notes": "The method unpacks tuple forms, converts dictionaries and lists through the JSON provider, and applies status and headers. The module helper delegates this work. DefaultJSONProvider.response implements only the JSON response branch, not tuple unpacking or arbitrary view return conversion.",
+      "kind": "present"
+    },
+    {
+      "id": "nested_environment_config",
+      "query": "Where are environment variable names with a chosen prefix loaded into configuration, with double underscores creating nested dictionaries and values parsed into JSON types when possible?",
+      "targets": [
+        {
+          "path": "src/flask/config.py",
+          "symbol": "Config.from_prefixed_env",
+          "evidence_lines": [
+            152,
+            183
+          ]
+        }
+      ],
+      "decoys": [
+        {
+          "path": "src/flask/config.py",
+          "symbol": "Config.from_envvar"
+        },
+        {
+          "path": "src/flask/config.py",
+          "symbol": "Config.from_mapping"
+        }
+      ],
+      "notes": "The target strips the prefix, tries the value loader, and traverses or creates dictionaries for double-underscore-separated keys. from_envvar treats one environment variable as a configuration-file path. from_mapping copies already provided uppercase keys rather than interpreting environment names or nested separators.",
+      "kind": "present"
+    },
+    {
+      "id": "session_cookie_restore",
+      "query": "Where is a browser cookie decoded back into session data, with an expired or tampered signature causing an empty session instead of trusting its contents?",
+      "targets": [
+        {
+          "path": "src/flask/sessions.py",
+          "symbol": "SecureCookieSessionInterface.open_session",
+          "evidence_lines": [
+            327,
+            335
+          ]
+        }
+      ],
+      "decoys": [
+        {
+          "path": "src/flask/sessions.py",
+          "symbol": "SecureCookieSessionInterface.get_signing_serializer"
+        },
+        {
+          "path": "src/flask/sessions.py",
+          "symbol": "SecureCookieSessionInterface.save_session"
+        }
+      ],
+      "notes": "The target obtains the cookie, decodes it with a maximum age, and catches BadSignature by returning an empty session. Constructing the serializer alone does not restore or reject cookie contents. save_session serializes data into the outgoing cookie instead of decoding or validating an incoming one.",
+      "kind": "present"
+    },
+    {
+      "id": "cleared_session_cookie",
+      "query": "After all session values have been removed, where is the browser instructed to delete the old cookie, and where is the response marked as varying according to cookies?",
+      "targets": [
+        {
+          "path": "src/flask/sessions.py",
+          "symbol": "SecureCookieSessionInterface.save_session",
+          "evidence_lines": [
+            354,
+            365
+          ]
+        }
+      ],
+      "decoys": [
+        {
+          "path": "src/flask/sessions.py",
+          "symbol": "SessionInterface.should_set_cookie"
+        },
+        {
+          "path": "src/flask/sessions.py",
+          "symbol": "SessionInterface.get_expiration_time"
+        }
+      ],
+      "notes": "The empty, modified session branch deletes the cookie and adds Vary: Cookie. The policy predicate only decides whether a nonempty session should be written. get_expiration_time computes a persistent session expiry but does not delete cookies or update response headers.",
+      "kind": "present"
+    },
+    {
+      "id": "head_method_fallback",
+      "query": "For a view class with separate handlers for HTTP verbs, where is the request routed to the matching method, falling back to the GET method when HEAD has no handler?",
+      "targets": [
+        {
+          "path": "src/flask/views.py",
+          "symbol": "MethodView.dispatch_request",
+          "evidence_lines": [
+            183,
+            191
+          ]
+        }
+      ],
+      "decoys": [
+        {
+          "path": "src/flask/views.py",
+          "symbol": "View.as_view"
+        },
+        {
+          "path": "src/flask/app.py",
+          "symbol": "Flask.dispatch_request"
+        }
+      ],
+      "notes": "The target selects the lowercase HTTP method, retries get for HEAD, then calls the selected method. View.as_view constructs and decorates a route callable and delegates to the instance dispatch_request; it does not select the HTTP-verb handler or implement HEAD fallback. This decoy replaced the unimplemented base View.dispatch_request stub before model outputs, because the extractor excludes unimplemented stubs. Flask.dispatch_request selects a registered endpoint and supplies route arguments rather than selecting a method on a view instance.",
+      "kind": "present"
+    },
+    {
+      "id": "template_loader_fallback",
+      "query": "In normal template-loading mode, where does lookup try the next registered loader after a missing template and return the first match, failing only after every loader has been tried?",
+      "targets": [
+        {
+          "path": "src/flask/templating.py",
+          "symbol": "DispatchingJinjaLoader._get_source_fast",
+          "evidence_lines": [
+            91,
+            96
+          ]
+        }
+      ],
+      "decoys": [
+        {
+          "path": "src/flask/templating.py",
+          "symbol": "render_template"
+        },
+        {
+          "path": "src/flask/templating.py",
+          "symbol": "DispatchingJinjaLoader.get_source"
+        }
+      ],
+      "notes": "The target implements the non-explanatory first-match search and catches TemplateNotFound per loader. Loader enumeration determines application/blueprint order but is supporting code rather than the requested lookup implementation. DispatchingJinjaLoader.get_source selects normal versus explanatory mode and delegates the actual loader search.",
+      "kind": "present"
+    },
+    {
+      "id": "cli_application_discovery",
+      "query": "When the command line has imported a module without an explicit application name, where does it prefer the usual app variables, then a sole application instance, then a conventional no-argument factory?",
+      "targets": [
+        {
+          "path": "src/flask/cli.py",
+          "symbol": "find_best_app",
+          "evidence_lines": [
+            48,
+            75
+          ]
+        }
+      ],
+      "decoys": [
+        {
+          "path": "src/flask/cli.py",
+          "symbol": "find_app_by_string"
+        },
+        {
+          "path": "src/flask/cli.py",
+          "symbol": "ScriptInfo.load_app"
+        }
+      ],
+      "notes": "The target searches app/application, scans for exactly one Flask instance, then tries create_app/make_app. find_app_by_string resolves an explicit name or expression. ScriptInfo.load_app orchestrates module importing and caches the application, delegating the module-level selection through locate_app.",
+      "kind": "present"
+    },
+    {
+      "id": "streaming_request_context",
+      "query": "Where is a response iterator wrapped so it can still read request-local data after the view returns, while ensuring the original iterator is closed when streaming finishes?",
+      "targets": [
+        {
+          "path": "src/flask/helpers.py",
+          "symbol": "stream_with_context",
+          "evidence_lines": [
+            127,
+            148
+          ]
+        }
+      ],
+      "decoys": [
+        {
+          "path": "src/flask/ctx.py",
+          "symbol": "copy_current_request_context"
+        },
+        {
+          "path": "src/flask/ctx.py",
+          "symbol": "AppContext.copy"
+        }
+      ],
+      "notes": "The outer function primes a nested generator that preserves the active context, yields the original iterator, and closes it in finally. Context copying for a decorated callable is a related but different behavior. Use the executable overload of stream_with_context, not its type-only overload declarations. AppContext.copy duplicates a context object but does not preserve it across iterator execution or close an iterator.",
+      "kind": "present"
+    },
+    {
+      "id": "json_special_objects",
+      "query": "Where is the JSON fallback that formats dates as HTTP dates, turns decimals and UUIDs into strings, and converts dataclass instances into dictionaries?",
+      "targets": [
+        {
+          "path": "src/flask/json/provider.py",
+          "symbol": "_default",
+          "evidence_lines": [
+            109,
+            116
+          ]
+        }
+      ],
+      "decoys": [
+        {
+          "path": "src/flask/json/provider.py",
+          "symbol": "DefaultJSONProvider.dumps"
+        },
+        {
+          "path": "src/flask/json/tag.py",
+          "symbol": "TaggedJSONSerializer.dumps"
+        }
+      ],
+      "notes": "The target contains the type-specific conversions. dumps installs that fallback and calls the JSON library but does not implement these conversion branches. TaggedJSONSerializer.dumps serializes tagged session values through another conversion system, rather than implementing the requested JSON fallback.",
+      "kind": "present"
+    },
+    {
+      "id": "exception_handler_precedence",
+      "query": "Where is an exception handler selected by trying status-code registrations before general exception registrations, searching the current blueprints before the application, and walking the exception's class hierarchy?",
+      "targets": [
+        {
+          "path": "src/flask/sansio/app.py",
+          "symbol": "App._find_error_handler",
+          "evidence_lines": [
+            877,
+            891
+          ]
+        }
+      ],
+      "decoys": [
+        {
+          "path": "src/flask/app.py",
+          "symbol": "Flask.handle_user_exception"
+        },
+        {
+          "path": "src/flask/sansio/scaffold.py",
+          "symbol": "Scaffold.register_error_handler"
+        }
+      ],
+      "notes": "The target loops through code/general registrations, blueprint/application names, and the exception MRO. handle_user_exception calls this selector and invokes the selected handler. Scaffold.register_error_handler stores a handler registration but does not select among registrations at request time.",
+      "kind": "present"
+    },
+    {
+      "id": "nested_blueprint_prefixes",
+      "query": "Where does registering a group of routes recursively register its child groups, joining parent and child URL prefixes and subdomains and giving the children dotted names?",
+      "targets": [
+        {
+          "path": "src/flask/sansio/blueprints.py",
+          "symbol": "Blueprint.register",
+          "evidence_lines": [
+            349,
+            377
+          ]
+        }
+      ],
+      "decoys": [
+        {
+          "path": "src/flask/sansio/blueprints.py",
+          "symbol": "Blueprint.register_blueprint"
+        },
+        {
+          "path": "src/flask/sansio/blueprints.py",
+          "symbol": "BlueprintSetupState.add_url_rule"
+        }
+      ],
+      "notes": "The target copies child options, combines URL prefixes and subdomains, sets name_prefix, and calls each child's register method. register_blueprint only records the child and its options for later registration. BlueprintSetupState.add_url_rule applies already resolved prefixes to one route but does not recursively register child blueprints or combine their prefixes.",
+      "kind": "present"
+    },
+    {
+      "id": "absent_builtin_csrf_validation",
+      "query": "Where are incoming form submissions rejected when their anti-forgery token is missing or does not match the token stored in the session?",
+      "targets": [],
+      "notes": "No built-in form CSRF-token validation implementation was found in the pinned src/flask corpus. This asks for validation itself, not generic session storage or before-request extension hooks. It is a negative score-inspection case, not a labeled retrieval hit.",
+      "kind": "absent"
+    },
+    {
+      "id": "absent_builtin_rate_limiting",
+      "query": "Where are request counts tracked for each client and excess requests rejected after a configurable per-minute limit is reached?",
+      "targets": [],
+      "notes": "No built-in per-client request-rate limiter was found in the pinned src/flask corpus. Generic request hooks and HTTP exception handling do not implement counters or limit enforcement. It is a negative score-inspection case, not a labeled retrieval hit.",
+      "kind": "absent"
+    }
+  ]
+}
