@@ -1,0 +1,59 @@
+{
+  "classification": "Independent exact-source neutral prospective re-review of three narrow ordinary-profile repairs; no ordinary run or model outcome",
+  "created_at_utc": "2026-10-14T12:15:10.514Z",
+  "checks_passed": true,
+  "source_sha256_before": {
+    "scripts/ordinary_vscode_profile.cjs": "00bde3fcb3997588f3418bb16e9c8341ae06eef874e61f46905829cd865e8b08",
+    "scripts/ordinary_vscode_sidecar/package.json": "ef4804fdd1a0d2186ba49ff034cbb1c0cdbbfd3c1ef26c7c109f9e2a12f6c365",
+    "scripts/ordinary_vscode_sidecar/extension.cjs": "a096d7793ba7f4a4d9039fdd1895fe4781e644864001b13609671a695cf0e683",
+    "tests/test_ordinary_vscode_profile.cjs": "eb747fd4c7248a7eb0247ba56194ebe80825d0a7292125be8d0be776531b7b0e",
+    "results/ordinary-vscode-profile-preflight-2026-10-14/protocol.md": "aa52845de25f4f2dfe4c06baf880a943326f0d088d5a912ac0ab4a95a08034b0"
+  },
+  "source_sha256_after": {
+    "scripts/ordinary_vscode_profile.cjs": "00bde3fcb3997588f3418bb16e9c8341ae06eef874e61f46905829cd865e8b08",
+    "scripts/ordinary_vscode_sidecar/package.json": "ef4804fdd1a0d2186ba49ff034cbb1c0cdbbfd3c1ef26c7c109f9e2a12f6c365",
+    "scripts/ordinary_vscode_sidecar/extension.cjs": "a096d7793ba7f4a4d9039fdd1895fe4781e644864001b13609671a695cf0e683",
+    "tests/test_ordinary_vscode_profile.cjs": "eb747fd4c7248a7eb0247ba56194ebe80825d0a7292125be8d0be776531b7b0e",
+    "results/ordinary-vscode-profile-preflight-2026-10-14/protocol.md": "aa52845de25f4f2dfe4c06baf880a943326f0d088d5a912ac0ab4a95a08034b0"
+  },
+  "source_unchanged": true,
+  "blocking_findings": [],
+  "resolved_prior_blockers": [
+    {
+      "id": "late_removal_signal_publication",
+      "evidence": "finalizePublication awaits root removal, then records actual owner signal names/interrupted state and recomputes passed immediately before synchronous exclusive receipt write. run keeps SIGINT/SIGTERM handlers installed through this publication and restores them in its finally. New regression emits SIGTERM during the removal await and requires published passed=false."
+    },
+    {
+      "id": "separate_sidecar_group_not_probed",
+      "evidence": "activate writes an exclusive ownership handshake synchronously after nonce/actual ps PID/PGID/Code-ancestry validation and before its first await. captureSidecar validates the nonce/root/Code PID and safe actual sidecar identities. After Code cleanup, probeSidecarGone independently checks positive PID and observed PGID disappearance. Missing, live or probe-error identities fail phase/final qualification and prevent private-root deletion. Distinct groups are probed, never blindly signaled. Failure cleanup recovers an existing handshake before probing."
+    },
+    {
+      "id": "restricted_timeout_or_arbitrary_error_counted_denial",
+      "evidence": "denialKind accepts only the exact existing trusted-local guard message or a command-specific VS Code not-found exception. Timeout, transport/parser and unrelated errors have null classification/refused=false and cannot pass. Actual workspace.isTrusted=false is asserted and retained immediately before each public command; a mid-loop change fails. The source retains all denial outcomes and the launcher still requires zero actual fixture requests."
+    }
+  ],
+  "unchanged_acceptance_scope": [
+    "Supported public command arguments/state/URI results remain compatible with unchanged installed extension source/parser.",
+    "Normal installed Code flags and sidecar Production mode remain required; no forced target activation or Development/Test/Proposed-API overrides.",
+    "Archive compiled-byte bindings, installed payload membership/hash checks, numeric-loopback fixture scope and placeholder token-count labeling remain unchanged."
+  ],
+  "cpu_qualification": {
+    "source": "results/ordinary-vscode-profile-preflight-2026-10-14/repair-qualification-v1.json",
+    "sha256": "996c49e18d89ac57d086825b998466029bcad99a62b5ea7adf32bcb730ef1a31",
+    "reported_tests": 37,
+    "reported_passed": 37,
+    "reported_exit_code": 0,
+    "log_path": "results/ordinary-vscode-profile-preflight-2026-10-14/cpu-repair-tests-v1.txt",
+    "log_sha256": "ba566e7cae59d8259b929ec8e1f2ac20dfdc2390d477c564af6f867570e45af5",
+    "independent_tests_rerun_now": false,
+    "reason": "Root explicitly prohibited new tests/subprocess workloads while the fresh native warm benchmark measures. Reviewed source/tests and verified their existing CPU receipt/log hashes instead."
+  },
+  "prior_review": "results/ordinary-vscode-profile-preflight-2026-10-14/neutral-initial-review-v1/review.json",
+  "old_qualification_preserved": true,
+  "actual_code_editor_launches": 0,
+  "actual_packaging_or_installs": 0,
+  "model_or_inference_calls": 0,
+  "producer_source_edits": 0,
+  "actual_ordinary_outcomes_read": false,
+  "qualification_limit": "This is a prospective source qualification, not proof the installed ordinary-profile run has passed. Root still must commit exact source, prepare/bind its metadata plan, and explicitly run the serialized acceptance."
+}
