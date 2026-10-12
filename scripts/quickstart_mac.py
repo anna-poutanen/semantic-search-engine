@@ -4,18 +4,24 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+from http.client import HTTPException
 import fcntl
 import json
+import math
 import os
 from pathlib import Path
 import platform
 import re
 import signal
+import socket
 import subprocess
 import sys
 import time
 import urllib.request
+import urllib.error
+import uuid
 
+from beta_tools import diagnose, write_mcp_config
 from demo_mac import NoRedirect, QUERIES, SETTINGS, fresh_destination, prepare, stop_owned
 from setup_embeddings import MODEL_ID, MODEL_REVISION, RUNTIME_VERSION
 
@@ -181,40 +187,153 @@ def request_json(url, payload=None, timeout=120):
     return json.loads(raw)
 
 
-def interactive(python, repo, source_root, work, timeout=180):
+OWN_SETTINGS = {"retrieval": "dense", "rerank": False, "candidates": 4,
+                "max_results": 8, "source_budget": 12000, "token_budget": 4096,
+                "include_dependencies": True}
+
+
+def positive_seconds(value):
+    result = float(value)
+    if not math.isfinite(result) or result <= 0:
+        raise argparse.ArgumentTypeError("Use a finite positive number of seconds")
+    return result
+
+
+def bounded_integer(minimum, maximum):
+    def parse(value):
+        result = int(value)
+        if not minimum <= result <= maximum:
+            raise argparse.ArgumentTypeError(f"Use an integer from {minimum} through {maximum}")
+        return result
+    return parse
+
+
+def selected_settings(args, toy):
+    settings = dict(SETTINGS if toy else OWN_SETTINGS)
+    for name in ("max_results", "source_budget", "token_budget"):
+        if getattr(args, name) is not None:
+            settings[name] = getattr(args, name)
+    if args.no_dependencies:
+        settings["include_dependencies"] = False
+    return settings
+
+
+def new_log_lines(log, state):
+    """Tail bounded new bytes; a large log cannot hide the later Ready line."""
+    with log.open("rb") as stream:
+        if stream.seek(0, os.SEEK_END) < state["offset"]:
+            state.update(offset=0, pending=b"")
+        stream.seek(state["offset"])
+        chunk = stream.read(128 * 1024)
+        state["offset"] = stream.tell()
+    content = state["pending"] + chunk
+    lines = content.split(b"\n")
+    state["pending"] = lines.pop()[-65536:]
+    return [line.decode("utf-8", errors="replace") for line in lines if len(line) <= 65536]
+
+
+def format_progress(line):
+    if not line.startswith("Progress: "):
+        return None
+    try:
+        value = json.loads(line[len("Progress: "):])
+    except ValueError:
+        return None
+    if not isinstance(value, dict):
+        return None
+    phases = {"scan": "Scanning tracked source", "extract": "Extracting implementations",
+              "cache": "Reusable embeddings", "embed": "Embedding new documents",
+              "save": "Saving the index", "indexed": "Index snapshot complete", "ready": "Search ready"}
+    phase, unit = value.get("phase"), value.get("unit")
+    if phase not in phases or unit not in ("files", "documents", "windows", "service"):
+        return None
+    completed, total = value.get("completed"), value.get("total")
+    if type(completed) is not int or completed < 0:
+        return None
+    if total is not None and (type(total) is not int or total < completed):
+        return None
+    text = f"{phases[phase]}: {completed}" + (f"/{total}" if total is not None else "") + f" {unit}"
+    if phase == "cache":
+        cached, pending = value.get("cached_documents"), value.get("pending_documents")
+        if type(cached) is int and cached >= 0 and type(pending) is int and pending >= 0:
+            text += f" ({cached} cached, {pending} new)"
+    return phase, text, completed == total
+
+
+def interactive(python, repo, source_root, work, timeout=1800, *, request_timeout=120,
+                settings=None, toy=False, port=0):
+    settings = dict(OWN_SETTINGS if settings is None else settings)
     identity = hashlib.sha256((str(repo) + "\n" + source_root).encode()).hexdigest()
     artifacts = reserved_directory(work / "sessions" / (time.strftime("%Y%m%d-%H%M%S") + "-" + os.urandom(4).hex()))
     log = artifacts / "service.log"
     cache = reserved_directory(work / "indexes" / identity)
+    if port:
+        with socket.socket() as probe:
+            try:
+                probe.bind(("127.0.0.1", port))
+            except OSError as error:
+                raise ValueError(f"Port {port} is unavailable; choose a different --port or use --port 0") from error
     arguments = [python, "-m", "semantic_search.cli", "serve", "--repo", repo, "--source-root", source_root,
-                 "--index-cache", cache, "--port", "0", "--no-watch"]
+                 "--index-cache", cache, "--port", str(port), "--no-watch", "--progress"]
     process = None
-    searches = 0
+    searches = errors = 0
+    status = None
+    startup_elapsed = None
     previous = signal.signal(signal.SIGTERM, lambda signum, frame: (_ for _ in ()).throw(KeyboardInterrupt()))
     try:
         print(f"\nIndexing saved, Git-tracked code in {repo} ({source_root})…", flush=True)
+        print(f"Startup allowance: {timeout:g} seconds. Ctrl-C closes this service.", flush=True)
         with log.open("wb") as stream:
             process = subprocess.Popen([str(item) for item in arguments], cwd=ROOT, stdout=stream, stderr=subprocess.STDOUT, start_new_session=True)
         began = time.monotonic()
+        state = {"offset": 0, "pending": b""}
+        last_phase, last_progress = None, began
         while time.monotonic() - began < timeout:
-            with log.open("rb") as stream:
-                content = stream.read(2 * 1024 * 1024).decode(errors="replace")
-            match = re.search(r"^Ready: (http://127\.0\.0\.1:[0-9]+)", content, re.MULTILINE)
-            if match:
-                url = match[1]
-                status = request_json(url + "/status", timeout=timeout)
+            url = None
+            for line in new_log_lines(log, state):
+                progress = format_progress(line)
+                if progress is not None:
+                    phase, message, complete = progress
+                    now = time.monotonic()
+                    if phase != last_phase or complete or now - last_progress >= 5:
+                        print(message, flush=True)
+                        last_phase, last_progress = phase, now
+                match = re.fullmatch(r"Ready: (http://127\.0\.0\.1:[0-9]+)(?: .*)?", line.rstrip("\r"))
+                if match:
+                    url = match[1]
+            if url:
+                remaining = max(.1, timeout - (time.monotonic() - began))
+                status = request_json(url + "/status", timeout=min(request_timeout, remaining))
                 if Path(status["repo"]).resolve() != repo.resolve() or status["source_root"] != source_root or not status["ready"]:
                     raise ValueError("Ready service has unexpected repository identity")
+                startup_elapsed = time.monotonic() - began
                 break
             if process.poll() is not None:
-                raise RuntimeError(f"Service exited before readiness. See {log}")
+                raise RuntimeError(f"Service exited before readiness. Inspect {log}; run the launcher with --doctor for local diagnostics")
+            now = time.monotonic()
+            if now - last_progress >= 10:
+                print(f"Still indexing/warming ({now - began:.0f}s elapsed); service log: {log}", flush=True)
+                last_progress = now
             time.sleep(.1)
         else:
-            raise RuntimeError(f"Service readiness timed out. See {log}")
-        print(f"\nReady: {url}\nDescribe an implementation, enter a sample number, or q to quit.", flush=True)
-        for index, query in enumerate(QUERIES, 1):
-            print(f"  {index}. {query}")
-        print("The service stays available to CLI, VS Code and MCP until you quit.", flush=True)
+            raise RuntimeError(f"Startup exceeded {timeout:g}s. Increase --startup-timeout for a larger repository. Inspect {log}")
+        print(f"\nReady: {url}", flush=True)
+        windows = status.get("windows")
+        if type(windows) is int and windows >= 0:
+            print(f"Index: {windows} implementation windows; source directory: {source_root}")
+        if windows == 0:
+            print("No eligible implementations were indexed. Check --source-root, save files and use git add. "
+                  "Supported source is Python/JavaScript/TypeScript; functions and methods need implementation bodies.", flush=True)
+        print(f"Search limits: {settings['max_results']} results, {settings['source_budget']} source characters, "
+              f"{settings['token_budget']} compact tokens; dependency context {'on' if settings['include_dependencies'] else 'off'}.")
+        configurations = write_mcp_config(artifacts, python, url,
+                                          tokenizer_cache=ROOT / ".cache/quickstart/tiktoken")
+        print(f"MCP configuration: {configurations['generic']}\nVS Code MCP configuration: {configurations['vscode']}")
+        print("Copy the server entry into your MCP client. The service must stay running; :mcp prints the configuration.")
+        print("Describe an implementation, :doctor for local diagnostics, or q to quit.", flush=True)
+        if toy:
+            for index, query in enumerate(QUERIES, 1):
+                print(f"  {index}. {query}")
         while True:
             try:
                 query = input("\nSearch> ").strip()
@@ -224,25 +343,60 @@ def interactive(python, repo, source_root, work, timeout=180):
                 break
             if not query:
                 continue
-            if query in ("1", "2", "3"):
+            if query.lower() == ":mcp":
+                print(configurations['generic'].read_text())
+                continue
+            if query.lower() == ":doctor":
+                print(json.dumps(diagnose(ROOT, repo, source_root), indent=2))
+                continue
+            if toy and query in ("1", "2", "3"):
                 query = QUERIES[int(query) - 1]
-            value = request_json(url + "/search", {"query": query, **SETTINGS}, timeout)
+            request_id = uuid.uuid4().hex
+            try:
+                value = request_json(url + "/search", {"query": query, **settings, "request_id": request_id}, request_timeout)
+            except urllib.error.HTTPError as error:
+                errors += 1
+                try:
+                    data = json.loads(error.read(65537))
+                    detail = data.get("error", {})
+                    message = detail.get("message", "Request rejected")
+                except (ValueError, AttributeError, OSError, HTTPException):
+                    message = "Request rejected"
+                print(f"Search failed (HTTP {error.code}): {str(message)[:1000]}\nFix the source or query and search again; q closes the service.", flush=True)
+                continue
+            except (OSError, ValueError, HTTPException) as error:
+                errors += 1
+                try:
+                    request_json(url + "/cancel", {"request_id": request_id}, min(request_timeout, 2))
+                except (OSError, ValueError, HTTPException):
+                    pass  # Best effort; own-process shutdown remains bounded on q/Ctrl-C.
+                print(f"Search failed: {error}. Try again, or run :doctor. Service log: {log}", flush=True)
+                continue
             searches += 1
             rows = value.get("results", [])
             if not rows:
-                print("No eligible implementations found.")
+                print("No eligible implementations found. Check saved/tracked source and the selected scope.")
             for row in rows:
-                print(f"\n{row['path']}:{row['start_line']}–{row['end_line']}  {row['symbol']}\n{row['source']}")
+                suffix = " (dependency context)" if row.get("origin") == "dependency" else ""
+                if row.get("truncated"):
+                    suffix += " (excerpt truncated)"
+                print(f"\n{row['path']}:{row['start_line']}–{row['end_line']}  {row['symbol']}{suffix}\n{row['source']}")
+            if value.get("budget_exhausted") or value.get("token_usage", {}).get("truncated"):
+                print("Context limit reached. For more source, restart with a larger --source-budget or --token-budget.", flush=True)
     finally:
         try:
             shutdown = stop_owned(process) if process is not None else None
             (artifacts / "session.json").write_text(json.dumps({"repo": str(repo), "source_root": source_root,
-                "searches": searches, "shutdown": shutdown}, indent=2) + "\n")
+                "settings": settings, "startup_timeout": timeout, "request_timeout": request_timeout,
+                "startup_elapsed_s": startup_elapsed,
+                "windows": status.get("windows") if isinstance(status, dict) else None,
+                "searches": searches, "errors": errors, "shutdown": shutdown}, indent=2) + "\n")
         finally:
             signal.signal(signal.SIGTERM, previous)
     if shutdown != {"returncode": 0, "forced_kill": False}:
         raise RuntimeError(f"Service did not stop cleanly: {shutdown}. See {log}")
     print(f"Service closed. Local session log: {artifacts}", flush=True)
+    print('To record feedback without source text: bash "Get Started.command" --feedback --output /path/to/new-feedback.json', flush=True)
 
 
 def main(argv=None):
@@ -253,6 +407,16 @@ def main(argv=None):
     modes.add_argument("--setup-only", action="store_true", help="Install runtime and weights without starting inference")
     parser.add_argument("--repo", type=Path, help="Search an existing Git repository instead of the fresh toy")
     parser.add_argument("--source-root", default="src", help="Repository-relative source directory (default: src)")
+    parser.add_argument("--startup-timeout", type=positive_seconds, default=1800,
+                        help="Indexing and warmup allowance in seconds (default: 1800)")
+    parser.add_argument("--request-timeout", type=positive_seconds, default=120,
+                        help="Each status/search request timeout in seconds (default: 120)")
+    parser.add_argument("--max-results", type=bounded_integer(1, 20), help="Own repo default: 8; toy default: 3")
+    parser.add_argument("--source-budget", type=bounded_integer(1, 100000), help="Source characters; own repo default: 12000")
+    parser.add_argument("--token-budget", type=bounded_integer(512, 32000), help="Compact context tokens (default: 4096)")
+    parser.add_argument("--no-dependencies", action="store_true", help="Omit static dependency context")
+    parser.add_argument("--port", type=bounded_integer(0, 65535), default=0,
+                        help="Service port; default 0 chooses an available port. Choose a fixed port for stable MCP setup")
     args = parser.parse_args(argv)
     if platform.system() != "Darwin" or platform.machine() != "arm64" or sys.version_info[:2] != (3, 12):
         parser.error("Use Get Started.command on an Apple Silicon Mac with its managed Python 3.12")
@@ -271,6 +435,13 @@ def main(argv=None):
         source_root = str(resolved_source.relative_to(repo))
         if not (repo / ".git").exists():
             parser.error("--repo must name a Git checkout root (linked worktrees are supported)")
+        try:
+            checkout = subprocess.run(["git", "-C", str(repo), "rev-parse", "--show-toplevel"],
+                                      capture_output=True, text=True, timeout=10, check=False)
+            if checkout.returncode != 0 or Path(checkout.stdout.strip()).resolve() != repo:
+                parser.error("--repo must be a working Git checkout root; check the repository and Git configuration")
+        except (OSError, subprocess.SubprocessError):
+            parser.error("Cannot verify the Git checkout; check Git and the --repo directory")
     def interrupt(signum, frame):
         raise KeyboardInterrupt
     previous = {signum: signal.signal(signum, interrupt) for signum in (signal.SIGTERM, signal.SIGHUP)}
@@ -296,13 +467,15 @@ def main(argv=None):
         elif args.check:
             run(python, ROOT / "scripts/demo_mac.py", "--run", "--quiet", "--python", python)
         else:
-            if repo is None:
+            toy = repo is None
+            if toy:
                 repo = prepare(fresh_destination())
                 source_root = "src"
-            interactive(python, repo, source_root, work)
+            interactive(python, repo, source_root, work, timeout=args.startup_timeout,
+                        request_timeout=args.request_timeout, settings=selected_settings(args, toy), toy=toy, port=args.port)
     except KeyboardInterrupt:
         parser.exit(130, "\nInterrupted; owned service cleanup completed. Rerun to resume setup.\n")
-    except (OSError, ValueError, RuntimeError, subprocess.SubprocessError) as error:
+    except (OSError, ValueError, RuntimeError, HTTPException, subprocess.SubprocessError) as error:
         parser.exit(1, f"\nQuickstart stopped: {error}\nRerun the launcher to resume. Your existing .venv is unchanged.\n")
     finally:
         for signum, handler in previous.items():
