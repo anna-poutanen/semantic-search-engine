@@ -1,0 +1,154 @@
+{
+  "version": 1,
+  "name": "MCP-first conditional coding workflow follow-up",
+  "task_kind": "authored_seeded_regression_in_real_pinned_codebase",
+  "source_manifest": "benchmarks/coding_workflows.json",
+  "source_manifest_sha256": "6f2a9a400a7e772ea6dd12b2e11f451a95f77c5bb5c97950c4bf019c8556b18c",
+  "selection": "Deterministically select the first task per corpus in the original manifest order: Requests, Click, Starlette. Selection does not use observed task savings. Tasks were already used in the original development pilot; this is not a fresh holdout.",
+  "trigger": "Original twelve-trial pilot complete with no MCP calls; separate explicit tool-exposure diagnostic confirmed successful search_code exposure.",
+  "conditional_workflow_instruction": "When the search_code MCP tool is available, use it before reading broad source files to locate the implementation relevant to this task. If that tool is unavailable, proceed with ordinary repository file search. Continue making and testing the repair using the available tools.",
+  "verification": "External hidden behavioral checks run only after the agent exits; selected regression and negative-control checks, not complete upstream suites.",
+  "tasks": [
+    {
+      "id": "requests_auth_ports",
+      "corpus_id": "requests",
+      "corpus": ".cache/corpora/requests",
+      "repo_url": "https://github.com/psf/requests",
+      "revision": "611c6162cbc4ac2020a2f91c7cfa4f3abf9bbb60",
+      "source_root": "src/requests",
+      "license_path": "benchmarks/REQUESTS_LICENSE.txt",
+      "prompt": "Fix a redirect regression in Requests: an Authorization header is lost when a redirect on the same host switches between an implicit default port and the same explicit default port. Treat HTTP port 80 and HTTPS port 443 as equivalent to their omitted ports, in either direction. Preserve the existing safe standard HTTP-to-HTTPS upgrade behavior. Continue stripping credentials for a different host, a genuinely different port, or an HTTPS-to-HTTP downgrade. Make the smallest focused code fix and add a regression test.\n\nWhen the search_code MCP tool is available, use it before reading broad source files to locate the implementation relevant to this task. If that tool is unavailable, proceed with ordinary repository file search. Continue making and testing the repair using the available tools.",
+      "preparation_patch": "benchmarks/workflow_preparation/requests_auth_ports.patch",
+      "preparation_patch_sha256": "e40626798676c286fe387ee6131177def2f28b9717c359f0b8dcd2d8d869440d",
+      "verification": {
+        "script": "benchmarks/workflow_checks/check_requests_auth_ports.py",
+        "args": [
+          "--repo",
+          "{workspace}"
+        ],
+        "sha256": "bf25470a5bd0f8fd18a474b628d933ba1923fe1f5b6f48ea0719c67a3f84bac7",
+        "shared_helper": "benchmarks/workflow_checks/common.py",
+        "shared_helper_sha256": "493179a43f158d301eaba27469f4143fe3f3328cb69b8864989101b1928c1cd2",
+        "timeout_s": 60
+      },
+      "reference_patch_sha256": "a2d1b0c5d0d4cf399ae432ce94e1635682804d47790bb16970eedebfd1ab0db9",
+      "reference_patch_storage": "ignored evaluator cache; never copied into agent checkout",
+      "seed_validation": {
+        "base": {
+          "errors": 0,
+          "failures": 4,
+          "passed": false,
+          "skipped": 0,
+          "tests_run": 3
+        },
+        "reference": {
+          "errors": 0,
+          "failures": 0,
+          "passed": true,
+          "skipped": 0,
+          "tests_run": 3
+        }
+      },
+      "seed_changes": {
+        "file_count": 1,
+        "description": "Controlled deletion or expression change; reverting the seed restores the pinned upstream behavior."
+      },
+      "original_task_id": "requests_auth_ports",
+      "original_behavior_prompt_sha256": "43e0412fa2422139d98619e2f8c20cb40c295e6a2ce8d79353062f8f1e298d03"
+    },
+    {
+      "id": "click_atomic_close",
+      "corpus_id": "click",
+      "corpus": ".cache/corpora/click",
+      "repo_url": "https://github.com/pallets/click",
+      "revision": "934813e4d421071a1b3db3973c02fe2721359a6e",
+      "source_root": "src/click",
+      "license_path": "benchmarks/CLICK_LICENSE.txt",
+      "prompt": "Fix a Click regression in command output handling: when an output option uses lazy opening and atomic writes, a successful command writes to a temporary file but the destination is never replaced when the command finishes. Ensure command cleanup closes output files that Click opened so atomic writes become visible after the command completes. Preserve lazy behavior: an output that the callback never uses should not be created. Ordinary lazy output files should also be closed. Make a focused fix and add a regression test.\n\nWhen the search_code MCP tool is available, use it before reading broad source files to locate the implementation relevant to this task. If that tool is unavailable, proceed with ordinary repository file search. Continue making and testing the repair using the available tools.",
+      "preparation_patch": "benchmarks/workflow_preparation/click_atomic_close.patch",
+      "preparation_patch_sha256": "b2c8927ae6ffb430a1c871f7d53f1616f14cfbd4ec225335f62c7ef9b5202e52",
+      "verification": {
+        "script": "benchmarks/workflow_checks/check_click_atomic_close.py",
+        "args": [
+          "--repo",
+          "{workspace}"
+        ],
+        "sha256": "22b109b0786f0f983ae6a935e2bd5950b8aed291bf0443597fbe71eda5f9c5b8",
+        "shared_helper": "benchmarks/workflow_checks/common.py",
+        "shared_helper_sha256": "493179a43f158d301eaba27469f4143fe3f3328cb69b8864989101b1928c1cd2",
+        "timeout_s": 60
+      },
+      "reference_patch_sha256": "704216a367c18e730e51aea5768a3dc9d09f9e18cfd2b9c869c2454904530898",
+      "reference_patch_storage": "ignored evaluator cache; never copied into agent checkout",
+      "seed_validation": {
+        "base": {
+          "errors": 1,
+          "failures": 2,
+          "passed": false,
+          "skipped": 0,
+          "tests_run": 4
+        },
+        "reference": {
+          "errors": 0,
+          "failures": 0,
+          "passed": true,
+          "skipped": 0,
+          "tests_run": 4
+        }
+      },
+      "seed_changes": {
+        "file_count": 1,
+        "description": "Controlled deletion or expression change; reverting the seed restores the pinned upstream behavior."
+      },
+      "original_task_id": "click_atomic_close",
+      "original_behavior_prompt_sha256": "4d3c7d1997f35893c2c604ebab4c2018a50fb90e243598e26d980a07b2a342c7"
+    },
+    {
+      "id": "starlette_background_order",
+      "corpus_id": "starlette",
+      "corpus": ".cache/corpora/starlette",
+      "repo_url": "https://github.com/encode/starlette",
+      "revision": "4d72fd87ea1c358691a19468168f7217d8ca6a87",
+      "source_root": "starlette",
+      "license_path": "benchmarks/STARLETTE_LICENSE.txt",
+      "prompt": "Fix a Starlette regression: multiple callbacks scheduled after a response are running in reverse registration order. Run them in the order they were added, awaiting each callback before starting the next, for both synchronous and asynchronous callbacks. They must still run after the response is sent, and if one fails, later callbacks should not run. Keep an empty callback collection valid. Make a focused fix and add a regression test.\n\nWhen the search_code MCP tool is available, use it before reading broad source files to locate the implementation relevant to this task. If that tool is unavailable, proceed with ordinary repository file search. Continue making and testing the repair using the available tools.",
+      "preparation_patch": "benchmarks/workflow_preparation/starlette_background_order.patch",
+      "preparation_patch_sha256": "46f27cd2b12bb7cd7794cb71b02d26455b23c481c71af7fe6ecc6c3638d72be8",
+      "verification": {
+        "script": "benchmarks/workflow_checks/check_starlette_background_order.py",
+        "args": [
+          "--repo",
+          "{workspace}"
+        ],
+        "sha256": "8eecfbd28049c5b5e1987401f95beb9d6f3a2bd210a65c38e86994a95bef3c6f",
+        "shared_helper": "benchmarks/workflow_checks/common.py",
+        "shared_helper_sha256": "493179a43f158d301eaba27469f4143fe3f3328cb69b8864989101b1928c1cd2",
+        "timeout_s": 60
+      },
+      "reference_patch_sha256": "f4d65a880a0a8d718ecf5ef70a2574f876683ca5b52a3f327bebe87b8f909131",
+      "reference_patch_storage": "ignored evaluator cache; never copied into agent checkout",
+      "seed_validation": {
+        "base": {
+          "errors": 0,
+          "failures": 3,
+          "passed": false,
+          "skipped": 0,
+          "tests_run": 3
+        },
+        "reference": {
+          "errors": 0,
+          "failures": 0,
+          "passed": true,
+          "skipped": 0,
+          "tests_run": 3
+        }
+      },
+      "seed_changes": {
+        "file_count": 1,
+        "description": "Controlled deletion or expression change; reverting the seed restores the pinned upstream behavior."
+      },
+      "original_task_id": "starlette_background_order",
+      "original_behavior_prompt_sha256": "b6db221347d110fcc9ef38161f24fce80a553355cef1e9bba713c223cc8a5c2a"
+    }
+  ]
+}
