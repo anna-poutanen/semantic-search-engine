@@ -111,11 +111,12 @@ class MCPServerTests(unittest.IsolatedAsyncioTestCase):
         self.addCleanup(stop)
         return f"http://127.0.0.1:{server.server_address[1]}"
 
-    def parameters(self, server_url=None):
+    def parameters(self, server_url=None, *, agent_text_only=False):
         # Inject a real proxy with NO_PROXY empty, so bypassing it is meaningful.
         return StdioServerParameters(
             command=sys.executable,
-            args=["-m", "semantic_search.mcp_server", "--server", server_url or self.server_url],
+            args=["-m", "semantic_search.mcp_server", "--server", server_url or self.server_url]
+                 + (["--agent-text-only"] if agent_text_only else []),
             cwd=Path(__file__).resolve().parents[1],
             env={"HTTP_PROXY": self.proxy_url, "http_proxy": self.proxy_url,
                  "HTTPS_PROXY": self.proxy_url, "https_proxy": self.proxy_url,
@@ -173,6 +174,112 @@ class MCPServerTests(unittest.IsolatedAsyncioTestCase):
                 "('semantic_search.backend','semantic_search.embeddings','mlx','mlx_embeddings'))")
         subprocess.run([sys.executable, "-c", code], check=True, timeout=10,
                        stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+    async def test_text_only_mode_preserves_validated_context_without_second_copy(self):
+        from semantic_search.context import encoding, serialize_context
+        for mode in ("legacy", "auto"):
+            with self.subTest(mode=mode):
+                self.malformed = None
+                async with Client(self.parameters(agent_text_only=True), mode=mode,
+                                  read_timeout_seconds=10) as client:
+                    tool = (await client.list_tools()).tools[0]
+                    self.assertIsNone(tool.output_schema)
+                    self.assertNotIn("outputSchema", tool.model_dump(by_alias=True, exclude_none=True))
+                    result = await client.call_tool("search_code", {"query": "restore café cookies"})
+                    self.assertFalse(result.is_error)
+                    self.assertIsNone(result.structured_content)
+                    self.assertNotIn("structuredContent", result.model_dump(by_alias=True, exclude_none=True))
+                    self.assertEqual(len(result.content), 1)
+                    envelope = json.loads(result.content[0].text)
+                    self.assertEqual(result.content[0].text, serialize_context(envelope))
+                    self.assertEqual(envelope["results"][0]["source"],
+                                     "def restore_cookie():\n    return 'café'\n")
+                    self.assertEqual(envelope["token_usage"]["tokens"],
+                                     len(encoding().encode(result.content[0].text, disallowed_special=())))
+                    # Absence of an advertised output schema does not remove the
+                    # adapter's independent source/hash/budget validation.
+                    self.malformed = {"row": {"source_hash": "0" * 64}}
+                    rejected = await client.call_tool("search_code", {"query": "invalid source"})
+                    self.assertTrue(rejected.is_error)
+                    self.assertIn("invalid context", rejected.content[0].text)
+
+    async def test_text_only_mode_omits_structured_fields_on_actual_jsonrpc_wire(self):
+        # SDK decoding followed by model_dump(exclude_none=True) can conceal
+        # explicit JSON nulls. Inspect the real serialized protocol instead.
+        def exchange(text_only, modern):
+            command = [sys.executable, "-m", "semantic_search.mcp_server",
+                       "--server", self.server_url]
+            if text_only:
+                command.append("--agent-text-only")
+            process = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                       stderr=subprocess.PIPE, text=True, encoding="utf-8",
+                                       cwd=Path(__file__).resolve().parents[1])
+            def send(request):
+                process.stdin.write(json.dumps(request, ensure_ascii=False) + "\n")
+                process.stdin.flush()
+
+            def receive(identifier):
+                if not select.select([process.stdout], [], [], 5)[0]:
+                    raise TimeoutError("MCP subprocess did not produce a wire response")
+                response = json.loads(process.stdout.readline())
+                if response.get("id") != identifier:
+                    raise AssertionError(f"Unexpected JSON-RPC response: {response}")
+                return response["result"]
+
+            try:
+                meta = {"io.modelcontextprotocol/protocolVersion": "2026-07-28",
+                        "io.modelcontextprotocol/clientInfo": {"name": "wire-test", "version": "1"},
+                        "io.modelcontextprotocol/clientCapabilities": {}}
+                if modern:
+                    send({"jsonrpc": "2.0", "id": 1, "method": "server/discover",
+                          "params": {"_meta": meta}})
+                else:
+                    send({"jsonrpc": "2.0", "id": 1, "method": "initialize",
+                          "params": {"protocolVersion": "2025-11-25", "capabilities": {},
+                                     "clientInfo": {"name": "wire-test", "version": "1"}}})
+                initialized = receive(1)
+                if not modern:
+                    send({"jsonrpc": "2.0", "method": "notifications/initialized"})
+                send({"jsonrpc": "2.0", "id": 2, "method": "tools/list",
+                      **({"params": {"_meta": meta}} if modern else {})})
+                listed = receive(2)
+                send({"jsonrpc": "2.0", "id": 3, "method": "tools/call",
+                      "params": {"name": "search_code", "arguments": {"query": "restore café"},
+                                 **({"_meta": meta} if modern else {})}})
+                called = receive(3)
+                process.stdin.close()
+                process.wait(timeout=5)
+                remaining, stderr = process.stdout.read(), process.stderr.read()
+                return initialized, listed, called, remaining, stderr, process.returncode
+            finally:
+                if process.poll() is None:
+                    process.kill()
+                    process.wait(timeout=5)
+                for stream in (process.stdin, process.stdout, process.stderr):
+                    stream.close()
+
+        for modern in (False, True):
+            for text_only in (False, True):
+                with self.subTest(agent_text_only=text_only, modern=modern):
+                    initialized, listed, called, extra, stderr, code = await asyncio.wait_for(
+                        asyncio.to_thread(exchange, text_only, modern), 15)
+                    self.assertEqual(code, 0, stderr)
+                    self.assertEqual(extra, "")
+                    if not modern:
+                        self.assertIn("search_code", initialized["instructions"])
+                    self.assertEqual([tool["name"] for tool in listed["tools"]], ["search_code"])
+                    tool = listed["tools"][0]
+                    self.assertFalse(called.get("isError", False))
+                    self.assertEqual(len(called["content"]), 1)
+                    payload = json.loads(called["content"][0]["text"])
+                    self.assertEqual(payload["results"][0]["source"],
+                                     "def restore_cookie():\n    return 'café'\n")
+                    if text_only:
+                        self.assertNotIn("outputSchema", tool)
+                        self.assertNotIn("structuredContent", called)
+                    else:
+                        self.assertIsInstance(tool["outputSchema"], dict)
+                        self.assertEqual(called["structuredContent"], payload)
 
     async def test_unicode_paragraph_separators_inside_source_preserve_physical_bounds(self):
         self.source_override = "def restore_cookie():\n    return 'café\u2028paragraph\u2029separator'\n"

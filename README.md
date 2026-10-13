@@ -297,10 +297,12 @@ Apple Silicon omits Metal allocations and understates the model's memory use.
 ## Validation
 
 Core CPU tests use NumPy, sqlite-vec, and tiktoken. The full suite also needs the
-optional `[mcp]` dependency described in [MCP setup](docs/mcp.md). Tests use fake
+optional `[mcp,test]` dependencies; the workflow gate tests invoke pytest on
+temporary fixtures. See [MCP setup](docs/mcp.md). Tests use fake
 models and real loopback/subprocess transports without checkpoint inference. Run:
 
 ```bash
+.cache/bootstrap/bin/uv pip install --python .venv/bin/python -e '.[mcp,test]'
 .venv/bin/python -m unittest discover -s tests -v
 ```
 

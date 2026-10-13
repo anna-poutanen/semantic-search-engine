@@ -33,6 +33,28 @@ An MCP host starts the adapter as a subprocess using either command:
 
 These commands speak protocol JSON on stdin/stdout and wait for the host. Diagnostics go to stderr. The adapter accepts only a loopback HTTP service URL; the HTTP client bypasses environment proxies and rejects redirects.
 
+For an agent host that reads text results, opt into one validated JSON text copy:
+
+```sh
+.venv/bin/semantic-search mcp --server http://127.0.0.1:8750 --agent-text-only
+```
+
+This mode omits `structuredContent` and its advertised `outputSchema`; source,
+hash, line-bound, and token-budget validation still run inside the adapter.
+The default keeps both forms for structured-output clients. Fewer wire bytes
+do not by themselves establish provider token savings. The
+[MCP specification](https://modelcontextprotocol.io/specification/2025-11-25/server/tools)
+permits text results without an output schema; an advertised output schema
+requires conforming structured results.
+
+The server guidance asks the agent to start with five results and a 2,000-token
+budget, use those excerpts directly, and read only missing imports, callers, or
+truncated ranges. Larger context is available when needed. These are workflow
+instructions; the API defaults and the retrieval-quality benchmark remain
+unchanged. Codex reads server instructions during initialization; the first 512
+characters contain the core workflow. See
+[official MCP guidance](https://learn.chatgpt.com/docs/extend/mcp?surface=cli).
+
 ## Configure an MCP host
 
 [examples/mcp.local.json](../examples/mcp.local.json) is a concrete configuration for this checkout on this Mac:
@@ -97,7 +119,7 @@ Each result has `path`, `symbol`, `start_line`, `end_line`, `source`, `source_ha
 
 Both budgets preserve whole source lines and update the last returned line and excerpt hash. A window that cannot fit even one complete line is omitted. A truncated excerpt can omit essential evidence: it does not establish that the full implementation was preserved. A query whose empty-result metadata already exceeds its token budget returns an actionable error. Smaller output budgets do not reduce indexing or H2O input work.
 
-`cl100k_base` is a reproducible local counting convention, not a promise about a host model's tokenizer, paid tokens, or cost. A host may include both text and structured content in its prompt; protocol framing and host instructions also add tokens. No paid-agent token savings have been measured.
+`cl100k_base` is a reproducible local counting convention, not a promise about a host model's tokenizer, paid tokens, or cost. A host may include both text and structured content in its prompt; protocol framing and host instructions also add tokens. Actual agent usage is measured in the [paired workflow reports](../results/README.md); the first active-use follow-up does not establish savings.
 
 ## Cancellation and limitations
 
@@ -121,6 +143,9 @@ The [live Qwen/MCP smoke result](../results/retrieval-quality-2026-10-12/mcp-smo
   --output results/local/mcp-smoke-reproduction.json
 ```
 
-The next evaluation is paired coding tasks with and without `search_code`, using actual agent/provider token usage and correctness checks. The local payload counter alone cannot establish that gain.
+The [first paired coding evaluation](../results/coding-workflows-mcp-first-2026-10-12/report.md)
+found increased aggregate tokens and time despite fewer shell calls. New
+multi-file tasks, stronger error-path checks, and repeated pairs evaluate the
+revised workflow separately. Local payload counts alone cannot establish a gain.
 
 Primary references: [official Python SDK](https://github.com/modelcontextprotocol/python-sdk), [low-level server API](https://py.sdk.modelcontextprotocol.io/advanced/low-level-server/), [structured output](https://py.sdk.modelcontextprotocol.io/servers/structured-output/), and [cancellation](https://py.sdk.modelcontextprotocol.io/handlers/cancellation/).

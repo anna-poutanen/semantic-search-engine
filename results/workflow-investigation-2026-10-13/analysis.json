@@ -1,0 +1,2928 @@
+{
+  "analyzed_at": "2026-10-13T05:57:39.276107+00:00",
+  "input": "results/coding-workflows-mcp-first-2026-10-12",
+  "method": {
+    "actual_usage": "Only turn.completed provider usage is actual; cached input and reasoning output are subcategories.",
+    "edits": "Events record changed paths, not edit tool arguments. The final patch proxy cannot reconstruct all generated edits.",
+    "execution": "Offline analysis only; saved commands are never executed and prior artifacts are never edited.",
+    "mcp_duplication": "Text and structured payloads repeat equivalent data in recorded transport. Whether the host serialized both into model input is unobserved.",
+    "phase_classification": "Exclusive deterministic command buckets; mixed search/read commands remain mixed. Tags and commands are preserved for audit.",
+    "proxies": "UTF-8 bytes and cl100k_base counts of published path-redacted strings. These exclude unknown provider wrappers and are not model tokens or bills.",
+    "source_reread": "Exact complete-excerpt rereads are a conservative substring match against later read/search outputs. Distinctive-line overlap is additional diagnostic evidence, not coverage proof.",
+    "timing": "Only whole CLI, setup, final grading and end-to-end times were preserved. Tool/phase/model-wait durations cannot be reconstructed."
+  },
+  "provenance": {
+    "frozen_config_sha256": "cca195527a601b46b3a1ccd9ce782853517602ade11f00039511dc9be29e36e1",
+    "patch_review_sha256": "56aff529d7048134a9dc1498f5a3ea1f1dadd59ec47b3e41fd3cff73d02edc18",
+    "script_sha256": "76d23e46559e685be7e1da919172a11d86db77ca20b628820b822ec42afff7a8"
+  },
+  "quality_findings": {
+    "declared_hidden_checks_passed_runs": 6,
+    "every_fixed_regression_selection_passed": true,
+    "every_selection_detected_the_seeded_fault": true,
+    "fixed_selected_regression_cases_passed": 46,
+    "interpretation": "All selected regression cases pass on fixes and detect their seeds. Both atomic-output repairs suppress failed commits, confirmed by a supplemental predefined probe. Both background repairs replace HTTP failure integration coverage with direct task checks. The paired production implementations are behaviorally equivalent; passing formal checks does not establish full correctness.",
+    "material_behavior_gap_runs": [
+      "03-click_atomic_close-mcp",
+      "04-click_atomic_close-baseline"
+    ],
+    "runs_reviewed": 6,
+    "seed_control_cases_passed": 10,
+    "seed_selected_regression_cases_failed": 36,
+    "test_coverage_tradeoff_runs": [
+      "05-starlette_background_order-baseline",
+      "06-starlette_background_order-mcp"
+    ],
+    "unsupported_test_claims": 0
+  },
+  "runs": [
+    {
+      "actual_provider_usage": {
+        "cache_write_input_tokens": 0,
+        "cached_input_tokens": 179968,
+        "input_tokens": 217920,
+        "output_tokens": 3792,
+        "reasoning_output_tokens": 1299,
+        "total_tokens": 221712,
+        "uncached_input_tokens": 37952
+      },
+      "commands": [
+        {
+          "command": "/bin/zsh -lc \"pwd; rg --files -g AGENTS.md -g '*redirect*' -g '*session*' -g '*test*' -g pyproject.toml -g pytest.ini -g setup.cfg -g tox.ini\"",
+          "command_string_proxy": {
+            "local_token_proxy": 50,
+            "utf8_bytes": 142
+          },
+          "event_index": 4,
+          "exit_code": 0,
+          "findings": [],
+          "item_id": "item_1",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 75,
+            "utf8_bytes": 279
+          },
+          "phase": "search",
+          "pytest_reported_execution_s": null,
+          "tags": [
+            "search"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc 'git status --short'",
+          "command_string_proxy": {
+            "local_token_proxy": 11,
+            "utf8_bytes": 33
+          },
+          "event_index": 8,
+          "exit_code": 0,
+          "findings": [],
+          "item_id": "item_2",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 0,
+            "utf8_bytes": 0
+          },
+          "phase": "workspace",
+          "pytest_reported_execution_s": null,
+          "tags": []
+        },
+        {
+          "command": "/bin/zsh -lc \"rg --files --hidden -g AGENTS.md -g '\"'!'\"\\\\.git' -g '\"'!'\"\\\\.cache'\"",
+          "command_string_proxy": {
+            "local_token_proxy": 32,
+            "utf8_bytes": 83
+          },
+          "event_index": 9,
+          "exit_code": 1,
+          "findings": [],
+          "item_id": "item_4",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 0,
+            "utf8_bytes": 0
+          },
+          "phase": "search",
+          "pytest_reported_execution_s": null,
+          "tags": [
+            "search"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc \"rg -n 'should_strip_auth|rebuild_auth|strip_auth|Authorization|authorization' src/requests/sessions.py tests/test_requests.py tests/conftest.py\"",
+          "command_string_proxy": {
+            "local_token_proxy": 41,
+            "utf8_bytes": 158
+          },
+          "event_index": 10,
+          "exit_code": 0,
+          "findings": [],
+          "item_id": "item_3",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 812,
+            "utf8_bytes": 3401
+          },
+          "phase": "search",
+          "pytest_reported_execution_s": null,
+          "tags": [
+            "search"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc \"sed -n '1870,2005p' tests/test_requests.py\"",
+          "command_string_proxy": {
+            "local_token_proxy": 22,
+            "utf8_bytes": 57
+          },
+          "event_index": 14,
+          "exit_code": 0,
+          "findings": [],
+          "item_id": "item_5",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 1220,
+            "utf8_bytes": 5098
+          },
+          "phase": "source_read",
+          "pytest_reported_execution_s": null,
+          "tags": [
+            "source_read"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc \"sed -n '1,220p' tests/conftest.py\"",
+          "command_string_proxy": {
+            "local_token_proxy": 21,
+            "utf8_bytes": 48
+          },
+          "event_index": 15,
+          "exit_code": 0,
+          "findings": [],
+          "item_id": "item_6",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 428,
+            "utf8_bytes": 1934
+          },
+          "phase": "source_read",
+          "pytest_reported_execution_s": null,
+          "tags": [
+            "source_read"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc \"sed -n '1,195p' src/requests/sessions.py\"",
+          "command_string_proxy": {
+            "local_token_proxy": 22,
+            "utf8_bytes": 55
+          },
+          "event_index": 16,
+          "exit_code": 0,
+          "findings": [],
+          "item_id": "item_7",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 1442,
+            "utf8_bytes": 6593
+          },
+          "phase": "source_read",
+          "pytest_reported_execution_s": null,
+          "tags": [
+            "source_read"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc 'cat pyproject.toml'",
+          "command_string_proxy": {
+            "local_token_proxy": 12,
+            "utf8_bytes": 33
+          },
+          "event_index": 18,
+          "exit_code": 0,
+          "findings": [],
+          "item_id": "item_8",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 971,
+            "utf8_bytes": 3404
+          },
+          "phase": "source_read",
+          "pytest_reported_execution_s": null,
+          "tags": [
+            "source_read"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc \"sed -n '1,115p' tests/test_requests.py\"",
+          "command_string_proxy": {
+            "local_token_proxy": 20,
+            "utf8_bytes": 53
+          },
+          "event_index": 20,
+          "exit_code": 0,
+          "findings": [],
+          "item_id": "item_9",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 662,
+            "utf8_bytes": 2892
+          },
+          "phase": "source_read",
+          "pytest_reported_execution_s": null,
+          "tags": [
+            "source_read"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc \"sed -n '195,335p' src/requests/sessions.py\"",
+          "command_string_proxy": {
+            "local_token_proxy": 22,
+            "utf8_bytes": 57
+          },
+          "event_index": 22,
+          "exit_code": 0,
+          "findings": [],
+          "item_id": "item_10",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 1146,
+            "utf8_bytes": 5925
+          },
+          "phase": "source_read",
+          "pytest_reported_execution_s": null,
+          "tags": [
+            "source_read"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc \"rg -n 'yield_requests|rebuild_auth|DEFAULT_PORTS|pytest|ruff' tests/test_requests.py src/requests/utils.py tox.ini tests/__init__.py\"",
+          "command_string_proxy": {
+            "local_token_proxy": 41,
+            "utf8_bytes": 147
+          },
+          "event_index": 24,
+          "exit_code": 0,
+          "findings": [],
+          "item_id": "item_11",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 1587,
+            "utf8_bytes": 6816
+          },
+          "phase": "search",
+          "pytest_reported_execution_s": null,
+          "tags": [
+            "search",
+            "debug"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc 'env PYTHONPATH=src PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 <PROJECT>/.venv/bin/python -m pytest tests/test_requests.py -k should_strip_auth -q'",
+          "command_string_proxy": {
+            "local_token_proxy": 42,
+            "utf8_bytes": 150
+          },
+          "event_index": 26,
+          "exit_code": 1,
+          "findings": [
+            "behavioral_assertion_or_seed_failure"
+          ],
+          "item_id": "item_12",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 1200,
+            "utf8_bytes": 5066
+          },
+          "phase": "test",
+          "pytest_reported_execution_s": 0.18,
+          "tags": [
+            "test"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc 'env PYTHONPATH=src PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 <PROJECT>/.venv/bin/python -m pytest tests/test_requests.py -k test_auth_is_retained_for_redirect_with_default_port -q'",
+          "command_string_proxy": {
+            "local_token_proxy": 49,
+            "utf8_bytes": 185
+          },
+          "event_index": 31,
+          "exit_code": 1,
+          "findings": [
+            "behavioral_assertion_or_seed_failure"
+          ],
+          "item_id": "item_15",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 1617,
+            "utf8_bytes": 6490
+          },
+          "phase": "test",
+          "pytest_reported_execution_s": 0.18,
+          "tags": [
+            "test"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc \"env PYTHONPATH=src PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 <PROJECT>/.venv/bin/python -m pytest tests/test_requests.py -k 'should_strip_auth or test_auth_is_retained_for_redirect_with_default_port' -q\"",
+          "command_string_proxy": {
+            "local_token_proxy": 55,
+            "utf8_bytes": 208
+          },
+          "event_index": 35,
+          "exit_code": 0,
+          "findings": [],
+          "item_id": "item_17",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 21,
+            "utf8_bytes": 115
+          },
+          "phase": "test",
+          "pytest_reported_execution_s": 0.11,
+          "tags": [
+            "test"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc 'git diff --check'",
+          "command_string_proxy": {
+            "local_token_proxy": 11,
+            "utf8_bytes": 31
+          },
+          "event_index": 39,
+          "exit_code": 0,
+          "findings": [],
+          "item_id": "item_20",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 0,
+            "utf8_bytes": 0
+          },
+          "phase": "edit_review",
+          "pytest_reported_execution_s": null,
+          "tags": [
+            "edit_review"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc 'git diff -- src/requests/sessions.py tests/test_requests.py'",
+          "command_string_proxy": {
+            "local_token_proxy": 20,
+            "utf8_bytes": 74
+          },
+          "event_index": 40,
+          "exit_code": 0,
+          "findings": [],
+          "item_id": "item_19",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 535,
+            "utf8_bytes": 2172
+          },
+          "phase": "edit_review",
+          "pytest_reported_execution_s": null,
+          "tags": [
+            "edit_review"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc 'env PYTHONPATH=src <PROJECT>/.venv/bin/python -m ruff check src/requests/sessions.py tests/test_requests.py'",
+          "command_string_proxy": {
+            "local_token_proxy": 35,
+            "utf8_bytes": 122
+          },
+          "event_index": 42,
+          "exit_code": 1,
+          "findings": [
+            "missing_linter"
+          ],
+          "item_id": "item_21",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 15,
+            "utf8_bytes": 49
+          },
+          "phase": "debug",
+          "pytest_reported_execution_s": null,
+          "tags": [
+            "debug"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc \"env PYTHONPATH=src <PROJECT>/.venv/bin/python - <<'PY'\nfrom requests import Session\n\nsession = Session()\ncases = []\nfor old_port in ('', ':80'):\n    for new_port in ('', ':443'):\n        cases.append((f'http://example.com{old_port}/foo', f'https://example.com{new_port}/bar', False))\n        cases.append((f'https://example.com{new_port}/foo', f'http://example.com{old_port}/bar', True))\nfor scheme, wrong_port in (('http', 443), ('https', 80)):\n    for port in (wrong_port, 0, 8080, 8443):\n        implicit = f'{scheme}://example.com/foo'\n        explicit = f'{scheme}://example.com:{port}/bar'\n        cases.extend(((implicit, explicit, True), (explicit, implicit, True)))\nfor scheme, port in (('http', 80), ('https', 443)):\n    cases.extend((\n        (f'{scheme}://example.com/foo', f'{scheme}://other.example.com:{port}/bar', True),\n        (f'{scheme}://example.com:{port}/foo', f'{scheme}://other.example.com/bar', True),\n        (f'{scheme}://example.com:8080/foo', f'{scheme}://example.com:8443/bar', True),\n        (f'{scheme}://example.com:8080/foo', f'{scheme}://example.com:8080/bar', False),\n    ))\nfor old_url, new_url, expected in cases:\n    actual = session.should_strip_auth(old_url, new_url)\n    assert actual is expected, (old_url, new_url, expected, actual)\nprint(f'{len(cases)} redirect security cases passed')\nPY\"",
+          "command_string_proxy": {
+            "local_token_proxy": 378,
+            "utf8_bytes": 1349
+          },
+          "event_index": 44,
+          "exit_code": 0,
+          "findings": [],
+          "item_id": "item_22",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 6,
+            "utf8_bytes": 34
+          },
+          "phase": "test",
+          "pytest_reported_execution_s": null,
+          "tags": [
+            "test",
+            "debug"
+          ]
+        }
+      ],
+      "condition": "baseline",
+      "dependency_failure_output": {
+        "calls": 0,
+        "local_token_proxy": 0,
+        "utf8_bytes": 0
+      },
+      "edit_tool_input_text_recorded": false,
+      "file_change_events": 2,
+      "final_patch_proxy": {
+        "local_token_proxy": 535,
+        "utf8_bytes": 2172
+      },
+      "mcp_calls": [],
+      "measured_time_s": {
+        "agent_cli": 138.6751040829986,
+        "end_to_end": 139.08275504101766,
+        "final_grading": 0.10160108297714032,
+        "per_tool_and_per_phase_available": false,
+        "setup_excluded_from_agent": 0.2764239580137655,
+        "unassigned_remaining_overhead": 0.02962591702817008
+      },
+      "phase_output_proxies": {
+        "debug": {
+          "command_local_token_proxy": 35,
+          "completed_calls": 1,
+          "findings": {
+            "missing_linter": 1
+          },
+          "nonzero_exits": 1,
+          "output_local_token_proxy": 15,
+          "output_utf8_bytes": 49
+        },
+        "edit_review": {
+          "command_local_token_proxy": 31,
+          "completed_calls": 2,
+          "findings": {},
+          "nonzero_exits": 0,
+          "output_local_token_proxy": 535,
+          "output_utf8_bytes": 2172
+        },
+        "search": {
+          "command_local_token_proxy": 164,
+          "completed_calls": 4,
+          "findings": {},
+          "nonzero_exits": 1,
+          "output_local_token_proxy": 2474,
+          "output_utf8_bytes": 10496
+        },
+        "source_read": {
+          "command_local_token_proxy": 119,
+          "completed_calls": 6,
+          "findings": {},
+          "nonzero_exits": 0,
+          "output_local_token_proxy": 5869,
+          "output_utf8_bytes": 25846
+        },
+        "test": {
+          "command_local_token_proxy": 524,
+          "completed_calls": 4,
+          "findings": {
+            "behavioral_assertion_or_seed_failure": 2
+          },
+          "nonzero_exits": 2,
+          "output_local_token_proxy": 2844,
+          "output_utf8_bytes": 11705
+        },
+        "workspace": {
+          "command_local_token_proxy": 11,
+          "completed_calls": 1,
+          "findings": {},
+          "nonzero_exits": 0,
+          "output_local_token_proxy": 0,
+          "output_utf8_bytes": 0
+        }
+      },
+      "provenance": {
+        "events_sha256": "e4b2a1fb029e61f9e0f38da534b9034662f949a51b2ea62ce1222eb57decdf08",
+        "patch_sha256": "5f3e79e16ed37c0b70c824da2f849307f821559a8aced9a0f7fc5f204acd2fd6",
+        "result_sha256": "d46ce2cc6ac2db37de7f5e7276ee6a007572d27bcae2b288675aa4fb23b0bfc5"
+      },
+      "quality_review": {
+        "changed_files": [
+          "src/requests/sessions.py",
+          "tests/test_requests.py"
+        ],
+        "passed_selected_checks": true
+      },
+      "run_id": "01-requests_auth_ports-baseline",
+      "task_id": "requests_auth_ports"
+    },
+    {
+      "actual_provider_usage": {
+        "cache_write_input_tokens": 0,
+        "cached_input_tokens": 135808,
+        "input_tokens": 176787,
+        "output_tokens": 4001,
+        "reasoning_output_tokens": 1738,
+        "total_tokens": 180788,
+        "uncached_input_tokens": 40979
+      },
+      "commands": [
+        {
+          "command": "/bin/zsh -lc \"pwd; rg --files -g AGENTS.md -g pyproject.toml -g pytest.ini -g setup.cfg -g tox.ini -g '*sessions*' -g '*requests*' -g conftest.py -g 'test*' -g '*requirements*'\"",
+          "command_string_proxy": {
+            "local_token_proxy": 61,
+            "utf8_bytes": 177
+          },
+          "event_index": 4,
+          "exit_code": 0,
+          "findings": [],
+          "item_id": "item_1",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 118,
+            "utf8_bytes": 454
+          },
+          "phase": "search",
+          "pytest_reported_execution_s": null,
+          "tags": [
+            "search"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc \"git status --short; rg --files --hidden -g AGENTS.md -g '\"'!'\"\\\\.git/**'; rg -n 'should_strip_auth|rebuild_auth|strip.*auth|redirect.*auth|auth.*redirect|default.*port' tests/test_requests.py tests/conftest.py pyproject.toml tox.ini src/requests/sessions.py\"",
+          "command_string_proxy": {
+            "local_token_proxy": 80,
+            "utf8_bytes": 272
+          },
+          "event_index": 8,
+          "exit_code": 0,
+          "findings": [],
+          "item_id": "item_3",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 417,
+            "utf8_bytes": 1722
+          },
+          "phase": "search",
+          "pytest_reported_execution_s": null,
+          "tags": [
+            "search"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc \"sed -n '1,100p' src/requests/sessions.py; sed -n '145,185p' src/requests/sessions.py; sed -n '1900,2015p' tests/test_requests.py; sed -n '1,165p' tests/conftest.py; cat pyproject.toml; cat tox.ini\"",
+          "command_string_proxy": {
+            "local_token_proxy": 79,
+            "utf8_bytes": 211
+          },
+          "event_index": 10,
+          "exit_code": 0,
+          "findings": [],
+          "item_id": "item_4",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 3513,
+            "utf8_bytes": 14544
+          },
+          "phase": "source_read",
+          "pytest_reported_execution_s": null,
+          "tags": [
+            "source_read"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc \"sed -n '1,140p' tests/test_requests.py; rg -n 'rebuild_auth|trust_env = False|Response\\\\(|resolve_redirects\\\\(|class Test|DEFAULT_PORTS' tests/test_requests.py src/requests/utils.py\"",
+          "command_string_proxy": {
+            "local_token_proxy": 57,
+            "utf8_bytes": 196
+          },
+          "event_index": 12,
+          "exit_code": 0,
+          "findings": [],
+          "item_id": "item_5",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 1360,
+            "utf8_bytes": 5835
+          },
+          "phase": "mixed_search_source_read",
+          "pytest_reported_execution_s": null,
+          "tags": [
+            "source_read",
+            "search"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc 'PYTHONPATH=src PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 <PROJECT>/.venv/bin/python -m pytest tests/test_requests.py -k should_strip_auth -q'",
+          "command_string_proxy": {
+            "local_token_proxy": 41,
+            "utf8_bytes": 146
+          },
+          "event_index": 14,
+          "exit_code": 1,
+          "findings": [
+            "behavioral_assertion_or_seed_failure"
+          ],
+          "item_id": "item_6",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 1201,
+            "utf8_bytes": 5066
+          },
+          "phase": "test",
+          "pytest_reported_execution_s": 0.19,
+          "tags": [
+            "test"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc 'PYTHONPATH=src PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 <PROJECT>/.venv/bin/python -m pytest tests/test_requests.py -k rebuild_auth_default_port -q'",
+          "command_string_proxy": {
+            "local_token_proxy": 42,
+            "utf8_bytes": 154
+          },
+          "event_index": 19,
+          "exit_code": 1,
+          "findings": [
+            "behavioral_assertion_or_seed_failure"
+          ],
+          "item_id": "item_9",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 1600,
+            "utf8_bytes": 6582
+          },
+          "phase": "test",
+          "pytest_reported_execution_s": 0.19,
+          "tags": [
+            "test"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc 'git diff --check; git diff --stat; git diff -- src/requests/sessions.py tests/test_requests.py'",
+          "command_string_proxy": {
+            "local_token_proxy": 30,
+            "utf8_bytes": 109
+          },
+          "event_index": 23,
+          "exit_code": 0,
+          "findings": [],
+          "item_id": "item_11",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 553,
+            "utf8_bytes": 2277
+          },
+          "phase": "edit_review",
+          "pytest_reported_execution_s": null,
+          "tags": [
+            "edit_review"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc \"PYTHONPATH=src PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 <PROJECT>/.venv/bin/python -m pytest tests/test_requests.py -k 'should_strip_auth or rebuild_auth_default_port' -q\"",
+          "command_string_proxy": {
+            "local_token_proxy": 48,
+            "utf8_bytes": 177
+          },
+          "event_index": 25,
+          "exit_code": 0,
+          "findings": [],
+          "item_id": "item_12",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 21,
+            "utf8_bytes": 115
+          },
+          "phase": "test",
+          "pytest_reported_execution_s": 0.11,
+          "tags": [
+            "test"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc 'git diff --check; git status --short'",
+          "command_string_proxy": {
+            "local_token_proxy": 16,
+            "utf8_bytes": 51
+          },
+          "event_index": 27,
+          "exit_code": 0,
+          "findings": [],
+          "item_id": "item_13",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 14,
+            "utf8_bytes": 54
+          },
+          "phase": "edit_review",
+          "pytest_reported_execution_s": null,
+          "tags": [
+            "edit_review"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc \"PYTHONPATH=src <PROJECT>/.venv/bin/python - <<'PY'\nfrom itertools import product\n\nimport requests\n\nsession = requests.Session()\nsession.trust_env = False\ncases = []\nfor http_port, https_port in product((\\\"\\\", \\\":80\\\"), (\\\"\\\", \\\":443\\\")):\n    http_url = f\\\"http://example.com{http_port}/foo\\\"\n    https_url = f\\\"https://example.com{https_port}/bar\\\"\n    cases.append((http_url, https_url, True))\n    cases.append((https_url, http_url, False))\nfor old_url, new_url in (\n    (\\\"http://example.com/foo\\\", \\\"http://example.com:8080/bar\\\"),\n    (\\\"http://example.com:8080/foo\\\", \\\"http://example.com/bar\\\"),\n    (\\\"https://example.com/foo\\\", \\\"https://example.com:8443/bar\\\"),\n    (\\\"https://example.com:8443/foo\\\", \\\"https://example.com/bar\\\"),\n    (\\\"http://example.com:80/foo\\\", \\\"http://example.com:443/bar\\\"),\n    (\\\"https://example.com:443/foo\\\", \\\"https://example.com:80/bar\\\"),\n    (\\\"http://example.com/foo\\\", \\\"http://another.example.com:80/bar\\\"),\n    (\\\"https://example.com:443/foo\\\", \\\"https://another.example.com/bar\\\"),\n):\n    cases.append((old_url, new_url, False))\nfor old_url, new_url, retained in cases:\n    original = requests.Request(\n        \\\"GET\\\", old_url, headers={\\\"Authorization\\\": \\\"Bearer token\\\"}\n    ).prepare()\n    redirected = original.copy()\n    redirected.prepare_url(new_url, None)\n    response = requests.Response()\n    response.request = original\n    session.rebuild_auth(redirected, response)\n    assert (\\\"Authorization\\\" in redirected.headers) == retained, (old_url, new_url)\nprint(f\\\"{len(cases)} offline redirect authentication boundary checks passed\\\")\nPY\"",
+          "command_string_proxy": {
+            "local_token_proxy": 425,
+            "utf8_bytes": 1609
+          },
+          "event_index": 29,
+          "exit_code": 0,
+          "findings": [],
+          "item_id": "item_14",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 8,
+            "utf8_bytes": 58
+          },
+          "phase": "test",
+          "pytest_reported_execution_s": null,
+          "tags": [
+            "test",
+            "debug"
+          ]
+        }
+      ],
+      "condition": "mcp",
+      "dependency_failure_output": {
+        "calls": 0,
+        "local_token_proxy": 0,
+        "utf8_bytes": 0
+      },
+      "edit_tool_input_text_recorded": false,
+      "file_change_events": 2,
+      "final_patch_proxy": {
+        "local_token_proxy": 516,
+        "utf8_bytes": 2145
+      },
+      "mcp_calls": [
+        {
+          "arguments": {
+            "include_dependencies": false,
+            "max_results": 3,
+            "query": "Requests redirect Authorization header should_strip_auth hostname scheme port default ports HTTP HTTPS upgrade",
+            "source_budget": 6500,
+            "token_budget": 2400
+          },
+          "event_index": 6,
+          "exact_full_excerpts_reread": 1,
+          "exact_reread_source_bytes": 1032,
+          "host_model_payload_serialization_known": false,
+          "item_id": "item_2",
+          "potential_transport_duplicate_local_token_proxy": 1101,
+          "result_count": 3,
+          "results": [
+            {
+              "end_line": 176,
+              "exact_full_excerpt_reread_in_items": [
+                "item_4"
+              ],
+              "line_overlap": [
+                {
+                  "distinctive_lines_seen_again": 1,
+                  "distinctive_source_lines": 17,
+                  "item_id": "item_3"
+                },
+                {
+                  "distinctive_lines_seen_again": 17,
+                  "distinctive_source_lines": 17,
+                  "item_id": "item_4"
+                }
+              ],
+              "origin": "retrieval",
+              "path": "src/requests/sessions.py",
+              "source_local_token_proxy": 211,
+              "source_utf8_bytes": 1032,
+              "start_line": 154,
+              "symbol": "SessionRedirectMixin.should_strip_auth"
+            },
+            {
+              "end_line": 324,
+              "exact_full_excerpt_reread_in_items": [],
+              "line_overlap": [
+                {
+                  "distinctive_lines_seen_again": 2,
+                  "distinctive_source_lines": 18,
+                  "item_id": "item_3"
+                }
+              ],
+              "origin": "retrieval",
+              "path": "src/requests/sessions.py",
+              "source_local_token_proxy": 207,
+              "source_utf8_bytes": 1066,
+              "start_line": 301,
+              "symbol": "SessionRedirectMixin.rebuild_auth"
+            },
+            {
+              "end_line": 360,
+              "exact_full_excerpt_reread_in_items": [],
+              "line_overlap": [],
+              "origin": "retrieval",
+              "path": "src/requests/sessions.py",
+              "source_local_token_proxy": 288,
+              "source_utf8_bytes": 1404,
+              "start_line": 326,
+              "symbol": "SessionRedirectMixin.rebuild_proxies"
+            }
+          ],
+          "server_reported_single_payload_token_usage": {
+            "budget": 2400,
+            "encoding": "cl100k_base",
+            "tokens": 1101,
+            "truncated": false
+          },
+          "structured_payload": {
+            "local_token_proxy": 1101,
+            "utf8_bytes": 4689
+          },
+          "text_and_structured_are_equivalent": true,
+          "text_payload": {
+            "local_token_proxy": 1101,
+            "utf8_bytes": 4689
+          }
+        }
+      ],
+      "measured_time_s": {
+        "agent_cli": 141.92475845801528,
+        "end_to_end": 158.6931840420002,
+        "final_grading": 0.07029008300742134,
+        "per_tool_and_per_phase_available": false,
+        "setup_excluded_from_agent": 16.20871629199246,
+        "unassigned_remaining_overhead": 0.48941920898505487
+      },
+      "phase_output_proxies": {
+        "edit_review": {
+          "command_local_token_proxy": 46,
+          "completed_calls": 2,
+          "findings": {},
+          "nonzero_exits": 0,
+          "output_local_token_proxy": 567,
+          "output_utf8_bytes": 2331
+        },
+        "mcp_search": {
+          "command_local_token_proxy": 41,
+          "completed_calls": 1,
+          "findings": {},
+          "output_local_token_proxy": 1101,
+          "output_utf8_bytes": 4689
+        },
+        "mixed_search_source_read": {
+          "command_local_token_proxy": 57,
+          "completed_calls": 1,
+          "findings": {},
+          "nonzero_exits": 0,
+          "output_local_token_proxy": 1360,
+          "output_utf8_bytes": 5835
+        },
+        "search": {
+          "command_local_token_proxy": 141,
+          "completed_calls": 2,
+          "findings": {},
+          "nonzero_exits": 0,
+          "output_local_token_proxy": 535,
+          "output_utf8_bytes": 2176
+        },
+        "source_read": {
+          "command_local_token_proxy": 79,
+          "completed_calls": 1,
+          "findings": {},
+          "nonzero_exits": 0,
+          "output_local_token_proxy": 3513,
+          "output_utf8_bytes": 14544
+        },
+        "test": {
+          "command_local_token_proxy": 556,
+          "completed_calls": 4,
+          "findings": {
+            "behavioral_assertion_or_seed_failure": 2
+          },
+          "nonzero_exits": 2,
+          "output_local_token_proxy": 2830,
+          "output_utf8_bytes": 11821
+        }
+      },
+      "provenance": {
+        "events_sha256": "eb17894417c5433ba2084386425e8f9c911709d2ad5fb51752e99d69e1a76b70",
+        "patch_sha256": "f4a47c8e5f1d25502d1e4a88396dced61444388bca2cb05cdf2192ecf721dc12",
+        "result_sha256": "8ea03acd412a8d4f8e5e24b1d3415a025d28d008dda04a8cc43ea9f9b75362ce"
+      },
+      "quality_review": {
+        "changed_files": [
+          "src/requests/sessions.py",
+          "tests/test_requests.py"
+        ],
+        "passed_selected_checks": true
+      },
+      "run_id": "02-requests_auth_ports-mcp",
+      "task_id": "requests_auth_ports"
+    },
+    {
+      "actual_provider_usage": {
+        "cache_write_input_tokens": 0,
+        "cached_input_tokens": 171008,
+        "input_tokens": 196860,
+        "output_tokens": 2302,
+        "reasoning_output_tokens": 367,
+        "total_tokens": 199162,
+        "uncached_input_tokens": 25852
+      },
+      "commands": [
+        {
+          "command": "/bin/zsh -lc \"pwd; rg --files -g AGENTS.md -g '*test*' -g '*types*' -g '*utils*' -g pyproject.toml -g setup.cfg -g tox.ini -g pytest.ini -g CONTRIBUTING.rst\"",
+          "command_string_proxy": {
+            "local_token_proxy": 56,
+            "utf8_bytes": 157
+          },
+          "event_index": 4,
+          "exit_code": 0,
+          "findings": [],
+          "item_id": "item_1",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 176,
+            "utf8_bytes": 702
+          },
+          "phase": "search",
+          "pytest_reported_execution_s": null,
+          "tags": [
+            "search"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc 'git status --short'",
+          "command_string_proxy": {
+            "local_token_proxy": 11,
+            "utf8_bytes": 33
+          },
+          "event_index": 7,
+          "exit_code": 0,
+          "findings": [],
+          "item_id": "item_3",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 0,
+            "utf8_bytes": 0
+          },
+          "phase": "workspace",
+          "pytest_reported_execution_s": null,
+          "tags": []
+        },
+        {
+          "command": "/bin/zsh -lc \"rg --files --hidden -g AGENTS.md -g '\"'!'\"\\\\.git/**'; rg -n 'atomic|lazy|File\\\\(' tests/test_types.py tests/test_utils.py tests/test_options.py; cat pyproject.toml; cat tox.ini\"",
+          "command_string_proxy": {
+            "local_token_proxy": 59,
+            "utf8_bytes": 191
+          },
+          "event_index": 9,
+          "exit_code": 0,
+          "findings": [],
+          "item_id": "item_4",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 1226,
+            "utf8_bytes": 4363
+          },
+          "phase": "mixed_search_source_read",
+          "pytest_reported_execution_s": null,
+          "tags": [
+            "source_read",
+            "search"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc \"sed -n '610,748p' src/click/types.py; sed -n '96,195p' src/click/utils.py; sed -n '1,100p' tests/conftest.py\"",
+          "command_string_proxy": {
+            "local_token_proxy": 51,
+            "utf8_bytes": 123
+          },
+          "event_index": 12,
+          "exit_code": 0,
+          "findings": [],
+          "item_id": "item_5",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 1803,
+            "utf8_bytes": 7869
+          },
+          "phase": "source_read",
+          "pytest_reported_execution_s": null,
+          "tags": [
+            "source_read"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc \"rg -n 'atomic|lazy|File\\\\(|file.*clos|closed|open_file' tests; rg --files --hidden -g '*AGENTS*' -g '\"'!.git/**'\"' -g '\"'!.cache/**'\"'; rg -n 'def call_on_close|def close|def __exit__' src/click/core.py\"",
+          "command_string_proxy": {
+            "local_token_proxy": 79,
+            "utf8_bytes": 217
+          },
+          "event_index": 14,
+          "exit_code": 0,
+          "findings": [],
+          "item_id": "item_6",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 875,
+            "utf8_bytes": 3370
+          },
+          "phase": "search",
+          "pytest_reported_execution_s": null,
+          "tags": [
+            "search"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc \"sed -n '1,75p' tests/test_basic.py; sed -n '245,333p' tests/test_basic.py; sed -n '88,175p' tests/test_arguments.py; sed -n '1,65p' tests/test_options.py; sed -n '572,615p' src/click/core.py\"",
+          "command_string_proxy": {
+            "local_token_proxy": 77,
+            "utf8_bytes": 205
+          },
+          "event_index": 16,
+          "exit_code": 0,
+          "findings": [],
+          "item_id": "item_7",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 2503,
+            "utf8_bytes": 10461
+          },
+          "phase": "source_read",
+          "pytest_reported_execution_s": null,
+          "tags": [
+            "source_read"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc \"PYTHONPATH=src <PROJECT>/.venv/bin/python -c 'import click, pytest; print(click.__file__); print(pytest.__version__)'\"",
+          "command_string_proxy": {
+            "local_token_proxy": 38,
+            "utf8_bytes": 132
+          },
+          "event_index": 18,
+          "exit_code": 0,
+          "findings": [],
+          "item_id": "item_8",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 18,
+            "utf8_bytes": 40
+          },
+          "phase": "debug",
+          "pytest_reported_execution_s": null,
+          "tags": [
+            "debug"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc \"PYTHONPATH=src <PROJECT>/.venv/bin/python -m pytest -q tests/test_basic.py -k 'file_lazy_close or file_lazy_unused'\"",
+          "command_string_proxy": {
+            "local_token_proxy": 38,
+            "utf8_bytes": 130
+          },
+          "event_index": 23,
+          "exit_code": 1,
+          "findings": [
+            "behavioral_assertion_or_seed_failure"
+          ],
+          "item_id": "item_11",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 1291,
+            "utf8_bytes": 5545
+          },
+          "phase": "test",
+          "pytest_reported_execution_s": 0.06,
+          "tags": [
+            "test"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc 'PYTHONPATH=src <PROJECT>/.venv/bin/python -m pytest -q tests/test_basic.py tests/test_arguments.py tests/test_types.py tests/test_utils.py tests/test_context.py tests/test_options.py'",
+          "command_string_proxy": {
+            "local_token_proxy": 48,
+            "utf8_bytes": 197
+          },
+          "event_index": 27,
+          "exit_code": 0,
+          "findings": [],
+          "item_id": "item_13",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 58,
+            "utf8_bytes": 511
+          },
+          "phase": "test",
+          "pytest_reported_execution_s": 0.33,
+          "tags": [
+            "test"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc 'git diff --check'",
+          "command_string_proxy": {
+            "local_token_proxy": 11,
+            "utf8_bytes": 31
+          },
+          "event_index": 29,
+          "exit_code": 0,
+          "findings": [],
+          "item_id": "item_14",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 0,
+            "utf8_bytes": 0
+          },
+          "phase": "edit_review",
+          "pytest_reported_execution_s": null,
+          "tags": [
+            "edit_review"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc 'git diff --stat; git diff -- src/click/types.py tests/test_basic.py; git status --short'",
+          "command_string_proxy": {
+            "local_token_proxy": 29,
+            "utf8_bytes": 102
+          },
+          "event_index": 31,
+          "exit_code": 0,
+          "findings": [],
+          "item_id": "item_15",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 625,
+            "utf8_bytes": 2362
+          },
+          "phase": "edit_review",
+          "pytest_reported_execution_s": null,
+          "tags": [
+            "edit_review"
+          ]
+        }
+      ],
+      "condition": "mcp",
+      "dependency_failure_output": {
+        "calls": 0,
+        "local_token_proxy": 0,
+        "utf8_bytes": 0
+      },
+      "edit_tool_input_text_recorded": false,
+      "file_change_events": 2,
+      "final_patch_proxy": {
+        "local_token_proxy": 578,
+        "utf8_bytes": 2182
+      },
+      "mcp_calls": [
+        {
+          "arguments": {
+            "include_dependencies": false,
+            "max_results": 4,
+            "query": "Click File.convert output option lazy open atomic writes ctx.call_on_close LazyFile close close_intelligently",
+            "source_budget": 13000,
+            "token_budget": 4200
+          },
+          "event_index": 10,
+          "exact_full_excerpts_reread": 3,
+          "exact_reread_source_bytes": 1783,
+          "host_model_payload_serialization_known": false,
+          "item_id": "item_2",
+          "potential_transport_duplicate_local_token_proxy": 908,
+          "result_count": 4,
+          "results": [
+            {
+              "end_line": 742,
+              "exact_full_excerpt_reread_in_items": [
+                "item_5"
+              ],
+              "line_overlap": [
+                {
+                  "distinctive_lines_seen_again": 19,
+                  "distinctive_source_lines": 19,
+                  "item_id": "item_5"
+                }
+              ],
+              "origin": "retrieval",
+              "path": "src/click/types.py",
+              "source_local_token_proxy": 298,
+              "source_utf8_bytes": 1386,
+              "start_line": 704,
+              "symbol": "File.convert"
+            },
+            {
+              "end_line": 176,
+              "exact_full_excerpt_reread_in_items": [
+                "item_5"
+              ],
+              "line_overlap": [
+                {
+                  "distinctive_lines_seen_again": 4,
+                  "distinctive_source_lines": 4,
+                  "item_id": "item_5"
+                }
+              ],
+              "origin": "retrieval",
+              "path": "src/click/utils.py",
+              "source_local_token_proxy": 52,
+              "source_utf8_bytes": 250,
+              "start_line": 171,
+              "symbol": "LazyFile.close_intelligently"
+            },
+            {
+              "end_line": 169,
+              "exact_full_excerpt_reread_in_items": [
+                "item_5"
+              ],
+              "line_overlap": [
+                {
+                  "distinctive_lines_seen_again": 3,
+                  "distinctive_source_lines": 3,
+                  "item_id": "item_5"
+                },
+                {
+                  "distinctive_lines_seen_again": 1,
+                  "distinctive_source_lines": 3,
+                  "item_id": "item_6"
+                },
+                {
+                  "distinctive_lines_seen_again": 1,
+                  "distinctive_source_lines": 3,
+                  "item_id": "item_7"
+                }
+              ],
+              "origin": "retrieval",
+              "path": "src/click/utils.py",
+              "source_local_token_proxy": 35,
+              "source_utf8_bytes": 147,
+              "start_line": 166,
+              "symbol": "LazyFile.close"
+            },
+            {
+              "end_line": 470,
+              "exact_full_excerpt_reread_in_items": [],
+              "line_overlap": [],
+              "origin": "retrieval",
+              "path": "src/click/_compat.py",
+              "source_local_token_proxy": 47,
+              "source_utf8_bytes": 205,
+              "start_line": 465,
+              "symbol": "_AtomicFile.close"
+            }
+          ],
+          "server_reported_single_payload_token_usage": {
+            "budget": 4200,
+            "encoding": "cl100k_base",
+            "tokens": 908,
+            "truncated": false
+          },
+          "structured_payload": {
+            "local_token_proxy": 908,
+            "utf8_bytes": 3306
+          },
+          "text_and_structured_are_equivalent": true,
+          "text_payload": {
+            "local_token_proxy": 908,
+            "utf8_bytes": 3306
+          }
+        }
+      ],
+      "measured_time_s": {
+        "agent_cli": 138.6115714170155,
+        "end_to_end": 164.82584583299467,
+        "final_grading": 0.054758874990511686,
+        "per_tool_and_per_phase_available": false,
+        "setup_excluded_from_agent": 25.71665070799645,
+        "unassigned_remaining_overhead": 0.4428648329921998
+      },
+      "phase_output_proxies": {
+        "debug": {
+          "command_local_token_proxy": 38,
+          "completed_calls": 1,
+          "findings": {},
+          "nonzero_exits": 0,
+          "output_local_token_proxy": 18,
+          "output_utf8_bytes": 40
+        },
+        "edit_review": {
+          "command_local_token_proxy": 40,
+          "completed_calls": 2,
+          "findings": {},
+          "nonzero_exits": 0,
+          "output_local_token_proxy": 625,
+          "output_utf8_bytes": 2362
+        },
+        "mcp_search": {
+          "command_local_token_proxy": 46,
+          "completed_calls": 1,
+          "findings": {},
+          "output_local_token_proxy": 908,
+          "output_utf8_bytes": 3306
+        },
+        "mixed_search_source_read": {
+          "command_local_token_proxy": 59,
+          "completed_calls": 1,
+          "findings": {},
+          "nonzero_exits": 0,
+          "output_local_token_proxy": 1226,
+          "output_utf8_bytes": 4363
+        },
+        "search": {
+          "command_local_token_proxy": 135,
+          "completed_calls": 2,
+          "findings": {},
+          "nonzero_exits": 0,
+          "output_local_token_proxy": 1051,
+          "output_utf8_bytes": 4072
+        },
+        "source_read": {
+          "command_local_token_proxy": 128,
+          "completed_calls": 2,
+          "findings": {},
+          "nonzero_exits": 0,
+          "output_local_token_proxy": 4306,
+          "output_utf8_bytes": 18330
+        },
+        "test": {
+          "command_local_token_proxy": 86,
+          "completed_calls": 2,
+          "findings": {
+            "behavioral_assertion_or_seed_failure": 1
+          },
+          "nonzero_exits": 1,
+          "output_local_token_proxy": 1349,
+          "output_utf8_bytes": 6056
+        },
+        "workspace": {
+          "command_local_token_proxy": 11,
+          "completed_calls": 1,
+          "findings": {},
+          "nonzero_exits": 0,
+          "output_local_token_proxy": 0,
+          "output_utf8_bytes": 0
+        }
+      },
+      "provenance": {
+        "events_sha256": "0710c80603d9a325aa237a57fe2a8e4a4ec3252b0f898a6ee46f3be6c5fdf68e",
+        "patch_sha256": "71149bb83f580ffc12bf72cdb457872ff673dc93ba4c9bff8101f95746d086c7",
+        "result_sha256": "47a20fd7ebc9f882480dfce814f4bd64390f9a9abad64e4a10c3054658589c99"
+      },
+      "quality_review": {
+        "changed_files": [
+          "src/click/types.py",
+          "tests/test_basic.py"
+        ],
+        "passed_selected_checks": true
+      },
+      "run_id": "03-click_atomic_close-mcp",
+      "task_id": "click_atomic_close"
+    },
+    {
+      "actual_provider_usage": {
+        "cache_write_input_tokens": 0,
+        "cached_input_tokens": 108672,
+        "input_tokens": 139852,
+        "output_tokens": 2972,
+        "reasoning_output_tokens": 1205,
+        "total_tokens": 142824,
+        "uncached_input_tokens": 31180
+      },
+      "commands": [
+        {
+          "command": "/bin/zsh -lc \"pwd && rg --files -g AGENTS.md -g pyproject.toml -g setup.cfg -g setup.py -g tox.ini -g '*file*' -g '*types*' -g '*test*' -g '*utils*'\"",
+          "command_string_proxy": {
+            "local_token_proxy": 55,
+            "utf8_bytes": 149
+          },
+          "event_index": 4,
+          "exit_code": 0,
+          "findings": [],
+          "item_id": "item_1",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 241,
+            "utf8_bytes": 982
+          },
+          "phase": "search",
+          "pytest_reported_execution_s": null,
+          "tags": [
+            "search"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc \"rg -n 'class File|class LazyFile|close_intelligently|atomic|lazy|call_on_close' src/click/types.py src/click/utils.py tests/test_types.py tests/test_utils.py tests/test_options.py tests/conftest.py pyproject.toml tox.ini\"",
+          "command_string_proxy": {
+            "local_token_proxy": 64,
+            "utf8_bytes": 235
+          },
+          "event_index": 6,
+          "exit_code": 0,
+          "findings": [],
+          "item_id": "item_2",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 827,
+            "utf8_bytes": 3198
+          },
+          "phase": "search",
+          "pytest_reported_execution_s": null,
+          "tags": [
+            "search"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc \"rg --files --hidden -g AGENTS.md -g '\"'!'\"\\\\.git/**' -g '\"'!'\"\\\\.cache/**'; git status --short\"",
+          "command_string_proxy": {
+            "local_token_proxy": 39,
+            "utf8_bytes": 109
+          },
+          "event_index": 8,
+          "exit_code": 0,
+          "findings": [],
+          "item_id": "item_3",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 0,
+            "utf8_bytes": 0
+          },
+          "phase": "search",
+          "pytest_reported_execution_s": null,
+          "tags": [
+            "search"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc \"sed -n '640,754p' src/click/types.py; sed -n '95,193p' src/click/utils.py; rg -n 'file|File|atomic|lazy' tests/test_arguments.py tests/test_options.py tests/test_types.py tests/test_basic.py tests/test_utils.py\"",
+          "command_string_proxy": {
+            "local_token_proxy": 69,
+            "utf8_bytes": 225
+          },
+          "event_index": 10,
+          "exit_code": 0,
+          "findings": [],
+          "item_id": "item_4",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 4023,
+            "utf8_bytes": 16646
+          },
+          "phase": "mixed_search_source_read",
+          "pytest_reported_execution_s": null,
+          "tags": [
+            "source_read",
+            "search"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc \"cat pyproject.toml; cat tox.ini; cat tests/conftest.py; rg -n '\"'^def test_.*file|''^def test_.*output'\"' tests\"",
+          "command_string_proxy": {
+            "local_token_proxy": 45,
+            "utf8_bytes": 126
+          },
+          "event_index": 12,
+          "exit_code": 0,
+          "findings": [],
+          "item_id": "item_5",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 1417,
+            "utf8_bytes": 5249
+          },
+          "phase": "mixed_search_source_read",
+          "pytest_reported_execution_s": null,
+          "tags": [
+            "source_read",
+            "search"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc \"sed -n '1,38p' tests/test_basic.py; sed -n '247,318p' tests/test_basic.py; sed -n '95,166p' tests/test_arguments.py; rg -n 'def safecall|class _AtomicFile|def close|def call_on_close' src/click/utils.py src/click/_compat.py src/click/core.py\"",
+          "command_string_proxy": {
+            "local_token_proxy": 87,
+            "utf8_bytes": 256
+          },
+          "event_index": 14,
+          "exit_code": 0,
+          "findings": [],
+          "item_id": "item_6",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 1316,
+            "utf8_bytes": 5443
+          },
+          "phase": "mixed_search_source_read",
+          "pytest_reported_execution_s": null,
+          "tags": [
+            "source_read",
+            "search"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc \"PYTHONPATH=src <PROJECT>/.venv/bin/python -c 'import sys, click, pytest; print(sys.version); print(click.__file__); print(pytest.__version__)'\"",
+          "command_string_proxy": {
+            "local_token_proxy": 44,
+            "utf8_bytes": 157
+          },
+          "event_index": 16,
+          "exit_code": 0,
+          "findings": [],
+          "item_id": "item_7",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 51,
+            "utf8_bytes": 94
+          },
+          "phase": "debug",
+          "pytest_reported_execution_s": null,
+          "tags": [
+            "debug"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc \"PYTHONPATH=src <PROJECT>/.venv/bin/python -m pytest -q tests/test_basic.py -k 'file_lazy_output'\"",
+          "command_string_proxy": {
+            "local_token_proxy": 34,
+            "utf8_bytes": 111
+          },
+          "event_index": 21,
+          "exit_code": 1,
+          "findings": [
+            "behavioral_assertion_or_seed_failure"
+          ],
+          "item_id": "item_10",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 1613,
+            "utf8_bytes": 6779
+          },
+          "phase": "test",
+          "pytest_reported_execution_s": 0.05,
+          "tags": [
+            "test"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc 'git diff --check; git diff --stat; git diff -- src/click/types.py tests/test_basic.py'",
+          "command_string_proxy": {
+            "local_token_proxy": 29,
+            "utf8_bytes": 100
+          },
+          "event_index": 25,
+          "exit_code": 0,
+          "findings": [],
+          "item_id": "item_12",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 641,
+            "utf8_bytes": 2470
+          },
+          "phase": "edit_review",
+          "pytest_reported_execution_s": null,
+          "tags": [
+            "edit_review"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc 'PYTHONPATH=src <PROJECT>/.venv/bin/python -m pytest -q tests/test_basic.py tests/test_arguments.py tests/test_types.py tests/test_utils.py tests/test_context.py tests/test_options.py tests/test_testing.py'",
+          "command_string_proxy": {
+            "local_token_proxy": 52,
+            "utf8_bytes": 219
+          },
+          "event_index": 27,
+          "exit_code": 0,
+          "findings": [],
+          "item_id": "item_13",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 59,
+            "utf8_bytes": 511
+          },
+          "phase": "test",
+          "pytest_reported_execution_s": 0.35,
+          "tags": [
+            "test"
+          ]
+        }
+      ],
+      "condition": "baseline",
+      "dependency_failure_output": {
+        "calls": 0,
+        "local_token_proxy": 0,
+        "utf8_bytes": 0
+      },
+      "edit_tool_input_text_recorded": false,
+      "file_change_events": 2,
+      "final_patch_proxy": {
+        "local_token_proxy": 607,
+        "utf8_bytes": 2335
+      },
+      "mcp_calls": [],
+      "measured_time_s": {
+        "agent_cli": 110.3557732909976,
+        "end_to_end": 110.69424612500006,
+        "final_grading": 0.07899866698426194,
+        "per_tool_and_per_phase_available": false,
+        "setup_excluded_from_agent": 0.22474733300623484,
+        "unassigned_remaining_overhead": 0.03472683401196264
+      },
+      "phase_output_proxies": {
+        "debug": {
+          "command_local_token_proxy": 44,
+          "completed_calls": 1,
+          "findings": {},
+          "nonzero_exits": 0,
+          "output_local_token_proxy": 51,
+          "output_utf8_bytes": 94
+        },
+        "edit_review": {
+          "command_local_token_proxy": 29,
+          "completed_calls": 1,
+          "findings": {},
+          "nonzero_exits": 0,
+          "output_local_token_proxy": 641,
+          "output_utf8_bytes": 2470
+        },
+        "mixed_search_source_read": {
+          "command_local_token_proxy": 201,
+          "completed_calls": 3,
+          "findings": {},
+          "nonzero_exits": 0,
+          "output_local_token_proxy": 6756,
+          "output_utf8_bytes": 27338
+        },
+        "search": {
+          "command_local_token_proxy": 158,
+          "completed_calls": 3,
+          "findings": {},
+          "nonzero_exits": 0,
+          "output_local_token_proxy": 1068,
+          "output_utf8_bytes": 4180
+        },
+        "test": {
+          "command_local_token_proxy": 86,
+          "completed_calls": 2,
+          "findings": {
+            "behavioral_assertion_or_seed_failure": 1
+          },
+          "nonzero_exits": 1,
+          "output_local_token_proxy": 1672,
+          "output_utf8_bytes": 7290
+        }
+      },
+      "provenance": {
+        "events_sha256": "d45cb496858add8845b3da0cf1bf68d22acb414b148bd7f316df92321abed4ce",
+        "patch_sha256": "f70c391f67fbdd6e1b52217c3a817432343497a5f62b051bc45bc84448036031",
+        "result_sha256": "70325f27dc5109adbd8692e53aa0ec9364601a4bb676f136979de6e9cfba4aef"
+      },
+      "quality_review": {
+        "changed_files": [
+          "src/click/types.py",
+          "tests/test_basic.py"
+        ],
+        "passed_selected_checks": true
+      },
+      "run_id": "04-click_atomic_close-baseline",
+      "task_id": "click_atomic_close"
+    },
+    {
+      "actual_provider_usage": {
+        "cache_write_input_tokens": 0,
+        "cached_input_tokens": 161664,
+        "input_tokens": 208516,
+        "output_tokens": 5166,
+        "reasoning_output_tokens": 2219,
+        "total_tokens": 213682,
+        "uncached_input_tokens": 46852
+      },
+      "commands": [
+        {
+          "command": "/bin/zsh -lc pwd",
+          "command_string_proxy": {
+            "local_token_proxy": 6,
+            "utf8_bytes": 16
+          },
+          "event_index": 4,
+          "exit_code": 0,
+          "findings": [],
+          "item_id": "item_1",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 4,
+            "utf8_bytes": 12
+          },
+          "phase": "workspace",
+          "pytest_reported_execution_s": null,
+          "tags": []
+        },
+        {
+          "command": "/bin/zsh -lc \"rg --files -g AGENTS.md -g '*background*' -g 'pyproject.toml' -g 'setup.cfg' -g 'pytest.ini' -g 'tox.ini' -g 'requirements*' -g 'setup.py'\"",
+          "command_string_proxy": {
+            "local_token_proxy": 57,
+            "utf8_bytes": 153
+          },
+          "event_index": 6,
+          "exit_code": 0,
+          "findings": [],
+          "item_id": "item_2",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 22,
+            "utf8_bytes": 100
+          },
+          "phase": "search",
+          "pytest_reported_execution_s": null,
+          "tags": [
+            "search"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc 'git status --short'",
+          "command_string_proxy": {
+            "local_token_proxy": 11,
+            "utf8_bytes": 33
+          },
+          "event_index": 8,
+          "exit_code": 0,
+          "findings": [],
+          "item_id": "item_3",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 0,
+            "utf8_bytes": 0
+          },
+          "phase": "workspace",
+          "pytest_reported_execution_s": null,
+          "tags": []
+        },
+        {
+          "command": "/bin/zsh -lc 'cat starlette/background.py tests/test_background.py pyproject.toml'",
+          "command_string_proxy": {
+            "local_token_proxy": 20,
+            "utf8_bytes": 82
+          },
+          "event_index": 10,
+          "exit_code": 0,
+          "findings": [],
+          "item_id": "item_4",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 1741,
+            "utf8_bytes": 7096
+          },
+          "phase": "source_read",
+          "pytest_reported_execution_s": null,
+          "tags": [
+            "source_read"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc \"rg --files --hidden -g AGENTS.md -g '\"'!.git'\"'\"",
+          "command_string_proxy": {
+            "local_token_proxy": 23,
+            "utf8_bytes": 62
+          },
+          "event_index": 13,
+          "exit_code": 1,
+          "findings": [],
+          "item_id": "item_5",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 0,
+            "utf8_bytes": 0
+          },
+          "phase": "search",
+          "pytest_reported_execution_s": null,
+          "tags": [
+            "search"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc \"rg -n 'background|http.response' starlette/responses.py tests/conftest.py docs/background.md requirements.txt\"",
+          "command_string_proxy": {
+            "local_token_proxy": 31,
+            "utf8_bytes": 124
+          },
+          "event_index": 14,
+          "exit_code": 0,
+          "findings": [],
+          "item_id": "item_6",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 908,
+            "utf8_bytes": 3859
+          },
+          "phase": "search",
+          "pytest_reported_execution_s": null,
+          "tags": [
+            "search"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc \"sed -n '140,163p' starlette/responses.py\"",
+          "command_string_proxy": {
+            "local_token_proxy": 21,
+            "utf8_bytes": 55
+          },
+          "event_index": 17,
+          "exit_code": 0,
+          "findings": [],
+          "item_id": "item_8",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 155,
+            "utf8_bytes": 722
+          },
+          "phase": "source_read",
+          "pytest_reported_execution_s": null,
+          "tags": [
+            "source_read"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc 'cat tests/conftest.py tests/types.py starlette/concurrency.py'",
+          "command_string_proxy": {
+            "local_token_proxy": 21,
+            "utf8_bytes": 76
+          },
+          "event_index": 18,
+          "exit_code": 0,
+          "findings": [],
+          "item_id": "item_7",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 729,
+            "utf8_bytes": 3140
+          },
+          "phase": "source_read",
+          "pytest_reported_execution_s": null,
+          "tags": [
+            "source_read"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc 'rg --files scripts .github'",
+          "command_string_proxy": {
+            "local_token_proxy": 13,
+            "utf8_bytes": 41
+          },
+          "event_index": 21,
+          "exit_code": 0,
+          "findings": [],
+          "item_id": "item_9",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 93,
+            "utf8_bytes": 376
+          },
+          "phase": "search",
+          "pytest_reported_execution_s": null,
+          "tags": [
+            "search"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc \"rg -n 'pytest.mark.anyio|anyio.sleep|async def send|def receive' tests/test_responses.py tests/test_concurrency.py tests/test_applications.py\"",
+          "command_string_proxy": {
+            "local_token_proxy": 41,
+            "utf8_bytes": 156
+          },
+          "event_index": 22,
+          "exit_code": 0,
+          "findings": [],
+          "item_id": "item_10",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 300,
+            "utf8_bytes": 1212
+          },
+          "phase": "search",
+          "pytest_reported_execution_s": null,
+          "tags": [
+            "search"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc '<PROJECT>/.venv/bin/python -m pytest tests/test_background.py -q'",
+          "command_string_proxy": {
+            "local_token_proxy": 23,
+            "utf8_bytes": 79
+          },
+          "event_index": 27,
+          "exit_code": 4,
+          "findings": [
+            "dependency_deprecation"
+          ],
+          "item_id": "item_13",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 174,
+            "utf8_bytes": 673
+          },
+          "phase": "test",
+          "pytest_reported_execution_s": null,
+          "tags": [
+            "test"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc 'cat scripts/check scripts/test scripts/lint'",
+          "command_string_proxy": {
+            "local_token_proxy": 15,
+            "utf8_bytes": 58
+          },
+          "event_index": 29,
+          "exit_code": 0,
+          "findings": [],
+          "item_id": "item_14",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 304,
+            "utf8_bytes": 1008
+          },
+          "phase": "source_read",
+          "pytest_reported_execution_s": null,
+          "tags": [
+            "source_read"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc \"<PROJECT>/.venv/bin/python -m pytest tests/test_background.py -q -W 'ignore:The anyio.abc.BlockingPortal alias is deprecated:DeprecationWarning'\"",
+          "command_string_proxy": {
+            "local_token_proxy": 43,
+            "utf8_bytes": 159
+          },
+          "event_index": 31,
+          "exit_code": 1,
+          "findings": [
+            "anyio_trio_incompatibility",
+            "behavioral_assertion_or_seed_failure"
+          ],
+          "item_id": "item_15",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 6966,
+            "utf8_bytes": 28915
+          },
+          "phase": "test",
+          "pytest_reported_execution_s": 0.16,
+          "tags": [
+            "test"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc \"<PROJECT>/.venv/bin/python -m pytest tests/test_background.py -q --tb=short -W 'ignore:The anyio.abc.BlockingPortal alias is deprecated:DeprecationWarning'\"",
+          "command_string_proxy": {
+            "local_token_proxy": 47,
+            "utf8_bytes": 170
+          },
+          "event_index": 36,
+          "exit_code": 1,
+          "findings": [
+            "behavioral_assertion_or_seed_failure"
+          ],
+          "item_id": "item_18",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 1072,
+            "utf8_bytes": 4110
+          },
+          "phase": "test",
+          "pytest_reported_execution_s": 0.05,
+          "tags": [
+            "test"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc 'git diff --check'",
+          "command_string_proxy": {
+            "local_token_proxy": 11,
+            "utf8_bytes": 31
+          },
+          "event_index": 40,
+          "exit_code": 0,
+          "findings": [],
+          "item_id": "item_20",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 0,
+            "utf8_bytes": 0
+          },
+          "phase": "edit_review",
+          "pytest_reported_execution_s": null,
+          "tags": [
+            "edit_review"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc '<PROJECT>/.venv/bin/python -m ruff check starlette/background.py tests/test_background.py'",
+          "command_string_proxy": {
+            "local_token_proxy": 27,
+            "utf8_bytes": 104
+          },
+          "event_index": 43,
+          "exit_code": 1,
+          "findings": [
+            "missing_linter"
+          ],
+          "item_id": "item_21",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 15,
+            "utf8_bytes": 49
+          },
+          "phase": "debug",
+          "pytest_reported_execution_s": null,
+          "tags": [
+            "debug"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc '<PROJECT>/.venv/bin/python -m ruff format --check starlette/background.py tests/test_background.py'",
+          "command_string_proxy": {
+            "local_token_proxy": 29,
+            "utf8_bytes": 113
+          },
+          "event_index": 44,
+          "exit_code": 1,
+          "findings": [
+            "missing_linter"
+          ],
+          "item_id": "item_22",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 15,
+            "utf8_bytes": 49
+          },
+          "phase": "debug",
+          "pytest_reported_execution_s": null,
+          "tags": [
+            "debug"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc \"<PROJECT>/.venv/bin/python -m pytest tests/test_background.py tests/test_concurrency.py -q --tb=short -W 'ignore:The anyio.abc.BlockingPortal alias is deprecated:DeprecationWarning'\"",
+          "command_string_proxy": {
+            "local_token_proxy": 52,
+            "utf8_bytes": 196
+          },
+          "event_index": 46,
+          "exit_code": 1,
+          "findings": [
+            "anyio_trio_incompatibility"
+          ],
+          "item_id": "item_23",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 1987,
+            "utf8_bytes": 6939
+          },
+          "phase": "test",
+          "pytest_reported_execution_s": 0.04,
+          "tags": [
+            "test"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc 'git status --short'",
+          "command_string_proxy": {
+            "local_token_proxy": 11,
+            "utf8_bytes": 33
+          },
+          "event_index": 49,
+          "exit_code": 0,
+          "findings": [],
+          "item_id": "item_24",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 12,
+            "utf8_bytes": 55
+          },
+          "phase": "workspace",
+          "pytest_reported_execution_s": null,
+          "tags": []
+        },
+        {
+          "command": "/bin/zsh -lc 'git diff -- starlette/background.py tests/test_background.py'",
+          "command_string_proxy": {
+            "local_token_proxy": 18,
+            "utf8_bytes": 75
+          },
+          "event_index": 50,
+          "exit_code": 0,
+          "findings": [],
+          "item_id": "item_25",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 953,
+            "utf8_bytes": 3816
+          },
+          "phase": "edit_review",
+          "pytest_reported_execution_s": null,
+          "tags": [
+            "edit_review"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc \"<PROJECT>/.venv/bin/python -m pytest tests/test_background.py -q -W 'ignore:The anyio.abc.BlockingPortal alias is deprecated:DeprecationWarning'\"",
+          "command_string_proxy": {
+            "local_token_proxy": 43,
+            "utf8_bytes": 159
+          },
+          "event_index": 53,
+          "exit_code": 0,
+          "findings": [],
+          "item_id": "item_26",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 16,
+            "utf8_bytes": 99
+          },
+          "phase": "test",
+          "pytest_reported_execution_s": 0.02,
+          "tags": [
+            "test"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc \"<PROJECT>/.venv/bin/python -m pytest tests/test_responses.py tests/test_concurrency.py -q --tb=short -k 'not trio' -W 'ignore:The anyio.abc.BlockingPortal alias is deprecated:DeprecationWarning'\"",
+          "command_string_proxy": {
+            "local_token_proxy": 58,
+            "utf8_bytes": 209
+          },
+          "event_index": 54,
+          "exit_code": 0,
+          "findings": [],
+          "item_id": "item_27",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 22,
+            "utf8_bytes": 114
+          },
+          "phase": "test",
+          "pytest_reported_execution_s": 0.11,
+          "tags": [
+            "test"
+          ]
+        }
+      ],
+      "condition": "baseline",
+      "dependency_failure_output": {
+        "calls": 3,
+        "local_token_proxy": 9127,
+        "utf8_bytes": 36527
+      },
+      "edit_tool_input_text_recorded": false,
+      "file_change_events": 3,
+      "final_patch_proxy": {
+        "local_token_proxy": 953,
+        "utf8_bytes": 3816
+      },
+      "mcp_calls": [],
+      "measured_time_s": {
+        "agent_cli": 177.7461800420133,
+        "end_to_end": 178.1599676250189,
+        "final_grading": 0.09277766701416112,
+        "per_tool_and_per_phase_available": false,
+        "setup_excluded_from_agent": 0.28402954200282693,
+        "unassigned_remaining_overhead": 0.036980373988626525
+      },
+      "phase_output_proxies": {
+        "debug": {
+          "command_local_token_proxy": 56,
+          "completed_calls": 2,
+          "findings": {
+            "missing_linter": 2
+          },
+          "nonzero_exits": 2,
+          "output_local_token_proxy": 30,
+          "output_utf8_bytes": 98
+        },
+        "edit_review": {
+          "command_local_token_proxy": 29,
+          "completed_calls": 2,
+          "findings": {},
+          "nonzero_exits": 0,
+          "output_local_token_proxy": 953,
+          "output_utf8_bytes": 3816
+        },
+        "search": {
+          "command_local_token_proxy": 165,
+          "completed_calls": 5,
+          "findings": {},
+          "nonzero_exits": 1,
+          "output_local_token_proxy": 1323,
+          "output_utf8_bytes": 5547
+        },
+        "source_read": {
+          "command_local_token_proxy": 77,
+          "completed_calls": 4,
+          "findings": {},
+          "nonzero_exits": 0,
+          "output_local_token_proxy": 2929,
+          "output_utf8_bytes": 11966
+        },
+        "test": {
+          "command_local_token_proxy": 266,
+          "completed_calls": 6,
+          "findings": {
+            "anyio_trio_incompatibility": 2,
+            "behavioral_assertion_or_seed_failure": 2,
+            "dependency_deprecation": 1
+          },
+          "nonzero_exits": 4,
+          "output_local_token_proxy": 10237,
+          "output_utf8_bytes": 40850
+        },
+        "workspace": {
+          "command_local_token_proxy": 28,
+          "completed_calls": 3,
+          "findings": {},
+          "nonzero_exits": 0,
+          "output_local_token_proxy": 16,
+          "output_utf8_bytes": 67
+        }
+      },
+      "provenance": {
+        "events_sha256": "c462e6f3f6ed537197c64c3b106aa1ac1654181b5a7a4c9594398919715c7ad1",
+        "patch_sha256": "3d94e050eb912f07b447b10aec391a328d24778fba733e4854eeccfa82fcbc09",
+        "result_sha256": "bf8f9c000dd96b698e7004fd89e9c0027bf7ef8c53d2a82326b291a189d69035"
+      },
+      "quality_review": {
+        "changed_files": [
+          "starlette/background.py",
+          "tests/test_background.py"
+        ],
+        "passed_selected_checks": true
+      },
+      "run_id": "05-starlette_background_order-baseline",
+      "task_id": "starlette_background_order"
+    },
+    {
+      "actual_provider_usage": {
+        "cache_write_input_tokens": 0,
+        "cached_input_tokens": 154496,
+        "input_tokens": 232600,
+        "output_tokens": 5987,
+        "reasoning_output_tokens": 3133,
+        "total_tokens": 238587,
+        "uncached_input_tokens": 78104
+      },
+      "commands": [
+        {
+          "command": "/bin/zsh -lc \"pwd; rg --files -g 'AGENTS.md' -g '*background*' -g 'pyproject.toml' -g 'pytest.ini' -g 'setup.cfg' -g 'setup.py' -g 'tox.ini' -g 'requirements*.txt' -g 'uv.lock' -g '.python-version'\"",
+          "command_string_proxy": {
+            "local_token_proxy": 75,
+            "utf8_bytes": 198
+          },
+          "event_index": 4,
+          "exit_code": 0,
+          "findings": [],
+          "item_id": "item_1",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 26,
+            "utf8_bytes": 112
+          },
+          "phase": "search",
+          "pytest_reported_execution_s": null,
+          "tags": [
+            "search"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc \"git status --short; rg --files -g 'AGENTS.md' -g 'conftest.py'; rg -n 'pytest|test|requires-python|dependencies' pyproject.toml requirements.txt\"",
+          "command_string_proxy": {
+            "local_token_proxy": 49,
+            "utf8_bytes": 159
+          },
+          "event_index": 8,
+          "exit_code": 0,
+          "findings": [],
+          "item_id": "item_3",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 104,
+            "utf8_bytes": 332
+          },
+          "phase": "search",
+          "pytest_reported_execution_s": null,
+          "tags": [
+            "search"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc \"sed -n '1,200p' starlette/background.py; sed -n '1,260p' tests/test_background.py\"",
+          "command_string_proxy": {
+            "local_token_proxy": 34,
+            "utf8_bytes": 96
+          },
+          "event_index": 10,
+          "exit_code": 0,
+          "findings": [],
+          "item_id": "item_4",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 924,
+            "utf8_bytes": 4096
+          },
+          "phase": "source_read",
+          "pytest_reported_execution_s": null,
+          "tags": [
+            "source_read"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc \"sed -n '1,200p' tests/conftest.py; sed -n '1,145p' pyproject.toml; rg -n -A 16 -B 10 'await self.background' starlette/responses.py; sed -n '1,180p' docs/background.md\"",
+          "command_string_proxy": {
+            "local_token_proxy": 70,
+            "utf8_bytes": 182
+          },
+          "event_index": 12,
+          "exit_code": 0,
+          "findings": [],
+          "item_id": "item_5",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 2125,
+            "utf8_bytes": 8717
+          },
+          "phase": "mixed_search_source_read",
+          "pytest_reported_execution_s": null,
+          "tags": [
+            "source_read",
+            "search"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc \"rg -n -A 22 -B 5 'pytest.mark.anyio|async def send\\\\(|background=' tests/test_responses.py tests/test_concurrency.py\"",
+          "command_string_proxy": {
+            "local_token_proxy": 40,
+            "utf8_bytes": 131
+          },
+          "event_index": 15,
+          "exit_code": 0,
+          "findings": [],
+          "item_id": "item_7",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 3574,
+            "utf8_bytes": 14829
+          },
+          "phase": "search",
+          "pytest_reported_execution_s": null,
+          "tags": [
+            "search"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc '<PROJECT>/.venv/bin/python -m pytest tests/test_background.py -q'",
+          "command_string_proxy": {
+            "local_token_proxy": 23,
+            "utf8_bytes": 79
+          },
+          "event_index": 17,
+          "exit_code": 4,
+          "findings": [
+            "dependency_deprecation"
+          ],
+          "item_id": "item_8",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 174,
+            "utf8_bytes": 673
+          },
+          "phase": "test",
+          "pytest_reported_execution_s": null,
+          "tags": [
+            "test"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc \"<PROJECT>/.venv/bin/python -m pytest tests/test_background.py -q -W 'ignore:The anyio.abc.BlockingPortal alias is deprecated.*:DeprecationWarning'\"",
+          "command_string_proxy": {
+            "local_token_proxy": 44,
+            "utf8_bytes": 161
+          },
+          "event_index": 21,
+          "exit_code": 4,
+          "findings": [
+            "dependency_deprecation"
+          ],
+          "item_id": "item_10",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 174,
+            "utf8_bytes": 673
+          },
+          "phase": "test",
+          "pytest_reported_execution_s": null,
+          "tags": [
+            "test"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc \"<PROJECT>/.venv/bin/python -m pytest tests/test_background.py -q -W 'ignore:The anyio.abc.BlockingPortal alias is deprecated:DeprecationWarning'\"",
+          "command_string_proxy": {
+            "local_token_proxy": 43,
+            "utf8_bytes": 159
+          },
+          "event_index": 23,
+          "exit_code": 1,
+          "findings": [
+            "anyio_trio_incompatibility",
+            "behavioral_assertion_or_seed_failure"
+          ],
+          "item_id": "item_11",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 6603,
+            "utf8_bytes": 27160
+          },
+          "phase": "test",
+          "pytest_reported_execution_s": 0.16,
+          "tags": [
+            "test"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc 'git diff --check; git diff --stat; <PROJECT>/.venv/bin/python -m ruff check starlette/background.py tests/test_background.py; <PROJECT>/.venv/bin/python -m ruff format --check starlette/background.py tests/test_background.py'",
+          "command_string_proxy": {
+            "local_token_proxy": 62,
+            "utf8_bytes": 239
+          },
+          "event_index": 28,
+          "exit_code": 1,
+          "findings": [
+            "missing_linter"
+          ],
+          "item_id": "item_14",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 69,
+            "utf8_bytes": 264
+          },
+          "phase": "edit_review",
+          "pytest_reported_execution_s": null,
+          "tags": [
+            "edit_review",
+            "debug"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc \"<PROJECT>/.venv/bin/python -m pytest tests/test_background.py -q -W 'ignore:The anyio.abc.BlockingPortal alias is deprecated:DeprecationWarning' --tb=short\"",
+          "command_string_proxy": {
+            "local_token_proxy": 48,
+            "utf8_bytes": 170
+          },
+          "event_index": 31,
+          "exit_code": 0,
+          "findings": [],
+          "item_id": "item_15",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 16,
+            "utf8_bytes": 99
+          },
+          "phase": "test",
+          "pytest_reported_execution_s": 0.02,
+          "tags": [
+            "test"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc \"<PROJECT>/.venv/bin/python -m pytest tests/test_background.py tests/test_responses.py tests/test_concurrency.py -q -k asyncio -W 'ignore:The anyio.abc.BlockingPortal alias is deprecated:DeprecationWarning' --tb=short\"",
+          "command_string_proxy": {
+            "local_token_proxy": 60,
+            "utf8_bytes": 231
+          },
+          "event_index": 32,
+          "exit_code": 0,
+          "findings": [],
+          "item_id": "item_16",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 21,
+            "utf8_bytes": 114
+          },
+          "phase": "test",
+          "pytest_reported_execution_s": 0.12,
+          "tags": [
+            "test"
+          ]
+        },
+        {
+          "command": "/bin/zsh -lc 'git diff --check; git diff -- starlette/background.py tests/test_background.py; git status --short'",
+          "command_string_proxy": {
+            "local_token_proxy": 28,
+            "utf8_bytes": 113
+          },
+          "event_index": 34,
+          "exit_code": 0,
+          "findings": [
+            "behavioral_assertion_or_seed_failure"
+          ],
+          "item_id": "item_17",
+          "measured_tool_duration_s": null,
+          "output": {
+            "local_token_proxy": 984,
+            "utf8_bytes": 3924
+          },
+          "phase": "edit_review",
+          "pytest_reported_execution_s": null,
+          "tags": [
+            "edit_review"
+          ]
+        }
+      ],
+      "condition": "mcp",
+      "dependency_failure_output": {
+        "calls": 3,
+        "local_token_proxy": 6951,
+        "utf8_bytes": 28506
+      },
+      "edit_tool_input_text_recorded": false,
+      "file_change_events": 2,
+      "final_patch_proxy": {
+        "local_token_proxy": 972,
+        "utf8_bytes": 3869
+      },
+      "mcp_calls": [
+        {
+          "arguments": {
+            "include_dependencies": true,
+            "max_results": 5,
+            "query": "Starlette BackgroundTasks collect add_task background callbacks then execute registered tasks after response sends, asynchronous and synchronous BackgroundTask __call__",
+            "retrieval": "bm25",
+            "source_budget": 9000,
+            "token_budget": 3000
+          },
+          "event_index": 6,
+          "exact_full_excerpts_reread": 4,
+          "exact_reread_source_bytes": 630,
+          "host_model_payload_serialization_known": false,
+          "item_id": "item_2",
+          "potential_transport_duplicate_local_token_proxy": 846,
+          "result_count": 5,
+          "results": [
+            {
+              "end_line": 37,
+              "exact_full_excerpt_reread_in_items": [
+                "item_4"
+              ],
+              "line_overlap": [
+                {
+                  "distinctive_lines_seen_again": 3,
+                  "distinctive_source_lines": 3,
+                  "item_id": "item_4"
+                }
+              ],
+              "origin": "retrieval",
+              "path": "starlette/background.py",
+              "source_local_token_proxy": 50,
+              "source_utf8_bytes": 190,
+              "start_line": 35,
+              "symbol": "BackgroundTasks.add_task"
+            },
+            {
+              "end_line": 41,
+              "exact_full_excerpt_reread_in_items": [
+                "item_4"
+              ],
+              "line_overlap": [
+                {
+                  "distinctive_lines_seen_again": 2,
+                  "distinctive_source_lines": 2,
+                  "item_id": "item_4"
+                }
+              ],
+              "origin": "retrieval",
+              "path": "starlette/background.py",
+              "source_local_token_proxy": 23,
+              "source_utf8_bytes": 105,
+              "start_line": 39,
+              "symbol": "BackgroundTasks.__call__"
+            },
+            {
+              "end_line": 33,
+              "exact_full_excerpt_reread_in_items": [
+                "item_4"
+              ],
+              "line_overlap": [
+                {
+                  "distinctive_lines_seen_again": 2,
+                  "distinctive_source_lines": 2,
+                  "item_id": "item_4"
+                }
+              ],
+              "origin": "retrieval",
+              "path": "starlette/background.py",
+              "source_local_token_proxy": 31,
+              "source_utf8_bytes": 128,
+              "start_line": 32,
+              "symbol": "BackgroundTasks.__init__"
+            },
+            {
+              "end_line": 271,
+              "exact_full_excerpt_reread_in_items": [],
+              "line_overlap": [
+                {
+                  "distinctive_lines_seen_again": 7,
+                  "distinctive_source_lines": 12,
+                  "item_id": "item_5"
+                }
+              ],
+              "origin": "retrieval",
+              "path": "starlette/responses.py",
+              "source_local_token_proxy": 170,
+              "source_utf8_bytes": 841,
+              "start_line": 252,
+              "symbol": "StreamingResponse.__call__"
+            },
+            {
+              "end_line": 28,
+              "exact_full_excerpt_reread_in_items": [
+                "item_4"
+              ],
+              "line_overlap": [
+                {
+                  "distinctive_lines_seen_again": 3,
+                  "distinctive_source_lines": 3,
+                  "item_id": "item_4"
+                }
+              ],
+              "origin": "retrieval",
+              "path": "starlette/background.py",
+              "source_local_token_proxy": 49,
+              "source_utf8_bytes": 207,
+              "start_line": 24,
+              "symbol": "BackgroundTask.__call__"
+            }
+          ],
+          "server_reported_single_payload_token_usage": {
+            "budget": 3000,
+            "encoding": "cl100k_base",
+            "tokens": 846,
+            "truncated": false
+          },
+          "structured_payload": {
+            "local_token_proxy": 846,
+            "utf8_bytes": 3100
+          },
+          "text_and_structured_are_equivalent": true,
+          "text_payload": {
+            "local_token_proxy": 846,
+            "utf8_bytes": 3100
+          }
+        }
+      ],
+      "measured_time_s": {
+        "agent_cli": 209.3300991670112,
+        "end_to_end": 229.95637666698894,
+        "final_grading": 0.0733053750009276,
+        "per_tool_and_per_phase_available": false,
+        "setup_excluded_from_agent": 20.289688332995865,
+        "unassigned_remaining_overhead": 0.263283791980939
+      },
+      "phase_output_proxies": {
+        "edit_review": {
+          "command_local_token_proxy": 90,
+          "completed_calls": 2,
+          "findings": {
+            "behavioral_assertion_or_seed_failure": 1,
+            "missing_linter": 1
+          },
+          "nonzero_exits": 1,
+          "output_local_token_proxy": 1053,
+          "output_utf8_bytes": 4188
+        },
+        "mcp_search": {
+          "command_local_token_proxy": 58,
+          "completed_calls": 1,
+          "findings": {},
+          "output_local_token_proxy": 846,
+          "output_utf8_bytes": 3100
+        },
+        "mixed_search_source_read": {
+          "command_local_token_proxy": 70,
+          "completed_calls": 1,
+          "findings": {},
+          "nonzero_exits": 0,
+          "output_local_token_proxy": 2125,
+          "output_utf8_bytes": 8717
+        },
+        "search": {
+          "command_local_token_proxy": 164,
+          "completed_calls": 3,
+          "findings": {},
+          "nonzero_exits": 0,
+          "output_local_token_proxy": 3704,
+          "output_utf8_bytes": 15273
+        },
+        "source_read": {
+          "command_local_token_proxy": 34,
+          "completed_calls": 1,
+          "findings": {},
+          "nonzero_exits": 0,
+          "output_local_token_proxy": 924,
+          "output_utf8_bytes": 4096
+        },
+        "test": {
+          "command_local_token_proxy": 218,
+          "completed_calls": 5,
+          "findings": {
+            "anyio_trio_incompatibility": 1,
+            "behavioral_assertion_or_seed_failure": 1,
+            "dependency_deprecation": 2
+          },
+          "nonzero_exits": 3,
+          "output_local_token_proxy": 6988,
+          "output_utf8_bytes": 28719
+        }
+      },
+      "provenance": {
+        "events_sha256": "6111be97c822cc1840b198ea448f978d9bd40078b8cfbfe5bf93e01c7d478850",
+        "patch_sha256": "fb23729413d41824a804f9ed1c062c852081a362c4ea5da26e7cd213f40da030",
+        "result_sha256": "210b188523cf432299f26cf473223925da4edce10b095d68e4e15f9943018740"
+      },
+      "quality_review": {
+        "changed_files": [
+          "starlette/background.py",
+          "tests/test_background.py"
+        ],
+        "passed_selected_checks": true
+      },
+      "run_id": "06-starlette_background_order-mcp",
+      "task_id": "starlette_background_order"
+    }
+  ],
+  "schema_version": 1,
+  "summary": {
+    "conditions": {
+      "baseline": {
+        "actual_provider_usage": {
+          "cache_write_input_tokens": 0,
+          "cached_input_fraction": 0.795185488655949,
+          "cached_input_tokens": 450304,
+          "input_tokens": 566288,
+          "output_tokens": 11930,
+          "reasoning_output_tokens": 4723,
+          "total_tokens": 578218,
+          "uncached_input_plus_output_tokens": 127914,
+          "uncached_input_tokens": 115984
+        },
+        "agent_elapsed_s": 426.7770574160095,
+        "dependency_failure_output_local_token_proxy": 9127,
+        "dependency_failure_output_utf8_bytes": 36527,
+        "end_to_end_s": 427.93696879103663,
+        "phase_output_proxies": {
+          "debug": {
+            "command_local_token_proxy": 135,
+            "completed_calls": 4,
+            "nonzero_exits": 3,
+            "output_local_token_proxy": 96,
+            "output_utf8_bytes": 241
+          },
+          "edit_review": {
+            "command_local_token_proxy": 89,
+            "completed_calls": 5,
+            "nonzero_exits": 0,
+            "output_local_token_proxy": 2129,
+            "output_utf8_bytes": 8458
+          },
+          "mixed_search_source_read": {
+            "command_local_token_proxy": 201,
+            "completed_calls": 3,
+            "nonzero_exits": 0,
+            "output_local_token_proxy": 6756,
+            "output_utf8_bytes": 27338
+          },
+          "search": {
+            "command_local_token_proxy": 487,
+            "completed_calls": 12,
+            "nonzero_exits": 2,
+            "output_local_token_proxy": 4865,
+            "output_utf8_bytes": 20223
+          },
+          "source_read": {
+            "command_local_token_proxy": 196,
+            "completed_calls": 10,
+            "nonzero_exits": 0,
+            "output_local_token_proxy": 8798,
+            "output_utf8_bytes": 37812
+          },
+          "test": {
+            "command_local_token_proxy": 876,
+            "completed_calls": 12,
+            "nonzero_exits": 7,
+            "output_local_token_proxy": 14753,
+            "output_utf8_bytes": 59845
+          },
+          "workspace": {
+            "command_local_token_proxy": 39,
+            "completed_calls": 4,
+            "nonzero_exits": 0,
+            "output_local_token_proxy": 16,
+            "output_utf8_bytes": 67
+          }
+        },
+        "setup_s": 0.7852008330228273
+      },
+      "mcp": {
+        "actual_provider_usage": {
+          "cache_write_input_tokens": 0,
+          "cached_input_fraction": 0.7609307757399212,
+          "cached_input_tokens": 461312,
+          "input_tokens": 606247,
+          "output_tokens": 12290,
+          "reasoning_output_tokens": 5238,
+          "total_tokens": 618537,
+          "uncached_input_plus_output_tokens": 157225,
+          "uncached_input_tokens": 144935
+        },
+        "agent_elapsed_s": 489.866429042042,
+        "dependency_failure_output_local_token_proxy": 6951,
+        "dependency_failure_output_utf8_bytes": 28506,
+        "end_to_end_s": 553.4754065419838,
+        "phase_output_proxies": {
+          "debug": {
+            "command_local_token_proxy": 38,
+            "completed_calls": 1,
+            "nonzero_exits": 0,
+            "output_local_token_proxy": 18,
+            "output_utf8_bytes": 40
+          },
+          "edit_review": {
+            "command_local_token_proxy": 176,
+            "completed_calls": 6,
+            "nonzero_exits": 1,
+            "output_local_token_proxy": 2245,
+            "output_utf8_bytes": 8881
+          },
+          "mcp_search": {
+            "command_local_token_proxy": 145,
+            "completed_calls": 3,
+            "output_local_token_proxy": 2855,
+            "output_utf8_bytes": 11095
+          },
+          "mixed_search_source_read": {
+            "command_local_token_proxy": 186,
+            "completed_calls": 3,
+            "nonzero_exits": 0,
+            "output_local_token_proxy": 4711,
+            "output_utf8_bytes": 18915
+          },
+          "search": {
+            "command_local_token_proxy": 440,
+            "completed_calls": 7,
+            "nonzero_exits": 0,
+            "output_local_token_proxy": 5290,
+            "output_utf8_bytes": 21521
+          },
+          "source_read": {
+            "command_local_token_proxy": 241,
+            "completed_calls": 4,
+            "nonzero_exits": 0,
+            "output_local_token_proxy": 8743,
+            "output_utf8_bytes": 36970
+          },
+          "test": {
+            "command_local_token_proxy": 860,
+            "completed_calls": 11,
+            "nonzero_exits": 6,
+            "output_local_token_proxy": 11167,
+            "output_utf8_bytes": 46596
+          },
+          "workspace": {
+            "command_local_token_proxy": 11,
+            "completed_calls": 1,
+            "nonzero_exits": 0,
+            "output_local_token_proxy": 0,
+            "output_utf8_bytes": 0
+          }
+        },
+        "setup_s": 62.215055332984775
+      }
+    },
+    "mcp_relative_change_pct": {
+      "agent_time_pct": 14.782746759635423,
+      "end_to_end_time_pct": 29.33573093850841,
+      "output_tokens": 3.0176026823135027,
+      "total_tokens": 6.972975590521213,
+      "uncached_input_plus_output_tokens": 22.914614506621646,
+      "uncached_input_tokens": 24.96120154504069
+    },
+    "retrieval": {
+      "calls": 3,
+      "exact_full_excerpts_reread_later": 8,
+      "potential_structured_duplicate_local_token_proxy": 2855,
+      "provider_saw_duplicate_known": false,
+      "returned_excerpts": 12,
+      "text_payload_local_token_proxy": 2855
+    }
+  }
+}
