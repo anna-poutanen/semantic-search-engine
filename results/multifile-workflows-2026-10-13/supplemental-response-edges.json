@@ -1,0 +1,246 @@
+{
+  "classification": "Post-output supplemental edge review; no formal grade or study subset changed",
+  "first_authored_after": [
+    "03-r1-requests_response_limit-mcp",
+    "04-r1-requests_response_limit-baseline"
+  ],
+  "frozen_tasks_sha256": "e2274eae067bb4c13bd5730fdf84f34adc8ff04bd9d9dc8e76be48dfa189acac",
+  "method": "Fresh pinned archives plus hash-verified frozen reference or terminal patches; deterministic in-memory transport, no network/model calls",
+  "probe_sha256": "b77165448761cb19fd65921a5cfcaed23387b461e56150122b14e1f8d98418df",
+  "records": [
+    {
+      "base_revision": "611c6162cbc4ac2020a2f91c7cfa4f3abf9bbb60",
+      "cases": {
+        "buffered_iter_lines_after_breach": {
+          "passed": false,
+          "setup_unavailable": "Pinned upstream has no response-limit feature; behavioral probe is inapplicable"
+        },
+        "cached_iterator_after_lower_limit_breach": {
+          "passed": false,
+          "setup_unavailable": "Pinned upstream has no response-limit feature; behavioral probe is inapplicable"
+        },
+        "context_manager_cleanup_preserves_size_error": {
+          "passed": false,
+          "setup_unavailable": "Pinned upstream has no response-limit feature; behavioral probe is inapplicable"
+        }
+      },
+      "classification": "Post-output supplemental edge checks; frozen formal grades unchanged",
+      "command": [
+        "<PROJECT>/.venv/bin/python",
+        "<PROJECT>/scripts/probe_response_limit_edges.py",
+        "--repo",
+        "<PROJECT>/.cache/response-limit-edge-review/pinned-upstream"
+      ],
+      "exit_code": 0,
+      "feature_available": false,
+      "identity": "pinned-upstream",
+      "implementation_neutral": "Public Session/read APIs with one deterministic in-memory adapter; no private budget names or edits to candidate source",
+      "patch_sha256": null,
+      "probe_sha256": "b77165448761cb19fd65921a5cfcaed23387b461e56150122b14e1f8d98418df",
+      "revision": "After independent scope review, accept implicit cleanup exception context as well as explicit cause or notes; neutral case inputs unchanged",
+      "version": 2
+    },
+    {
+      "base_revision": "611c6162cbc4ac2020a2f91c7cfa4f3abf9bbb60",
+      "cases": {
+        "buffered_iter_lines_after_breach": {
+          "crossing": {
+            "cause_type": null,
+            "context_type": null,
+            "message": "Response exceeded 5 decoded bytes (8 received)",
+            "notes": [],
+            "type": "ResponseTooLarge"
+          },
+          "first_line": "a",
+          "later_error": null,
+          "later_yield": "b",
+          "passed": false,
+          "raw_reads_after_crossing": 2,
+          "raw_reads_after_later": 2
+        },
+        "cached_iterator_after_lower_limit_breach": {
+          "crossing": {
+            "cause_type": null,
+            "context_type": null,
+            "message": "Response exceeded 3 decoded bytes (4 received)",
+            "notes": [],
+            "type": "ResponseTooLarge"
+          },
+          "later_error": {
+            "cause_type": null,
+            "context_type": null,
+            "message": "Response exceeded 3 decoded bytes (4 received)",
+            "notes": [],
+            "type": "ResponseTooLarge"
+          },
+          "later_yield": null,
+          "passed": true,
+          "raw_reads_after_crossing": 2,
+          "raw_reads_after_later": 2
+        },
+        "context_manager_cleanup_preserves_size_error": {
+          "close_attempts": 2,
+          "outer_error": {
+            "cause_type": null,
+            "context_type": "ResponseTooLarge",
+            "message": "controlled cleanup failure",
+            "notes": [],
+            "type": "OSError"
+          },
+          "passed": false,
+          "raw_reads": 1
+        }
+      },
+      "classification": "Post-output supplemental edge checks; frozen formal grades unchanged",
+      "command": [
+        "<PROJECT>/.venv/bin/python",
+        "<PROJECT>/scripts/probe_response_limit_edges.py",
+        "--repo",
+        "<PROJECT>/.cache/response-limit-edge-review/withheld-reference"
+      ],
+      "exit_code": 0,
+      "feature_available": true,
+      "identity": "withheld-reference",
+      "implementation_neutral": "Public Session/read APIs with one deterministic in-memory adapter; no private budget names or edits to candidate source",
+      "patch_sha256": "693079bef728f3ec5d9e405f06b93086bb0d2b24510651eaf526c9f65a5b7fab",
+      "probe_sha256": "b77165448761cb19fd65921a5cfcaed23387b461e56150122b14e1f8d98418df",
+      "revision": "After independent scope review, accept implicit cleanup exception context as well as explicit cause or notes; neutral case inputs unchanged",
+      "version": 2
+    },
+    {
+      "base_revision": "611c6162cbc4ac2020a2f91c7cfa4f3abf9bbb60",
+      "cases": {
+        "buffered_iter_lines_after_breach": {
+          "crossing": {
+            "cause_type": null,
+            "context_type": null,
+            "message": "Response body exceeded 5 bytes (received 8 bytes).",
+            "notes": [],
+            "type": "ResponseTooLarge"
+          },
+          "first_line": "a",
+          "later_error": null,
+          "later_yield": "b",
+          "passed": false,
+          "raw_reads_after_crossing": 2,
+          "raw_reads_after_later": 2
+        },
+        "cached_iterator_after_lower_limit_breach": {
+          "crossing": {
+            "cause_type": null,
+            "context_type": null,
+            "message": "Response body exceeded 3 bytes (received 4 bytes).",
+            "notes": [],
+            "type": "ResponseTooLarge"
+          },
+          "later_error": {
+            "cause_type": null,
+            "context_type": null,
+            "message": "Response body exceeded 3 bytes (received 4 bytes).",
+            "notes": [],
+            "type": "ResponseTooLarge"
+          },
+          "later_yield": null,
+          "passed": true,
+          "raw_reads_after_crossing": 2,
+          "raw_reads_after_later": 2
+        },
+        "context_manager_cleanup_preserves_size_error": {
+          "close_attempts": 2,
+          "outer_error": {
+            "cause_type": null,
+            "context_type": "ResponseTooLarge",
+            "message": "controlled cleanup failure",
+            "notes": [],
+            "type": "OSError"
+          },
+          "passed": false,
+          "raw_reads": 1
+        }
+      },
+      "classification": "Post-output supplemental edge checks; frozen formal grades unchanged",
+      "command": [
+        "<PROJECT>/.venv/bin/python",
+        "<PROJECT>/scripts/probe_response_limit_edges.py",
+        "--repo",
+        "<PROJECT>/.cache/response-limit-edge-review/03-r1-requests_response_limit-mcp"
+      ],
+      "exit_code": 0,
+      "feature_available": true,
+      "frozen_completed_correct": true,
+      "frozen_correct": true,
+      "identity": "03-r1-requests_response_limit-mcp",
+      "implementation_neutral": "Public Session/read APIs with one deterministic in-memory adapter; no private budget names or edits to candidate source",
+      "patch_sha256": "c24656ed6ea4d2ecfbd44e374c0ba261a227e351d306222455c682e51afc40da",
+      "probe_sha256": "b77165448761cb19fd65921a5cfcaed23387b461e56150122b14e1f8d98418df",
+      "revision": "After independent scope review, accept implicit cleanup exception context as well as explicit cause or notes; neutral case inputs unchanged",
+      "version": 2
+    },
+    {
+      "base_revision": "611c6162cbc4ac2020a2f91c7cfa4f3abf9bbb60",
+      "cases": {
+        "buffered_iter_lines_after_breach": {
+          "crossing": {
+            "cause_type": null,
+            "context_type": null,
+            "message": "Response body exceeded 5 bytes (8 bytes received)",
+            "notes": [],
+            "type": "ResponseTooLarge"
+          },
+          "first_line": "a",
+          "later_error": null,
+          "later_yield": "b",
+          "passed": false,
+          "raw_reads_after_crossing": 2,
+          "raw_reads_after_later": 2
+        },
+        "cached_iterator_after_lower_limit_breach": {
+          "crossing": {
+            "cause_type": null,
+            "context_type": null,
+            "message": "Response body exceeded 3 bytes (4 bytes received)",
+            "notes": [],
+            "type": "ResponseTooLarge"
+          },
+          "later_error": null,
+          "later_yield": "a",
+          "passed": false,
+          "raw_reads_after_crossing": 2,
+          "raw_reads_after_later": 2
+        },
+        "context_manager_cleanup_preserves_size_error": {
+          "close_attempts": 1,
+          "outer_error": {
+            "cause_type": "OSError",
+            "context_type": "OSError",
+            "message": "Response body exceeded 3 bytes (4 bytes received)",
+            "notes": [],
+            "type": "ResponseTooLarge"
+          },
+          "passed": true,
+          "raw_reads": 1
+        }
+      },
+      "classification": "Post-output supplemental edge checks; frozen formal grades unchanged",
+      "command": [
+        "<PROJECT>/.venv/bin/python",
+        "<PROJECT>/scripts/probe_response_limit_edges.py",
+        "--repo",
+        "<PROJECT>/.cache/response-limit-edge-review/04-r1-requests_response_limit-baseline"
+      ],
+      "exit_code": 0,
+      "feature_available": true,
+      "frozen_completed_correct": false,
+      "frozen_correct": true,
+      "identity": "04-r1-requests_response_limit-baseline",
+      "implementation_neutral": "Public Session/read APIs with one deterministic in-memory adapter; no private budget names or edits to candidate source",
+      "patch_sha256": "975151790f43b6c6f3a94ec015151f60e1a2d8d551a2e460272c38e9ea5807b3",
+      "probe_sha256": "b77165448761cb19fd65921a5cfcaed23387b461e56150122b14e1f8d98418df",
+      "revision": "After independent scope review, accept implicit cleanup exception context as well as explicit cause or notes; neutral case inputs unchanged",
+      "version": 2
+    }
+  ],
+  "runner_sha256": "58e8345e0294c8aaf95bc25c12a7950f7260899edfb1de57d0be26ba555036dd",
+  "selection": "Buffered/cached reader gaps were observed in retained 04 candidate authored regressions; context cleanup masking was suggested by post-output source inspection. Fixed same probes apply to every terminal response-limit candidate and reference.",
+  "version": 1
+}
