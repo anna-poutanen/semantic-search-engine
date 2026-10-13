@@ -1,0 +1,517 @@
+{
+  "version": 1,
+  "repo_url": "https://github.com/expressjs/express",
+  "revision": "cf6722bf89a86905281d9160b6482e08166b5ef0",
+  "release": "v5.3.0",
+  "source_root": "lib",
+  "source_exclusions": [],
+  "language": "javascript",
+  "benchmark_role": "development",
+  "authoring": "Source-reviewed before any extractor/retrieval/model outputs; independent semantic review required before inference.",
+  "target_groups_semantics": "OR within each group, AND across all groups. Assigned-function/member symbols use their assignment name; named callbacks use their source name; nested names use dot qualification.",
+  "queries": [
+    {
+      "id": "express_case_insensitive_header_alias",
+      "query": "Where is request-header lookup validated and made case-insensitive, while treating the two spellings of the referring-page header as aliases?",
+      "kind": "present",
+      "notes": "The chained get/header assignment shares one implementation, validates name, lowercases it, and checks referrer/referer. Either source alias is equivalent.",
+      "targets": [
+        {
+          "path": "lib/request.js",
+          "symbol": "req.header",
+          "evidence_lines": [
+            65,
+            81
+          ],
+          "definition_lines": [
+            63,
+            83
+          ],
+          "declaration_anchor": "req.header = function header(",
+          "evidence_sha256": "71a1ebd9f81959472843d91a93b466f5619a45b381d0154500ef83b43121cc42",
+          "source_file_sha256": "a9fda39c4472aeaa4d696f4324f58cc1d036f84ed04145d6d56a12a59578e751"
+        },
+        {
+          "path": "lib/request.js",
+          "symbol": "req.get",
+          "evidence_lines": [
+            65,
+            81
+          ],
+          "definition_lines": [
+            63,
+            83
+          ],
+          "declaration_anchor": "req.get =",
+          "evidence_sha256": "71a1ebd9f81959472843d91a93b466f5619a45b381d0154500ef83b43121cc42",
+          "source_file_sha256": "a9fda39c4472aeaa4d696f4324f58cc1d036f84ed04145d6d56a12a59578e751"
+        }
+      ],
+      "split": "development"
+    },
+    {
+      "id": "express_jsonp_callback_safety",
+      "query": "Where is JSON wrapped in a browser callback only when a nonempty callback string exists, with callback-name characters restricted and Unicode line separators escaped?",
+      "kind": "present",
+      "notes": "First array callback value is selected; callbacks are filtered, Unicode separators escaped, and output guarded by typeof with the existing mitigation prefix.",
+      "targets": [
+        {
+          "path": "lib/response.js",
+          "symbol": "res.jsonp",
+          "evidence_lines": [
+            282,
+            307
+          ],
+          "definition_lines": [
+            264,
+            308
+          ],
+          "declaration_anchor": "res.jsonp = function jsonp(",
+          "evidence_sha256": "4ef3075a23b73d77ddf5eb12df1c8b76f3051b479db8555171e24e12d625f156",
+          "source_file_sha256": "efe24afe2978d0bf2ad52d5b163a7af0d25d965e5dfc75979c4fcc883c60a510"
+        }
+      ],
+      "split": "calibration"
+    },
+    {
+      "id": "express_cookie_signing_and_age",
+      "query": "Where are response-cookie values serialized, optionally signed using a required request secret, and millisecond lifetimes converted into expiry dates and whole-second maximum ages?",
+      "kind": "present",
+      "notes": "Copies options, encodes object values with j:, signs s: values, converts age, defaults path, and appends serialized Set-Cookie; this is signing, not encryption.",
+      "targets": [
+        {
+          "path": "lib/response.js",
+          "symbol": "res.cookie",
+          "evidence_lines": [
+            749,
+            781
+          ],
+          "definition_lines": [
+            748,
+            781
+          ],
+          "declaration_anchor": "res.cookie = function (",
+          "evidence_sha256": "5c4735311eeec3d783ccdad470a26fa731712f20270566f86f83104062c59617",
+          "source_file_sha256": "efe24afe2978d0bf2ad52d5b163a7af0d25d965e5dfc75979c4fcc883c60a510"
+        }
+      ],
+      "split": "development"
+    },
+    {
+      "id": "express_clear_cookie_ignores_age",
+      "query": "Where is a cookie cleared by forcing an expiry in the past and discarding a supplied maximum age before emitting an empty value?",
+      "kind": "present",
+      "notes": "The helper creates a fresh options object, overrides expires, removes maxAge, and delegates to cookie. Normal cookie lifetime logic is a decoy.",
+      "targets": [
+        {
+          "path": "lib/response.js",
+          "symbol": "res.clearCookie",
+          "evidence_lines": [
+            716,
+            721
+          ],
+          "definition_lines": [
+            715,
+            722
+          ],
+          "declaration_anchor": "res.clearCookie = function clearCookie(",
+          "evidence_sha256": "15a69604c1dcef1facdeefa9bc76c4a1f22c33808b8a329f19f03b32648058aa",
+          "source_file_sha256": "efe24afe2978d0bf2ad52d5b163a7af0d25d965e5dfc75979c4fcc883c60a510"
+        }
+      ],
+      "split": "calibration"
+    },
+    {
+      "id": "express_append_preserves_headers",
+      "query": "Where is an outgoing header appended without replacing existing values, handling scalar and array values on either side?",
+      "kind": "present",
+      "notes": "Reads the previous header, concatenates combinations, then uses set for serialization. Header replacement itself is not sufficient.",
+      "targets": [
+        {
+          "path": "lib/response.js",
+          "symbol": "res.append",
+          "evidence_lines": [
+            636,
+            647
+          ],
+          "definition_lines": [
+            635,
+            647
+          ],
+          "declaration_anchor": "res.append = function append(",
+          "evidence_sha256": "3b7fd2653ce878281d14a8ec968740ef631234fdf5fcd0a68329b8e3474c9959",
+          "source_file_sha256": "efe24afe2978d0bf2ad52d5b163a7af0d25d965e5dfc75979c4fcc883c60a510"
+        }
+      ],
+      "split": "development"
+    },
+    {
+      "id": "express_content_negotiation_fallback",
+      "query": "Where are response formats selected from acceptable content types, varying on Accept and calling a default handler or forwarding a 406 error when none match?",
+      "kind": "present",
+      "notes": "Filters default from negotiable keys, asks req.accepts, sets content type for a match, and uses default or createError406 with normalized types.",
+      "targets": [
+        {
+          "path": "lib/response.js",
+          "symbol": "res.format",
+          "evidence_lines": [
+            578,
+            599
+          ],
+          "definition_lines": [
+            574,
+            599
+          ],
+          "declaration_anchor": "res.format = function(",
+          "evidence_sha256": "48e1750069f44d130059144a6a4f0e6a0321c6e63e9978326a3325ed9dd9c3ed",
+          "source_file_sha256": "efe24afe2978d0bf2ad52d5b163a7af0d25d965e5dfc75979c4fcc883c60a510"
+        }
+      ],
+      "split": "calibration"
+    },
+    {
+      "id": "express_redirect_html_and_head",
+      "query": "Where is a redirect response generated with negotiated plain-text or escaped HTML content and its byte length, while suppressing the body for a header-only request?",
+      "kind": "present",
+      "notes": "Location is set first, format chooses the body, HTML escapes address, Content-Length uses byteLength, HEAD ends without body. The helper accepts optional status/url arguments.",
+      "targets": [
+        {
+          "path": "lib/response.js",
+          "symbol": "res.redirect",
+          "evidence_lines": [
+            838,
+            867
+          ],
+          "definition_lines": [
+            815,
+            867
+          ],
+          "declaration_anchor": "res.redirect = function redirect(",
+          "evidence_sha256": "600ffbd9029be5c8766c8833bb867e11808a48db723e81ccf8b365d69aa5ac08",
+          "source_file_sha256": "efe24afe2978d0bf2ad52d5b163a7af0d25d965e5dfc75979c4fcc883c60a510"
+        }
+      ],
+      "split": "development"
+    },
+    {
+      "id": "express_mounted_app_prototype_restore",
+      "query": "Where are nested applications mounted as middleware and the parent request/response prototypes restored before continuation after the child application finishes?",
+      "kind": "present",
+      "notes": "The app-like branch records parent/mountpath, delegates child handle, restores orig.request/orig.response, forwards err, and emits mount.",
+      "targets": [
+        {
+          "path": "lib/application.js",
+          "symbol": "app.use",
+          "evidence_lines": [
+            222,
+            244
+          ],
+          "definition_lines": [
+            190,
+            244
+          ],
+          "declaration_anchor": "app.use = function use(",
+          "evidence_sha256": "de9a60cc34fe8797364716fd7660f324e84b3cbd15bef8b528bdbf9c9fc4aa7e",
+          "source_file_sha256": "6d7e08355025786982d17042fc0355b6a5e9339545dc27e2782b3aaa28a7bc04"
+        }
+      ],
+      "split": "calibration"
+    },
+    {
+      "id": "express_configured_query_parser",
+      "query": "Where is the configured simple, extended, custom, or disabled query parser compiled and then invoked on the raw URL query, with disabled parsing returning an empty object?",
+      "kind": "present",
+      "notes": "All layers required: setting compilation trigger, mode-to-function selection, and request getter invocation. Parsing algorithm inside external qs/querystring is outside scope.",
+      "target_groups": [
+        [
+          {
+            "path": "lib/application.js",
+            "symbol": "app.set",
+            "evidence_lines": [
+              360,
+              370
+            ],
+            "definition_lines": [
+              351,
+              383
+            ],
+            "declaration_anchor": "app.set = function set(",
+            "evidence_sha256": "efe63283caf4a428422fdb9b91ca3a1321b1e7e5a3d94693454e2d7e5fb9d649",
+            "source_file_sha256": "6d7e08355025786982d17042fc0355b6a5e9339545dc27e2782b3aaa28a7bc04"
+          }
+        ],
+        [
+          {
+            "path": "lib/utils.js",
+            "symbol": "exports.compileQueryParser",
+            "evidence_lines": [
+              165,
+              184
+            ],
+            "definition_lines": [
+              162,
+              184
+            ],
+            "declaration_anchor": "exports.compileQueryParser = function compileQueryParser(",
+            "evidence_sha256": "1f04c984a1fb8f42c97f788b91eb9b8b4a42c0ef391555e2686991290fb97590",
+            "source_file_sha256": "4bd3bf9c911e086d1911954708de7a6c384ed924360e3fd1d4a43c98bd68b112"
+          }
+        ],
+        [
+          {
+            "path": "lib/request.js",
+            "symbol": "query",
+            "evidence_lines": [
+              231,
+              241
+            ],
+            "definition_lines": [
+              230,
+              241
+            ],
+            "declaration_anchor": "defineGetter(req, 'query', function query()",
+            "evidence_sha256": "60078bf257520b8c7ca01dfeec053ba53c5d06d5658126c33ea0b3deabd55ecc",
+            "source_file_sha256": "a9fda39c4472aeaa4d696f4324f58cc1d036f84ed04145d6d56a12a59578e751"
+          }
+        ]
+      ],
+      "split": "development"
+    },
+    {
+      "id": "express_trusted_forwarded_protocol",
+      "query": "Where is a proxy-trust policy compiled from a boolean, hop count, address list, or custom function, then used to decide whether the forwarded protocol header may override the socket protocol?",
+      "kind": "present",
+      "notes": "Setting compiles trust; compileTrust supports custom/true/hop count/comma lists and external address compiler; protocol uses trust(remoteAddress,0), then first forwarded token. External proxyaddr internals are outside scope.",
+      "target_groups": [
+        [
+          {
+            "path": "lib/application.js",
+            "symbol": "app.set",
+            "evidence_lines": [
+              371,
+              379
+            ],
+            "definition_lines": [
+              351,
+              383
+            ],
+            "declaration_anchor": "app.set = function set(",
+            "evidence_sha256": "2b979c3bf787072a49f9a4e336f9fc59b11d4752293e77a87f703b51fc58df8a",
+            "source_file_sha256": "6d7e08355025786982d17042fc0355b6a5e9339545dc27e2782b3aaa28a7bc04"
+          }
+        ],
+        [
+          {
+            "path": "lib/utils.js",
+            "symbol": "exports.compileTrust",
+            "evidence_lines": [
+              195,
+              213
+            ],
+            "definition_lines": [
+              194,
+              214
+            ],
+            "declaration_anchor": "exports.compileTrust = function(",
+            "evidence_sha256": "6bec8ec99c21690e3af8544366579483379b932fd6d43ef7abf4090f5a933a85",
+            "source_file_sha256": "4bd3bf9c911e086d1911954708de7a6c384ed924360e3fd1d4a43c98bd68b112"
+          }
+        ],
+        [
+          {
+            "path": "lib/request.js",
+            "symbol": "protocol",
+            "evidence_lines": [
+              298,
+              314
+            ],
+            "definition_lines": [
+              297,
+              315
+            ],
+            "declaration_anchor": "defineGetter(req, 'protocol', function protocol()",
+            "evidence_sha256": "7705737cc67aeed14f1b93502b3352ba09468e6ddfe72b4460a04dac6ee3ab3d",
+            "source_file_sha256": "a9fda39c4472aeaa4d696f4324f58cc1d036f84ed04145d6d56a12a59578e751"
+          }
+        ]
+      ],
+      "split": "calibration"
+    },
+    {
+      "id": "express_view_cache_and_lookup",
+      "query": "Where are template render options merged and cached views reused, while uncached views are searched across configured roots using both the direct filename and a directory index filename?",
+      "kind": "present",
+      "notes": "App render merges locals and manages cache/lookup errors; View.lookup walks roots; View.resolve tries file and index.ext. External template engine execution is not gold for this query.",
+      "target_groups": [
+        [
+          {
+            "path": "lib/application.js",
+            "symbol": "app.render",
+            "evidence_lines": [
+              535,
+              575
+            ],
+            "definition_lines": [
+              522,
+              575
+            ],
+            "declaration_anchor": "app.render = function render(",
+            "evidence_sha256": "2ce7587f59d9eebba48a066673f19eb1dba6cba21817907fca0248aa73601d61",
+            "source_file_sha256": "6d7e08355025786982d17042fc0355b6a5e9339545dc27e2782b3aaa28a7bc04"
+          }
+        ],
+        [
+          {
+            "path": "lib/view.js",
+            "symbol": "View.prototype.lookup",
+            "evidence_lines": [
+              107,
+              123
+            ],
+            "definition_lines": [
+              104,
+              123
+            ],
+            "declaration_anchor": "View.prototype.lookup = function lookup(",
+            "evidence_sha256": "0775af9f916a89aef2cd895e2a9b43fc3dd6f6cf2ee4a997eb18fced1b648ee2",
+            "source_file_sha256": "74f4171b66263e22481820bc5975708f7dd8a61484f570aac7c5b4ab77ecbd79"
+          }
+        ],
+        [
+          {
+            "path": "lib/view.js",
+            "symbol": "View.prototype.resolve",
+            "evidence_lines": [
+              170,
+              184
+            ],
+            "definition_lines": [
+              169,
+              187
+            ],
+            "declaration_anchor": "View.prototype.resolve = function resolve(",
+            "evidence_sha256": "dbb8a97e896e9e8c0b916478971806841309cd76579afa93534f55c72f055228",
+            "source_file_sha256": "74f4171b66263e22481820bc5975708f7dd8a61484f570aac7c5b4ab77ecbd79"
+          }
+        ]
+      ],
+      "split": "development"
+    },
+    {
+      "id": "express_callable_app_dispatch_context",
+      "query": "Where is a callable HTTP application created with its own request and response prototypes, and where are those prototypes installed on incoming objects with cross-references and per-response local state before routing?",
+      "kind": "present",
+      "notes": "Factory returns a listener calling app.handle and builds app-specific prototypes. handle sets cross-references, installs prototypes, creates null-prototype locals, then delegates router.",
+      "target_groups": [
+        [
+          {
+            "path": "lib/express.js",
+            "symbol": "createApplication",
+            "evidence_lines": [
+              37,
+              54
+            ],
+            "definition_lines": [
+              36,
+              56
+            ],
+            "declaration_anchor": "function createApplication(",
+            "evidence_sha256": "85100c86058de34e638f42fb4beb9ba3309649d3b07528279048961aac6c933d",
+            "source_file_sha256": "4f35e8273a5e78c35e778d14e4a8c80a81ca3e1fc8047dc87d2077b860404572"
+          }
+        ],
+        [
+          {
+            "path": "lib/application.js",
+            "symbol": "app.handle",
+            "evidence_lines": [
+              165,
+              178
+            ],
+            "definition_lines": [
+              152,
+              178
+            ],
+            "declaration_anchor": "app.handle = function handle(",
+            "evidence_sha256": "7d4fc3cc2fbd8c4e6d66f6a1c2a70e81c6ba229131db0a7cd235bd53e08e69b6",
+            "source_file_sha256": "6d7e08355025786982d17042fc0355b6a5e9339545dc27e2782b3aaa28a7bc04"
+          }
+        ]
+      ],
+      "split": "calibration"
+    },
+    {
+      "id": "express_absent_builtin_rate_limit",
+      "query": "Where does the framework enforce a built-in per-client-IP token-bucket rate limit and emit a retry-after header when the bucket is exhausted?",
+      "kind": "absent",
+      "targets": [],
+      "notes": "Scoped absent: production lib dispatches user middleware and interprets proxy trust, but has no built-in rate limiter/token-bucket storage. Applications or separate middleware may supply one.",
+      "absence_review": {
+        "scope": "All pinned production source within declared source_root and exclusions; dependencies, examples, tests, and user plugins are outside this claim.",
+        "searches": [
+          "rate.?limit",
+          "token.?bucket",
+          "Retry-After",
+          "429"
+        ],
+        "closest_decoys": [
+          {
+            "path": "lib/application.js",
+            "symbol": "app.use",
+            "reason": "Registers user middleware; does not impose request rates."
+          }
+        ]
+      },
+      "split": "development"
+    },
+    {
+      "id": "express_absent_outbound_retry",
+      "query": "Where are failed outbound HTTP requests retried with exponential backoff and a maximum attempt count?",
+      "kind": "absent",
+      "targets": [],
+      "notes": "Scoped absent: Express creates/dispatches an inbound HTTP server; no outbound request retry client is implemented within lib.",
+      "absence_review": {
+        "scope": "All pinned production source within declared source_root and exclusions; dependencies, examples, tests, and user plugins are outside this claim.",
+        "searches": [
+          "backoff",
+          "retry",
+          "https?\\.request",
+          "fetch"
+        ],
+        "closest_decoys": [
+          {
+            "path": "lib/application.js",
+            "symbol": "app.listen",
+            "reason": "Creates an inbound server; does not send or retry outbound requests."
+          }
+        ]
+      },
+      "split": "calibration"
+    },
+    {
+      "id": "express_absent_cookie_encryption_rotation",
+      "query": "Where are response cookies authenticated and encrypted with automatic key rotation rather than merely signed?",
+      "kind": "absent",
+      "targets": [],
+      "notes": "Scoped absent: cookie optionally signs a serialized value with the supplied secret. No encryption or rotation machinery is implemented in production lib.",
+      "absence_review": {
+        "scope": "All pinned production source within declared source_root and exclusions; dependencies, examples, tests, and user plugins are outside this claim.",
+        "searches": [
+          "encrypt",
+          "decrypt",
+          "rotation",
+          "signed"
+        ],
+        "closest_decoys": [
+          {
+            "path": "lib/response.js",
+            "symbol": "res.cookie",
+            "reason": "Signing preserves serialized content; no encryption/key rotation."
+          }
+        ]
+      },
+      "split": "development"
+    }
+  ],
+  "source_evidence_scoring": "A group is covered by any verified source window from the pinned file whose actual source bytes include the complete executable evidence span. Enclosing/nested/file windows are eligible irrespective of symbol label. One window can cover multiple required groups. Symbols alone never establish a hit."
+}
