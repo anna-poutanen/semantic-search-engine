@@ -2,8 +2,10 @@
 
 This is a prospective implementation plan, written during the frozen multifile
 coding study on October 13, 2026. It does not change that study's runtime or imply
-that retrieval has demonstrated a token or completion-time benefit. Product
-implementation begins after the study finishes and its artifacts are secured.
+that retrieval has demonstrated a token or completion-time benefit. An isolated
+editor draft can be prepared with CPU fixtures while the study runs. Integration
+into the shared backend and real-model verification follow completion of the
+study and preservation of its artifacts.
 
 ## First usable VS Code version
 
