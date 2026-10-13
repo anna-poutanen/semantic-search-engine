@@ -6,6 +6,7 @@ import importlib.util
 import json
 import os
 import platform
+import re
 import shlex
 import subprocess
 import sys
@@ -191,6 +192,7 @@ def test_parser_pins_agree_across_lock_project_and_dispatch():
     assert mac["mcp"] == "2.3.0"
     assert mac["sqlite-vec"] == "0.1.9"
     assert mac["tiktoken"] == "0.14.0"
+    assert mac["protobuf"] == "7.36.2"
 
 
 @pytest.mark.skipif(os.environ.get("SEMANTIC_INSTALLER_VERIFY_MAC") != "1", reason="Explicit fresh Apple Silicon environment inventory only")
@@ -203,6 +205,12 @@ def test_fresh_runtime_distribution_inventory():
     pins = pinned_requirements(ROOT / "requirements-mac.lock") | pinned_requirements(ROOT / "requirements-languages.lock")
     for name, version in pins.items():
         assert importlib.metadata.version(name) == version, name
+    canonical = lambda name: re.sub(r"[-_.]+", "-", name).lower()
+    installed = {canonical(dist.metadata["Name"]) for dist in importlib.metadata.distributions()}
+    # The editable project, test extra and build tools are classified separately
+    # from locked model/runtime dependencies rather than silently ignored.
+    other = {"semantic-search-engine", "pytest", "pluggy", "iniconfig", "setuptools", "wheel"}
+    assert not (installed - {canonical(name) for name in pins} - other)
     assert pinned_uv_version(subprocess.check_output([ROOT / ".cache/bootstrap/bin/uv", "--version"], text=True))
     assert importlib.metadata.version("semantic-search-engine") == "0.1.0"
     assert (Path(expected) / "bin/semantic-search").is_file()
