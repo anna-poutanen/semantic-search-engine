@@ -70,15 +70,20 @@ Use `--retrieval bm25` to choose SQLite FTS5 keyword retrieval, or `--lexical-on
 both models in standalone mode. With `--rerank`, `--candidates` counts windows
 scored by H2O; results contain only that prefix, with at most one window per
 symbol. Without reranking, results follow the retrieval order. `--no-rerank`
-remains a compatibility alias. Start a service for another Python repository
+remains a compatibility alias. Start a service for another repository
 with `serve --repo /path/to/repo --source-root src`. Alternatively,
 `search "behavior" --repo /path/to/repo --source-root src` runs standalone and
-loads Qwen for that invocation. The first version indexes saved, tracked Python
-files; it does not yet handle TypeScript or unsaved editor buffers.
+loads Qwen for that invocation. The backend indexes saved, tracked Python files
+and optional JavaScript/TypeScript with the pinned `languages` extra. See
+[saved-source languages](docs/saved-source-languages.md) for implementation,
+membership, and `--exclude-source` rules. JS/TS extraction and persistence have
+CPU fixture coverage; real-model language quality and latency remain unmeasured.
+Unsaved editor buffers are not indexed.
 
 The service preloads Qwen and builds a durable SQLite index under `.cache/indexes/`.
-Its polling watcher checks saved Python bytes, tracked membership, Git HEAD and
-branch every second, then refreshes after a 0.5-second debounce. `--watch-interval`
+Its polling watcher checks eligible saved bytes, tracked membership, Git HEAD,
+branch, and extractor/parser policy every second, then refreshes after a
+0.5-second debounce. `--watch-interval`
 changes the polling interval; `--no-watch` discovers changes on searches and
 explicit refreshes instead. Every search still verifies the source snapshot.
 Changes embed only new
@@ -86,7 +91,7 @@ document text; unchanged vectors survive process restarts and branch switches.
 Deleted windows leave the active snapshot, and line shifts update locations
 without recomputing identical document embeddings. Model revision and embedding
 settings are part of the cache key. Files changed during indexing or scoring,
-and temporarily invalid Python, produce an error so stale excerpts are not
+and temporarily invalid eligible saved source, produce an error so stale excerpts are not
 delivered. These checks scan source hashes; they do not lock files against later edits.
 Qwen uses original
 BF16 weights, 1024-dimensional normalized vectors, last-token pooling, and a fixed

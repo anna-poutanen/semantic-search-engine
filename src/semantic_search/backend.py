@@ -1,16 +1,13 @@
-"""Persistent, serialized local search over stable snapshots of saved Python files."""
+"""Persistent, serialized local search over stable snapshots of saved source."""
 from __future__ import annotations
 
-import ast
 from contextlib import contextmanager
 import hashlib
 import inspect
-import io
 import json
 import subprocess
 import threading
 import time
-import tokenize
 from pathlib import Path
 from urllib.parse import urlsplit
 
@@ -20,6 +17,7 @@ from semantic_search.retrieval import HybridRetriever
 from semantic_search.cancellation import CancellationRegistry, SearchCancelled
 from semantic_search.context import apply_token_budget
 from semantic_search.source import physical_lines
+from semantic_search.languages import decode_source, extractor_fingerprint, validate_exclusions, validate_source
 
 
 class CancellableEmbedder:
@@ -64,7 +62,7 @@ class SearchBackend:
 
     def __init__(self, repo, source_root="src/flask", db_path=None, *, index=None,
                  embedder=None, h2o_url="http://127.0.0.1:8741", h2o_client=None,
-                 abstention_policy=None):
+                 abstention_policy=None, source_exclusions=()):
         self.repo = Path(repo).resolve()
         if not self.repo.is_dir():
             raise ValueError("repo must be an existing directory")
@@ -74,7 +72,11 @@ class SearchBackend:
         if not root.is_relative_to(self.repo):
             raise ValueError("source_root must be inside repo")
         self.source_root = str(root.relative_to(self.repo))
-        namespace = hashlib.sha256(f"{self.repo}\n{self.source_root}".encode()).hexdigest()[:24]
+        self.source_exclusions = validate_exclusions(source_exclusions)
+        identity = f"{self.repo}\n{self.source_root}"
+        if self.source_exclusions:
+            identity += "\n" + json.dumps(self.source_exclusions)
+        namespace = hashlib.sha256(identity.encode()).hexdigest()[:24]
         self.db_path = Path(db_path) if db_path else self.repo / f".semantic-search/{namespace}.sqlite3"
         self._index = index
         self._embedder = embedder
@@ -149,12 +151,12 @@ class SearchBackend:
         if not root.is_relative_to(self.repo) or not root.is_dir():
             raise SourceSnapshotError("Source directory is missing or outside repo")
         try:
-            files = _source_files(self.repo, root)
+            files = _source_files(self.repo, root, self.source_exclusions)
             raw = {str(p.relative_to(self.repo)): p.read_bytes() for p in files}
         except (OSError, ValueError) as error:
             raise SourceSnapshotError(f"Source changed while reading: {error}") from error
         # Tracked membership is supplied by _source_files. Outside Git, all
-        # Python files beneath the source root are considered.
+        # Eligible supported files beneath the source root are considered.
         git = {}
         for field, args in (("revision", ["rev-parse", "HEAD"]),
                             ("branch", ["symbolic-ref", "--quiet", "HEAD"])):
@@ -165,6 +167,7 @@ class SearchBackend:
                 raise SourceSnapshotError("Could not determine the source Git snapshot") from error
             git[field] = result.stdout.strip() if result.returncode == 0 else None
         manifest = {"source_root": self.source_root, "git": git,
+                    "source_exclusions": self.source_exclusions, "extractor": extractor_fingerprint(),
                     "files": {path: hashlib.sha256(data).hexdigest() for path, data in raw.items()}}
         digest = hashlib.sha256(json.dumps(manifest, sort_keys=True).encode()).hexdigest()
         return digest, raw
@@ -178,10 +181,9 @@ class SearchBackend:
         decoded = {}
         for path, data in raw.items():
             try:
-                encoding, _ = tokenize.detect_encoding(io.BytesIO(data).readline)
-                source = data.decode(encoding)
-                ast.parse(source, filename=path)
-            except (SyntaxError, UnicodeError, LookupError, ValueError) as error:
+                source = decode_source(path, data)
+                validate_source(path, source)
+            except (SyntaxError, UnicodeError, LookupError, ValueError, ImportError) as error:
                 raise SourceSnapshotError(f"Cannot parse saved source {path}: {error}") from error
             decoded[path] = source
         return decoded
@@ -209,8 +211,9 @@ class SearchBackend:
             decoded = self._validate_source(raw)
             try:
                 snippets = extract_snippets(self.repo, self.source_root, max_lines=160,
-                                            overlap_lines=40, sources=decoded)
-            except (OSError, SyntaxError, UnicodeError, ValueError) as error:
+                                            overlap_lines=40, sources=decoded,
+                                            source_exclusions=self.source_exclusions)
+            except (OSError, SyntaxError, UnicodeError, ValueError, ImportError) as error:
                 raise SourceSnapshotError(f"Cannot extract saved source: {error}") from error
             # Assert every returned source window matches the captured bytes.
             for snippet in snippets:
@@ -278,6 +281,8 @@ class SearchBackend:
     def status(self):
         with self._lock:
             return {"repo": str(self.repo), "source_root": self.source_root,
+                    "source_exclusions": list(self.source_exclusions),
+                    "extractor": extractor_fingerprint(),
                     "closed": self._closed, "ready": self._manifest is not None and self._last_error is None,
                     "source_manifest": self._manifest, "windows": len(self._snippets),
                     "embedding_initialized": self._embedder is not None,

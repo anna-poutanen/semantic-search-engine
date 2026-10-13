@@ -9,8 +9,11 @@ import signal
 from semantic_search.experiment import run_experiment
 
 
-def index_path(repo, source_root, directory):
+def index_path(repo, source_root, directory, source_exclusions=()):
     identity = str(repo.resolve()) + "\n" + source_root
+    if source_exclusions:
+        from semantic_search.languages import validate_exclusions
+        identity += "\n" + json.dumps(validate_exclusions(source_exclusions))
     return directory / (hashlib.sha256(identity.encode()).hexdigest() + ".sqlite3")
 
 
@@ -54,6 +57,8 @@ def main(argv=None):
     serve = subparsers.add_parser("serve", help="Keep Qwen and the incremental index resident")
     serve.add_argument("--repo", type=Path, required=True)
     serve.add_argument("--source-root", default="src/flask")
+    serve.add_argument("--exclude-source", action="append", default=[], metavar="GLOB",
+                       help="Exclude a repository-relative saved-source glob (repeatable)")
     serve.add_argument("--index-cache", type=Path, default=Path(".cache/indexes"))
     serve.add_argument("--host", choices=("127.0.0.1", "localhost"), default="127.0.0.1")
     serve.add_argument("--port", type=int, default=8750)
@@ -73,6 +78,8 @@ def main(argv=None):
     search.add_argument("--repo", type=Path)
     search.add_argument("--server", help="Reuse a running service instead of loading a model")
     search.add_argument("--source-root", default="src/flask")
+    search.add_argument("--exclude-source", action="append", default=[], metavar="GLOB",
+                        help="Exclude a saved-source glob for standalone --repo search")
     search.add_argument("--retrieval", choices=("bm25", "dense", "hybrid"), default="dense")
     search.add_argument("--candidates", type=int, default=4)
     search.add_argument("--max-results", type=int, default=5)
@@ -115,8 +122,10 @@ def main(argv=None):
         from semantic_search.backend import SearchBackend
         from semantic_search.server import create_server
         extra = {"abstention_policy": args.abstention_policy} if args.abstention_policy else {}
+        if args.exclude_source:
+            extra["source_exclusions"] = args.exclude_source
         backend = SearchBackend(args.repo, args.source_root,
-                                index_path(args.repo, args.source_root, args.index_cache), h2o_url=args.url, **extra)
+                                index_path(args.repo, args.source_root, args.index_cache, args.exclude_source), h2o_url=args.url, **extra)
         server = None
         previous_handler = signal.signal(signal.SIGTERM, interrupt_service)
         try:
@@ -150,13 +159,17 @@ def main(argv=None):
         if args.include_dependencies:
             settings["include_dependencies"] = True
         if args.server:
+            if args.exclude_source:
+                parser.error("--exclude-source configures standalone --repo or serve membership")
             from semantic_search.client import SearchClient
             response = SearchClient(args.server).search(args.query, **settings)
         else:
             from semantic_search.backend import SearchBackend
             extra = {"abstention_policy": args.abstention_policy} if args.abstention_policy else {}
+            if args.exclude_source:
+                extra["source_exclusions"] = args.exclude_source
             backend = SearchBackend(args.repo, args.source_root,
-                                    index_path(args.repo, args.source_root, args.index_cache), h2o_url=args.url, **extra)
+                                    index_path(args.repo, args.source_root, args.index_cache, args.exclude_source), h2o_url=args.url, **extra)
             try:
                 response = backend.search(args.query, **settings)
             finally:
