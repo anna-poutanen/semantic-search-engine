@@ -40,6 +40,22 @@ def pinned_requirements(path):
     return items
 
 
+def pinned_uv_version(output):
+    # Official binaries append commit/date/target metadata after this version.
+    return output.strip().split()[:2] == ["uv", "0.13.0"]
+
+
+@pytest.mark.parametrize("output,expected", [
+    ("uv 0.13.0", True),
+    ("uv 0.13.0 (4ecd0eff2 2026-10-09 aarch64-apple-darwin)", True),
+    ("uv 0.13.1", False),
+    ("uv 0.13.0rc1", False),
+    ("other 0.13.0", False),
+])
+def test_uv_build_metadata_preserves_exact_release_version(output, expected):
+    assert pinned_uv_version(output) is expected
+
+
 def prepared(root, environment=".venv"):
     for path in (root / ".cache/bootstrap/bin/uv", root / environment / "bin/python"):
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -187,6 +203,6 @@ def test_fresh_runtime_distribution_inventory():
     pins = pinned_requirements(ROOT / "requirements-mac.lock") | pinned_requirements(ROOT / "requirements-languages.lock")
     for name, version in pins.items():
         assert importlib.metadata.version(name) == version, name
-    assert subprocess.check_output([ROOT / ".cache/bootstrap/bin/uv", "--version"], text=True).strip() == "uv 0.13.0"
+    assert pinned_uv_version(subprocess.check_output([ROOT / ".cache/bootstrap/bin/uv", "--version"], text=True))
     assert importlib.metadata.version("semantic-search-engine") == "0.1.0"
     assert (Path(expected) / "bin/semantic-search").is_file()
