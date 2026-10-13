@@ -9,6 +9,24 @@ BSD-3-Clause license, reproduced in `benchmarks/FLASK_LICENSE.txt`.
 
 Source: https://github.com/pallets/flask
 
+## Requests
+
+The source-reviewed evaluation refers to Requests at commit
+`611c6162cbc4ac2020a2f91c7cfa4f3abf9bbb60`. Indexed source and committed evaluation
+artifacts may contain excerpts from that revision. Requests source remains
+covered by Apache License 2.0, reproduced in
+[benchmarks/REQUESTS_LICENSE.txt](benchmarks/REQUESTS_LICENSE.txt). The ignored
+corpus checkout is not redistributed as a second source tree.
+
+Source: [psf/requests](https://github.com/psf/requests)
+
+The upstream `NOTICE` is preserved verbatim:
+
+```text
+Requests
+Copyright 2019 Kenneth Reitz
+```
+
 ## H2O-Lightning and the community MLX runtime
 
 The weights and runtime are downloaded separately and not redistributed here.

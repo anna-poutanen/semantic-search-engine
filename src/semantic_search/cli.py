@@ -1,12 +1,32 @@
-"""Command-line entry point for the local model experiment."""
+"""Search saved code locally, or use a resident loopback search service."""
 import argparse
+import hashlib
 import json
 from pathlib import Path
+import signal
 
-from semantic_search.corpus import extract_snippets
-from semantic_search.experiment import run_experiment, unique_symbols
-from semantic_search.model import H2OClient
-from semantic_search.retrieval import BM25Retriever, DenseRetriever, HybridRetriever
+from semantic_search.experiment import run_experiment
+
+
+def index_path(repo, source_root, directory):
+    identity = str(repo.resolve()) + "\n" + source_root
+    return directory / (hashlib.sha256(identity.encode()).hexdigest() + ".sqlite3")
+
+
+def print_results(response):
+    for result in response["results"]:
+        score = result.get("h2o_score")
+        suffix = f" relevance={score:.3f}/3" if score is not None else ""
+        if result.get("truncated"):
+            suffix += " (excerpt truncated by source budget)"
+        print(f"\n{result['path']}:{result['start_line']}-{result['end_line']} {result['symbol']}{suffix}")
+        print(result["source"])
+    if response.get("budget_exhausted"):
+        print("\nSource budget reached; increase --source-budget for more evidence.")
+
+
+def interrupt_service(signum, frame):
+    raise KeyboardInterrupt
 
 
 def main(argv=None):
@@ -25,80 +45,98 @@ def main(argv=None):
     shortlist.add_argument("--output", type=Path, required=True)
     shortlist.add_argument("--index-cache", type=Path, default=Path(".cache/indexes"))
     shortlist.add_argument("--url", default="http://127.0.0.1:8741")
-    shortlist.add_argument("--prior-run", type=Path, default=Path("results/flask-h2o-q8-2026-10-12"),
-                           help="Prior exact-input H2O judgments to reuse for quality checks")
+    shortlist.add_argument("--prior-run", type=Path, default=Path("results/flask-h2o-q8-2026-10-12"))
+    serve = subparsers.add_parser("serve", help="Keep Qwen and the incremental index resident")
+    serve.add_argument("--repo", type=Path, required=True)
+    serve.add_argument("--source-root", default="src/flask")
+    serve.add_argument("--index-cache", type=Path, default=Path(".cache/indexes"))
+    serve.add_argument("--host", choices=("127.0.0.1", "localhost"), default="127.0.0.1")
+    serve.add_argument("--port", type=int, default=8750)
+    serve.add_argument("--url", default="http://127.0.0.1:8741", help="Optional H2O server URL")
+    for name in ("status", "refresh"):
+        command = subparsers.add_parser(name)
+        command.add_argument("--server", default="http://127.0.0.1:8750")
     search = subparsers.add_parser("search")
     search.add_argument("query")
-    search.add_argument("--repo", type=Path, required=True)
+    search.add_argument("--repo", type=Path)
+    search.add_argument("--server", help="Reuse a running service instead of loading a model")
     search.add_argument("--source-root", default="src/flask")
     search.add_argument("--retrieval", choices=("bm25", "dense", "hybrid"), default="dense")
-    search.add_argument("--candidates", type=int, default=4,
-                        help="Number of source windows scored by H2O (default: 4)")
+    search.add_argument("--candidates", type=int, default=4)
     search.add_argument("--max-results", type=int, default=5)
-    search.add_argument("--no-rerank", action="store_true",
-                        help="Skip H2O; fetch max(--candidates, --max-results) source windows")
-    search.add_argument("--lexical-only", action="store_true",
-                        help="Compatibility alias for --retrieval bm25 --no-rerank")
-    search.add_argument("--index-cache", type=Path, default=Path(".cache/indexes"),
-                        help="Persistent content-addressed embedding cache")
-    search.add_argument("--url", default="http://127.0.0.1:8741")
+    search.add_argument("--source-budget", type=int, default=12000,
+                        help="Maximum returned source characters; metadata is additional")
+    reranking = search.add_mutually_exclusive_group()
+    reranking.add_argument("--rerank", action="store_true", help="Score the candidate prefix with H2O")
+    reranking.add_argument("--no-rerank", action="store_true", help="Compatibility alias for fast search (default)")
+    search.add_argument("--lexical-only", action="store_true", help="BM25 without either model")
+    search.add_argument("--index-cache", type=Path, default=Path(".cache/indexes"))
+    search.add_argument("--url", default="http://127.0.0.1:8741", help="H2O URL for standalone search")
+    search.add_argument("--json", action="store_true", help="Print structured results and timings")
     args = parser.parse_args(argv)
     if args.command == "benchmark":
-        if args.candidates < 1:
-            parser.error("--candidates must be positive")
-        if args.max_lines <= 40:
-            parser.error("--max-lines must exceed the 40-line overlap")
+        if args.candidates < 1 or args.max_lines <= 40:
+            parser.error("Require positive --candidates and --max-lines > 40")
         result = run_experiment(args.repo, args.dataset, args.output, args.url,
                                 args.candidates, args.max_lines)
         print(json.dumps(result["metrics"], indent=2))
     elif args.command == "shortlist-benchmark":
         from semantic_search.shortlist import run_shortlist_experiment
-
         run_shortlist_experiment(args.repo, args.dataset, args.output,
                                 args.index_cache, args.url, args.prior_run)
         print(f"Shortlist benchmark saved to {args.output}")
-    else:
-        if not args.query.strip():
-            parser.error("query must be nonempty")
-        if args.candidates < 1:
-            parser.error("--candidates must be positive")
-        if args.max_results < 1:
-            parser.error("--max-results must be positive")
-        if args.lexical_only:
-            args.retrieval, args.no_rerank = "bm25", True
-        candidate_count = max(args.candidates, args.max_results) if args.no_rerank else args.candidates
-        snippets = extract_snippets(args.repo, args.source_root, max_lines=160, overlap_lines=40)
-        if args.retrieval == "bm25":
-            pairs = BM25Retriever(snippets).search(args.query, candidate_count)
-        else:
-            from semantic_search.embeddings import QwenEmbedder
-            from semantic_search.index import build_or_load_index
-
-            embedder = QwenEmbedder()
+    elif args.command in {"status", "refresh"}:
+        from semantic_search.client import SearchClient
+        client = SearchClient(args.server)
+        print(json.dumps(client.status() if args.command == "status" else client.refresh(), indent=2))
+    elif args.command == "serve":
+        if not 0 <= args.port <= 65535:
+            parser.error("--port must be between 0 and 65535")
+        from semantic_search.backend import SearchBackend
+        from semantic_search.server import create_server
+        backend = SearchBackend(args.repo, args.source_root,
+                                index_path(args.repo, args.source_root, args.index_cache), h2o_url=args.url)
+        server = None
+        previous_handler = signal.signal(signal.SIGTERM, interrupt_service)
+        try:
+            backend.search("Find the implementation", max_results=1)
+            server = create_server(backend, args.host, args.port)
+            print(f"Ready: http://{args.host}:{server.server_address[1]} (dense search; H2O optional)", flush=True)
+            server.serve_forever(poll_interval=0.2)
+        except KeyboardInterrupt:
+            pass
+        finally:
             try:
-                vectors, _ = build_or_load_index(snippets, embedder, args.index_cache)
-                dense = DenseRetriever(snippets, vectors)
-                vector = embedder.embed_query(args.query)
-                if args.retrieval == "dense":
-                    pairs = dense.search(vector, candidate_count)
-                else:
-                    hybrid = HybridRetriever(BM25Retriever(snippets), dense, rrf_k=60, fetch_depth=50)
-                    pairs = hybrid.search(args.query, vector, candidate_count)
+                if server is not None:
+                    server.server_close()
+                backend.close()
             finally:
-                embedder.close()
-        pairs = pairs[:candidate_count]
-        if args.no_rerank:
-            print(f"{args.retrieval} retrieval only: fetched {len(pairs)} of up to "
-                  f"{candidate_count} source windows; returning up to {args.max_results} symbols.")
-        scores = {}
-        if not args.no_rerank:
-            client = H2OClient(args.url)
-            scores = {s.id: client.score(args.query, s).score for s, _ in pairs}
-            pairs.sort(key=lambda pair: (-scores[pair[0].id], -pair[1], pair[0].id))
-        for snippet in unique_symbols([s for s, _ in pairs])[:args.max_results]:
-            score = f" relevance={scores[snippet.id]:.3f}/3" if scores else ""
-            print(f"\n{snippet.path}:{snippet.start_line}-{snippet.end_line} {snippet.symbol}{score}")
-            print(snippet.text)
+                signal.signal(signal.SIGTERM, previous_handler)
+    else:
+        if not args.query.strip() or args.candidates < 1 or args.max_results < 1 or args.source_budget < 1:
+            parser.error("Require a nonempty query and positive size/budget options")
+        if bool(args.repo) == bool(args.server):
+            parser.error("Use exactly one of --repo (standalone) or --server (resident service)")
+        if args.lexical_only:
+            args.retrieval, args.rerank = "bm25", False
+        settings = {"retrieval": args.retrieval, "rerank": args.rerank,
+                    "candidates": args.candidates, "max_results": args.max_results,
+                    "source_budget": args.source_budget}
+        if args.server:
+            from semantic_search.client import SearchClient
+            response = SearchClient(args.server).search(args.query, **settings)
+        else:
+            from semantic_search.backend import SearchBackend
+            backend = SearchBackend(args.repo, args.source_root,
+                                    index_path(args.repo, args.source_root, args.index_cache), h2o_url=args.url)
+            try:
+                response = backend.search(args.query, **settings)
+            finally:
+                backend.close()
+        if args.json:
+            print(json.dumps(response, indent=2))
+        else:
+            print_results(response)
 
 
 if __name__ == "__main__":

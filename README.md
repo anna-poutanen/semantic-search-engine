@@ -5,10 +5,11 @@ extension and MCP tool share a local search backend, so developers and coding
 agents can retrieve source excerpts without sending the whole repository to a
 paid model.
 
-**Current stage: local Qwen embeddings, persistent vector caching, BM25/dense/hybrid
-retrieval, and optional H2O-Lightning-4B reranking in 8-bit MLX.** Search defaults
-to four dense candidates followed by H2O. VS Code, a persistent search service,
-incremental updates, and MCP integration are next. See [the project plan](docs/project-plan.md).
+**Current stage: a resident local search service with incremental SQLite indexing,
+Qwen embeddings, BM25/dense/hybrid retrieval, bounded excerpts, and optional
+H2O-Lightning-4B reranking in 8-bit MLX.** Dense retrieval is the fast default.
+The CLI uses the same backend that will support MCP and VS Code. See
+[the project plan](docs/project-plan.md) and [the service API](docs/backend-api.md).
 
 ## Run on an Apple Silicon Mac
 
@@ -21,7 +22,7 @@ to a hosted inference service.
 python3 scripts/setup_mac.py
 .venv/bin/python scripts/setup_embeddings.py
 .venv/bin/python scripts/fetch_corpus.py
-.venv/bin/python scripts/serve_mac.py
+.venv/bin/semantic-search serve --repo .cache/corpora/flask
 ```
 
 The final command stays running in a terminal. In a second terminal:
@@ -29,17 +30,29 @@ The final command stays running in a terminal. In a second terminal:
 ```bash
 .venv/bin/semantic-search search \
   "Where does an expired or tampered cookie become an empty session?" \
-  --repo .cache/corpora/flask
+  --server http://127.0.0.1:8750
 
-# Fast Qwen retrieval without H2O (does not need the H2O server).
+# Bounded, structured excerpts with exact paths and line ranges.
 .venv/bin/semantic-search search \
   "Where is the request dispatched to its view and exceptions handled?" \
-  --repo .cache/corpora/flask --no-rerank
+  --server http://127.0.0.1:8750 --source-budget 6000 --json
+
+.venv/bin/semantic-search status
+.venv/bin/semantic-search refresh
+```
+
+For optional H2O reranking, start `.venv/bin/python scripts/serve_mac.py` in
+another terminal, then pass `--rerank`:
+
+```bash
+.venv/bin/semantic-search search \
+  "Where does an expired or tampered cookie become an empty session?" \
+  --server http://127.0.0.1:8750 --rerank --candidates 4
 
 # Fixed BM25 + Qwen reciprocal-rank fusion; score only three windows.
 .venv/bin/semantic-search search \
   "Where are application and blueprint template loaders combined?" \
-  --repo .cache/corpora/flask --retrieval hybrid --candidates 3
+  --server http://127.0.0.1:8750 --retrieval hybrid --rerank --candidates 3
 
 .venv/bin/semantic-search shortlist-benchmark --output results/local/shortlist-run
 
@@ -49,27 +62,36 @@ The final command stays running in a terminal. In a second terminal:
 ```
 
 Use `--retrieval bm25` to choose the lexical baseline, or `--lexical-only` to skip
-both models. `--candidates` counts windows scored by H2O; reranking returns only
-that prefix, with at most one window per symbol. `--no-rerank` fetches at least
-`--max-results` windows and returns the retrieval order. Search another Python
-repository with `--repo /path/to/repo --source-root src`. The first version
-indexes saved, tracked Python files within that source root; it does not yet
-handle TypeScript or unsaved editor buffers.
+both models in standalone mode. With `--rerank`, `--candidates` counts windows
+scored by H2O; results contain only that prefix, with at most one window per
+symbol. Without reranking, results follow the retrieval order. `--no-rerank`
+remains a compatibility alias. Start a service for another Python repository
+with `serve --repo /path/to/repo --source-root src`. Alternatively,
+`search "behavior" --repo /path/to/repo --source-root src` runs standalone and
+loads Qwen for that invocation. The first version indexes saved, tracked Python
+files; it does not yet handle TypeScript or unsaved editor buffers.
 
-The first dense/hybrid search builds document embeddings under `.cache/indexes/`.
-Subsequent searches reuse them only when the actual source text, window boundaries,
-document formatting, model revision, and embedding settings match. This is a
-whole-corpus cache; changed repositories currently rebuild it. Qwen uses original
+The service preloads Qwen and builds a durable SQLite index under `.cache/indexes/`.
+Each search checks saved file bytes and Git membership. Changes embed only new
+document text; unchanged vectors survive process restarts and branch switches.
+Deleted windows leave the active snapshot, and line shifts update locations
+without recomputing identical document embeddings. Model revision and embedding
+settings are part of the cache key. Files changed during indexing or scoring,
+and temporarily invalid Python, produce an error so stale excerpts are not
+delivered. This currently scans source hashes on each request, without a watcher.
+Qwen uses original
 BF16 weights, 1024-dimensional normalized vectors, last-token pooling, and a fixed
 query instruction, with an 8192-token truncation limit. Indexing documents uses
 no instruction. Dense search scans the small vector matrix with cosine similarity;
 hybrid uses equal-weight RRF with constant 60 and a fixed 50-window depth per source.
 
-Warm benchmark timings keep both model weights resident. Each CLI invocation
-loads Qwen anew and parses the corpus, so its full startup time is additional.
-A persistent backend is needed to deliver the warm timings interactively.
+The service serializes GPU work and keeps Qwen loaded. `--server` calls reuse it;
+the Requests measurements below include the actual HTTP round-trip. Standalone
+`--repo` searches incur additional model startup time. `--source-budget` limits
+returned source characters, with whole-line truncation and accurate excerpt
+line ranges; JSON metadata is additional. It is not a token budget.
 
-Stop the server with Ctrl-C. It runs the official H2O shim on loopback port 8741
+Stop either service with Ctrl-C. The optional H2O launcher runs its official shim on loopback port 8741
 and a community MLX facade on 8743. Its model stays loaded while the server runs.
 Use `--port` / `--facade-port` if those ports are occupied, and pass the new shim
 URL via the CLI's `--url`. Prefix caching is disabled for this experiment, and
@@ -77,6 +99,36 @@ Boolean confidence flooring is disabled. Ordinal scores use the shipped
 temperature calibration and are ranking signals, not certainty percentages.
 
 ## Experiments
+
+The [Requests service experiment](results/requests-service-2026-10-12/report.md)
+tests 20 newly authored queries on a second real codebase: 16 present behaviors
+and four absent features. Queries and an eight-positive/eight-positive
+development/test split were frozen before retrieval. The configurations came
+from the Flask experiment and were not adjusted to these labels.
+
+| Mode | Correct first | Correct implementation in results | Median / P95 HTTP |
+|---|---|---|---|
+| BM25, first five | 10/16 | 15/16 | 0.044s / 0.051s |
+| Qwen dense, first five | 13/16 | 16/16 | 0.089s / 0.118s |
+| Hybrid, first five | 12/16 | 16/16 | 0.068s / 0.086s |
+| Dense + H2O, four-window prefix | 15/16 | 15/16 | 6.36s / 8.69s |
+| Hybrid + H2O, three-window prefix | 16/16 | 16/16 | 4.92s / 7.53s |
+
+Dense/K4 loses the streamed-upload implementation because dense ranks its
+evidence window fifth. Hybrid/K3 recovers it on Requests, but previously missed
+Flask dispatch. A four-window shortlist therefore does not guarantee coverage
+across repositories. Fast dense retrieval remains the default; H2O improves
+ordering at a substantial latency cost. Reranking still misses the five-second
+P95 aspiration. The service used about 1.7 GB resident for Qwen, with a 2.0 GB
+indexing peak; optional H2O used another 6.3 GB resident.
+
+Hits require the actual delivered excerpt to contain all executable evidence
+lines. Latency has 20 searches per configuration, including absent queries; split
+tables use ten searches each. Absent queries still return candidates, so this
+does not demonstrate abstention. This remains a small authored dataset, not a
+representative benchmark or evidence of paid-agent token savings. Frozen inputs,
+raw scores, excerpts, and per-split metrics are included in the report directory.
+See [the protocol](docs/next-evaluation.md) to reproduce it.
 
 The [Qwen and shortlist experiment](results/qwen-hybrid-shortlist-2026-10-12/report.md)
 uses the same frozen Flask queries:
@@ -91,8 +143,8 @@ Four is the smallest tested dense shortlist that keeps all twelve implementation
 windows. Three loses the template-loader implementation. Hybrid keeps eleven with
 three windows but misses dispatch: equal-weight fusion moves its dense rank 2
 to hybrid rank 24 because BM25 omits it. The fusion weights were fixed before
-scoring and were not tuned to these labels. This supports dense/K4 as the current
-development default, with retrieval-only mode for speed.
+scoring and were not tuned to these labels. Dense/K4 was the initial reranking
+configuration; the Requests run above shows its coverage limit.
 
 Dense/K4 is about 3.2 times faster than the previous 19.29-second median, but
 still exceeds the plan's five-second reranked-search target. Dense/K3 reaches
@@ -127,7 +179,8 @@ The [October 12 Flask pilot](results/flask-h2o-q8-2026-10-12/report.md) is compl
 H2O improved three query rankings and preserved the other successful top results.
 The remaining miss was missing from candidate retrieval. Qwen's dense retrieval
 recovers that implementation. These are development results on the same twelve
-queries; evaluation on unseen queries and repositories remains necessary.
+queries. The Requests run adds one frozen repository; larger independent
+evaluation remains necessary.
 
 [The frozen Flask dataset](benchmarks/flask_queries.json) contains 12 reviewed
 behavior queries, two plausible decoys per implementation, and two absent-feature
@@ -173,7 +226,9 @@ runtime commits are pinned in setup and recorded in each report.
 - [Flask](https://github.com/pallets/flask), BSD-3-Clause. Corpus checkout is kept
   out of this repository. Included experiment source excerpts retain the corpus
   attribution; see [third-party notices](THIRD_PARTY_NOTICES.md).
+- [Requests](https://github.com/psf/requests), Apache-2.0. The additional frozen
+  corpus is downloaded separately; committed excerpts retain its license and
+  attribution in [third-party notices](THIRD_PARTY_NOTICES.md).
 
-The scorer does one forward pass per window. Warm interactive latency, candidate
-coverage, and unseen-query quality determine whether it should remain the default
-scorer as the project grows.
+The scorer does one forward pass per window. Candidate coverage and the quality
+gain per second determine where optional reranking is useful as the project grows.
