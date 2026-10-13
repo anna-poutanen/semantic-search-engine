@@ -1,0 +1,536 @@
+diff --git a/src/click/_compat.py b/src/click/_compat.py
+index 9153d15..68a3e54 100644
+--- a/src/click/_compat.py
++++ b/src/click/_compat.py
+@@ -4,6 +4,7 @@ import os
+ import re
+ import sys
+ import typing as t
++from types import TracebackType
+ from weakref import WeakKeyDictionary
+ 
+ CYGWIN = sys.platform.startswith("cygwin")
+@@ -465,9 +466,18 @@ class _AtomicFile:
+     def close(self, delete: bool = False) -> None:
+         if self.closed:
+             return
+-        self._f.close()
+-        os.replace(self._tmp_filename, self._real_filename)
+-        self.closed = True
++        try:
++            self._f.close()
++        finally:
++            self.closed = True
++            if delete:
++                try:
++                    os.unlink(self._tmp_filename)
++                except FileNotFoundError:
++                    pass
++
++        if not delete:
++            os.replace(self._tmp_filename, self._real_filename)
+ 
+     def __getattr__(self, name: str) -> t.Any:
+         return getattr(self._f, name)
+@@ -475,8 +485,29 @@ class _AtomicFile:
+     def __enter__(self) -> "_AtomicFile":
+         return self
+ 
+-    def __exit__(self, exc_type: t.Optional[t.Type[BaseException]], *_: t.Any) -> None:
+-        self.close(delete=exc_type is not None)
++    def __exit__(
++        self,
++        exc_type: t.Optional[t.Type[BaseException]],
++        exc_value: t.Optional[BaseException],
++        tb: t.Optional[TracebackType],
++    ) -> None:
++        if exc_type is None:
++            self.close()
++            return
++
++        try:
++            self.close(delete=True)
++        except BaseException as cleanup_error:
++            # An abort must preserve the exception that caused it, while
++            # still making a failed cleanup visible to the caller.
++            if exc_value is None:
++                raise
++            if hasattr(exc_value, "add_note"):
++                exc_value.add_note(f"Error aborting atomic write: {cleanup_error!r}")
++            else:
++                if cleanup_error.__context__ is exc_value:
++                    cleanup_error.__context__ = None
++                exc_value.__context__ = cleanup_error
+ 
+     def __repr__(self) -> str:
+         return repr(self._f)
+diff --git a/src/click/core.py b/src/click/core.py
+index e630501..14b06f8 100644
+--- a/src/click/core.py
++++ b/src/click/core.py
+@@ -471,9 +471,11 @@ class Context:
+         tb: t.Optional[TracebackType],
+     ) -> None:
+         self._depth -= 1
+-        if self._depth == 0:
+-            self.close()
+-        pop_context()
++        try:
++            if self._depth == 0:
++                self._close_with_exception_info(exc_type, exc_value, tb)
++        finally:
++            pop_context()
+ 
+     @contextmanager
+     def scope(self, cleanup: bool = True) -> t.Iterator["Context"]:
+@@ -601,9 +603,23 @@ class Context:
+         :meth:`call_on_close`, and exit all context managers entered
+         with :meth:`with_resource`.
+         """
+-        self._exit_stack.close()
+-        # In case the context is reused, create a new exit stack.
+-        self._exit_stack = ExitStack()
++        self._close_with_exception_info(None, None, None)
++
++    def _close_with_exception_info(
++        self,
++        exc_type: t.Optional[t.Type[BaseException]],
++        exc_value: t.Optional[BaseException],
++        tb: t.Optional[TracebackType],
++    ) -> None:
++        # A zero-code Click exit is successful command completion.
++        if isinstance(exc_value, Exit) and exc_value.exit_code == 0:
++            exc_type = exc_value = tb = None
++
++        try:
++            self._exit_stack.__exit__(exc_type, exc_value, tb)
++        finally:
++            # In case the context is reused, create a new exit stack.
++            self._exit_stack = ExitStack()
+ 
+     @property
+     def command_path(self) -> str:
+diff --git a/src/click/types.py b/src/click/types.py
+index a70fd58..2a74c49 100644
+--- a/src/click/types.py
++++ b/src/click/types.py
+@@ -660,9 +660,10 @@ class File(ParamType):
+     for writing to avoid creating the file until it is needed.
+ 
+     Files can also be opened atomically in which case all writes go into a
+-    separate file in the same folder and upon completion the file will
+-    be moved over to the original location.  This is useful if a file
+-    regularly read by other users is modified.
++    separate file in the same folder and upon successful command completion
++    the file will be moved over to the original location. The temporary file
++    is discarded if the command fails. This is useful if a file regularly
++    read by other users is modified.
+ 
+     See :ref:`file-args` for more information.
+ 
+@@ -721,7 +722,10 @@ class File(ParamType):
+                 )
+ 
+                 if ctx is not None:
+-                    ctx.call_on_close(lf.close_intelligently)
++                    if self.atomic:
++                        ctx.with_resource(lf)
++                    else:
++                        ctx.call_on_close(lf.close_intelligently)
+ 
+                 return t.cast(t.IO[t.Any], lf)
+ 
+@@ -736,7 +740,10 @@ class File(ParamType):
+             # type is used with prompts.
+             if ctx is not None:
+                 if should_close:
+-                    ctx.call_on_close(safecall(f.close))
++                    if self.atomic:
++                        ctx.with_resource(f)
++                    else:
++                        ctx.call_on_close(safecall(f.close))
+                 else:
+                     ctx.call_on_close(safecall(f.flush))
+ 
+diff --git a/src/click/utils.py b/src/click/utils.py
+index 836c6f2..676e8b5 100644
+--- a/src/click/utils.py
++++ b/src/click/utils.py
+@@ -184,7 +184,10 @@ class LazyFile:
+         exc_value: t.Optional[BaseException],
+         tb: t.Optional[TracebackType],
+     ) -> None:
+-        self.close_intelligently()
++        if self.atomic and self.should_close and self._f is not None:
++            self._f.__exit__(exc_type, exc_value, tb)
++        else:
++            self.close_intelligently()
+ 
+     def __iter__(self) -> t.Iterator[t.AnyStr]:
+         self.open()
+@@ -384,7 +387,8 @@ def open_file(
+         mode, the file is temporarily opened to raise access errors
+         early, then closed until it is read again.
+     :param atomic: Write to a temporary file and replace the given file
+-        on close.
++        on close or successful context exit. Discard the temporary file
++        if the context exits with an exception.
+ 
+     .. versionadded:: 3.0
+     """
+diff --git a/tests/test_atomic_transactions.py b/tests/test_atomic_transactions.py
+new file mode 100644
+index 0000000..51cbf7b
+--- /dev/null
++++ b/tests/test_atomic_transactions.py
+@@ -0,0 +1,275 @@
++import os
++import stat
++
++import pytest
++
++import click
++from click.exceptions import Exit
++
++
++@pytest.mark.parametrize("lazy", [False, True])
++@pytest.mark.parametrize("mode", ["w", "wb"])
++@pytest.mark.parametrize("existing", [False, True])
++@pytest.mark.parametrize("failure", [False, True])
++def test_open_file_transaction(tmp_path, lazy, mode, existing, failure):
++    path = tmp_path / "output"
++    if existing:
++        path.write_bytes(b"original")
++    error = ValueError("body failed")
++    payload = b"replacement" if "b" in mode else "replacement"
++    output = click.open_file(path, mode, lazy=lazy, atomic=True)
++
++    def write():
++        with output:
++            output.write(payload)
++            output.flush()
++            if existing:
++                assert path.read_bytes() == b"original"
++            else:
++                assert not path.exists()
++            if failure:
++                raise error
++
++    if failure:
++        with pytest.raises(ValueError) as caught:
++            write()
++        assert caught.value is error
++    else:
++        write()
++
++    if failure and not existing:
++        assert not path.exists()
++    else:
++        assert path.read_bytes() == (b"original" if failure else b"replacement")
++    assert output.closed
++    output.close()
++    assert list(tmp_path.glob(".__atomic-write*")) == []
++
++
++@pytest.mark.parametrize("lazy", [False, True, None])
++@pytest.mark.parametrize("mode", ["w", "wb"])
++@pytest.mark.parametrize("existing", [False, True])
++@pytest.mark.parametrize("outcome", ["return", "exit-zero", "exit-error", "raise"])
++@pytest.mark.parametrize("standalone", [False, True])
++def test_command_transaction(runner, tmp_path, lazy, mode, existing, outcome, standalone):
++    path = tmp_path / "output"
++    if existing:
++        path.write_bytes(b"original")
++    error = ValueError("callback failed")
++    handles = []
++
++    @click.command()
++    @click.argument("output", type=click.File(mode, lazy=lazy, atomic=True))
++    @click.pass_context
++    def cli(ctx, output):
++        handles.append(output)
++        output.write(b"replacement" if "b" in mode else "replacement")
++        output.flush()
++        if existing:
++            assert path.read_bytes() == b"original"
++        else:
++            assert not path.exists()
++        if outcome == "exit-zero":
++            ctx.exit(0)
++        if outcome == "exit-error":
++            ctx.exit(7)
++        if outcome == "raise":
++            raise error
++
++    result = runner.invoke(cli, [str(path)], standalone_mode=standalone)
++    success = outcome in {"return", "exit-zero"}
++    if success:
++        assert result.exit_code == 0
++        assert result.exception is None
++    elif outcome == "raise":
++        assert result.exit_code != 0
++        assert result.exception is error
++    elif standalone:
++        assert result.exit_code == 7
++    else:
++        assert result.return_value == 7
++
++    if not success and not existing:
++        assert not path.exists()
++    else:
++        assert path.read_bytes() == (b"replacement" if success else b"original")
++    assert handles[0].closed
++    handles[0].close()
++    assert list(tmp_path.glob(".__atomic-write*")) == []
++    assert click.get_current_context(silent=True) is None
++
++
++@pytest.mark.parametrize("lazy", [True, None])
++@pytest.mark.parametrize("failure", [False, True])
++def test_unused_lazy_output(runner, tmp_path, lazy, failure):
++    path = tmp_path / "missing-parent" / "output"
++
++    @click.command()
++    @click.argument("output", type=click.File("w", lazy=lazy, atomic=True))
++    def cli(output):
++        if failure:
++            raise ValueError("callback failed")
++
++    result = runner.invoke(cli, [str(path)])
++    assert result.exit_code == int(failure)
++    assert not path.parent.exists()
++
++    with click.open_file(path, "w", lazy=True, atomic=True):
++        pass
++    assert not path.parent.exists()
++
++
++@pytest.mark.parametrize("lazy", [False, True])
++def test_explicit_close_commits_before_later_error(tmp_path, lazy):
++    path = tmp_path / "output"
++    path.write_text("original")
++    with pytest.raises(ValueError):
++        with click.open_file(path, "w", lazy=lazy, atomic=True) as output:
++            output.write("replacement")
++            output.close()
++            output.close()
++            assert path.read_text() == "replacement"
++            raise ValueError("later error")
++    assert path.read_text() == "replacement"
++
++
++@pytest.mark.parametrize("lazy", [False, True])
++def test_direct_context_exit_exception_aborts(tmp_path, lazy):
++    path = tmp_path / "output"
++    with pytest.raises(Exit):
++        with click.open_file(path, "w", lazy=lazy, atomic=True) as output:
++            output.write("replacement")
++            raise Exit(0)
++    assert not path.exists()
++
++
++@pytest.mark.parametrize("lazy", [False, True, None])
++@pytest.mark.parametrize("exit_zero", [False, True])
++def test_command_commit_failure_propagates(runner, tmp_path, monkeypatch, lazy, exit_zero):
++    path = tmp_path / "output"
++    path.write_text("original")
++    error = FileNotFoundError("commit failed")
++    handles = []
++
++    def fail_replace(*args):
++        raise error
++
++    @click.command()
++    @click.argument("output", type=click.File("w", lazy=lazy, atomic=True))
++    @click.pass_context
++    def cli(ctx, output):
++        handles.append(output)
++        output.write("replacement")
++        monkeypatch.setattr(os, "replace", fail_replace)
++        if exit_zero:
++            ctx.exit(0)
++
++    result = runner.invoke(cli, [str(path)])
++    assert result.exit_code != 0
++    assert result.exception is error
++    assert path.read_text() == "original"
++    assert handles[0].closed
++    handles[0].close()
++    assert click.get_current_context(silent=True) is None
++
++
++@pytest.mark.parametrize("lazy", [False, True])
++@pytest.mark.parametrize("cleanup", ["missing", "denied"])
++@pytest.mark.parametrize("command", [False, True])
++def test_abort_cleanup_preserves_error(runner, tmp_path, monkeypatch, lazy, cleanup, command):
++    path = tmp_path / "output"
++    path.write_text("original")
++    primary = ValueError("callback failed")
++    cleanup_error = PermissionError("abort cleanup denied")
++    handles = []
++
++    def fail_unlink(*args):
++        raise cleanup_error
++
++    def write(output):
++        handles.append(output)
++        output.write("replacement")
++        if cleanup == "missing":
++            for temp in tmp_path.glob(".__atomic-write*"):
++                temp.unlink()
++        else:
++            monkeypatch.setattr(os, "unlink", fail_unlink)
++        raise primary
++
++    if command:
++
++        @click.command()
++        @click.argument("output", type=click.File("w", lazy=lazy, atomic=True))
++        def cli(output):
++            write(output)
++
++        result = runner.invoke(cli, [str(path)])
++        assert result.exception is primary
++        assert result.exit_code != 0
++    else:
++        with pytest.raises(ValueError) as caught:
++            with click.open_file(path, "w", lazy=lazy, atomic=True) as output:
++                write(output)
++        assert caught.value is primary
++
++    if cleanup == "denied":
++        notes = " ".join(getattr(primary, "__notes__", []))
++        assert "abort cleanup denied" in notes or primary.__context__ is cleanup_error
++    assert path.read_text() == "original"
++    assert handles[0].closed
++    handles[0].close()
++    assert click.get_current_context(silent=True) is None
++
++
++@pytest.mark.skipif(os.name == "nt", reason="Windows has limited permission support")
++@pytest.mark.parametrize("lazy", [False, True, None])
++def test_command_preserves_permissions(runner, tmp_path, lazy):
++    path = tmp_path / "output"
++    path.write_text("original")
++    path.chmod(0o640)
++
++    @click.command()
++    @click.argument("output", type=click.File("w", lazy=lazy, atomic=True))
++    def cli(output):
++        output.write("replacement")
++
++    result = runner.invoke(cli, [str(path)])
++    assert result.exit_code == 0
++    assert stat.S_IMODE(path.stat().st_mode) == 0o640
++
++
++@pytest.mark.parametrize("lazy", [False, True])
++def test_non_atomic_file_still_writes_on_error(tmp_path, lazy):
++    path = tmp_path / "output"
++    with pytest.raises(ValueError):
++        with click.open_file(path, "w", lazy=lazy) as output:
++            output.write("replacement")
++            raise ValueError("body failed")
++    assert path.read_text() == "replacement"
++    assert output.closed
++
++
++@pytest.mark.parametrize("lazy", [False, True, None])
++@pytest.mark.parametrize("mode", ["w", "wb"])
++def test_standard_output_is_not_closed(runner, lazy, mode):
++    handles = []
++
++    @click.command()
++    @click.argument("output", type=click.File(mode, lazy=lazy, atomic=True))
++    def cli(output):
++        handles.append(output)
++        output.write(b"hello" if "b" in mode else "hello")
++        raise ValueError("callback failed")
++
++    # Check while the runner still owns its streams. Restoring stdout can
++    # destroy its text wrapper and close the buffer independently of Click.
++    with runner.isolation() as (stdout, _):
++        with pytest.raises(ValueError):
++            cli.main(["-"], prog_name="test", standalone_mode=False)
++        assert not handles[0].closed
++        handles[0].flush()
++        assert stdout.getvalue() == b"hello"
++        with pytest.raises(ValueError):
++            with click.open_file("-", mode, lazy=bool(lazy), atomic=True) as output:
++                raise ValueError("body failed")
++        assert not output.closed
+diff --git a/tests/test_context_transactions.py b/tests/test_context_transactions.py
+new file mode 100644
+index 0000000..cc32bf4
+--- /dev/null
++++ b/tests/test_context_transactions.py
+@@ -0,0 +1,69 @@
++from contextlib import contextmanager
++
++import pytest
++
++import click
++
++
++@pytest.mark.parametrize("failure", [False, True])
++def test_nested_context_resource_receives_exception(failure):
++    outer = click.Context(click.Command("outer"))
++    ctx = click.Context(click.Command("inner"), parent=outer)
++    error = ValueError("callback failed")
++    exits = []
++
++    @contextmanager
++    def resource():
++        try:
++            yield
++        except BaseException as caught:
++            exits.append(caught)
++            raise
++        else:
++            exits.append(None)
++        finally:
++            assert click.get_current_context() is ctx
++
++    def run():
++        with ctx:
++            ctx.with_resource(resource())
++            with ctx:
++                assert click.get_current_context() is ctx
++                assert exits == []
++                if failure:
++                    raise error
++            assert exits == []
++
++    with outer:
++        if failure:
++            with pytest.raises(ValueError) as caught:
++                run()
++            assert caught.value is error
++        else:
++            run()
++        assert click.get_current_context() is outer
++        assert exits == [error if failure else None]
++        with ctx:
++            ctx.with_resource(resource())
++        assert exits[-1] is None
++    assert click.get_current_context(silent=True) is None
++
++
++def test_cleanup_failure_restores_context_stack():
++    outer = click.Context(click.Command("outer"))
++    ctx = click.Context(click.Command("inner"), parent=outer)
++    error = RuntimeError("cleanup failed")
++
++    def fail():
++        assert click.get_current_context() is ctx
++        raise error
++
++    with outer:
++        with pytest.raises(RuntimeError) as caught:
++            with ctx:
++                ctx.call_on_close(fail)
++        assert caught.value is error
++        assert click.get_current_context() is outer
++        with ctx:
++            pass
++    assert click.get_current_context(silent=True) is None

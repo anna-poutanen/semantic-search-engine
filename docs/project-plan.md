@@ -95,15 +95,17 @@ The runtime preflight resolves the observed AnyIO/Trio dependency mismatch;
 collaboration is explicitly disabled for the trials. Separate transport checks
 verify an actual single-copy MCP call and loopback HTTP.
 
-That 16-attempt study is currently running. Nine attempts and an independent
-[integrity audit](../results/multifile-audit-2026-10-13/audit.json) are published.
-Timeout usage remains unavailable, and a no-edit model-capacity failure is kept
-separate from coding errors. Supplemental
-[patch review](../results/multifile-workflows-2026-10-13/patch-review.json) has
-already found bugs outside the frozen gates, including holes shared by the
-withheld references. Those findings do not rewrite the formal scores. Finish
-the inventory, review every patch, publish actual-receipt comparisons with their
-missing-data limits, and audit the frozen environment before main integration.
+The [16-attempt study](../results/multifile-workflows-2026-10-13/findings.md)
+and independent [integrity audit](../results/multifile-audit-2026-10-13/audit.json)
+are complete. Three matched normally completed pairs use 9.23% more gross tokens
+and 18.62% more uncached input with MCP, with 2.20% less agent time and 1.59% more
+full trial time. Six receipts are unavailable because of three timeouts and
+three provider-capacity failures; full-workload savings remain unknown.
+Supplemental [patch review](../results/multifile-workflows-2026-10-13/patch-review.md)
+finds six distinct defects across seven attempts, including three formally
+completed-correct attempts and five holes shared by the references. These
+post-output findings leave the frozen scores unchanged. All attempts, patches,
+actual receipts and missing-data limits are preserved; token savings are unmet.
 
 Isolated editor and language drafts can proceed alongside that study without
 changing its runtime. After the study and audits, integrate those drafts and run

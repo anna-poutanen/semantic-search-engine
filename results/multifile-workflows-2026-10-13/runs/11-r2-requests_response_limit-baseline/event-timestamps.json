@@ -1,0 +1,885 @@
+[
+  {
+    "event": {
+      "thread_id": "01a13454-9b20-77b0-a349-c7abdd06af10",
+      "type": "thread.started"
+    },
+    "received": {
+      "monotonic_s": 150474.011061,
+      "utc": "2026-10-13T08:15:22.463207+00:00"
+    }
+  },
+  {
+    "event": {
+      "type": "turn.started"
+    },
+    "received": {
+      "monotonic_s": 150474.012397541,
+      "utc": "2026-10-13T08:15:22.464561+00:00"
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "id": "item_0",
+        "text": "I\u2019ll locate the request and response paths, add the byte budget, then run new regression tests followed by the relevant existing integration tests.",
+        "type": "agent_message"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 150480.7989805,
+      "utc": "2026-10-13T08:15:29.251108+00:00"
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"pwd; rg --files -g 'AGENTS.md' -g '*session*' -g '*model*' -g '*exception*' -g 'pytest.ini' -g 'setup.cfg' -g 'pyproject.toml' -g 'conftest.py' -g 'test_requests.py' -g 'test_hooks.py' -g 'test_lowlevel.py'\"",
+        "exit_code": null,
+        "id": "item_1",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 150486.830679875,
+      "utc": "2026-10-13T08:15:35.282836+00:00"
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "<WORKSPACE>\nsrc/requests/exceptions.py\nsrc/requests/models.py\nsrc/requests/sessions.py\ntests/test_lowlevel.py\ntests/test_requests.py\ntests/test_hooks.py\ntests/conftest.py\npyproject.toml\n",
+        "command": "/bin/zsh -lc \"pwd; rg --files -g 'AGENTS.md' -g '*session*' -g '*model*' -g '*exception*' -g 'pytest.ini' -g 'setup.cfg' -g 'pyproject.toml' -g 'conftest.py' -g 'test_requests.py' -g 'test_hooks.py' -g 'test_lowlevel.py'\"",
+        "exit_code": 0,
+        "id": "item_1",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 150486.830732875,
+      "utc": "2026-10-13T08:15:35.282881+00:00"
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"rg -n 'class Session|def (request|send|resolve_redirects|get|post|__getstate__|__setstate__)|__attrs__|class Response|def (iter_content|content|text|close)|class RequestException|RequestException|def request' src/requests/{sessions,models,exceptions,api,__init__}.py\"",
+        "exit_code": null,
+        "id": "item_2",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 150504.511853458,
+      "utc": "2026-10-13T08:15:52.964013+00:00"
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"rg --files --hidden -g 'AGENTS.md' -g '\"'!'\"\\\\.git/**' -g '\"'!'\"\\\\.cache/**'\"",
+        "exit_code": null,
+        "id": "item_3",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 150504.511875416,
+      "utc": "2026-10-13T08:15:52.964042+00:00"
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "src/requests/exceptions.py:20:class RequestException(IOError):\nsrc/requests/exceptions.py:29:        \"\"\"Initialize RequestException with `request` and `response` objects.\"\"\"\nsrc/requests/exceptions.py:38:class InvalidJSONError(RequestException):\nsrc/requests/exceptions.py:66:class HTTPError(RequestException):\nsrc/requests/exceptions.py:70:class ConnectionError(RequestException):\nsrc/requests/exceptions.py:82:class Timeout(RequestException):\nsrc/requests/exceptions.py:102:class URLRequired(RequestException):\nsrc/requests/exceptions.py:106:class TooManyRedirects(RequestException):\nsrc/requests/exceptions.py:110:class MissingSchema(RequestException, ValueError):\nsrc/requests/exceptions.py:114:class InvalidSchema(RequestException, ValueError):\nsrc/requests/exceptions.py:118:class InvalidURL(RequestException, ValueError):\nsrc/requests/exceptions.py:122:class InvalidHeader(RequestException, ValueError):\nsrc/requests/exceptions.py:130:class ChunkedEncodingError(RequestException):\nsrc/requests/exceptions.py:134:class ContentDecodingError(RequestException, BaseHTTPError):\nsrc/requests/exceptions.py:138:class StreamConsumedError(RequestException, TypeError):\nsrc/requests/exceptions.py:142:class RetryError(RequestException):\nsrc/requests/exceptions.py:146:class UnrewindableBodyError(RequestException):\nsrc/requests/models.py:732:class Response:\nsrc/requests/models.py:752:    __attrs__: list[str] = [\nsrc/requests/models.py:818:    def __getstate__(self) -> dict[str, Any]:\nsrc/requests/models.py:824:        return {attr: getattr(self, attr, None) for attr in self.__attrs__}\nsrc/requests/models.py:826:    def __setstate__(self, state: dict[str, Any]) -> None:\nsrc/requests/models.py:907:    def iter_content(\nsrc/requests/models.py:911:    def iter_content(\nsrc/requests/models.py:914:    def iter_content(\nsrc/requests/models.py:1035:    def content(self) -> bytes:\nsrc/requests/models.py:1054:    def text(self) -> str:\nsrc/requests/models.py:1173:    def close(self) -> None:\nsrc/requests/sessions.py:127:class SessionRedirectMixin:\nsrc/requests/sessions.py:132:    def send(self, request: PreparedRequest, **kwargs: Any) -> Response: ...\nsrc/requests/sessions.py:134:    def get_redirect_target(self, resp: Response) -> str | None:\nsrc/requests/sessions.py:186:    def resolve_redirects(\nsrc/requests/sessions.py:395:class Session(SessionRedirectMixin):\nsrc/requests/sessions.py:427:    __attrs__: list[str] = [\nsrc/requests/sessions.py:557:    def request(\nsrc/requests/sessions.py:655:    def get(\nsrc/requests/sessions.py:695:    def post(\nsrc/requests/sessions.py:752:    def send(self, request: PreparedRequest, **kwargs: Any) -> Response:\nsrc/requests/sessions.py:870:    def get_adapter(self, url: str) -> BaseAdapter:\nsrc/requests/sessions.py:883:    def close(self) -> None:\nsrc/requests/sessions.py:899:    def __getstate__(self) -> dict[str, Any]:\nsrc/requests/sessions.py:900:        state = {attr: getattr(self, attr, None) for attr in self.__attrs__}\nsrc/requests/sessions.py:903:    def __setstate__(self, state: dict[str, Any]) -> None:\nsrc/requests/__init__.py:179:    RequestException,\nsrc/requests/__init__.py:196:    \"RequestException\",\nsrc/requests/api.py:24:def request(\nsrc/requests/api.py:74:def get(\nsrc/requests/api.py:117:def post(\n",
+        "command": "/bin/zsh -lc \"rg -n 'class Session|def (request|send|resolve_redirects|get|post|__getstate__|__setstate__)|__attrs__|class Response|def (iter_content|content|text|close)|class RequestException|RequestException|def request' src/requests/{sessions,models,exceptions,api,__init__}.py\"",
+        "exit_code": 0,
+        "id": "item_2",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 150504.511903166,
+      "utc": "2026-10-13T08:15:52.964068+00:00"
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"rg --files --hidden -g 'AGENTS.md' -g '\"'!'\"\\\\.git/**' -g '\"'!'\"\\\\.cache/**'\"",
+        "exit_code": 1,
+        "id": "item_3",
+        "status": "failed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 150504.511930958,
+      "utc": "2026-10-13T08:15:52.964098+00:00"
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"cat pyproject.toml; rg -n 'def .*|fixture|httpbin|server|pytest|pickle|gzip|iter_content' tests/conftest.py tests/test_lowlevel.py tests/test_hooks.py\"",
+        "exit_code": null,
+        "id": "item_4",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 150504.513300666,
+      "utc": "2026-10-13T08:15:52.965468+00:00"
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "[build-system]\nrequires = [\"setuptools>=61.0\"]\nbuild-backend = \"setuptools.build_meta\"\n\n[project]\nname = \"requests\"\ndescription = \"Python HTTP for Humans.\"\nreadme = \"README.md\"\nlicense = {text = \"Apache-2.0\"}\nauthors = [\n    { name = \"Kenneth Reitz\", email = \"me@kennethreitz.org\" },\n]\nmaintainers = [\n    {name = \"Ian Stapleton Cordasco\", email=\"graffatcolmingov@gmail.com\"},\n    {name = \"Nate Prewitt\", email=\"nate.prewitt@gmail.com\"}\n]\nrequires-python = \">=3.10\"\ndependencies = [\n    \"charset_normalizer>=2,<4\",\n    \"idna>=2.5,<4\",\n    \"urllib3>=1.26,<3\",\n    \"certifi>=2023.5.7\"\n]\ndynamic = [\"version\"]\n\nclassifiers = [\n    \"Development Status :: 5 - Production/Stable\",\n    \"Environment :: Web Environment\",\n    \"Intended Audience :: Developers\",\n    \"License :: OSI Approved :: Apache Software License\",\n    \"Natural Language :: English\",\n    \"Operating System :: OS Independent\",\n    \"Programming Language :: Python\",\n    \"Programming Language :: Python :: 3\",\n    \"Programming Language :: Python :: 3.10\",\n    \"Programming Language :: Python :: 3.11\",\n    \"Programming Language :: Python :: 3.12\",\n    \"Programming Language :: Python :: 3.13\",\n    \"Programming Language :: Python :: 3.14\",\n    \"Programming Language :: Python :: 3.15\",\n    \"Programming Language :: Python :: 3 :: Only\",\n    \"Programming Language :: Python :: Implementation :: CPython\",\n    \"Programming Language :: Python :: Implementation :: PyPy\",\n    \"Programming Language :: Python :: Free Threading :: 2 - Beta\",\n    \"Topic :: Internet :: WWW/HTTP\",\n    \"Topic :: Software Development :: Libraries\"\n]\n\n[project.urls]\nDocumentation = \"https://requests.readthedocs.io\"\nSource = \"https://github.com/psf/requests\"\n\n[project.optional-dependencies]\nsecurity = []\nsocks = [\"PySocks>=1.5.6, !=1.5.7\"]\nuse_chardet_on_py3 = [\"chardet>=3.0.2,<8\"]\n\n[dependency-groups]\ntest = [\n    \"requests[socks]\",\n    \"pytest-httpbin==2.1.0\",\n    \"httpbin~=0.10.0\",\n    \"pytest-cov\",\n    \"pytest-mock\",\n    \"pytest-xdist\",\n    \"pytest>=3\",\n    \"trustme\",\n]\ntypecheck = [\n    \"pyright\",\n    \"typing_extensions\",\n    \"chardet\",\n    \"cryptography\",\n    \"PyOpenSSL\",\n]\n\n[tool.setuptools]\nlicense-files = [\"LICENSE\", \"NOTICE\"]\n\n[tool.setuptools.dynamic]\nversion = {attr = \"requests.__version__.__version__\"}\n\n[tool.setuptools.packages.find]\nwhere = [\"src\"]\n\n[tool.ruff]\ntarget-version = \"py310\"\nsrc = [\"src/requests\", \"tests\"]\nexclude = [\"docs/\", \"ext/\"]\n\n[tool.ruff.lint]\nselect = [\n    \"E\",      # pycodestyle errors\n    \"W\",      # pycodestyle warnings\n    \"F\",      # pyflakes\n    \"I\",      # isort\n    \"UP\",     # pyupgrade\n    \"T10\",    # flake8-debugger (replaces debug-statements hook)\n]\nignore = [\"E203\", \"E501\", \"UP031\"]\nper-file-ignores = {\"src/requests/__init__.py\" = [\"E402\", \"F401\"], \"src/requests/compat.py\" = [\"E402\", \"F401\"], \"tests/compat.py\" = [\"F401\"]}\n\n[tool.ruff.lint.isort]\nknown-first-party = [\"requests\"]\n\n[tool.ruff.format]\n# Use black-compatible formatting\nquote-style = \"double\"\nindent-style = \"space\"\n\n[tool.pytest.ini_options]\naddopts = \"--doctest-modules\"\ndoctest_optionflags = \"NORMALIZE_WHITESPACE ELLIPSIS\"\nminversion = \"6.2\"\ntestpaths = [\"tests\"]\n\n\n[tool.pyright]\ninclude = [\"src/requests\"]\ntypeCheckingMode = \"strict\"\n# linting rules unrelated to type checking\nreportPrivateUsage = false\nreportPrivateImportUsage = false\nreportUnnecessaryIsInstance = false\nreportUnusedImport = false  # duplicate of Ruff's F401 rule\ntests/test_hooks.py:1:import pytest\ntests/test_hooks.py:6:def hook(value):\ntests/test_hooks.py:10:@pytest.mark.parametrize(\ntests/test_hooks.py:17:def test_hooks(hooks_list, result):\ntests/test_hooks.py:21:def test_default_hooks():\ntests/conftest.py:2:    from http.server import HTTPServer, SimpleHTTPRequestHandler\ntests/conftest.py:10:import pytest\ntests/conftest.py:15:def prepare_url(value):\ntests/conftest.py:17:    httpbin_url = value.url.rstrip(\"/\") + \"/\"\ntests/conftest.py:19:    def inner(*suffix):\ntests/conftest.py:20:        return urljoin(httpbin_url, \"/\".join(suffix))\ntests/conftest.py:25:@pytest.fixture(autouse=True)\ntests/conftest.py:26:def clean_proxy_environ(monkeypatch):\ntests/conftest.py:34:@pytest.fixture\ntests/conftest.py:35:def httpbin(httpbin):\ntests/conftest.py:36:    return prepare_url(httpbin)\ntests/conftest.py:39:@pytest.fixture\ntests/conftest.py:40:def httpbin_secure(httpbin_secure):\ntests/conftest.py:41:    return prepare_url(httpbin_secure)\ntests/conftest.py:44:@pytest.fixture\ntests/conftest.py:45:def nosan_server(tmp_path_factory):\ntests/conftest.py:46:    # delay importing until the fixture in order to make it possible\ntests/conftest.py:53:    server_cert = ca.issue_cert(common_name=\"localhost\")\ntests/conftest.py:58:    server_cert.configure_cert(context)\ntests/conftest.py:59:    server = HTTPServer((\"localhost\", 0), SimpleHTTPRequestHandler)\ntests/conftest.py:60:    server.socket = context.wrap_socket(server.socket, server_side=True)\ntests/conftest.py:61:    server_thread = threading.Thread(target=server.serve_forever)\ntests/conftest.py:62:    server_thread.start()\ntests/conftest.py:64:    yield \"localhost\", server.server_address[1], ca_bundle\ntests/conftest.py:66:    server.shutdown()\ntests/conftest.py:67:    server_thread.join()\ntests/test_lowlevel.py:3:import pytest\ntests/test_lowlevel.py:7:from tests.testserver.server import Server, consume_socket_content\ntests/test_lowlevel.py:12:def echo_response_handler(sock):\ntests/test_lowlevel.py:24:def test_chunked_upload():\ntests/test_lowlevel.py:26:    close_server = threading.Event()\ntests/test_lowlevel.py:27:    server = Server.basic_response_server(wait_to_close_event=close_server)\ntests/test_lowlevel.py:30:    with server as (host, port):\ntests/test_lowlevel.py:33:        close_server.set()  # release server block\ntests/test_lowlevel.py:39:def test_chunked_encoding_error():\ntests/test_lowlevel.py:40:    \"\"\"get a ChunkedEncodingError if the server returns a bad response\"\"\"\ntests/test_lowlevel.py:42:    def incomplete_chunked_response_handler(sock):\ntests/test_lowlevel.py:45:        # The server never ends the request and doesn't provide any valid chunks\ntests/test_lowlevel.py:53:    close_server = threading.Event()\ntests/test_lowlevel.py:54:    server = Server(incomplete_chunked_response_handler)\ntests/test_lowlevel.py:56:    with server as (host, port):\ntests/test_lowlevel.py:58:        with pytest.raises(requests.exceptions.ChunkedEncodingError):\ntests/test_lowlevel.py:60:        close_server.set()  # release server block\ntests/test_lowlevel.py:63:def test_chunked_upload_uses_only_specified_host_header():\ntests/test_lowlevel.py:65:    close_server = threading.Event()\ntests/test_lowlevel.py:66:    server = Server(echo_response_handler, wait_to_close_event=close_server)\ntests/test_lowlevel.py:71:    with server as (host, port):\ntests/test_lowlevel.py:74:        close_server.set()  # release server block\ntests/test_lowlevel.py:81:def test_chunked_upload_doesnt_skip_host_header():\ntests/test_lowlevel.py:83:    close_server = threading.Event()\ntests/test_lowlevel.py:84:    server = Server(echo_response_handler, wait_to_close_event=close_server)\ntests/test_lowlevel.py:88:    with server as (host, port):\ntests/test_lowlevel.py:92:        close_server.set()  # release server block\ntests/test_lowlevel.py:99:def test_conflicting_content_lengths():\ntests/test_lowlevel.py:104:    def multiple_content_length_response_handler(sock):\ntests/test_lowlevel.py:117:    close_server = threading.Event()\ntests/test_lowlevel.py:118:    server = Server(multiple_content_length_response_handler)\ntests/test_lowlevel.py:120:    with server as (host, port):\ntests/test_lowlevel.py:122:        with pytest.raises(requests.exceptions.InvalidHeader):\ntests/test_lowlevel.py:124:        close_server.set()\ntests/test_lowlevel.py:127:def test_digestauth_401_count_reset_on_redirect():\ntests/test_lowlevel.py:152:    def digest_response_handler(sock):\ntests/test_lowlevel.py:176:    close_server = threading.Event()\ntests/test_lowlevel.py:177:    server = Server(digest_response_handler, wait_to_close_event=close_server)\ntests/test_lowlevel.py:179:    with server as (host, port):\ntests/test_lowlevel.py:182:        # Verify server succeeded in authenticating.\ntests/test_lowlevel.py:189:        close_server.set()\ntests/test_lowlevel.py:192:def test_digestauth_401_only_sent_once():\ntests/test_lowlevel.py:208:    def digest_failed_response_handler(sock):\ntests/test_lowlevel.py:226:    close_server = threading.Event()\ntests/test_lowlevel.py:227:    server = Server(digest_failed_response_handler, wait_to_close_event=close_server)\ntests/test_lowlevel.py:229:    with server as (host, port):\ntests/test_lowlevel.py:232:        # Verify server didn't authenticate us.\ntests/test_lowlevel.py:235:        close_server.set()\ntests/test_lowlevel.py:238:def test_digestauth_only_on_4xx():\ntests/test_lowlevel.py:251:    def digest_response_handler(sock):\ntests/test_lowlevel.py:263:    close_server = threading.Event()\ntests/test_lowlevel.py:264:    server = Server(digest_response_handler, wait_to_close_event=close_server)\ntests/test_lowlevel.py:266:    with server as (host, port):\ntests/test_lowlevel.py:269:        # Verify server didn't receive auth from us.\ntests/test_lowlevel.py:272:        close_server.set()\ntests/test_lowlevel.py:289:@pytest.mark.parametrize(\"var,scheme\", _proxy_combos)\ntests/test_lowlevel.py:290:def test_use_proxy_from_environment(httpbin, var, scheme):\ntests/test_lowlevel.py:291:    url = f\"{scheme}://httpbin.org\"\ntests/test_lowlevel.py:298:            with pytest.raises(requests.exceptions.ConnectionError):\ntests/test_lowlevel.py:308:def test_redirect_rfc1808_to_non_ascii_location():\ntests/test_lowlevel.py:311:    redirect_request = []  # stores the second request to the server\ntests/test_lowlevel.py:313:    def redirect_resp_handler(sock):\ntests/test_lowlevel.py:327:    close_server = threading.Event()\ntests/test_lowlevel.py:328:    server = Server(redirect_resp_handler, wait_to_close_event=close_server)\ntests/test_lowlevel.py:330:    with server as (host, port):\ntests/test_lowlevel.py:339:        close_server.set()\ntests/test_lowlevel.py:342:def test_fragment_not_sent_with_request():\ntests/test_lowlevel.py:343:    \"\"\"Verify that the fragment portion of a URI isn't sent to the server.\"\"\"\ntests/test_lowlevel.py:344:    close_server = threading.Event()\ntests/test_lowlevel.py:345:    server = Server(echo_response_handler, wait_to_close_event=close_server)\ntests/test_lowlevel.py:347:    with server as (host, port):\ntests/test_lowlevel.py:361:        close_server.set()\ntests/test_lowlevel.py:364:def test_fragment_update_on_redirect():\ntests/test_lowlevel.py:370:    def response_handler(sock):\ntests/test_lowlevel.py:388:    close_server = threading.Event()\ntests/test_lowlevel.py:389:    server = Server(response_handler, wait_to_close_event=close_server)\ntests/test_lowlevel.py:391:    with server as (host, port):\ntests/test_lowlevel.py:404:        close_server.set()\ntests/test_lowlevel.py:407:def test_json_decode_compatibility_for_alt_utf_encodings():\ntests/test_lowlevel.py:409:    def response_handler(sock):\ntests/test_lowlevel.py:417:    close_server = threading.Event()\ntests/test_lowlevel.py:418:    server = Server(response_handler, wait_to_close_event=close_server)\ntests/test_lowlevel.py:420:    with server as (host, port):\ntests/test_lowlevel.py:424:    with pytest.raises(requests.exceptions.JSONDecodeError) as excinfo:\n",
+        "command": "/bin/zsh -lc \"cat pyproject.toml; rg -n 'def .*|fixture|httpbin|server|pytest|pickle|gzip|iter_content' tests/conftest.py tests/test_lowlevel.py tests/test_hooks.py\"",
+        "exit_code": 0,
+        "id": "item_4",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 150504.513324125,
+      "utc": "2026-10-13T08:15:52.965490+00:00"
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"sed -n '1,135p' src/requests/sessions.py; sed -n '186,320p' src/requests/sessions.py; sed -n '427,505p' src/requests/sessions.py; sed -n '557,654p' src/requests/sessions.py; sed -n '752,840p' src/requests/sessions.py; sed -n '895,920p' src/requests/sessions.py\"",
+        "exit_code": null,
+        "id": "item_5",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 150528.088203041,
+      "utc": "2026-10-13T08:16:16.540359+00:00"
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"sed -n '25,80p' src/requests/models.py; sed -n '732,840p' src/requests/models.py; sed -n '900,1078p' src/requests/models.py; sed -n '1170,1200p' src/requests/models.py; sed -n '1,110p' src/requests/exceptions.py; sed -n '165,215p' src/requests/__init__.py\"",
+        "exit_code": null,
+        "id": "item_6",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 150528.088235958,
+      "utc": "2026-10-13T08:16:16.540401+00:00"
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": ")\n\nfrom urllib3.exceptions import (\n    DecodeError,\n    LocationParseError,\n    ProtocolError,\n    ReadTimeoutError,\n    SSLError,\n)\nfrom urllib3.fields import RequestField\nfrom urllib3.filepost import encode_multipart_formdata\nfrom urllib3.util import parse_url\n\nfrom . import _types as _t\nfrom ._internal_utils import to_native_string, unicode_is_ascii\nfrom .auth import HTTPBasicAuth\nfrom .compat import (\n    JSONDecodeError,\n    basestring,\n    builtin_str,\n    chardet,\n    cookielib,\n    urlencode,\n    urlsplit,\n    urlunparse,\n)\nfrom .compat import json as complexjson\nfrom .cookies import (\n    _copy_cookie_jar,\n    cookiejar_from_dict,\n    get_cookie_header,\n)\nfrom .exceptions import (\n    ChunkedEncodingError,\n    ConnectionError,\n    ContentDecodingError,\n    HTTPError,\n    InvalidJSONError,\n    InvalidURL,\n    MissingSchema,\n    StreamConsumedError,\n)\nfrom .exceptions import JSONDecodeError as RequestsJSONDecodeError\nfrom .exceptions import SSLError as RequestsSSLError\nfrom .hooks import default_hooks\nfrom .status_codes import codes\nfrom .structures import CaseInsensitiveDict\nfrom .utils import (\n    check_header_validity,\n    get_auth_from_url,\n    guess_filename,\n    guess_json_utf,\n    iter_slices,\n    parse_header_links,\n    requote_uri,\n    stream_decode_response_unicode,\nclass Response:\n    \"\"\"The :class:`Response <Response>` object, which contains a\n    server's response to an HTTP request.\n    \"\"\"\n\n    _content: bytes | Literal[False] | None\n    _content_consumed: bool\n    _next: PreparedRequest | None\n    status_code: int\n    headers: CaseInsensitiveDict[str]\n    raw: Any\n    url: str\n    encoding: str | None\n    history: list[Response]\n    reason: str\n    cookies: RequestsCookieJar\n    elapsed: datetime.timedelta\n    request: PreparedRequest\n    connection: HTTPAdapter\n\n    __attrs__: list[str] = [\n        \"_content\",\n        \"status_code\",\n        \"headers\",\n        \"url\",\n        \"history\",\n        \"encoding\",\n        \"reason\",\n        \"cookies\",\n        \"elapsed\",\n        \"request\",\n    ]\n\n    def __init__(self) -> None:\n        self._content = False\n        self._content_consumed = False\n        self._next = None\n\n        #: Integer Code of responded HTTP Status, e.g. 404 or 200.\n        self.status_code = None  # type: ignore[assignment]\n\n        #: Case-insensitive Dictionary of Response Headers.\n        #: For example, ``headers['content-encoding']`` will return the\n        #: value of a ``'Content-Encoding'`` response header.\n        self.headers = CaseInsensitiveDict()\n\n        #: File-like object representation of response (for advanced usage).\n        #: Use of ``raw`` requires that ``stream=True`` be set on the request.\n        #: This requirement does not apply for use internally to Requests.\n        self.raw = None\n\n        #: Final URL location of Response.\n        self.url = None  # type: ignore[assignment]\n\n        #: Encoding to decode with when accessing r.text.\n        self.encoding = None\n\n        #: A list of :class:`Response <Response>` objects from\n        #: the history of the Request. Any redirect responses will end\n        #: up here. The list is sorted from the oldest to the most recent request.\n        self.history = []\n\n        #: Textual reason of responded HTTP Status, e.g. \"Not Found\" or \"OK\".\n        self.reason = None  # type: ignore[assignment]\n\n        #: A CookieJar of Cookies the server sent back.\n        self.cookies = cookiejar_from_dict({})\n\n        #: The amount of time elapsed between sending the request\n        #: and the arrival of the response (as a timedelta).\n        #: This property specifically measures the time taken between sending\n        #: the first byte of the request and finishing parsing the headers. It\n        #: is therefore unaffected by consuming the response content or the\n        #: value of the ``stream`` keyword argument.\n        self.elapsed = datetime.timedelta(0)\n\n        #: The :class:`PreparedRequest <PreparedRequest>` object to which this\n        #: is a response.\n        self.request = None  # type: ignore[assignment]\n\n    def __enter__(self) -> Self:\n        return self\n\n    def __exit__(self, *args: Any) -> None:\n        self.close()\n\n    def __getstate__(self) -> dict[str, Any]:\n        # Consume everything; accessing the content attribute makes\n        # sure the content has been fully read.\n        if not self._content_consumed:\n            self.content\n\n        return {attr: getattr(self, attr, None) for attr in self.__attrs__}\n\n    def __setstate__(self, state: dict[str, Any]) -> None:\n        for name, value in state.items():\n            setattr(self, name, value)\n\n        # pickled objects do not have .raw\n        setattr(self, \"_content_consumed\", True)\n        setattr(self, \"raw\", None)\n\n    def __repr__(self) -> str:\n        return f\"<Response [{self.status_code}]>\"\n\n    def __bool__(self) -> bool:\n        \"\"\"Returns True if :attr:`status_code` is less than 400.\n\n        This attribute checks if the status code of the response is between\n            return chardet.detect(self.content)[\"encoding\"]\n        else:\n            # If no character detection library is available, we'll fall back\n            # to a standard Python utf-8 str.\n            return \"utf-8\"\n\n    @overload\n    def iter_content(\n        self, chunk_size: int | None = 1, decode_unicode: Literal[False] = False\n    ) -> Iterator[bytes]: ...\n    @overload\n    def iter_content(\n        self, chunk_size: int | None = 1, *, decode_unicode: Literal[True]\n    ) -> Iterator[str | bytes]: ...\n    def iter_content(\n        self, chunk_size: int | None = 1, decode_unicode: bool = False\n    ) -> Iterator[str | bytes]:\n        \"\"\"Iterates over the response data.  When stream=True is set on the\n        request, this avoids reading the content at once into memory for\n        large responses.  The chunk size is the number of bytes it should\n        read into memory.  This is not necessarily the length of each item\n        returned as decoding can take place.\n\n        chunk_size must be of type int or None. A value of None will\n        function differently depending on the value of `stream`.\n        stream=True will read data as it arrives in whatever size the\n        chunks are received. If stream=False, data is returned as\n        a single chunk.\n\n        If decode_unicode is True, content will be decoded using encoding\n        information from the response. If no encoding information is available,\n        bytes will be returned. This can be bypassed by manually setting\n        `encoding` on the response.\n        \"\"\"\n\n        def generate() -> Generator[bytes, None, None]:\n            # Special case for urllib3.\n            if hasattr(self.raw, \"stream\"):\n                try:\n                    yield from self.raw.stream(chunk_size, decode_content=True)\n                except ProtocolError as e:\n                    raise ChunkedEncodingError(e)\n                except DecodeError as e:\n                    raise ContentDecodingError(e)\n                except ReadTimeoutError as e:\n                    raise ConnectionError(e)\n                except SSLError as e:\n                    raise RequestsSSLError(e)\n            else:\n                # Standard file-like object.\n                while True:\n                    chunk = self.raw.read(chunk_size)\n                    if not chunk:\n                        break\n                    yield chunk\n\n            self._content_consumed = True\n\n        if self._content_consumed and isinstance(self._content, bool):\n            raise StreamConsumedError()\n        elif chunk_size is not None and not isinstance(\n            chunk_size, int\n        ):  # runtime guard for untyped callers\n            raise TypeError(\n                f\"chunk_size must be an int, it is instead a {type(chunk_size)}.\"\n            )\n\n        if self._content_consumed:\n            # simulate reading small chunks of the content\n            content = cast(bytes, self._content)\n            chunks = iter_slices(content, chunk_size)\n        else:\n            chunks = generate()\n\n        if decode_unicode:\n            chunks = stream_decode_response_unicode(chunks, self)\n\n        return chunks\n\n    @overload\n    def iter_lines(\n        self,\n        chunk_size: int = ITER_CHUNK_SIZE,\n        decode_unicode: Literal[False] = False,\n        delimiter: bytes | None = None,\n    ) -> Iterator[bytes]: ...\n    @overload\n    def iter_lines(\n        self,\n        chunk_size: int = ITER_CHUNK_SIZE,\n        *,\n        decode_unicode: Literal[True],\n        delimiter: str | bytes | None = None,\n    ) -> Iterator[str | bytes]: ...\n    def iter_lines(\n        self,\n        chunk_size: int = ITER_CHUNK_SIZE,\n        decode_unicode: bool = False,\n        delimiter: str | bytes | None = None,\n    ) -> Iterator[str | bytes]:\n        \"\"\"Iterates over the response data, one line at a time.  When\n        stream=True is set on the request, this avoids reading the\n        content at once into memory for large responses.\n\n        The decode_unicode param works the same as in `iter_content`, with the\n        same caveats.\n\n        .. note:: This method is not reentrant safe.\n        \"\"\"\n\n        pending: str | bytes | None = None\n\n        for chunk in self.iter_content(\n            chunk_size=chunk_size, decode_unicode=decode_unicode\n        ):\n            if pending is not None:\n                # TODO: remove cast after iter_lines rewrite\n                chunk = cast(\"str | bytes\", pending + chunk)\n\n            if delimiter:\n                lines = chunk.split(delimiter)  # type: ignore[arg-type]\n            else:\n                lines = chunk.splitlines()\n\n            if lines and lines[-1] and chunk and lines[-1][-1] == chunk[-1]:\n                pending = lines.pop()\n            else:\n                pending = None\n\n            yield from lines\n\n        if pending is not None:\n            yield pending\n\n    @property\n    def content(self) -> bytes:\n        \"\"\"Content of the response, in bytes.\"\"\"\n\n        if self._content is False:\n            # Read the contents.\n            if self._content_consumed:\n                raise RuntimeError(\"The content for this response was already consumed\")\n\n            if self.status_code == 0 or self.raw is None:\n                self._content = None\n            else:\n                self._content = b\"\".join(self.iter_content(CONTENT_CHUNK_SIZE)) or b\"\"\n\n        self._content_consumed = True\n        # don't need to release the connection; that's been handled by urllib3\n        # since we exhausted the data.\n        return self._content  # type: ignore[return-value]\n\n    @property\n    def text(self) -> str:\n        \"\"\"Content of the response, in unicode.\n\n        If Response.encoding is None, encoding will be guessed using\n        ``charset_normalizer`` or ``chardet``.\n\n        The encoding of the response content is determined based solely on HTTP\n        headers, following RFC 2616 to the letter. If you can take advantage of\n        non-HTTP knowledge to make a better guess at the encoding, you should\n        set ``r.encoding`` appropriately before accessing this property.\n        \"\"\"\n\n        # Try charset from content-type\n        content = None\n        encoding = self.encoding\n\n        if not self.content:\n            return \"\"\n\n        # Fallback to auto-detected encoding.\n        if self.encoding is None:\n            encoding = self.apparent_encoding\n\n        # Decode unicode from given encoding.\n        try:\n        if http_error_msg:\n            raise HTTPError(http_error_msg, response=self)\n\n    def close(self) -> None:\n        \"\"\"Releases the connection back to the pool. Once this method has been\n        called the underlying ``raw`` object must not be accessed again.\n\n        *Note: Should not normally need to be called explicitly.*\n        \"\"\"\n        if not self._content_consumed:\n            self.raw.close()\n\n        release_conn = getattr(self.raw, \"release_conn\", None)\n        if release_conn is not None:\n            release_conn()\n\"\"\"\nrequests.exceptions\n~~~~~~~~~~~~~~~~~~~\n\nThis module contains the set of Requests' exceptions.\n\"\"\"\n\nfrom __future__ import annotations\n\nfrom typing import TYPE_CHECKING, Any\n\nfrom urllib3.exceptions import HTTPError as BaseHTTPError\n\nfrom .compat import JSONDecodeError as CompatJSONDecodeError\n\nif TYPE_CHECKING:\n    from .models import PreparedRequest, Request, Response\n\n\nclass RequestException(IOError):\n    \"\"\"There was an ambiguous exception that occurred while handling your\n    request.\n    \"\"\"\n\n    response: Response | None\n    request: Request | PreparedRequest | None\n\n    def __init__(self, *args: Any, **kwargs: Any) -> None:\n        \"\"\"Initialize RequestException with `request` and `response` objects.\"\"\"\n        response: Response | None = kwargs.pop(\"response\", None)\n        self.response = response\n        self.request = kwargs.pop(\"request\", None)\n        if response is not None and not self.request and hasattr(response, \"request\"):\n            self.request = response.request\n        super().__init__(*args, **kwargs)\n\n\nclass InvalidJSONError(RequestException):\n    \"\"\"A JSON error occurred.\"\"\"\n\n\nclass JSONDecodeError(InvalidJSONError, CompatJSONDecodeError):\n    \"\"\"Couldn't decode the text into json\"\"\"\n\n    def __init__(self, *args: Any, **kwargs: Any) -> None:\n        \"\"\"\n        Construct the JSONDecodeError instance first with all\n        args. Then use it's args to construct the IOError so that\n        the json specific args aren't used as IOError specific args\n        and the error message from JSONDecodeError is preserved.\n        \"\"\"\n        CompatJSONDecodeError.__init__(self, *args)\n        InvalidJSONError.__init__(self, *self.args, **kwargs)\n\n    def __reduce__(self) -> tuple[Any, ...] | str:\n        \"\"\"\n        The __reduce__ method called when pickling the object must\n        be the one from the JSONDecodeError (be it json/simplejson)\n        as it expects all the arguments for instantiation, not just\n        one like the IOError, and the MRO would by default call the\n        __reduce__ method from the IOError due to the inheritance order.\n        \"\"\"\n        return CompatJSONDecodeError.__reduce__(self)\n\n\nclass HTTPError(RequestException):\n    \"\"\"An HTTP error occurred.\"\"\"\n\n\nclass ConnectionError(RequestException):\n    \"\"\"A Connection error occurred.\"\"\"\n\n\nclass ProxyError(ConnectionError):\n    \"\"\"A proxy error occurred.\"\"\"\n\n\nclass SSLError(ConnectionError):\n    \"\"\"An SSL error occurred.\"\"\"\n\n\nclass Timeout(RequestException):\n    \"\"\"The request timed out.\n\n    Catching this error will catch both\n    :exc:`~requests.exceptions.ConnectTimeout` and\n    :exc:`~requests.exceptions.ReadTimeout` errors.\n    \"\"\"\n\n\nclass ConnectTimeout(ConnectionError, Timeout):\n    \"\"\"The request timed out while trying to connect to the remote server.\n\n    Requests that produced this error are safe to retry.\n    \"\"\"\n\n\nclass ReadTimeout(Timeout):\n    \"\"\"The server did not send any data in the allotted amount of time.\"\"\"\n\n\nclass URLRequired(RequestException):\n    \"\"\"A valid URL is required to make a request.\"\"\"\n\n\nclass TooManyRedirects(RequestException):\n    \"\"\"Too many redirects.\"\"\"\n\n\nclass MissingSchema(RequestException, ValueError):\n    __description__,\n    __license__,\n    __title__,\n    __url__,\n    __version__,\n)\nfrom .api import delete, get, head, options, patch, post, put, request\nfrom .exceptions import (\n    ConnectionError,\n    ConnectTimeout,\n    FileModeWarning,\n    HTTPError,\n    JSONDecodeError,\n    ReadTimeout,\n    RequestException,\n    Timeout,\n    TooManyRedirects,\n    URLRequired,\n)\nfrom .models import PreparedRequest, Request, Response\nfrom .sessions import Session, session\nfrom .status_codes import codes\n\n__all__ = (\n    \"ConnectionError\",\n    \"ConnectTimeout\",\n    \"HTTPError\",\n    \"JSONDecodeError\",\n    \"PreparedRequest\",\n    \"ReadTimeout\",\n    \"Request\",\n    \"RequestException\",\n    \"Response\",\n    \"Session\",\n    \"Timeout\",\n    \"TooManyRedirects\",\n    \"URLRequired\",\n    \"codes\",\n    \"delete\",\n    \"get\",\n    \"head\",\n    \"options\",\n    \"packages\",\n    \"patch\",\n    \"post\",\n    \"put\",\n    \"request\",\n    \"session\",\n    \"utils\",\n)\n\n",
+        "command": "/bin/zsh -lc \"sed -n '25,80p' src/requests/models.py; sed -n '732,840p' src/requests/models.py; sed -n '900,1078p' src/requests/models.py; sed -n '1170,1200p' src/requests/models.py; sed -n '1,110p' src/requests/exceptions.py; sed -n '165,215p' src/requests/__init__.py\"",
+        "exit_code": 0,
+        "id": "item_6",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 150528.088292458,
+      "utc": "2026-10-13T08:16:16.540458+00:00"
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "\"\"\"\nrequests.sessions\n~~~~~~~~~~~~~~~~~\n\nThis module provides a Session object to manage and persist settings across\nrequests (cookies, auth, proxies).\n\"\"\"\n\nfrom __future__ import annotations\n\nimport os\nimport sys\nimport time\nfrom collections import OrderedDict\nfrom collections.abc import Generator, Mapping, MutableMapping\nfrom datetime import timedelta\nfrom typing import TYPE_CHECKING, Any, cast\n\nfrom ._internal_utils import to_native_string\nfrom ._types import is_prepared as _is_prepared\nfrom .adapters import HTTPAdapter\nfrom .auth import _basic_auth_str\nfrom .compat import cookielib, urljoin, urlparse\nfrom .cookies import (\n    RequestsCookieJar,\n    cookiejar_from_dict,\n    extract_cookies_to_jar,\n    merge_cookies,\n)\nfrom .exceptions import (\n    ChunkedEncodingError,\n    ContentDecodingError,\n    InvalidSchema,\n    TooManyRedirects,\n)\nfrom .hooks import default_hooks, dispatch_hook\n\n# formerly defined here, reexposed here for backward compatibility\nfrom .models import (  # noqa: F401\n    DEFAULT_REDIRECT_LIMIT,\n    REDIRECT_STATI,\n    PreparedRequest,\n    Request,\n    Response,\n)\nfrom .status_codes import codes\nfrom .structures import CaseInsensitiveDict\nfrom .utils import (  # noqa: F401\n    DEFAULT_PORTS,\n    default_headers,\n    get_auth_from_url,\n    get_environ_proxies,\n    get_netrc_auth,\n    requote_uri,\n    resolve_proxies,\n    rewind_body,\n    should_bypass_proxies,  # re-export for external consumers\n    to_key_val_list,\n)\n\nif TYPE_CHECKING:\n    from http.cookiejar import CookieJar\n\n    from typing_extensions import Self, Unpack\n\n    from . import _types as _t\n    from .adapters import BaseAdapter\n\n# Preferred clock, based on which one is more accurate on a given system.\nif sys.platform == \"win32\":\n    preferred_clock = time.perf_counter\nelse:\n    preferred_clock = time.time\n\n\ndef merge_setting(\n    request_setting: Any, session_setting: Any, dict_class: type = OrderedDict\n) -> Any:\n    \"\"\"Determines appropriate setting for a given request, taking into account\n    the explicit setting on that request, and the setting in the session. If a\n    setting is a dictionary, they will be merged together using `dict_class`\n    \"\"\"\n\n    if session_setting is None:\n        return request_setting\n\n    if request_setting is None:\n        return session_setting\n\n    # Bypass if not a dictionary (e.g. verify)\n    if not (\n        isinstance(session_setting, Mapping) and isinstance(request_setting, Mapping)\n    ):\n        return request_setting\n\n    merged_setting = dict_class(to_key_val_list(session_setting))  # type: ignore[arg-type]  # isinstance narrows Any to Mapping[Unknown]\n    merged_setting.update(to_key_val_list(request_setting))  # type: ignore[arg-type]\n\n    # Remove keys that are set to None. Extract keys first to avoid altering\n    # the dictionary during iteration.\n    none_keys = [k for (k, v) in merged_setting.items() if v is None]\n    for key in none_keys:\n        del merged_setting[key]\n\n    return merged_setting\n\n\ndef merge_hooks(\n    request_hooks: _t.HooksType,\n    session_hooks: _t.HooksType,\n    dict_class: type = OrderedDict,\n) -> _t.HooksType:\n    \"\"\"Properly merges both requests and session hooks.\n\n    This is necessary because when request_hooks == {'response': []}, the\n    merge breaks Session hooks entirely.\n    \"\"\"\n    if session_hooks is None or session_hooks.get(\"response\") == []:\n        return request_hooks\n\n    if request_hooks is None or request_hooks.get(\"response\") == []:\n        return session_hooks\n\n    return merge_setting(request_hooks, session_hooks, dict_class)\n\n\nclass SessionRedirectMixin:\n    max_redirects: int\n    trust_env: bool\n    cookies: RequestsCookieJar\n\n    def send(self, request: PreparedRequest, **kwargs: Any) -> Response: ...\n\n    def get_redirect_target(self, resp: Response) -> str | None:\n        \"\"\"Receives a Response. Returns a redirect URI or ``None``\"\"\"\n    def resolve_redirects(\n        self,\n        resp: Response,\n        req: PreparedRequest,\n        stream: bool = False,\n        timeout: _t.TimeoutType = None,\n        verify: _t.VerifyType = True,\n        cert: _t.CertType = None,\n        proxies: dict[str, str] | None = None,\n        yield_requests: bool = False,\n        **adapter_kwargs: Any,\n    ) -> Generator[Response, None, None]:\n        \"\"\"Receives a Response. Returns a generator of Responses or Requests.\"\"\"\n\n        hist: list[Response] = []  # keep track of history\n\n        url = self.get_redirect_target(resp)\n        previous_fragment = urlparse(req.url).fragment\n        while url:\n            prepared_request = req.copy()\n\n            # Update history and keep track of redirects.\n            resp.history = hist[:]\n            hist.append(resp)\n\n            try:\n                resp.content  # Consume socket so it can be released\n            except (ChunkedEncodingError, ContentDecodingError, RuntimeError):\n                resp.raw.read(decode_content=False)\n\n            if len(resp.history) >= self.max_redirects:\n                raise TooManyRedirects(\n                    f\"Exceeded {self.max_redirects} redirects.\", response=resp\n                )\n\n            # Release the connection back into the pool.\n            resp.close()\n\n            # Handle redirection without scheme (see: RFC 1808 Section 4)\n            if url.startswith(\"//\"):\n                parsed_rurl = urlparse(resp.url)\n                url = \":\".join([to_native_string(parsed_rurl.scheme), url])\n\n            # Normalize url case and attach previous fragment if needed (RFC 7231 7.1.2)\n            parsed = urlparse(url)\n            if parsed.fragment == \"\" and previous_fragment:\n                parsed = parsed._replace(fragment=previous_fragment)\n            elif parsed.fragment:\n                previous_fragment = parsed.fragment\n            url = parsed.geturl()\n\n            # Facilitate relative 'location' headers, as allowed by RFC 7231.\n            # (e.g. '/path/to/resource' instead of 'http://domain.tld/path/to/resource')\n            # Compliant with RFC3986, we percent encode the url.\n            if not parsed.netloc:\n                url = urljoin(resp.url, requote_uri(url))\n            else:\n                url = requote_uri(url)\n\n            prepared_request.url = to_native_string(url)\n\n            self.rebuild_method(prepared_request, resp)\n\n            # https://github.com/psf/requests/issues/1084\n            if resp.status_code not in (\n                codes.temporary_redirect,\n                codes.permanent_redirect,\n            ):\n                # https://github.com/psf/requests/issues/3490\n                purged_headers = (\"Content-Length\", \"Content-Type\", \"Transfer-Encoding\")\n                for header in purged_headers:\n                    prepared_request.headers.pop(header, None)\n                prepared_request.body = None\n\n            headers = prepared_request.headers\n            headers.pop(\"Cookie\", None)\n\n            # Extract any cookies sent on the response to the cookiejar\n            # in the new request. Because we've mutated our copied prepared\n            # request, use the old one that we haven't yet touched.\n            cookie_jar = cast(\"CookieJar\", prepared_request._cookies)\n            extract_cookies_to_jar(cookie_jar, req, resp.raw)\n            merge_cookies(cookie_jar, self.cookies)\n            prepared_request.prepare_cookies(cookie_jar)\n\n            # Rebuild auth and proxy information.\n            proxies = self.rebuild_proxies(prepared_request, proxies)\n            self.rebuild_auth(prepared_request, resp)\n\n            # A failed tell() sets `_body_position` to `object()`. This non-None\n            # value ensures `rewindable` will be True, allowing us to raise an\n            # UnrewindableBodyError, instead of hanging the connection.\n            rewindable = prepared_request._body_position is not None and (\n                \"Content-Length\" in headers or \"Transfer-Encoding\" in headers\n            )\n\n            # Attempt to rewind consumed file-like object.\n            if rewindable:\n                rewind_body(prepared_request)\n\n            # Override the original request.\n            req = prepared_request\n\n            if yield_requests:\n                yield req  # type: ignore[misc]  # Internal use only, returns PreparedRequest\n            else:\n                resp = self.send(\n                    req,\n                    stream=stream,\n                    timeout=timeout,\n                    verify=verify,\n                    cert=cert,\n                    proxies=proxies,\n                    allow_redirects=False,\n                    **adapter_kwargs,\n                )\n\n                extract_cookies_to_jar(self.cookies, prepared_request, resp.raw)\n\n                # extract redirect url, if any, for the next loop\n                url = self.get_redirect_target(resp)\n                yield resp\n\n    def rebuild_auth(\n        self, prepared_request: PreparedRequest, response: Response\n    ) -> None:\n        \"\"\"When being redirected we may want to strip authentication from the\n        request to avoid leaking credentials. This method intelligently removes\n        and reapplies authentication where possible to avoid credential loss.\n        \"\"\"\n        original_request = response.request\n        assert _is_prepared(original_request)\n        assert _is_prepared(prepared_request)\n\n        headers = prepared_request.headers\n    __attrs__: list[str] = [\n        \"headers\",\n        \"cookies\",\n        \"auth\",\n        \"proxies\",\n        \"hooks\",\n        \"params\",\n        \"verify\",\n        \"cert\",\n        \"adapters\",\n        \"stream\",\n        \"trust_env\",\n        \"max_redirects\",\n    ]\n\n    def __init__(self) -> None:\n        #: A case-insensitive dictionary of headers to be sent on each\n        #: :class:`Request <Request>` sent from this\n        #: :class:`Session <Session>`.\n        self.headers = default_headers()\n\n        #: Default Authentication tuple or object to attach to\n        #: :class:`Request <Request>`.\n        self.auth = None\n\n        #: Dictionary mapping protocol or protocol and host to the URL of the proxy\n        #: (e.g. {'http': 'foo.bar:3128', 'http://host.name': 'foo.bar:4012'}) to\n        #: be used on each :class:`Request <Request>`.\n        self.proxies = {}\n\n        #: Event-handling hooks.\n        self.hooks = default_hooks()\n\n        #: Dictionary of querystring data to attach to each\n        #: :class:`Request <Request>`. The dictionary values may be lists for\n        #: representing multivalued query parameters.\n        self.params = {}\n\n        #: Stream response content default.\n        self.stream = False\n\n        #: SSL Verification default.\n        #: Defaults to `True`, requiring requests to verify the TLS certificate at the\n        #: remote end.\n        #: If verify is set to `False`, requests will accept any TLS certificate\n        #: presented by the server, and will ignore hostname mismatches and/or\n        #: expired certificates, which will make your application vulnerable to\n        #: man-in-the-middle (MitM) attacks.\n        #: Only set this to `False` for testing.\n        #: If verify is set to a string, it must be the path to a CA bundle file\n        #: that will be used to verify the TLS certificate.\n        self.verify = True\n\n        #: SSL client certificate default, if String, path to ssl client\n        #: cert file (.pem). If Tuple, ('cert', 'key') pair.\n        self.cert = None\n\n        #: Maximum number of redirects allowed. If the request exceeds this\n        #: limit, a :class:`TooManyRedirects` exception is raised.\n        #: This defaults to requests.models.DEFAULT_REDIRECT_LIMIT, which is\n        #: 30.\n        self.max_redirects = DEFAULT_REDIRECT_LIMIT\n\n        #: Trust environment settings for proxy configuration, default\n        #: authentication and similar.\n        self.trust_env = True\n\n        #: A CookieJar containing all currently outstanding cookies set on this\n        #: session. By default it is a\n        #: :class:`RequestsCookieJar <requests.cookies.RequestsCookieJar>`, but\n        #: may be any other ``cookielib.CookieJar`` compatible object.\n        self.cookies = cookiejar_from_dict({})\n\n        # Default connection adapters.\n        self.adapters = OrderedDict()\n        self.mount(\"https://\", HTTPAdapter())\n        self.mount(\"http://\", HTTPAdapter())\n\n    def __enter__(self) -> Self:\n    def request(\n        self,\n        method: str,\n        url: _t.UriType,\n        params: _t.ParamsType = None,\n        data: _t.DataType = None,\n        headers: _t.HeadersType = None,\n        cookies: RequestsCookieJar | CookieJar | dict[str, str] | None = None,\n        files: _t.FilesType = None,\n        auth: _t.AuthType = None,\n        timeout: _t.TimeoutType = None,\n        allow_redirects: bool = True,\n        proxies: dict[str, str] | None = None,\n        hooks: _t.HooksInputType | None = None,\n        stream: bool | None = None,\n        verify: _t.VerifyType | None = None,\n        cert: _t.CertType = None,\n        json: _t.JsonType = None,\n    ) -> Response:\n        \"\"\"Constructs a :class:`Request <Request>`, prepares it and sends it.\n        Returns :class:`Response <Response>` object.\n\n        :param method: method for the new :class:`Request` object.\n        :param url: URL for the new :class:`Request` object.\n        :param params: (optional) Dictionary or bytes to be sent in the query\n            string for the :class:`Request`.\n        :param data: (optional) Dictionary, list of tuples, bytes, or file-like\n            object to send in the body of the :class:`Request`.\n        :param json: (optional) json to send in the body of the\n            :class:`Request`.\n        :param headers: (optional) Dictionary of HTTP Headers to send with the\n            :class:`Request`.\n        :param cookies: (optional) Dict or CookieJar object to send with the\n            :class:`Request`.\n        :param files: (optional) Dictionary of ``'filename': file-like-objects``\n            for multipart encoding upload.\n        :param auth: (optional) Auth tuple or callable to enable\n            Basic/Digest/Custom HTTP Auth.\n        :param timeout: (optional) How many seconds to wait for the server to send\n            data before giving up, as a float, or a :ref:`(connect timeout,\n            read timeout) <timeouts>` tuple.\n        :type timeout: float or tuple\n        :param allow_redirects: (optional) Set to True by default.\n        :type allow_redirects: bool\n        :param proxies: (optional) Dictionary mapping protocol or protocol and\n            hostname to the URL of the proxy.\n        :param hooks: (optional) Dictionary mapping hook name to one event or\n            list of events, event must be callable.\n        :param stream: (optional) whether to immediately download the response\n            content. Defaults to ``False``.\n        :param verify: (optional) Either a boolean, in which case it controls whether we verify\n            the server's TLS certificate, or a string, in which case it must be a path\n            to a CA bundle to use. Defaults to ``True``. When set to\n            ``False``, requests will accept any TLS certificate presented by\n            the server, and will ignore hostname mismatches and/or expired\n            certificates, which will make your application vulnerable to\n            man-in-the-middle (MitM) attacks. Setting verify to ``False``\n            may be useful during local development or testing.\n        :param cert: (optional) if String, path to ssl client cert file (.pem).\n            If Tuple, ('cert', 'key') pair.\n        :rtype: requests.Response\n        \"\"\"\n        if isinstance(url, bytes):\n            url = url.decode(\"utf-8\")\n\n        # Create the Request.\n        req = Request(\n            method=method.upper(),\n            url=url,\n            headers=headers,\n            files=files,\n            data=data or {},\n            json=json,\n            params=params or {},\n            auth=auth,\n            cookies=cookies,\n            hooks=hooks,\n        )\n        prep = self.prepare_request(req)\n\n        assert _is_prepared(prep)\n\n        proxies = proxies or {}\n\n        settings = self.merge_environment_settings(\n            prep.url, proxies, stream, verify, cert\n        )\n\n        # Send the request.\n        send_kwargs = {\n            \"timeout\": timeout,\n            \"allow_redirects\": allow_redirects,\n        }\n        send_kwargs.update(settings)\n        resp = self.send(prep, **send_kwargs)\n\n        return resp\n\n    def send(self, request: PreparedRequest, **kwargs: Any) -> Response:\n        \"\"\"Send a given PreparedRequest.\n\n        :rtype: requests.Response\n        \"\"\"\n        # Set defaults that the hooks can utilize to ensure they always have\n        # the correct parameters to reproduce the previous request.\n        kwargs.setdefault(\"stream\", self.stream)\n        kwargs.setdefault(\"verify\", self.verify)\n        kwargs.setdefault(\"cert\", self.cert)\n        if \"proxies\" not in kwargs:\n            kwargs[\"proxies\"] = resolve_proxies(request, self.proxies, self.trust_env)\n\n        # It's possible that users might accidentally send a Request object.\n        # Guard against that specific failure case.\n        if isinstance(request, Request):\n            raise ValueError(\"You can only send PreparedRequests.\")\n\n        assert _is_prepared(request)\n\n        # Set up variables needed for resolve_redirects and dispatching of hooks\n        allow_redirects = kwargs.pop(\"allow_redirects\", True)\n        stream = kwargs.get(\"stream\")\n        hooks = request.hooks\n\n        # Get the appropriate adapter to use\n        adapter = self.get_adapter(url=request.url)\n\n        # Start time (approximately) of the request\n        start = preferred_clock()\n\n        # Send the request\n        r = adapter.send(request, **kwargs)\n\n        # Total elapsed time of the request (approximately)\n        elapsed = preferred_clock() - start\n        r.elapsed = timedelta(seconds=elapsed)\n\n        # Response manipulation hooks\n        r = dispatch_hook(\"response\", hooks, r, **kwargs)\n\n        # Persist cookies\n        if r.history:\n            # If the hooks create history then we want those cookies too\n            for resp in r.history:\n                extract_cookies_to_jar(self.cookies, resp.request, resp.raw)\n\n        extract_cookies_to_jar(self.cookies, request, r.raw)\n\n        # Resolve redirects if allowed.\n        if allow_redirects:\n            # Redirect resolving generator.\n            gen = self.resolve_redirects(r, request, **kwargs)\n            history = [resp for resp in gen]\n        else:\n            history = []\n\n        # Shuffle things around if there's history.\n        if history:\n            # Insert the first (original) request at the start\n            history.insert(0, r)\n            # Get the last request made\n            r = history.pop()\n            r.history = history\n\n        # If redirects aren't being followed, store the response on the Request for Response.next().\n        if not allow_redirects:\n            try:\n                r._next = next(  # type: ignore[assignment]  # yield_requests=True returns PreparedRequest\n                    self.resolve_redirects(r, request, yield_requests=True, **kwargs)\n                )\n            except StopIteration:\n                pass\n\n        if not stream:\n            r.content\n\n        return r\n\n    def merge_environment_settings(\n        self,\n        url: str,\n        proxies: dict[str, str] | None,\n        stream: bool | None,\n        verify: _t.VerifyType | None,\n        cert: _t.CertType,\n    ) -> dict[str, Any]:\n        \"\"\"\n        Check the environment and merge it with some settings.\n\n        for key in keys_to_move:\n            self.adapters[key] = self.adapters.pop(key)\n\n    def __getstate__(self) -> dict[str, Any]:\n        state = {attr: getattr(self, attr, None) for attr in self.__attrs__}\n        return state\n\n    def __setstate__(self, state: dict[str, Any]) -> None:\n        for attr, value in state.items():\n            setattr(self, attr, value)\n\n\ndef session() -> Session:\n    \"\"\"\n    Returns a :class:`Session` for context-management.\n\n    .. deprecated:: 1.0.0\n\n        This method has been deprecated since version 1.0.0 and is only kept for\n        backwards compatibility. New code should use :class:`~requests.sessions.Session`\n        to create a session. This may be removed at a future date.\n\n    :rtype: Session\n    \"\"\"\n    return Session()\n",
+        "command": "/bin/zsh -lc \"sed -n '1,135p' src/requests/sessions.py; sed -n '186,320p' src/requests/sessions.py; sed -n '427,505p' src/requests/sessions.py; sed -n '557,654p' src/requests/sessions.py; sed -n '752,840p' src/requests/sessions.py; sed -n '895,920p' src/requests/sessions.py\"",
+        "exit_code": 0,
+        "id": "item_5",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 150528.088361083,
+      "utc": "2026-10-13T08:16:16.540529+00:00"
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"git status --short; sed -n '1,155p' src/requests/api.py; rg --files tests; rg -n '\"'^class Test|def test_.*(content|stream|pickle|redirect|hook|gzip|session|encoding)'\"' tests/test_requests.py\"",
+        "exit_code": null,
+        "id": "item_7",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 150528.093122666,
+      "utc": "2026-10-13T08:16:16.545290+00:00"
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "\"\"\"\nrequests.api\n~~~~~~~~~~~~\n\nThis module implements the Requests API.\n\n:copyright: (c) 2012 by Kenneth Reitz.\n:license: Apache2, see LICENSE for more details.\n\"\"\"\n\nfrom __future__ import annotations\n\nfrom typing import TYPE_CHECKING\n\nfrom . import sessions\nfrom .models import Response\n\nif TYPE_CHECKING:\n    from typing_extensions import Unpack\n\n    from . import _types as _t\n\n\ndef request(\n    method: str, url: _t.UriType, **kwargs: Unpack[_t.RequestKwargs]\n) -> Response:\n    \"\"\"Constructs and sends a :class:`Request <Request>`.\n\n    :param method: method for the new :class:`Request` object: ``GET``, ``OPTIONS``, ``HEAD``, ``POST``, ``PUT``, ``PATCH``, or ``DELETE``.\n    :param url: URL for the new :class:`Request` object.\n    :param params: (optional) Dictionary, list of tuples or bytes to send\n        in the query string for the :class:`Request`.\n    :param data: (optional) Dictionary, list of tuples, bytes, or file-like\n        object to send in the body of the :class:`Request`.\n    :param json: (optional) A JSON serializable Python object to send in the body of the :class:`Request`.\n    :param headers: (optional) Dictionary of HTTP Headers to send with the :class:`Request`.\n    :param cookies: (optional) Dict or CookieJar object to send with the :class:`Request`.\n    :param files: (optional) Dictionary of ``'name': file-like-objects`` (or ``{'name': file-tuple}``) for multipart encoding upload.\n        ``file-tuple`` can be a 2-tuple ``('filename', fileobj)``, 3-tuple ``('filename', fileobj, 'content_type')``\n        or a 4-tuple ``('filename', fileobj, 'content_type', custom_headers)``, where ``'content_type'`` is a string\n        defining the content type of the given file and ``custom_headers`` a dict-like object containing additional headers\n        to add for the file.\n    :param auth: (optional) Auth tuple to enable Basic/Digest/Custom HTTP Auth.\n    :param timeout: (optional) How many seconds to wait for the server to send data\n        before giving up, as a float, or a :ref:`(connect timeout, read\n        timeout) <timeouts>` tuple.\n    :type timeout: float or tuple\n    :param allow_redirects: (optional) Boolean. Enable/disable GET/OPTIONS/POST/PUT/PATCH/DELETE/HEAD redirection. Defaults to ``True``.\n    :type allow_redirects: bool\n    :param proxies: (optional) Dictionary mapping protocol to the URL of the proxy.\n    :param verify: (optional) Either a boolean, in which case it controls whether we verify\n            the server's TLS certificate, or a string, in which case it must be a path\n            to a CA bundle to use. Defaults to ``True``.\n    :param stream: (optional) if ``False``, the response content will be immediately downloaded.\n    :param cert: (optional) if String, path to ssl client cert file (.pem). If Tuple, ('cert', 'key') pair.\n    :return: :class:`Response <Response>` object\n    :rtype: requests.Response\n\n    Usage::\n\n      >>> import requests\n      >>> req = requests.request('GET', 'https://httpbin.org/get')\n      >>> req\n      <Response [200]>\n    \"\"\"\n\n    # By using the 'with' statement we are sure the session is closed, thus we\n    # avoid leaving sockets open which can trigger a ResourceWarning in some\n    # cases, and look like a memory leak in others.\n    with sessions.Session() as session:\n        return session.request(method=method, url=url, **kwargs)\n\n\ndef get(\n    url: _t.UriType, params: _t.ParamsType = None, **kwargs: Unpack[_t.GetKwargs]\n) -> Response:\n    r\"\"\"Sends a GET request.\n\n    :param url: URL for the new :class:`Request` object.\n    :param params: (optional) Dictionary, list of tuples or bytes to send\n        in the query string for the :class:`Request`.\n    :param \\*\\*kwargs: Optional arguments that ``request`` takes.\n    :return: :class:`Response <Response>` object\n    :rtype: requests.Response\n    \"\"\"\n\n    return request(\"get\", url, params=params, **kwargs)\n\n\ndef options(url: _t.UriType, **kwargs: Unpack[_t.RequestKwargs]) -> Response:\n    r\"\"\"Sends an OPTIONS request.\n\n    :param url: URL for the new :class:`Request` object.\n    :param \\*\\*kwargs: Optional arguments that ``request`` takes.\n    :return: :class:`Response <Response>` object\n    :rtype: requests.Response\n    \"\"\"\n\n    return request(\"options\", url, **kwargs)\n\n\ndef head(url: _t.UriType, **kwargs: Unpack[_t.RequestKwargs]) -> Response:\n    r\"\"\"Sends a HEAD request.\n\n    :param url: URL for the new :class:`Request` object.\n    :param \\*\\*kwargs: Optional arguments that ``request`` takes. If\n        `allow_redirects` is not provided, it will be set to `False` (as\n        opposed to the default :meth:`request` behavior).\n    :return: :class:`Response <Response>` object\n    :rtype: requests.Response\n    \"\"\"\n\n    kwargs.setdefault(\"allow_redirects\", False)\n    return request(\"head\", url, **kwargs)\n\n\ndef post(\n    url: _t.UriType,\n    data: _t.DataType = None,\n    json: _t.JsonType = None,\n    **kwargs: Unpack[_t.PostKwargs],\n) -> Response:\n    r\"\"\"Sends a POST request.\n\n    :param url: URL for the new :class:`Request` object.\n    :param data: (optional) Dictionary, list of tuples, bytes, or file-like\n        object to send in the body of the :class:`Request`.\n    :param json: (optional) A JSON serializable Python object to send in the body of the :class:`Request`.\n    :param \\*\\*kwargs: Optional arguments that ``request`` takes.\n    :return: :class:`Response <Response>` object\n    :rtype: requests.Response\n    \"\"\"\n\n    return request(\"post\", url, data=data, json=json, **kwargs)\n\n\ndef put(\n    url: _t.UriType, data: _t.DataType = None, **kwargs: Unpack[_t.DataKwargs]\n) -> Response:\n    r\"\"\"Sends a PUT request.\n\n    :param url: URL for the new :class:`Request` object.\n    :param data: (optional) Dictionary, list of tuples, bytes, or file-like\n        object to send in the body of the :class:`Request`.\n    :param json: (optional) A JSON serializable Python object to send in the body of the :class:`Request`.\n    :param \\*\\*kwargs: Optional arguments that ``request`` takes.\n    :return: :class:`Response <Response>` object\n    :rtype: requests.Response\n    \"\"\"\n\n    return request(\"put\", url, data=data, **kwargs)\n\n\ndef patch(\n    url: _t.UriType, data: _t.DataType = None, **kwargs: Unpack[_t.DataKwargs]\ntests/test_lowlevel.py\ntests/test_help.py\ntests/test_adapters.py\ntests/utils.py\ntests/test_requests.py\ntests/certs/expired/README.md\ntests/certs/expired/server/cert.cnf\ntests/certs/expired/server/server.csr\ntests/certs/expired/server/server.pem\ntests/certs/expired/server/Makefile\ntests/certs/expired/server/server.key\ntests/certs/expired/ca/ca.srl\ntests/certs/expired/ca/ca.crt\ntests/certs/expired/ca/Makefile\ntests/certs/expired/ca/ca-private.key\ntests/certs/expired/ca/ca.cnf\ntests/certs/expired/Makefile\ntests/certs/README.md\ntests/certs/mtls/client/client.key\ntests/certs/mtls/client/cert.cnf\ntests/certs/mtls/client/client.csr\ntests/certs/mtls/client/client.pem\ntests/certs/mtls/client/Makefile\ntests/certs/mtls/README.md\ntests/certs/mtls/Makefile\ntests/certs/valid/server/cert.cnf\ntests/certs/valid/server/server.csr\ntests/certs/valid/server/server.pem\ntests/certs/valid/server/Makefile\ntests/certs/valid/server/server.key\ntests/test_hooks.py\ntests/__init__.py\ntests/compat.py\ntests/test_testserver.py\ntests/testserver/__init__.py\ntests/testserver/server.py\ntests/test_packages.py\ntests/test_structures.py\ntests/conftest.py\ntests/test_utils.py\n84:class TestRequests:\n125:    def test_no_content_length(self, httpbin, method):\n130:    def test_no_body_content_length(self, httpbin, method):\n135:    def test_empty_content_length(self, httpbin, method):\n139:    def test_override_content_length(self, httpbin):\n220:    def test_redirect_history_no_self_reference(self, httpbin):\n320:    def test_header_and_body_removal_on_redirect(self, httpbin):\n337:    def test_transfer_enc_removal_on_redirect(self, httpbin):\n360:    def test_fragment_maintained_on_redirect(self, httpbin):\n390:    def test_cookie_sent_on_redirect(self, httpbin):\n417:    def test_request_cookie_overrides_session_cookie(self, httpbin):\n450:    def test_cookielib_cookiejar_on_redirect(self, httpbin):\n496:    def test_headers_on_session_with_None_are_not_sent(self, httpbin):\n624:    def test_respect_proxy_env_on_send_session_prepared_request(self, httpbin):\n632:    def test_respect_proxy_env_on_send_with_redirects(self, httpbin):\n942:    def test_decompress_gzip(self, httpbin):\n966:    def test_pyopenssl_redirect(self, httpbin_secure, httpbin_ca_bundle):\n1080:    def test_different_encodings_dont_break_post(self, httpbin):\n1178:    def test_custom_content_type(self, httpbin):\n1190:    def test_hook_receives_request_arguments(self, httpbin):\n1200:    def test_session_hooks_are_used_with_no_request_hooks(self, httpbin):\n1211:    def test_session_hooks_are_overridden_by_request_hooks(self, httpbin):\n1225:    def test_prepared_request_hook(self, httpbin):\n1239:    def test_prepared_from_session(self, httpbin):\n1451:    def test_empty_response_has_content_none(self):\n1536:    def test_iter_content_wraps_exceptions(self, httpbin, exception, args, expected):\n1546:    def test_request_and_response_are_pickleable(self, httpbin):\n1558:    def test_prepared_request_is_pickleable(self, httpbin):\n1572:    def test_prepared_request_with_file_is_pickleable(self, httpbin):\n1588:    def test_prepared_request_with_hook_is_pickleable(self, httpbin):\n1619:    def test_session_pickling(self, httpbin):\n1640:    def test_uppercase_scheme_redirect(self, httpbin):\n1685:    def test_session_get_adapter_prefix_matching(self):\n1709:    def test_session_get_adapter_prefix_matching_mixed_case(self):\n1719:    def test_session_get_adapter_prefix_matching_is_case_insensitive(self):\n1731:    def test_session_get_adapter_prefix_with_trailing_slash(self):\n1744:    def test_session_get_adapter_prefix_without_trailing_slash(self):\n1933:    def test_auth_is_retained_for_redirect_on_host(self, httpbin):\n1988:    def test_manual_redirect_with_partial_body_read(self, httpbin):\n2007:    def test_prepare_body_position_non_stream(self):\n2102:    def test_getattr_proxy_stream_follows_redirect(self, httpbin):\n2131:    def test_redirect_with_wrong_gzipped_header(self, httpbin):\n2161:    def test_json_param_post_content_type_works(self, httpbin):\n2191:    def test_unconsumed_session_response_closes_connection(self, httpbin):\n2209:    def test_session_close_proxy_clear(self):\n2230:    def test_response_json_when_content_is_None(self, httpbin):\n2251:    def test_empty_stream_with_auth_does_not_set_content_length_header(self, httpbin):\n2263:    def test_stream_with_auth_does_not_set_transfer_encoding_header(self, httpbin):\n2275:    def test_chunked_upload_does_not_set_content_length_header(self, httpbin):\n2286:    def test_custom_redirect_mixin(self, httpbin):\n2331:class TestCaseInsensitiveDict:\n2482:class TestMorselToCookieExpires:\n2516:class TestMorselToCookieMaxAge:\n2536:class TestTimeout:\n2537:    def test_stream_timeout(self, httpbin):\n2760:class TestPreparingURLs:\n2820:    def test_redirecting_to_bad_url(self, httpbin, url, exception):\n3064:def test_content_length_for_bytes_data(httpbin):\n3078:def test_content_length_for_string_data_counts_bytes(httpbin):\n",
+        "command": "/bin/zsh -lc \"git status --short; sed -n '1,155p' src/requests/api.py; rg --files tests; rg -n '\"'^class Test|def test_.*(content|stream|pickle|redirect|hook|gzip|session|encoding)'\"' tests/test_requests.py\"",
+        "exit_code": 0,
+        "id": "item_7",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 150528.093141958,
+      "utc": "2026-10-13T08:16:16.545310+00:00"
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"sed -n '427,490p' src/requests/sessions.py; sed -n '557,654p' src/requests/sessions.py; sed -n '752,840p' src/requests/sessions.py; sed -n '895,915p' src/requests/sessions.py\"",
+        "exit_code": null,
+        "id": "item_8",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 150537.016450333,
+      "utc": "2026-10-13T08:16:25.468610+00:00"
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "    __attrs__: list[str] = [\n        \"headers\",\n        \"cookies\",\n        \"auth\",\n        \"proxies\",\n        \"hooks\",\n        \"params\",\n        \"verify\",\n        \"cert\",\n        \"adapters\",\n        \"stream\",\n        \"trust_env\",\n        \"max_redirects\",\n    ]\n\n    def __init__(self) -> None:\n        #: A case-insensitive dictionary of headers to be sent on each\n        #: :class:`Request <Request>` sent from this\n        #: :class:`Session <Session>`.\n        self.headers = default_headers()\n\n        #: Default Authentication tuple or object to attach to\n        #: :class:`Request <Request>`.\n        self.auth = None\n\n        #: Dictionary mapping protocol or protocol and host to the URL of the proxy\n        #: (e.g. {'http': 'foo.bar:3128', 'http://host.name': 'foo.bar:4012'}) to\n        #: be used on each :class:`Request <Request>`.\n        self.proxies = {}\n\n        #: Event-handling hooks.\n        self.hooks = default_hooks()\n\n        #: Dictionary of querystring data to attach to each\n        #: :class:`Request <Request>`. The dictionary values may be lists for\n        #: representing multivalued query parameters.\n        self.params = {}\n\n        #: Stream response content default.\n        self.stream = False\n\n        #: SSL Verification default.\n        #: Defaults to `True`, requiring requests to verify the TLS certificate at the\n        #: remote end.\n        #: If verify is set to `False`, requests will accept any TLS certificate\n        #: presented by the server, and will ignore hostname mismatches and/or\n        #: expired certificates, which will make your application vulnerable to\n        #: man-in-the-middle (MitM) attacks.\n        #: Only set this to `False` for testing.\n        #: If verify is set to a string, it must be the path to a CA bundle file\n        #: that will be used to verify the TLS certificate.\n        self.verify = True\n\n        #: SSL client certificate default, if String, path to ssl client\n        #: cert file (.pem). If Tuple, ('cert', 'key') pair.\n        self.cert = None\n\n        #: Maximum number of redirects allowed. If the request exceeds this\n        #: limit, a :class:`TooManyRedirects` exception is raised.\n        #: This defaults to requests.models.DEFAULT_REDIRECT_LIMIT, which is\n        #: 30.\n        self.max_redirects = DEFAULT_REDIRECT_LIMIT\n\n        #: Trust environment settings for proxy configuration, default\n    def request(\n        self,\n        method: str,\n        url: _t.UriType,\n        params: _t.ParamsType = None,\n        data: _t.DataType = None,\n        headers: _t.HeadersType = None,\n        cookies: RequestsCookieJar | CookieJar | dict[str, str] | None = None,\n        files: _t.FilesType = None,\n        auth: _t.AuthType = None,\n        timeout: _t.TimeoutType = None,\n        allow_redirects: bool = True,\n        proxies: dict[str, str] | None = None,\n        hooks: _t.HooksInputType | None = None,\n        stream: bool | None = None,\n        verify: _t.VerifyType | None = None,\n        cert: _t.CertType = None,\n        json: _t.JsonType = None,\n    ) -> Response:\n        \"\"\"Constructs a :class:`Request <Request>`, prepares it and sends it.\n        Returns :class:`Response <Response>` object.\n\n        :param method: method for the new :class:`Request` object.\n        :param url: URL for the new :class:`Request` object.\n        :param params: (optional) Dictionary or bytes to be sent in the query\n            string for the :class:`Request`.\n        :param data: (optional) Dictionary, list of tuples, bytes, or file-like\n            object to send in the body of the :class:`Request`.\n        :param json: (optional) json to send in the body of the\n            :class:`Request`.\n        :param headers: (optional) Dictionary of HTTP Headers to send with the\n            :class:`Request`.\n        :param cookies: (optional) Dict or CookieJar object to send with the\n            :class:`Request`.\n        :param files: (optional) Dictionary of ``'filename': file-like-objects``\n            for multipart encoding upload.\n        :param auth: (optional) Auth tuple or callable to enable\n            Basic/Digest/Custom HTTP Auth.\n        :param timeout: (optional) How many seconds to wait for the server to send\n            data before giving up, as a float, or a :ref:`(connect timeout,\n            read timeout) <timeouts>` tuple.\n        :type timeout: float or tuple\n        :param allow_redirects: (optional) Set to True by default.\n        :type allow_redirects: bool\n        :param proxies: (optional) Dictionary mapping protocol or protocol and\n            hostname to the URL of the proxy.\n        :param hooks: (optional) Dictionary mapping hook name to one event or\n            list of events, event must be callable.\n        :param stream: (optional) whether to immediately download the response\n            content. Defaults to ``False``.\n        :param verify: (optional) Either a boolean, in which case it controls whether we verify\n            the server's TLS certificate, or a string, in which case it must be a path\n            to a CA bundle to use. Defaults to ``True``. When set to\n            ``False``, requests will accept any TLS certificate presented by\n            the server, and will ignore hostname mismatches and/or expired\n            certificates, which will make your application vulnerable to\n            man-in-the-middle (MitM) attacks. Setting verify to ``False``\n            may be useful during local development or testing.\n        :param cert: (optional) if String, path to ssl client cert file (.pem).\n            If Tuple, ('cert', 'key') pair.\n        :rtype: requests.Response\n        \"\"\"\n        if isinstance(url, bytes):\n            url = url.decode(\"utf-8\")\n\n        # Create the Request.\n        req = Request(\n            method=method.upper(),\n            url=url,\n            headers=headers,\n            files=files,\n            data=data or {},\n            json=json,\n            params=params or {},\n            auth=auth,\n            cookies=cookies,\n            hooks=hooks,\n        )\n        prep = self.prepare_request(req)\n\n        assert _is_prepared(prep)\n\n        proxies = proxies or {}\n\n        settings = self.merge_environment_settings(\n            prep.url, proxies, stream, verify, cert\n        )\n\n        # Send the request.\n        send_kwargs = {\n            \"timeout\": timeout,\n            \"allow_redirects\": allow_redirects,\n        }\n        send_kwargs.update(settings)\n        resp = self.send(prep, **send_kwargs)\n\n        return resp\n\n    def send(self, request: PreparedRequest, **kwargs: Any) -> Response:\n        \"\"\"Send a given PreparedRequest.\n\n        :rtype: requests.Response\n        \"\"\"\n        # Set defaults that the hooks can utilize to ensure they always have\n        # the correct parameters to reproduce the previous request.\n        kwargs.setdefault(\"stream\", self.stream)\n        kwargs.setdefault(\"verify\", self.verify)\n        kwargs.setdefault(\"cert\", self.cert)\n        if \"proxies\" not in kwargs:\n            kwargs[\"proxies\"] = resolve_proxies(request, self.proxies, self.trust_env)\n\n        # It's possible that users might accidentally send a Request object.\n        # Guard against that specific failure case.\n        if isinstance(request, Request):\n            raise ValueError(\"You can only send PreparedRequests.\")\n\n        assert _is_prepared(request)\n\n        # Set up variables needed for resolve_redirects and dispatching of hooks\n        allow_redirects = kwargs.pop(\"allow_redirects\", True)\n        stream = kwargs.get(\"stream\")\n        hooks = request.hooks\n\n        # Get the appropriate adapter to use\n        adapter = self.get_adapter(url=request.url)\n\n        # Start time (approximately) of the request\n        start = preferred_clock()\n\n        # Send the request\n        r = adapter.send(request, **kwargs)\n\n        # Total elapsed time of the request (approximately)\n        elapsed = preferred_clock() - start\n        r.elapsed = timedelta(seconds=elapsed)\n\n        # Response manipulation hooks\n        r = dispatch_hook(\"response\", hooks, r, **kwargs)\n\n        # Persist cookies\n        if r.history:\n            # If the hooks create history then we want those cookies too\n            for resp in r.history:\n                extract_cookies_to_jar(self.cookies, resp.request, resp.raw)\n\n        extract_cookies_to_jar(self.cookies, request, r.raw)\n\n        # Resolve redirects if allowed.\n        if allow_redirects:\n            # Redirect resolving generator.\n            gen = self.resolve_redirects(r, request, **kwargs)\n            history = [resp for resp in gen]\n        else:\n            history = []\n\n        # Shuffle things around if there's history.\n        if history:\n            # Insert the first (original) request at the start\n            history.insert(0, r)\n            # Get the last request made\n            r = history.pop()\n            r.history = history\n\n        # If redirects aren't being followed, store the response on the Request for Response.next().\n        if not allow_redirects:\n            try:\n                r._next = next(  # type: ignore[assignment]  # yield_requests=True returns PreparedRequest\n                    self.resolve_redirects(r, request, yield_requests=True, **kwargs)\n                )\n            except StopIteration:\n                pass\n\n        if not stream:\n            r.content\n\n        return r\n\n    def merge_environment_settings(\n        self,\n        url: str,\n        proxies: dict[str, str] | None,\n        stream: bool | None,\n        verify: _t.VerifyType | None,\n        cert: _t.CertType,\n    ) -> dict[str, Any]:\n        \"\"\"\n        Check the environment and merge it with some settings.\n\n        for key in keys_to_move:\n            self.adapters[key] = self.adapters.pop(key)\n\n    def __getstate__(self) -> dict[str, Any]:\n        state = {attr: getattr(self, attr, None) for attr in self.__attrs__}\n        return state\n\n    def __setstate__(self, state: dict[str, Any]) -> None:\n        for attr, value in state.items():\n            setattr(self, attr, value)\n\n\ndef session() -> Session:\n    \"\"\"\n    Returns a :class:`Session` for context-management.\n\n    .. deprecated:: 1.0.0\n\n        This method has been deprecated since version 1.0.0 and is only kept for\n        backwards compatibility. New code should use :class:`~requests.sessions.Session`\n",
+        "command": "/bin/zsh -lc \"sed -n '427,490p' src/requests/sessions.py; sed -n '557,654p' src/requests/sessions.py; sed -n '752,840p' src/requests/sessions.py; sed -n '895,915p' src/requests/sessions.py\"",
+        "exit_code": 0,
+        "id": "item_8",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 150537.016502208,
+      "utc": "2026-10-13T08:16:25.468670+00:00"
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"sed -n '25,75p' src/requests/models.py; sed -n '732,837p' src/requests/models.py; sed -n '900,1077p' src/requests/models.py; sed -n '1170,1196p' src/requests/models.py; sed -n '1,46p' src/requests/exceptions.py; sed -n '173,205p' src/requests/__init__.py; rg -n 'class .*Kwargs|stream:|class Raw' src/requests/_types.py\"",
+        "exit_code": null,
+        "id": "item_9",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 150546.881481291,
+      "utc": "2026-10-13T08:16:35.333636+00:00"
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": ")\n\nfrom urllib3.exceptions import (\n    DecodeError,\n    LocationParseError,\n    ProtocolError,\n    ReadTimeoutError,\n    SSLError,\n)\nfrom urllib3.fields import RequestField\nfrom urllib3.filepost import encode_multipart_formdata\nfrom urllib3.util import parse_url\n\nfrom . import _types as _t\nfrom ._internal_utils import to_native_string, unicode_is_ascii\nfrom .auth import HTTPBasicAuth\nfrom .compat import (\n    JSONDecodeError,\n    basestring,\n    builtin_str,\n    chardet,\n    cookielib,\n    urlencode,\n    urlsplit,\n    urlunparse,\n)\nfrom .compat import json as complexjson\nfrom .cookies import (\n    _copy_cookie_jar,\n    cookiejar_from_dict,\n    get_cookie_header,\n)\nfrom .exceptions import (\n    ChunkedEncodingError,\n    ConnectionError,\n    ContentDecodingError,\n    HTTPError,\n    InvalidJSONError,\n    InvalidURL,\n    MissingSchema,\n    StreamConsumedError,\n)\nfrom .exceptions import JSONDecodeError as RequestsJSONDecodeError\nfrom .exceptions import SSLError as RequestsSSLError\nfrom .hooks import default_hooks\nfrom .status_codes import codes\nfrom .structures import CaseInsensitiveDict\nfrom .utils import (\n    check_header_validity,\n    get_auth_from_url,\n    guess_filename,\nclass Response:\n    \"\"\"The :class:`Response <Response>` object, which contains a\n    server's response to an HTTP request.\n    \"\"\"\n\n    _content: bytes | Literal[False] | None\n    _content_consumed: bool\n    _next: PreparedRequest | None\n    status_code: int\n    headers: CaseInsensitiveDict[str]\n    raw: Any\n    url: str\n    encoding: str | None\n    history: list[Response]\n    reason: str\n    cookies: RequestsCookieJar\n    elapsed: datetime.timedelta\n    request: PreparedRequest\n    connection: HTTPAdapter\n\n    __attrs__: list[str] = [\n        \"_content\",\n        \"status_code\",\n        \"headers\",\n        \"url\",\n        \"history\",\n        \"encoding\",\n        \"reason\",\n        \"cookies\",\n        \"elapsed\",\n        \"request\",\n    ]\n\n    def __init__(self) -> None:\n        self._content = False\n        self._content_consumed = False\n        self._next = None\n\n        #: Integer Code of responded HTTP Status, e.g. 404 or 200.\n        self.status_code = None  # type: ignore[assignment]\n\n        #: Case-insensitive Dictionary of Response Headers.\n        #: For example, ``headers['content-encoding']`` will return the\n        #: value of a ``'Content-Encoding'`` response header.\n        self.headers = CaseInsensitiveDict()\n\n        #: File-like object representation of response (for advanced usage).\n        #: Use of ``raw`` requires that ``stream=True`` be set on the request.\n        #: This requirement does not apply for use internally to Requests.\n        self.raw = None\n\n        #: Final URL location of Response.\n        self.url = None  # type: ignore[assignment]\n\n        #: Encoding to decode with when accessing r.text.\n        self.encoding = None\n\n        #: A list of :class:`Response <Response>` objects from\n        #: the history of the Request. Any redirect responses will end\n        #: up here. The list is sorted from the oldest to the most recent request.\n        self.history = []\n\n        #: Textual reason of responded HTTP Status, e.g. \"Not Found\" or \"OK\".\n        self.reason = None  # type: ignore[assignment]\n\n        #: A CookieJar of Cookies the server sent back.\n        self.cookies = cookiejar_from_dict({})\n\n        #: The amount of time elapsed between sending the request\n        #: and the arrival of the response (as a timedelta).\n        #: This property specifically measures the time taken between sending\n        #: the first byte of the request and finishing parsing the headers. It\n        #: is therefore unaffected by consuming the response content or the\n        #: value of the ``stream`` keyword argument.\n        self.elapsed = datetime.timedelta(0)\n\n        #: The :class:`PreparedRequest <PreparedRequest>` object to which this\n        #: is a response.\n        self.request = None  # type: ignore[assignment]\n\n    def __enter__(self) -> Self:\n        return self\n\n    def __exit__(self, *args: Any) -> None:\n        self.close()\n\n    def __getstate__(self) -> dict[str, Any]:\n        # Consume everything; accessing the content attribute makes\n        # sure the content has been fully read.\n        if not self._content_consumed:\n            self.content\n\n        return {attr: getattr(self, attr, None) for attr in self.__attrs__}\n\n    def __setstate__(self, state: dict[str, Any]) -> None:\n        for name, value in state.items():\n            setattr(self, name, value)\n\n        # pickled objects do not have .raw\n        setattr(self, \"_content_consumed\", True)\n        setattr(self, \"raw\", None)\n\n    def __repr__(self) -> str:\n        return f\"<Response [{self.status_code}]>\"\n\n    def __bool__(self) -> bool:\n            return chardet.detect(self.content)[\"encoding\"]\n        else:\n            # If no character detection library is available, we'll fall back\n            # to a standard Python utf-8 str.\n            return \"utf-8\"\n\n    @overload\n    def iter_content(\n        self, chunk_size: int | None = 1, decode_unicode: Literal[False] = False\n    ) -> Iterator[bytes]: ...\n    @overload\n    def iter_content(\n        self, chunk_size: int | None = 1, *, decode_unicode: Literal[True]\n    ) -> Iterator[str | bytes]: ...\n    def iter_content(\n        self, chunk_size: int | None = 1, decode_unicode: bool = False\n    ) -> Iterator[str | bytes]:\n        \"\"\"Iterates over the response data.  When stream=True is set on the\n        request, this avoids reading the content at once into memory for\n        large responses.  The chunk size is the number of bytes it should\n        read into memory.  This is not necessarily the length of each item\n        returned as decoding can take place.\n\n        chunk_size must be of type int or None. A value of None will\n        function differently depending on the value of `stream`.\n        stream=True will read data as it arrives in whatever size the\n        chunks are received. If stream=False, data is returned as\n        a single chunk.\n\n        If decode_unicode is True, content will be decoded using encoding\n        information from the response. If no encoding information is available,\n        bytes will be returned. This can be bypassed by manually setting\n        `encoding` on the response.\n        \"\"\"\n\n        def generate() -> Generator[bytes, None, None]:\n            # Special case for urllib3.\n            if hasattr(self.raw, \"stream\"):\n                try:\n                    yield from self.raw.stream(chunk_size, decode_content=True)\n                except ProtocolError as e:\n                    raise ChunkedEncodingError(e)\n                except DecodeError as e:\n                    raise ContentDecodingError(e)\n                except ReadTimeoutError as e:\n                    raise ConnectionError(e)\n                except SSLError as e:\n                    raise RequestsSSLError(e)\n            else:\n                # Standard file-like object.\n                while True:\n                    chunk = self.raw.read(chunk_size)\n                    if not chunk:\n                        break\n                    yield chunk\n\n            self._content_consumed = True\n\n        if self._content_consumed and isinstance(self._content, bool):\n            raise StreamConsumedError()\n        elif chunk_size is not None and not isinstance(\n            chunk_size, int\n        ):  # runtime guard for untyped callers\n            raise TypeError(\n                f\"chunk_size must be an int, it is instead a {type(chunk_size)}.\"\n            )\n\n        if self._content_consumed:\n            # simulate reading small chunks of the content\n            content = cast(bytes, self._content)\n            chunks = iter_slices(content, chunk_size)\n        else:\n            chunks = generate()\n\n        if decode_unicode:\n            chunks = stream_decode_response_unicode(chunks, self)\n\n        return chunks\n\n    @overload\n    def iter_lines(\n        self,\n        chunk_size: int = ITER_CHUNK_SIZE,\n        decode_unicode: Literal[False] = False,\n        delimiter: bytes | None = None,\n    ) -> Iterator[bytes]: ...\n    @overload\n    def iter_lines(\n        self,\n        chunk_size: int = ITER_CHUNK_SIZE,\n        *,\n        decode_unicode: Literal[True],\n        delimiter: str | bytes | None = None,\n    ) -> Iterator[str | bytes]: ...\n    def iter_lines(\n        self,\n        chunk_size: int = ITER_CHUNK_SIZE,\n        decode_unicode: bool = False,\n        delimiter: str | bytes | None = None,\n    ) -> Iterator[str | bytes]:\n        \"\"\"Iterates over the response data, one line at a time.  When\n        stream=True is set on the request, this avoids reading the\n        content at once into memory for large responses.\n\n        The decode_unicode param works the same as in `iter_content`, with the\n        same caveats.\n\n        .. note:: This method is not reentrant safe.\n        \"\"\"\n\n        pending: str | bytes | None = None\n\n        for chunk in self.iter_content(\n            chunk_size=chunk_size, decode_unicode=decode_unicode\n        ):\n            if pending is not None:\n                # TODO: remove cast after iter_lines rewrite\n                chunk = cast(\"str | bytes\", pending + chunk)\n\n            if delimiter:\n                lines = chunk.split(delimiter)  # type: ignore[arg-type]\n            else:\n                lines = chunk.splitlines()\n\n            if lines and lines[-1] and chunk and lines[-1][-1] == chunk[-1]:\n                pending = lines.pop()\n            else:\n                pending = None\n\n            yield from lines\n\n        if pending is not None:\n            yield pending\n\n    @property\n    def content(self) -> bytes:\n        \"\"\"Content of the response, in bytes.\"\"\"\n\n        if self._content is False:\n            # Read the contents.\n            if self._content_consumed:\n                raise RuntimeError(\"The content for this response was already consumed\")\n\n            if self.status_code == 0 or self.raw is None:\n                self._content = None\n            else:\n                self._content = b\"\".join(self.iter_content(CONTENT_CHUNK_SIZE)) or b\"\"\n\n        self._content_consumed = True\n        # don't need to release the connection; that's been handled by urllib3\n        # since we exhausted the data.\n        return self._content  # type: ignore[return-value]\n\n    @property\n    def text(self) -> str:\n        \"\"\"Content of the response, in unicode.\n\n        If Response.encoding is None, encoding will be guessed using\n        ``charset_normalizer`` or ``chardet``.\n\n        The encoding of the response content is determined based solely on HTTP\n        headers, following RFC 2616 to the letter. If you can take advantage of\n        non-HTTP knowledge to make a better guess at the encoding, you should\n        set ``r.encoding`` appropriately before accessing this property.\n        \"\"\"\n\n        # Try charset from content-type\n        content = None\n        encoding = self.encoding\n\n        if not self.content:\n            return \"\"\n\n        # Fallback to auto-detected encoding.\n        if self.encoding is None:\n            encoding = self.apparent_encoding\n\n        # Decode unicode from given encoding.\n        if http_error_msg:\n            raise HTTPError(http_error_msg, response=self)\n\n    def close(self) -> None:\n        \"\"\"Releases the connection back to the pool. Once this method has been\n        called the underlying ``raw`` object must not be accessed again.\n\n        *Note: Should not normally need to be called explicitly.*\n        \"\"\"\n        if not self._content_consumed:\n            self.raw.close()\n\n        release_conn = getattr(self.raw, \"release_conn\", None)\n        if release_conn is not None:\n            release_conn()\n\"\"\"\nrequests.exceptions\n~~~~~~~~~~~~~~~~~~~\n\nThis module contains the set of Requests' exceptions.\n\"\"\"\n\nfrom __future__ import annotations\n\nfrom typing import TYPE_CHECKING, Any\n\nfrom urllib3.exceptions import HTTPError as BaseHTTPError\n\nfrom .compat import JSONDecodeError as CompatJSONDecodeError\n\nif TYPE_CHECKING:\n    from .models import PreparedRequest, Request, Response\n\n\nclass RequestException(IOError):\n    \"\"\"There was an ambiguous exception that occurred while handling your\n    request.\n    \"\"\"\n\n    response: Response | None\n    request: Request | PreparedRequest | None\n\n    def __init__(self, *args: Any, **kwargs: Any) -> None:\n        \"\"\"Initialize RequestException with `request` and `response` objects.\"\"\"\n        response: Response | None = kwargs.pop(\"response\", None)\n        self.response = response\n        self.request = kwargs.pop(\"request\", None)\n        if response is not None and not self.request and hasattr(response, \"request\"):\n            self.request = response.request\n        super().__init__(*args, **kwargs)\n\n\nclass InvalidJSONError(RequestException):\n    \"\"\"A JSON error occurred.\"\"\"\n\n\nclass JSONDecodeError(InvalidJSONError, CompatJSONDecodeError):\n    \"\"\"Couldn't decode the text into json\"\"\"\n\n    def __init__(self, *args: Any, **kwargs: Any) -> None:\n        \"\"\"\n    ConnectionError,\n    ConnectTimeout,\n    FileModeWarning,\n    HTTPError,\n    JSONDecodeError,\n    ReadTimeout,\n    RequestException,\n    Timeout,\n    TooManyRedirects,\n    URLRequired,\n)\nfrom .models import PreparedRequest, Request, Response\nfrom .sessions import Session, session\nfrom .status_codes import codes\n\n__all__ = (\n    \"ConnectionError\",\n    \"ConnectTimeout\",\n    \"HTTPError\",\n    \"JSONDecodeError\",\n    \"PreparedRequest\",\n    \"ReadTimeout\",\n    \"Request\",\n    \"RequestException\",\n    \"Response\",\n    \"Session\",\n    \"Timeout\",\n    \"TooManyRedirects\",\n    \"URLRequired\",\n    \"codes\",\n    \"delete\",\n    \"get\",\n    \"head\",\n157:    class BaseRequestKwargs(TypedDict, total=False):\n166:        stream: bool | None\n170:    class RequestKwargs(BaseRequestKwargs, total=False):\n177:    class GetKwargs(BaseRequestKwargs, total=False):\n181:    class PostKwargs(BaseRequestKwargs, total=False):\n184:    class DataKwargs(BaseRequestKwargs, total=False):\n",
+        "command": "/bin/zsh -lc \"sed -n '25,75p' src/requests/models.py; sed -n '732,837p' src/requests/models.py; sed -n '900,1077p' src/requests/models.py; sed -n '1170,1196p' src/requests/models.py; sed -n '1,46p' src/requests/exceptions.py; sed -n '173,205p' src/requests/__init__.py; rg -n 'class .*Kwargs|stream:|class Raw' src/requests/_types.py\"",
+        "exit_code": 0,
+        "id": "item_9",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 150546.881521583,
+      "utc": "2026-10-13T08:16:35.333689+00:00"
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "id": "item_10",
+        "text": "The budget needs to live on each response so separate iterators and later `.content` reads share one count. I\u2019ll attach it before response hooks run, check cached responses returned by hooks, and pass the resolved limit through redirects without adding it to adapter arguments.",
+        "type": "agent_message"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 150578.377739166,
+      "utc": "2026-10-13T08:17:06.829882+00:00"
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"sed -n '144,190p' src/requests/_types.py; cat src/requests/hooks.py; sed -n '1,45p' tests/conftest.py; sed -n '1420,1558p' tests/test_requests.py; sed -n '1614,1642p' tests/test_requests.py; sed -n '1180,1213p' tests/test_requests.py\"",
+        "exit_code": null,
+        "id": "item_11",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 150640.491997166,
+      "utc": "2026-10-13T08:18:08.944159+00:00"
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "    CertType: TypeAlias = str | tuple[str, str] | None\n    JsonType: TypeAlias = (\n        None\n        | bool\n        | int\n        | float\n        | str\n        | Sequence[\"JsonType\"]\n        | Mapping[str, \"JsonType\"]\n    )\n\n    # TypedDicts for Unpack kwargs (PEP 692)\n\n    class BaseRequestKwargs(TypedDict, total=False):\n        headers: HeadersType\n        cookies: RequestsCookieJar | CookieJar | dict[str, str] | None\n        files: FilesType\n        auth: AuthType\n        timeout: TimeoutType\n        allow_redirects: bool\n        proxies: dict[str, str] | None\n        hooks: HooksInputType | None\n        stream: bool | None\n        verify: VerifyType | None\n        cert: CertType\n\n    class RequestKwargs(BaseRequestKwargs, total=False):\n        \"\"\"kwargs for request(), options(), head(), delete().\"\"\"\n\n        params: ParamsType\n        data: DataType\n        json: JsonType\n\n    class GetKwargs(BaseRequestKwargs, total=False):\n        data: DataType\n        json: JsonType\n\n    class PostKwargs(BaseRequestKwargs, total=False):\n        params: ParamsType\n\n    class DataKwargs(BaseRequestKwargs, total=False):\n        \"\"\"kwargs for put(), patch().\"\"\"\n\n        params: ParamsType\n        json: JsonType\n\"\"\"\nrequests.hooks\n~~~~~~~~~~~~~~\n\nThis module provides the capabilities for the Requests hooks system.\n\nAvailable hooks:\n\n``response``:\n    The response generated from a Request.\n\"\"\"\n\nfrom __future__ import annotations\n\nfrom collections.abc import Callable, Iterable\nfrom typing import TYPE_CHECKING, Any\n\nif TYPE_CHECKING:\n    from . import _types as _t\n    from .models import Response\n\nHOOKS: list[str] = [\"response\"]\n\n\ndef default_hooks() -> dict[str, list[_t.HookType]]:\n    return {event: [] for event in HOOKS}\n\n\n# TODO: response is the only one\n\n\ndef dispatch_hook(\n    key: str,\n    hooks: _t.HooksInputType | None,\n    hook_data: Response,\n    **kwargs: Any,\n) -> Response:\n    \"\"\"Dispatches a hook dictionary on a given piece of data.\"\"\"\n    hooks_dict = hooks or {}\n    hook_list: Iterable[_t.HookType] | _t.HookType | None = hooks_dict.get(key)\n    if hook_list:\n        if isinstance(hook_list, Callable):\n            hook_list = [hook_list]\n        for hook in hook_list:\n            _hook_data = hook(hook_data, **kwargs)\n            if _hook_data is not None:\n                hook_data = _hook_data\n    return hook_data\ntry:\n    from http.server import HTTPServer, SimpleHTTPRequestHandler\nexcept ImportError:\n    from BaseHTTPServer import HTTPServer\n    from SimpleHTTPServer import SimpleHTTPRequestHandler\n\nimport ssl\nimport threading\n\nimport pytest\n\nfrom requests.compat import urljoin\n\n\ndef prepare_url(value):\n    # Issue #1483: Make sure the URL always has a trailing slash\n    httpbin_url = value.url.rstrip(\"/\") + \"/\"\n\n    def inner(*suffix):\n        return urljoin(httpbin_url, \"/\".join(suffix))\n\n    return inner\n\n\n@pytest.fixture(autouse=True)\ndef clean_proxy_environ(monkeypatch):\n    \"\"\"Remove proxy related environment variables for every test.\"\"\"\n    proxy_vars = (\"http_proxy\", \"https_proxy\", \"no_proxy\", \"ftp_proxy\", \"all_proxy\")\n    for var in proxy_vars:\n        monkeypatch.delenv(var, raising=False)\n        monkeypatch.delenv(var.upper(), raising=False)\n\n\n@pytest.fixture\ndef httpbin(httpbin):\n    return prepare_url(httpbin)\n\n\n@pytest.fixture\ndef httpbin_secure(httpbin_secure):\n    return prepare_url(httpbin_secure)\n\n\n@pytest.fixture\ndef nosan_server(tmp_path_factory):\n        # Verify that CookieConflictError is not raised if domain is specified\n        cookie = jar.get(key, domain=domain1)\n        assert cookie == value\n\n    def test_cookie_duplicate_names_raises_cookie_conflict_error(self):\n        key = \"some_cookie\"\n        value = \"some_value\"\n        path = \"some_path\"\n\n        jar = requests.cookies.RequestsCookieJar()\n        jar.set(key, value, path=path)\n        jar.set(key, value)\n        with pytest.raises(requests.cookies.CookieConflictError):\n            jar.get(key)\n\n    def test_cookie_policy_copy(self):\n        class MyCookiePolicy(cookielib.DefaultCookiePolicy):\n            pass\n\n        jar = requests.cookies.RequestsCookieJar()\n        jar.set_policy(MyCookiePolicy())\n        assert isinstance(jar.copy().get_policy(), MyCookiePolicy)\n\n    def test_time_elapsed_blank(self, httpbin):\n        r = requests.get(httpbin(\"get\"))\n        td = r.elapsed\n        total_seconds = (\n            td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6\n        ) / 10**6\n        assert total_seconds > 0.0\n\n    def test_empty_response_has_content_none(self):\n        r = requests.Response()\n        assert r.content is None\n\n    def test_response_is_iterable(self):\n        r = requests.Response()\n        io = StringIO.StringIO(\"abc\")\n        read_ = io.read\n\n        def read_mock(amt, decode_content=None):\n            return read_(amt)\n\n        setattr(io, \"read\", read_mock)\n        r.raw = io\n        assert next(iter(r))\n        io.close()\n\n    def test_response_decode_unicode(self):\n        \"\"\"When called with decode_unicode, Response.iter_content should always\n        return unicode.\n        \"\"\"\n        r = requests.Response()\n        r._content_consumed = True\n        r._content = b\"the content\"\n        r.encoding = \"ascii\"\n\n        chunks = r.iter_content(decode_unicode=True)\n        assert all(isinstance(chunk, str) for chunk in chunks)\n\n        # also for streaming\n        r = requests.Response()\n        r.raw = io.BytesIO(b\"the content\")\n        r.encoding = \"ascii\"\n        chunks = r.iter_content(decode_unicode=True)\n        assert all(isinstance(chunk, str) for chunk in chunks)\n\n    def test_response_reason_unicode(self):\n        # check for unicode HTTP status\n        r = requests.Response()\n        r.url = \"unicode URL\"\n        r.reason = \"Komponenttia ei l\u00f6ydy\".encode()\n        r.status_code = 404\n        r.encoding = None\n        assert not r.ok  # old behaviour - crashes here\n\n    def test_response_reason_unicode_fallback(self):\n        # check raise_status falls back to ISO-8859-1\n        r = requests.Response()\n        r.url = \"some url\"\n        reason = \"Komponenttia ei l\u00f6ydy\"\n        r.reason = reason.encode(\"latin-1\")\n        r.status_code = 500\n        r.encoding = None\n        with pytest.raises(requests.exceptions.HTTPError) as e:\n            r.raise_for_status()\n        assert reason in e.value.args[0]\n\n    def test_response_chunk_size_type(self):\n        \"\"\"Ensure that chunk_size is passed as None or an integer, otherwise\n        raise a TypeError.\n        \"\"\"\n        r = requests.Response()\n        r.raw = io.BytesIO(b\"the content\")\n        chunks = r.iter_content(1)\n        assert all(len(chunk) == 1 for chunk in chunks)\n\n        r = requests.Response()\n        r.raw = io.BytesIO(b\"the content\")\n        chunks = r.iter_content(None)\n        assert list(chunks) == [b\"the content\"]\n\n        r = requests.Response()\n        r.raw = io.BytesIO(b\"the content\")\n        with pytest.raises(TypeError):\n            chunks = r.iter_content(\"1024\")\n\n    @pytest.mark.parametrize(\n        \"exception, args, expected\",\n        (\n            (urllib3.exceptions.ProtocolError, tuple(), ChunkedEncodingError),\n            (urllib3.exceptions.DecodeError, tuple(), ContentDecodingError),\n            (urllib3.exceptions.ReadTimeoutError, (None, \"\", \"\"), ConnectionError),\n            (urllib3.exceptions.SSLError, tuple(), RequestsSSLError),\n        ),\n    )\n    def test_iter_content_wraps_exceptions(self, httpbin, exception, args, expected):\n        r = requests.Response()\n        r.raw = mock.Mock()\n        # ReadTimeoutError can't be initialized by mock\n        # so we'll manually create the instance with args\n        r.raw.stream.side_effect = exception(*args)\n\n        with pytest.raises(expected):\n            next(r.iter_content(1024))\n\n    def test_request_and_response_are_pickleable(self, httpbin):\n        r = requests.get(httpbin(\"get\"))\n\n        # verify we can pickle the original request\n        assert pickle.loads(pickle.dumps(r.request))\n\n        # verify we can pickle the response and that we have access to\n        # the original request.\n        pr = pickle.loads(pickle.dumps(r))\n        assert r.request.url == pr.request.url\n        assert r.request.headers == pr.request.headers\n\n    def test_prepared_request_is_pickleable(self, httpbin):\n        assert error.response == response\n        error = requests.exceptions.HTTPError(\"message\", response=response)\n        assert str(error) == \"message\"\n        assert error.response == response\n\n    def test_session_pickling(self, httpbin):\n        r = requests.Request(\"GET\", httpbin(\"get\"))\n        s = requests.Session()\n\n        s = pickle.loads(pickle.dumps(s))\n        s.proxies = getproxies()\n\n        r = s.send(r.prepare())\n        assert r.status_code == 200\n\n    def test_fixes_1329(self, httpbin):\n        \"\"\"Ensure that header updates are done case-insensitively.\"\"\"\n        s = requests.Session()\n        s.headers.update({\"ACCEPT\": \"BOGUS\"})\n        s.headers.update({\"accept\": \"application/json\"})\n        r = s.get(httpbin(\"get\"))\n        headers = r.request.headers\n        assert headers[\"accept\"] == \"application/json\"\n        assert headers[\"Accept\"] == \"application/json\"\n        assert headers[\"ACCEPT\"] == \"application/json\"\n\n    def test_uppercase_scheme_redirect(self, httpbin):\n        parts = urlparse(httpbin(\"html\"))\n        url = \"HTTP://\" + parts.netloc + parts.path\n            with open(__file__, \"rb\") as f2:\n                data = {\"stuff\": json.dumps({\"a\": 123})}\n                files = {\n                    \"file1\": (\"test_requests.py\", f1),\n                    \"file2\": (\"test_requests\", f2, \"text/py-content-type\"),\n                }\n                r = requests.post(httpbin(\"post\"), data=data, files=files)\n        assert r.status_code == 200\n        assert b\"text/py-content-type\" in r.request.body\n\n    def test_hook_receives_request_arguments(self, httpbin):\n        def hook(resp, **kwargs):\n            assert resp is not None\n            assert kwargs != {}\n\n        s = requests.Session()\n        r = requests.Request(\"GET\", httpbin(), hooks={\"response\": hook})\n        prep = s.prepare_request(r)\n        s.send(prep)\n\n    def test_session_hooks_are_used_with_no_request_hooks(self, httpbin):\n        def hook(*args, **kwargs):\n            pass\n\n        s = requests.Session()\n        s.hooks[\"response\"].append(hook)\n        r = requests.Request(\"GET\", httpbin())\n        prep = s.prepare_request(r)\n        assert prep.hooks[\"response\"] != []\n        assert prep.hooks[\"response\"] == [hook]\n\n    def test_session_hooks_are_overridden_by_request_hooks(self, httpbin):\n        def hook1(*args, **kwargs):\n            pass\n",
+        "command": "/bin/zsh -lc \"sed -n '144,190p' src/requests/_types.py; cat src/requests/hooks.py; sed -n '1,45p' tests/conftest.py; sed -n '1420,1558p' tests/test_requests.py; sed -n '1614,1642p' tests/test_requests.py; sed -n '1180,1213p' tests/test_requests.py\"",
+        "exit_code": 0,
+        "id": "item_11",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 150640.492038708,
+      "utc": "2026-10-13T08:18:08.944206+00:00"
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"<PROJECT>/.venv/bin/python -c 'import sys, pytest, urllib3; print(sys.version); print(\\\"pytest\\\", pytest.__version__, \\\"urllib3\\\", urllib3.__version__)'\"",
+        "exit_code": null,
+        "id": "item_12",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 150640.546044125,
+      "utc": "2026-10-13T08:18:08.998208+00:00"
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "3.12.15 (main, Oct  9 2026, 15:10:57) [Clang 22.1.3 ]\npytest 8.3.5 urllib3 2.8.0\n",
+        "command": "/bin/zsh -lc \"<PROJECT>/.venv/bin/python -c 'import sys, pytest, urllib3; print(sys.version); print(\\\"pytest\\\", pytest.__version__, \\\"urllib3\\\", urllib3.__version__)'\"",
+        "exit_code": 0,
+        "id": "item_12",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 150640.546071583,
+      "utc": "2026-10-13T08:18:08.998241+00:00"
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "changes": [
+          {
+            "kind": "update",
+            "path": "<WORKSPACE>/src/requests/__init__.py"
+          },
+          {
+            "kind": "update",
+            "path": "<WORKSPACE>/src/requests/_types.py"
+          },
+          {
+            "kind": "update",
+            "path": "<WORKSPACE>/src/requests/api.py"
+          },
+          {
+            "kind": "update",
+            "path": "<WORKSPACE>/src/requests/exceptions.py"
+          },
+          {
+            "kind": "update",
+            "path": "<WORKSPACE>/src/requests/models.py"
+          },
+          {
+            "kind": "update",
+            "path": "<WORKSPACE>/src/requests/sessions.py"
+          }
+        ],
+        "id": "item_13",
+        "status": "in_progress",
+        "type": "file_change"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 150755.69325175,
+      "utc": "2026-10-13T08:20:04.145394+00:00"
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "changes": [
+          {
+            "kind": "update",
+            "path": "<WORKSPACE>/src/requests/__init__.py"
+          },
+          {
+            "kind": "update",
+            "path": "<WORKSPACE>/src/requests/_types.py"
+          },
+          {
+            "kind": "update",
+            "path": "<WORKSPACE>/src/requests/api.py"
+          },
+          {
+            "kind": "update",
+            "path": "<WORKSPACE>/src/requests/exceptions.py"
+          },
+          {
+            "kind": "update",
+            "path": "<WORKSPACE>/src/requests/models.py"
+          },
+          {
+            "kind": "update",
+            "path": "<WORKSPACE>/src/requests/sessions.py"
+          }
+        ],
+        "id": "item_13",
+        "status": "completed",
+        "type": "file_change"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 150755.832600291,
+      "utc": "2026-10-13T08:20:04.284763+00:00"
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"git diff --stat; rg -n 'max_response_bytes|checked_chunks' src/requests/{sessions,models,_types,api}.py; sed -n '974,1045p' src/requests/models.py; sed -n '20,85p' tests/test_lowlevel.py; sed -n '288,307p' tests/test_lowlevel.py; sed -n '1,65p' tests/test_requests.py\"",
+        "exit_code": null,
+        "id": "item_14",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 150777.892899833,
+      "utc": "2026-10-13T08:20:26.345062+00:00"
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": " src/requests/__init__.py   |  2 ++\n src/requests/_types.py     |  1 +\n src/requests/api.py        |  2 ++\n src/requests/exceptions.py | 12 ++++++++++\n src/requests/models.py     | 55 ++++++++++++++++++++++++++++++++++++++++++++++\n src/requests/sessions.py   | 54 ++++++++++++++++++++++++++++++++++++++++++---\n 6 files changed, 123 insertions(+), 3 deletions(-)\nsrc/requests/api.py:55:    :param max_response_bytes: (optional) Maximum decoded body bytes per response,\nsrc/requests/_types.py:167:        max_response_bytes: int | None\nsrc/requests/sessions.py:81:def _validate_max_response_bytes(value: int | None) -> None:\nsrc/requests/sessions.py:85:        raise ValueError(\"max_response_bytes must be None or a non-negative integer\")\nsrc/requests/sessions.py:452:        \"max_response_bytes\",\nsrc/requests/sessions.py:455:    def __init__(self, max_response_bytes: int | None = None) -> None:\nsrc/requests/sessions.py:456:        _validate_max_response_bytes(max_response_bytes)\nsrc/requests/sessions.py:460:        self.max_response_bytes = max_response_bytes\nsrc/requests/sessions.py:594:        max_response_bytes: int | None | _ResponseBytesDefault = _ResponseBytesDefault.SESSION,\nsrc/requests/sessions.py:627:        :param max_response_bytes: (optional) Maximum decoded body bytes per\nsrc/requests/sessions.py:642:        if max_response_bytes is _ResponseBytesDefault.SESSION:\nsrc/requests/sessions.py:643:            max_response_bytes = self.max_response_bytes\nsrc/requests/sessions.py:644:        _validate_max_response_bytes(max_response_bytes)\nsrc/requests/sessions.py:676:            \"max_response_bytes\": max_response_bytes,\nsrc/requests/sessions.py:783:        ``max_response_bytes`` inherits the session setting when omitted;\nsrc/requests/sessions.py:788:        max_response_bytes = kwargs.pop(\"max_response_bytes\", self.max_response_bytes)\nsrc/requests/sessions.py:789:        _validate_max_response_bytes(max_response_bytes)\nsrc/requests/sessions.py:824:        r._set_max_response_bytes(max_response_bytes)\nsrc/requests/sessions.py:828:        r._set_max_response_bytes(max_response_bytes)\nsrc/requests/sessions.py:830:            resp._set_max_response_bytes(max_response_bytes)\nsrc/requests/sessions.py:844:                r, request, max_response_bytes=max_response_bytes, **kwargs\nsrc/requests/sessions.py:866:                        max_response_bytes=max_response_bytes,\nsrc/requests/sessions.py:951:        self.max_response_bytes = None\nsrc/requests/models.py:764:        \"_max_response_bytes\",\nsrc/requests/models.py:772:        self._max_response_bytes: int | None = None\nsrc/requests/models.py:833:        self._max_response_bytes = None\nsrc/requests/models.py:915:    def _set_max_response_bytes(self, limit: int | None) -> None:\nsrc/requests/models.py:916:        self._max_response_bytes = limit\nsrc/requests/models.py:930:        limit = self._max_response_bytes\nsrc/requests/models.py:1011:        def checked_chunks(source: Iterator[bytes]) -> Generator[bytes, None, None]:\nsrc/requests/models.py:1026:        chunks = checked_chunks(chunks)\n            if hasattr(self.raw, \"stream\"):\n                try:\n                    yield from self.raw.stream(chunk_size, decode_content=True)\n                except ProtocolError as e:\n                    raise ChunkedEncodingError(e)\n                except DecodeError as e:\n                    raise ContentDecodingError(e)\n                except ReadTimeoutError as e:\n                    raise ConnectionError(e)\n                except SSLError as e:\n                    raise RequestsSSLError(e)\n            else:\n                # Standard file-like object.\n                while True:\n                    chunk = self.raw.read(chunk_size)\n                    if not chunk:\n                        break\n                    yield chunk\n\n            self._content_consumed = True\n\n        if self._content_consumed and isinstance(self._content, bool):\n            raise StreamConsumedError()\n        elif chunk_size is not None and not isinstance(\n            chunk_size, int\n        ):  # runtime guard for untyped callers\n            raise TypeError(\n                f\"chunk_size must be an int, it is instead a {type(chunk_size)}.\"\n            )\n\n        if self._content_consumed:\n            # simulate reading small chunks of the content\n            content = cast(bytes, self._content)\n            chunks = iter_slices(content, chunk_size)\n        else:\n            chunks = generate()\n\n        def checked_chunks(source: Iterator[bytes]) -> Generator[bytes, None, None]:\n            # Capture whether this iterator reads live bytes. Another iterator\n            # may change _content_consumed while this one is suspended.\n            live = not self._content_consumed\n            while True:\n                self._check_response_size()\n                try:\n                    chunk = next(source)\n                except StopIteration:\n                    return\n                if live:\n                    self._response_bytes_received += len(chunk)\n                self._check_response_size()\n                yield chunk\n\n        chunks = checked_chunks(chunks)\n\n        if decode_unicode:\n            chunks = stream_decode_response_unicode(chunks, self)\n\n        return chunks\n\n    @overload\n    def iter_lines(\n        self,\n        chunk_size: int = ITER_CHUNK_SIZE,\n        decode_unicode: Literal[False] = False,\n        delimiter: bytes | None = None,\n    ) -> Iterator[bytes]: ...\n    @overload\n    def iter_lines(\n        self,\n        chunk_size: int = ITER_CHUNK_SIZE,\n        *,\n        decode_unicode: Literal[True],\n    ) % (len(request_content), request_content)\n    sock.send(text_200)\n\n\ndef test_chunked_upload():\n    \"\"\"can safely send generators\"\"\"\n    close_server = threading.Event()\n    server = Server.basic_response_server(wait_to_close_event=close_server)\n    data = iter([b\"a\", b\"b\", b\"c\"])\n\n    with server as (host, port):\n        url = f\"http://{host}:{port}/\"\n        r = requests.post(url, data=data, stream=True)\n        close_server.set()  # release server block\n\n    assert r.status_code == 200\n    assert r.request.headers[\"Transfer-Encoding\"] == \"chunked\"\n\n\ndef test_chunked_encoding_error():\n    \"\"\"get a ChunkedEncodingError if the server returns a bad response\"\"\"\n\n    def incomplete_chunked_response_handler(sock):\n        request_content = consume_socket_content(sock, timeout=0.5)\n\n        # The server never ends the request and doesn't provide any valid chunks\n        sock.send(\n            b\"HTTP/1.1 200 OK\\r\\n\"\n            b\"Transfer-Encoding: chunked\\r\\n\"\n        )\n\n        return request_content\n\n    close_server = threading.Event()\n    server = Server(incomplete_chunked_response_handler)\n\n    with server as (host, port):\n        url = f\"http://{host}:{port}/\"\n        with pytest.raises(requests.exceptions.ChunkedEncodingError):\n            requests.get(url)\n        close_server.set()  # release server block\n\n\ndef test_chunked_upload_uses_only_specified_host_header():\n    \"\"\"Ensure we use only the specified Host header for chunked requests.\"\"\"\n    close_server = threading.Event()\n    server = Server(echo_response_handler, wait_to_close_event=close_server)\n\n    data = iter([b\"a\", b\"b\", b\"c\"])\n    custom_host = \"sample-host\"\n\n    with server as (host, port):\n        url = f\"http://{host}:{port}/\"\n        r = requests.post(url, data=data, headers={\"Host\": custom_host}, stream=True)\n        close_server.set()  # release server block\n\n    expected_header = b\"Host: %s\\r\\n\" % custom_host.encode(\"utf-8\")\n    assert expected_header in r.content\n    assert r.content.count(b\"Host: \") == 1\n\n\ndef test_chunked_upload_doesnt_skip_host_header():\n    \"\"\"Ensure we don't omit all Host headers with chunked requests.\"\"\"\n    close_server = threading.Event()\n    server = Server(echo_response_handler, wait_to_close_event=close_server)\n\n\n@pytest.mark.parametrize(\"var,scheme\", _proxy_combos)\ndef test_use_proxy_from_environment(httpbin, var, scheme):\n    url = f\"{scheme}://httpbin.org\"\n    fake_proxy = Server()  # do nothing with the requests; just close the socket\n    with fake_proxy as (host, port):\n        proxy_url = f\"socks5://{host}:{port}\"\n        kwargs = {var: proxy_url}\n        with override_environ(**kwargs):\n            # fake proxy's lack of response will cause a ConnectionError\n            with pytest.raises(requests.exceptions.ConnectionError):\n                requests.get(url)\n\n        # the fake proxy received a request\n        assert len(fake_proxy.handler_results) == 1\n\n        # it had actual content (not checking for SOCKS protocol for now)\n        assert len(fake_proxy.handler_results[0]) > 0\n\n\n\"\"\"Tests for Requests.\"\"\"\n\nimport collections\nimport contextlib\nimport io\nimport json\nimport os\nimport pickle\nimport re\nimport tempfile\nimport threading\nimport warnings\nfrom unittest import mock\n\nimport pytest\nimport urllib3\nfrom urllib3.util import Timeout as Urllib3Timeout\n\nimport requests\nfrom requests.adapters import HTTPAdapter\nfrom requests.auth import HTTPDigestAuth, _basic_auth_str\nfrom requests.compat import (\n    JSONDecodeError,\n    Morsel,\n    MutableMapping,\n    builtin_str,\n    cookielib,\n    getproxies,\n    is_urllib3_1,\n    urlparse,\n)\nfrom requests.cookies import cookiejar_from_dict, morsel_to_cookie\nfrom requests.exceptions import (\n    ChunkedEncodingError,\n    ConnectionError,\n    ConnectTimeout,\n    ContentDecodingError,\n    InvalidHeader,\n    InvalidProxyURL,\n    InvalidSchema,\n    InvalidURL,\n    MissingSchema,\n    ProxyError,\n    ReadTimeout,\n    RequestException,\n    RetryError,\n    Timeout,\n    TooManyRedirects,\n    UnrewindableBodyError,\n)\nfrom requests.exceptions import SSLError as RequestsSSLError\nfrom requests.hooks import default_hooks\nfrom requests.models import PreparedRequest, urlencode\nfrom requests.sessions import SessionRedirectMixin\nfrom requests.structures import CaseInsensitiveDict\n\nfrom . import SNIMissingWarning\nfrom .compat import StringIO\nfrom .testserver.server import TLSServer, consume_socket_content\nfrom .utils import override_environ\n\n# Requests to this URL should always fail with a connection timeout (nothing\n# listening on that port)\nTARPIT = \"http://10.255.255.1\"\n\n",
+        "command": "/bin/zsh -lc \"git diff --stat; rg -n 'max_response_bytes|checked_chunks' src/requests/{sessions,models,_types,api}.py; sed -n '974,1045p' src/requests/models.py; sed -n '20,85p' tests/test_lowlevel.py; sed -n '288,307p' tests/test_lowlevel.py; sed -n '1,65p' tests/test_requests.py\"",
+        "exit_code": 0,
+        "id": "item_14",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 150777.892946958,
+      "utc": "2026-10-13T08:20:26.345116+00:00"
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "changes": [
+          {
+            "kind": "update",
+            "path": "<WORKSPACE>/src/requests/models.py"
+          },
+          {
+            "kind": "add",
+            "path": "<WORKSPACE>/tests/test_response_limit.py"
+          }
+        ],
+        "id": "item_15",
+        "status": "in_progress",
+        "type": "file_change"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 151070.117163708,
+      "utc": "2026-10-13T08:25:18.569310+00:00"
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "changes": [
+          {
+            "kind": "update",
+            "path": "<WORKSPACE>/src/requests/models.py"
+          },
+          {
+            "kind": "add",
+            "path": "<WORKSPACE>/tests/test_response_limit.py"
+          }
+        ],
+        "id": "item_15",
+        "status": "completed",
+        "type": "file_change"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 151070.192366166,
+      "utc": "2026-10-13T08:25:18.644532+00:00"
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "id": "item_16",
+        "text": "The implementation is in place. The new tests cover decompressed byte counts, cumulative streaming reads, cached hook responses, redirect budgets, cleanup failures, and the public helpers. I\u2019ll run those first, then check compatibility with the existing tests.",
+        "type": "agent_message"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 151082.612835666,
+      "utc": "2026-10-13T08:25:31.064989+00:00"
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc 'NETRC=\"$PWD/.requests-test-netrc\" PYTHONPATH=src <PROJECT>/.venv/bin/python -m pytest tests/test_response_limit.py -q --tb=short'",
+        "exit_code": null,
+        "id": "item_17",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 151086.467123,
+      "utc": "2026-10-13T08:25:34.919290+00:00"
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "........................................................................ [ 62%]\n............................................                             [100%]\n116 passed in 0.61s\n",
+        "command": "/bin/zsh -lc 'NETRC=\"$PWD/.requests-test-netrc\" PYTHONPATH=src <PROJECT>/.venv/bin/python -m pytest tests/test_response_limit.py -q --tb=short'",
+        "exit_code": 0,
+        "id": "item_17",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 151087.233797291,
+      "utc": "2026-10-13T08:25:35.685962+00:00"
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"rg -n 'TARPIT|requests\\\\.(get|post|request|put|head|delete|options|patch)\\\\(\\\"https?://|\\\\.get\\\\(\\\"https?://|\\\\.send\\\\(' tests/test_requests.py; sed -n '2536,2615p' tests/test_requests.py; sed -n '2280,2328p' tests/test_requests.py; rg -n '\"'^def test_|''^    def test_|httpbin|https?://'\"' tests/test_adapters.py\"",
+        "exit_code": null,
+        "id": "item_18",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 151143.298061458,
+      "utc": "2026-10-13T08:26:31.750231+00:00"
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "64:TARPIT = \"http://10.255.255.1\"\n66:# This is to avoid waiting the timeout of using TARPIT\n202:        r = s.send(r.prepare())\n210:        r = s.send(r.prepare())\n325:        resp = ses.send(prep)\n465:        resp = s.send(prep_req)\n622:                session.send(request.prepare())\n630:                session.send(prepared)\n639:                session.send(request.prepare())\n1167:        resp = s.send(prep)\n1175:            s.send(req)\n1198:        s.send(prep)\n1235:        resp = s.send(prep)\n1252:        resp = s.send(prep)\n1569:        resp = s.send(r)\n1585:        resp = s.send(r)\n1601:        resp = s.send(r)\n1607:            requests.Session().send(r)\n1626:        r = s.send(r.prepare())\n2583:            requests.get(TARPIT, timeout=timeout)\n2594:            requests.get(TARPIT, timeout=timeout)\n2652:    r0 = session.send(prep)\n2931:            sock.send(\n2964:            sock.send(\n2997:            sock.send(\n3031:            sock.send(\nclass TestTimeout:\n    def test_stream_timeout(self, httpbin):\n        try:\n            requests.get(httpbin(\"delay/10\"), timeout=2.0)\n        except requests.exceptions.Timeout as e:\n            assert \"Read timed out\" in e.args[0].args[0]\n\n    @pytest.mark.parametrize(\n        \"timeout, error_text\",\n        (\n            ((3, 4, 5), \"(connect, read)\"),\n            (\"foo\", \"must be an int, float or None\"),\n        ),\n    )\n    def test_invalid_timeout(self, httpbin, timeout, error_text):\n        with pytest.raises(ValueError) as e:\n            requests.get(httpbin(\"get\"), timeout=timeout)\n        assert error_text in str(e)\n\n    @pytest.mark.parametrize(\"timeout\", (None, Urllib3Timeout(connect=None, read=None)))\n    def test_none_timeout(self, httpbin, timeout):\n        \"\"\"Check that you can set None as a valid timeout value.\n\n        To actually test this behavior, we'd want to check that setting the\n        timeout to None actually lets the request block past the system default\n        timeout. However, this would make the test suite unbearably slow.\n        Instead we verify that setting the timeout to None does not prevent the\n        request from succeeding.\n        \"\"\"\n        r = requests.get(httpbin(\"get\"), timeout=timeout)\n        assert r.status_code == 200\n\n    @pytest.mark.parametrize(\n        \"timeout\", ((None, 0.1), Urllib3Timeout(connect=None, read=0.1))\n    )\n    def test_read_timeout(self, httpbin, timeout):\n        try:\n            requests.get(httpbin(\"delay/10\"), timeout=timeout)\n            pytest.fail(\"The recv() request should time out.\")\n        except ReadTimeout:\n            pass\n\n    @pytest.mark.parametrize(\n        \"timeout\", ((0.1, None), Urllib3Timeout(connect=0.1, read=None))\n    )\n    def test_connect_timeout(self, timeout):\n        try:\n            requests.get(TARPIT, timeout=timeout)\n            pytest.fail(\"The connect() request should time out.\")\n        except ConnectTimeout as e:\n            assert isinstance(e, ConnectionError)\n            assert isinstance(e, Timeout)\n\n    @pytest.mark.parametrize(\n        \"timeout\", ((0.1, 0.1), Urllib3Timeout(connect=0.1, read=0.1))\n    )\n    def test_total_timeout_connect(self, timeout):\n        try:\n            requests.get(TARPIT, timeout=timeout)\n            pytest.fail(\"The connect() request should time out.\")\n        except ConnectTimeout:\n            pass\n\n    def test_encoded_methods(self, httpbin):\n        \"\"\"See: https://github.com/psf/requests/issues/2316\"\"\"\n        r = requests.request(b\"GET\", httpbin(\"get\"))\n        assert r.ok\n\n\nSendCall = collections.namedtuple(\"SendCall\", (\"args\", \"kwargs\"))\n\n\nclass RedirectSession(SessionRedirectMixin):\n    def __init__(self, order_of_redirects):\n        self.redirects = order_of_redirects\n        self.calls = []\n        self.max_redirects = 30\n        self.cookies = {}\n        self.trust_env = False\n\n        url = httpbin(\"post\")\n        r = requests.Request(\"POST\", url, data=data)\n        prepared_request = r.prepare()\n        assert \"Transfer-Encoding\" in prepared_request.headers\n        assert \"Content-Length\" not in prepared_request.headers\n\n    def test_custom_redirect_mixin(self, httpbin):\n        \"\"\"Tests a custom mixin to overwrite ``get_redirect_target``.\n\n        Ensures a subclassed ``requests.Session`` can handle a certain type of\n        malformed redirect responses.\n\n        1. original request receives a proper response: 302 redirect\n        2. following the redirect, a malformed response is given:\n            status code = HTTP 200\n            location = alternate url\n        3. the custom session catches the edge case and follows the redirect\n        \"\"\"\n        url_final = httpbin(\"html\")\n        querystring_malformed = urlencode({\"location\": url_final})\n        url_redirect_malformed = httpbin(\"response-headers?%s\" % querystring_malformed)\n        querystring_redirect = urlencode({\"url\": url_redirect_malformed})\n        url_redirect = httpbin(\"redirect-to?%s\" % querystring_redirect)\n        urls_test = [\n            url_redirect,\n            url_redirect_malformed,\n            url_final,\n        ]\n\n        class CustomRedirectSession(requests.Session):\n            def get_redirect_target(self, resp):\n                # default behavior\n                if resp.is_redirect:\n                    return resp.headers[\"location\"]\n                # edge case - check to see if 'location' is in headers anyways\n                location = resp.headers.get(\"location\")\n                if location and (location != resp.url):\n                    return location\n                return None\n\n        session = CustomRedirectSession()\n        r = session.get(urls_test[0])\n        assert len(r.history) == 2\n        assert r.status_code == 200\n        assert r.history[0].status_code == 302\n        assert r.history[0].is_redirect\n        assert r.history[1].status_code == 200\n        assert not r.history[1].is_redirect\n        assert r.url == urls_test[2]\n4:def test_request_url_handles_leading_path_separators():\n5:    \"\"\"See also https://github.com/psf/requests/issues/6643.\"\"\"\n7:    p = requests.Request(method=\"GET\", url=\"http://127.0.0.1:10000//v:h\").prepare()\n",
+        "command": "/bin/zsh -lc \"rg -n 'TARPIT|requests\\\\.(get|post|request|put|head|delete|options|patch)\\\\(\\\"https?://|\\\\.get\\\\(\\\"https?://|\\\\.send\\\\(' tests/test_requests.py; sed -n '2536,2615p' tests/test_requests.py; sed -n '2280,2328p' tests/test_requests.py; rg -n '\"'^def test_|''^    def test_|httpbin|https?://'\"' tests/test_adapters.py\"",
+        "exit_code": 0,
+        "id": "item_18",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 151143.298093458,
+      "utc": "2026-10-13T08:26:31.750269+00:00"
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"git diff --check; git diff -- src/requests/models.py src/requests/sessions.py; <PROJECT>/.venv/bin/python -c 'import importlib.util; print({name: importlib.util.find_spec(name) is not None for name in (\\\"ruff\\\", \\\"pyright\\\", \\\"pytest_httpbin\\\", \\\"pytest_mock\\\")})'\"",
+        "exit_code": null,
+        "id": "item_19",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 151143.309331583,
+      "utc": "2026-10-13T08:26:31.761504+00:00"
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "diff --git a/src/requests/models.py b/src/requests/models.py\nindex 17b39cd..7966b01 100644\n--- a/src/requests/models.py\n+++ b/src/requests/models.py\n@@ -62,6 +62,7 @@ from .exceptions import (\n     InvalidJSONError,\n     InvalidURL,\n     MissingSchema,\n+    ResponseTooLarge,\n     StreamConsumedError,\n )\n from .exceptions import JSONDecodeError as RequestsJSONDecodeError\n@@ -760,12 +761,17 @@ class Response:\n         \"cookies\",\n         \"elapsed\",\n         \"request\",\n+        \"_max_response_bytes\",\n+        \"_response_bytes_received\",\n     ]\n \n     def __init__(self) -> None:\n         self._content = False\n         self._content_consumed = False\n         self._next = None\n+        self._max_response_bytes: int | None = None\n+        self._response_bytes_received = 0\n+        self._response_too_large: ResponseTooLarge | None = None\n \n         #: Integer Code of responded HTTP Status, e.g. 404 or 200.\n         self.status_code = None  # type: ignore[assignment]\n@@ -824,6 +830,9 @@ class Response:\n         return {attr: getattr(self, attr, None) for attr in self.__attrs__}\n \n     def __setstate__(self, state: dict[str, Any]) -> None:\n+        self._max_response_bytes = None\n+        self._response_bytes_received = 0\n+        self._response_too_large = None\n         for name, value in state.items():\n             setattr(self, name, value)\n \n@@ -903,6 +912,33 @@ class Response:\n             # to a standard Python utf-8 str.\n             return \"utf-8\"\n \n+    def _set_max_response_bytes(self, limit: int | None) -> None:\n+        self._max_response_bytes = limit\n+        self._check_response_size()\n+\n+    def _check_response_size(self) -> None:\n+        if self._response_too_large is not None:\n+            raise self._response_too_large\n+\n+        # Cached bytes may come from an adapter or a response hook. They have\n+        # already been decoded, and replaying them must not count them twice.\n+        if isinstance(self._content, bytes):\n+            self._response_bytes_received = max(\n+                self._response_bytes_received, len(self._content)\n+            )\n+\n+        limit = self._max_response_bytes\n+        if limit is not None and self._response_bytes_received > limit:\n+            error = ResponseTooLarge(limit, self._response_bytes_received, response=self)\n+            # Store the error before cleanup so every later read fails without\n+            # touching the stream, even if close() itself fails.\n+            self._response_too_large = error\n+            try:\n+                self.close()\n+            except Exception as cleanup_error:\n+                raise error from cleanup_error\n+            raise error\n+\n     @overload\n     def iter_content(\n         self, chunk_size: int | None = 1, decode_unicode: Literal[False] = False\n@@ -931,6 +967,7 @@ class Response:\n         bytes will be returned. This can be bypassed by manually setting\n         `encoding` on the response.\n         \"\"\"\n+        self._check_response_size()\n \n         def generate() -> Generator[bytes, None, None]:\n             # Special case for urllib3.\n@@ -971,6 +1008,24 @@ class Response:\n         else:\n             chunks = generate()\n \n+        # Capture whether this iterator reads live bytes. Another iterator\n+        # may change _content_consumed while this one is suspended.\n+        live = not self._content_consumed\n+\n+        def checked_chunks(source: Iterator[bytes]) -> Generator[bytes, None, None]:\n+            while True:\n+                self._check_response_size()\n+                try:\n+                    chunk = next(source)\n+                except StopIteration:\n+                    return\n+                if live:\n+                    self._response_bytes_received += len(chunk)\n+                self._check_response_size()\n+                yield chunk\n+\n+        chunks = checked_chunks(chunks)\n+\n         if decode_unicode:\n             chunks = stream_decode_response_unicode(chunks, self)\n \n@@ -1034,6 +1089,7 @@ class Response:\n     @property\n     def content(self) -> bytes:\n         \"\"\"Content of the response, in bytes.\"\"\"\n+        self._check_response_size()\n \n         if self._content is False:\n             # Read the contents.\ndiff --git a/src/requests/sessions.py b/src/requests/sessions.py\nindex d11355b..a44fdaf 100644\n--- a/src/requests/sessions.py\n+++ b/src/requests/sessions.py\n@@ -14,6 +14,7 @@ import time\n from collections import OrderedDict\n from collections.abc import Generator, Mapping, MutableMapping\n from datetime import timedelta\n+from enum import Enum\n from typing import TYPE_CHECKING, Any, cast\n \n from ._internal_utils import to_native_string\n@@ -73,6 +74,17 @@ else:\n     preferred_clock = time.time\n \n \n+class _ResponseBytesDefault(Enum):\n+    SESSION = 0\n+\n+\n+def _validate_max_response_bytes(value: int | None) -> None:\n+    if value is not None and (\n+        isinstance(value, bool) or not isinstance(value, int) or value < 0\n+    ):\n+        raise ValueError(\"max_response_bytes must be None or a non-negative integer\")\n+\n+\n def merge_setting(\n     request_setting: Any, session_setting: Any, dict_class: type = OrderedDict\n ) -> Any:\n@@ -437,9 +449,16 @@ class Session(SessionRedirectMixin):\n         \"stream\",\n         \"trust_env\",\n         \"max_redirects\",\n+        \"max_response_bytes\",\n     ]\n \n-    def __init__(self) -> None:\n+    def __init__(self, max_response_bytes: int | None = None) -> None:\n+        _validate_max_response_bytes(max_response_bytes)\n+        #: Maximum decoded body bytes per response, including redirects.\n+        #: None allows unlimited bytes. Requests inherit this setting unless\n+        #: they explicitly supply a limit or None to disable it.\n+        self.max_response_bytes = max_response_bytes\n+\n         #: A case-insensitive dictionary of headers to be sent on each\n         #: :class:`Request <Request>` sent from this\n         #: :class:`Session <Session>`.\n@@ -572,6 +591,7 @@ class Session(SessionRedirectMixin):\n         verify: _t.VerifyType | None = None,\n         cert: _t.CertType = None,\n         json: _t.JsonType = None,\n+        max_response_bytes: int | None | _ResponseBytesDefault = _ResponseBytesDefault.SESSION,\n     ) -> Response:\n         \"\"\"Constructs a :class:`Request <Request>`, prepares it and sends it.\n         Returns :class:`Response <Response>` object.\n@@ -604,6 +624,9 @@ class Session(SessionRedirectMixin):\n             list of events, event must be callable.\n         :param stream: (optional) whether to immediately download the response\n             content. Defaults to ``False``.\n+        :param max_response_bytes: (optional) Maximum decoded body bytes per\n+            response, including redirects. Omission inherits the session setting;\n+            explicit ``None`` disables the budget for this request.\n         :param verify: (optional) Either a boolean, in which case it controls whether we verify\n             the server's TLS certificate, or a string, in which case it must be a path\n             to a CA bundle to use. Defaults to ``True``. When set to\n@@ -616,6 +639,10 @@ class Session(SessionRedirectMixin):\n             If Tuple, ('cert', 'key') pair.\n         :rtype: requests.Response\n         \"\"\"\n+        if max_response_bytes is _ResponseBytesDefault.SESSION:\n+            max_response_bytes = self.max_response_bytes\n+        _validate_max_response_bytes(max_response_bytes)\n+\n         if isinstance(url, bytes):\n             url = url.decode(\"utf-8\")\n \n@@ -646,6 +673,7 @@ class Session(SessionRedirectMixin):\n         send_kwargs = {\n             \"timeout\": timeout,\n             \"allow_redirects\": allow_redirects,\n+            \"max_response_bytes\": max_response_bytes,\n         }\n         send_kwargs.update(settings)\n         resp = self.send(prep, **send_kwargs)\n@@ -752,8 +780,14 @@ class Session(SessionRedirectMixin):\n     def send(self, request: PreparedRequest, **kwargs: Any) -> Response:\n         \"\"\"Send a given PreparedRequest.\n \n+        ``max_response_bytes`` inherits the session setting when omitted;\n+        explicit ``None`` disables the decoded body budget, including redirects.\n+\n         :rtype: requests.Response\n         \"\"\"\n+        max_response_bytes = kwargs.pop(\"max_response_bytes\", self.max_response_bytes)\n+        _validate_max_response_bytes(max_response_bytes)\n+\n         # Set defaults that the hooks can utilize to ensure they always have\n         # the correct parameters to reproduce the previous request.\n         kwargs.setdefault(\"stream\", self.stream)\n@@ -787,8 +821,13 @@ class Session(SessionRedirectMixin):\n         elapsed = preferred_clock() - start\n         r.elapsed = timedelta(seconds=elapsed)\n \n+        r._set_max_response_bytes(max_response_bytes)\n+\n         # Response manipulation hooks\n         r = dispatch_hook(\"response\", hooks, r, **kwargs)\n+        r._set_max_response_bytes(max_response_bytes)\n+        for resp in r.history:\n+            resp._set_max_response_bytes(max_response_bytes)\n \n         # Persist cookies\n         if r.history:\n@@ -801,7 +840,9 @@ class Session(SessionRedirectMixin):\n         # Resolve redirects if allowed.\n         if allow_redirects:\n             # Redirect resolving generator.\n-            gen = self.resolve_redirects(r, request, **kwargs)\n+            gen = self.resolve_redirects(\n+                r, request, max_response_bytes=max_response_bytes, **kwargs\n+            )\n             history = [resp for resp in gen]\n         else:\n             history = []\n@@ -818,7 +859,13 @@ class Session(SessionRedirectMixin):\n         if not allow_redirects:\n             try:\n                 r._next = next(  # type: ignore[assignment]  # yield_requests=True returns PreparedRequest\n-                    self.resolve_redirects(r, request, yield_requests=True, **kwargs)\n+                    self.resolve_redirects(\n+                        r,\n+                        request,\n+                        yield_requests=True,\n+                        max_response_bytes=max_response_bytes,\n+                        **kwargs,\n+                    )\n                 )\n             except StopIteration:\n                 pass\n@@ -901,6 +948,7 @@ class Session(SessionRedirectMixin):\n         return state\n \n     def __setstate__(self, state: dict[str, Any]) -> None:\n+        self.max_response_bytes = None\n         for attr, value in state.items():\n             setattr(self, attr, value)\n \n{'ruff': True, 'pyright': False, 'pytest_httpbin': True, 'pytest_mock': True}\n",
+        "command": "/bin/zsh -lc \"git diff --check; git diff -- src/requests/models.py src/requests/sessions.py; <PROJECT>/.venv/bin/python -c 'import importlib.util; print({name: importlib.util.find_spec(name) is not None for name in (\\\"ruff\\\", \\\"pyright\\\", \\\"pytest_httpbin\\\", \\\"pytest_mock\\\")})'\"",
+        "exit_code": 0,
+        "id": "item_19",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 151143.309455291,
+      "utc": "2026-10-13T08:26:31.761628+00:00"
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"rg -n 'https?://' tests/test_requests.py\"",
+        "exit_code": null,
+        "id": "item_20",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 151156.916256291,
+      "utc": "2026-10-13T08:26:45.368420+00:00"
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "64:TARPIT = \"http://10.255.255.1\"\n67:INVALID_PROXY = \"http://localhost:1\"\n106:            (InvalidURL, \"http://\"),\n107:            (InvalidURL, \"http://*example.com\"),\n108:            (InvalidURL, \"http://.example.com\"),\n117:        req.url = \"http://kennethreitz.org/\"\n146:        request = requests.Request(\"GET\", \"http://0.0.0.0/get/test case\").prepare()\n154:                \"http://example.com/path#fragment\",\n155:                \"http://example.com/path?a=b#fragment\",\n158:                \"http://example.com/path?key=value#fragment\",\n159:                \"http://example.com/path?key=value&a=b#fragment\",\n173:            \"GET\", \"http://example.com/\", params=param_ordered_dict\n176:        assert prep.url == \"http://example.com/?z=1&a=1&k=1&d=1\"\n180:            \"GET\", \"http://example.com\", params=b\"test=foo\"\n182:        assert request.url == \"http://example.com/?test=foo\"\n186:            \"PUT\", \"http://example.com\", data=\"\u00f6\u00f6\u00f6\".encode()\n192:        request = requests.Request(\"GET\", \" http://example.com\").prepare()\n193:        assert request.url == \"http://example.com/\"\n195:    @pytest.mark.parametrize(\"scheme\", (\"http://\", \"HTTP://\", \"hTTp://\", \"HttP://\"))\n344:        # Create Response to avoid https://github.com/kevin1024/pytest-httpbin/issues/33\n577:        r = requests.Request(\"GET\", \"http://localhost\", auth=auth)\n586:            (\"http://doesnotexist.google.com\", ConnectionError),\n588:            (\"http://localhost:1\", ConnectionError),\n590:            (\"http://fe80::5054:ff:fe5a:fc0\", InvalidURL),\n601:                \"http://localhost:1\", proxies={\"http\": \"non-resolvable-address\"}\n609:            requests.get(httpbin(), proxies={\"http\": \"http://:8080\"})\n612:            requests.get(httpbin_secure(), proxies={\"https\": \"https://\"})\n615:            requests.get(httpbin(), proxies={\"http\": \"http:///example.com:8080\"})\n665:            (\"http://example.com\", True),\n666:            (\"https://example.com\", False),\n674:            \"http\": \"http://test:pass@localhost:8080\",\n675:            \"https\": \"http://test:pass@localhost:8090\",\n720:        url = url1[len(\"http://\") :]\n722:        url = f\"http://example.com:@{url}\"\n1048:            requests.get(f\"https://localhost:{port}/\", verify=ca_bundle)\n1257:        req = requests.Request(\"GET\", b\"https://httpbin.org/\")\n1260:        assert prep.url == \"https://httpbin.org/\"\n1283:                \"<https://api.github.com/users/kennethreitz/repos?\"\n1284:                'page=2&per_page=10>; rel=\"next\", <https://api.github.'\n1649:        order = [\"https://\", \"http://\"]\n1651:        s.mount(\"http://git\", HTTPAdapter())\n1652:        s.mount(\"http://github\", HTTPAdapter())\n1653:        s.mount(\"http://github.com\", HTTPAdapter())\n1654:        s.mount(\"http://github.com/about/\", HTTPAdapter())\n1656:            \"http://github.com/about/\",\n1657:            \"http://github.com\",\n1658:            \"http://github\",\n1659:            \"http://git\",\n1660:            \"https://\",\n1661:            \"http://\",\n1664:        s.mount(\"http://gittip\", HTTPAdapter())\n1665:        s.mount(\"http://gittip.com\", HTTPAdapter())\n1666:        s.mount(\"http://gittip.com/about/\", HTTPAdapter())\n1668:            \"http://github.com/about/\",\n1669:            \"http://gittip.com/about/\",\n1670:            \"http://github.com\",\n1671:            \"http://gittip.com\",\n1672:            \"http://github\",\n1673:            \"http://gittip\",\n1674:            \"http://git\",\n1675:            \"https://\",\n1676:            \"http://\",\n1680:        s2.adapters = {\"http://\": HTTPAdapter()}\n1681:        s2.mount(\"https://\", HTTPAdapter())\n1682:        assert \"http://\" in s2.adapters\n1683:        assert \"https://\" in s2.adapters\n1686:        prefix = \"https://example.com\"\n1691:        url_not_matching_prefix = \"https://another.example.com/\"\n1733:        prefix = \"https://example.com/\"  # trailing slash\n1734:        url_matching_prefix = \"https://example.com/some/path\"\n1735:        url_not_matching_prefix = \"https://example.com.other.com/some/path\"\n1746:        prefix = \"https://example.com\"  # no trailing slash\n1747:        url_matching_prefix = \"https://example.com/some/path\"\n1748:        url_extended_hostname = \"https://example.com.other.com/some/path\"\n1771:        url = \"http://{}:{}@{}:9000/path?query#frag\".format(\n1943:            \"http://example.com/foo\", \"http://another.example.com/\"\n1948:        assert s.should_strip_auth(\"https://example.com/foo\", \"http://example.com/bar\")\n1953:            \"http://example.com/foo\", \"https://example.com/bar\"\n1956:            \"http://example.com:80/foo\", \"https://example.com/bar\"\n1959:            \"http://example.com/foo\", \"https://example.com:443/bar\"\n1963:            \"http://example.com:8080/foo\", \"https://example.com/bar\"\n1966:            \"http://example.com/foo\", \"https://example.com:8443/bar\"\n1972:            \"http://example.com:1234/foo\", \"https://example.com:4321/bar\"\n1978:            (\"https://example.com:443/foo\", \"https://example.com/bar\"),\n1979:            (\"http://example.com:80/foo\", \"http://example.com/bar\"),\n1980:            (\"https://example.com/foo\", \"https://example.com:443/bar\"),\n1981:            (\"http://example.com/foo\", \"http://example.com:80/bar\"),\n2009:        prep = requests.Request(\"GET\", \"http://example.com\", data=data).prepare()\n2014:        prep = requests.Request(\"GET\", \"http://example.com\", data=data).prepare()\n2028:        prep = requests.Request(\"GET\", \"http://example.com\", data=data).prepare()\n2051:        prep = requests.Request(\"GET\", \"http://example.com\", data=data).prepare()\n2074:        prep = requests.Request(\"GET\", \"http://example.com\", data=data).prepare()\n2094:        prep = requests.Request(\"GET\", \"http://example.com\", data=data).prepare()\n2215:        with mock.patch.dict(session.adapters[\"http://\"].proxy_manager, proxies):\n2222:        headers = adapter.proxy_headers(\"http://user:pass@httpbin.org\")\n2227:        headers = adapter.proxy_headers(\"http://user:@httpbin.org\")\n2600:        \"\"\"See: https://github.com/psf/requests/issues/2316\"\"\"\n2645:    p.prepare(method=\"GET\", url=\"https://www.example.com/\", json=body)\n2673:        (\"http_proxy\", \"http://example.com\", \"socks5://proxy.com:9876\"),\n2674:        (\"https_proxy\", \"https://example.com\", \"socks5://proxy.com:9876\"),\n2675:        (\"all_proxy\", \"http://example.com\", \"socks5://proxy.com:9876\"),\n2676:        (\"all_proxy\", \"https://example.com\", \"socks5://proxy.com:9876\"),\n2706:        method=\"GET\", url=\"http://www.example.com\", data=data, hooks=default_hooks()\n2717:            \"url\": \"http://www.example.com\",\n2723:            \"url\": \"http://www.example.com\",\n2728:        {\"method\": \"GET\", \"url\": \"http://www.example.com/\u00fcni\u00e7\u00f8\u2202\u00e9\"},\n2744:    s.mount(\"http://\", HTTPAdapter(max_retries=Retry(total=2, status_forcelist=[500])))\n2752:    s.mount(\"http://\", HTTPAdapter(pool_connections=0, pool_maxsize=0))\n2764:            (\"http://google.com\", \"http://google.com/\"),\n2765:            (\"http://\u30b8\u30a7\u30fc\u30d4\u30fc\u30cb\u30c3\u30af.jp\", \"http://xn--hckqz9bzb1cyrb.jp/\"),\n2766:            (\"http://xn--n3h.net/\", \"http://xn--n3h.net/\"),\n2767:            (\"http://\u30b8\u30a7\u30fc\u30d4\u30fc\u30cb\u30c3\u30af.jp\".encode(), \"http://xn--hckqz9bzb1cyrb.jp/\"),\n2768:            (\"http://stra\u00dfe.de/stra\u00dfe\", \"http://xn--strae-oqa.de/stra%C3%9Fe\"),\n2770:                \"http://stra\u00dfe.de/stra\u00dfe\".encode(),\n2771:                \"http://xn--strae-oqa.de/stra%C3%9Fe\",\n2774:                \"http://K\u00f6nigsg\u00e4\u00dfchen.de/stra\u00dfe\",\n2775:                \"http://xn--knigsgchen-b4a3dun.de/stra%C3%9Fe\",\n2778:                \"http://K\u00f6nigsg\u00e4\u00dfchen.de/stra\u00dfe\".encode(),\n2779:                \"http://xn--knigsgchen-b4a3dun.de/stra%C3%9Fe\",\n2781:            (b\"http://xn--n3h.net/\", \"http://xn--n3h.net/\"),\n2783:                b\"http://[1200:0000:ab00:1234:0000:2552:7777:1313]:12345/\",\n2784:                \"http://[1200:0000:ab00:1234:0000:2552:7777:1313]:12345/\",\n2787:                \"http://[1200:0000:ab00:1234:0000:2552:7777:1313]:12345/\",\n2788:                \"http://[1200:0000:ab00:1234:0000:2552:7777:1313]:12345/\",\n2807:            b\"http://*.google.com\",\n2808:            b\"http://*\",\n2809:            \"http://*.google.com\",\n2810:            \"http://*\",\n2811:            \"http://\u2603.net/\",\n2819:    @pytest.mark.parametrize(\"url, exception\", ((\"http://:1\", InvalidURL),))\n2948:            url = f\"https://{host}:{port}\"\n2957:        assert 2 == len(s.adapters[\"https://\"].poolmanager.pools)\n2981:            url = f\"https://{host}:{port}\"\n2990:        assert 2 == len(s.adapters[\"https://\"].poolmanager.pools)\n3014:            url = f\"https://{host}:{port}\"\n3022:        assert 2 == len(s.adapters[\"https://\"].poolmanager.pools)\n3054:            url = f\"https://{host}:{port}\"\n",
+        "command": "/bin/zsh -lc \"rg -n 'https?://' tests/test_requests.py\"",
+        "exit_code": 0,
+        "id": "item_20",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 151156.916313791,
+      "utc": "2026-10-13T08:26:45.368490+00:00"
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc '<PROJECT>/.venv/bin/python -m ruff check src/requests/__init__.py src/requests/_types.py src/requests/api.py src/requests/exceptions.py src/requests/models.py src/requests/sessions.py tests/test_response_limit.py; <PROJECT>/.venv/bin/python -m ruff format --check src/requests/__init__.py src/requests/_types.py src/requests/api.py src/requests/exceptions.py src/requests/models.py src/requests/sessions.py tests/test_response_limit.py'",
+        "exit_code": null,
+        "id": "item_21",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 151186.171947083,
+      "utc": "2026-10-13T08:27:14.624112+00:00"
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "UP012 [*] Unnecessary UTF-8 `encoding` argument to `encode`\n  --> tests/test_response_limit.py:83:24\n   |\n81 |                 body = b\"\"\n82 |             elif self.path == \"/unicode\":\n83 |                 body = \"\u00e9\ud83d\ude42\".encode(\"utf-8\")\n   |                        ^^^^^^^^^^^^^^^^^^^^^\n84 |                 headers[\"Content-Type\"] = \"text/plain; charset=utf-8\"\n85 |             elif self.path == \"/gzip\":\n   |\nhelp: Remove unnecessary `encoding` argument\n\nUP012 [*] Unnecessary UTF-8 `encoding` argument to `encode`\n   --> tests/test_response_limit.py:337:117\n    |\n337 | \u2026dy\", b\"abcdef\"), (\"/chunked\", b\"abcdef\"), (\"/unicode\", \"\u00e9\ud83d\ude42\".encode(\"utf-8\"))])\n    |                                                         ^^^^^^^^^^^^^^^^^^^^^\n338 | \u2026\n339 | \u2026dy, stream):\n    |\nhelp: Remove unnecessary `encoding` argument\n\nFound 2 errors.\n[*] 2 fixable with the `--fix` option.\nWould reformat: src/requests/models.py\nWould reformat: src/requests/sessions.py\nWould reformat: tests/test_response_limit.py\n3 files would be reformatted, 4 files already formatted\n",
+        "command": "/bin/zsh -lc '<PROJECT>/.venv/bin/python -m ruff check src/requests/__init__.py src/requests/_types.py src/requests/api.py src/requests/exceptions.py src/requests/models.py src/requests/sessions.py tests/test_response_limit.py; <PROJECT>/.venv/bin/python -m ruff format --check src/requests/__init__.py src/requests/_types.py src/requests/api.py src/requests/exceptions.py src/requests/models.py src/requests/sessions.py tests/test_response_limit.py'",
+        "exit_code": 1,
+        "id": "item_21",
+        "status": "failed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 151186.171973291,
+      "utc": "2026-10-13T08:27:14.624149+00:00"
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc 'NETRC=\"$PWD/.requests-test-netrc\" PYTHONPATH=src <PROJECT>/.venv/bin/python -m pytest tests/test_requests.py::TestRequests -k '\"'redirect or content or stream or pickle or hook or decompress or encoding' -q --tb=short\"",
+        "exit_code": null,
+        "id": "item_22",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 151186.193775,
+      "utc": "2026-10-13T08:27:14.645943+00:00"
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc 'NETRC=\"$PWD/.requests-test-netrc\" PYTHONPATH=src <PROJECT>/.venv/bin/python -m pytest tests/test_lowlevel.py -k '\"'not use_proxy_from_environment' tests/test_hooks.py tests/test_adapters.py -q --tb=short\"",
+        "exit_code": null,
+        "id": "item_23",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 151186.202058166,
+      "utc": "2026-10-13T08:27:14.654232+00:00"
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": ".............127.0.0.1 - - [13/Oct/2026 04:27:14] \"POST /post HTTP/1.1\" 200 291\n.......................................127.0.0.1 - - [13/Oct/2026 04:27:14] \"GET /html HTTP/1.1\" 200 3741\n.                    [100%]\n53 passed, 199 deselected in 0.70s\n",
+        "command": "/bin/zsh -lc 'NETRC=\"$PWD/.requests-test-netrc\" PYTHONPATH=src <PROJECT>/.venv/bin/python -m pytest tests/test_requests.py::TestRequests -k '\"'redirect or content or stream or pickle or hook or decompress or encoding' -q --tb=short\"",
+        "exit_code": 0,
+        "id": "item_22",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 151187.070013333,
+      "utc": "2026-10-13T08:27:15.522179+00:00"
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "................                                                         [100%]\n16 passed, 8 deselected in 15.75s\n",
+        "command": "/bin/zsh -lc 'NETRC=\"$PWD/.requests-test-netrc\" PYTHONPATH=src <PROJECT>/.venv/bin/python -m pytest tests/test_lowlevel.py -k '\"'not use_proxy_from_environment' tests/test_hooks.py tests/test_adapters.py -q --tb=short\"",
+        "exit_code": 0,
+        "id": "item_23",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 151202.104912375,
+      "utc": "2026-10-13T08:27:30.557080+00:00"
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "id": "item_24",
+        "text": "All 116 new regression cases and 53 relevant existing request tests pass. The local low-level tests are still running. During review, I found a hook-chain edge case: a replacement response should receive the budget before the next hook reads it. I\u2019ll cover that before the final checks.",
+        "type": "agent_message"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 151270.142239875,
+      "utc": "2026-10-13T08:28:38.594378+00:00"
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"rg -n 'hooks:|HooksType|HookType' src/requests/_types.py src/requests/models.py; sed -n '119,151p' src/requests/_types.py\"",
+        "exit_code": null,
+        "id": "item_25",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 151274.656998541,
+      "utc": "2026-10-13T08:28:43.109163+00:00"
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "src/requests/_types.py:43:HookType: TypeAlias = Callable[[\"Response\"], Any]\nsrc/requests/_types.py:44:HooksInputType: TypeAlias = Mapping[str, Iterable[HookType] | HookType]\nsrc/requests/_types.py:142:    HooksType: TypeAlias = dict[str, list[HookType]] | None\nsrc/requests/_types.py:165:        hooks: HooksInputType | None\nsrc/requests/models.py:256:    hooks: dict[str, list[_t.HookType]]\nsrc/requests/models.py:259:        self, event: str, hook: Iterable[_t.HookType] | _t.HookType\nsrc/requests/models.py:263:        if event not in self.hooks:\nsrc/requests/models.py:273:    def deregister_hook(self, event: str, hook: _t.HookType) -> bool:\nsrc/requests/models.py:303:    :param hooks: dictionary of callback hooks, for internal usage.\nsrc/requests/models.py:313:    hooks: dict[str, list[_t.HookType]]\nsrc/requests/models.py:334:        hooks: _t.HooksInputType | None = None,\nsrc/requests/models.py:405:    hooks: dict[str, list[_t.HookType]]\nsrc/requests/models.py:435:        hooks: _t.HooksInputType | None = None,\nsrc/requests/models.py:723:    def prepare_hooks(self, hooks: _t.HooksInputType | None) -> None:\nsrc/requests/models.py:729:        for event in hooks:\n    CookiesType: TypeAlias = RequestsCookieJar | Mapping[str, str]\n\n    # Building blocks for FilesType\n    _FileName: TypeAlias = str | None\n    _FileContent: TypeAlias = SupportsRead[str | bytes] | str | bytes\n    _FileSpecBasic: TypeAlias = tuple[_FileName, _FileContent]\n    _FileSpecWithContentType: TypeAlias = tuple[_FileName, _FileContent, str]\n    _FileSpecWithHeaders: TypeAlias = tuple[\n        _FileName, _FileContent, str, CaseInsensitiveDict[str] | Mapping[str, str]\n    ]\n    _FileSpec: TypeAlias = (\n        _FileContent | _FileSpecBasic | _FileSpecWithContentType | _FileSpecWithHeaders\n    )\n    FilesType: TypeAlias = (\n        Mapping[str, _FileSpec] | Iterable[tuple[str, _FileSpec]] | None\n    )\n\n    AuthType: TypeAlias = (\n        tuple[str, str] | AuthBase | Callable[[PreparedRequest], PreparedRequest] | None\n    )\n\n    TimeoutType: TypeAlias = float | tuple[float | None, float | None] | None\n    ProxiesType: TypeAlias = MutableMapping[str, str]\n    HooksType: TypeAlias = dict[str, list[HookType]] | None\n    VerifyType: TypeAlias = bool | str\n    CertType: TypeAlias = str | tuple[str, str] | None\n    JsonType: TypeAlias = (\n        None\n        | bool\n        | int\n        | float\n        | str\n        | Sequence[\"JsonType\"]\n",
+        "command": "/bin/zsh -lc \"rg -n 'hooks:|HooksType|HookType' src/requests/_types.py src/requests/models.py; sed -n '119,151p' src/requests/_types.py\"",
+        "exit_code": 0,
+        "id": "item_25",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 151274.657064958,
+      "utc": "2026-10-13T08:28:43.109238+00:00"
+    }
+  }
+]

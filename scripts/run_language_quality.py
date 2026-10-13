@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 from copy import deepcopy
 from datetime import datetime, timezone
+from functools import lru_cache
 import hashlib
 import importlib.metadata
 import json
@@ -48,6 +49,7 @@ def groups(query):
     return result
 
 
+@lru_cache(maxsize=128)
 def physical_lines(source):
     # Keep independent of extraction and preserve CRLF, bare CR and Unicode data.
     import re
@@ -152,6 +154,7 @@ def runtime(preflight):
     from semantic_search.embeddings import QwenEmbedder
     from semantic_search.shortlist import machine_provenance
     packages = {distribution.metadata["Name"]: distribution.version for distribution in importlib.metadata.distributions()}
+    schedule = request_schedule(preflight)
     return {"version": 1, "frozen_at": datetime.now(timezone.utc).isoformat(),
             "manifest_sha256": sha(MANIFEST.read_bytes()), "implementation_sha256": implementation_hashes(),
             "git_commit": subprocess.check_output(["git", "-C", str(ROOT), "rev-parse", "HEAD"], text=True).strip(),
@@ -169,10 +172,22 @@ def runtime(preflight):
             "dependencies": {"anchors": 5, "max_callees_per_anchor": 2, "depth": 1},
             "packing": "First ranked window per path/symbol; ranked whole-line source prefixes, then exact compact cl100k JSON budget.",
             "ordering": "Express then Zod; rotate three conditions by query index plus repetition index.",
-            "planned_requests": 30 * len(CONDITIONS) * REPETITIONS,
+            "planned_requests": len(schedule), "schedule": schedule,
             "limitations": ["Source-authored small sample, not coding correctness or provider token savings.",
                             "Repository/language holdout does not imply model pretraining holdout.",
                             "Absent queries may return plausible decoys; no abstention threshold fitted."]}
+
+
+def request_schedule(preflight):
+    result = []
+    for entry in preflight["datasets"]:
+        for repetition in range(1, REPETITIONS + 1):
+            for number, query in enumerate(entry["queries"]):
+                offset = (number + repetition - 1) % len(CONDITIONS)
+                for condition in CONDITIONS[offset:] + CONDITIONS[:offset]:
+                    result.append({"dataset": entry["id"], "query_id": query["query_id"],
+                                   "condition": condition, "repetition": repetition})
+    return result
 
 
 def summarize(rows):
@@ -196,6 +211,7 @@ def summarize(rows):
                 "candidate_complete": sum(all(rank is not None for rank in row["candidate_evidence_ranks"]) for row in positive),
                 "delivered_complete": sum(all(rank is not None for rank in row["evidence_ranks"]) for row in positive),
                 "required_groups": sum(len(row["evidence_ranks"]) for row in positive),
+                "candidate_groups": sum(sum(rank is not None for rank in row["candidate_evidence_ranks"]) for row in positive),
                 "delivered_groups": sum(sum(rank is not None for rank in row["evidence_ranks"]) for row in positive),
                 "multi_file_queries": len(multifile), "multi_file_complete": sum(all(rank is not None for rank in row["evidence_ranks"]) for row in multifile),
                 "absent_with_candidates": sum(row["response"]["match_status"] == "candidates" for row in negative),
@@ -239,10 +255,30 @@ def run(output):
     from semantic_search.context import compact_result, encoding, serialize_context
     from semantic_search.quality import RecordingEmbedder
     from semantic_search.server import create_server
+
+    class ObservedEmbedder(RecordingEmbedder):
+        def __init__(self, **kwargs):
+            super().__init__(**kwargs)
+            self.document_calls = self.document_texts = self.query_calls = 0
+
+        def embed_documents(self, texts, *, cancel_check=None):
+            result = super().embed_documents(texts, cancel_check=cancel_check)
+            self.document_calls += 1
+            self.document_texts += len(texts)
+            return result
+
+        def embed_query(self, query):
+            result = super().embed_query(query)
+            self.query_calls += 1
+            return result
+
+        def counts(self):
+            return {"completed_document_calls": self.document_calls, "document_texts": self.document_texts,
+                    "completed_query_calls": self.query_calls}
     entries, preflight = load_sources()
     frozen = json.loads((output / "frozen-config.json").read_text())
     current = runtime(preflight)
-    for key in ("manifest_sha256", "implementation_sha256", "embedding", "packages", "conditions", "settings", "extractor", "sources", "repetitions"):
+    for key in ("manifest_sha256", "implementation_sha256", "embedding", "packages", "conditions", "settings", "extractor", "sources", "repetitions", "schedule"):
         require(current[key] == frozen[key], f"Runtime changed after freeze: {key}")
     require(not (output / "searches.jsonl").exists(), "Refusing to resume or overwrite an attempted run")
     rows, setups = [], []
@@ -251,7 +287,7 @@ def run(output):
         for entry, dataset, sources in entries:
             db = ROOT / ".cache/indexes" / (output.name + "-" + entry["id"] + ".sqlite3")
             require(not db.exists(), "Cold index database already exists")
-            embedder = RecordingEmbedder(progress=True)
+            embedder = ObservedEmbedder(progress=True)
             backend = SearchBackend(ROOT / entry["corpus"], entry["source_root"], db,
                                     embedder=embedder, source_exclusions=entry["source_exclusions"])
             server = worker = None
@@ -259,7 +295,9 @@ def run(output):
                 started = time.perf_counter()
                 warm = backend.search("Find the implementation", retrieval="dense", max_results=1, rerank=False)
                 setup = {"dataset": entry["id"], "cold_index_and_model_warm_s": time.perf_counter() - started,
-                         "indexstats": warm["indexstats"], "memory_after_cold_setup": footprint()}
+                         "indexstats": warm["indexstats"], "memory_after_cold_setup": footprint(),
+                         "embedding_calls_after_cold_setup": embedder.counts()}
+                require(embedder.query_calls == 1, "Cold generic warmup must embed exactly one query")
                 server = create_server(backend, port=0)
                 worker = threading.Thread(target=server.serve_forever, kwargs={"poll_interval": .05})
                 worker.start()
@@ -269,6 +307,9 @@ def run(output):
                         offset = (number + repetition - 1) % len(CONDITIONS)
                         order = CONDITIONS[offset:] + CONDITIONS[:offset]
                         for condition in order:
+                            identity = {"dataset": entry["id"], "query_id": query["id"],
+                                        "condition": condition, "repetition": repetition}
+                            require(identity == frozen["schedule"][len(rows)], "Request differs from the exact frozen inventory")
                             started = time.perf_counter()
                             response = client.search(query["query"], retrieval=condition, **SETTINGS)
                             elapsed = time.perf_counter() - started
@@ -279,6 +320,7 @@ def run(output):
                             else:
                                 candidates = backend._hybrid.search(query["query"], embedder.last_query, 50)
                             windows = [snippet_window(snippet, score) for snippet, score in candidates]
+                            require(len(windows) <= 50 and len(response["results"]) <= 8, "Candidate or result depth exceeded")
                             require(response["total_source_chars"] == sum(len(row["source"]) for row in response["results"]) <= 12000,
                                     "Source budget or counter differs")
                             actual_tokens = len(encoding().encode(serialize_context(compact_result(response)), disallowed_special=()))
@@ -299,6 +341,11 @@ def run(output):
                             stream.flush()
                             print(f"{entry['id']} r{repetition} {query['id']} {condition} evidence={row['evidence_ranks']} HTTP={elapsed:.3f}s", flush=True)
                 setup["memory_after_queries"] = footprint()
+                setup["embedding_calls_after_queries"] = embedder.counts()
+                require(embedder.document_calls == setup["embedding_calls_after_cold_setup"]["completed_document_calls"],
+                        "Unchanged query phase unexpectedly embedded documents")
+                require(embedder.query_calls == 1 + len(dataset["queries"]) * 2 * REPETITIONS,
+                        "Query phase did not perform exactly one fresh embedding per dense/hybrid request")
                 setups.append(setup)
             finally:
                 if server is not None:
@@ -306,18 +353,24 @@ def run(output):
                 backend.close()
             setup["closed_database_sha256"] = sha(db.read_bytes())
             # Fresh process-like backend, same disk index: no document inference expected.
+            reopen_embedder = ObservedEmbedder(progress=False)
             reopen = SearchBackend(ROOT / entry["corpus"], entry["source_root"], db,
-                                   source_exclusions=entry["source_exclusions"])
+                                   embedder=reopen_embedder, source_exclusions=entry["source_exclusions"])
             try:
                 started = time.perf_counter()
                 reuse = reopen.refresh()
-                setup["persistent_reopen"] = {"elapsed_s": time.perf_counter() - started, "indexstats": reuse}
+                setup["persistent_reopen"] = {"elapsed_s": time.perf_counter() - started, "indexstats": reuse,
+                                              "embedding_calls": reopen_embedder.counts()}
                 require(reuse["indexed_windows"] == 0 and reuse["reused_windows"] == reuse["total_windows"],
                         "Persistent index did not reuse every unchanged window")
+                require(reopen_embedder.document_calls == reopen_embedder.query_calls == 0,
+                        "Persistent reopen unexpectedly invoked model inference")
             finally:
                 reopen.close()
             write(output / "setups.json", setups)
     require(len(rows) == frozen["planned_requests"], "Incomplete planned request inventory")
+    require([{key: row[key] for key in ("dataset", "query_id", "condition", "repetition")} for row in rows]
+            == frozen["schedule"], "Observed request identity/order differs from freeze")
     write(output / "summary.json", {"complete": True, "requests": len(rows), "unique_queries": 30,
                                    "quality_repetition": 1, "datasets": summarize(rows), "setups": setups,
                                    "searches_sha256": sha((output / "searches.jsonl").read_bytes())})
