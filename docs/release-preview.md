@@ -65,6 +65,11 @@ single-workspace Development Host runs do not complete those gates.
 
 ## Quality and measurement limits
 
+The separate [106-query Python study](../results/retrieval-quality-2026-10-12/findings.md)
+delivered complete evidence for **83/88 positive behaviors overall** and **18/20
+Rich holdout positives**, with **175 ms held-out HTTP P95**. Only **6/10 multi-file
+behaviors** had complete delivered evidence. These are frozen sample outcomes.
+
 Frozen dense retrieval delivered complete required evidence for **10/12 Express**
 development queries and **8/12 Zod** repository-holdout queries; Zod multi-file
 coverage was **0/4**. Delivery was capped at eight excerpts, 12,000 source

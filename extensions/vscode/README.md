@@ -1,13 +1,14 @@
-# Semantic Search for VS Code — local draft
+# Semantic Search for VS Code — local preview
 
 Search saved Python, JavaScript and TypeScript implementations through the project's already running local
 service. Enter a behavior, inspect ranked results in the Explorer, preview an
 exact captured excerpt, and open its verified current source range. Dependency
 rows are marked **context reference**; they are not verified query matches.
 
-The saved mixed-language workflow has passed in an actual VS Code Development
-Host with the resident Qwen backend. CPU tests, VSIX packaging and that fixture
-check are separate evidence; see [receipts and remaining acceptance cases](docs/development-host.md).
+Saved, explicit dirty-buffer and saved-edit mixed-language workflows have passed
+in an actual VS Code Development Host with the resident Qwen backend. CPU tests,
+VSIX packaging and those fixture checks are separate evidence; see
+[receipts and remaining acceptance cases](docs/development-host.md).
 
 ## Connect
 
@@ -98,8 +99,9 @@ resident model; neither disk source nor the saved persistent index/status is
 updated. Literal Python editor Unicode bypasses file coding-cookie decoding.
 Known saved JavaScript/TypeScript encoding BOMs are restored for transport and
 comparison. No session cache or persistent extension buffer state is created.
-CPU tests cover this integration; actual unsaved Extension Development Host and
-real-model acceptance remain separate gates.
+CPU tests and actual unsaved Development Host/Qwen checks cover this integration
+on a small authored fixture. Restricted Mode, multi-root and disconnected-service
+acceptance in the actual host remain separate gates.
 
 UTF-8/BOM, ASCII and Latin-1 are covered by CPU fixtures. Other Node-supported
 Python encoding labels must decode to the exact returned text or navigation
