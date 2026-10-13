@@ -1,0 +1,897 @@
+[
+  {
+    "agent_elapsed_s": 138.6751040829986,
+    "agent_exit_code": 0,
+    "base_commit": "37990f54d03e58d971b16c968f309638482e6136",
+    "base_tree_sha256": "e8a7df3aa13dd06a4122a340f58e6f9d9e6f4c7c880b8d59dd92ceb778eccf01",
+    "changed_files": [
+      "src/requests/sessions.py",
+      "tests/test_requests.py"
+    ],
+    "command_calls": 18,
+    "completed": true,
+    "completed_correct": true,
+    "condition": "baseline",
+    "correct": true,
+    "end_to_end_s": 139.08275504101766,
+    "errors": [],
+    "failed": false,
+    "grade": {
+      "detail": {
+        "errors": 0,
+        "failures": 0,
+        "passed": true,
+        "skipped": 0,
+        "tests_run": 3
+      },
+      "elapsed_s": 0.10160108297714032,
+      "exit_code": 0,
+      "passed": true,
+      "stderr": "test_changed_origin_drops_credentials (__main__.RedirectCredentials.test_changed_origin_drops_credentials) ... ok\ntest_equivalent_default_ports_keep_credentials (__main__.RedirectCredentials.test_equivalent_default_ports_keep_credentials) ... ok\ntest_same_port_and_standard_https_upgrade_keep_credentials (__main__.RedirectCredentials.test_same_port_and_standard_https_upgrade_keep_credentials) ... ok\n\n----------------------------------------------------------------------\nRan 3 tests in 0.001s\n\nOK\n",
+      "stdout": "{\"errors\": 0, \"failures\": 0, \"passed\": true, \"skipped\": 0, \"tests_run\": 3}\n"
+    },
+    "invalid_event_lines": [],
+    "mcp_calls": 0,
+    "mcp_items": [],
+    "patch_sha256": "5f3e79e16ed37c0b70c824da2f849307f821559a8aced9a0f7fc5f204acd2fd6",
+    "prompt_sha256": "4e502e34acaf753da448345d45b27e1cd7aac07f1fae40c80c4b7f12c04ce0a0",
+    "published_events_sha256": "e4b2a1fb029e61f9e0f38da534b9034662f949a51b2ea62ce1222eb57decdf08",
+    "raw_events_sha256": "d9edfa7fa63139148c4700e5911ddd3ae06c7cc92b9dafa4895ac60f31244fd5",
+    "reported_turns": 1,
+    "run_id": "01-requests_auth_ports-baseline",
+    "seed_grade": {
+      "detail": {
+        "errors": 0,
+        "failures": 4,
+        "passed": false,
+        "skipped": 0,
+        "tests_run": 3
+      },
+      "elapsed_s": 0.0646643330110237,
+      "exit_code": 1,
+      "passed": false,
+      "stderr": "test_changed_origin_drops_credentials (__main__.RedirectCredentials.test_changed_origin_drops_credentials) ... ok\ntest_equivalent_default_ports_keep_credentials (__main__.RedirectCredentials.test_equivalent_default_ports_keep_credentials) ... \n  test_equivalent_default_ports_keep_credentials (__main__.RedirectCredentials.test_equivalent_default_ports_keep_credentials) (old='http://example.test/a', new='http://example.test:80/b') ... FAIL\n  test_equivalent_default_ports_keep_credentials (__main__.RedirectCredentials.test_equivalent_default_ports_keep_credentials) (old='http://example.test:80/a', new='http://example.test/b') ... FAIL\n  test_equivalent_default_ports_keep_credentials (__main__.RedirectCredentials.test_equivalent_default_ports_keep_credentials) (old='https://example.test/a', new='https://example.test:443/b') ... FAIL\n  test_equivalent_default_ports_keep_credentials (__main__.RedirectCredentials.test_equivalent_default_ports_keep_credentials) (old='https://example.test:443/a', new='https://example.test/b') ... FAIL\ntest_same_port_and_standard_https_upgrade_keep_credentials (__main__.RedirectCredentials.test_same_port_and_standard_https_upgrade_keep_credentials) ... ok\n\n======================================================================\nFAIL: test_equivalent_default_ports_keep_credentials (__main__.RedirectCredentials.test_equivalent_default_ports_keep_credentials) (old='http://example.test/a', new='http://example.test:80/b')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<PROJECT>/benchmarks/workflow_checks/check_requests_auth_ports.py\", line 54, in test_equivalent_default_ports_keep_credentials\n    self.assertEqual(self.redirect(old, new), \"Bearer fixture\")\nAssertionError: None != 'Bearer fixture'\n\n======================================================================\nFAIL: test_equivalent_default_ports_keep_credentials (__main__.RedirectCredentials.test_equivalent_default_ports_keep_credentials) (old='http://example.test:80/a', new='http://example.test/b')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<PROJECT>/benchmarks/workflow_checks/check_requests_auth_ports.py\", line 54, in test_equivalent_default_ports_keep_credentials\n    self.assertEqual(self.redirect(old, new), \"Bearer fixture\")\nAssertionError: None != 'Bearer fixture'\n\n======================================================================\nFAIL: test_equivalent_default_ports_keep_credentials (__main__.RedirectCredentials.test_equivalent_default_ports_keep_credentials) (old='https://example.test/a', new='https://example.test:443/b')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<PROJECT>/benchmarks/workflow_checks/check_requests_auth_ports.py\", line 54, in test_equivalent_default_ports_keep_credentials\n    self.assertEqual(self.redirect(old, new), \"Bearer fixture\")\nAssertionError: None != 'Bearer fixture'\n\n======================================================================\nFAIL: test_equivalent_default_ports_keep_credentials (__main__.RedirectCredentials.test_equivalent_default_ports_keep_credentials) (old='https://example.test:443/a', new='https://example.test/b')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<PROJECT>/benchmarks/workflow_checks/check_requests_auth_ports.py\", line 54, in test_equivalent_default_ports_keep_credentials\n    self.assertEqual(self.redirect(old, new), \"Bearer fixture\")\nAssertionError: None != 'Bearer fixture'\n\n----------------------------------------------------------------------\nRan 3 tests in 0.001s\n\nFAILED (failures=4)\n",
+      "stdout": "{\"errors\": 0, \"failures\": 4, \"passed\": false, \"skipped\": 0, \"tests_run\": 3}\n"
+    },
+    "setup_s": 0.2764239580137655,
+    "task_id": "requests_auth_ports",
+    "timed_out": false,
+    "usage": {
+      "cache_write_input_tokens": 0,
+      "cached_input_tokens": 179968,
+      "input_tokens": 217920,
+      "output_tokens": 3792,
+      "reasoning_output_tokens": 1299,
+      "total_tokens": 221712,
+      "uncached_input_tokens": 37952
+    }
+  },
+  {
+    "agent_elapsed_s": 141.92475845801528,
+    "agent_exit_code": 0,
+    "base_commit": "37990f54d03e58d971b16c968f309638482e6136",
+    "base_tree_sha256": "e8a7df3aa13dd06a4122a340f58e6f9d9e6f4c7c880b8d59dd92ceb778eccf01",
+    "changed_files": [
+      "src/requests/sessions.py",
+      "tests/test_requests.py"
+    ],
+    "command_calls": 10,
+    "completed": true,
+    "completed_correct": true,
+    "condition": "mcp",
+    "correct": true,
+    "end_to_end_s": 158.6931840420002,
+    "errors": [],
+    "failed": false,
+    "final_backend_status": {
+      "abstention_policy": null,
+      "closed": false,
+      "dense_ready": true,
+      "embedding_initialized": true,
+      "indexstats": {
+        "deleted_windows": 25,
+        "elapsed_s": 0.390973750007106,
+        "indexed_windows": 1,
+        "memory_cache_hit": false,
+        "model_fingerprint": "2605d7e4c477b8b8dc107f31b02c7fc4e7fc419945e8727c7a5c14a02fe70c45",
+        "reused_windows": 239,
+        "source_files": 19,
+        "source_manifest": "87d991cabc83b67de8d2dd3ac94ed4b80564ea049351e28a5522725ef631aeae",
+        "total_windows": 240
+      },
+      "last_error": null,
+      "ready": true,
+      "repo": "<WORKSPACE>",
+      "source_manifest": "87d991cabc83b67de8d2dd3ac94ed4b80564ea049351e28a5522725ef631aeae",
+      "source_root": "src/requests",
+      "store": {
+        "db_path": "<EVALUATOR_LOG>/index.sqlite3",
+        "dense_backend": "sqlite_vec_cosine_exact",
+        "dense_windows": 240,
+        "dimensions": 1024,
+        "embedding": {
+          "add_special_tokens": true,
+          "batch_order": "stable ascending token length; restore input order",
+          "batch_size": 4,
+          "checkpoint_validation": "pinned Hub download provenance; original unquantized config",
+          "dimensions": 1024,
+          "document_prompt": null,
+          "id": "Qwen/Qwen3-Embedding-0.6B",
+          "max_tokens": 8192,
+          "normalization": "L2, float32",
+          "packages": {
+            "mlx": "0.32.3",
+            "mlx-embeddings": "0.1.0",
+            "mlx-metal": "0.32.3",
+            "numpy": "2.5.4",
+            "transformers": "5.19.0"
+          },
+          "padding_side": "right",
+          "pooling": "last non-padding token",
+          "quantized": false,
+          "query_instruction": "Given a description of code behavior, retrieve the code implementation that performs it.",
+          "query_prompt": "Instruct: Given a description of code behavior, retrieve the code implementation that performs it.\nQuery:",
+          "revision": "97b0c614be4d77ee51c0cef4e5f07c00f9eb65b3",
+          "runtime": "mlx-embeddings",
+          "runtime_version": "0.1.0",
+          "truncation": "right",
+          "weights_dtype": "bfloat16"
+        },
+        "lexical_backend": "sqlite_fts5",
+        "model_fingerprint": "2605d7e4c477b8b8dc107f31b02c7fc4e7fc419945e8727c7a5c14a02fe70c45",
+        "schema_version": 2,
+        "sqlite_vec_version": "0.1.9",
+        "total_windows": 240,
+        "updated_at": "2026-10-13T03:17:51.647970+00:00"
+      },
+      "watcher": {
+        "debounce_s": 0.5,
+        "last_error": null,
+        "last_refresh_at": "2026-10-13T03:17:51.723154+00:00",
+        "pending": false,
+        "poll_interval_s": 1.0,
+        "refresh_count": 1,
+        "running": true
+      },
+      "windows": 240
+    },
+    "grade": {
+      "detail": {
+        "errors": 0,
+        "failures": 0,
+        "passed": true,
+        "skipped": 0,
+        "tests_run": 3
+      },
+      "elapsed_s": 0.07029008300742134,
+      "exit_code": 0,
+      "passed": true,
+      "stderr": "test_changed_origin_drops_credentials (__main__.RedirectCredentials.test_changed_origin_drops_credentials) ... ok\ntest_equivalent_default_ports_keep_credentials (__main__.RedirectCredentials.test_equivalent_default_ports_keep_credentials) ... ok\ntest_same_port_and_standard_https_upgrade_keep_credentials (__main__.RedirectCredentials.test_same_port_and_standard_https_upgrade_keep_credentials) ... ok\n\n----------------------------------------------------------------------\nRan 3 tests in 0.001s\n\nOK\n",
+      "stdout": "{\"errors\": 0, \"failures\": 0, \"passed\": true, \"skipped\": 0, \"tests_run\": 3}\n"
+    },
+    "initial_index": {
+      "deleted_windows": 0,
+      "elapsed_s": 15.7395857500087,
+      "indexed_windows": 240,
+      "memory_cache_hit": false,
+      "model_fingerprint": "2605d7e4c477b8b8dc107f31b02c7fc4e7fc419945e8727c7a5c14a02fe70c45",
+      "reused_windows": 0,
+      "source_files": 19,
+      "source_manifest": "bcbae072725e00453f0d1f61a55277cdfeb47d8a833f8168e6963a5493800c2b",
+      "total_windows": 240
+    },
+    "invalid_event_lines": [],
+    "mcp_calls": 1,
+    "mcp_items": [
+      {
+        "arguments": {
+          "include_dependencies": false,
+          "max_results": 3,
+          "query": "Requests redirect Authorization header should_strip_auth hostname scheme port default ports HTTP HTTPS upgrade",
+          "source_budget": 6500,
+          "token_budget": 2400
+        },
+        "error": null,
+        "id": "item_2",
+        "result": {
+          "content": [
+            {
+              "text": "{\"query\":\"Requests redirect Authorization header should_strip_auth hostname scheme port default ports HTTP HTTPS upgrade\",\"match_status\":\"candidates\",\"results\":[{\"path\":\"src/requests/sessions.py\",\"symbol\":\"SessionRedirectMixin.should_strip_auth\",\"start_line\":154,\"end_line\":176,\"source\":\"    def should_strip_auth(self, old_url: str, new_url: str) -> bool:\\n        \\\"\\\"\\\"Decide whether Authorization header should be removed when redirecting\\\"\\\"\\\"\\n        old_parsed = urlparse(old_url)\\n        new_parsed = urlparse(new_url)\\n        if old_parsed.hostname != new_parsed.hostname:\\n            return True\\n        # Special case: allow http -> https redirect when using the standard\\n        # ports. This isn't specified by RFC 7235, but is kept to avoid\\n        # breaking backwards compatibility with older versions of requests\\n        # that allowed any redirects on the same host.\\n        if (\\n            old_parsed.scheme == \\\"http\\\"\\n            and old_parsed.port in (80, None)\\n            and new_parsed.scheme == \\\"https\\\"\\n            and new_parsed.port in (443, None)\\n        ):\\n            return False\\n\\n        changed_port = old_parsed.port != new_parsed.port\\n        changed_scheme = old_parsed.scheme != new_parsed.scheme\\n\\n        # Standard case: root URI must match\\n        return changed_port or changed_scheme\\n\",\"source_hash\":\"a90b9e25bd6e853d17e06f38abe5417e24e42ec7d430cd8d94233329f2e0525e\",\"truncated\":false,\"origin\":\"retrieval\",\"related_to\":null},{\"path\":\"src/requests/sessions.py\",\"symbol\":\"SessionRedirectMixin.rebuild_auth\",\"start_line\":301,\"end_line\":324,\"source\":\"    def rebuild_auth(\\n        self, prepared_request: PreparedRequest, response: Response\\n    ) -> None:\\n        \\\"\\\"\\\"When being redirected we may want to strip authentication from the\\n        request to avoid leaking credentials. This method intelligently removes\\n        and reapplies authentication where possible to avoid credential loss.\\n        \\\"\\\"\\\"\\n        original_request = response.request\\n        assert _is_prepared(original_request)\\n        assert _is_prepared(prepared_request)\\n\\n        headers = prepared_request.headers\\n        original_url = original_request.url\\n        url = prepared_request.url\\n\\n        if \\\"Authorization\\\" in headers and self.should_strip_auth(original_url, url):\\n            # If we get redirected to a new host, we should strip out any\\n            # authentication headers.\\n            del headers[\\\"Authorization\\\"]\\n\\n        # .netrc might have more auth for us on our new host.\\n        new_auth = get_netrc_auth(url) if self.trust_env else None\\n        if new_auth is not None:\\n            prepared_request.prepare_auth(new_auth)\\n\",\"source_hash\":\"ddd3997ad6d691e21896aa22b8ffe74dee94d6a2768578c59eaaf58de36b7dbb\",\"truncated\":false,\"origin\":\"retrieval\",\"related_to\":null},{\"path\":\"src/requests/sessions.py\",\"symbol\":\"SessionRedirectMixin.rebuild_proxies\",\"start_line\":326,\"end_line\":360,\"source\":\"    def rebuild_proxies(\\n        self,\\n        prepared_request: PreparedRequest,\\n        proxies: dict[str, str] | None,\\n    ) -> dict[str, str]:\\n        \\\"\\\"\\\"This method re-evaluates the proxy configuration by considering the\\n        environment variables. If we are redirected to a URL covered by\\n        NO_PROXY, we strip the proxy configuration. Otherwise, we set missing\\n        proxy keys for this URL (in case they were stripped by a previous\\n        redirect).\\n\\n        This method also replaces the Proxy-Authorization header where\\n        necessary.\\n\\n        :rtype: dict\\n        \\\"\\\"\\\"\\n        assert _is_prepared(prepared_request)\\n        headers = prepared_request.headers\\n        scheme = urlparse(prepared_request.url).scheme\\n        new_proxies = resolve_proxies(prepared_request, proxies, self.trust_env)\\n\\n        if \\\"Proxy-Authorization\\\" in headers:\\n            del headers[\\\"Proxy-Authorization\\\"]\\n\\n        try:\\n            username, password = get_auth_from_url(new_proxies[scheme])\\n        except KeyError:\\n            username, password = None, None\\n\\n        # urllib3 handles proxy authorization for us in the standard adapter.\\n        # Avoid appending this to TLS tunneled requests where it may be leaked.\\n        if not scheme.startswith(\\\"https\\\") and username and password:\\n            headers[\\\"Proxy-Authorization\\\"] = _basic_auth_str(username, password)\\n\\n        return new_proxies\\n\",\"source_hash\":\"af1d06abd7643f36583273e3d77018177d258399ced71f6bd481cd61a54d8fb4\",\"truncated\":false,\"origin\":\"retrieval\",\"related_to\":null}],\"budget_exhausted\":false,\"token_usage\":{\"encoding\":\"cl100k_base\",\"tokens\":1101,\"budget\":2400,\"truncated\":false}}",
+              "type": "text"
+            }
+          ],
+          "structured_content": {
+            "budget_exhausted": false,
+            "match_status": "candidates",
+            "query": "Requests redirect Authorization header should_strip_auth hostname scheme port default ports HTTP HTTPS upgrade",
+            "results": [
+              {
+                "end_line": 176,
+                "origin": "retrieval",
+                "path": "src/requests/sessions.py",
+                "related_to": null,
+                "source": "    def should_strip_auth(self, old_url: str, new_url: str) -> bool:\n        \"\"\"Decide whether Authorization header should be removed when redirecting\"\"\"\n        old_parsed = urlparse(old_url)\n        new_parsed = urlparse(new_url)\n        if old_parsed.hostname != new_parsed.hostname:\n            return True\n        # Special case: allow http -> https redirect when using the standard\n        # ports. This isn't specified by RFC 7235, but is kept to avoid\n        # breaking backwards compatibility with older versions of requests\n        # that allowed any redirects on the same host.\n        if (\n            old_parsed.scheme == \"http\"\n            and old_parsed.port in (80, None)\n            and new_parsed.scheme == \"https\"\n            and new_parsed.port in (443, None)\n        ):\n            return False\n\n        changed_port = old_parsed.port != new_parsed.port\n        changed_scheme = old_parsed.scheme != new_parsed.scheme\n\n        # Standard case: root URI must match\n        return changed_port or changed_scheme\n",
+                "source_hash": "a90b9e25bd6e853d17e06f38abe5417e24e42ec7d430cd8d94233329f2e0525e",
+                "start_line": 154,
+                "symbol": "SessionRedirectMixin.should_strip_auth",
+                "truncated": false
+              },
+              {
+                "end_line": 324,
+                "origin": "retrieval",
+                "path": "src/requests/sessions.py",
+                "related_to": null,
+                "source": "    def rebuild_auth(\n        self, prepared_request: PreparedRequest, response: Response\n    ) -> None:\n        \"\"\"When being redirected we may want to strip authentication from the\n        request to avoid leaking credentials. This method intelligently removes\n        and reapplies authentication where possible to avoid credential loss.\n        \"\"\"\n        original_request = response.request\n        assert _is_prepared(original_request)\n        assert _is_prepared(prepared_request)\n\n        headers = prepared_request.headers\n        original_url = original_request.url\n        url = prepared_request.url\n\n        if \"Authorization\" in headers and self.should_strip_auth(original_url, url):\n            # If we get redirected to a new host, we should strip out any\n            # authentication headers.\n            del headers[\"Authorization\"]\n\n        # .netrc might have more auth for us on our new host.\n        new_auth = get_netrc_auth(url) if self.trust_env else None\n        if new_auth is not None:\n            prepared_request.prepare_auth(new_auth)\n",
+                "source_hash": "ddd3997ad6d691e21896aa22b8ffe74dee94d6a2768578c59eaaf58de36b7dbb",
+                "start_line": 301,
+                "symbol": "SessionRedirectMixin.rebuild_auth",
+                "truncated": false
+              },
+              {
+                "end_line": 360,
+                "origin": "retrieval",
+                "path": "src/requests/sessions.py",
+                "related_to": null,
+                "source": "    def rebuild_proxies(\n        self,\n        prepared_request: PreparedRequest,\n        proxies: dict[str, str] | None,\n    ) -> dict[str, str]:\n        \"\"\"This method re-evaluates the proxy configuration by considering the\n        environment variables. If we are redirected to a URL covered by\n        NO_PROXY, we strip the proxy configuration. Otherwise, we set missing\n        proxy keys for this URL (in case they were stripped by a previous\n        redirect).\n\n        This method also replaces the Proxy-Authorization header where\n        necessary.\n\n        :rtype: dict\n        \"\"\"\n        assert _is_prepared(prepared_request)\n        headers = prepared_request.headers\n        scheme = urlparse(prepared_request.url).scheme\n        new_proxies = resolve_proxies(prepared_request, proxies, self.trust_env)\n\n        if \"Proxy-Authorization\" in headers:\n            del headers[\"Proxy-Authorization\"]\n\n        try:\n            username, password = get_auth_from_url(new_proxies[scheme])\n        except KeyError:\n            username, password = None, None\n\n        # urllib3 handles proxy authorization for us in the standard adapter.\n        # Avoid appending this to TLS tunneled requests where it may be leaked.\n        if not scheme.startswith(\"https\") and username and password:\n            headers[\"Proxy-Authorization\"] = _basic_auth_str(username, password)\n\n        return new_proxies\n",
+                "source_hash": "af1d06abd7643f36583273e3d77018177d258399ced71f6bd481cd61a54d8fb4",
+                "start_line": 326,
+                "symbol": "SessionRedirectMixin.rebuild_proxies",
+                "truncated": false
+              }
+            ],
+            "token_usage": {
+              "budget": 2400,
+              "encoding": "cl100k_base",
+              "tokens": 1101,
+              "truncated": false
+            }
+          }
+        },
+        "server": "semantic_search",
+        "status": "completed",
+        "tool": "search_code",
+        "type": "mcp_tool_call"
+      }
+    ],
+    "patch_sha256": "f4a47c8e5f1d25502d1e4a88396dced61444388bca2cb05cdf2192ecf721dc12",
+    "prompt_sha256": "4e502e34acaf753da448345d45b27e1cd7aac07f1fae40c80c4b7f12c04ce0a0",
+    "published_events_sha256": "eb17894417c5433ba2084386425e8f9c911709d2ad5fb51752e99d69e1a76b70",
+    "raw_events_sha256": "3677bcc45e6d069ffde4da17edfa632b907af36276b77c4e5ce26b4c9a7c9a98",
+    "reported_turns": 1,
+    "run_id": "02-requests_auth_ports-mcp",
+    "seed_grade": {
+      "detail": {
+        "errors": 0,
+        "failures": 4,
+        "passed": false,
+        "skipped": 0,
+        "tests_run": 3
+      },
+      "elapsed_s": 0.06510145799256861,
+      "exit_code": 1,
+      "passed": false,
+      "stderr": "test_changed_origin_drops_credentials (__main__.RedirectCredentials.test_changed_origin_drops_credentials) ... ok\ntest_equivalent_default_ports_keep_credentials (__main__.RedirectCredentials.test_equivalent_default_ports_keep_credentials) ... \n  test_equivalent_default_ports_keep_credentials (__main__.RedirectCredentials.test_equivalent_default_ports_keep_credentials) (old='http://example.test/a', new='http://example.test:80/b') ... FAIL\n  test_equivalent_default_ports_keep_credentials (__main__.RedirectCredentials.test_equivalent_default_ports_keep_credentials) (old='http://example.test:80/a', new='http://example.test/b') ... FAIL\n  test_equivalent_default_ports_keep_credentials (__main__.RedirectCredentials.test_equivalent_default_ports_keep_credentials) (old='https://example.test/a', new='https://example.test:443/b') ... FAIL\n  test_equivalent_default_ports_keep_credentials (__main__.RedirectCredentials.test_equivalent_default_ports_keep_credentials) (old='https://example.test:443/a', new='https://example.test/b') ... FAIL\ntest_same_port_and_standard_https_upgrade_keep_credentials (__main__.RedirectCredentials.test_same_port_and_standard_https_upgrade_keep_credentials) ... ok\n\n======================================================================\nFAIL: test_equivalent_default_ports_keep_credentials (__main__.RedirectCredentials.test_equivalent_default_ports_keep_credentials) (old='http://example.test/a', new='http://example.test:80/b')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<PROJECT>/benchmarks/workflow_checks/check_requests_auth_ports.py\", line 54, in test_equivalent_default_ports_keep_credentials\n    self.assertEqual(self.redirect(old, new), \"Bearer fixture\")\nAssertionError: None != 'Bearer fixture'\n\n======================================================================\nFAIL: test_equivalent_default_ports_keep_credentials (__main__.RedirectCredentials.test_equivalent_default_ports_keep_credentials) (old='http://example.test:80/a', new='http://example.test/b')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<PROJECT>/benchmarks/workflow_checks/check_requests_auth_ports.py\", line 54, in test_equivalent_default_ports_keep_credentials\n    self.assertEqual(self.redirect(old, new), \"Bearer fixture\")\nAssertionError: None != 'Bearer fixture'\n\n======================================================================\nFAIL: test_equivalent_default_ports_keep_credentials (__main__.RedirectCredentials.test_equivalent_default_ports_keep_credentials) (old='https://example.test/a', new='https://example.test:443/b')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<PROJECT>/benchmarks/workflow_checks/check_requests_auth_ports.py\", line 54, in test_equivalent_default_ports_keep_credentials\n    self.assertEqual(self.redirect(old, new), \"Bearer fixture\")\nAssertionError: None != 'Bearer fixture'\n\n======================================================================\nFAIL: test_equivalent_default_ports_keep_credentials (__main__.RedirectCredentials.test_equivalent_default_ports_keep_credentials) (old='https://example.test:443/a', new='https://example.test/b')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<PROJECT>/benchmarks/workflow_checks/check_requests_auth_ports.py\", line 54, in test_equivalent_default_ports_keep_credentials\n    self.assertEqual(self.redirect(old, new), \"Bearer fixture\")\nAssertionError: None != 'Bearer fixture'\n\n----------------------------------------------------------------------\nRan 3 tests in 0.001s\n\nFAILED (failures=4)\n",
+      "stdout": "{\"errors\": 0, \"failures\": 4, \"passed\": false, \"skipped\": 0, \"tests_run\": 3}\n"
+    },
+    "setup_s": 16.20871629199246,
+    "task_id": "requests_auth_ports",
+    "timed_out": false,
+    "usage": {
+      "cache_write_input_tokens": 0,
+      "cached_input_tokens": 135808,
+      "input_tokens": 176787,
+      "output_tokens": 4001,
+      "reasoning_output_tokens": 1738,
+      "total_tokens": 180788,
+      "uncached_input_tokens": 40979
+    }
+  },
+  {
+    "agent_elapsed_s": 138.6115714170155,
+    "agent_exit_code": 0,
+    "base_commit": "10a988fca62590d5b4ff44cc3d73e2a321a5954a",
+    "base_tree_sha256": "6dc4c58831eb2d7719f243d25c819721b766a7b5a9588220c82e8273a6342819",
+    "changed_files": [
+      "src/click/types.py",
+      "tests/test_basic.py"
+    ],
+    "command_calls": 11,
+    "completed": true,
+    "completed_correct": true,
+    "condition": "mcp",
+    "correct": true,
+    "end_to_end_s": 164.82584583299467,
+    "errors": [],
+    "failed": false,
+    "final_backend_status": {
+      "abstention_policy": null,
+      "closed": false,
+      "dense_ready": true,
+      "embedding_initialized": true,
+      "indexstats": {
+        "deleted_windows": 14,
+        "elapsed_s": 0.5969047080143355,
+        "indexed_windows": 1,
+        "memory_cache_hit": false,
+        "model_fingerprint": "2605d7e4c477b8b8dc107f31b02c7fc4e7fc419945e8727c7a5c14a02fe70c45",
+        "reused_windows": 473,
+        "source_files": 16,
+        "source_manifest": "285ddc3eecc41538a93577e7806210d0c9c316dc3034c13e8011d5a6c4885ced",
+        "total_windows": 474
+      },
+      "last_error": null,
+      "ready": true,
+      "repo": "<WORKSPACE>",
+      "source_manifest": "285ddc3eecc41538a93577e7806210d0c9c316dc3034c13e8011d5a6c4885ced",
+      "source_root": "src/click",
+      "store": {
+        "db_path": "<EVALUATOR_LOG>/index.sqlite3",
+        "dense_backend": "sqlite_vec_cosine_exact",
+        "dense_windows": 474,
+        "dimensions": 1024,
+        "embedding": {
+          "add_special_tokens": true,
+          "batch_order": "stable ascending token length; restore input order",
+          "batch_size": 4,
+          "checkpoint_validation": "pinned Hub download provenance; original unquantized config",
+          "dimensions": 1024,
+          "document_prompt": null,
+          "id": "Qwen/Qwen3-Embedding-0.6B",
+          "max_tokens": 8192,
+          "normalization": "L2, float32",
+          "packages": {
+            "mlx": "0.32.3",
+            "mlx-embeddings": "0.1.0",
+            "mlx-metal": "0.32.3",
+            "numpy": "2.5.4",
+            "transformers": "5.19.0"
+          },
+          "padding_side": "right",
+          "pooling": "last non-padding token",
+          "quantized": false,
+          "query_instruction": "Given a description of code behavior, retrieve the code implementation that performs it.",
+          "query_prompt": "Instruct: Given a description of code behavior, retrieve the code implementation that performs it.\nQuery:",
+          "revision": "97b0c614be4d77ee51c0cef4e5f07c00f9eb65b3",
+          "runtime": "mlx-embeddings",
+          "runtime_version": "0.1.0",
+          "truncation": "right",
+          "weights_dtype": "bfloat16"
+        },
+        "lexical_backend": "sqlite_fts5",
+        "model_fingerprint": "2605d7e4c477b8b8dc107f31b02c7fc4e7fc419945e8727c7a5c14a02fe70c45",
+        "schema_version": 2,
+        "sqlite_vec_version": "0.1.9",
+        "total_windows": 474,
+        "updated_at": "2026-10-13T03:20:48.758794+00:00"
+      },
+      "watcher": {
+        "debounce_s": 0.5,
+        "last_error": null,
+        "last_refresh_at": "2026-10-13T03:20:48.851374+00:00",
+        "pending": false,
+        "poll_interval_s": 1.0,
+        "refresh_count": 1,
+        "running": true
+      },
+      "windows": 474
+    },
+    "grade": {
+      "detail": {
+        "errors": 0,
+        "failures": 0,
+        "passed": true,
+        "skipped": 0,
+        "tests_run": 4
+      },
+      "elapsed_s": 0.054758874990511686,
+      "exit_code": 0,
+      "passed": true,
+      "stderr": "test_existing_atomic_file_commits_after_successful_command (__main__.AtomicOutput.test_existing_atomic_file_commits_after_successful_command) ... ok\ntest_new_atomic_file_is_created_and_closed (__main__.AtomicOutput.test_new_atomic_file_is_created_and_closed) ... ok\ntest_non_atomic_lazy_output_is_closed (__main__.AtomicOutput.test_non_atomic_lazy_output_is_closed) ... ok\ntest_unused_lazy_output_is_not_created (__main__.AtomicOutput.test_unused_lazy_output_is_not_created) ... ok\n\n----------------------------------------------------------------------\nRan 4 tests in 0.002s\n\nOK\n",
+      "stdout": "{\"errors\": 0, \"failures\": 0, \"passed\": true, \"skipped\": 0, \"tests_run\": 4}\n"
+    },
+    "initial_index": {
+      "deleted_windows": 0,
+      "elapsed_s": 25.364849709003465,
+      "indexed_windows": 474,
+      "memory_cache_hit": false,
+      "model_fingerprint": "2605d7e4c477b8b8dc107f31b02c7fc4e7fc419945e8727c7a5c14a02fe70c45",
+      "reused_windows": 0,
+      "source_files": 16,
+      "source_manifest": "ad0d5d69051ec8788e6cf0e5b8d277361c16c31b4314cec28d65baf0c63511bf",
+      "total_windows": 474
+    },
+    "invalid_event_lines": [],
+    "mcp_calls": 1,
+    "mcp_items": [
+      {
+        "arguments": {
+          "include_dependencies": false,
+          "max_results": 4,
+          "query": "Click File.convert output option lazy open atomic writes ctx.call_on_close LazyFile close close_intelligently",
+          "source_budget": 13000,
+          "token_budget": 4200
+        },
+        "error": null,
+        "id": "item_2",
+        "result": {
+          "content": [
+            {
+              "text": "{\"query\":\"Click File.convert output option lazy open atomic writes ctx.call_on_close LazyFile close close_intelligently\",\"match_status\":\"candidates\",\"results\":[{\"path\":\"src/click/types.py\",\"symbol\":\"File.convert\",\"start_line\":704,\"end_line\":742,\"source\":\"    def convert(\\n        self,\\n        value: t.Union[str, \\\"os.PathLike[str]\\\", t.IO[t.Any]],\\n        param: t.Optional[\\\"Parameter\\\"],\\n        ctx: t.Optional[\\\"Context\\\"],\\n    ) -> t.IO[t.Any]:\\n        if _is_file_like(value):\\n            return value\\n\\n        value = t.cast(\\\"t.Union[str, os.PathLike[str]]\\\", value)\\n\\n        try:\\n            lazy = self.resolve_lazy_flag(value)\\n\\n            if lazy:\\n                lf = LazyFile(\\n                    value, self.mode, self.encoding, self.errors, atomic=self.atomic\\n                )\\n\\n                return t.cast(t.IO[t.Any], lf)\\n\\n            f, should_close = open_stream(\\n                value, self.mode, self.encoding, self.errors, atomic=self.atomic\\n            )\\n\\n            # If a context is provided, we automatically close the file\\n            # at the end of the context execution (or flush out).  If a\\n            # context does not exist, it's the caller's responsibility to\\n            # properly close the file.  This for instance happens when the\\n            # type is used with prompts.\\n            if ctx is not None:\\n                if should_close:\\n                    ctx.call_on_close(safecall(f.close))\\n                else:\\n                    ctx.call_on_close(safecall(f.flush))\\n\\n            return f\\n        except OSError as e:\\n            self.fail(f\\\"'{format_filename(value)}': {e.strerror}\\\", param, ctx)\\n\",\"source_hash\":\"84ebe45ce5b538c9e2e501b625e8b4bf7b140133f74cdb1417b50cdbed895af7\",\"truncated\":false,\"origin\":\"retrieval\",\"related_to\":null},{\"path\":\"src/click/utils.py\",\"symbol\":\"LazyFile.close_intelligently\",\"start_line\":171,\"end_line\":176,\"source\":\"    def close_intelligently(self) -> None:\\n        \\\"\\\"\\\"This function only closes the file if it was opened by the lazy\\n        file wrapper.  For instance this will never close stdin.\\n        \\\"\\\"\\\"\\n        if self.should_close:\\n            self.close()\\n\",\"source_hash\":\"d0669b1a80ab0b88d62a3795a2931b79093d39fd0c21e1f0c5f8e9e6bcdd566e\",\"truncated\":false,\"origin\":\"retrieval\",\"related_to\":null},{\"path\":\"src/click/utils.py\",\"symbol\":\"LazyFile.close\",\"start_line\":166,\"end_line\":169,\"source\":\"    def close(self) -> None:\\n        \\\"\\\"\\\"Closes the underlying file, no matter what.\\\"\\\"\\\"\\n        if self._f is not None:\\n            self._f.close()\\n\",\"source_hash\":\"41c47321b32c85e444e92e3d2639f3bb5e3c3e7c97009229ca4c1ffb4e973cc0\",\"truncated\":false,\"origin\":\"retrieval\",\"related_to\":null},{\"path\":\"src/click/_compat.py\",\"symbol\":\"_AtomicFile.close\",\"start_line\":465,\"end_line\":470,\"source\":\"    def close(self, delete: bool = False) -> None:\\n        if self.closed:\\n            return\\n        self._f.close()\\n        os.replace(self._tmp_filename, self._real_filename)\\n        self.closed = True\\n\",\"source_hash\":\"7be553b407ceb3a4d96482711e39f51d78deb525bfad29a6285997697bd986f4\",\"truncated\":false,\"origin\":\"retrieval\",\"related_to\":null}],\"budget_exhausted\":false,\"token_usage\":{\"encoding\":\"cl100k_base\",\"tokens\":908,\"budget\":4200,\"truncated\":false}}",
+              "type": "text"
+            }
+          ],
+          "structured_content": {
+            "budget_exhausted": false,
+            "match_status": "candidates",
+            "query": "Click File.convert output option lazy open atomic writes ctx.call_on_close LazyFile close close_intelligently",
+            "results": [
+              {
+                "end_line": 742,
+                "origin": "retrieval",
+                "path": "src/click/types.py",
+                "related_to": null,
+                "source": "    def convert(\n        self,\n        value: t.Union[str, \"os.PathLike[str]\", t.IO[t.Any]],\n        param: t.Optional[\"Parameter\"],\n        ctx: t.Optional[\"Context\"],\n    ) -> t.IO[t.Any]:\n        if _is_file_like(value):\n            return value\n\n        value = t.cast(\"t.Union[str, os.PathLike[str]]\", value)\n\n        try:\n            lazy = self.resolve_lazy_flag(value)\n\n            if lazy:\n                lf = LazyFile(\n                    value, self.mode, self.encoding, self.errors, atomic=self.atomic\n                )\n\n                return t.cast(t.IO[t.Any], lf)\n\n            f, should_close = open_stream(\n                value, self.mode, self.encoding, self.errors, atomic=self.atomic\n            )\n\n            # If a context is provided, we automatically close the file\n            # at the end of the context execution (or flush out).  If a\n            # context does not exist, it's the caller's responsibility to\n            # properly close the file.  This for instance happens when the\n            # type is used with prompts.\n            if ctx is not None:\n                if should_close:\n                    ctx.call_on_close(safecall(f.close))\n                else:\n                    ctx.call_on_close(safecall(f.flush))\n\n            return f\n        except OSError as e:\n            self.fail(f\"'{format_filename(value)}': {e.strerror}\", param, ctx)\n",
+                "source_hash": "84ebe45ce5b538c9e2e501b625e8b4bf7b140133f74cdb1417b50cdbed895af7",
+                "start_line": 704,
+                "symbol": "File.convert",
+                "truncated": false
+              },
+              {
+                "end_line": 176,
+                "origin": "retrieval",
+                "path": "src/click/utils.py",
+                "related_to": null,
+                "source": "    def close_intelligently(self) -> None:\n        \"\"\"This function only closes the file if it was opened by the lazy\n        file wrapper.  For instance this will never close stdin.\n        \"\"\"\n        if self.should_close:\n            self.close()\n",
+                "source_hash": "d0669b1a80ab0b88d62a3795a2931b79093d39fd0c21e1f0c5f8e9e6bcdd566e",
+                "start_line": 171,
+                "symbol": "LazyFile.close_intelligently",
+                "truncated": false
+              },
+              {
+                "end_line": 169,
+                "origin": "retrieval",
+                "path": "src/click/utils.py",
+                "related_to": null,
+                "source": "    def close(self) -> None:\n        \"\"\"Closes the underlying file, no matter what.\"\"\"\n        if self._f is not None:\n            self._f.close()\n",
+                "source_hash": "41c47321b32c85e444e92e3d2639f3bb5e3c3e7c97009229ca4c1ffb4e973cc0",
+                "start_line": 166,
+                "symbol": "LazyFile.close",
+                "truncated": false
+              },
+              {
+                "end_line": 470,
+                "origin": "retrieval",
+                "path": "src/click/_compat.py",
+                "related_to": null,
+                "source": "    def close(self, delete: bool = False) -> None:\n        if self.closed:\n            return\n        self._f.close()\n        os.replace(self._tmp_filename, self._real_filename)\n        self.closed = True\n",
+                "source_hash": "7be553b407ceb3a4d96482711e39f51d78deb525bfad29a6285997697bd986f4",
+                "start_line": 465,
+                "symbol": "_AtomicFile.close",
+                "truncated": false
+              }
+            ],
+            "token_usage": {
+              "budget": 4200,
+              "encoding": "cl100k_base",
+              "tokens": 908,
+              "truncated": false
+            }
+          }
+        },
+        "server": "semantic_search",
+        "status": "completed",
+        "tool": "search_code",
+        "type": "mcp_tool_call"
+      }
+    ],
+    "patch_sha256": "71149bb83f580ffc12bf72cdb457872ff673dc93ba4c9bff8101f95746d086c7",
+    "prompt_sha256": "93367c37299eab4b16a1eef4e1342b043ef1f54737a9ccb416312ebc7d253371",
+    "published_events_sha256": "0710c80603d9a325aa237a57fe2a8e4a4ec3252b0f898a6ee46f3be6c5fdf68e",
+    "raw_events_sha256": "81d616255a0b2a4307dd91de1de5cb3a66f222b3143ce23bf329304890b62c28",
+    "reported_turns": 1,
+    "run_id": "03-click_atomic_close-mcp",
+    "seed_grade": {
+      "detail": {
+        "errors": 1,
+        "failures": 2,
+        "passed": false,
+        "skipped": 0,
+        "tests_run": 4
+      },
+      "elapsed_s": 0.04956537499674596,
+      "exit_code": 1,
+      "passed": false,
+      "stderr": "test_existing_atomic_file_commits_after_successful_command (__main__.AtomicOutput.test_existing_atomic_file_commits_after_successful_command) ... FAIL\ntest_new_atomic_file_is_created_and_closed (__main__.AtomicOutput.test_new_atomic_file_is_created_and_closed) ... ERROR\ntest_non_atomic_lazy_output_is_closed (__main__.AtomicOutput.test_non_atomic_lazy_output_is_closed) ... FAIL\ntest_unused_lazy_output_is_not_created (__main__.AtomicOutput.test_unused_lazy_output_is_not_created) ... ok\n\n======================================================================\nERROR: test_new_atomic_file_is_created_and_closed (__main__.AtomicOutput.test_new_atomic_file_is_created_and_closed)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<PROJECT>/benchmarks/workflow_checks/check_click_atomic_close.py\", line 47, in test_new_atomic_file_is_created_and_closed\n    self.assertEqual(destination.read_text(), \"replacement\\n\")\n                     ^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<HOME>/.local/share/uv/python/cpython-3.12.15-macos-aarch64-none/lib/python3.12/pathlib.py\", line 1027, in read_text\n    with self.open(mode='r', encoding=encoding, errors=errors) as f:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<HOME>/.local/share/uv/python/cpython-3.12.15-macos-aarch64-none/lib/python3.12/pathlib.py\", line 1013, in open\n    return io.open(self, mode, buffering, encoding, errors, newline)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFileNotFoundError: [Errno 2] No such file or directory: '/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/tmpe19c7l5v/new.txt'\n\n======================================================================\nFAIL: test_existing_atomic_file_commits_after_successful_command (__main__.AtomicOutput.test_existing_atomic_file_commits_after_successful_command)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<PROJECT>/benchmarks/workflow_checks/check_click_atomic_close.py\", line 38, in test_existing_atomic_file_commits_after_successful_command\n    self.assertEqual(destination.read_text(), \"replacement\\n\")\nAssertionError: 'original\\n' != 'replacement\\n'\n- original\n+ replacement\n\n\n======================================================================\nFAIL: test_non_atomic_lazy_output_is_closed (__main__.AtomicOutput.test_non_atomic_lazy_output_is_closed)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<PROJECT>/benchmarks/workflow_checks/check_click_atomic_close.py\", line 60, in test_non_atomic_lazy_output_is_closed\n    self.assertTrue(handle.closed)\nAssertionError: False is not true\n\n----------------------------------------------------------------------\nRan 4 tests in 0.003s\n\nFAILED (failures=2, errors=1)\n",
+      "stdout": "{\"errors\": 1, \"failures\": 2, \"passed\": false, \"skipped\": 0, \"tests_run\": 4}\n"
+    },
+    "setup_s": 25.71665070799645,
+    "task_id": "click_atomic_close",
+    "timed_out": false,
+    "usage": {
+      "cache_write_input_tokens": 0,
+      "cached_input_tokens": 171008,
+      "input_tokens": 196860,
+      "output_tokens": 2302,
+      "reasoning_output_tokens": 367,
+      "total_tokens": 199162,
+      "uncached_input_tokens": 25852
+    }
+  },
+  {
+    "agent_elapsed_s": 110.3557732909976,
+    "agent_exit_code": 0,
+    "base_commit": "10a988fca62590d5b4ff44cc3d73e2a321a5954a",
+    "base_tree_sha256": "6dc4c58831eb2d7719f243d25c819721b766a7b5a9588220c82e8273a6342819",
+    "changed_files": [
+      "src/click/types.py",
+      "tests/test_basic.py"
+    ],
+    "command_calls": 10,
+    "completed": true,
+    "completed_correct": true,
+    "condition": "baseline",
+    "correct": true,
+    "end_to_end_s": 110.69424612500006,
+    "errors": [],
+    "failed": false,
+    "grade": {
+      "detail": {
+        "errors": 0,
+        "failures": 0,
+        "passed": true,
+        "skipped": 0,
+        "tests_run": 4
+      },
+      "elapsed_s": 0.07899866698426194,
+      "exit_code": 0,
+      "passed": true,
+      "stderr": "test_existing_atomic_file_commits_after_successful_command (__main__.AtomicOutput.test_existing_atomic_file_commits_after_successful_command) ... ok\ntest_new_atomic_file_is_created_and_closed (__main__.AtomicOutput.test_new_atomic_file_is_created_and_closed) ... ok\ntest_non_atomic_lazy_output_is_closed (__main__.AtomicOutput.test_non_atomic_lazy_output_is_closed) ... ok\ntest_unused_lazy_output_is_not_created (__main__.AtomicOutput.test_unused_lazy_output_is_not_created) ... ok\n\n----------------------------------------------------------------------\nRan 4 tests in 0.002s\n\nOK\n",
+      "stdout": "{\"errors\": 0, \"failures\": 0, \"passed\": true, \"skipped\": 0, \"tests_run\": 4}\n"
+    },
+    "invalid_event_lines": [],
+    "mcp_calls": 0,
+    "mcp_items": [],
+    "patch_sha256": "f70c391f67fbdd6e1b52217c3a817432343497a5f62b051bc45bc84448036031",
+    "prompt_sha256": "93367c37299eab4b16a1eef4e1342b043ef1f54737a9ccb416312ebc7d253371",
+    "published_events_sha256": "d45cb496858add8845b3da0cf1bf68d22acb414b148bd7f316df92321abed4ce",
+    "raw_events_sha256": "06d0f7ae7ab3a4aaf71701605719b47f110e68de7caf322f138c0a4f10b2f3b6",
+    "reported_turns": 1,
+    "run_id": "04-click_atomic_close-baseline",
+    "seed_grade": {
+      "detail": {
+        "errors": 1,
+        "failures": 2,
+        "passed": false,
+        "skipped": 0,
+        "tests_run": 4
+      },
+      "elapsed_s": 0.04915533299208619,
+      "exit_code": 1,
+      "passed": false,
+      "stderr": "test_existing_atomic_file_commits_after_successful_command (__main__.AtomicOutput.test_existing_atomic_file_commits_after_successful_command) ... FAIL\ntest_new_atomic_file_is_created_and_closed (__main__.AtomicOutput.test_new_atomic_file_is_created_and_closed) ... ERROR\ntest_non_atomic_lazy_output_is_closed (__main__.AtomicOutput.test_non_atomic_lazy_output_is_closed) ... FAIL\ntest_unused_lazy_output_is_not_created (__main__.AtomicOutput.test_unused_lazy_output_is_not_created) ... ok\n\n======================================================================\nERROR: test_new_atomic_file_is_created_and_closed (__main__.AtomicOutput.test_new_atomic_file_is_created_and_closed)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<PROJECT>/benchmarks/workflow_checks/check_click_atomic_close.py\", line 47, in test_new_atomic_file_is_created_and_closed\n    self.assertEqual(destination.read_text(), \"replacement\\n\")\n                     ^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<HOME>/.local/share/uv/python/cpython-3.12.15-macos-aarch64-none/lib/python3.12/pathlib.py\", line 1027, in read_text\n    with self.open(mode='r', encoding=encoding, errors=errors) as f:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<HOME>/.local/share/uv/python/cpython-3.12.15-macos-aarch64-none/lib/python3.12/pathlib.py\", line 1013, in open\n    return io.open(self, mode, buffering, encoding, errors, newline)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFileNotFoundError: [Errno 2] No such file or directory: '/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/tmpi828zafx/new.txt'\n\n======================================================================\nFAIL: test_existing_atomic_file_commits_after_successful_command (__main__.AtomicOutput.test_existing_atomic_file_commits_after_successful_command)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<PROJECT>/benchmarks/workflow_checks/check_click_atomic_close.py\", line 38, in test_existing_atomic_file_commits_after_successful_command\n    self.assertEqual(destination.read_text(), \"replacement\\n\")\nAssertionError: 'original\\n' != 'replacement\\n'\n- original\n+ replacement\n\n\n======================================================================\nFAIL: test_non_atomic_lazy_output_is_closed (__main__.AtomicOutput.test_non_atomic_lazy_output_is_closed)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<PROJECT>/benchmarks/workflow_checks/check_click_atomic_close.py\", line 60, in test_non_atomic_lazy_output_is_closed\n    self.assertTrue(handle.closed)\nAssertionError: False is not true\n\n----------------------------------------------------------------------\nRan 4 tests in 0.003s\n\nFAILED (failures=2, errors=1)\n",
+      "stdout": "{\"errors\": 1, \"failures\": 2, \"passed\": false, \"skipped\": 0, \"tests_run\": 4}\n"
+    },
+    "setup_s": 0.22474733300623484,
+    "task_id": "click_atomic_close",
+    "timed_out": false,
+    "usage": {
+      "cache_write_input_tokens": 0,
+      "cached_input_tokens": 108672,
+      "input_tokens": 139852,
+      "output_tokens": 2972,
+      "reasoning_output_tokens": 1205,
+      "total_tokens": 142824,
+      "uncached_input_tokens": 31180
+    }
+  },
+  {
+    "agent_elapsed_s": 177.7461800420133,
+    "agent_exit_code": 0,
+    "base_commit": "78f8f608e77e59ef1511ee76ce62fd124de34a1e",
+    "base_tree_sha256": "3cec2aee6969f2a4d38d79950d5dd7043930c962e5ac1ad6e345d1dfe3ad8768",
+    "changed_files": [
+      "starlette/background.py",
+      "tests/test_background.py"
+    ],
+    "command_calls": 22,
+    "completed": true,
+    "completed_correct": true,
+    "condition": "baseline",
+    "correct": true,
+    "end_to_end_s": 178.1599676250189,
+    "errors": [],
+    "failed": false,
+    "grade": {
+      "detail": {
+        "errors": 0,
+        "failures": 0,
+        "passed": true,
+        "skipped": 0,
+        "tests_run": 3
+      },
+      "elapsed_s": 0.09277766701416112,
+      "exit_code": 0,
+      "passed": true,
+      "stderr": "test_constructor_tasks_keep_order_and_empty_sequence_is_valid (__main__.OrderedBackground.test_constructor_tasks_keep_order_and_empty_sequence_is_valid) ... ok\ntest_failure_does_not_run_later_callbacks (__main__.OrderedBackground.test_failure_does_not_run_later_callbacks) ... ok\ntest_mixed_callbacks_run_in_registration_order_after_response (__main__.OrderedBackground.test_mixed_callbacks_run_in_registration_order_after_response) ... ok\n\n----------------------------------------------------------------------\nRan 3 tests in 0.011s\n\nOK\n",
+      "stdout": "{\"errors\": 0, \"failures\": 0, \"passed\": true, \"skipped\": 0, \"tests_run\": 3}\n"
+    },
+    "invalid_event_lines": [],
+    "mcp_calls": 0,
+    "mcp_items": [],
+    "patch_sha256": "3d94e050eb912f07b447b10aec391a328d24778fba733e4854eeccfa82fcbc09",
+    "prompt_sha256": "ae019f603ccdf485e37ef59e7c2d44ac06f6f996af164ce35ce14448b1fb0fda",
+    "published_events_sha256": "c462e6f3f6ed537197c64c3b106aa1ac1654181b5a7a4c9594398919715c7ad1",
+    "raw_events_sha256": "c07fe6fa9e5f11b67c05663fbab197012f6c7b687d2bbf7868768a3135e8c7f9",
+    "reported_turns": 1,
+    "run_id": "05-starlette_background_order-baseline",
+    "seed_grade": {
+      "detail": {
+        "errors": 0,
+        "failures": 3,
+        "passed": false,
+        "skipped": 0,
+        "tests_run": 3
+      },
+      "elapsed_s": 0.07068274999619462,
+      "exit_code": 1,
+      "passed": false,
+      "stderr": "test_constructor_tasks_keep_order_and_empty_sequence_is_valid (__main__.OrderedBackground.test_constructor_tasks_keep_order_and_empty_sequence_is_valid) ... FAIL\ntest_failure_does_not_run_later_callbacks (__main__.OrderedBackground.test_failure_does_not_run_later_callbacks) ... FAIL\ntest_mixed_callbacks_run_in_registration_order_after_response (__main__.OrderedBackground.test_mixed_callbacks_run_in_registration_order_after_response) ... FAIL\n\n======================================================================\nFAIL: test_constructor_tasks_keep_order_and_empty_sequence_is_valid (__main__.OrderedBackground.test_constructor_tasks_keep_order_and_empty_sequence_is_valid)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<HOME>/.local/share/uv/python/cpython-3.12.15-macos-aarch64-none/lib/python3.12/asyncio/runners.py\", line 118, in run\n    return self._loop.run_until_complete(task)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<HOME>/.local/share/uv/python/cpython-3.12.15-macos-aarch64-none/lib/python3.12/asyncio/base_events.py\", line 691, in run_until_complete\n    return future.result()\n           ^^^^^^^^^^^^^^^\n  File \"<PROJECT>/benchmarks/workflow_checks/check_starlette_background_order.py\", line 61, in test_constructor_tasks_keep_order_and_empty_sequence_is_valid\n    self.assertEqual(events, [\"a\", \"b\"])\nAssertionError: Lists differ: ['b', 'a'] != ['a', 'b']\n\nFirst differing element 0:\n'b'\n'a'\n\n- ['b', 'a']\n+ ['a', 'b']\n\n======================================================================\nFAIL: test_failure_does_not_run_later_callbacks (__main__.OrderedBackground.test_failure_does_not_run_later_callbacks)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<HOME>/.local/share/uv/python/cpython-3.12.15-macos-aarch64-none/lib/python3.12/asyncio/runners.py\", line 118, in run\n    return self._loop.run_until_complete(task)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<HOME>/.local/share/uv/python/cpython-3.12.15-macos-aarch64-none/lib/python3.12/asyncio/base_events.py\", line 691, in run_until_complete\n    return future.result()\n           ^^^^^^^^^^^^^^^\n  File \"<PROJECT>/benchmarks/workflow_checks/check_starlette_background_order.py\", line 56, in test_failure_does_not_run_later_callbacks\n    self.assertEqual(events, [\"earlier\", \"failing\"])\nAssertionError: Lists differ: ['later', 'failing'] != ['earlier', 'failing']\n\nFirst differing element 0:\n'later'\n'earlier'\n\n- ['later', 'failing']\n?    ^^\n\n+ ['earlier', 'failing']\n?   +++ ^\n\n\n======================================================================\nFAIL: test_mixed_callbacks_run_in_registration_order_after_response (__main__.OrderedBackground.test_mixed_callbacks_run_in_registration_order_after_response)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<HOME>/.local/share/uv/python/cpython-3.12.15-macos-aarch64-none/lib/python3.12/asyncio/runners.py\", line 118, in run\n    return self._loop.run_until_complete(task)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<HOME>/.local/share/uv/python/cpython-3.12.15-macos-aarch64-none/lib/python3.12/asyncio/base_events.py\", line 691, in run_until_complete\n    return future.result()\n           ^^^^^^^^^^^^^^^\n  File \"<PROJECT>/benchmarks/workflow_checks/check_starlette_background_order.py\", line 35, in test_mixed_callbacks_run_in_registration_order_after_response\n    self.assertEqual(events, [\"http.response.start\", \"http.response.body\", \"first-done\", \"second-done\", \"third-done\"])\nAssertionError: Lists differ: ['htt[20 chars]http.response.body', 'third-done', 'second-done', 'first-done'] != ['htt[20 chars]http.response.body', 'first-done', 'second-done', 'third-done']\n\nFirst differing element 2:\n'third-done'\n'first-done'\n\n  ['http.response.start',\n   'http.response.body',\n-  'third-done',\n?   ^^  ^\n\n+  'first-done',\n?   ^  ^^\n\n   'second-done',\n-  'first-done']\n?   ^  ^^\n\n+  'third-done']\n?   ^^  ^\n\n\n----------------------------------------------------------------------\nRan 3 tests in 0.015s\n\nFAILED (failures=3)\n",
+      "stdout": "{\"errors\": 0, \"failures\": 3, \"passed\": false, \"skipped\": 0, \"tests_run\": 3}\n"
+    },
+    "setup_s": 0.28402954200282693,
+    "task_id": "starlette_background_order",
+    "timed_out": false,
+    "usage": {
+      "cache_write_input_tokens": 0,
+      "cached_input_tokens": 161664,
+      "input_tokens": 208516,
+      "output_tokens": 5166,
+      "reasoning_output_tokens": 2219,
+      "total_tokens": 213682,
+      "uncached_input_tokens": 46852
+    }
+  },
+  {
+    "agent_elapsed_s": 209.3300991670112,
+    "agent_exit_code": 0,
+    "base_commit": "78f8f608e77e59ef1511ee76ce62fd124de34a1e",
+    "base_tree_sha256": "3cec2aee6969f2a4d38d79950d5dd7043930c962e5ac1ad6e345d1dfe3ad8768",
+    "changed_files": [
+      "starlette/background.py",
+      "tests/test_background.py"
+    ],
+    "command_calls": 12,
+    "completed": true,
+    "completed_correct": true,
+    "condition": "mcp",
+    "correct": true,
+    "end_to_end_s": 229.95637666698894,
+    "errors": [],
+    "failed": false,
+    "final_backend_status": {
+      "abstention_policy": null,
+      "closed": false,
+      "dense_ready": true,
+      "embedding_initialized": true,
+      "indexstats": {
+        "deleted_windows": 0,
+        "elapsed_s": 0.4250891249976121,
+        "indexed_windows": 1,
+        "memory_cache_hit": false,
+        "model_fingerprint": "2605d7e4c477b8b8dc107f31b02c7fc4e7fc419945e8727c7a5c14a02fe70c45",
+        "reused_windows": 471,
+        "source_files": 34,
+        "source_manifest": "7ae5501b736e86abfd77e348b1b30788ab85fd9c6c9caa7d90f5fbe0ea136e4a",
+        "total_windows": 472
+      },
+      "last_error": null,
+      "ready": true,
+      "repo": "<WORKSPACE>",
+      "source_manifest": "7ae5501b736e86abfd77e348b1b30788ab85fd9c6c9caa7d90f5fbe0ea136e4a",
+      "source_root": "starlette",
+      "store": {
+        "db_path": "<EVALUATOR_LOG>/index.sqlite3",
+        "dense_backend": "sqlite_vec_cosine_exact",
+        "dense_windows": 472,
+        "dimensions": 1024,
+        "embedding": {
+          "add_special_tokens": true,
+          "batch_order": "stable ascending token length; restore input order",
+          "batch_size": 4,
+          "checkpoint_validation": "pinned Hub download provenance; original unquantized config",
+          "dimensions": 1024,
+          "document_prompt": null,
+          "id": "Qwen/Qwen3-Embedding-0.6B",
+          "max_tokens": 8192,
+          "normalization": "L2, float32",
+          "packages": {
+            "mlx": "0.32.3",
+            "mlx-embeddings": "0.1.0",
+            "mlx-metal": "0.32.3",
+            "numpy": "2.5.4",
+            "transformers": "5.19.0"
+          },
+          "padding_side": "right",
+          "pooling": "last non-padding token",
+          "quantized": false,
+          "query_instruction": "Given a description of code behavior, retrieve the code implementation that performs it.",
+          "query_prompt": "Instruct: Given a description of code behavior, retrieve the code implementation that performs it.\nQuery:",
+          "revision": "97b0c614be4d77ee51c0cef4e5f07c00f9eb65b3",
+          "runtime": "mlx-embeddings",
+          "runtime_version": "0.1.0",
+          "truncation": "right",
+          "weights_dtype": "bfloat16"
+        },
+        "lexical_backend": "sqlite_fts5",
+        "model_fingerprint": "2605d7e4c477b8b8dc107f31b02c7fc4e7fc419945e8727c7a5c14a02fe70c45",
+        "schema_version": 2,
+        "sqlite_vec_version": "0.1.9",
+        "total_windows": 472,
+        "updated_at": "2026-10-13T03:29:14.944524+00:00"
+      },
+      "watcher": {
+        "debounce_s": 0.5,
+        "last_error": null,
+        "last_refresh_at": "2026-10-13T03:29:15.027436+00:00",
+        "pending": false,
+        "poll_interval_s": 1.0,
+        "refresh_count": 1,
+        "running": true
+      },
+      "windows": 472
+    },
+    "grade": {
+      "detail": {
+        "errors": 0,
+        "failures": 0,
+        "passed": true,
+        "skipped": 0,
+        "tests_run": 3
+      },
+      "elapsed_s": 0.0733053750009276,
+      "exit_code": 0,
+      "passed": true,
+      "stderr": "test_constructor_tasks_keep_order_and_empty_sequence_is_valid (__main__.OrderedBackground.test_constructor_tasks_keep_order_and_empty_sequence_is_valid) ... ok\ntest_failure_does_not_run_later_callbacks (__main__.OrderedBackground.test_failure_does_not_run_later_callbacks) ... ok\ntest_mixed_callbacks_run_in_registration_order_after_response (__main__.OrderedBackground.test_mixed_callbacks_run_in_registration_order_after_response) ... ok\n\n----------------------------------------------------------------------\nRan 3 tests in 0.013s\n\nOK\n",
+      "stdout": "{\"errors\": 0, \"failures\": 0, \"passed\": true, \"skipped\": 0, \"tests_run\": 3}\n"
+    },
+    "initial_index": {
+      "deleted_windows": 0,
+      "elapsed_s": 19.888265125016915,
+      "indexed_windows": 472,
+      "memory_cache_hit": false,
+      "model_fingerprint": "2605d7e4c477b8b8dc107f31b02c7fc4e7fc419945e8727c7a5c14a02fe70c45",
+      "reused_windows": 0,
+      "source_files": 34,
+      "source_manifest": "e8e207b4512053a2fc59b4caa3cdf184c01fed1012571992ef58b1580fc7c4cc",
+      "total_windows": 472
+    },
+    "invalid_event_lines": [],
+    "mcp_calls": 1,
+    "mcp_items": [
+      {
+        "arguments": {
+          "include_dependencies": true,
+          "max_results": 5,
+          "query": "Starlette BackgroundTasks collect add_task background callbacks then execute registered tasks after response sends, asynchronous and synchronous BackgroundTask __call__",
+          "retrieval": "bm25",
+          "source_budget": 9000,
+          "token_budget": 3000
+        },
+        "error": null,
+        "id": "item_2",
+        "result": {
+          "content": [
+            {
+              "text": "{\"query\":\"Starlette BackgroundTasks collect add_task background callbacks then execute registered tasks after response sends, asynchronous and synchronous BackgroundTask __call__\",\"match_status\":\"candidates\",\"results\":[{\"path\":\"starlette/background.py\",\"symbol\":\"BackgroundTasks.add_task\",\"start_line\":35,\"end_line\":37,\"source\":\"    def add_task(self, func: typing.Callable[P, typing.Any], *args: P.args, **kwargs: P.kwargs) -> None:\\n        task = BackgroundTask(func, *args, **kwargs)\\n        self.tasks.append(task)\\n\",\"source_hash\":\"5c65a719e5fe5947291ce235508c95af05df8f2d7690628b016e3a72a1d589b8\",\"truncated\":false,\"origin\":\"retrieval\",\"related_to\":null},{\"path\":\"starlette/background.py\",\"symbol\":\"BackgroundTasks.__call__\",\"start_line\":39,\"end_line\":41,\"source\":\"    async def __call__(self) -> None:\\n        for task in reversed(self.tasks):\\n            await task()\\n\",\"source_hash\":\"848efdf777bafd44d99d611e38db29a4f000d5e17df4b78150336611621fa5ab\",\"truncated\":false,\"origin\":\"retrieval\",\"related_to\":null},{\"path\":\"starlette/background.py\",\"symbol\":\"BackgroundTasks.__init__\",\"start_line\":32,\"end_line\":33,\"source\":\"    def __init__(self, tasks: typing.Sequence[BackgroundTask] | None = None):\\n        self.tasks = list(tasks) if tasks else []\\n\",\"source_hash\":\"ce83653e0f00f009db8420a70ceedc9104224b2e44b715fdc2af2b374a051559\",\"truncated\":false,\"origin\":\"retrieval\",\"related_to\":null},{\"path\":\"starlette/responses.py\",\"symbol\":\"StreamingResponse.__call__\",\"start_line\":252,\"end_line\":271,\"source\":\"    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:\\n        spec_version = tuple(map(int, scope.get(\\\"asgi\\\", {}).get(\\\"spec_version\\\", \\\"2.0\\\").split(\\\".\\\")))\\n\\n        if spec_version >= (2, 4):\\n            try:\\n                await self.stream_response(send)\\n            except OSError:\\n                raise ClientDisconnect()\\n        else:\\n            async with anyio.create_task_group() as task_group:\\n\\n                async def wrap(func: typing.Callable[[], typing.Awaitable[None]]) -> None:\\n                    await func()\\n                    task_group.cancel_scope.cancel()\\n\\n                task_group.start_soon(wrap, partial(self.stream_response, send))\\n                await wrap(partial(self.listen_for_disconnect, receive))\\n\\n        if self.background is not None:\\n            await self.background()\\n\",\"source_hash\":\"b919a0fb3fef66f8e435fe845f7f50a9545d985f028209411569f83624d3f690\",\"truncated\":false,\"origin\":\"retrieval\",\"related_to\":null},{\"path\":\"starlette/background.py\",\"symbol\":\"BackgroundTask.__call__\",\"start_line\":24,\"end_line\":28,\"source\":\"    async def __call__(self) -> None:\\n        if self.is_async:\\n            await self.func(*self.args, **self.kwargs)\\n        else:\\n            await run_in_threadpool(self.func, *self.args, **self.kwargs)\\n\",\"source_hash\":\"eefe65980ba39eb785d74ca27e9e00c77dd2837593c79c04f6fea61eecfcc7e1\",\"truncated\":false,\"origin\":\"retrieval\",\"related_to\":null}],\"budget_exhausted\":false,\"token_usage\":{\"encoding\":\"cl100k_base\",\"tokens\":846,\"budget\":3000,\"truncated\":false}}",
+              "type": "text"
+            }
+          ],
+          "structured_content": {
+            "budget_exhausted": false,
+            "match_status": "candidates",
+            "query": "Starlette BackgroundTasks collect add_task background callbacks then execute registered tasks after response sends, asynchronous and synchronous BackgroundTask __call__",
+            "results": [
+              {
+                "end_line": 37,
+                "origin": "retrieval",
+                "path": "starlette/background.py",
+                "related_to": null,
+                "source": "    def add_task(self, func: typing.Callable[P, typing.Any], *args: P.args, **kwargs: P.kwargs) -> None:\n        task = BackgroundTask(func, *args, **kwargs)\n        self.tasks.append(task)\n",
+                "source_hash": "5c65a719e5fe5947291ce235508c95af05df8f2d7690628b016e3a72a1d589b8",
+                "start_line": 35,
+                "symbol": "BackgroundTasks.add_task",
+                "truncated": false
+              },
+              {
+                "end_line": 41,
+                "origin": "retrieval",
+                "path": "starlette/background.py",
+                "related_to": null,
+                "source": "    async def __call__(self) -> None:\n        for task in reversed(self.tasks):\n            await task()\n",
+                "source_hash": "848efdf777bafd44d99d611e38db29a4f000d5e17df4b78150336611621fa5ab",
+                "start_line": 39,
+                "symbol": "BackgroundTasks.__call__",
+                "truncated": false
+              },
+              {
+                "end_line": 33,
+                "origin": "retrieval",
+                "path": "starlette/background.py",
+                "related_to": null,
+                "source": "    def __init__(self, tasks: typing.Sequence[BackgroundTask] | None = None):\n        self.tasks = list(tasks) if tasks else []\n",
+                "source_hash": "ce83653e0f00f009db8420a70ceedc9104224b2e44b715fdc2af2b374a051559",
+                "start_line": 32,
+                "symbol": "BackgroundTasks.__init__",
+                "truncated": false
+              },
+              {
+                "end_line": 271,
+                "origin": "retrieval",
+                "path": "starlette/responses.py",
+                "related_to": null,
+                "source": "    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:\n        spec_version = tuple(map(int, scope.get(\"asgi\", {}).get(\"spec_version\", \"2.0\").split(\".\")))\n\n        if spec_version >= (2, 4):\n            try:\n                await self.stream_response(send)\n            except OSError:\n                raise ClientDisconnect()\n        else:\n            async with anyio.create_task_group() as task_group:\n\n                async def wrap(func: typing.Callable[[], typing.Awaitable[None]]) -> None:\n                    await func()\n                    task_group.cancel_scope.cancel()\n\n                task_group.start_soon(wrap, partial(self.stream_response, send))\n                await wrap(partial(self.listen_for_disconnect, receive))\n\n        if self.background is not None:\n            await self.background()\n",
+                "source_hash": "b919a0fb3fef66f8e435fe845f7f50a9545d985f028209411569f83624d3f690",
+                "start_line": 252,
+                "symbol": "StreamingResponse.__call__",
+                "truncated": false
+              },
+              {
+                "end_line": 28,
+                "origin": "retrieval",
+                "path": "starlette/background.py",
+                "related_to": null,
+                "source": "    async def __call__(self) -> None:\n        if self.is_async:\n            await self.func(*self.args, **self.kwargs)\n        else:\n            await run_in_threadpool(self.func, *self.args, **self.kwargs)\n",
+                "source_hash": "eefe65980ba39eb785d74ca27e9e00c77dd2837593c79c04f6fea61eecfcc7e1",
+                "start_line": 24,
+                "symbol": "BackgroundTask.__call__",
+                "truncated": false
+              }
+            ],
+            "token_usage": {
+              "budget": 3000,
+              "encoding": "cl100k_base",
+              "tokens": 846,
+              "truncated": false
+            }
+          }
+        },
+        "server": "semantic_search",
+        "status": "completed",
+        "tool": "search_code",
+        "type": "mcp_tool_call"
+      }
+    ],
+    "patch_sha256": "fb23729413d41824a804f9ed1c062c852081a362c4ea5da26e7cd213f40da030",
+    "prompt_sha256": "ae019f603ccdf485e37ef59e7c2d44ac06f6f996af164ce35ce14448b1fb0fda",
+    "published_events_sha256": "6111be97c822cc1840b198ea448f978d9bd40078b8cfbfe5bf93e01c7d478850",
+    "raw_events_sha256": "ec63b8998bcc30173692b7576f122c23036d3862fc4e78ccccf6df0ae3eed363",
+    "reported_turns": 1,
+    "run_id": "06-starlette_background_order-mcp",
+    "seed_grade": {
+      "detail": {
+        "errors": 0,
+        "failures": 3,
+        "passed": false,
+        "skipped": 0,
+        "tests_run": 3
+      },
+      "elapsed_s": 0.06336000000010245,
+      "exit_code": 1,
+      "passed": false,
+      "stderr": "test_constructor_tasks_keep_order_and_empty_sequence_is_valid (__main__.OrderedBackground.test_constructor_tasks_keep_order_and_empty_sequence_is_valid) ... FAIL\ntest_failure_does_not_run_later_callbacks (__main__.OrderedBackground.test_failure_does_not_run_later_callbacks) ... FAIL\ntest_mixed_callbacks_run_in_registration_order_after_response (__main__.OrderedBackground.test_mixed_callbacks_run_in_registration_order_after_response) ... FAIL\n\n======================================================================\nFAIL: test_constructor_tasks_keep_order_and_empty_sequence_is_valid (__main__.OrderedBackground.test_constructor_tasks_keep_order_and_empty_sequence_is_valid)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<HOME>/.local/share/uv/python/cpython-3.12.15-macos-aarch64-none/lib/python3.12/asyncio/runners.py\", line 118, in run\n    return self._loop.run_until_complete(task)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<HOME>/.local/share/uv/python/cpython-3.12.15-macos-aarch64-none/lib/python3.12/asyncio/base_events.py\", line 691, in run_until_complete\n    return future.result()\n           ^^^^^^^^^^^^^^^\n  File \"<PROJECT>/benchmarks/workflow_checks/check_starlette_background_order.py\", line 61, in test_constructor_tasks_keep_order_and_empty_sequence_is_valid\n    self.assertEqual(events, [\"a\", \"b\"])\nAssertionError: Lists differ: ['b', 'a'] != ['a', 'b']\n\nFirst differing element 0:\n'b'\n'a'\n\n- ['b', 'a']\n+ ['a', 'b']\n\n======================================================================\nFAIL: test_failure_does_not_run_later_callbacks (__main__.OrderedBackground.test_failure_does_not_run_later_callbacks)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<HOME>/.local/share/uv/python/cpython-3.12.15-macos-aarch64-none/lib/python3.12/asyncio/runners.py\", line 118, in run\n    return self._loop.run_until_complete(task)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<HOME>/.local/share/uv/python/cpython-3.12.15-macos-aarch64-none/lib/python3.12/asyncio/base_events.py\", line 691, in run_until_complete\n    return future.result()\n           ^^^^^^^^^^^^^^^\n  File \"<PROJECT>/benchmarks/workflow_checks/check_starlette_background_order.py\", line 56, in test_failure_does_not_run_later_callbacks\n    self.assertEqual(events, [\"earlier\", \"failing\"])\nAssertionError: Lists differ: ['later', 'failing'] != ['earlier', 'failing']\n\nFirst differing element 0:\n'later'\n'earlier'\n\n- ['later', 'failing']\n?    ^^\n\n+ ['earlier', 'failing']\n?   +++ ^\n\n\n======================================================================\nFAIL: test_mixed_callbacks_run_in_registration_order_after_response (__main__.OrderedBackground.test_mixed_callbacks_run_in_registration_order_after_response)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<HOME>/.local/share/uv/python/cpython-3.12.15-macos-aarch64-none/lib/python3.12/asyncio/runners.py\", line 118, in run\n    return self._loop.run_until_complete(task)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<HOME>/.local/share/uv/python/cpython-3.12.15-macos-aarch64-none/lib/python3.12/asyncio/base_events.py\", line 691, in run_until_complete\n    return future.result()\n           ^^^^^^^^^^^^^^^\n  File \"<PROJECT>/benchmarks/workflow_checks/check_starlette_background_order.py\", line 35, in test_mixed_callbacks_run_in_registration_order_after_response\n    self.assertEqual(events, [\"http.response.start\", \"http.response.body\", \"first-done\", \"second-done\", \"third-done\"])\nAssertionError: Lists differ: ['htt[20 chars]http.response.body', 'third-done', 'second-done', 'first-done'] != ['htt[20 chars]http.response.body', 'first-done', 'second-done', 'third-done']\n\nFirst differing element 2:\n'third-done'\n'first-done'\n\n  ['http.response.start',\n   'http.response.body',\n-  'third-done',\n?   ^^  ^\n\n+  'first-done',\n?   ^  ^^\n\n   'second-done',\n-  'first-done']\n?   ^  ^^\n\n+  'third-done']\n?   ^^  ^\n\n\n----------------------------------------------------------------------\nRan 3 tests in 0.011s\n\nFAILED (failures=3)\n",
+      "stdout": "{\"errors\": 0, \"failures\": 3, \"passed\": false, \"skipped\": 0, \"tests_run\": 3}\n"
+    },
+    "setup_s": 20.289688332995865,
+    "task_id": "starlette_background_order",
+    "timed_out": false,
+    "usage": {
+      "cache_write_input_tokens": 0,
+      "cached_input_tokens": 154496,
+      "input_tokens": 232600,
+      "output_tokens": 5987,
+      "reasoning_output_tokens": 3133,
+      "total_tokens": 238587,
+      "uncached_input_tokens": 78104
+    }
+  }
+]

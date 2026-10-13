@@ -1,0 +1,68 @@
+diff --git a/src/click/types.py b/src/click/types.py
+index fc12526..5b035b3 100644
+--- a/src/click/types.py
++++ b/src/click/types.py
+@@ -720,6 +720,9 @@ class File(ParamType):
+                     value, self.mode, self.encoding, self.errors, atomic=self.atomic
+                 )
+ 
++                if ctx is not None:
++                    ctx.call_on_close(safecall(lf.close_intelligently))
++
+                 return t.cast(t.IO[t.Any], lf)
+ 
+             f, should_close = open_stream(
+diff --git a/tests/test_basic.py b/tests/test_basic.py
+index d68b962..fa98285 100644
+--- a/tests/test_basic.py
++++ b/tests/test_basic.py
+@@ -315,6 +315,49 @@ def test_file_lazy_mode(runner):
+         assert "Invalid value for '--file': 'example.txt'" in result_in.output
+ 
+ 
++@pytest.mark.parametrize("atomic", [False, True])
++@pytest.mark.parametrize("existing", [False, True])
++def test_file_lazy_output_cleanup(runner, tmp_path, atomic, existing):
++    path = tmp_path / "output.txt"
++
++    if existing:
++        path.write_text("old content", encoding="utf-8")
++
++    outputs = []
++
++    @click.command()
++    @click.option("--output", type=click.File("w", lazy=True, atomic=atomic))
++    def cli(output):
++        # Retain the file so garbage collection cannot close it for Click.
++        outputs.append(output)
++        output.write("new content")
++        output.flush()
++
++        if atomic:
++            if existing:
++                assert path.read_text(encoding="utf-8") == "old content"
++            else:
++                assert not path.exists()
++
++    result = runner.invoke(cli, ["--output", str(path)])
++    assert result.exit_code == 0
++    assert outputs[0].closed
++    assert path.read_text(encoding="utf-8") == "new content"
++    assert list(tmp_path.iterdir()) == [path]
++
++
++@pytest.mark.parametrize("atomic", [False, True])
++def test_file_lazy_output_unused(runner, tmp_path, atomic):
++    @click.command()
++    @click.option("--output", type=click.File("w", lazy=True, atomic=atomic))
++    def cli(output):
++        pass
++
++    result = runner.invoke(cli, ["--output", str(tmp_path / "output.txt")])
++    assert result.exit_code == 0
++    assert not list(tmp_path.iterdir())
++
++
+ def test_path_option(runner):
+     @click.command()
+     @click.option("-O", type=click.Path(file_okay=False, exists=True, writable=True))

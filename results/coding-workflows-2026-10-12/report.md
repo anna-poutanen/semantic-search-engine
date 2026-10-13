@@ -2,6 +2,8 @@
 
 The MCP condition completed a repair and passed every selected hidden check in **6/6 tasks**; the baseline did so in **6/6 tasks**. All 12 declared trials are retained. The same model, prompt and seeded starting source were assigned within each pair; preserved fixture and prompt hashes document successful preparations.
 
+The MCP-assigned workload used **1,431,818 gross tokens versus 1,583,509** in baseline (9.6% fewer). Summed agent wall time was **944.41s versus 926.31s** (2.0% more). Setup and complete evaluator-run time are published separately below. No MCP tools were called, so these condition differences do not measure active retrieval benefit.
+
 Each condition was assigned **21 declared hidden-verifier methods** across these tasks. This count is separate from parameterized agent-authored test cases reproduced later.
 
 **Selected-check success is weaker than complete correctness:** a separate CPU probe found 2 atomic-output repairs that reported command success after a failed commit, leaving the old destination bytes. Their formal labels remain unchanged; [supplemental evidence](close-error-probe.json) documents the defect.
@@ -68,11 +70,11 @@ Positive reductions mean MCP used less; negative reductions mean it used more. E
 | Metric | Measured pairs | Baseline sum | MCP sum | Reduction of sums | Baseline median | MCP median | Reduction of medians | Median paired reduction |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Agent wall time (s) | 6 | 926.31 | 944.41 | -2.0% | 153.04 | 147.57 | +3.6% | +6.3% |
-| Input tokens | 6 | 1,562,903 | 1,408,796 | +9.9% | 270,291 | 232,522 | +14.0% | +5.1% |
+| Input tokens | 6 | 1,562,903 | 1,408,796 | +9.9% | 270,291 | 232,521.5 | +14.0% | +5.1% |
 | Cached input tokens | 6 | 1,234,944 | 1,139,840 | +7.7% | 211,520 | 190,848 | +9.8% | +3.0% |
 | Uncached input tokens | 6 | 327,959 | 268,956 | +18.0% | 55,845 | 48,470 | +13.2% | +20.4% |
-| Output tokens | 6 | 20,606 | 23,022 | -11.7% | 3,250 | 3,628 | -11.6% | -11.2% |
-| Gross total tokens | 6 | 1,583,509 | 1,431,818 | +9.6% | 273,938 | 236,616 | +13.6% | +4.6% |
+| Output tokens | 6 | 20,606 | 23,022 | -11.7% | 3,250 | 3,627.5 | -11.6% | -11.2% |
+| Gross total tokens | 6 | 1,583,509 | 1,431,818 | +9.6% | 273,937.5 | 236,615.5 | +13.6% | +4.6% |
 
 ### Both completed and passed selected checks
 
@@ -81,11 +83,11 @@ This subset contains **6/6 pairs**. It compares resources when both conditions d
 | Metric | Measured pairs | Baseline sum | MCP sum | Reduction of sums | Baseline median | MCP median | Reduction of medians | Median paired reduction |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Agent wall time (s) | 6 | 926.31 | 944.41 | -2.0% | 153.04 | 147.57 | +3.6% | +6.3% |
-| Input tokens | 6 | 1,562,903 | 1,408,796 | +9.9% | 270,291 | 232,522 | +14.0% | +5.1% |
+| Input tokens | 6 | 1,562,903 | 1,408,796 | +9.9% | 270,291 | 232,521.5 | +14.0% | +5.1% |
 | Cached input tokens | 6 | 1,234,944 | 1,139,840 | +7.7% | 211,520 | 190,848 | +9.8% | +3.0% |
 | Uncached input tokens | 6 | 327,959 | 268,956 | +18.0% | 55,845 | 48,470 | +13.2% | +20.4% |
-| Output tokens | 6 | 20,606 | 23,022 | -11.7% | 3,250 | 3,628 | -11.6% | -11.2% |
-| Gross total tokens | 6 | 1,583,509 | 1,431,818 | +9.6% | 273,938 | 236,616 | +13.6% | +4.6% |
+| Output tokens | 6 | 20,606 | 23,022 | -11.7% | 3,250 | 3,627.5 | -11.6% | -11.2% |
+| Gross total tokens | 6 | 1,583,509 | 1,431,818 | +9.6% | 273,937.5 | 236,615.5 | +13.6% | +4.6% |
 
 | Task | Both completed and passed | Time reduction | Input reduction | Cached-input reduction | Uncached-input reduction | Output reduction | Gross-total reduction |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -98,7 +100,7 @@ This subset contains **6/6 pairs**. It compares resources when both conditions d
 
 ## MCP uptake and actual calls
 
-**0/6 MCP-assigned runs called a tool**, with 0 recorded calls and 0 reported tool errors. 0 calls changed at least one argument in the frozen default map. Availability is the assigned treatment; a run that did not use MCP remains in the comparison.
+**0/6 MCP-assigned runs called a tool**, with 0 recorded calls, 0 completed successful search responses with self-consistent source hashes, and 0 reported tool errors. 0 calls changed at least one argument in the frozen default map. Availability is the assigned treatment; a run that did not use MCP remains in the comparison.
 
 Frozen defaults: `{"include_dependencies": true, "max_results": 8, "rerank": false, "retrieval": "dense", "source_budget": 12000, "token_budget": 4096}`. Queries are never counted as overrides. Explicit arguments absent from the frozen default map are listed separately, without guessing their defaults. H2O was not running; calls requesting reranking can fail and remain recorded.
 
@@ -120,6 +122,17 @@ Frozen defaults: `{"include_dependencies": true, "max_results": 8, "rerank": fal
 | starlette_streaming_buffers | baseline | 18 | 2 | 0 |
 
 Ordinary command calls are completed shell-command items. File-change items count completed edit items in the preserved trace; a command may also edit files, so these columns describe recorded tool activity rather than a count of changed files.
+
+| Task | Final backend ready | Dense index ready | Windows | Source files | Final source manifest |
+| --- | --- | --- | --- | --- | --- |
+| requests_auth_ports | True | True | 240 | 19 | b339026c58d64972b8d3b5e5bbfbc0bfd7ea0599f4aae7d7bc42f57fae3c3690 |
+| requests_redirect_methods | True | True | 240 | 19 | b041115ed361a62695d7344d196c973f6a7ecd2fb4843f3b4beaad29f8d0f6b4 |
+| click_atomic_close | True | True | 474 | 16 | 285ddc3eecc41538a93577e7806210d0c9c316dc3034c13e8011d5a6c4885ced |
+| click_file_paths | True | True | 474 | 16 | 242f003c19642f93b556010d692c907333453740c04fe80692876c5b68cf707e |
+| starlette_background_order | True | True | 472 | 34 | 7ae5501b736e86abfd77e348b1b30788ab85fd9c6c9caa7d90f5fbe0ea136e4a |
+| starlette_streaming_buffers | True | True | 472 | 34 | 21f53e31607347b81de8c9628028e4125b3b14fac9a1b4c5306e1c141aab79b3 |
+
+These are final backend/index snapshots after agent execution, not per-call HTTP receipts or proof of the source state at an earlier query.
 
 The host's handling of MCP text and structured content is part of these observed input counts. No adjustment was made from local excerpt sizes. Cached input is shown separately because provider caching and paired execution order can affect observed workload and latency.
 

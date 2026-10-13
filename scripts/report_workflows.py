@@ -42,7 +42,9 @@ def measurement(record: dict, metric: str) -> int | float | None:
 def format_number(value: int | float | None, *, tokens: bool = False) -> str:
     if value is None:
         return "unavailable"
-    return f"{value:,.0f}" if tokens else f"{value:,.2f}"
+    if tokens:
+        return f"{value:,.0f}" if value == int(value) else f"{value:,.1f}"
+    return f"{value:,.2f}"
 
 
 def reduction(baseline: int | float | None, mcp: int | float | None) -> float | None:
@@ -163,6 +165,39 @@ def tool_error(item: dict) -> bool:
     return bool(item.get("error") or item.get("status") in ("failed", "error") or result_error)
 
 
+def tool_payload(item: dict) -> dict | None:
+    result = item.get("result")
+    if not isinstance(result, dict):
+        return None
+    for key in ("structured_content", "structuredContent"):
+        if isinstance(result.get(key), dict):
+            return result[key]
+    for content in result.get("content", []):
+        if content.get("type") == "text":
+            try:
+                payload = json.loads(content["text"])
+            except (ValueError, KeyError):
+                continue
+            if isinstance(payload, dict):
+                return payload
+    return None
+
+
+def source_receipt(payload: dict | None) -> tuple[bool, str]:
+    if payload is None or not isinstance(payload.get("query"), str) or not isinstance(payload.get("results"), list):
+        return False, "unavailable"
+    sources = []
+    for row in payload["results"]:
+        source = row.get("source")
+        if (not isinstance(source, str) or not source
+                or row.get("source_hash") != hashlib.sha256(source.encode()).hexdigest()
+                or type(row.get("start_line")) is not int or type(row.get("end_line")) is not int
+                or not 1 <= row["start_line"] <= row["end_line"]):
+            return False, "invalid source receipt"
+        sources.append(f"{row.get('path')}:{row.get('symbol')} L{row['start_line']}–{row['end_line']} ({row.get('origin')}; truncated={row.get('truncated')}; SHA256={row['source_hash']})")
+    return True, "; ".join(sources) if sources else "no excerpts returned"
+
+
 def render(config: dict, records: list[dict], summary: dict, artifacts: Path | None = None) -> str:
     tasks = validate_inventory(config, records, summary)
     by_task = {task: {r["condition"]: r for r in records if r["task_id"] == task} for task in tasks}
@@ -187,9 +222,28 @@ def render(config: dict, records: list[dict], summary: dict, artifacts: Path | N
         early_diagnostic = json.loads(early_close_probe.read_text())
         material_gaps = [row for row in early_diagnostic["results"] if row["source"] != "pinned_upstream"
                          and not row["observed"]["matches_pinned_upstream_error_behavior"]]
+    resource_summary = "Aggregate resource comparisons preserve unavailable measurements and are shown below."
+    token_values = [(measurement(b, "total_tokens"), measurement(m, "total_tokens")) for b, m in pairs]
+    time_values = [(measurement(b, "agent_elapsed_s"), measurement(m, "agent_elapsed_s")) for b, m in pairs]
+    if all(b is not None and m is not None for b, m in token_values + time_values):
+        baseline_tokens, mcp_tokens = (sum(row[i] for row in token_values) for i in (0, 1))
+        baseline_time, mcp_time = (sum(row[i] for row in time_values) for i in (0, 1))
+        token_change = reduction(baseline_tokens, mcp_tokens)
+        time_change = reduction(baseline_time, mcp_time)
+        resource_summary = (
+            f"The MCP-assigned workload used **{mcp_tokens:,} gross tokens versus {baseline_tokens:,}** in baseline "
+            f"({abs(token_change):.1f}% {'fewer' if token_change >= 0 else 'more'}). "
+            f"Summed agent wall time was **{mcp_time:.2f}s versus {baseline_time:.2f}s** "
+            f"({abs(time_change):.1f}% {'less' if time_change >= 0 else 'more'}). Setup and complete evaluator-run time are published separately below."
+        )
+        if sum(record.get("mcp_calls", 0) for _, record in pairs) == 0:
+            resource_summary += " No MCP tools were called, so these condition differences do not measure active retrieval benefit."
+        elif mcp_tokens >= baseline_tokens and mcp_time >= baseline_time:
+            resource_summary += " This follow-up showed no aggregate token or completion-time savings on these reused tasks."
     parts = [
         "# MCP-first coding workflow follow-up" if followup else "# Paired coding workflow pilot",
         f"The MCP condition completed a repair and passed every selected hidden check in **{complete['mcp']}/{len(tasks)} tasks**; the baseline did so in **{complete['baseline']}/{len(tasks)} tasks**. All {len(records)} declared trials are retained. The same model, prompt and seeded starting source were assigned within each pair; preserved fixture and prompt hashes document successful preparations.",
+        resource_summary,
         (f"Each condition was assigned **{declared_methods} declared hidden-verifier methods** across these tasks. This count is separate from parameterized agent-authored test cases reproduced later."
          if declared_methods is not None else "The exact declared verifier counts are preserved in the task manifest."),
         (f"**Selected-check success is weaker than complete correctness:** a separate CPU probe found {len(material_gaps)} atomic-output repairs that reported command success after a failed commit, leaving the old destination bytes. Their formal labels remain unchanged; [supplemental evidence](close-error-probe.json) documents the defect."
@@ -200,7 +254,7 @@ def render(config: dict, records: list[dict], summary: dict, artifacts: Path | N
         "Correctness is limited to the withheld regression checks and related negative controls, not full upstream test suites. The completed-and-passed label additionally requires a completed agent turn, exit code zero, and no agent failure or timeout. Agent wall time runs from CLI launch to process exit, including its initialization, model waits, tools, tests and MCP adapter startup. Checkout preparation, backend indexing/warmup and evaluator grading are separate costs.",
     ]
     if followup:
-        parts.insert(4, "This is a separate exploratory follow-up using the first original task per repository, selected deterministically rather than from observed savings. Both conditions receive the same added instruction to use search_code before broad source reads when available. It measures an explicitly encouraged search workflow on reused tasks, not spontaneous adoption or a fresh holdout. Its resources and outcomes are not pooled with the original availability pilot or the separate exposure diagnostic.")
+        parts.insert(5, "This is a separate exploratory follow-up using the first original task per repository, selected deterministically rather than from observed savings. Both conditions receive the same added instruction to use search_code before broad source reads when available. It measures an explicitly encouraged search workflow on reused tasks, not spontaneous adoption or a fresh holdout. Its resources and outcomes are not pooled with the original availability pilot or the separate exposure diagnostic.")
     parts.append(markdown_table([
         "Task", "Condition", "Hidden checks", "Completed and passed", "Agent wall time (s)",
         "Setup (s)", "Grading (s)", "Exit", "Timeout",
@@ -253,11 +307,26 @@ def render(config: dict, records: list[dict], summary: dict, artifacts: Path | N
     errors = sum(tool_error(item) for _, item in calls)
     overridden_calls = 0
     call_rows = []
+    receipt_rows = []
+    successful_calls = 0
     for record, item in calls:
         arguments = parse_arguments(item)
         overrides = ({k: v for k, v in arguments.items() if k in defaults and v != defaults[k]} if arguments is not None else None)
         extra = ({k: v for k, v in arguments.items() if k not in defaults and k != "query"} if arguments is not None else None)
         overridden_calls += bool(overrides)
+        payload = tool_payload(item)
+        valid_receipt, sources = source_receipt(payload)
+        successful = bool(item.get("server") == "semantic_search" and item.get("tool") == "search_code"
+                          and item.get("status") == "completed" and not tool_error(item)
+                          and valid_receipt and arguments is not None and payload["query"] == arguments.get("query"))
+        successful_calls += successful
+        local_usage = payload.get("token_usage", {}) if payload is not None else {}
+        receipt_rows.append([
+            record["task_id"], item.get("id", "unavailable"), "yes" if successful else "no",
+            payload.get("match_status", "unavailable") if payload is not None else "unavailable",
+            local_usage.get("tokens", "unavailable"), local_usage.get("budget", "unavailable"), sources,
+            f"[trace](runs/{record['run_id']}/events.jsonl)",
+        ])
         call_rows.append([
             record["task_id"], item.get("tool", item.get("name", "unavailable")),
             json.dumps(arguments, ensure_ascii=False, sort_keys=True) if arguments is not None else "unavailable",
@@ -267,7 +336,7 @@ def render(config: dict, records: list[dict], summary: dict, artifacts: Path | N
         ])
     parts.extend([
         "## MCP uptake and actual calls",
-        f"**{sum(r.get('mcp_calls', 0) > 0 for r in mcp_records)}/{len(mcp_records)} MCP-assigned runs called a tool**, with {len(calls)} recorded calls and {errors} reported tool errors. {overridden_calls} calls changed at least one argument in the frozen default map. Availability is the assigned treatment; a run that did not use MCP remains in the comparison.",
+        f"**{sum(r.get('mcp_calls', 0) > 0 for r in mcp_records)}/{len(mcp_records)} MCP-assigned runs called a tool**, with {len(calls)} recorded calls, {successful_calls} completed successful search responses with self-consistent source hashes, and {errors} reported tool errors. {overridden_calls} calls changed at least one argument in the frozen default map. Availability is the assigned treatment; a run that did not use MCP remains in the comparison.",
         "Frozen defaults: `" + json.dumps(defaults, sort_keys=True) + "`. Queries are never counted as overrides. Explicit arguments absent from the frozen default map are listed separately, without guessing their defaults. H2O was not running; calls requesting reranking can fail and remain recorded.",
     ])
     if not calls:
@@ -276,6 +345,48 @@ def render(config: dict, records: list[dict], summary: dict, artifacts: Path | N
     parts.append("Ordinary command calls are completed shell-command items. File-change items count completed edit items in the preserved trace; a command may also edit files, so these columns describe recorded tool activity rather than a count of changed files.")
     if call_rows:
         parts.append(markdown_table(["Task", "Tool", "Supplied arguments", "Changed frozen defaults", "Arguments outside default map", "Tool error"], call_rows))
+        parts.append(markdown_table(["Task", "Call", "Successful response", "Match status", "Local excerpt tokens", "Local budget", "Returned source excerpts", "Evidence"], receipt_rows))
+        parts.append("These returned excerpts are preserved MCP response payloads, with no independently recorded HTTP receipt in the paired workflow runner. SHA256 checks above verify the returned source bytes are internally consistent with their reported hashes; they do not independently prove relevance or historical saved-file identity. Historical identity requires source reconstruction from the seeded tree and edit trace, while the hidden checks evaluate the final repair. Local excerpt tokens and budgets in this table are separate from actual provider input/output usage reported above.")
+        if artifacts is not None and (artifacts / "audit.json").exists():
+            parts.append("See the [independent artifact audit](audit.json) for recorded usage, trace and returned-source checks.")
+        source_audit_path = artifacts / "mcp-source-audit.json" if artifacts is not None else None
+        if source_audit_path is not None and source_audit_path.exists():
+            source_audit = json.loads(source_audit_path.read_text())
+            audited_calls = source_audit["calls"]
+            observed_call_keys = {(record["run_id"], item.get("id")) for record, item in calls}
+            audited_call_keys = {(row["run_id"], row["item_id"]) for row in audited_calls}
+            if len(audited_call_keys) != len(audited_calls) or not audited_call_keys.issubset(observed_call_keys):
+                raise ValueError("Source audit refers to duplicate or unobserved MCP calls")
+            parts.append(
+                f"The [independent MCP source audit](mcp-source-audit.json) covers **{len(audited_calls)}/{len(calls)} observed calls**; recorded audit passed=`{source_audit.get('passed')}`, "
+                f"errors={len(source_audit.get('errors', []))}, source-freshness reviews needed={len(source_audit.get('source_freshness_review_needed', []))}."
+            )
+            parts.append(markdown_table([
+                "Run", "Call", "No observed prior mutation", "Excerpts", "Valid source hashes", "Valid physical bounds", "Match seeded Git bytes",
+            ], [[
+                row["run_id"], row["item_id"], row["no_observed_mutation_before_call"], len(row["excerpts"]),
+                sum(excerpt["valid_hash"] is True for excerpt in row["excerpts"]),
+                sum(excerpt["valid_physical_bounds"] is True for excerpt in row["excerpts"]),
+                sum(excerpt["matches_seeded_git_bytes"] is True for excerpt in row["excerpts"]),
+            ] for row in audited_calls]))
+            parts.append(source_audit["limits"])
+            if source_audit.get("errors") or source_audit.get("source_freshness_review_needed"):
+                parts.append("Source audit findings: `" + json.dumps({
+                    "errors": source_audit.get("errors", []),
+                    "source_freshness_review_needed": source_audit.get("source_freshness_review_needed", []),
+                }, sort_keys=True) + "`.")
+    backend_rows = []
+    for record in mcp_records:
+        status = record.get("final_backend_status")
+        if status:
+            stats = status.get("indexstats") or {}
+            backend_rows.append([
+                record["task_id"], status.get("ready"), status.get("dense_ready"),
+                status.get("windows"), stats.get("source_files"), status.get("source_manifest"),
+            ])
+    if backend_rows:
+        parts.append(markdown_table(["Task", "Final backend ready", "Dense index ready", "Windows", "Source files", "Final source manifest"], backend_rows))
+        parts.append("These are final backend/index snapshots after agent execution, not per-call HTTP receipts or proof of the source state at an earlier query.")
     parts.append("The host's handling of MCP text and structured content is part of these observed input counts. No adjustment was made from local excerpt sizes. Cached input is shown separately because provider caching and paired execution order can affect observed workload and latency.")
     spawn_warning_runs = [r for r in ordered_records if r.get("runtime_observation", {}).get("failed_spawn_lines", 0)]
     if spawn_warning_runs:

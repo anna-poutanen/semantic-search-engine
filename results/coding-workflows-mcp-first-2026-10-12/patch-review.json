@@ -1,0 +1,623 @@
+{
+  "schema_version": 1,
+  "reviewed_at": "2026-10-13T03:32:13.007344+00:00",
+  "classification": "Post-trial CPU-only supplemental patch and regression review. The close-error probe was predefined from the original pilot review before follow-up outputs; supplemental checks do not change formal verifier scores or performance metrics.",
+  "method": {
+    "source_review": "Read each published patch, compare production behavior with pinned upstream, and check final testing claims against published successful command outputs.",
+    "regression_reproduction": "Copy each final checkout into ignored evaluator storage. Make a second copy with changed production files restored from the initial prepared Git HEAD, retaining new/modified tests. Execute the recorded offline pytest selections with the project interpreter and imports pointed at the copy.",
+    "context": "No original checkout, frozen task, verifier, prompt, runtime configuration, or outcome was modified. No hosted models, retrieval, GPU inference, network services or dependency installs used for this review. These checks are outside measured agent time.",
+    "backend_limits": "Starlette selections use explicit AnyIO plugin and narrow deprecation filter. Installed AnyIO 4.15.1 / Trio 0.29.0 HTTP error-cleanup incompatibility remains; both background patches replace that failure integration test with direct task testing.",
+    "coverage": "Seed detection and success-path tests are selected checks, not comprehensive upstream or production correctness. These are previously used task families, not a fresh quality holdout."
+  },
+  "summary": {
+    "runs_reviewed": 6,
+    "declared_hidden_checks_passed_runs": 6,
+    "fixed_selected_regression_cases_passed": 46,
+    "seed_selected_regression_cases_failed": 36,
+    "seed_control_cases_passed": 10,
+    "every_fixed_regression_selection_passed": true,
+    "every_selection_detected_the_seeded_fault": true,
+    "unsupported_test_claims": 0,
+    "material_behavior_gap_runs": [
+      "03-click_atomic_close-mcp",
+      "04-click_atomic_close-baseline"
+    ],
+    "test_coverage_tradeoff_runs": [
+      "05-starlette_background_order-baseline",
+      "06-starlette_background_order-mcp"
+    ],
+    "interpretation": "All selected regression cases pass on fixes and detect their seeds. Both atomic-output repairs suppress failed commits, confirmed by a supplemental predefined probe. Both background repairs replace HTTP failure integration coverage with direct task checks. The paired production implementations are behaviorally equivalent; passing formal checks does not establish full correctness."
+  },
+  "fault_injection_artifact": "results/coding-workflows-mcp-first-2026-10-12/close-error-probe.json",
+  "runs": [
+    {
+      "run_id": "01-requests_auth_ports-baseline",
+      "task_id": "requests_auth_ports",
+      "condition": "baseline",
+      "patch_sha256": "5f3e79e16ed37c0b70c824da2f849307f821559a8aced9a0f7fc5f204acd2fd6",
+      "hidden_checks_passed": true,
+      "changed_files": [
+        "src/requests/sessions.py",
+        "tests/test_requests.py"
+      ],
+      "regression_tests": [
+        {
+          "node_id": "tests/test_requests.py::TestRequests::test_auth_is_retained_for_redirect_with_default_port",
+          "cases": 4,
+          "change": "added",
+          "coverage": "HTTP and HTTPS, both redirect directions through resolve_redirects with a prepared authenticated request."
+        }
+      ],
+      "claim_review": {
+        "unsupported_claims": [],
+        "supported": "Published commands show four new cases failing on the seed; 12 focused tests, 32 security boundary cases and diff check pass after repair. Missing Ruff was disclosed."
+      },
+      "limitations": [
+        "Selected offline checks only; full upstream Requests suite not run."
+      ],
+      "summary": "Focused same-scheme implicit/default-port equivalence guard is behaviorally equivalent to pinned upstream. Host, unsafe upgrade/downgrade and nondefault-port guards unchanged.",
+      "issues": [],
+      "test_checks": [
+        {
+          "variant": "final",
+          "exit_code": 0,
+          "elapsed_s": 0.2804324169992469,
+          "command": [
+            "<PROJECT>/.venv/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "-o",
+            "addopts=",
+            "tests/test_requests.py::TestRequests::test_auth_is_retained_for_redirect_with_default_port"
+          ],
+          "environment": {
+            "PYTHONPATH": "<REVIEW_COPIES>/01-requests_auth_ports-baseline/final/src",
+            "PYTHONDONTWRITEBYTECODE": "1",
+            "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+          },
+          "stdout": "....                                                                     [100%]\n4 passed in 0.10s\n",
+          "stderr": "",
+          "pytest_summary": "4 passed in 0.10s",
+          "case_counts": {
+            "passed": 4
+          }
+        },
+        {
+          "variant": "seed",
+          "exit_code": 1,
+          "elapsed_s": 0.34702354099135846,
+          "command": [
+            "<PROJECT>/.venv/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "-o",
+            "addopts=",
+            "tests/test_requests.py::TestRequests::test_auth_is_retained_for_redirect_with_default_port"
+          ],
+          "environment": {
+            "PYTHONPATH": "<REVIEW_COPIES>/01-requests_auth_ports-baseline/seed/src",
+            "PYTHONDONTWRITEBYTECODE": "1",
+            "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+          },
+          "stdout": "FFFF                                                                     [100%]\n=================================== FAILURES ===================================\n_ TestRequests.test_auth_is_retained_for_redirect_with_default_port[True-http-80] _\n\nself = <tests.test_requests.TestRequests object at 0x1067f0b30>, scheme = 'http'\nport = 80, explicit_port_first = True\n\n    @pytest.mark.parametrize(\"scheme, port\", ((\"http\", 80), (\"https\", 443)))\n    @pytest.mark.parametrize(\"explicit_port_first\", (True, False))\n    def test_auth_is_retained_for_redirect_with_default_port(\n        self, scheme, port, explicit_port_first\n    ):\n        old_url = f\"{scheme}://example.com:{port}/foo\"\n        new_url = f\"{scheme}://example.com/bar\"\n        if not explicit_port_first:\n            old_url, new_url = new_url, old_url\n    \n        s = requests.Session()\n        s.trust_env = False\n        req = requests.Request(\"GET\", old_url, auth=(\"user\", \"pass\")).prepare()\n        resp = requests.Response()\n        resp.request = req\n        resp.status_code = 302\n        resp.headers[\"Location\"] = new_url\n        resp._content = b\"\"\n    \n        redirected = next(s.resolve_redirects(resp, req, yield_requests=True))\n>       assert redirected.headers[\"Authorization\"] == req.headers[\"Authorization\"]\n\ntests/test_requests.py:2008: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = {}, key = 'Authorization'\n\n    def __getitem__(self, key: str) -> _VT:\n>       return self._store[key.lower()][1]\nE       KeyError: 'authorization'\n\nsrc/requests/structures.py:65: KeyError\n_ TestRequests.test_auth_is_retained_for_redirect_with_default_port[True-https-443] _\n\nself = <tests.test_requests.TestRequests object at 0x1067f0830>\nscheme = 'https', port = 443, explicit_port_first = True\n\n    @pytest.mark.parametrize(\"scheme, port\", ((\"http\", 80), (\"https\", 443)))\n    @pytest.mark.parametrize(\"explicit_port_first\", (True, False))\n    def test_auth_is_retained_for_redirect_with_default_port(\n        self, scheme, port, explicit_port_first\n    ):\n        old_url = f\"{scheme}://example.com:{port}/foo\"\n        new_url = f\"{scheme}://example.com/bar\"\n        if not explicit_port_first:\n            old_url, new_url = new_url, old_url\n    \n        s = requests.Session()\n        s.trust_env = False\n        req = requests.Request(\"GET\", old_url, auth=(\"user\", \"pass\")).prepare()\n        resp = requests.Response()\n        resp.request = req\n        resp.status_code = 302\n        resp.headers[\"Location\"] = new_url\n        resp._content = b\"\"\n    \n        redirected = next(s.resolve_redirects(resp, req, yield_requests=True))\n>       assert redirected.headers[\"Authorization\"] == req.headers[\"Authorization\"]\n\ntests/test_requests.py:2008: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = {}, key = 'Authorization'\n\n    def __getitem__(self, key: str) -> _VT:\n>       return self._store[key.lower()][1]\nE       KeyError: 'authorization'\n\nsrc/requests/structures.py:65: KeyError\n_ TestRequests.test_auth_is_retained_for_redirect_with_default_port[False-http-80] _\n\nself = <tests.test_requests.TestRequests object at 0x1067f0290>, scheme = 'http'\nport = 80, explicit_port_first = False\n\n    @pytest.mark.parametrize(\"scheme, port\", ((\"http\", 80), (\"https\", 443)))\n    @pytest.mark.parametrize(\"explicit_port_first\", (True, False))\n    def test_auth_is_retained_for_redirect_with_default_port(\n        self, scheme, port, explicit_port_first\n    ):\n        old_url = f\"{scheme}://example.com:{port}/foo\"\n        new_url = f\"{scheme}://example.com/bar\"\n        if not explicit_port_first:\n            old_url, new_url = new_url, old_url\n    \n        s = requests.Session()\n        s.trust_env = False\n        req = requests.Request(\"GET\", old_url, auth=(\"user\", \"pass\")).prepare()\n        resp = requests.Response()\n        resp.request = req\n        resp.status_code = 302\n        resp.headers[\"Location\"] = new_url\n        resp._content = b\"\"\n    \n        redirected = next(s.resolve_redirects(resp, req, yield_requests=True))\n>       assert redirected.headers[\"Authorization\"] == req.headers[\"Authorization\"]\n\ntests/test_requests.py:2008: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = {}, key = 'Authorization'\n\n    def __getitem__(self, key: str) -> _VT:\n>       return self._store[key.lower()][1]\nE       KeyError: 'authorization'\n\nsrc/requests/structures.py:65: KeyError\n_ TestRequests.test_auth_is_retained_for_redirect_with_default_port[False-https-443] _\n\nself = <tests.test_requests.TestRequests object at 0x1067f1280>\nscheme = 'https', port = 443, explicit_port_first = False\n\n    @pytest.mark.parametrize(\"scheme, port\", ((\"http\", 80), (\"https\", 443)))\n    @pytest.mark.parametrize(\"explicit_port_first\", (True, False))\n    def test_auth_is_retained_for_redirect_with_default_port(\n        self, scheme, port, explicit_port_first\n    ):\n        old_url = f\"{scheme}://example.com:{port}/foo\"\n        new_url = f\"{scheme}://example.com/bar\"\n        if not explicit_port_first:\n            old_url, new_url = new_url, old_url\n    \n        s = requests.Session()\n        s.trust_env = False\n        req = requests.Request(\"GET\", old_url, auth=(\"user\", \"pass\")).prepare()\n        resp = requests.Response()\n        resp.request = req\n        resp.status_code = 302\n        resp.headers[\"Location\"] = new_url\n        resp._content = b\"\"\n    \n        redirected = next(s.resolve_redirects(resp, req, yield_requests=True))\n>       assert redirected.headers[\"Authorization\"] == req.headers[\"Authorization\"]\n\ntests/test_requests.py:2008: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = {}, key = 'Authorization'\n\n    def __getitem__(self, key: str) -> _VT:\n>       return self._store[key.lower()][1]\nE       KeyError: 'authorization'\n\nsrc/requests/structures.py:65: KeyError\n=========================== short test summary info ============================\nFAILED tests/test_requests.py::TestRequests::test_auth_is_retained_for_redirect_with_default_port[True-http-80]\nFAILED tests/test_requests.py::TestRequests::test_auth_is_retained_for_redirect_with_default_port[True-https-443]\nFAILED tests/test_requests.py::TestRequests::test_auth_is_retained_for_redirect_with_default_port[False-http-80]\nFAILED tests/test_requests.py::TestRequests::test_auth_is_retained_for_redirect_with_default_port[False-https-443]\n4 failed in 0.16s\n",
+          "stderr": "",
+          "pytest_summary": "4 failed in 0.16s",
+          "case_counts": {
+            "failed": 4
+          }
+        }
+      ]
+    },
+    {
+      "run_id": "02-requests_auth_ports-mcp",
+      "task_id": "requests_auth_ports",
+      "condition": "mcp",
+      "patch_sha256": "f4a47c8e5f1d25502d1e4a88396dced61444388bca2cb05cdf2192ecf721dc12",
+      "hidden_checks_passed": true,
+      "changed_files": [
+        "src/requests/sessions.py",
+        "tests/test_requests.py"
+      ],
+      "regression_tests": [
+        {
+          "node_id": "tests/test_requests.py::TestRequests::test_rebuild_auth_default_port",
+          "cases": 4,
+          "change": "added",
+          "coverage": "Direct header-level rebuild_auth checks for HTTP/HTTPS omitted/default ports in both directions."
+        }
+      ],
+      "claim_review": {
+        "unsupported_claims": [],
+        "supported": "Events show four new cases failing on the seed; 12 focused tests, 16 offline header/security boundary cases and diff check passed after repair."
+      },
+      "limitations": [
+        "Selected offline checks only; full upstream Requests suite not run.",
+        "New regression invokes rebuild_auth directly; the paired baseline uses resolve_redirects. Both independently detect the seed."
+      ],
+      "summary": "Focused production guard is behaviorally equivalent to the paired baseline and pinned upstream. Existing host, scheme-upgrade, downgrade and genuinely different-port rules unchanged.",
+      "issues": [],
+      "test_checks": [
+        {
+          "variant": "final",
+          "exit_code": 0,
+          "elapsed_s": 0.2958824999805074,
+          "command": [
+            "<PROJECT>/.venv/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "-o",
+            "addopts=",
+            "tests/test_requests.py::TestRequests::test_rebuild_auth_default_port"
+          ],
+          "environment": {
+            "PYTHONPATH": "<REVIEW_COPIES>/02-requests_auth_ports-mcp/final/src",
+            "PYTHONDONTWRITEBYTECODE": "1",
+            "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+          },
+          "stdout": "....                                                                     [100%]\n4 passed in 0.10s\n",
+          "stderr": "",
+          "pytest_summary": "4 passed in 0.10s",
+          "case_counts": {
+            "passed": 4
+          }
+        },
+        {
+          "variant": "seed",
+          "exit_code": 1,
+          "elapsed_s": 0.3625487499812152,
+          "command": [
+            "<PROJECT>/.venv/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "-o",
+            "addopts=",
+            "tests/test_requests.py::TestRequests::test_rebuild_auth_default_port"
+          ],
+          "environment": {
+            "PYTHONPATH": "<REVIEW_COPIES>/02-requests_auth_ports-mcp/seed/src",
+            "PYTHONDONTWRITEBYTECODE": "1",
+            "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+          },
+          "stdout": "FFFF                                                                     [100%]\n=================================== FAILURES ===================================\n_ TestRequests.test_rebuild_auth_default_port[https://example.com:443/foo-https://example.com/bar] _\n\nself = <tests.test_requests.TestRequests object at 0x102e4cd40>\nold_uri = 'https://example.com:443/foo', new_uri = 'https://example.com/bar'\n\n    @pytest.mark.parametrize(\n        \"old_uri, new_uri\",\n        (\n            (\"https://example.com:443/foo\", \"https://example.com/bar\"),\n            (\"http://example.com:80/foo\", \"http://example.com/bar\"),\n            (\"https://example.com/foo\", \"https://example.com:443/bar\"),\n            (\"http://example.com/foo\", \"http://example.com:80/bar\"),\n        ),\n    )\n    def test_rebuild_auth_default_port(self, old_uri, new_uri):\n        s = requests.Session()\n        s.trust_env = False\n        original = requests.Request(\n            \"GET\", old_uri, headers={\"Authorization\": \"Bearer token\"}\n        ).prepare()\n        redirected = original.copy()\n        redirected.prepare_url(new_uri, None)\n        response = requests.Response()\n        response.request = original\n    \n        s.rebuild_auth(redirected, response)\n    \n>       assert redirected.headers[\"Authorization\"] == \"Bearer token\"\n\ntests/test_requests.py:2010: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = {}, key = 'Authorization'\n\n    def __getitem__(self, key: str) -> _VT:\n>       return self._store[key.lower()][1]\nE       KeyError: 'authorization'\n\nsrc/requests/structures.py:65: KeyError\n_ TestRequests.test_rebuild_auth_default_port[http://example.com:80/foo-http://example.com/bar] _\n\nself = <tests.test_requests.TestRequests object at 0x102e4c470>\nold_uri = 'http://example.com:80/foo', new_uri = 'http://example.com/bar'\n\n    @pytest.mark.parametrize(\n        \"old_uri, new_uri\",\n        (\n            (\"https://example.com:443/foo\", \"https://example.com/bar\"),\n            (\"http://example.com:80/foo\", \"http://example.com/bar\"),\n            (\"https://example.com/foo\", \"https://example.com:443/bar\"),\n            (\"http://example.com/foo\", \"http://example.com:80/bar\"),\n        ),\n    )\n    def test_rebuild_auth_default_port(self, old_uri, new_uri):\n        s = requests.Session()\n        s.trust_env = False\n        original = requests.Request(\n            \"GET\", old_uri, headers={\"Authorization\": \"Bearer token\"}\n        ).prepare()\n        redirected = original.copy()\n        redirected.prepare_url(new_uri, None)\n        response = requests.Response()\n        response.request = original\n    \n        s.rebuild_auth(redirected, response)\n    \n>       assert redirected.headers[\"Authorization\"] == \"Bearer token\"\n\ntests/test_requests.py:2010: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = {}, key = 'Authorization'\n\n    def __getitem__(self, key: str) -> _VT:\n>       return self._store[key.lower()][1]\nE       KeyError: 'authorization'\n\nsrc/requests/structures.py:65: KeyError\n_ TestRequests.test_rebuild_auth_default_port[https://example.com/foo-https://example.com:443/bar] _\n\nself = <tests.test_requests.TestRequests object at 0x102e4c350>\nold_uri = 'https://example.com/foo', new_uri = 'https://example.com:443/bar'\n\n    @pytest.mark.parametrize(\n        \"old_uri, new_uri\",\n        (\n            (\"https://example.com:443/foo\", \"https://example.com/bar\"),\n            (\"http://example.com:80/foo\", \"http://example.com/bar\"),\n            (\"https://example.com/foo\", \"https://example.com:443/bar\"),\n            (\"http://example.com/foo\", \"http://example.com:80/bar\"),\n        ),\n    )\n    def test_rebuild_auth_default_port(self, old_uri, new_uri):\n        s = requests.Session()\n        s.trust_env = False\n        original = requests.Request(\n            \"GET\", old_uri, headers={\"Authorization\": \"Bearer token\"}\n        ).prepare()\n        redirected = original.copy()\n        redirected.prepare_url(new_uri, None)\n        response = requests.Response()\n        response.request = original\n    \n        s.rebuild_auth(redirected, response)\n    \n>       assert redirected.headers[\"Authorization\"] == \"Bearer token\"\n\ntests/test_requests.py:2010: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = {}, key = 'Authorization'\n\n    def __getitem__(self, key: str) -> _VT:\n>       return self._store[key.lower()][1]\nE       KeyError: 'authorization'\n\nsrc/requests/structures.py:65: KeyError\n_ TestRequests.test_rebuild_auth_default_port[http://example.com/foo-http://example.com:80/bar] _\n\nself = <tests.test_requests.TestRequests object at 0x102e4f9e0>\nold_uri = 'http://example.com/foo', new_uri = 'http://example.com:80/bar'\n\n    @pytest.mark.parametrize(\n        \"old_uri, new_uri\",\n        (\n            (\"https://example.com:443/foo\", \"https://example.com/bar\"),\n            (\"http://example.com:80/foo\", \"http://example.com/bar\"),\n            (\"https://example.com/foo\", \"https://example.com:443/bar\"),\n            (\"http://example.com/foo\", \"http://example.com:80/bar\"),\n        ),\n    )\n    def test_rebuild_auth_default_port(self, old_uri, new_uri):\n        s = requests.Session()\n        s.trust_env = False\n        original = requests.Request(\n            \"GET\", old_uri, headers={\"Authorization\": \"Bearer token\"}\n        ).prepare()\n        redirected = original.copy()\n        redirected.prepare_url(new_uri, None)\n        response = requests.Response()\n        response.request = original\n    \n        s.rebuild_auth(redirected, response)\n    \n>       assert redirected.headers[\"Authorization\"] == \"Bearer token\"\n\ntests/test_requests.py:2010: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = {}, key = 'Authorization'\n\n    def __getitem__(self, key: str) -> _VT:\n>       return self._store[key.lower()][1]\nE       KeyError: 'authorization'\n\nsrc/requests/structures.py:65: KeyError\n=========================== short test summary info ============================\nFAILED tests/test_requests.py::TestRequests::test_rebuild_auth_default_port[https://example.com:443/foo-https://example.com/bar]\nFAILED tests/test_requests.py::TestRequests::test_rebuild_auth_default_port[http://example.com:80/foo-http://example.com/bar]\nFAILED tests/test_requests.py::TestRequests::test_rebuild_auth_default_port[https://example.com/foo-https://example.com:443/bar]\nFAILED tests/test_requests.py::TestRequests::test_rebuild_auth_default_port[http://example.com/foo-http://example.com:80/bar]\n4 failed in 0.17s\n",
+          "stderr": "",
+          "pytest_summary": "4 failed in 0.17s",
+          "case_counts": {
+            "failed": 4
+          }
+        }
+      ]
+    },
+    {
+      "run_id": "03-click_atomic_close-mcp",
+      "task_id": "click_atomic_close",
+      "condition": "mcp",
+      "patch_sha256": "71149bb83f580ffc12bf72cdb457872ff673dc93ba4c9bff8101f95746d086c7",
+      "hidden_checks_passed": true,
+      "changed_files": [
+        "src/click/types.py",
+        "tests/test_basic.py"
+      ],
+      "regression_tests": [
+        {
+          "node_id": "tests/test_basic.py::test_file_lazy_close",
+          "cases": 4,
+          "change": "added",
+          "coverage": "Atomic/non-atomic x default/explicit lazy; replaces existing destination, closed after callback, no leftover temporary files."
+        },
+        {
+          "node_id": "tests/test_basic.py::test_file_lazy_unused",
+          "cases": 4,
+          "change": "added",
+          "coverage": "Unused lazy outputs remain uncreated for all four combinations."
+        }
+      ],
+      "claim_review": {
+        "unsupported_claims": [],
+        "supported": "Published events show four seed failures and four control passes; 370 tests passed and one skipped across six relevant modules after repair, with successful diff check."
+      },
+      "limitations": [
+        "Normal close/commit success is covered; atomic commit errors are suppressed and not covered by selected success-path checks.",
+        "Six relevant modules run; full upstream Click suite not claimed."
+      ],
+      "summary": "Registers lazy-file cleanup and passes normal/atomic/unused-output checks, but introduces the same exception-suppressing wrapper as original failed-error-path repairs.",
+      "issues": [
+        {
+          "severity": "material_behavior_gap",
+          "behavior": "Wraps the lazy close callback in safecall, suppressing atomic commit/close exceptions. Pinned upstream registers this callback directly.",
+          "status": "Confirmed by the supplemental predefined CPU fault-injection probe after both atomic-output trials completed.",
+          "equivalent_source_sha256": "6ba2f3f75db25a11cc194b585da4819acf27eec2ddee94435107e32f0ef67f76",
+          "prior_evidence": "results/coding-workflows-2026-10-12/close-error-probe.json",
+          "comparative_impact": "Frozen selected-check correctness remains unchanged; success-path tests omit atomic commit failure.",
+          "evidence": {
+            "path": "results/coding-workflows-mcp-first-2026-10-12/close-error-probe.json",
+            "sha256": "26196a5c985c8eb3dd176a4c4617e12b3a9c9839c461489e2012769d474c0498",
+            "classification": "Supplemental probe predefined from the original review, excluded from formal verifier scores and performance metrics.",
+            "pinned_upstream": "FileNotFoundError(errno 2), CLI exit 1, original destination bytes remain.",
+            "trial_patch": "No exception, CLI exit 0, original destination bytes remain: failed atomic commit reports success."
+          }
+        }
+      ],
+      "test_checks": [
+        {
+          "variant": "final",
+          "exit_code": 0,
+          "elapsed_s": 0.19887058401945978,
+          "command": [
+            "<PROJECT>/.venv/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "-o",
+            "addopts=",
+            "tests/test_basic.py::test_file_lazy_close",
+            "tests/test_basic.py::test_file_lazy_unused"
+          ],
+          "environment": {
+            "PYTHONPATH": "<REVIEW_COPIES>/03-click_atomic_close-mcp/final/src",
+            "PYTHONDONTWRITEBYTECODE": "1",
+            "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+          },
+          "stdout": "........                                                                 [100%]\n8 passed in 0.03s\n",
+          "stderr": "",
+          "pytest_summary": "8 passed in 0.03s",
+          "case_counts": {
+            "passed": 8
+          }
+        },
+        {
+          "variant": "seed",
+          "exit_code": 1,
+          "elapsed_s": 0.20589333301177248,
+          "command": [
+            "<PROJECT>/.venv/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "-o",
+            "addopts=",
+            "tests/test_basic.py::test_file_lazy_close",
+            "tests/test_basic.py::test_file_lazy_unused"
+          ],
+          "environment": {
+            "PYTHONPATH": "<REVIEW_COPIES>/03-click_atomic_close-mcp/seed/src",
+            "PYTHONDONTWRITEBYTECODE": "1",
+            "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+          },
+          "stdout": "FFFF....                                                                 [100%]\n=================================== FAILURES ===================================\n_______________________ test_file_lazy_close[None-False] _______________________\n\nrunner = <click.testing.CliRunner object at 0x1027dacc0>\ntmp_path = PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-178/test_file_lazy_close_None_Fals0')\natomic = False, lazy = None\n\n    @pytest.mark.parametrize(\"atomic\", [False, True])\n    @pytest.mark.parametrize(\"lazy\", [None, True])\n    def test_file_lazy_close(runner, tmp_path, atomic, lazy):\n        path = tmp_path / \"output.txt\"\n        path.write_text(\"original\")\n        files = []\n    \n        @click.command()\n        @click.option(\"--output\", type=click.File(\"w\", lazy=lazy, atomic=atomic))\n        def cli(output):\n            files.append(output)\n            output.write(\"updated\")\n            if atomic:\n                output.flush()\n                assert path.read_text() == \"original\"\n    \n        try:\n            result = runner.invoke(cli, [\"--output\", str(path)], catch_exceptions=False)\n            assert result.exit_code == 0\n>           assert path.read_text() == \"updated\"\nE           AssertionError: assert '' == 'updated'\nE             \nE             - updated\n\ntests/test_basic.py:297: AssertionError\n_______________________ test_file_lazy_close[None-True] ________________________\n\nrunner = <click.testing.CliRunner object at 0x1027d7440>\ntmp_path = PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-178/test_file_lazy_close_None_True0')\natomic = True, lazy = None\n\n    @pytest.mark.parametrize(\"atomic\", [False, True])\n    @pytest.mark.parametrize(\"lazy\", [None, True])\n    def test_file_lazy_close(runner, tmp_path, atomic, lazy):\n        path = tmp_path / \"output.txt\"\n        path.write_text(\"original\")\n        files = []\n    \n        @click.command()\n        @click.option(\"--output\", type=click.File(\"w\", lazy=lazy, atomic=atomic))\n        def cli(output):\n            files.append(output)\n            output.write(\"updated\")\n            if atomic:\n                output.flush()\n                assert path.read_text() == \"original\"\n    \n        try:\n            result = runner.invoke(cli, [\"--output\", str(path)], catch_exceptions=False)\n            assert result.exit_code == 0\n>           assert path.read_text() == \"updated\"\nE           AssertionError: assert 'original' == 'updated'\nE             \nE             - updated\nE             + original\n\ntests/test_basic.py:297: AssertionError\n_______________________ test_file_lazy_close[True-False] _______________________\n\nrunner = <click.testing.CliRunner object at 0x102a133b0>\ntmp_path = PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-178/test_file_lazy_close_True_Fals0')\natomic = False, lazy = True\n\n    @pytest.mark.parametrize(\"atomic\", [False, True])\n    @pytest.mark.parametrize(\"lazy\", [None, True])\n    def test_file_lazy_close(runner, tmp_path, atomic, lazy):\n        path = tmp_path / \"output.txt\"\n        path.write_text(\"original\")\n        files = []\n    \n        @click.command()\n        @click.option(\"--output\", type=click.File(\"w\", lazy=lazy, atomic=atomic))\n        def cli(output):\n            files.append(output)\n            output.write(\"updated\")\n            if atomic:\n                output.flush()\n                assert path.read_text() == \"original\"\n    \n        try:\n            result = runner.invoke(cli, [\"--output\", str(path)], catch_exceptions=False)\n            assert result.exit_code == 0\n>           assert path.read_text() == \"updated\"\nE           AssertionError: assert '' == 'updated'\nE             \nE             - updated\n\ntests/test_basic.py:297: AssertionError\n_______________________ test_file_lazy_close[True-True] ________________________\n\nrunner = <click.testing.CliRunner object at 0x102a13b00>\ntmp_path = PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-178/test_file_lazy_close_True_True0')\natomic = True, lazy = True\n\n    @pytest.mark.parametrize(\"atomic\", [False, True])\n    @pytest.mark.parametrize(\"lazy\", [None, True])\n    def test_file_lazy_close(runner, tmp_path, atomic, lazy):\n        path = tmp_path / \"output.txt\"\n        path.write_text(\"original\")\n        files = []\n    \n        @click.command()\n        @click.option(\"--output\", type=click.File(\"w\", lazy=lazy, atomic=atomic))\n        def cli(output):\n            files.append(output)\n            output.write(\"updated\")\n            if atomic:\n                output.flush()\n                assert path.read_text() == \"original\"\n    \n        try:\n            result = runner.invoke(cli, [\"--output\", str(path)], catch_exceptions=False)\n            assert result.exit_code == 0\n>           assert path.read_text() == \"updated\"\nE           AssertionError: assert 'original' == 'updated'\nE             \nE             - updated\nE             + original\n\ntests/test_basic.py:297: AssertionError\n=========================== short test summary info ============================\nFAILED tests/test_basic.py::test_file_lazy_close[None-False] - AssertionError...\nFAILED tests/test_basic.py::test_file_lazy_close[None-True] - AssertionError:...\nFAILED tests/test_basic.py::test_file_lazy_close[True-False] - AssertionError...\nFAILED tests/test_basic.py::test_file_lazy_close[True-True] - AssertionError:...\n4 failed, 4 passed in 0.04s\n",
+          "stderr": "",
+          "pytest_summary": "4 failed, 4 passed in 0.04s",
+          "case_counts": {
+            "failed": 4,
+            "passed": 4
+          }
+        }
+      ]
+    },
+    {
+      "run_id": "04-click_atomic_close-baseline",
+      "task_id": "click_atomic_close",
+      "condition": "baseline",
+      "patch_sha256": "f70c391f67fbdd6e1b52217c3a817432343497a5f62b051bc45bc84448036031",
+      "hidden_checks_passed": true,
+      "changed_files": [
+        "src/click/types.py",
+        "tests/test_basic.py"
+      ],
+      "regression_tests": [
+        {
+          "node_id": "tests/test_basic.py::test_file_lazy_output_cleanup",
+          "cases": 4,
+          "change": "added",
+          "coverage": "Atomic/non-atomic x existing/new destinations; temporary atomic contents not published during callback, output closed and final bytes present afterward."
+        },
+        {
+          "node_id": "tests/test_basic.py::test_file_lazy_output_unused",
+          "cases": 2,
+          "change": "added",
+          "coverage": "Unused ordinary and atomic lazy outputs remain absent."
+        }
+      ],
+      "claim_review": {
+        "unsupported_claims": [],
+        "supported": "Events show four seed failures and two control passes; 392 tests passed and one skipped across seven relevant modules after repair, with successful diff check."
+      },
+      "limitations": [
+        "Added tests retain output references so garbage collection cannot substitute for command cleanup.",
+        "Commit failure paths are not covered and safecall suppresses them.",
+        "Seven relevant modules run; full upstream Click suite not claimed."
+      ],
+      "summary": "Same production cleanup registration as paired MCP, including the material error-path deviation caused by safecall. Normal atomic/non-atomic writes and unused outputs behave correctly.",
+      "issues": [
+        {
+          "severity": "material_behavior_gap",
+          "behavior": "Wraps lazy close in safecall, suppressing atomic commit/close exceptions. Pinned upstream invokes the lazy callback directly.",
+          "status": "Confirmed by the supplemental predefined CPU fault-injection probe after both atomic-output trials completed.",
+          "equivalent_source_sha256": "6ba2f3f75db25a11cc194b585da4819acf27eec2ddee94435107e32f0ef67f76",
+          "prior_evidence": "results/coding-workflows-2026-10-12/close-error-probe.json",
+          "comparative_impact": "Same error-path gap in both conditions; selected-check scores remain unchanged.",
+          "evidence": {
+            "path": "results/coding-workflows-mcp-first-2026-10-12/close-error-probe.json",
+            "sha256": "26196a5c985c8eb3dd176a4c4617e12b3a9c9839c461489e2012769d474c0498",
+            "classification": "Supplemental probe predefined from the original review, excluded from formal verifier scores and performance metrics.",
+            "pinned_upstream": "FileNotFoundError(errno 2), CLI exit 1, original destination bytes remain.",
+            "trial_patch": "No exception, CLI exit 0, original destination bytes remain: failed atomic commit reports success."
+          }
+        }
+      ],
+      "test_checks": [
+        {
+          "variant": "final",
+          "exit_code": 0,
+          "elapsed_s": 0.19343333400320262,
+          "command": [
+            "<PROJECT>/.venv/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "-o",
+            "addopts=",
+            "tests/test_basic.py::test_file_lazy_output_cleanup",
+            "tests/test_basic.py::test_file_lazy_output_unused"
+          ],
+          "environment": {
+            "PYTHONPATH": "<REVIEW_COPIES>/04-click_atomic_close-baseline/final/src",
+            "PYTHONDONTWRITEBYTECODE": "1",
+            "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+          },
+          "stdout": "......                                                                   [100%]\n6 passed in 0.03s\n",
+          "stderr": "",
+          "pytest_summary": "6 passed in 0.03s",
+          "case_counts": {
+            "passed": 6
+          }
+        },
+        {
+          "variant": "seed",
+          "exit_code": 1,
+          "elapsed_s": 0.20852920800098218,
+          "command": [
+            "<PROJECT>/.venv/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "-o",
+            "addopts=",
+            "tests/test_basic.py::test_file_lazy_output_cleanup",
+            "tests/test_basic.py::test_file_lazy_output_unused"
+          ],
+          "environment": {
+            "PYTHONPATH": "<REVIEW_COPIES>/04-click_atomic_close-baseline/seed/src",
+            "PYTHONDONTWRITEBYTECODE": "1",
+            "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+          },
+          "stdout": "FFFF..                                                                   [100%]\n=================================== FAILURES ===================================\n__________________ test_file_lazy_output_cleanup[False-False] __________________\n\nrunner = <click.testing.CliRunner object at 0x103a9f710>\ntmp_path = PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-182/test_file_lazy_output_cleanup_0')\natomic = False, existing = False\n\n    @pytest.mark.parametrize(\"atomic\", [False, True])\n    @pytest.mark.parametrize(\"existing\", [False, True])\n    def test_file_lazy_output_cleanup(runner, tmp_path, atomic, existing):\n        path = tmp_path / \"output.txt\"\n    \n        if existing:\n            path.write_text(\"old content\", encoding=\"utf-8\")\n    \n        outputs = []\n    \n        @click.command()\n        @click.option(\"--output\", type=click.File(\"w\", lazy=True, atomic=atomic))\n        def cli(output):\n            # Retain the file so garbage collection cannot close it for Click.\n            outputs.append(output)\n            output.write(\"new content\")\n            output.flush()\n    \n            if atomic:\n                if existing:\n                    assert path.read_text(encoding=\"utf-8\") == \"old content\"\n                else:\n                    assert not path.exists()\n    \n        result = runner.invoke(cli, [\"--output\", str(path)])\n        assert result.exit_code == 0\n>       assert outputs[0].closed\nE       AssertionError: assert False\nE        +  where False = <_io.TextIOWrapper name='/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-182/test_file_lazy_output_cleanup_0/output.txt' mode='w' encoding='utf-8'>.closed\n\ntests/test_basic.py:344: AssertionError\n__________________ test_file_lazy_output_cleanup[False-True] ___________________\n\nrunner = <click.testing.CliRunner object at 0x103a9fa10>\ntmp_path = PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-182/test_file_lazy_output_cleanup_1')\natomic = True, existing = False\n\n    @pytest.mark.parametrize(\"atomic\", [False, True])\n    @pytest.mark.parametrize(\"existing\", [False, True])\n    def test_file_lazy_output_cleanup(runner, tmp_path, atomic, existing):\n        path = tmp_path / \"output.txt\"\n    \n        if existing:\n            path.write_text(\"old content\", encoding=\"utf-8\")\n    \n        outputs = []\n    \n        @click.command()\n        @click.option(\"--output\", type=click.File(\"w\", lazy=True, atomic=atomic))\n        def cli(output):\n            # Retain the file so garbage collection cannot close it for Click.\n            outputs.append(output)\n            output.write(\"new content\")\n            output.flush()\n    \n            if atomic:\n                if existing:\n                    assert path.read_text(encoding=\"utf-8\") == \"old content\"\n                else:\n                    assert not path.exists()\n    \n        result = runner.invoke(cli, [\"--output\", str(path)])\n        assert result.exit_code == 0\n>       assert outputs[0].closed\nE       AssertionError: assert False\nE        +  where False = <_io.TextIOWrapper name=12 mode='w' encoding='utf-8'>.closed\n\ntests/test_basic.py:344: AssertionError\n__________________ test_file_lazy_output_cleanup[True-False] ___________________\n\nrunner = <click.testing.CliRunner object at 0x103cda6c0>\ntmp_path = PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-182/test_file_lazy_output_cleanup_2')\natomic = False, existing = True\n\n    @pytest.mark.parametrize(\"atomic\", [False, True])\n    @pytest.mark.parametrize(\"existing\", [False, True])\n    def test_file_lazy_output_cleanup(runner, tmp_path, atomic, existing):\n        path = tmp_path / \"output.txt\"\n    \n        if existing:\n            path.write_text(\"old content\", encoding=\"utf-8\")\n    \n        outputs = []\n    \n        @click.command()\n        @click.option(\"--output\", type=click.File(\"w\", lazy=True, atomic=atomic))\n        def cli(output):\n            # Retain the file so garbage collection cannot close it for Click.\n            outputs.append(output)\n            output.write(\"new content\")\n            output.flush()\n    \n            if atomic:\n                if existing:\n                    assert path.read_text(encoding=\"utf-8\") == \"old content\"\n                else:\n                    assert not path.exists()\n    \n        result = runner.invoke(cli, [\"--output\", str(path)])\n        assert result.exit_code == 0\n>       assert outputs[0].closed\nE       AssertionError: assert False\nE        +  where False = <_io.TextIOWrapper name='/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-182/test_file_lazy_output_cleanup_2/output.txt' mode='w' encoding='utf-8'>.closed\n\ntests/test_basic.py:344: AssertionError\n___________________ test_file_lazy_output_cleanup[True-True] ___________________\n\nrunner = <click.testing.CliRunner object at 0x103cdbb30>\ntmp_path = PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-182/test_file_lazy_output_cleanup_3')\natomic = True, existing = True\n\n    @pytest.mark.parametrize(\"atomic\", [False, True])\n    @pytest.mark.parametrize(\"existing\", [False, True])\n    def test_file_lazy_output_cleanup(runner, tmp_path, atomic, existing):\n        path = tmp_path / \"output.txt\"\n    \n        if existing:\n            path.write_text(\"old content\", encoding=\"utf-8\")\n    \n        outputs = []\n    \n        @click.command()\n        @click.option(\"--output\", type=click.File(\"w\", lazy=True, atomic=atomic))\n        def cli(output):\n            # Retain the file so garbage collection cannot close it for Click.\n            outputs.append(output)\n            output.write(\"new content\")\n            output.flush()\n    \n            if atomic:\n                if existing:\n                    assert path.read_text(encoding=\"utf-8\") == \"old content\"\n                else:\n                    assert not path.exists()\n    \n        result = runner.invoke(cli, [\"--output\", str(path)])\n        assert result.exit_code == 0\n>       assert outputs[0].closed\nE       AssertionError: assert False\nE        +  where False = <_io.TextIOWrapper name=14 mode='w' encoding='utf-8'>.closed\n\ntests/test_basic.py:344: AssertionError\n=========================== short test summary info ============================\nFAILED tests/test_basic.py::test_file_lazy_output_cleanup[False-False] - Asse...\nFAILED tests/test_basic.py::test_file_lazy_output_cleanup[False-True] - Asser...\nFAILED tests/test_basic.py::test_file_lazy_output_cleanup[True-False] - Asser...\nFAILED tests/test_basic.py::test_file_lazy_output_cleanup[True-True] - Assert...\n4 failed, 2 passed in 0.04s\n",
+          "stderr": "",
+          "pytest_summary": "4 failed, 2 passed in 0.04s",
+          "case_counts": {
+            "failed": 4,
+            "passed": 2
+          }
+        }
+      ]
+    },
+    {
+      "run_id": "05-starlette_background_order-baseline",
+      "task_id": "starlette_background_order",
+      "condition": "baseline",
+      "patch_sha256": "3d94e050eb912f07b447b10aec391a328d24778fba733e4854eeccfa82fcbc09",
+      "hidden_checks_passed": true,
+      "changed_files": [
+        "starlette/background.py",
+        "tests/test_background.py"
+      ],
+      "regression_tests": [
+        {
+          "node_id": "tests/test_background.py::test_multiple_tasks_run_in_order_after_response",
+          "cases_evaluated": 8,
+          "change": "added",
+          "backend": "asyncio/trio",
+          "coverage": "Empty, all-sync, all-async and mixed collections; response-message completion precedes ordered start/finish callback events."
+        },
+        {
+          "node_id": "tests/test_background.py::test_multi_tasks_failure_avoids_next_execution",
+          "cases_evaluated": 4,
+          "change": "replaced_existing_transport_test_with_direct_task_test",
+          "backend": "asyncio/trio",
+          "coverage": "Sync/async first task failures suppress later tasks."
+        }
+      ],
+      "claim_review": {
+        "unsupported_claims": [],
+        "supported": "Published events support 18 background passes, 59 response/concurrency asyncio passes, and successful diff check. Broader Trio incompatibility, narrow warning filter, and unavailable Ruff disclosed."
+      },
+      "limitations": [
+        "Existing HTTP failure integration coverage is removed; stronger direct failure tests avoid the incompatible Trio cleanup path.",
+        "Selected relevant modules only; full upstream Starlette suite not run."
+      ],
+      "summary": "One-line insertion-order loop repair equals pinned upstream; callback awaiting and failure propagation unchanged. Tests add explicit post-response sync/async/mixed/empty ordering and replace HTTP failure testing with direct collection tests.",
+      "issues": [
+        {
+          "severity": "test_coverage_tradeoff",
+          "behavior": "Replaces an existing HTTP TestClient background-failure integration test with direct BackgroundTasks invocation. Stronger sync/async failure assertions detect the seed, but HTTP failure propagation is no longer exercised by that test.",
+          "status": "Verified in published patch and independently reproduced changed test selections.",
+          "comparative_impact": "Production loop matches pinned upstream; direct failure invocation avoids the installed Trio TestClient error-cleanup incompatibility."
+        }
+      ],
+      "test_checks": [
+        {
+          "variant": "final",
+          "exit_code": 0,
+          "elapsed_s": 0.35459033300867304,
+          "command": [
+            "<PROJECT>/.venv/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "-o",
+            "addopts=",
+            "-p",
+            "anyio.pytest_plugin",
+            "tests/test_background.py::test_multiple_tasks_run_in_order_after_response",
+            "tests/test_background.py::test_multi_tasks_failure_avoids_next_execution",
+            "-W",
+            "ignore:The anyio.abc.BlockingPortal alias is deprecated:DeprecationWarning"
+          ],
+          "environment": {
+            "PYTHONPATH": "<REVIEW_COPIES>/05-starlette_background_order-baseline/final",
+            "PYTHONDONTWRITEBYTECODE": "1",
+            "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+          },
+          "stdout": "............                                                             [100%]\n12 passed in 0.02s\n",
+          "stderr": "",
+          "pytest_summary": "12 passed in 0.02s",
+          "case_counts": {
+            "passed": 12
+          }
+        },
+        {
+          "variant": "seed",
+          "exit_code": 1,
+          "elapsed_s": 0.34456550001050346,
+          "command": [
+            "<PROJECT>/.venv/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "-o",
+            "addopts=",
+            "-p",
+            "anyio.pytest_plugin",
+            "tests/test_background.py::test_multiple_tasks_run_in_order_after_response",
+            "tests/test_background.py::test_multi_tasks_failure_avoids_next_execution",
+            "-W",
+            "ignore:The anyio.abc.BlockingPortal alias is deprecated:DeprecationWarning"
+          ],
+          "environment": {
+            "PYTHONPATH": "<REVIEW_COPIES>/05-starlette_background_order-baseline/seed",
+            "PYTHONDONTWRITEBYTECODE": "1",
+            "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+          },
+          "stdout": ".FFFFF.FFFFF                                                             [100%]\n=================================== FAILURES ===================================\n________ test_multiple_tasks_run_in_order_after_response[asyncio-sync] _________\n\ntest_client_factory = functools.partial(<class 'starlette.testclient.TestClient'>, backend='asyncio', backend_options={})\nasync_tasks = (False, False, False)\n\n    @pytest.mark.parametrize(\n        \"async_tasks\",\n        [\n            pytest.param((), id=\"empty\"),\n            pytest.param((False, False, False), id=\"sync\"),\n            pytest.param((True, True, True), id=\"async\"),\n            pytest.param((False, True, False, True), id=\"mixed\"),\n        ],\n    )\n    def test_multiple_tasks_run_in_order_after_response(\n        test_client_factory: TestClientFactory, async_tasks: tuple[bool, ...]\n    ) -> None:\n        events: list[str] = []\n    \n        def sync_task(index: int) -> None:\n            events.extend([f\"start {index}\", f\"finish {index}\"])\n    \n        async def async_task(index: int) -> None:\n            events.append(f\"start {index}\")\n            await anyio.sleep(0)\n            events.append(f\"finish {index}\")\n    \n        async def app(scope: Scope, receive: Receive, send: Send) -> None:\n            async def record_send(message: Message) -> None:\n                await send(message)\n                events.append(message[\"type\"])\n    \n            tasks = BackgroundTasks()\n            for index, is_async in enumerate(async_tasks):\n                tasks.add_task(async_task if is_async else sync_task, index)\n            response = Response(\"tasks initiated\", media_type=\"text/plain\", background=tasks)\n            await response(scope, receive, record_send)\n    \n        client = test_client_factory(app)\n        response = client.get(\"/\")\n        assert response.text == \"tasks initiated\"\n>       assert events == [\"http.response.start\", \"http.response.body\"] + [\n            event for index in range(len(async_tasks)) for event in (f\"start {index}\", f\"finish {index}\")\n        ]\nE       AssertionError: assert ['http.respon...inish 1', ...] == ['http.respon...inish 1', ...]\nE         \nE         At index 2 diff: 'start 2' != 'start 0'\nE         Use -v to get more diff\n\ntests/test_background.py:105: AssertionError\n________ test_multiple_tasks_run_in_order_after_response[asyncio-async] ________\n\ntest_client_factory = functools.partial(<class 'starlette.testclient.TestClient'>, backend='asyncio', backend_options={})\nasync_tasks = (True, True, True)\n\n    @pytest.mark.parametrize(\n        \"async_tasks\",\n        [\n            pytest.param((), id=\"empty\"),\n            pytest.param((False, False, False), id=\"sync\"),\n            pytest.param((True, True, True), id=\"async\"),\n            pytest.param((False, True, False, True), id=\"mixed\"),\n        ],\n    )\n    def test_multiple_tasks_run_in_order_after_response(\n        test_client_factory: TestClientFactory, async_tasks: tuple[bool, ...]\n    ) -> None:\n        events: list[str] = []\n    \n        def sync_task(index: int) -> None:\n            events.extend([f\"start {index}\", f\"finish {index}\"])\n    \n        async def async_task(index: int) -> None:\n            events.append(f\"start {index}\")\n            await anyio.sleep(0)\n            events.append(f\"finish {index}\")\n    \n        async def app(scope: Scope, receive: Receive, send: Send) -> None:\n            async def record_send(message: Message) -> None:\n                await send(message)\n                events.append(message[\"type\"])\n    \n            tasks = BackgroundTasks()\n            for index, is_async in enumerate(async_tasks):\n                tasks.add_task(async_task if is_async else sync_task, index)\n            response = Response(\"tasks initiated\", media_type=\"text/plain\", background=tasks)\n            await response(scope, receive, record_send)\n    \n        client = test_client_factory(app)\n        response = client.get(\"/\")\n        assert response.text == \"tasks initiated\"\n>       assert events == [\"http.response.start\", \"http.response.body\"] + [\n            event for index in range(len(async_tasks)) for event in (f\"start {index}\", f\"finish {index}\")\n        ]\nE       AssertionError: assert ['http.respon...inish 1', ...] == ['http.respon...inish 1', ...]\nE         \nE         At index 2 diff: 'start 2' != 'start 0'\nE         Use -v to get more diff\n\ntests/test_background.py:105: AssertionError\n________ test_multiple_tasks_run_in_order_after_response[asyncio-mixed] ________\n\ntest_client_factory = functools.partial(<class 'starlette.testclient.TestClient'>, backend='asyncio', backend_options={})\nasync_tasks = (False, True, False, True)\n\n    @pytest.mark.parametrize(\n        \"async_tasks\",\n        [\n            pytest.param((), id=\"empty\"),\n            pytest.param((False, False, False), id=\"sync\"),\n            pytest.param((True, True, True), id=\"async\"),\n            pytest.param((False, True, False, True), id=\"mixed\"),\n        ],\n    )\n    def test_multiple_tasks_run_in_order_after_response(\n        test_client_factory: TestClientFactory, async_tasks: tuple[bool, ...]\n    ) -> None:\n        events: list[str] = []\n    \n        def sync_task(index: int) -> None:\n            events.extend([f\"start {index}\", f\"finish {index}\"])\n    \n        async def async_task(index: int) -> None:\n            events.append(f\"start {index}\")\n            await anyio.sleep(0)\n            events.append(f\"finish {index}\")\n    \n        async def app(scope: Scope, receive: Receive, send: Send) -> None:\n            async def record_send(message: Message) -> None:\n                await send(message)\n                events.append(message[\"type\"])\n    \n            tasks = BackgroundTasks()\n            for index, is_async in enumerate(async_tasks):\n                tasks.add_task(async_task if is_async else sync_task, index)\n            response = Response(\"tasks initiated\", media_type=\"text/plain\", background=tasks)\n            await response(scope, receive, record_send)\n    \n        client = test_client_factory(app)\n        response = client.get(\"/\")\n        assert response.text == \"tasks initiated\"\n>       assert events == [\"http.response.start\", \"http.response.body\"] + [\n            event for index in range(len(async_tasks)) for event in (f\"start {index}\", f\"finish {index}\")\n        ]\nE       AssertionError: assert ['http.respon...inish 2', ...] == ['http.respon...inish 1', ...]\nE         \nE         At index 2 diff: 'start 3' != 'start 0'\nE         Use -v to get more diff\n\ntests/test_background.py:105: AssertionError\n________ test_multi_tasks_failure_avoids_next_execution[asyncio-False] _________\n\nis_async = False\n\n    @pytest.mark.anyio\n    @pytest.mark.parametrize(\"is_async\", [False, True])\n    async def test_multi_tasks_failure_avoids_next_execution(is_async: bool) -> None:\n        events: list[str] = []\n    \n        def fail() -> None:\n            events.append(\"fail\")\n            raise RuntimeError(\"task failed\")\n    \n        async def async_fail() -> None:\n            await anyio.sleep(0)\n            fail()\n    \n        def later() -> None:\n            events.append(\"later\")\n    \n        async def async_later() -> None:\n            await anyio.sleep(0)\n            later()\n    \n        tasks = BackgroundTasks()\n        tasks.add_task(async_fail if is_async else fail)\n        tasks.add_task(async_later if is_async else later)\n    \n        with pytest.raises(RuntimeError, match=\"task failed\"):\n            await tasks()\n>       assert events == [\"fail\"]\nE       AssertionError: assert ['later', 'fail'] == ['fail']\nE         \nE         At index 0 diff: 'later' != 'fail'\nE         Left contains one more item: 'fail'\nE         Use -v to get more diff\n\ntests/test_background.py:136: AssertionError\n_________ test_multi_tasks_failure_avoids_next_execution[asyncio-True] _________\n\nis_async = True\n\n    @pytest.mark.anyio\n    @pytest.mark.parametrize(\"is_async\", [False, True])\n    async def test_multi_tasks_failure_avoids_next_execution(is_async: bool) -> None:\n        events: list[str] = []\n    \n        def fail() -> None:\n            events.append(\"fail\")\n            raise RuntimeError(\"task failed\")\n    \n        async def async_fail() -> None:\n            await anyio.sleep(0)\n            fail()\n    \n        def later() -> None:\n            events.append(\"later\")\n    \n        async def async_later() -> None:\n            await anyio.sleep(0)\n            later()\n    \n        tasks = BackgroundTasks()\n        tasks.add_task(async_fail if is_async else fail)\n        tasks.add_task(async_later if is_async else later)\n    \n        with pytest.raises(RuntimeError, match=\"task failed\"):\n            await tasks()\n>       assert events == [\"fail\"]\nE       AssertionError: assert ['later', 'fail'] == ['fail']\nE         \nE         At index 0 diff: 'later' != 'fail'\nE         Left contains one more item: 'fail'\nE         Use -v to get more diff\n\ntests/test_background.py:136: AssertionError\n__________ test_multiple_tasks_run_in_order_after_response[trio-sync] __________\n\ntest_client_factory = functools.partial(<class 'starlette.testclient.TestClient'>, backend='trio', backend_options={})\nasync_tasks = (False, False, False)\n\n    @pytest.mark.parametrize(\n        \"async_tasks\",\n        [\n            pytest.param((), id=\"empty\"),\n            pytest.param((False, False, False), id=\"sync\"),\n            pytest.param((True, True, True), id=\"async\"),\n            pytest.param((False, True, False, True), id=\"mixed\"),\n        ],\n    )\n    def test_multiple_tasks_run_in_order_after_response(\n        test_client_factory: TestClientFactory, async_tasks: tuple[bool, ...]\n    ) -> None:\n        events: list[str] = []\n    \n        def sync_task(index: int) -> None:\n            events.extend([f\"start {index}\", f\"finish {index}\"])\n    \n        async def async_task(index: int) -> None:\n            events.append(f\"start {index}\")\n            await anyio.sleep(0)\n            events.append(f\"finish {index}\")\n    \n        async def app(scope: Scope, receive: Receive, send: Send) -> None:\n            async def record_send(message: Message) -> None:\n                await send(message)\n                events.append(message[\"type\"])\n    \n            tasks = BackgroundTasks()\n            for index, is_async in enumerate(async_tasks):\n                tasks.add_task(async_task if is_async else sync_task, index)\n            response = Response(\"tasks initiated\", media_type=\"text/plain\", background=tasks)\n            await response(scope, receive, record_send)\n    \n        client = test_client_factory(app)\n        response = client.get(\"/\")\n        assert response.text == \"tasks initiated\"\n>       assert events == [\"http.response.start\", \"http.response.body\"] + [\n            event for index in range(len(async_tasks)) for event in (f\"start {index}\", f\"finish {index}\")\n        ]\nE       AssertionError: assert ['http.respon...inish 1', ...] == ['http.respon...inish 1', ...]\nE         \nE         At index 2 diff: 'start 2' != 'start 0'\nE         Use -v to get more diff\n\ntests/test_background.py:105: AssertionError\n_________ test_multiple_tasks_run_in_order_after_response[trio-async] __________\n\ntest_client_factory = functools.partial(<class 'starlette.testclient.TestClient'>, backend='trio', backend_options={})\nasync_tasks = (True, True, True)\n\n    @pytest.mark.parametrize(\n        \"async_tasks\",\n        [\n            pytest.param((), id=\"empty\"),\n            pytest.param((False, False, False), id=\"sync\"),\n            pytest.param((True, True, True), id=\"async\"),\n            pytest.param((False, True, False, True), id=\"mixed\"),\n        ],\n    )\n    def test_multiple_tasks_run_in_order_after_response(\n        test_client_factory: TestClientFactory, async_tasks: tuple[bool, ...]\n    ) -> None:\n        events: list[str] = []\n    \n        def sync_task(index: int) -> None:\n            events.extend([f\"start {index}\", f\"finish {index}\"])\n    \n        async def async_task(index: int) -> None:\n            events.append(f\"start {index}\")\n            await anyio.sleep(0)\n            events.append(f\"finish {index}\")\n    \n        async def app(scope: Scope, receive: Receive, send: Send) -> None:\n            async def record_send(message: Message) -> None:\n                await send(message)\n                events.append(message[\"type\"])\n    \n            tasks = BackgroundTasks()\n            for index, is_async in enumerate(async_tasks):\n                tasks.add_task(async_task if is_async else sync_task, index)\n            response = Response(\"tasks initiated\", media_type=\"text/plain\", background=tasks)\n            await response(scope, receive, record_send)\n    \n        client = test_client_factory(app)\n        response = client.get(\"/\")\n        assert response.text == \"tasks initiated\"\n>       assert events == [\"http.response.start\", \"http.response.body\"] + [\n            event for index in range(len(async_tasks)) for event in (f\"start {index}\", f\"finish {index}\")\n        ]\nE       AssertionError: assert ['http.respon...inish 1', ...] == ['http.respon...inish 1', ...]\nE         \nE         At index 2 diff: 'start 2' != 'start 0'\nE         Use -v to get more diff\n\ntests/test_background.py:105: AssertionError\n_________ test_multiple_tasks_run_in_order_after_response[trio-mixed] __________\n\ntest_client_factory = functools.partial(<class 'starlette.testclient.TestClient'>, backend='trio', backend_options={})\nasync_tasks = (False, True, False, True)\n\n    @pytest.mark.parametrize(\n        \"async_tasks\",\n        [\n            pytest.param((), id=\"empty\"),\n            pytest.param((False, False, False), id=\"sync\"),\n            pytest.param((True, True, True), id=\"async\"),\n            pytest.param((False, True, False, True), id=\"mixed\"),\n        ],\n    )\n    def test_multiple_tasks_run_in_order_after_response(\n        test_client_factory: TestClientFactory, async_tasks: tuple[bool, ...]\n    ) -> None:\n        events: list[str] = []\n    \n        def sync_task(index: int) -> None:\n            events.extend([f\"start {index}\", f\"finish {index}\"])\n    \n        async def async_task(index: int) -> None:\n            events.append(f\"start {index}\")\n            await anyio.sleep(0)\n            events.append(f\"finish {index}\")\n    \n        async def app(scope: Scope, receive: Receive, send: Send) -> None:\n            async def record_send(message: Message) -> None:\n                await send(message)\n                events.append(message[\"type\"])\n    \n            tasks = BackgroundTasks()\n            for index, is_async in enumerate(async_tasks):\n                tasks.add_task(async_task if is_async else sync_task, index)\n            response = Response(\"tasks initiated\", media_type=\"text/plain\", background=tasks)\n            await response(scope, receive, record_send)\n    \n        client = test_client_factory(app)\n        response = client.get(\"/\")\n        assert response.text == \"tasks initiated\"\n>       assert events == [\"http.response.start\", \"http.response.body\"] + [\n            event for index in range(len(async_tasks)) for event in (f\"start {index}\", f\"finish {index}\")\n        ]\nE       AssertionError: assert ['http.respon...inish 2', ...] == ['http.respon...inish 1', ...]\nE         \nE         At index 2 diff: 'start 3' != 'start 0'\nE         Use -v to get more diff\n\ntests/test_background.py:105: AssertionError\n__________ test_multi_tasks_failure_avoids_next_execution[trio-False] __________\n\nis_async = False\n\n    @pytest.mark.anyio\n    @pytest.mark.parametrize(\"is_async\", [False, True])\n    async def test_multi_tasks_failure_avoids_next_execution(is_async: bool) -> None:\n        events: list[str] = []\n    \n        def fail() -> None:\n            events.append(\"fail\")\n            raise RuntimeError(\"task failed\")\n    \n        async def async_fail() -> None:\n            await anyio.sleep(0)\n            fail()\n    \n        def later() -> None:\n            events.append(\"later\")\n    \n        async def async_later() -> None:\n            await anyio.sleep(0)\n            later()\n    \n        tasks = BackgroundTasks()\n        tasks.add_task(async_fail if is_async else fail)\n        tasks.add_task(async_later if is_async else later)\n    \n        with pytest.raises(RuntimeError, match=\"task failed\"):\n            await tasks()\n>       assert events == [\"fail\"]\nE       AssertionError: assert ['later', 'fail'] == ['fail']\nE         \nE         At index 0 diff: 'later' != 'fail'\nE         Left contains one more item: 'fail'\nE         Use -v to get more diff\n\ntests/test_background.py:136: AssertionError\n__________ test_multi_tasks_failure_avoids_next_execution[trio-True] ___________\n\nis_async = True\n\n    @pytest.mark.anyio\n    @pytest.mark.parametrize(\"is_async\", [False, True])\n    async def test_multi_tasks_failure_avoids_next_execution(is_async: bool) -> None:\n        events: list[str] = []\n    \n        def fail() -> None:\n            events.append(\"fail\")\n            raise RuntimeError(\"task failed\")\n    \n        async def async_fail() -> None:\n            await anyio.sleep(0)\n            fail()\n    \n        def later() -> None:\n            events.append(\"later\")\n    \n        async def async_later() -> None:\n            await anyio.sleep(0)\n            later()\n    \n        tasks = BackgroundTasks()\n        tasks.add_task(async_fail if is_async else fail)\n        tasks.add_task(async_later if is_async else later)\n    \n        with pytest.raises(RuntimeError, match=\"task failed\"):\n            await tasks()\n>       assert events == [\"fail\"]\nE       AssertionError: assert ['later', 'fail'] == ['fail']\nE         \nE         At index 0 diff: 'later' != 'fail'\nE         Left contains one more item: 'fail'\nE         Use -v to get more diff\n\ntests/test_background.py:136: AssertionError\n=========================== short test summary info ============================\nFAILED tests/test_background.py::test_multiple_tasks_run_in_order_after_response[asyncio-sync]\nFAILED tests/test_background.py::test_multiple_tasks_run_in_order_after_response[asyncio-async]\nFAILED tests/test_background.py::test_multiple_tasks_run_in_order_after_response[asyncio-mixed]\nFAILED tests/test_background.py::test_multi_tasks_failure_avoids_next_execution[asyncio-False]\nFAILED tests/test_background.py::test_multi_tasks_failure_avoids_next_execution[asyncio-True]\nFAILED tests/test_background.py::test_multiple_tasks_run_in_order_after_response[trio-sync]\nFAILED tests/test_background.py::test_multiple_tasks_run_in_order_after_response[trio-async]\nFAILED tests/test_background.py::test_multiple_tasks_run_in_order_after_response[trio-mixed]\nFAILED tests/test_background.py::test_multi_tasks_failure_avoids_next_execution[trio-False]\nFAILED tests/test_background.py::test_multi_tasks_failure_avoids_next_execution[trio-True]\n10 failed, 2 passed in 0.05s\n",
+          "stderr": "",
+          "pytest_summary": "10 failed, 2 passed in 0.05s",
+          "case_counts": {
+            "failed": 10,
+            "passed": 2
+          }
+        }
+      ]
+    },
+    {
+      "run_id": "06-starlette_background_order-mcp",
+      "task_id": "starlette_background_order",
+      "condition": "mcp",
+      "patch_sha256": "fb23729413d41824a804f9ed1c062c852081a362c4ea5da26e7cd213f40da030",
+      "hidden_checks_passed": true,
+      "changed_files": [
+        "starlette/background.py",
+        "tests/test_background.py"
+      ],
+      "regression_tests": [
+        {
+          "node_id": "tests/test_background.py::test_multiple_tasks_run_in_registration_order",
+          "cases_evaluated": 8,
+          "change": "added",
+          "backend": "asyncio/trio",
+          "coverage": "Sync, async, mixed and empty collections through direct ASGI Response, with yielding sends and callbacks to verify completion order."
+        },
+        {
+          "node_id": "tests/test_background.py::test_multi_tasks_failure_avoids_next_execution",
+          "cases_evaluated": 4,
+          "change": "replaced_existing_transport_test_with_direct_task_test",
+          "backend": "asyncio/trio",
+          "coverage": "An earlier completed task remains recorded; sync/async failure suppresses the last task."
+        }
+      ],
+      "claim_review": {
+        "unsupported_claims": [],
+        "supported": "Published events support 18 background passes and 67 relevant asyncio passes, plus successful diff check. Narrow deprecation filter and unavailable Ruff disclosed."
+      },
+      "limitations": [
+        "Existing HTTP failure integration test is replaced with direct task failure checks.",
+        "Related asyncio suites pass, but the installed AnyIO/Trio TestClient error-cleanup incompatibility remains outside these selections.",
+        "Selected modules only; full upstream Starlette suite not run."
+      ],
+      "summary": "One-line loop is identical to baseline and pinned upstream. New direct-ASGI ordering tests await response sends and mixed callbacks; failure tests invoke the task collection directly.",
+      "issues": [
+        {
+          "severity": "test_coverage_tradeoff",
+          "behavior": "Replaces an existing HTTP TestClient failure-propagation test with direct BackgroundTasks testing. New normal-order tests invoke the ASGI Response directly, avoiding TestClient entirely for those added cases.",
+          "status": "Verified in the published patch and independently reproduced new/modified selections.",
+          "comparative_impact": "Production loop equals baseline and pinned upstream. Direct task/ASGI testing avoids the installed Trio TestClient error-cleanup incompatibility, while removing the former HTTP failure integration coverage."
+        }
+      ],
+      "test_checks": [
+        {
+          "variant": "final",
+          "exit_code": 0,
+          "elapsed_s": 0.3112378339865245,
+          "command": [
+            "<PROJECT>/.venv/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "-o",
+            "addopts=",
+            "-p",
+            "anyio.pytest_plugin",
+            "tests/test_background.py::test_multiple_tasks_run_in_registration_order",
+            "tests/test_background.py::test_multi_tasks_failure_avoids_next_execution",
+            "-W",
+            "ignore:The anyio.abc.BlockingPortal alias is deprecated:DeprecationWarning"
+          ],
+          "environment": {
+            "PYTHONPATH": "<REVIEW_COPIES>/06-starlette_background_order-mcp/final",
+            "PYTHONDONTWRITEBYTECODE": "1",
+            "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+          },
+          "stdout": "............                                                             [100%]\n12 passed in 0.02s\n",
+          "stderr": "",
+          "pytest_summary": "12 passed in 0.02s",
+          "case_counts": {
+            "passed": 12
+          }
+        },
+        {
+          "variant": "seed",
+          "exit_code": 1,
+          "elapsed_s": 0.33560074999695644,
+          "command": [
+            "<PROJECT>/.venv/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "-o",
+            "addopts=",
+            "-p",
+            "anyio.pytest_plugin",
+            "tests/test_background.py::test_multiple_tasks_run_in_registration_order",
+            "tests/test_background.py::test_multi_tasks_failure_avoids_next_execution",
+            "-W",
+            "ignore:The anyio.abc.BlockingPortal alias is deprecated:DeprecationWarning"
+          ],
+          "environment": {
+            "PYTHONPATH": "<REVIEW_COPIES>/06-starlette_background_order-mcp/seed",
+            "PYTHONDONTWRITEBYTECODE": "1",
+            "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+          },
+          "stdout": ".FFFFF.FFFFF                                                             [100%]\n=================================== FAILURES ===================================\n_________ test_multiple_tasks_run_in_registration_order[asyncio-sync] __________\n\nasync_callbacks = (False, False, False)\n\n    @pytest.mark.anyio\n    @pytest.mark.parametrize(\n        \"async_callbacks\",\n        [\n            pytest.param((), id=\"empty\"),\n            pytest.param((False, False, False), id=\"sync\"),\n            pytest.param((True, True, True), id=\"async\"),\n            pytest.param((False, True, False), id=\"mixed\"),\n        ],\n    )\n    async def test_multiple_tasks_run_in_registration_order(async_callbacks: tuple[bool, ...]) -> None:\n        events: list[str] = []\n    \n        def sync_task(index: int) -> None:\n            events.append(f\"start {index}\")\n            anyio.from_thread.run(anyio.sleep, 0)\n            events.append(f\"end {index}\")\n    \n        async def async_task(index: int) -> None:\n            events.append(f\"start {index}\")\n            await anyio.sleep(0)\n            events.append(f\"end {index}\")\n    \n        async def receive() -> Message:\n            raise AssertionError(\"Response should not call receive\")\n    \n        async def send(message: Message) -> None:\n            await anyio.sleep(0)\n            events.append(message[\"type\"])\n    \n        tasks = BackgroundTasks()\n        for index, is_async in enumerate(async_callbacks):\n            tasks.add_task(async_task if is_async else sync_task, index)\n        response = Response(\"tasks initiated\", background=tasks)\n        await response({\"type\": \"http\"}, receive, send)\n    \n>       assert events == [\"http.response.start\", \"http.response.body\"] + [\n            event for index in range(len(async_callbacks)) for event in (f\"start {index}\", f\"end {index}\")\n        ]\nE       AssertionError: assert ['http.respon... 'end 1', ...] == ['http.respon... 'end 1', ...]\nE         \nE         At index 2 diff: 'start 2' != 'start 0'\nE         Use -v to get more diff\n\ntests/test_background.py:105: AssertionError\n_________ test_multiple_tasks_run_in_registration_order[asyncio-async] _________\n\nasync_callbacks = (True, True, True)\n\n    @pytest.mark.anyio\n    @pytest.mark.parametrize(\n        \"async_callbacks\",\n        [\n            pytest.param((), id=\"empty\"),\n            pytest.param((False, False, False), id=\"sync\"),\n            pytest.param((True, True, True), id=\"async\"),\n            pytest.param((False, True, False), id=\"mixed\"),\n        ],\n    )\n    async def test_multiple_tasks_run_in_registration_order(async_callbacks: tuple[bool, ...]) -> None:\n        events: list[str] = []\n    \n        def sync_task(index: int) -> None:\n            events.append(f\"start {index}\")\n            anyio.from_thread.run(anyio.sleep, 0)\n            events.append(f\"end {index}\")\n    \n        async def async_task(index: int) -> None:\n            events.append(f\"start {index}\")\n            await anyio.sleep(0)\n            events.append(f\"end {index}\")\n    \n        async def receive() -> Message:\n            raise AssertionError(\"Response should not call receive\")\n    \n        async def send(message: Message) -> None:\n            await anyio.sleep(0)\n            events.append(message[\"type\"])\n    \n        tasks = BackgroundTasks()\n        for index, is_async in enumerate(async_callbacks):\n            tasks.add_task(async_task if is_async else sync_task, index)\n        response = Response(\"tasks initiated\", background=tasks)\n        await response({\"type\": \"http\"}, receive, send)\n    \n>       assert events == [\"http.response.start\", \"http.response.body\"] + [\n            event for index in range(len(async_callbacks)) for event in (f\"start {index}\", f\"end {index}\")\n        ]\nE       AssertionError: assert ['http.respon... 'end 1', ...] == ['http.respon... 'end 1', ...]\nE         \nE         At index 2 diff: 'start 2' != 'start 0'\nE         Use -v to get more diff\n\ntests/test_background.py:105: AssertionError\n_________ test_multiple_tasks_run_in_registration_order[asyncio-mixed] _________\n\nasync_callbacks = (False, True, False)\n\n    @pytest.mark.anyio\n    @pytest.mark.parametrize(\n        \"async_callbacks\",\n        [\n            pytest.param((), id=\"empty\"),\n            pytest.param((False, False, False), id=\"sync\"),\n            pytest.param((True, True, True), id=\"async\"),\n            pytest.param((False, True, False), id=\"mixed\"),\n        ],\n    )\n    async def test_multiple_tasks_run_in_registration_order(async_callbacks: tuple[bool, ...]) -> None:\n        events: list[str] = []\n    \n        def sync_task(index: int) -> None:\n            events.append(f\"start {index}\")\n            anyio.from_thread.run(anyio.sleep, 0)\n            events.append(f\"end {index}\")\n    \n        async def async_task(index: int) -> None:\n            events.append(f\"start {index}\")\n            await anyio.sleep(0)\n            events.append(f\"end {index}\")\n    \n        async def receive() -> Message:\n            raise AssertionError(\"Response should not call receive\")\n    \n        async def send(message: Message) -> None:\n            await anyio.sleep(0)\n            events.append(message[\"type\"])\n    \n        tasks = BackgroundTasks()\n        for index, is_async in enumerate(async_callbacks):\n            tasks.add_task(async_task if is_async else sync_task, index)\n        response = Response(\"tasks initiated\", background=tasks)\n        await response({\"type\": \"http\"}, receive, send)\n    \n>       assert events == [\"http.response.start\", \"http.response.body\"] + [\n            event for index in range(len(async_callbacks)) for event in (f\"start {index}\", f\"end {index}\")\n        ]\nE       AssertionError: assert ['http.respon... 'end 1', ...] == ['http.respon... 'end 1', ...]\nE         \nE         At index 2 diff: 'start 2' != 'start 0'\nE         Use -v to get more diff\n\ntests/test_background.py:105: AssertionError\n________ test_multi_tasks_failure_avoids_next_execution[asyncio-False] _________\n\nis_async = False\n\n    @pytest.mark.anyio\n    @pytest.mark.parametrize(\"is_async\", [False, True])\n    async def test_multi_tasks_failure_avoids_next_execution(is_async: bool) -> None:\n        events: list[str] = []\n    \n        def fail() -> None:\n            events.append(\"failed\")\n            raise RuntimeError(\"task failed\")\n    \n        async def async_fail() -> None:\n            await anyio.sleep(0)\n            fail()\n    \n        tasks = BackgroundTasks()\n        tasks.add_task(events.append, \"first\")\n        tasks.add_task(async_fail if is_async else fail)\n        tasks.add_task(events.append, \"last\")\n    \n        with pytest.raises(RuntimeError, match=\"task failed\"):\n            await tasks()\n>       assert events == [\"first\", \"failed\"]\nE       AssertionError: assert ['last', 'failed'] == ['first', 'failed']\nE         \nE         At index 0 diff: 'last' != 'first'\nE         Use -v to get more diff\n\ntests/test_background.py:130: AssertionError\n_________ test_multi_tasks_failure_avoids_next_execution[asyncio-True] _________\n\nis_async = True\n\n    @pytest.mark.anyio\n    @pytest.mark.parametrize(\"is_async\", [False, True])\n    async def test_multi_tasks_failure_avoids_next_execution(is_async: bool) -> None:\n        events: list[str] = []\n    \n        def fail() -> None:\n            events.append(\"failed\")\n            raise RuntimeError(\"task failed\")\n    \n        async def async_fail() -> None:\n            await anyio.sleep(0)\n            fail()\n    \n        tasks = BackgroundTasks()\n        tasks.add_task(events.append, \"first\")\n        tasks.add_task(async_fail if is_async else fail)\n        tasks.add_task(events.append, \"last\")\n    \n        with pytest.raises(RuntimeError, match=\"task failed\"):\n            await tasks()\n>       assert events == [\"first\", \"failed\"]\nE       AssertionError: assert ['last', 'failed'] == ['first', 'failed']\nE         \nE         At index 0 diff: 'last' != 'first'\nE         Use -v to get more diff\n\ntests/test_background.py:130: AssertionError\n___________ test_multiple_tasks_run_in_registration_order[trio-sync] ___________\n\nasync_callbacks = (False, False, False)\n\n    @pytest.mark.anyio\n    @pytest.mark.parametrize(\n        \"async_callbacks\",\n        [\n            pytest.param((), id=\"empty\"),\n            pytest.param((False, False, False), id=\"sync\"),\n            pytest.param((True, True, True), id=\"async\"),\n            pytest.param((False, True, False), id=\"mixed\"),\n        ],\n    )\n    async def test_multiple_tasks_run_in_registration_order(async_callbacks: tuple[bool, ...]) -> None:\n        events: list[str] = []\n    \n        def sync_task(index: int) -> None:\n            events.append(f\"start {index}\")\n            anyio.from_thread.run(anyio.sleep, 0)\n            events.append(f\"end {index}\")\n    \n        async def async_task(index: int) -> None:\n            events.append(f\"start {index}\")\n            await anyio.sleep(0)\n            events.append(f\"end {index}\")\n    \n        async def receive() -> Message:\n            raise AssertionError(\"Response should not call receive\")\n    \n        async def send(message: Message) -> None:\n            await anyio.sleep(0)\n            events.append(message[\"type\"])\n    \n        tasks = BackgroundTasks()\n        for index, is_async in enumerate(async_callbacks):\n            tasks.add_task(async_task if is_async else sync_task, index)\n        response = Response(\"tasks initiated\", background=tasks)\n        await response({\"type\": \"http\"}, receive, send)\n    \n>       assert events == [\"http.response.start\", \"http.response.body\"] + [\n            event for index in range(len(async_callbacks)) for event in (f\"start {index}\", f\"end {index}\")\n        ]\nE       AssertionError: assert ['http.respon... 'end 1', ...] == ['http.respon... 'end 1', ...]\nE         \nE         At index 2 diff: 'start 2' != 'start 0'\nE         Use -v to get more diff\n\ntests/test_background.py:105: AssertionError\n__________ test_multiple_tasks_run_in_registration_order[trio-async] ___________\n\nasync_callbacks = (True, True, True)\n\n    @pytest.mark.anyio\n    @pytest.mark.parametrize(\n        \"async_callbacks\",\n        [\n            pytest.param((), id=\"empty\"),\n            pytest.param((False, False, False), id=\"sync\"),\n            pytest.param((True, True, True), id=\"async\"),\n            pytest.param((False, True, False), id=\"mixed\"),\n        ],\n    )\n    async def test_multiple_tasks_run_in_registration_order(async_callbacks: tuple[bool, ...]) -> None:\n        events: list[str] = []\n    \n        def sync_task(index: int) -> None:\n            events.append(f\"start {index}\")\n            anyio.from_thread.run(anyio.sleep, 0)\n            events.append(f\"end {index}\")\n    \n        async def async_task(index: int) -> None:\n            events.append(f\"start {index}\")\n            await anyio.sleep(0)\n            events.append(f\"end {index}\")\n    \n        async def receive() -> Message:\n            raise AssertionError(\"Response should not call receive\")\n    \n        async def send(message: Message) -> None:\n            await anyio.sleep(0)\n            events.append(message[\"type\"])\n    \n        tasks = BackgroundTasks()\n        for index, is_async in enumerate(async_callbacks):\n            tasks.add_task(async_task if is_async else sync_task, index)\n        response = Response(\"tasks initiated\", background=tasks)\n        await response({\"type\": \"http\"}, receive, send)\n    \n>       assert events == [\"http.response.start\", \"http.response.body\"] + [\n            event for index in range(len(async_callbacks)) for event in (f\"start {index}\", f\"end {index}\")\n        ]\nE       AssertionError: assert ['http.respon... 'end 1', ...] == ['http.respon... 'end 1', ...]\nE         \nE         At index 2 diff: 'start 2' != 'start 0'\nE         Use -v to get more diff\n\ntests/test_background.py:105: AssertionError\n__________ test_multiple_tasks_run_in_registration_order[trio-mixed] ___________\n\nasync_callbacks = (False, True, False)\n\n    @pytest.mark.anyio\n    @pytest.mark.parametrize(\n        \"async_callbacks\",\n        [\n            pytest.param((), id=\"empty\"),\n            pytest.param((False, False, False), id=\"sync\"),\n            pytest.param((True, True, True), id=\"async\"),\n            pytest.param((False, True, False), id=\"mixed\"),\n        ],\n    )\n    async def test_multiple_tasks_run_in_registration_order(async_callbacks: tuple[bool, ...]) -> None:\n        events: list[str] = []\n    \n        def sync_task(index: int) -> None:\n            events.append(f\"start {index}\")\n            anyio.from_thread.run(anyio.sleep, 0)\n            events.append(f\"end {index}\")\n    \n        async def async_task(index: int) -> None:\n            events.append(f\"start {index}\")\n            await anyio.sleep(0)\n            events.append(f\"end {index}\")\n    \n        async def receive() -> Message:\n            raise AssertionError(\"Response should not call receive\")\n    \n        async def send(message: Message) -> None:\n            await anyio.sleep(0)\n            events.append(message[\"type\"])\n    \n        tasks = BackgroundTasks()\n        for index, is_async in enumerate(async_callbacks):\n            tasks.add_task(async_task if is_async else sync_task, index)\n        response = Response(\"tasks initiated\", background=tasks)\n        await response({\"type\": \"http\"}, receive, send)\n    \n>       assert events == [\"http.response.start\", \"http.response.body\"] + [\n            event for index in range(len(async_callbacks)) for event in (f\"start {index}\", f\"end {index}\")\n        ]\nE       AssertionError: assert ['http.respon... 'end 1', ...] == ['http.respon... 'end 1', ...]\nE         \nE         At index 2 diff: 'start 2' != 'start 0'\nE         Use -v to get more diff\n\ntests/test_background.py:105: AssertionError\n__________ test_multi_tasks_failure_avoids_next_execution[trio-False] __________\n\nis_async = False\n\n    @pytest.mark.anyio\n    @pytest.mark.parametrize(\"is_async\", [False, True])\n    async def test_multi_tasks_failure_avoids_next_execution(is_async: bool) -> None:\n        events: list[str] = []\n    \n        def fail() -> None:\n            events.append(\"failed\")\n            raise RuntimeError(\"task failed\")\n    \n        async def async_fail() -> None:\n            await anyio.sleep(0)\n            fail()\n    \n        tasks = BackgroundTasks()\n        tasks.add_task(events.append, \"first\")\n        tasks.add_task(async_fail if is_async else fail)\n        tasks.add_task(events.append, \"last\")\n    \n        with pytest.raises(RuntimeError, match=\"task failed\"):\n            await tasks()\n>       assert events == [\"first\", \"failed\"]\nE       AssertionError: assert ['last', 'failed'] == ['first', 'failed']\nE         \nE         At index 0 diff: 'last' != 'first'\nE         Use -v to get more diff\n\ntests/test_background.py:130: AssertionError\n__________ test_multi_tasks_failure_avoids_next_execution[trio-True] ___________\n\nis_async = True\n\n    @pytest.mark.anyio\n    @pytest.mark.parametrize(\"is_async\", [False, True])\n    async def test_multi_tasks_failure_avoids_next_execution(is_async: bool) -> None:\n        events: list[str] = []\n    \n        def fail() -> None:\n            events.append(\"failed\")\n            raise RuntimeError(\"task failed\")\n    \n        async def async_fail() -> None:\n            await anyio.sleep(0)\n            fail()\n    \n        tasks = BackgroundTasks()\n        tasks.add_task(events.append, \"first\")\n        tasks.add_task(async_fail if is_async else fail)\n        tasks.add_task(events.append, \"last\")\n    \n        with pytest.raises(RuntimeError, match=\"task failed\"):\n            await tasks()\n>       assert events == [\"first\", \"failed\"]\nE       AssertionError: assert ['last', 'failed'] == ['first', 'failed']\nE         \nE         At index 0 diff: 'last' != 'first'\nE         Use -v to get more diff\n\ntests/test_background.py:130: AssertionError\n=========================== short test summary info ============================\nFAILED tests/test_background.py::test_multiple_tasks_run_in_registration_order[asyncio-sync]\nFAILED tests/test_background.py::test_multiple_tasks_run_in_registration_order[asyncio-async]\nFAILED tests/test_background.py::test_multiple_tasks_run_in_registration_order[asyncio-mixed]\nFAILED tests/test_background.py::test_multi_tasks_failure_avoids_next_execution[asyncio-False]\nFAILED tests/test_background.py::test_multi_tasks_failure_avoids_next_execution[asyncio-True]\nFAILED tests/test_background.py::test_multiple_tasks_run_in_registration_order[trio-sync]\nFAILED tests/test_background.py::test_multiple_tasks_run_in_registration_order[trio-async]\nFAILED tests/test_background.py::test_multiple_tasks_run_in_registration_order[trio-mixed]\nFAILED tests/test_background.py::test_multi_tasks_failure_avoids_next_execution[trio-False]\nFAILED tests/test_background.py::test_multi_tasks_failure_avoids_next_execution[trio-True]\n10 failed, 2 passed in 0.04s\n",
+          "stderr": "",
+          "pytest_summary": "10 failed, 2 passed in 0.04s",
+          "case_counts": {
+            "failed": 10,
+            "passed": 2
+          }
+        }
+      ]
+    }
+  ]
+}
