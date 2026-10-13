@@ -59,6 +59,13 @@ patch review must be reported separately from frozen check labels, including
 the date and reason they were selected. Keep any additional probe results and
 fault-injection instructions outside the agent checkout and prompt.
 
+The atomic-output cleanup-error probe is predefined for this follow-up from
+the original post-hoc finding. Before any new outputs, freeze the reusable
+`scripts/probe_workflow_close_errors.py` hash and the original
+`close-error-probe.json` evidence. Apply that same probe to the follow-up's
+Click repairs and pinned upstream reference after the agents exit. Report its
+outcomes separately; it does not replace or extend the ten-method formal gate.
+
 Freeze the amended prompts, manifest, source configuration, successful exposure
 diagnostic, wrapper, this protocol, and existing runtime artifacts before the
 first follow-up execution. The wrapper temporarily chooses the new manifest
