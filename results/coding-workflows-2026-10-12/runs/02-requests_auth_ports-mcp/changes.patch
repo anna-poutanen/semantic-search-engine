@@ -1,0 +1,51 @@
+diff --git a/src/requests/sessions.py b/src/requests/sessions.py
+index 8093b03..e8c963c 100644
+--- a/src/requests/sessions.py
++++ b/src/requests/sessions.py
+@@ -172,6 +172,15 @@ class SessionRedirectMixin:
+         changed_port = old_parsed.port != new_parsed.port
+         changed_scheme = old_parsed.scheme != new_parsed.scheme
+ 
++        # Treat omitted and explicit default ports as equivalent for the same scheme.
++        default_port = (DEFAULT_PORTS.get(old_parsed.scheme), None)
++        if (
++            not changed_scheme
++            and old_parsed.port in default_port
++            and new_parsed.port in default_port
++        ):
++            return False
++
+         # Standard case: root URI must match
+         return changed_port or changed_scheme
+ 
+diff --git a/tests/test_requests.py b/tests/test_requests.py
+index 8bcb81d..8a72d9d 100644
+--- a/tests/test_requests.py
++++ b/tests/test_requests.py
+@@ -1985,6 +1985,26 @@ class TestRequests:
+         s = requests.Session()
+         assert not s.should_strip_auth(old_uri, new_uri)
+ 
++    @pytest.mark.parametrize("scheme, port", (("http", 80), ("https", 443)))
++    @pytest.mark.parametrize("reverse", (False, True))
++    def test_auth_is_retained_for_redirect_with_default_port(self, scheme, port, reverse):
++        old_uri = f"{scheme}://example.com/foo"
++        new_uri = f"{scheme}://example.com:{port}/bar"
++        if reverse:
++            old_uri, new_uri = new_uri, old_uri
++
++        s = requests.Session()
++        s.trust_env = False
++        request = requests.Request("GET", old_uri, auth=("user", "pass")).prepare()
++        response = requests.Response()
++        response.request = request
++        redirected = request.copy()
++        redirected.url = new_uri
++
++        s.rebuild_auth(redirected, response)
++
++        assert redirected.headers["Authorization"] == request.headers["Authorization"]
++
+     def test_manual_redirect_with_partial_body_read(self, httpbin):
+         s = requests.Session()
+         r1 = s.get(httpbin("redirect/2"), allow_redirects=False, stream=True)

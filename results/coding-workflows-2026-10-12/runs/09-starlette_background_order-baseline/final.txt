@@ -1,0 +1,3 @@
+Fixed `BackgroundTasks` to await callbacks in registration order. Regression tests cover mixed sync/async callbacks, execution after response delivery, stopping on failure, and empty collections.
+
+Checks: 65 relevant asyncio tests passed; background tests had 12 passes and 2 failures from an installed AnyIO/Trio cleanup incompatibility. Tests required a targeted deprecation-warning filter. `git diff --check` passed; Ruff was unavailable.

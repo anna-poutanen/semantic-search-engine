@@ -1,0 +1,252 @@
+{
+  "classification": "Separate CPU SDK host-advertisement diagnostic, excluded from paired agent metrics",
+  "cli_command_sha256": "8260953074a81e8b7c1110aa8775ba51e6a5ca1f00703c2d119bdd680dac97fe",
+  "evidence_operations": [
+    "initialize",
+    "list_tools"
+  ],
+  "frozen_config_sha256": "679ca55260aa75d24e7edf5e588a43d2cc79e727423f9a8ca6fcec9f9f91826d",
+  "model_tool_visibility": "unverified",
+  "original_metadata_artifact_sha256": "8a414111fb46212793e8681e2e297f48567f7602d02b7d4b3cf66740ab37399f",
+  "related_paired_trial": "02-requests_auth_ports-mcp",
+  "scope": "Separate official SDK initialization/list_tools using the frozen MCP launch settings. No call_tool/search/model inference performed. This demonstrates host advertisement, not hosted-model tool visibility during the coding trials.",
+  "sdk_version": "2.3.0",
+  "search_calls": 0,
+  "tools": [
+    {
+      "_meta": null,
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false,
+        "readOnlyHint": true,
+        "title": null
+      },
+      "description": "Find implementations by describing their behavior in the configured local repository. Returns exact saved-source excerpts with relative paths, qualified symbols, one-based line bounds, and hashes. Results are retrieval candidates, not proof of a match or absence. The optional local H2O reranker is slower. Source files are never changed.",
+      "execution": null,
+      "icons": null,
+      "inputSchema": {
+        "additionalProperties": false,
+        "description": "The public tool arguments, validated without implicit conversions.",
+        "properties": {
+          "candidates": {
+            "default": 4,
+            "description": "Number of retrieval candidates scored when rerank is true.",
+            "maximum": 50,
+            "minimum": 1,
+            "title": "Candidates",
+            "type": "integer"
+          },
+          "include_dependencies": {
+            "default": true,
+            "description": "Include a bounded statically resolved local dependency.",
+            "title": "Include Dependencies",
+            "type": "boolean"
+          },
+          "max_results": {
+            "default": 8,
+            "maximum": 20,
+            "minimum": 1,
+            "title": "Max Results",
+            "type": "integer"
+          },
+          "query": {
+            "description": "Describe the code behavior or implementation to find.",
+            "maxLength": 8192,
+            "minLength": 1,
+            "title": "Query",
+            "type": "string"
+          },
+          "rerank": {
+            "default": false,
+            "description": "Use local H2O to rerank the shortlist.",
+            "title": "Rerank",
+            "type": "boolean"
+          },
+          "retrieval": {
+            "default": "dense",
+            "enum": [
+              "bm25",
+              "dense",
+              "hybrid"
+            ],
+            "title": "Retrieval",
+            "type": "string"
+          },
+          "source_budget": {
+            "default": 12000,
+            "description": "Maximum source characters across returned excerpts.",
+            "maximum": 100000,
+            "minimum": 0,
+            "title": "Source Budget",
+            "type": "integer"
+          },
+          "token_budget": {
+            "default": 4096,
+            "description": "cl100k_base token cap for the compact JSON context envelope.",
+            "maximum": 32000,
+            "minimum": 512,
+            "title": "Token Budget",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "title": "SearchArguments",
+        "type": "object"
+      },
+      "name": "search_code",
+      "outputSchema": {
+        "$defs": {
+          "Excerpt": {
+            "additionalProperties": false,
+            "properties": {
+              "end_line": {
+                "minimum": 1,
+                "title": "End Line",
+                "type": "integer"
+              },
+              "origin": {
+                "enum": [
+                  "retrieval",
+                  "dependency"
+                ],
+                "title": "Origin",
+                "type": "string"
+              },
+              "path": {
+                "title": "Path",
+                "type": "string"
+              },
+              "related_to": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Related To"
+              },
+              "source": {
+                "title": "Source",
+                "type": "string"
+              },
+              "source_hash": {
+                "pattern": "^[0-9a-f]{64}$",
+                "title": "Source Hash",
+                "type": "string"
+              },
+              "start_line": {
+                "minimum": 1,
+                "title": "Start Line",
+                "type": "integer"
+              },
+              "symbol": {
+                "title": "Symbol",
+                "type": "string"
+              },
+              "truncated": {
+                "title": "Truncated",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "path",
+              "symbol",
+              "start_line",
+              "end_line",
+              "source",
+              "source_hash",
+              "truncated",
+              "origin",
+              "related_to"
+            ],
+            "title": "Excerpt",
+            "type": "object"
+          },
+          "TokenUsage": {
+            "additionalProperties": false,
+            "properties": {
+              "budget": {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Budget"
+              },
+              "encoding": {
+                "const": "cl100k_base",
+                "title": "Encoding",
+                "type": "string"
+              },
+              "tokens": {
+                "minimum": 0,
+                "title": "Tokens",
+                "type": "integer"
+              },
+              "truncated": {
+                "title": "Truncated",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "encoding",
+              "tokens",
+              "budget",
+              "truncated"
+            ],
+            "title": "TokenUsage",
+            "type": "object"
+          }
+        },
+        "additionalProperties": false,
+        "properties": {
+          "budget_exhausted": {
+            "title": "Budget Exhausted",
+            "type": "boolean"
+          },
+          "match_status": {
+            "enum": [
+              "candidates",
+              "insufficient_evidence",
+              "no_candidates"
+            ],
+            "title": "Match Status",
+            "type": "string"
+          },
+          "query": {
+            "title": "Query",
+            "type": "string"
+          },
+          "results": {
+            "items": {
+              "$ref": "#/$defs/Excerpt"
+            },
+            "title": "Results",
+            "type": "array"
+          },
+          "token_usage": {
+            "$ref": "#/$defs/TokenUsage"
+          }
+        },
+        "required": [
+          "query",
+          "match_status",
+          "results",
+          "budget_exhausted",
+          "token_usage"
+        ],
+        "title": "SearchContext",
+        "type": "object"
+      },
+      "title": "Search saved local code"
+    }
+  ]
+}

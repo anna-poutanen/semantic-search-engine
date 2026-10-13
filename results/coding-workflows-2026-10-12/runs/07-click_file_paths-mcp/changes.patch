@@ -1,0 +1,70 @@
+diff --git a/src/click/types.py b/src/click/types.py
+index 1657b92..49216d4 100644
+--- a/src/click/types.py
++++ b/src/click/types.py
+@@ -894,6 +894,15 @@ class Path(ParamType):
+                     ctx,
+                 )
+ 
++            if not self.dir_okay and stat.S_ISDIR(st.st_mode):
++                self.fail(
++                    _("{name} {filename!r} is a directory.").format(
++                        name=self.name.title(), filename=format_filename(value)
++                    ),
++                    param,
++                    ctx,
++                )
++
+             if self.readable and not os.access(rv, os.R_OK):
+                 self.fail(
+                     _("{name} {filename!r} is not readable.").format(
+diff --git a/tests/test_types.py b/tests/test_types.py
+index 79068e1..ca845bb 100644
+--- a/tests/test_types.py
++++ b/tests/test_types.py
+@@ -106,6 +106,45 @@ def test_path_type(runner, cls, expect):
+     assert result.return_value == expect
+ 
+ 
++@pytest.mark.parametrize(
++    ("exists", "dir_okay", "path_kind", "error"),
++    [
++        (True, False, "file", None),
++        (True, False, "directory", "is a directory"),
++        (False, False, "directory", "is a directory"),
++        (True, True, "directory", None),
++        (False, False, "missing", None),
++        (True, False, "missing", "does not exist"),
++    ],
++)
++def test_path_argument_validation(runner, tmp_path, exists, dir_okay, path_kind, error):
++    path = tmp_path / path_kind
++
++    if path_kind == "file":
++        path.touch()
++    elif path_kind == "directory":
++        path.mkdir()
++
++    calls = []
++    cli = click.Command(
++        "cli",
++        params=[
++            click.Argument(["p"], type=click.Path(exists=exists, dir_okay=dir_okay))
++        ],
++        callback=lambda p: calls.append(p),
++    )
++    result = runner.invoke(cli, [str(path)])
++
++    if error is not None:
++        assert result.exit_code == 2
++        assert "Usage: cli [OPTIONS] P" in result.output
++        assert f"Invalid value for 'P': File {str(path)!r} {error}." in result.output
++        assert calls == []
++    else:
++        assert result.exit_code == 0
++        assert calls == [str(path)]
++
++
+ def _symlinks_supported():
+     with tempfile.TemporaryDirectory(prefix="click-pytest-") as tempdir:
+         target = os.path.join(tempdir, "target")
