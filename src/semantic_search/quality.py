@@ -203,7 +203,10 @@ def run_quality(manifest_path, output_dir, *, limit_role=None):
                 raise ValueError(f"Missing full-evidence source window: {query['id']}")
         entries.append((entry, dataset))
     entries.sort(key=lambda pair: pair[0]["role"] == "repository_holdout")
+    if not entries:
+        raise ValueError("No datasets selected for quality evaluation")
     rows, setups, calibration, policy = [], [], [], None
+    embedding_metadata = None
     with (output_dir / "searches.jsonl").open("w") as raw:
         for entry, dataset in entries:
             if entry["role"] == "repository_holdout" and policy is None:
@@ -214,7 +217,16 @@ def run_quality(manifest_path, output_dir, *, limit_role=None):
                     "frozen_config_sha256": hashlib.sha256((output_dir / "frozen-config.json").read_bytes()).hexdigest()}
                 (output_dir / "abstention-policy.json").write_text(json.dumps(policy, indent=2) + "\n")
             embedder = RecordingEmbedder(progress=False)
-            embedding_metadata = embedder.metadata
+            try:
+                current_metadata = json.loads(json.dumps(embedder.metadata, sort_keys=True, allow_nan=False))
+                if embedding_metadata is not None and current_metadata != embedding_metadata:
+                    raise ValueError("Embedding model/settings changed between quality datasets")
+                embedding_metadata = current_metadata
+            except (TypeError, ValueError, OverflowError):
+                close = getattr(embedder, "close", None)
+                if close is not None:
+                    close()
+                raise
             backend = SearchBackend(entry["corpus"], dataset["source_root"],
                 Path(".cache/indexes") / (Path(entry["dataset"]).stem + "-quality.sqlite3"), embedder=embedder)
             server = worker = None
