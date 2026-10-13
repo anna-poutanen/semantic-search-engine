@@ -316,6 +316,48 @@ def definitions(path, source, tree=None):
                                      start_with_decorators(span), locations.last(span),
                                      frozenset(implementation)))
 
+    def add_field_groups(body, prefix):
+        """Context for adjacent initializers, separate for static/instance runs.
+
+        Methods, uninitialized/declare fields, function-valued fields and static
+        blocks end a run. Individual field definitions remain independently
+        indexed; these additional windows are explicitly initialization context.
+        """
+        counts = {"static": 0, "instance": 0}
+        run, mode = [], None
+
+        def flush():
+            if len(run) < 2:
+                return
+            counts[mode] += 1
+            implementation = {line for field in run for line in _runtime_lines(field, locations)}
+            symbol = ".".join((*prefix, f"<{mode}-initializers:{counts[mode]}>"))
+            # The class_body is not an individual binding/call owner. Using it
+            # prevents the context group from overwriting a field's call graph.
+            output.append(Definition(symbol, body, body, None, "initializer_group",
+                                     start_with_decorators(run[0]), locations.last(run[-1]),
+                                     frozenset(implementation)))
+
+        for field in body.named_children:
+            if field.type == "comment":
+                continue
+            value = field.child_by_field_name("value")
+            eligible = (field.type in {"public_field_definition", "field_definition"}
+                        and value is not None
+                        and unwrap_expression(value).type not in FUNCTION_TYPES | CLASS_TYPES
+                        and not any(child.type == "declare" for child in field.children)
+                        and _runtime_lines(field, locations))
+            current = "static" if any(child.type == "static" for child in field.children) else "instance"
+            if not eligible or mode != current:
+                flush()
+                run = []
+            if eligible:
+                run.append(field)
+                mode = current
+            else:
+                mode = None
+        flush()
+
     def walk(node, prefix=(), bound=None, span=None, in_function=False):
         kind = node.type
         if kind in {"ambient_declaration", "interface_declaration", "type_alias_declaration"}:
@@ -368,6 +410,8 @@ def definitions(path, source, tree=None):
             body = node.child_by_field_name("body")
             if body is not None:
                 walk(body, qualified, in_function=in_function)
+                if kind in CLASS_TYPES:
+                    add_field_groups(body, qualified)
             return
         if kind in {"variable_declarator", "public_field_definition", "field_definition", "pair"}:
             name_node = node.child_by_field_name("key" if kind == "pair" else "name")
