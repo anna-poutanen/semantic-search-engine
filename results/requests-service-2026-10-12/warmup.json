@@ -1,0 +1,72 @@
+{
+  "setup_s": 15.383329207994393,
+  "indexstats": {
+    "indexed_windows": 240,
+    "reused_windows": 0,
+    "deleted_windows": 0,
+    "total_windows": 240,
+    "elapsed_s": 15.31258991699724,
+    "model_fingerprint": "2605d7e4c477b8b8dc107f31b02c7fc4e7fc419945e8727c7a5c14a02fe70c45",
+    "memory_cache_hit": false,
+    "source_manifest": "ec84114336bb3fd4d7b8414ec1df462e5ac6c368d317bc66d0ef9d072bf13ebf",
+    "source_files": 19
+  },
+  "query": "Find the code implementation",
+  "h2o": [
+    {
+      "phase": "warmup",
+      "query": "Find the code implementation",
+      "snippet": {
+        "id": "src/requests/__init__.py:check_compatibility:60-96",
+        "path": "src/requests/__init__.py",
+        "symbol": "check_compatibility",
+        "start_line": 60,
+        "end_line": 96,
+        "text": "def check_compatibility(\n    urllib3_version: str,\n    chardet_version: str | None,\n    charset_normalizer_version: str | None,\n) -> None:\n    urllib3_version_list = urllib3_version.split(\".\")[:3]\n    assert urllib3_version_list != [\"dev\"]  # Verify urllib3 isn't installed from git.\n\n    # Sometimes, urllib3 only reports its version as 16.1.\n    if len(urllib3_version_list) == 2:\n        urllib3_version_list.append(\"0\")\n\n    # Check urllib3 for compatibility.\n    major, minor, patch = urllib3_version_list  # noqa: F811\n    major, minor, patch = int(major), int(minor), int(patch)\n    # urllib3 >= 1.21.1\n    assert major >= 1\n    if major == 1:\n        assert minor >= 21\n\n    # Check charset_normalizer for compatibility.\n    if chardet_version:\n        major, minor, patch = chardet_version.split(\".\")[:3]\n        major, minor, patch = int(major), int(minor), int(patch)\n        # chardet_version >= 3.0.2, < 8.0.0\n        assert (3, 0, 2) <= (major, minor, patch) < (8, 0, 0)\n    elif charset_normalizer_version:\n        major, minor, patch = charset_normalizer_version.split(\".\")[:3]\n        major, minor, patch = int(major), int(minor), int(patch)\n        # charset_normalizer >= 2.0.0 < 4.0.0\n        assert (2, 0, 0) <= (major, minor, patch) < (4, 0, 0)\n    else:\n        warnings.warn(\n            \"Unable to find acceptable character detection dependency \"\n            \"(chardet or charset_normalizer).\",\n            RequestsDependencyWarning,\n        )\n",
+        "content_hash": "efeb7b824ce39412e49d95d43593c37a145837da23db1e5689b26bb8c9e44b94"
+      },
+      "score": 2.7965094202113634,
+      "probabilities": {
+        "0": 0.032045238272740306,
+        "1": 0.02550435544863246,
+        "2": 0.05634615407315109,
+        "3": 0.8861042522054762
+      },
+      "elapsed_s": 5.15526741600479,
+      "input_tokens": 690,
+      "response": {
+        "model": "h2oai/h2o-lightning-4b",
+        "answers": {
+          "relevance": {
+            "type": "score",
+            "score": 2.7965094202113634,
+            "legend": {
+              "0": "Unrelated: this code does not implement the requested behavior.",
+              "1": "Related context: mentions the behavior or handles nearby concepts, but does not implement it.",
+              "2": "Supporting or partial implementation: performs a necessary substep, or delegates the behavior elsewhere.",
+              "3": "Direct implementation: the executable code itself performs the specific requested behavior."
+            },
+            "probabilities": {
+              "0": 0.032045238272740306,
+              "1": 0.02550435544863246,
+              "2": 0.05634615407315109,
+              "3": 0.8861042522054762
+            },
+            "confidence": 0.8481390029406349
+          }
+        },
+        "probability_source": "native",
+        "effort_used": {
+          "tier": "fast",
+          "passes_per_decision": 1
+        },
+        "usage": {
+          "input_tokens": 690,
+          "output_tokens": 0,
+          "latency_ms": 5154.4
+        }
+      }
+    }
+  ],
+  "note": "Model load, indexing, and these warmup calls are excluded from measured searches."
+}
