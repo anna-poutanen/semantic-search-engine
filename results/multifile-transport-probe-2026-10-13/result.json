@@ -1,0 +1,142 @@
+{
+  "agent_elapsed_s": 31.941973165987292,
+  "agent_end": {
+    "monotonic_s": 144620.775087291,
+    "utc": "2026-10-13T06:37:49.234794+00:00"
+  },
+  "agent_exit_code": 0,
+  "agent_start": {
+    "monotonic_s": 144588.833114125,
+    "utc": "2026-10-13T06:37:17.292851+00:00"
+  },
+  "artifact_sha256": {
+    "published": {
+      "command.json": "303e8507735574a4f699725c409bd0527951745dea282e08206079c9c3aef20c",
+      "event-timestamps.json": "fa611f9c3bb922813d23510a8ec6a5ae90b11142f945b012f7c184c6a64a568b",
+      "events.jsonl": "49a27bb214b4cc916cb54bf097d0241386a724c2fb3eb4f8c83fae0d7f506d7f",
+      "final.txt": "6bd2c8192377eb44638f78d478b1b07decc865f92dae86bd70b1bc32fffd971c",
+      "http-receipts.jsonl": "222a5086eae4269c346e530c2e4beb0f11e04c5c02eadf6ea872c7db8cce83e1",
+      "stderr.txt": "750f2f0a17c76bee63508f32a992b0d3fe2d03446ac8fcd6374f5555d9c3ca75"
+    },
+    "raw": {
+      "command.json": "ea25de8a2368021b59d48735650b02466924acb1d7ec9e640950f5c2e2f3bf9e",
+      "events.jsonl": "f5e07fde4e78858ca96c07cf5683f42563d0b72dfb97daa344993f6a198b4822",
+      "final.txt": "6bd2c8192377eb44638f78d478b1b07decc865f92dae86bd70b1bc32fffd971c",
+      "http-receipts.jsonl": "f0ebdd9d8ee2a90cd8243acff6f18791693d54159e927d95b280b2c2926c9f94",
+      "observed-events.json": "7c86da2005abd546d38a095c339191fb3878bcdf674424885d655e29863daedf",
+      "stderr.txt": "750f2f0a17c76bee63508f32a992b0d3fe2d03446ac8fcd6374f5555d9c3ca75"
+    }
+  },
+  "classification": "Separate hosted transport diagnostic; never pooled with sixteen workflow trials",
+  "command_calls": 1,
+  "common_runtime_sha256": "18b7614f8cf85457984f8feeacdbc3789aa654b4d5c911b0d772288362442266",
+  "completed": true,
+  "completed_correct": true,
+  "errors": [],
+  "failed": false,
+  "final_file_hashes": {
+    "loopback_smoke.py": "47bebd26bc3ff7bc3e534c4e3a1c64e529282c6596f43875ef914b006977e4e0",
+    "src/probe.py": "068909ed28decb7a9b0b8cddd5807bdbcc6e9e54527f30acaa3ec9c17f26a7ae"
+  },
+  "forbidden_local_model_calls": 0,
+  "initial_file_hashes": {
+    "loopback_smoke.py": "47bebd26bc3ff7bc3e534c4e3a1c64e529282c6596f43875ef914b006977e4e0",
+    "src/probe.py": "068909ed28decb7a9b0b8cddd5807bdbcc6e9e54527f30acaa3ec9c17f26a7ae"
+  },
+  "invalid_event_lines": [],
+  "local_model_inference": false,
+  "loopback_script": "import socket\nimport threading\n\nwith socket.socket() as server:\n    server.bind((\"127.0.0.1\", 0))\n    server.listen(1)\n    def reply():\n        with server.accept()[0] as connection:\n            connection.sendall(b\"LOOPBACK_OK\")\n    worker = threading.Thread(target=reply)\n    worker.start()\n    with socket.create_connection(server.getsockname(), timeout=5) as client:\n        assert client.recv(32) == b\"LOOPBACK_OK\"\n    worker.join(5)\n    assert not worker.is_alive()\nprint(\"LOOPBACK_OK\")\n",
+  "loopback_script_sha256": "47bebd26bc3ff7bc3e534c4e3a1c64e529282c6596f43875ef914b006977e4e0",
+  "matched_calls": [
+    {
+      "compact_text_sha256": "2186da20aa4441e44a95252779215ab2553553338bb2b1315fe904a6b8cd14ec",
+      "item_id": "item_1",
+      "receipt_number": 1
+    }
+  ],
+  "matched_loopback_commands": [
+    {
+      "exit_code": 0,
+      "item_id": "item_2",
+      "normalized_argv": [
+        "<PROJECT>/.venv/bin/python",
+        "loopback_smoke.py"
+      ],
+      "stdout": "LOOPBACK_OK"
+    }
+  ],
+  "mcp_calls": 1,
+  "mcp_items": [
+    {
+      "arguments": {
+        "include_dependencies": false,
+        "max_results": 1,
+        "query": "workflow probe",
+        "retrieval": "bm25",
+        "token_budget": 512
+      },
+      "error": null,
+      "id": "item_1",
+      "result": {
+        "content": [
+          {
+            "text": "{\"query\":\"workflow probe\",\"match_status\":\"candidates\",\"results\":[{\"path\":\"src/probe.py\",\"symbol\":\"workflow_probe\",\"start_line\":1,\"end_line\":2,\"source\":\"def workflow_probe():\\n    return \\\"MULTIFILE_PROBE_OK\\\"\\n\",\"source_hash\":\"068909ed28decb7a9b0b8cddd5807bdbcc6e9e54527f30acaa3ec9c17f26a7ae\",\"truncated\":false,\"origin\":\"retrieval\",\"related_to\":null}],\"budget_exhausted\":false,\"token_usage\":{\"encoding\":\"cl100k_base\",\"tokens\":145,\"budget\":512,\"truncated\":false}}",
+            "type": "text"
+          }
+        ],
+        "structured_content": null
+      },
+      "server": "semantic_search",
+      "status": "completed",
+      "tool": "search_code",
+      "type": "mcp_tool_call"
+    }
+  ],
+  "observed_command_items": 1,
+  "observed_file_change_items": 0,
+  "per_model_call_usage": null,
+  "per_model_call_usage_reason": "Not emitted by exec --json",
+  "probe_source": "def workflow_probe():\n    return \"MULTIFILE_PROBE_OK\"\n",
+  "probe_source_sha256": "068909ed28decb7a9b0b8cddd5807bdbcc6e9e54527f30acaa3ec9c17f26a7ae",
+  "reported_turns": 1,
+  "successful_expected_http_receipts": 1,
+  "successful_expected_mcp_calls": 1,
+  "timed_out": false,
+  "tool_intervals": [
+    {
+      "end": {
+        "monotonic_s": 144601.847222958,
+        "utc": "2026-10-13T06:37:30.306948+00:00"
+      },
+      "item_id": "item_1",
+      "observed_duration_s": 0.1488186669885181,
+      "start": {
+        "monotonic_s": 144601.698404291,
+        "utc": "2026-10-13T06:37:30.158115+00:00"
+      },
+      "type": "mcp_tool_call"
+    },
+    {
+      "end": {
+        "monotonic_s": 144610.660974375,
+        "utc": "2026-10-13T06:37:39.120705+00:00"
+      },
+      "item_id": "item_2",
+      "observed_duration_s": 2.1499989088624716e-05,
+      "start": {
+        "monotonic_s": 144610.660952875,
+        "utc": "2026-10-13T06:37:39.120677+00:00"
+      },
+      "type": "command_execution"
+    }
+  ],
+  "usage": {
+    "cache_write_input_tokens": 0,
+    "cached_input_tokens": 28544,
+    "input_tokens": 39294,
+    "output_tokens": 252,
+    "reasoning_output_tokens": 0,
+    "total_tokens": 39546,
+    "uncached_input_tokens": 10750
+  }
+}
