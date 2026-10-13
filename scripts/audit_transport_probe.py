@@ -7,7 +7,6 @@ import importlib.metadata
 import json
 from pathlib import Path
 import shlex
-import sys
 import tomllib
 
 ROOT = Path(__file__).resolve().parents[1]

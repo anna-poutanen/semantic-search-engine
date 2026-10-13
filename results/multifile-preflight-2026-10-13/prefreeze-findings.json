@@ -1,20 +1,19 @@
 {
-  "schema_version": 1,
-  "stage": "prefreeze review",
-  "scope": "CPU-only independent audit; defects found in authored preflight, not recorded coding trial outcomes",
   "findings": [
     {
-      "id": "requests-response-budget-reset",
-      "status": "resolved_and_independently_verified_before_freeze",
-      "contract": "Count cumulative actual decoded response bytes and stop subsequent reads at crossing.",
-      "reproduction": {
-        "limit": 4,
-        "first_iterator_next": "12",
-        "second_iterator_next": "345",
-        "expected": "ResponseTooLarge(limit=4, received=5); response closed",
-        "observed": "Both chunks yielded; response remained open"
-      },
       "cause": "Reference iter_content wrapper initialized received=0 for each iterator.",
+      "contract": "Count cumulative actual decoded response bytes and stop subsequent reads at crossing.",
+      "id": "requests-response-budget-reset",
+      "initial_manifest_checker_sha256": "b5492463d34f3da0c9b9ba79a32a9285baec72b4788788b849c67bb43a108bd3",
+      "initial_manifest_reference_patch_sha256": "4548632e6137502156f71b66046e0ad49fed95f5d4cd5d238eefc7fe384e0f7b",
+      "original_verification_sha256": "aca0d00f4e38a805515501e5f3f32174d61f4f1a22aece5679b558dfab5dcb3f",
+      "reproduction": {
+        "expected": "ResponseTooLarge(limit=4, received=5); response closed",
+        "first_iterator_next": "12",
+        "limit": 4,
+        "observed": "Both chunks yielded; response remained open",
+        "second_iterator_next": "345"
+      },
       "requested_checks": [
         "Stateful raw consumption across separate iter_content iterators",
         "Partial iteration followed by content read",
@@ -22,49 +21,54 @@
         "Cached rereads do not double-count bytes",
         "Resume an iterator constructed before a different iterator crossed the limit without any new raw reads"
       ],
-      "initial_manifest_reference_patch_sha256": "4548632e6137502156f71b66046e0ad49fed95f5d4cd5d238eefc7fe384e0f7b",
-      "initial_manifest_checker_sha256": "b5492463d34f3da0c9b9ba79a32a9285baec72b4788788b849c67bb43a108bd3",
+      "resolution": "Reference now preserves response-wide live byte totals and the first terminal limit error, checks that error before advancing all existing iterators, and avoids double-counting cached rereads. Two independent semantic mutants fail the strengthened named regression.",
+      "status": "resolved_and_independently_verified_before_freeze",
       "verification_artifact": "results/multifile-preflight-2026-10-13/audit.json",
-      "verification_sha256": "aca0d00f4e38a805515501e5f3f32174d61f4f1a22aece5679b558dfab5dcb3f",
-      "resolution": "Reference now preserves response-wide live byte totals and the first terminal limit error, checks that error before advancing all existing iterators, and avoids double-counting cached rereads. Two independent semantic mutants fail the strengthened named regression."
+      "verification_sha256": "912dcb45d2ef8bfc2887f3ac1b6dad050c104acd1d5f3e0b63f4056891056935"
     },
     {
-      "id": "starlette-replay-segmentation",
-      "status": "resolved_and_independently_verified_before_freeze",
       "contract": "Replay exactly the accepted bytes and delegate subsequent receives.",
+      "id": "starlette-replay-segmentation",
+      "initial_manifest_checker_sha256": "9b266d5d0c6b8d5b40bb3b0e2ac25b013bfabefb37d077218ea24660cc7b07e0",
+      "initial_manifest_reference_patch_sha256": "4ec34e546f9fac8e8aff9dd3cb7dceee6f136b0569ef5233fe73e5e463013d1d",
+      "original_verification_sha256": "aca0d00f4e38a805515501e5f3f32174d61f4f1a22aece5679b558dfab5dcb3f",
       "problem": "Oracle required one coalesced HTTP request message although public contract allows equivalent chunk-preserving replay.",
       "requested_checks": [
         "Compare accumulated body bytes, then observe original disconnect"
       ],
-      "initial_manifest_reference_patch_sha256": "4ec34e546f9fac8e8aff9dd3cb7dceee6f136b0569ef5233fe73e5e463013d1d",
-      "initial_manifest_checker_sha256": "9b266d5d0c6b8d5b40bb3b0e2ac25b013bfabefb37d077218ea24660cc7b07e0",
+      "resolution": "Oracle accumulates accepted replay bytes rather than requiring one message. Independent one-byte replay chunks pass all ten contract methods, including asyncio/Trio HTTP integration.",
+      "status": "resolved_and_independently_verified_before_freeze",
       "verification_artifact": "results/multifile-preflight-2026-10-13/audit.json",
-      "verification_sha256": "aca0d00f4e38a805515501e5f3f32174d61f4f1a22aece5679b558dfab5dcb3f",
-      "resolution": "Oracle accumulates accepted replay bytes rather than requiring one message. Independent one-byte replay chunks pass all ten contract methods, including asyncio/Trio HTTP integration."
+      "verification_sha256": "912dcb45d2ef8bfc2887f3ac1b6dad050c104acd1d5f3e0b63f4056891056935"
     },
     {
-      "id": "starlette-unlimited-buffering",
-      "status": "resolved_and_independently_verified_before_freeze",
       "contract": "None disables middleware buffering and the limit.",
+      "id": "starlette-unlimited-buffering",
+      "initial_manifest_checker_sha256": "9b266d5d0c6b8d5b40bb3b0e2ac25b013bfabefb37d077218ea24660cc7b07e0",
+      "initial_manifest_reference_patch_sha256": "4ec34e546f9fac8e8aff9dd3cb7dceee6f136b0569ef5233fe73e5e463013d1d",
+      "original_verification_sha256": "aca0d00f4e38a805515501e5f3f32174d61f4f1a22aece5679b558dfab5dcb3f",
       "problem": "An accepted-body response alone does not distinguish pass-through from eager unlimited buffering.",
       "requested_checks": [
         "Downstream app enters with zero upstream reads and receives original request directly"
       ],
-      "initial_manifest_reference_patch_sha256": "4ec34e546f9fac8e8aff9dd3cb7dceee6f136b0569ef5233fe73e5e463013d1d",
-      "initial_manifest_checker_sha256": "9b266d5d0c6b8d5b40bb3b0e2ac25b013bfabefb37d077218ea24660cc7b07e0",
-      "verification_artifact": "results/multifile-preflight-2026-10-13/audit.json",
-      "verification_sha256": "aca0d00f4e38a805515501e5f3f32174d61f4f1a22aece5679b558dfab5dcb3f",
-      "resolution": "A direct ASGI regression checks that unlimited middleware invokes the app before any receive. Independent eager unlimited buffering is rejected by that named check."
-    },
-    {
-      "id": "click-abort-injection-shape",
-      "stage": "final pre-freeze oracle review",
-      "contract": "Abort cleanup failure preserves the primary callback exception with discoverable diagnostics.",
-      "problem": "Injection targeted an upstream private temporary prefix and os.unlink alone, falsely rejecting valid other prefixes or os.remove implementations.",
-      "resolution": "Injection targets non-destination files in the fixture directory and both deletion APIs. Independent alternate-prefix and os.remove implementations each pass all nine contract methods.",
+      "resolution": "A direct ASGI regression checks that unlimited middleware invokes the app before any receive. Independent eager unlimited buffering is rejected by that named check.",
       "status": "resolved_and_independently_verified_before_freeze",
       "verification_artifact": "results/multifile-preflight-2026-10-13/audit.json",
-      "verification_sha256": "aca0d00f4e38a805515501e5f3f32174d61f4f1a22aece5679b558dfab5dcb3f"
+      "verification_sha256": "912dcb45d2ef8bfc2887f3ac1b6dad050c104acd1d5f3e0b63f4056891056935"
+    },
+    {
+      "contract": "Abort cleanup failure preserves the primary callback exception with discoverable diagnostics.",
+      "id": "click-abort-injection-shape",
+      "original_verification_sha256": "aca0d00f4e38a805515501e5f3f32174d61f4f1a22aece5679b558dfab5dcb3f",
+      "problem": "Injection targeted an upstream private temporary prefix and os.unlink alone, falsely rejecting valid other prefixes or os.remove implementations.",
+      "resolution": "Injection targets non-destination files in the fixture directory and both deletion APIs. Independent alternate-prefix and os.remove implementations each pass all nine contract methods.",
+      "stage": "final pre-freeze oracle review",
+      "status": "resolved_and_independently_verified_before_freeze",
+      "verification_artifact": "results/multifile-preflight-2026-10-13/audit.json",
+      "verification_sha256": "912dcb45d2ef8bfc2887f3ac1b6dad050c104acd1d5f3e0b63f4056891056935"
     }
-  ]
+  ],
+  "schema_version": 1,
+  "scope": "CPU-only independent audit; defects found in authored preflight, not recorded coding trial outcomes",
+  "stage": "prefreeze review"
 }
