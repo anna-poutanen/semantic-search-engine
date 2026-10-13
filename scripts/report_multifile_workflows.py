@@ -391,8 +391,14 @@ def analyze_record(slot, record, directory, finalized, encoder, raw_directory=No
     if record.get("completed_correct") and not (verified_correct and record.get("completed") and not record.get("failed")
         and not record.get("timed_out") and record.get("agent_exit_code") == 0):
         flags.append("Completed-correct flag violates normal completion requirements")
+    failure_messages = list(dict.fromkeys(event.get("message") if event.get("type") == "error"
+        else event.get("error", {}).get("message") for event in events
+        if event.get("type") in ("error", "turn.failed")))
+    failure_messages = [message for message in failure_messages if isinstance(message, str)]
+    capacity_failure = bool(record.get("failed") and any(
+        "selected model is at capacity" in message.lower() for message in failure_messages))
     status = ("partial" if not finalized else "timeout" if record.get("timed_out") else "infrastructure_failure"
-        if record.get("infrastructure_error") else "agent_failure" if record.get("failed") else "grading_failure"
+        if record.get("infrastructure_error") else "provider_capacity_failure" if capacity_failure else "agent_failure" if record.get("failed") else "grading_failure"
         if record.get("grading_error") else "completed_correct" if independently_completed_correct else "incorrect_or_incomplete")
     intervals = record.get("tool_intervals", [])
     return {**identity, "run_id": record.get("run_id", directory.name), "record_present": True, "finalized": finalized,
@@ -401,6 +407,7 @@ def analyze_record(slot, record, directory, finalized, encoder, raw_directory=No
         "completed_correct": independently_completed_correct, "timed_out": record.get("timed_out", False),
         "agent_failed": record.get("failed", False), "agent_exit_code": record.get("agent_exit_code"),
         "infrastructure_error": record.get("infrastructure_error"), "grading_error": record.get("grading_error"),
+        "failure_messages": failure_messages, "provider_capacity_failure": capacity_failure,
         "usage": usage, "usage_matches_result": (all(usage[field] == (reported or {}).get(field) for field in USAGE_FIELDS[:6])
                                                  if usage is not None else reported is None),
         "usage_source": "Published completed-turn events; unavailable usage remains null", "reported_turns": turns,
@@ -498,6 +505,8 @@ def build_report(study, *, encoder=None, raw_root=None, allow_partial=False):
     for row in rows:
         if row.get("run_id") in reviews:
             row["qualitative_patch_review"] = reviews[row["run_id"]]
+    confirmed = [(row, issue) for row in rows for issue in (row.get("qualitative_patch_review") or {}).get("issues", [])
+                 if issue.get("classification") == "Confirmed supplemental contract defect"]
     conditions = {}
     for condition in CONDITIONS:
         subset = [row for row in rows if row["condition"] == condition]
@@ -554,6 +563,12 @@ def build_report(study, *, encoder=None, raw_root=None, allow_partial=False):
             "unreviewed_scheduled_attempts": sum(row.get("qualitative_patch_review") is None for row in rows),
             "classification": review_record.get("classification"), "method": review_record.get("method"),
             "summary": review_record.get("summary"), "unmatched_run_ids": sorted(set(reviews) - {row.get("run_id") for row in rows})},
+        "confirmed_supplemental_defects": {"issue_instances": len(confirmed),
+            "affected_attempts": len({row["run_id"] for row, _ in confirmed}),
+            "probe_cases": sorted({issue.get("case") for _, issue in confirmed if issue.get("case")}),
+            "affected_formally_completed_correct_attempts": len({row["run_id"] for row, _ in confirmed if row["completed_correct"]}),
+            "shared_reference_issue_instances": sum(issue.get("shared_reference_failure") is True for _, issue in confirmed),
+            "definition": "Post-output probes; counts supplement and do not redefine frozen grades or qualified pairs."},
         "scheduled_attempts": 16, "finalized_attempts": len(records), "complete_inventory": len(records) == 16,
         "conditions": conditions, "runs": rows, "pairs": pairs,
         "all_attempt_pair_comparisons": aggregate_pairs(pairs),
@@ -572,7 +587,7 @@ def build_report(study, *, encoder=None, raw_root=None, allow_partial=False):
             "source_checks": "Recorded HTTP snapshot checks plus recomputed delivered UTF-8 hashes/physical-line lengths; raw event linkage is available only with ignored evaluator logs.",
             "redaction": "Output proxies use published strings. Path redaction can change raw source/text hashes; recorded snapshot checks and optional raw payload linkage retain that distinction. Repeated identical payloads can yield explicitly ambiguous links.",
             "scope_clues": "Query mentions of tests/pytest/fixtures are marked when the frozen source root excludes the top-level tests tree; a heuristic, not proof of intended scope or causal attribution.",
-            "qualified_pairs": "Both trials finalized and completed independently correct, with equal fixture and user-prompt hashes; this outcome-selected subset can be biased.",
+            "qualified_pairs": "Both trials finalized, completed normally and passed frozen selected/upstream gates, with equal fixture and prompt hashes; this outcome-selected subset can be biased and can contain supplemental defects.",
             "limits": "Four authored feature tasks in existing development repositories, two repetitions, selected external/original tests, unblinded conditional tool guidance, filesystem/provider caches, instrumentation overhead; exploratory package comparison, no isolated component effect or broad savings claim."}}
 
 
@@ -588,7 +603,7 @@ def render_markdown(report):
         f"Both conditions use `{report.get('model')}` with `{report.get('model_reasoning_effort')}` reasoning. "
         "Differences describe the improved search workflow package under the common frozen runtime.", "",
         "## All scheduled attempts", "",
-        "| Condition | Finalized | Completed correct | Reported gross tokens (observed/8) | Full eight-attempt gross total | Agent median s (observed/8) | Service setup median s |",
+        "| Condition | Finalized | Completed correct | Reported gross tokens (observed/8) | Full eight-attempt gross total | Attempt CLI median s (observed/8) | Service setup median s |",
         "|---|---:|---:|---:|---:|---:|---:|"]
     inventory = report.get("gate_inventory", {})
     if inventory.get("distinct_selected_methods") is not None:
@@ -604,7 +619,7 @@ def render_markdown(report):
         rows.append(f"| {condition} | {data['finalized']}/8 | {data['completed_correct']}/8 | {fmt(tokens['measured_sum'],0)} ({tokens['observed']}/8) | "
                     f"{fmt(tokens['complete_total'],0)} | {fmt(agent.get('median'))} ({agent.get('observed',0)}/8) | {fmt(setup.get('median'))} |")
     rows += ["", "Observed subtotals exclude unavailable receipts. A timeout can consume unreported provider tokens, so a missing receipt is never zero cost. "
-        "Setup is outside agent time; evaluator work and teardown are reported separately in analysis.json.", "",
+        "Setup is outside agent time; evaluator work and teardown are reported separately in analysis.json. Attempt CLI durations include failed and censored runs, so they are resource time rather than successful completion time.", "",
         "| Condition | Input | Cached input subset | Uncached input | Cache-write input subset | Output | Reasoning output subset |",
         "|---|---:|---:|---:|---:|---:|---:|"]
     for condition in CONDITIONS:
@@ -628,7 +643,7 @@ def render_markdown(report):
         rows.append("| " + condition + " | " + " | ".join(cells) + " |")
     rows += ["", "Output and overlap counters are descriptive proxies, not provider billing or evidence of wasted work.", "",
         "## All eight pairs", "",
-        "Percent changes are MCP versus baseline; negative means lower. Correctness-qualified pairs require both normal completion and independent correctness, plus matching fixture/prompt hashes.", "",
+        "Percent changes are MCP versus baseline; negative means lower. Qualified pairs require both normal completion and frozen selected/upstream passes, plus matching fixture/prompt hashes; supplemental defects can still exist.", "",
         "| Task | Rep | First | Baseline outcome | MCP outcome | Qualified | Gross token change | Agent time change | Output token proxy change |",
         "|---|---:|---|---|---|---|---:|---:|---:|"]
     for pair in report["pairs"]:
@@ -652,11 +667,11 @@ def render_markdown(report):
         rows.append(f"| {row['task_id']} r{row['repetition']} {row['condition']} | {row['status']} | {fmt((row.get('usage') or {}).get('total_tokens'),0)} | "
             f"{fmt(row['timing_s'].get('agent_cli'))} | {tools.get('completed_command_items','—')} / {tools.get('completed_mcp_items','—')} | "
             f"{row.get('http',{}).get('http_call_count','—')} | {len(integrity.get('changed_or_deleted_original_tests_and_configs',[]))} | {len(row['flags'])} |")
-    flagged = [row for row in report["runs"] if row["flags"] or row.get("infrastructure_error") or row.get("grading_error")]
+    flagged = [row for row in report["runs"] if row["flags"] or row.get("infrastructure_error") or row.get("grading_error") or row.get("failure_messages")]
     if flagged:
         rows += ["", "Recorded problems:", ""]
         for row in flagged:
-            messages = row["flags"] + [row[name] for name in ("infrastructure_error", "grading_error") if row.get(name)]
+            messages = row["flags"] + [row[name] for name in ("infrastructure_error", "grading_error") if row.get(name)] + row.get("failure_messages", [])
             rows.append(f"- {row['task_id']} r{row['repetition']} {row['condition']}: " + "; ".join(messages))
     scope_clues = [(row, call) for row in report["runs"] for call in row.get("tools", {}).get("mcp_calls", []) if call.get("query_scope_clue")]
     if scope_clues:
@@ -667,8 +682,12 @@ def render_markdown(report):
     reviews = [row for row in report["runs"] if row.get("qualitative_patch_review") is not None]
     if reviews:
         inventory = report["qualitative_review_inventory"]
+        defects = report["confirmed_supplemental_defects"]
         rows += ["", f"Separate qualitative patch reviews: {inventory['reviewed_scheduled_attempts']}/16 scheduled attempts reviewed; "
                  f"status `{inventory['status']}`, {inventory['unreviewed_scheduled_attempts']} unreviewed.", ""]
+        rows += [f"**Confirmed supplemental defects: {defects['issue_instances']} issue instances across {defects['affected_attempts']} attempts, "
+                 f"including {defects['affected_formally_completed_correct_attempts']} formally completed-correct attempts.** "
+                 "Some probes also fail the withheld references. Frozen green gates and qualified comparisons therefore do not establish complete feature correctness.", ""]
         for row in reviews:
             summary = row["qualitative_patch_review"].get("summary", "Review is available in the separate artifact.")
             rows.append(f"- {row['task_id']} r{row['repetition']} {row['condition']}: {summary} [Review artifact](patch-review.json).")

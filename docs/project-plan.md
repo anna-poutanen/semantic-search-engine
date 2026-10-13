@@ -50,10 +50,17 @@ This follows the agreed plan in **Choose a project for YC roles** on October 12,
    and both Click patches retain the commit-error defect. MCP uses 7.0% more
    total tokens and 14.8% more agent time over these reused tasks. Its condition
    median token count is 6.8% lower; that is not the aggregate workload change.
-6. **VS Code (planned):** search command, result previews, exact navigation, indexing/model
-   status, temporary overlay for unsaved edits.
-7. **Beta/release (planned):** external users, reliable installation, language expansion,
-   reproducible benchmark and recognizable real-repository demos.
+6. **VS Code (isolated draft):** search command, plaintext result previews, verified
+   saved-file navigation, indexing status and cancellation are packaged locally
+   and pass 17 CPU checks. Real Development Host testing is being prepared.
+   Main integration, real-model editor workflows and temporary unsaved-buffer
+   overlays remain.
+7. **Beta/release (in preparation):** a fast Mac installer can omit optional H2O.
+   TypeScript/JavaScript extraction and conservative static references pass an
+   independent 259-test CPU gate in an isolated branch. Source-authored Express
+   development and Zod holdout queries are fixed before ranking output.
+   Language retrieval, installation/editor integration, a reproducible demo and
+   external beta users remain.
 
 Python is implemented first; TypeScript/JavaScript is the next language scope.
 C# and non-Mac deployment follow validation of the core. Serialize GPU work and
@@ -78,21 +85,31 @@ returned excerpts, and follow-up reads still consume the agent's tokens.
 
 ## Next milestone
 
-Extend the paired coding evaluation to fresh tasks with larger changes and
-multi-file behavior. The first pilot exposes a tool-uptake issue and a gap in
-selected correctness checks. Verify actual tool calls, broaden error-path
-checks before new runs, and repeat pairs to measure agent variance. Keep model,
-prompts, starting bytes, and runtime settings identical within pairs, freeze
-checks before outputs, and retain every attempt. Keep source gold hidden from
-the agent. Reused tasks and any MCP-first workflow instruction need separate
-follow-up results rather than replacing the availability pilot.
-Resolve the observed alpha CLI's failed collaboration-spawn warnings and the
-Starlette test runtime's AnyIO/Trio compatibility problems before the next
-freeze, so unrelated integration work does not dominate small repairs. Expand
-the coding tasks and error-path gates before tuning from these results.
+The [workflow investigation](../results/workflow-investigation-2026-10-13/findings.md)
+records repeated source reads, cache differences and runtime confounds without
+claiming an exact causal token attribution. The MCP-first guidance and optional
+single-text payload are implemented. The new
+[multi-file protocol](multifile-workflow-protocol.md) freezes four fresh features,
+two paired repetitions, 41 selected check methods and original upstream checks.
+The runtime preflight resolves the observed AnyIO/Trio dependency mismatch;
+collaboration is explicitly disabled for the trials. Separate transport checks
+verify an actual single-copy MCP call and loopback HTTP.
 
-Use those results to decide whether retrieval saves enough work to justify the
-integration. Then implement the VS Code search command, result previews, exact
-navigation, and indexing/model status. Unsaved-buffer overlays and
-TypeScript/JavaScript extraction follow. A portfolio demo and external beta
-come after those workflows are reliable.
+That 16-attempt study is currently running. Nine attempts and an independent
+[integrity audit](../results/multifile-audit-2026-10-13/audit.json) are published.
+Timeout usage remains unavailable, and a no-edit model-capacity failure is kept
+separate from coding errors. Supplemental
+[patch review](../results/multifile-workflows-2026-10-13/patch-review.json) has
+already found bugs outside the frozen gates, including holes shared by the
+withheld references. Those findings do not rewrite the formal scores. Finish
+the inventory, review every patch, publish actual-receipt comparisons with their
+missing-data limits, and audit the frozen environment before main integration.
+
+Isolated editor and language drafts can proceed alongside that study without
+changing its runtime. After the study and audits, integrate those drafts and run
+the [prospective language evaluation](language-retrieval-protocol.md), with real
+Qwen inference serialized. Verify actual editor search, preview, navigation and
+saved edits before preparing a portfolio demo. Unsaved overlays, broader real
+coding tasks and external beta users remain later gates. Token savings have not
+been established; moving to product integration does not imply that target was
+met.

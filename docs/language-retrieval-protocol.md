@@ -120,3 +120,33 @@ The thirty authored queries are a small first language sample and do not cover
 all JavaScript syntax, all TS/JSX dialects, framework dependencies, or runtime
 dispatch. Neither source preflight nor retrieval success is a claim of exhaustive
 correctness.
+
+## First run inventory, fixed before extraction/ranking output
+
+The first run uses `scripts/run_language_quality.py`. Every authored query receives
+BM25, Qwen dense, and equal-weight hybrid retrieval, with H2O and abstention off.
+Each condition retrieves fifty candidate windows and returns at most eight
+symbols, with a 12,000-character source budget and a 4,096-token compact
+`cl100k_base` JSON budget. Dependency context uses the existing five anchors,
+at most two callees per anchor, and one level. No parameters or threshold will be
+selected from these results.
+
+Express runs before the Zod holdout. Three repetitions rotate condition order by
+query and repetition index: 270 fresh HTTP requests in total. Quality uses only
+the first repetition for each query and condition; later repetitions measure
+warm latency and check coverage stability. Repeated requests do not increase the
+query sample size. Query vectors are computed afresh; deterministic candidate
+diagnostics reuse the exact vector after the timed request, without another
+embedding call. These diagnostics and source verification are outside the HTTP
+latency measurement.
+
+The CPU gate checks actual extractor membership against all 113 pinned source
+files, exact window bytes, unique identities, and complete executable-evidence
+eligibility before inference. It can be run against an isolated, committed
+language implementation while the coding study finishes; it loads no models and
+does not evaluate ranks. Freeze then records grammar/runtime/package versions,
+source and window inventories, labels, implementation hashes, and budgets.
+Every miss and absent-query decoy is retained. Cold model/index setup is separate
+from warm HTTP timing, and a fresh backend must reuse every unchanged persistent
+document vector. Saved edits and actual editor workflows receive separate
+integration checks.
