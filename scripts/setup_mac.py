@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Install the pinned Mac runtime and checkpoint into ignored project folders."""
+"""Install the pinned Mac runtime, with an optional H2O checkpoint download."""
+import argparse
 import platform
 import subprocess
 import sys
@@ -15,9 +16,13 @@ def run(*args):
     subprocess.run([str(arg) for arg in args], cwd=ROOT, check=True)
 
 
-def main():
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--runtime-only", action="store_true",
+                        help="Install dependencies without downloading the optional H2O runtime or weights")
+    args = parser.parse_args(argv)
     if platform.system() != "Darwin" or platform.machine() != "arm64":
-        raise SystemExit("The H2O runtime requires an Apple Silicon Mac.")
+        raise SystemExit("The local model runtime requires an Apple Silicon Mac.")
     uv = ROOT / ".cache/bootstrap/bin/uv"
     if not uv.exists():
         run(sys.executable, "-m", "pip", "install", "--target",
@@ -28,6 +33,10 @@ def main():
     run(uv, "pip", "install", "--python", python, "-r", "requirements-mac.lock")
     run(uv, "pip", "install", "--python", python, "-e", ".[mcp]")
     run(python, "-c", "from semantic_search.context import encoding; encoding(); print('Context tokenizer ready')")
+    if args.runtime_only:
+        run(python, "-c", "import mlx.core as mx; assert mx.metal.is_available(); print('MLX Metal ready')")
+        print("Runtime ready. Download Qwen with: .venv/bin/python scripts/setup_embeddings.py")
+        return
     vendor = ROOT / ".cache/vendor/h2o-lightning-mlx"
     if not vendor.exists():
         run("git", "clone", "https://github.com/internet-projects/h2o-lightning-mlx", vendor)
