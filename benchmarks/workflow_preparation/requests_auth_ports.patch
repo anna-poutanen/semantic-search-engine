@@ -1,0 +1,19 @@
+--- a/src/requests/sessions.py
++++ b/src/requests/sessions.py
+@@ -169,16 +169,8 @@
+         ):
+             return False
+ 
+-        # Handle default port usage corresponding to scheme.
+         changed_port = old_parsed.port != new_parsed.port
+         changed_scheme = old_parsed.scheme != new_parsed.scheme
+-        default_port = (DEFAULT_PORTS.get(old_parsed.scheme, None), None)
+-        if (
+-            not changed_scheme
+-            and old_parsed.port in default_port
+-            and new_parsed.port in default_port
+-        ):
+-            return False
+ 
+         # Standard case: root URI must match
+         return changed_port or changed_scheme
