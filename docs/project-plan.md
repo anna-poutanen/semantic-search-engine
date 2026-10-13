@@ -2,7 +2,7 @@
 
 Describe a behavior and receive relevant implementations with verified paths,
 symbols, line numbers, and bounded source excerpts. The CLI and implemented MCP
-`search_code` tool share a local Python backend; a VS Code extension follows.
+`search_code` tool and VS Code extension share a local Python backend.
 
 This follows the agreed plan in **Choose a project for YC roles** on October 12,
 2026. Use existing model weights; training and fine-tuning are outside the plan.
@@ -24,17 +24,20 @@ This follows the agreed plan in **Choose a project for YC roles** on October 12,
    overall. The optional rejection policy rejects 3/4 absent Rich cases and 1/20
    real behaviors. [Results and failures](../results/retrieval-quality-2026-10-12/findings.md)
    preserve the [frozen protocol](retrieval-quality-protocol.md).
-4. **Persistent index (core complete; larger real-model profiling remains):**
+4. **Persistent index (core and real-model validation complete at tested scale):**
    durable SQLite FTS5 keyword retrieval, pinned sqlite-vec exact exhaustive
    cosine retrieval, reusable document/model vector caching, atomic source
    snapshots, deletion/rename/branch handling, and stale-source rejection are
-   implemented. A debounced watcher observes saved Python bytes and Git refs;
+   implemented. A debounced watcher observes supported saved source and Git refs;
    request cancellation stops queued work and checks active model work between
    batches/scores. Real Qwen/MCP saved-edit verification and a
    [10,000-window synthetic CPU profile](../results/index-profile-2026-10-12/report.md)
-   pass; large real-codebase
-   indexing/search latency and memory still need measurement with the real model.
-5. **MCP (adapter and first paired coding pilot complete):** one stdio
+   pass. The [real Qwen language study](../results/language-quality-2026-10-13/findings.md)
+   indexes 107 Zod production files into 1,802 windows in 108.23 seconds;
+   reopening takes 2.06 seconds and reuses every document vector without inference.
+   Actual VS Code saved-edit, watcher-before-query, rename, deletion and invalid
+   source checks also pass. Larger repositories remain unmeasured.
+5. **MCP (adapter and repeated multi-file study complete):** one stdio
    `search_code` tool uses the resident service with strict schemas, cancellation,
    eight-result context, and a default 4,096-token compact `cl100k_base` JSON cap.
    Six paired repairs now have provider-reported usage, completion time, frozen
@@ -50,19 +53,21 @@ This follows the agreed plan in **Choose a project for YC roles** on October 12,
    and both Click patches retain the commit-error defect. MCP uses 7.0% more
    total tokens and 14.8% more agent time over these reused tasks. Its condition
    median token count is 6.8% lower; that is not the aggregate workload change.
-6. **VS Code (isolated draft):** search command, plaintext result previews, verified
-   saved-file navigation, indexing status and cancellation are packaged locally
-   and pass 17 CPU checks. Real Development Host testing is being prepared.
-   Main integration, real-model editor workflows and temporary unsaved-buffer
-   overlays remain.
-7. **Beta/release (in preparation):** a fast Mac installer can omit optional H2O.
-   TypeScript/JavaScript extraction and conservative static references pass an
-   independent 259-test CPU gate in an isolated branch. Source-authored Express
-   development and Zod holdout queries are fixed before ranking output.
-   Language retrieval, installation/editor integration, a reproducible demo and
-   external beta users remain.
+6. **VS Code (integrated; actual saved and dirty workflows pass):** search,
+   plaintext captured previews, verified navigation, status and cancellation
+   pass in the actual VS Code host with resident Qwen. Explicit unsaved searches
+   bind all supplied buffers and reject navigation after any input changes;
+   ordinary searches remain saved-source searches. Request-only overlay indexes
+   leave the saved index unchanged. The [host receipts](../results/editor-workflows-2026-10-13/findings.md)
+   separate integration checks from retrieval quality. Actual Restricted Mode,
+   multi-root and disconnected-service checks remain broader acceptance work.
+7. **Beta/release (in preparation):** the fast Mac installer omits optional H2O;
+   a new environment passed dependency checks and real Qwen inference. These
+   runs used available user-level caches, rather than a clean machine. Python,
+   JavaScript and TypeScript are integrated. A reproducible demo and packaged
+   preview are next; external beta users and a licensing decision remain.
 
-Python is implemented first; TypeScript/JavaScript is the next language scope.
+Python, TypeScript and JavaScript are implemented.
 C# and non-Mac deployment follow validation of the core. Serialize GPU work and
 reuse resident model processes. Dense retrieval remains the fast default, with
 H2O available as an optional shortlist reranker. Static dependencies are context
@@ -107,11 +112,18 @@ completed-correct attempts and five holes shared by the references. These
 post-output findings leave the frozen scores unchanged. All attempts, patches,
 actual receipts and missing-data limits are preserved; token savings are unmet.
 
-Isolated editor and language drafts can proceed alongside that study without
-changing its runtime. After the study and audits, integrate those drafts and run
-the [prospective language evaluation](language-retrieval-protocol.md), with real
-Qwen inference serialized. Verify actual editor search, preview, navigation and
-saved edits before preparing a portfolio demo. Unsaved overlays, broader real
-coding tasks and external beta users remain later gates. Token savings have not
-been established; moving to product integration does not imply that target was
-met.
+The frozen [language evaluation](../results/language-quality-2026-10-13/findings.md)
+is complete: 30 distinct source-authored queries, 270 timed HTTP requests, and
+independent source/token audits. Dense retrieval delivers complete evidence for
+10/12 Express and 8/12 Zod behaviors. It finds all needed candidates for 11/12
+Zod behaviors at depth 50, but delivers complete evidence for none of its four
+multi-file behaviors under the fixed eight-excerpt budget. Express is development
+evidence; Zod holds out retrieval parameter selection, after parser eligibility
+was inspected. All absent queries return decoys without an abstention policy.
+
+Finish the reproducible portfolio demo, package and verify a local preview,
+then use fresh development queries to improve evidence delivery and a new
+untouched holdout to assess those changes. The observed Zod misses are now
+development evidence for future tuning. Broader coding tasks and external beta
+feedback follow. Token savings remain unestablished; product integration does
+not imply that target was met.

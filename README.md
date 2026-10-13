@@ -83,7 +83,8 @@ coverage remains incomplete. The saved mixed-language editor workflow also
 [passes in an actual VS Code host](results/editor-workflows-2026-10-13/findings.md).
 The ordinary CLI/MCP workflow searches saved source. Backend/HTTP callers can
 provide explicit [request-only editor text overlays](docs/unsaved-overlays.md);
-editor integration and real-model overlay measurements remain separate work.
+the VS Code command can explicitly include unsaved eligible buffers. Real Qwen
+overlay and actual dirty-editor source checks pass; they are integration fixtures.
 
 The service preloads Qwen and builds a durable SQLite index under `.cache/indexes/`.
 Its polling watcher checks eligible saved bytes, tracked membership, Git HEAD,
@@ -161,8 +162,10 @@ uses real Qwen and the official MCP client: a saved edit independently embeds
 one function and reuses two vectors. Durable retrieval, watching, and cancellation
 also have CPU verification. A [10,000-window synthetic index profile](results/index-profile-2026-10-12/report.md)
 records exact SQLite cosine P95 of 19.63 ms and full durable reuse; it does not
-establish real Qwen indexing performance at that scale. Next is paired-agent
-evaluation on fresh, broader tasks, followed by VS Code integration.
+establish real Qwen indexing performance at that scale. The separate
+[language study](results/language-quality-2026-10-13/findings.md) measures real
+Qwen indexing and durable reuse for 1,802 Zod windows. Actual VS Code saved,
+dirty-buffer and saved-edit workflows now pass; broader acceptance remains.
 
 The [coding workflow availability pilot](results/coding-workflows-2026-10-12/report.md)
 runs six paired seeded repairs in real Requests, Click, and Starlette checkouts
