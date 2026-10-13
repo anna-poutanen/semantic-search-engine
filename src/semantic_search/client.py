@@ -122,3 +122,6 @@ class SearchClient:
 
     def refresh(self):
         return self._request("/index", {})
+
+    def cancel(self, request_id):
+        return self._request("/cancel", {"request_id": request_id})

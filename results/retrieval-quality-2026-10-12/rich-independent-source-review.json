@@ -1,0 +1,766 @@
+{
+  "reviewer": "runtime_review",
+  "dataset_sha256": "72060f1e2cc5e214acb78233707fd4573c97de791aea8ab3670ed1db28f9d238",
+  "revision": "43d3b04725ab9731727fb1126e35980c62f32377",
+  "model_or_retrieval_outputs_observed": false,
+  "source_review_only": true,
+  "queries": 24,
+  "present": 20,
+  "absent": 4,
+  "and_queries": 4,
+  "extracted_windows": 873,
+  "status": "cleared_before_inference",
+  "issues": [],
+  "notes": [
+    "Independently read executable source for all twenty present behaviors and every AND group. Every evidence group fits an extracted 160/40 window with the exact qualified symbol and path.",
+    "The centered-panel query deliberately requires both Panel.__rich_console__ and nested Align.__rich_console__.generate_segments; its panel evidence fits the window141\u2013276.",
+    "Source search for PDF, SQLite, WebSocket, mouse dispatch and widget code found no corresponding absent feature implementations. Rich optional ipywidgets output is not a mouse event dispatcher or WebSocket server.",
+    "Absence remains source-review judgment scoped to the pinned Rich package, not an algorithmic proof. No policy, prompt, shortlist or budget tuning was done."
+  ],
+  "checks": [
+    {
+      "query_id": "rich_display_cell_tabs",
+      "kind": "present",
+      "split": "repository_holdout",
+      "source_behavior_review": "passed",
+      "evidence_group_coverage": [
+        {
+          "group": 0,
+          "alternatives": [
+            {
+              "target": {
+                "path": "rich/text.py",
+                "symbol": "Text.expand_tabs",
+                "evidence_lines": [
+                  835,
+                  858
+                ]
+              },
+              "covering_windows": [
+                {
+                  "id": "rich/text.py:Text.expand_tabs:818-858",
+                  "start_line": 818,
+                  "end_line": 858,
+                  "content_hash": "75e6843b4f1b682eb451be7b8196e14c8ab9144e60e81ec13dde5c6cb98457b4"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "query_id": "rich_ellipsis_and_padding",
+      "kind": "present",
+      "split": "repository_holdout",
+      "source_behavior_review": "passed",
+      "evidence_group_coverage": [
+        {
+          "group": 0,
+          "alternatives": [
+            {
+              "target": {
+                "path": "rich/text.py",
+                "symbol": "Text.truncate",
+                "evidence_lines": [
+                  874,
+                  885
+                ]
+              },
+              "covering_windows": [
+                {
+                  "id": "rich/text.py:Text.truncate:860-885",
+                  "start_line": 860,
+                  "end_line": 885,
+                  "content_hash": "fc8de007e3c9e778ae7c92cccbf43c64dd9ee1dbcaf098a65544f7d97ad8c3bf"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "query_id": "rich_split_style_offsets",
+      "kind": "present",
+      "split": "repository_holdout",
+      "source_behavior_review": "passed",
+      "evidence_group_coverage": [
+        {
+          "group": 0,
+          "alternatives": [
+            {
+              "target": {
+                "path": "rich/text.py",
+                "symbol": "Text.divide",
+                "evidence_lines": [
+                  1146,
+                  1184
+                ]
+              },
+              "covering_windows": [
+                {
+                  "id": "rich/text.py:Text.divide:1107-1184",
+                  "start_line": 1107,
+                  "end_line": 1184,
+                  "content_hash": "94e927f6ada1724079e66b4e45ceb68480ba83411f03565006696a7852d0c067"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "query_id": "rich_wide_character_fit",
+      "kind": "present",
+      "split": "repository_holdout",
+      "source_behavior_review": "passed",
+      "evidence_group_coverage": [
+        {
+          "group": 0,
+          "alternatives": [
+            {
+              "target": {
+                "path": "rich/cells.py",
+                "symbol": "set_cell_size",
+                "evidence_lines": [
+                  99,
+                  128
+                ]
+              },
+              "covering_windows": [
+                {
+                  "id": "rich/cells.py:set_cell_size:96-128",
+                  "start_line": 96,
+                  "end_line": 128,
+                  "content_hash": "a506c41d2a6672a5f14294b0424ea883e770c5b2619a1e39b49e3cae74c792a9"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "query_id": "rich_wide_segment_split",
+      "kind": "present",
+      "split": "repository_holdout",
+      "source_behavior_review": "passed",
+      "evidence_group_coverage": [
+        {
+          "group": 0,
+          "alternatives": [
+            {
+              "target": {
+                "path": "rich/segment.py",
+                "symbol": "Segment._split_cells",
+                "evidence_lines": [
+                  124,
+                  156
+                ]
+              },
+              "covering_windows": [
+                {
+                  "id": "rich/segment.py:Segment._split_cells:109-156",
+                  "start_line": 109,
+                  "end_line": 156,
+                  "content_hash": "f3a98bc8e333212e3d21e8ca562e639bcc0c9ab348c983c5bdc0dfc27747fd4f"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "query_id": "rich_remove_output_links",
+      "kind": "present",
+      "split": "repository_holdout",
+      "source_behavior_review": "passed",
+      "evidence_group_coverage": [
+        {
+          "group": 0,
+          "alternatives": [
+            {
+              "target": {
+                "path": "rich/segment.py",
+                "symbol": "Segment.strip_links",
+                "evidence_lines": [
+                  559,
+                  564
+                ]
+              },
+              "covering_windows": [
+                {
+                  "id": "rich/segment.py:Segment.strip_links:549-564",
+                  "start_line": 549,
+                  "end_line": 564,
+                  "content_hash": "c1f7512bc9c4d81d1f91decfea63d55c10925e5c90a21bf04b1c9763e1395cc9"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "query_id": "rich_recorded_plain_text",
+      "kind": "present",
+      "split": "repository_holdout",
+      "source_behavior_review": "passed",
+      "evidence_group_coverage": [
+        {
+          "group": 0,
+          "alternatives": [
+            {
+              "target": {
+                "path": "rich/console.py",
+                "symbol": "Console.export_text",
+                "evidence_lines": [
+                  2170,
+                  2184
+                ]
+              },
+              "covering_windows": [
+                {
+                  "id": "rich/console.py:Console.export_text:2154-2184",
+                  "start_line": 2154,
+                  "end_line": 2184,
+                  "content_hash": "3092f058899e5baa439df7183d5105f6c62b60b34add0f92f38333653e19231d"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "query_id": "rich_html_style_deduplication",
+      "kind": "present",
+      "split": "repository_holdout",
+      "source_behavior_review": "passed",
+      "evidence_group_coverage": [
+        {
+          "group": 0,
+          "alternatives": [
+            {
+              "target": {
+                "path": "rich/console.py",
+                "symbol": "Console.export_html",
+                "evidence_lines": [
+                  2245,
+                  2263
+                ]
+              },
+              "covering_windows": [
+                {
+                  "id": "rich/console.py:Console.export_html:2200-2273",
+                  "start_line": 2200,
+                  "end_line": 2273,
+                  "content_hash": "3d0f72076c8e4aad5731dd3e468046070b42b37f5edcf53c7e8eda49f64204f8"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "query_id": "rich_color_syntax_parsing",
+      "kind": "present",
+      "split": "repository_holdout",
+      "source_behavior_review": "passed",
+      "evidence_group_coverage": [
+        {
+          "group": 0,
+          "alternatives": [
+            {
+              "target": {
+                "path": "rich/color.py",
+                "symbol": "Color.parse",
+                "evidence_lines": [
+                  435,
+                  482
+                ]
+              },
+              "covering_windows": [
+                {
+                  "id": "rich/color.py:Color.parse:431-482",
+                  "start_line": 431,
+                  "end_line": 482,
+                  "content_hash": "8ec0a83cba936728e32e4ecbe3267c4f20ddd60b15a36be1e0235cf89e47566c"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "query_id": "rich_style_attribute_language",
+      "kind": "present",
+      "split": "repository_holdout",
+      "source_behavior_review": "passed",
+      "evidence_group_coverage": [
+        {
+          "group": 0,
+          "alternatives": [
+            {
+              "target": {
+                "path": "rich/style.py",
+                "symbol": "Style.parse",
+                "evidence_lines": [
+                  519,
+                  561
+                ]
+              },
+              "covering_windows": [
+                {
+                  "id": "rich/style.py:Style.parse:496-561",
+                  "start_line": 496,
+                  "end_line": 561,
+                  "content_hash": "f84fd255d6a3dce7f7bab71c3658bc3a13fde91ff342120f4e6f402c48679a23"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "query_id": "rich_ansi_hyperlink_state",
+      "kind": "present",
+      "split": "repository_holdout",
+      "source_behavior_review": "passed",
+      "evidence_group_coverage": [
+        {
+          "group": 0,
+          "alternatives": [
+            {
+              "target": {
+                "path": "rich/ansi.py",
+                "symbol": "AnsiDecoder.decode_line",
+                "evidence_lines": [
+                  152,
+                  160
+                ]
+              },
+              "covering_windows": [
+                {
+                  "id": "rich/ansi.py:AnsiDecoder.decode_line:138-211",
+                  "start_line": 138,
+                  "end_line": 211,
+                  "content_hash": "d148dfad2cf528038ef3cffdad5a3b6fe5ad6aad03f997eb88d388d53e9619d9"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "query_id": "rich_table_width_allocation",
+      "kind": "present",
+      "split": "repository_holdout",
+      "source_behavior_review": "passed",
+      "evidence_group_coverage": [
+        {
+          "group": 0,
+          "alternatives": [
+            {
+              "target": {
+                "path": "rich/table.py",
+                "symbol": "Table._calculate_column_widths",
+                "evidence_lines": [
+                  535,
+                  572
+                ]
+              },
+              "covering_windows": [
+                {
+                  "id": "rich/table.py:Table._calculate_column_widths:523-585",
+                  "start_line": 523,
+                  "end_line": 585,
+                  "content_hash": "98ef821c6c0b90d4be759f0092b1163a18cdcdb3a3ffec6118b31a5d6f1ac82a"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "query_id": "rich_column_first_packing",
+      "kind": "present",
+      "split": "repository_holdout",
+      "source_behavior_review": "passed",
+      "evidence_group_coverage": [
+        {
+          "group": 0,
+          "alternatives": [
+            {
+              "target": {
+                "path": "rich/columns.py",
+                "symbol": "Columns.__rich_console__",
+                "evidence_lines": [
+                  86,
+                  148
+                ]
+              },
+              "covering_windows": [
+                {
+                  "id": "rich/columns.py:Columns.__rich_console__:62-171",
+                  "start_line": 62,
+                  "end_line": 171,
+                  "content_hash": "ede007dbe8108bc56450f66f91918bccbe3f009067c20a238813f19c1388edcf"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "query_id": "rich_tree_guide_transitions",
+      "kind": "present",
+      "split": "repository_holdout",
+      "source_behavior_review": "passed",
+      "evidence_group_coverage": [
+        {
+          "group": 0,
+          "alternatives": [
+            {
+              "target": {
+                "path": "rich/tree.py",
+                "symbol": "Tree.__rich_console__",
+                "evidence_lines": [
+                  131,
+                  162
+                ]
+              },
+              "covering_windows": [
+                {
+                  "id": "rich/tree.py:Tree.__rich_console__:86-174",
+                  "start_line": 86,
+                  "end_line": 174,
+                  "content_hash": "1014a33c10471c1f537e0dc733fe5dd2d0d46ad0c14621a794263401911db114"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "query_id": "rich_manual_progress_iteration",
+      "kind": "present",
+      "split": "repository_holdout",
+      "source_behavior_review": "passed",
+      "evidence_group_coverage": [
+        {
+          "group": 0,
+          "alternatives": [
+            {
+              "target": {
+                "path": "rich/progress.py",
+                "symbol": "Progress.track",
+                "evidence_lines": [
+                  1228,
+                  1234
+                ]
+              },
+              "covering_windows": [
+                {
+                  "id": "rich/progress.py:Progress.track:1193-1234",
+                  "start_line": 1193,
+                  "end_line": 1234,
+                  "content_hash": "3f098902621e381ed3d09b2dd848006604c695239076524b7c566155027aba21"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "query_id": "rich_bounded_render_measurement",
+      "kind": "present",
+      "split": "repository_holdout",
+      "source_behavior_review": "passed",
+      "evidence_group_coverage": [
+        {
+          "group": 0,
+          "alternatives": [
+            {
+              "target": {
+                "path": "rich/measure.py",
+                "symbol": "Measurement.get",
+                "evidence_lines": [
+                  103,
+                  117
+                ]
+              },
+              "covering_windows": [
+                {
+                  "id": "rich/measure.py:Measurement.get:78-122",
+                  "start_line": 78,
+                  "end_line": 122,
+                  "content_hash": "3fdf3e5d61f1f655971054667ef50ff5b4fec3153687a140cd769a23af4973ec"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "query_id": "rich_console_markup_error_path",
+      "kind": "present",
+      "split": "repository_holdout",
+      "source_behavior_review": "passed",
+      "evidence_group_coverage": [
+        {
+          "group": 0,
+          "alternatives": [
+            {
+              "target": {
+                "path": "rich/console.py",
+                "symbol": "Console.render_str",
+                "evidence_lines": [
+                  1424,
+                  1436
+                ]
+              },
+              "covering_windows": [
+                {
+                  "id": "rich/console.py:Console.render_str:1396-1455",
+                  "start_line": 1396,
+                  "end_line": 1455,
+                  "content_hash": "60aa9bc62ed1b0360d63300cbb961efcc0c6b040da6fad2c30cd2117f6628c46"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "group": 1,
+          "alternatives": [
+            {
+              "target": {
+                "path": "rich/markup.py",
+                "symbol": "render",
+                "evidence_lines": [
+                  159,
+                  176
+                ]
+              },
+              "covering_windows": [
+                {
+                  "id": "rich/markup.py:render:106-231",
+                  "start_line": 106,
+                  "end_line": 231,
+                  "content_hash": "32aa0fea30886f05bd09868554406534d9a589cf5527d1ef7d9eb7921eccaf76"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "query_id": "rich_live_refresh_and_overflow",
+      "kind": "present",
+      "split": "repository_holdout",
+      "source_behavior_review": "passed",
+      "evidence_group_coverage": [
+        {
+          "group": 0,
+          "alternatives": [
+            {
+              "target": {
+                "path": "rich/live.py",
+                "symbol": "Live.refresh",
+                "evidence_lines": [
+                  222,
+                  223
+                ]
+              },
+              "covering_windows": [
+                {
+                  "id": "rich/live.py:Live.refresh:220-247",
+                  "start_line": 220,
+                  "end_line": 247,
+                  "content_hash": "0b31859a9f5c607bfbacc95f89ab627ec01998311c1f05781a160a59cd6b4279"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "group": 1,
+          "alternatives": [
+            {
+              "target": {
+                "path": "rich/live_render.py",
+                "symbol": "LiveRender.__rich_console__",
+                "evidence_lines": [
+                  90,
+                  106
+                ]
+              },
+              "covering_windows": [
+                {
+                  "id": "rich/live_render.py:LiveRender.__rich_console__:82-112",
+                  "start_line": 82,
+                  "end_line": 112,
+                  "content_hash": "8ffc354dac3b816db51e11b7f756ae244f9b4f1d28e16633397a57cc7f2515b0"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "query_id": "rich_progress_spinner_frames",
+      "kind": "present",
+      "split": "repository_holdout",
+      "source_behavior_review": "passed",
+      "evidence_group_coverage": [
+        {
+          "group": 0,
+          "alternatives": [
+            {
+              "target": {
+                "path": "rich/progress.py",
+                "symbol": "SpinnerColumn.render",
+                "evidence_lines": [
+                  610,
+                  615
+                ]
+              },
+              "covering_windows": [
+                {
+                  "id": "rich/progress.py:SpinnerColumn.render:609-615",
+                  "start_line": 609,
+                  "end_line": 615,
+                  "content_hash": "7dc0a157b956bf3306c781b417d3548427e2c8aaba96ad2a59bf5d359a12c5ea"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "group": 1,
+          "alternatives": [
+            {
+              "target": {
+                "path": "rich/spinner.py",
+                "symbol": "Spinner.render",
+                "evidence_lines": [
+                  70,
+                  78
+                ]
+              },
+              "covering_windows": [
+                {
+                  "id": "rich/spinner.py:Spinner.render:61-93",
+                  "start_line": 61,
+                  "end_line": 93,
+                  "content_hash": "499dbc8ca4ae0e9429644d6dd11598ec7dfbe0bda6b3538c72e5eb75d7c730a6"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "query_id": "rich_centered_panel_composition",
+      "kind": "present",
+      "split": "repository_holdout",
+      "source_behavior_review": "passed",
+      "evidence_group_coverage": [
+        {
+          "group": 0,
+          "alternatives": [
+            {
+              "target": {
+                "path": "rich/panel.py",
+                "symbol": "Panel.__rich_console__",
+                "evidence_lines": [
+                  232,
+                  254
+                ]
+              },
+              "covering_windows": [
+                {
+                  "id": "rich/panel.py:Panel.__rich_console__:141-276",
+                  "start_line": 141,
+                  "end_line": 276,
+                  "content_hash": "f662e76be988c1d7e87bf7c42e5323c528988a51dca13c5a93e7ca7b40db4f92"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "group": 1,
+          "alternatives": [
+            {
+              "target": {
+                "path": "rich/align.py",
+                "symbol": "Align.__rich_console__.generate_segments",
+                "evidence_lines": [
+                  169,
+                  182
+                ]
+              },
+              "covering_windows": [
+                {
+                  "id": "rich/align.py:Align.__rich_console__.generate_segments:153-190",
+                  "start_line": 153,
+                  "end_line": 190,
+                  "content_hash": "c39d3a2d1e7b05a88d769b6d51f843e7b976c0d0ac01bcd8fcc293797101aa49"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "query_id": "rich_pdf_export",
+      "kind": "absent",
+      "split": "repository_holdout",
+      "source_behavior_review": "passed",
+      "evidence_group_coverage": []
+    },
+    {
+      "query_id": "rich_mouse_widget_dispatch",
+      "kind": "absent",
+      "split": "repository_holdout",
+      "source_behavior_review": "passed",
+      "evidence_group_coverage": []
+    },
+    {
+      "query_id": "rich_durable_progress_resume",
+      "kind": "absent",
+      "split": "repository_holdout",
+      "source_behavior_review": "passed",
+      "evidence_group_coverage": []
+    },
+    {
+      "query_id": "rich_websocket_dashboard_server",
+      "kind": "absent",
+      "split": "repository_holdout",
+      "source_behavior_review": "passed",
+      "evidence_group_coverage": []
+    }
+  ],
+  "extraction": {
+    "max_lines": 160,
+    "overlap_lines": 40
+  }
+}

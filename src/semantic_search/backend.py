@@ -2,7 +2,9 @@
 from __future__ import annotations
 
 import ast
+from contextlib import contextmanager
 import hashlib
+import inspect
 import io
 import json
 import subprocess
@@ -14,7 +16,28 @@ from urllib.parse import urlsplit
 
 from semantic_search.corpus import _source_files, extract_snippets
 from semantic_search.model import H2OClient
-from semantic_search.retrieval import BM25Retriever, DenseRetriever, HybridRetriever
+from semantic_search.retrieval import HybridRetriever
+from semantic_search.cancellation import CancellationRegistry, SearchCancelled
+from semantic_search.context import apply_token_budget
+from semantic_search.source import physical_lines
+
+
+class CancellableEmbedder:
+    def __init__(self, embedder, check):
+        self.embedder, self.check = embedder, check
+
+    @property
+    def metadata(self):
+        return self.embedder.metadata
+
+    def embed_documents(self, texts):
+        self.check()
+        if "cancel_check" in inspect.signature(self.embedder.embed_documents).parameters:
+            result = self.embedder.embed_documents(texts, cancel_check=self.check)
+        else:
+            result = self.embedder.embed_documents(texts)
+        self.check()
+        return result
 
 MAX_QUERY_CHARS = 8192
 MAX_CANDIDATES = 50
@@ -40,7 +63,8 @@ class SearchBackend:
     """
 
     def __init__(self, repo, source_root="src/flask", db_path=None, *, index=None,
-                 embedder=None, h2o_url="http://127.0.0.1:8741", h2o_client=None):
+                 embedder=None, h2o_url="http://127.0.0.1:8741", h2o_client=None,
+                 abstention_policy=None):
         self.repo = Path(repo).resolve()
         if not self.repo.is_dir():
             raise ValueError("repo must be an existing directory")
@@ -65,6 +89,7 @@ class SearchBackend:
             raise ValueError("h2o_url must be a loopback HTTP base URL without credentials") from error
         self._h2o = h2o_client or H2OClient(h2o_url)
         self._lock = threading.RLock()
+        self._requests = CancellationRegistry()
         self._closed = False
         self._manifest = None
         self._vectors_manifest = None
@@ -73,6 +98,25 @@ class SearchBackend:
         self._lexical = self._dense = self._hybrid = None
         self._last_stats = None
         self._last_error = None
+        self._references = None
+        self._watcher = None
+        self._watch_request_id = f"watch-{id(self)}"
+        from semantic_search.matching import MatchPolicy
+        self._policy = MatchPolicy(abstention_policy) if abstention_policy is not None else None
+
+    def cancel(self, request_id):
+        return self._requests.cancel(request_id)
+
+    @contextmanager
+    def _request_lock(self, request_id):
+        with self._requests.request(request_id) as check:
+            while not self._lock.acquire(timeout=.05):
+                check()
+            try:
+                check()
+                yield check
+            finally:
+                self._lock.release()
 
     def _check_open(self):
         if self._closed:
@@ -142,8 +186,9 @@ class SearchBackend:
             decoded[path] = source
         return decoded
 
-    def _refresh(self, require_vectors=True):
+    def _refresh(self, require_vectors=True, cancel_check=lambda: None):
         started = time.perf_counter()
+        cancel_check()
         digest, raw = self._snapshot()
         unchanged = digest == self._manifest
         fingerprint = self._embedding_fingerprint() if require_vectors else None
@@ -155,9 +200,11 @@ class SearchBackend:
                      "source_manifest": digest, "source_files": len(raw),
                      "elapsed_s": time.perf_counter() - started}
             self._last_stats, self._last_error = stats, None
+            cancel_check()
             return stats
         if unchanged:
             snippets = self._snippets
+            references = self._references
         else:
             decoded = self._validate_source(raw)
             try:
@@ -169,21 +216,34 @@ class SearchBackend:
             for snippet in snippets:
                 source = decoded.get(snippet.path)
                 if source is None or snippet.text != "".join(
-                        source.splitlines(keepends=True)[snippet.start_line - 1:snippet.end_line]):
+                        physical_lines(source)[snippet.start_line - 1:snippet.end_line]):
                     raise SourceSnapshotError("Source changed during extraction; retry with stable saved files")
             self._confirm_snapshot(digest)
+            from semantic_search.relations import ReferenceGraph
+            references = ReferenceGraph(decoded, snippets)
         stats = {"indexed_windows": 0, "reused_windows": 0, "deleted_windows": 0,
                  "total_windows": len(snippets)}
         dense = hybrid = None
-        lexical = BM25Retriever(snippets)
+        from semantic_search.persistent_retrieval import PersistentDenseRetriever, PersistentLexicalRetriever
+        index = self._get_index()
+        def before_commit():
+            cancel_check()
+            self._confirm_snapshot(digest)
+            cancel_check()
         if require_vectors:
-            vectors, stats = self._get_index().refresh(
-                snippets, self._get_embedder(), before_commit=lambda: self._confirm_snapshot(digest))
+            vectors, stats = index.refresh(snippets, CancellableEmbedder(self._get_embedder(), cancel_check),
+                                           before_commit=before_commit)
             if snippets:
-                dense = DenseRetriever(snippets, vectors)
-                hybrid = HybridRetriever(lexical, dense, rrf_k=60, fetch_depth=50)
+                dense = PersistentDenseRetriever(index)
+        else:
+            stats = index.refresh_lexical(snippets, before_commit=before_commit)
+        lexical = PersistentLexicalRetriever(index)
+        if dense is not None:
+            hybrid = HybridRetriever(lexical, dense, rrf_k=60, fetch_depth=50)
+        cancel_check()
         self._confirm_snapshot(digest)
         self._manifest, self._snippets = digest, snippets
+        self._references = references
         self._vectors_manifest = digest if require_vectors else None
         self._vectors_model_fingerprint = fingerprint
         self._lexical, self._dense, self._hybrid = lexical, dense, hybrid
@@ -192,15 +252,28 @@ class SearchBackend:
         self._last_stats, self._last_error = stats, None
         return stats
 
-    def refresh(self):
+    def refresh(self, request_id=None):
         """Refresh persistent vectors from saved files without executing a query."""
-        with self._lock:
+        with self._request_lock(request_id) as check:
             self._check_open()
             try:
-                return self._refresh()
+                return self._refresh(cancel_check=check)
             except Exception as error:
-                self._last_error = str(error)
+                if not isinstance(error, SearchCancelled):
+                    self._last_error = str(error)
                 raise
+
+    def start_watching(self, poll_interval=1.0, debounce=.5):
+        from semantic_search.watcher import PollingWatcher
+        with self._lock:
+            self._check_open()
+            if self._watcher is None:
+                self._watcher = PollingWatcher(lambda: self._snapshot()[0],
+                    lambda: self.refresh(request_id=self._watch_request_id),
+                    poll_interval=poll_interval, debounce=debounce,
+                    cancel=lambda: self.cancel(self._watch_request_id))
+            self._watcher.start(initial_snapshot=self._manifest)
+            return self._watcher.status()
 
     def status(self):
         with self._lock:
@@ -210,10 +283,13 @@ class SearchBackend:
                     "embedding_initialized": self._embedder is not None,
                     "dense_ready": self._dense is not None,
                     "last_error": self._last_error, "indexstats": self._last_stats,
+                    "watcher": self._watcher.status() if self._watcher else None,
+                    "abstention_policy": self._policy.record if self._policy else None,
                     "store": self._index.status() if self._index is not None and not self._closed else None}
 
     def search(self, query, retrieval="dense", rerank=False, candidates=4,
-               max_results=5, source_budget=12000):
+               max_results=5, source_budget=12000, token_budget=None,
+               include_dependencies=False, request_id=None):
         if not isinstance(query, str) or not query.strip() or len(query) > MAX_QUERY_CHARS:
             raise ValueError(f"query must be nonempty and at most {MAX_QUERY_CHARS} characters")
         try:
@@ -227,18 +303,23 @@ class SearchBackend:
         _integer(candidates, "candidates", 1, MAX_CANDIDATES)
         _integer(max_results, "max_results", 1, MAX_RESULTS)
         _integer(source_budget, "source_budget", 0, MAX_SOURCE_BUDGET)
+        if token_budget is not None:
+            _integer(token_budget, "token_budget", 512, 32000)
+        if type(include_dependencies) is not bool:
+            raise ValueError("include_dependencies must be a boolean")
         started = time.perf_counter()
-        with self._lock:
+        with self._request_lock(request_id) as check:
             self._check_open()
             try:
-                stats = self._refresh(require_vectors=retrieval != "bm25")
+                stats = self._refresh(require_vectors=retrieval != "bm25", cancel_check=check)
                 phase = time.perf_counter()
                 vector = None
                 if self._snippets and retrieval != "bm25":
                     vector = self._get_embedder().embed_query(query)
+                check()
                 embedding_s = time.perf_counter() - phase if vector is not None else 0.0
                 phase = time.perf_counter()
-                limit = candidates if rerank else max(10, candidates, max_results)
+                limit = candidates if rerank else max(50, candidates, max_results)
                 pairs = []
                 if self._snippets:
                     if retrieval == "bm25":
@@ -247,9 +328,20 @@ class SearchBackend:
                         pairs = self._dense.search(vector, limit)
                     else:
                         pairs = self._hybrid.search(query, vector, limit)
+                match_status = "candidates" if pairs else "no_candidates"
+                top_cosine = (pairs[0][1] if retrieval == "dense" and pairs else
+                              self._dense.search(vector, limit=1)[0][1] if vector is not None else None)
+                if (self._policy is not None and top_cosine is not None
+                        and self._policy.rejects(top_cosine, self._get_embedder().metadata)):
+                    match_status, pairs = "insufficient_evidence", []
                 retrieval_s = time.perf_counter() - phase
                 phase = time.perf_counter()
-                judgments = {s.id: self._h2o.score(query, s) for s, _ in pairs} if rerank else {}
+                judgments = {}
+                if rerank:
+                    for snippet, _ in pairs:
+                        check()
+                        judgments[snippet.id] = self._h2o.score(query, snippet)
+                        check()
                 if rerank:
                     pairs.sort(key=lambda pair: (-judgments[pair[0].id].score, -pair[1], pair[0].id))
                 h2o_s = time.perf_counter() - phase if rerank else 0.0
@@ -261,12 +353,34 @@ class SearchBackend:
                         seen.add(key)
                         selected.append((snippet, score))
                 eligible = selected[:max_results]
+                origins = {snippet.id: ("retrieval", None) for snippet, _ in eligible}
+                if include_dependencies and self._references is not None:
+                    expanded, included = [], set()
+                    # Preserve the first five ranked anchors. Additional slots
+                    # carry explicit callees before less relevant anchors.
+                    anchors = eligible[:min(5, max_results)]
+                    for snippet, score in anchors:
+                        expanded.append((snippet, score))
+                        included.add((snippet.path, snippet.symbol))
+                    for snippet, score in anchors:
+                        for related in self._references.dependencies(snippet, limit=2):
+                            key = (related.path, related.symbol)
+                            if key not in included and len(expanded) < max_results:
+                                expanded.append((related, score))
+                                origins[related.id] = ("dependency", snippet.id)
+                                included.add(key)
+                    for snippet, score in eligible:
+                        key = (snippet.path, snippet.symbol)
+                        if key not in included and len(expanded) < max_results:
+                            expanded.append((snippet, score))
+                            included.add(key)
+                    eligible = expanded
                 remaining, results = source_budget, []
                 for snippet, score in eligible:
                     source = snippet.text
                     if len(source) > remaining:
                         lines, used = [], 0
-                        for line in source.splitlines(keepends=True):
+                        for line in physical_lines(source):
                             if used + len(line) > remaining:
                                 break
                             lines.append(line)
@@ -278,16 +392,18 @@ class SearchBackend:
                     truncated = source != snippet.text
                     results.append({"id": snippet.id, "path": snippet.path, "symbol": snippet.symbol,
                                     "start_line": snippet.start_line,
-                                    "end_line": snippet.start_line + len(source.splitlines()) - 1,
+                                    "end_line": snippet.start_line + len(physical_lines(source)) - 1,
                                     "window_end_line": snippet.end_line,
                                     "source": source, "content_hash": snippet.content_hash,
                                     "source_hash": hashlib.sha256(source.encode()).hexdigest(),
                                     "retrieval_score": float(score),
-                                    "h2o_score": judgments[snippet.id].score if rerank else None,
+                                    "h2o_score": judgments[snippet.id].score if snippet.id in judgments else None,
+                                    "origin": origins.get(snippet.id, ("retrieval", None))[0],
+                                    "related_to": origins.get(snippet.id, ("retrieval", None))[1],
                                     "truncated": truncated})
                 self._confirm_snapshot(self._manifest)
                 packaging_s = time.perf_counter() - phase
-                return {"repo": str(self.repo), "source_root": self.source_root,
+                response = {"repo": str(self.repo), "source_root": self.source_root,
                         "query": query, "retrieval": retrieval, "rerank": rerank,
                         "results": results, "candidate_windows": len(pairs),
                         "available_symbols": len(selected), "source_budget": source_budget,
@@ -297,11 +413,26 @@ class SearchBackend:
                         "timings": {"index_s": stats["elapsed_s"], "query_embedding_s": embedding_s,
                                     "retrieval_s": retrieval_s, "h2o_s": h2o_s,
                                     "packaging_s": packaging_s, "total_s": time.perf_counter() - started}}
+                response["match_status"] = match_status
+                response["match_evidence"] = {"top_cosine": top_cosine,
+                    "threshold": self._policy.threshold if self._policy else None,
+                    "meaning": "Candidate relevance is not proof that a behavior exists or is absent."}
+                if token_budget is not None:
+                    response = apply_token_budget(response, token_budget)
+                check()
+                self._confirm_snapshot(self._manifest)
+                response["timings"]["packaging_s"] = time.perf_counter() - phase
+                response["timings"]["total_s"] = time.perf_counter() - started
+                return response
             except Exception as error:
-                self._last_error = str(error)
+                if not isinstance(error, SearchCancelled):
+                    self._last_error = str(error)
                 raise
 
     def close(self):
+        self._requests.cancel_all()
+        if self._watcher is not None:
+            self._watcher.stop()
         with self._lock:
             if not self._closed:
                 self._closed = True

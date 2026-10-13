@@ -26,7 +26,8 @@ def main():
     if not python.exists():
         run(uv, "venv", "--python", "3.12", ROOT / ".venv")
     run(uv, "pip", "install", "--python", python, "-r", "requirements-mac.lock")
-    run(uv, "pip", "install", "--python", python, "-e", ".")
+    run(uv, "pip", "install", "--python", python, "-e", ".[mcp]")
+    run(python, "-c", "from semantic_search.context import encoding; encoding(); print('Context tokenizer ready')")
     vendor = ROOT / ".cache/vendor/h2o-lightning-mlx"
     if not vendor.exists():
         run("git", "clone", "https://github.com/internet-projects/h2o-lightning-mlx", vendor)
