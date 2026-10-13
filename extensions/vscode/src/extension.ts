@@ -5,6 +5,7 @@ import { Entry, SearchController, ViewState } from './controller';
 import { hash, physicalLines, SearchOptions, ValidationError } from './schema';
 import { StaleEvidenceError } from './evidence';
 import { parseConnectRequest, parseFindRequest, resultIndex } from './commands';
+import { sourceTextFromEditor } from './source';
 
 export interface ExtensionApi {
   getState(): Readonly<ViewState>;
@@ -21,7 +22,7 @@ class ResultsView implements vscode.TreeDataProvider<Entry | string> {
     if (typeof row === 'string') { return new vscode.TreeItem(row); }
     const result = row.result, item = new vscode.TreeItem(result.symbol);
     item.description = `${result.path}:${result.start_line}–${result.end_line}${result.truncated ? ' · truncated' : ''}${result.origin === 'dependency' ? ' · context reference' : ''}${row.staleReason ? ' · preview only' : ''}`;
-    item.tooltip = result.origin === 'dependency' ? 'Static related context, not a verified query match' : 'Preview the captured saved Python excerpt';
+    item.tooltip = result.origin === 'dependency' ? 'Static related context, not a verified query match' : 'Preview the captured saved source excerpt';
     item.contextValue = 'semanticSearch.result';
     item.command = { command: 'semanticSearch.preview', title: 'Preview Captured Source', arguments: [row] };
     return item;
@@ -57,7 +58,7 @@ export function activate(context: vscode.ExtensionContext): ExtensionApi {
     const loading = ['checking', 'searching', 'refreshing'].includes(state.phase);
     status.text = `${loading ? '$(loading~spin)' : '$(search)'} Semantic Search: ${state.status ? `${state.status.windows} windows` : state.phase}`;
     const watcher = state.status?.watcher;
-    status.tooltip = `${state.message}\nSaved tracked Python only; unsaved editors and untracked files are excluded.\nWatcher: ${watcher ? watcher.running ? 'running' : 'stopped' : 'unavailable'}${watcher?.pending ? ' (pending)' : ''}${watcher?.last_error ? `\nWatcher error: ${watcher.last_error}` : ''}`;
+    status.tooltip = `${state.message}\nSaved tracked source within the service scope; unsaved editors and untracked files are excluded.\nWatcher: ${watcher ? watcher.running ? 'running' : 'stopped' : 'unavailable'}${watcher?.pending ? ' (pending)' : ''}${watcher?.last_error ? `\nWatcher error: ${watcher.last_error}` : ''}`;
     status.command = 'semanticSearch.status';
     status.show();
     states.fire(structuredClone(state));
@@ -132,7 +133,7 @@ export function activate(context: vscode.ExtensionContext): ExtensionApi {
       const document = await vscode.workspace.openTextDocument(vscode.Uri.file(filename));
       const editor = await vscode.window.showTextDocument(document, { preview: true });
       await controller.navigation(entry, dirty);
-      const source = physicalLines(document.getText()).slice(entry.result.start_line - 1, entry.result.end_line).join('');
+      const source = physicalLines(sourceTextFromEditor(entry.saved!, document.getText())).slice(entry.result.start_line - 1, entry.result.end_line).join('');
       if (document.isDirty || source !== entry.result.source || hash(source) !== entry.result.source_hash) {
         throw new StaleEvidenceError('The editor text changed; save and run a new search');
       }
@@ -166,7 +167,7 @@ export function activate(context: vscode.ExtensionContext): ExtensionApi {
       }
       if (!controller.repository) { return; }
       const request = parseFindRequest(argument, options());
-      const query = request?.query ?? await vscode.window.showInputBox({ prompt: 'Describe the implementation behavior in saved Python source', ignoreFocusOut: true });
+      const query = request?.query ?? await vscode.window.showInputBox({ prompt: 'Describe the implementation behavior in saved source', ignoreFocusOut: true });
       if (query !== undefined) { await controller.search(query, request?.options ?? options()); }
       return structuredClone(controller.state);
     })),

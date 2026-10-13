@@ -6,7 +6,7 @@ import * as http from 'node:http';
 import { test } from 'node:test';
 import { hash } from '../src/schema';
 
-const { createFixture, source } = require('../../scripts/host-fixture.cjs');
+const { createFixture, source, mixedSources } = require('../../scripts/host-fixture.cjs');
 const { argumentsFrom, redact } = require('../../scripts/smoke-host.cjs');
 const { startRelay, forward } = require('../../scripts/host-relay.cjs');
 type Relay = { url: string; records: Record<string, any>[]; close(): Promise<void> };
@@ -40,6 +40,16 @@ test('fixture preparation creates saved tracked generic source without starting 
   const repo = await fixture(t);
   assert.equal(await fs.readFile(path.join(repo, 'src/inventory.py'), 'utf8'), source);
   await assert.rejects(createFixture(repo));
+});
+test('mixed host fixture preserves Python plus BOM/CRLF JavaScript and typed implementation source', async t => {
+  const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'editor-host-mixed-cpu-'));
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  const repo = path.join(directory, 'repo');
+  const manifest = await createFixture(repo, { mixed: true });
+  assert.equal(manifest.mode, 'mixed'); assert.equal(manifest.functions, 5);
+  assert.equal(manifest.model_loaded, false); assert.equal(manifest.service_started, false);
+  for (const [filename, text] of Object.entries(mixedSources)) { assert.equal(await fs.readFile(path.join(repo, filename), 'utf8'), text); }
+  assert.deepEqual(manifest.cases.map((row: { language: string }) => row.language), ['python', 'javascript', 'typescript']);
 });
 test('independent relay verifies source bounds/hashes and linked cancellation without a model', async t => {
   const repo = await fixture(t), requests: string[] = [];
@@ -91,4 +101,21 @@ test('relay source proof fails when source changes during the actual upstream re
   const receipt = relay.records[0]; assert.ok(receipt);
   assert.notEqual(receipt.before_source_sha256, receipt.after_source_sha256);
   assert.equal(receipt.returned_source_checks[0].exact_saved_source, false);
+});
+test('mixed-language relay independently preserves exact BOM and typed implementation source hashes', async t => {
+  const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'editor-host-mixed-proof-'));
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  const repo = path.join(directory, 'repo'); await createFixture(repo, { mixed: true });
+  const rows = Object.entries(mixedSources).filter(([filename]) => !filename.endsWith('.py')).map(([filename, source]) => {
+    const text = source as string;
+    return { path: filename, symbol: filename.endsWith('.js') ? 'decorate_code' : 'calculate_delta', source: text,
+      start_line: 1, end_line: 3, window_end_line: 3, source_hash: hash(text), content_hash: hash(text) };
+  });
+  const url = await backend(t, (_, response) => { response.writeHead(200, { 'Content-Type': 'application/json' }); response.end(JSON.stringify({ results: rows })); });
+  const relay: Relay = await startRelay(url, repo); t.after(() => relay.close());
+  await forward(relay.url, '/search', 'POST', Buffer.from(JSON.stringify({ query: 'generic code', request_id: 'mixed-proof' })));
+  const receipt = relay.records[0]; assert.ok(receipt);
+  assert.equal(receipt.returned_source_checks.length, 2);
+  assert.ok(receipt.returned_source_checks.every((row: { exact_saved_source: boolean }) => row.exact_saved_source));
+  assert.equal(receipt.before_source_manifest_sha256, receipt.after_source_manifest_sha256);
 });
