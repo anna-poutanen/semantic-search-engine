@@ -3,11 +3,12 @@ import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import * as os from 'node:os';
 import * as http from 'node:http';
+import * as net from 'node:net';
 import { test } from 'node:test';
 import { hash } from '../src/schema';
 
 const { createFixture, source, mixedSources } = require('../../scripts/host-fixture.cjs');
-const { argumentsFrom, redact } = require('../../scripts/smoke-host.cjs');
+const { argumentsFrom, redact, createRunDirectory } = require('../../scripts/smoke-host.cjs');
 const { startRelay, forward } = require('../../scripts/host-relay.cjs');
 type Relay = { url: string; records: Record<string, any>[]; close(): Promise<void> };
 async function fixture(t: { after(fn: () => Promise<void>): void }): Promise<string> {
@@ -27,6 +28,16 @@ function result() {
   return { results: [{ path: 'src/inventory.py', symbol: 'normalize_item', source: text,
     start_line: 1, end_line: 2, window_end_line: 2, source_hash: hash(text), content_hash: hash(text) }] };
 }
+test('isolated host user data supports a real Unix IPC socket', { skip: process.platform === 'win32' }, async t => {
+  const directory = await createRunDirectory();
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  const userData = path.join(directory, 'user-data'); await fs.mkdir(userData);
+  const socket = path.join(userData, '1.14-main.sock');
+  assert.ok(Buffer.byteLength(socket) <= 100);
+  const server = net.createServer();
+  await new Promise<void>((resolve, reject) => { server.once('error', reject); server.listen(socket, resolve); });
+  await new Promise<void>(resolve => server.close(() => resolve()));
+});
 test('host launch requires explicit run and complete absolute fixture/output arguments', () => {
   assert.throws(() => argumentsFrom(['--repo', '/fixture']));
   assert.throws(() => argumentsFrom(['--run', '--repo', 'relative', '--url', 'http://127.0.0.1:1', '--output', '/out']));

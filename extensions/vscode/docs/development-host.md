@@ -1,11 +1,14 @@
 # Extension Development Host acceptance recipe
 
-**Pending execution.** CPU mock-service tests validate transport/controller/file
-logic; they do not validate the actual VS Code command/view wiring. Do not claim
-this smoke or real-model behavior passed until its evidence has been recorded.
-Run after the frozen multifile study finishes and its artifacts are secured.
+**Saved mixed-language smoke passed on October 13, 2026.** The actual VS Code
+host used the resident Qwen backend and verified command/view wiring, exact
+Python/JS/TS previews and navigation, refresh and cancellation. The
+[receipts and limitations](../../../results/editor-workflows-2026-10-13/findings.md)
+retain both the initial socket-path failure and successful second attempt.
+CPU mocks remain separate from this actual-host proof; broader acceptance cases
+below are still pending.
 
-## Automated host smoke prepared, not yet executed
+## Reproduce the automated host smoke
 
 The [official extension testing guide](https://code.visualstudio.com/api/working-with-extensions/testing-extension)
 supports a custom `run(): Promise<void>` test runner through
@@ -24,7 +27,9 @@ No installed VS Code app was found. The downloaded test copy stays under ignored
 repository with three generic Python functions. Add `--mixed` to include a
 JavaScript BOM/CRLF implementation and a typed TypeScript implementation (five
 functions across three files). It starts no backend or model.
-Both preparation steps are CPU/setup work; the host smoke below remains pending.
+Both preparation steps are CPU/setup work; the host smoke explicitly executes
+the downloaded application. Its user data uses a short private temporary path
+to fit macOS's IPC socket limit and is removed after receipts are saved.
 
 After the study is secured, start the actual backend explicitly in another
 terminal using the project's existing Python runtime:
@@ -78,7 +83,7 @@ backend model metadata, command checks, HTTP receipts and before/after source
 hashes. User/worktree paths are replaced with explicit placeholders; HTTP hashes
 refer to original bytes, and a separate hash covers redacted JSON. Require both
 the host assertions and nonempty independent source/cancellation checks to pass.
-No real-host or real-model result has been recorded yet.
+The first actual-host result is recorded in the linked artifact above.
 
 ## Programmatic commands
 
@@ -173,7 +178,7 @@ retrieval-quality measurement, remote workspaces and Marketplace publication are
 
 This editor draft supports the nine explicit Python/JS/TS suffixes. JS/TS source
 uses strict UTF-8 with BOM retained; Python keeps its cookie/BOM decoding rules.
-The actual mixed-language host run remains pending until the reviewed backend
-language branch integrates and the frozen study is secured. CPU source-neutral
-verification tests have passed; no language ranking or real-host outcome is
-claimed from them.
+The saved mixed-language host run has passed with the integrated backend.
+Language ranking is measured separately in the
+[frozen language evaluation](../../../docs/language-retrieval-protocol.md).
+The fixture's returned positions establish integration only.

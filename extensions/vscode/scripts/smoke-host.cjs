@@ -9,6 +9,17 @@ const { prepareHost } = require('./prepare-host.cjs');
 const { startRelay, snapshot, forward } = require('./host-relay.cjs');
 const { query, source, mixedSources, cases } = require('./host-fixture.cjs');
 const sha = value => crypto.createHash('sha256').update(value).digest('hex');
+async function createRunDirectory() {
+  // macOS AF_UNIX paths have a 103-byte limit. Worktree paths and the default
+  // per-user TMPDIR can both exceed it before VS Code adds its IPC filename.
+  const parent = await fs.realpath(process.platform === 'darwin' ? '/tmp' : os.tmpdir());
+  const directory = await fs.mkdtemp(path.join(parent, 'sshost-'));
+  if (process.platform !== 'win32' && Buffer.byteLength(path.join(directory, 'user-data', '1.14-main.sock')) > 100) {
+    await fs.rm(directory, { recursive: true, force: true });
+    throw new Error('Temporary host directory exceeds the local IPC path limit');
+  }
+  return directory;
+}
 function argumentsFrom(argv) {
   if (!argv.includes('--run')) { throw new Error('Explicit --run is required to launch Electron; prepare/download is a separate command'); }
   const result = {};
@@ -39,7 +50,7 @@ async function smoke(options) {
   const backend = JSON.parse(preflight.body.toString('utf8'));
   if (preflight.status !== 200 || await fs.realpath(backend.repo) !== repo || backend.source_root !== 'src' || backend.windows !== (mixed ? 5 : 3) || !backend.ready || backend.closed) { throw new Error('Start a ready local backend indexing this exact fixture before launching the host'); }
   const prepared = await prepareHost();
-  const directory = await fs.mkdtemp(path.join(config.cache, 'run-'));
+  const directory = await createRunDirectory();
   const userData = path.join(directory, 'user-data'), extensions = path.join(directory, 'extensions');
   await fs.mkdir(path.join(userData, 'User'), { recursive: true }); await fs.mkdir(extensions);
   await fs.writeFile(path.join(userData, 'User', 'settings.json'), JSON.stringify({
@@ -109,8 +120,9 @@ async function smoke(options) {
     for (const receipt of publicRecord.receipts) { if (receipt.response) { receipt.redacted_response_sha256 = sha(JSON.stringify(receipt.response)); } }
     await fs.mkdir(path.dirname(output), { recursive: true });
     await fs.writeFile(output, JSON.stringify(publicRecord, null, 2) + '\n');
+    await fs.rm(directory, { recursive: true, force: true });
     console.log(JSON.stringify({ passed: record.passed, output, checks: record.independent_receipt_checks ?? null }));
   }
 }
-module.exports = { argumentsFrom, redact, smoke };
+module.exports = { argumentsFrom, redact, smoke, createRunDirectory };
 if (require.main === module) { Promise.resolve().then(() => smoke(argumentsFrom(process.argv.slice(2)))).catch(error => { console.error(error.message); process.exitCode = 1; }); }
