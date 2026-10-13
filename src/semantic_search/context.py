@@ -42,6 +42,10 @@ def compact_result(response):
     rows = [{**{key: row[key] for key in fields},
              "origin": row.get("origin", "retrieval"), "related_to": row.get("related_to")}
             for row in response["results"]]
+    for row, original in zip(rows, response["results"]):
+        for key in ("source_origin", "buffer_version", "buffer_hash"):
+            if key in original:
+                row[key] = original[key]
     result = {"query": response["query"], "match_status": response.get("match_status", "candidates"),
               "results": rows, "budget_exhausted": response.get("budget_exhausted", False),
               "token_usage": response.get("token_usage", {"encoding": ENCODING, "tokens": None,
