@@ -199,16 +199,41 @@ test('packaged product executable must match every prepared shipped compiled fil
   const manifest = JSON.parse(fs.readFileSync(path.join(__dirname, '../extensions/vscode/package.json')));
   const bytes = Buffer.from('frozen shipped executable'), license = fs.readFileSync(path.join(__dirname, '../LICENSE'));
   const licenseWitness = {sha256: h.sha(license), bytes: license.length};
-  const archive = {manifest, members: {'extension/dist/src/extension.js': bytes, 'extension/LICENSE': license}};
+  const metadata = Buffer.from('<PackageManifest xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011"><Metadata><License>extension/LICENSE.txt</License></Metadata><Assets><Asset Type="Microsoft.VisualStudio.Services.Content.License" Path="extension/LICENSE.txt" Addressable="true"/></Assets></PackageManifest>');
+  const archive = {manifest, members: {'extension/dist/src/extension.js': bytes, 'extension/LICENSE.txt': license, 'extension.vsixmanifest': metadata}};
   const plan = {source: {target: {'dist/src/extension.js': {sha256: h.sha(bytes), bytes: bytes.length}, LICENSE: licenseWitness}, project_license: licenseWitness}};
   assert.equal(h.checkArchiveBindings(archive, plan, 'product').manifest_matches_source, true);
   archive.members['extension/dist/src/extension.js'] = Buffer.from('substitution');
   assert.throws(() => h.checkArchiveBindings(archive, plan, 'product'), /executable drift/);
   archive.members['extension/dist/src/extension.js'] = bytes;
-  archive.members['extension/LICENSE'] = Buffer.from('missing MIT grant');
+  archive.members['extension/LICENSE.txt'] = Buffer.from('missing MIT grant');
   assert.throws(() => h.checkArchiveBindings(archive, plan, 'product'), /MIT license drift/);
-  delete archive.members['extension/LICENSE'];
-  assert.throws(() => h.checkArchiveBindings(archive, plan, 'product'), /MIT license drift/);
+  delete archive.members['extension/LICENSE.txt'];
+  assert.throws(() => h.checkArchiveBindings(archive, plan, 'product'), /one canonical/);
+});
+test('actual pinned vsce license processor and generated XML preserve exact canonical MIT binding', async () => {
+  const pack = require('../extensions/vscode/node_modules/@vscode/vsce/out/package.js');
+  const manifest = JSON.parse(fs.readFileSync(path.join(__dirname, '../extensions/vscode/package.json')));
+  const license = fs.readFileSync(path.join(__dirname, '../LICENSE')), bytes = Buffer.from('frozen product');
+  const processor = new pack.LicenseProcessor(manifest, {skipLicense: false});
+  const file = await processor.onFile({path: 'extension/LICENSE', contents: license}); await processor.onEnd();
+  assert.equal(file.path, 'extension/LICENSE.txt'); assert.ok(file.contents.equals(license));
+  const xml = await pack.toVsixManifest({...new pack.ManifestProcessor(manifest).vsix, ...processor.vsix, assets: processor.assets, tags: ''});
+  const archive = {manifest, members: {'extension/dist/src/extension.js': bytes, [file.path]: file.contents, 'extension.vsixmanifest': Buffer.from(xml)}};
+  const licenseWitness = {sha256: h.sha(license), bytes: license.length};
+  const plan = {source: {target: {'dist/src/extension.js': {sha256: h.sha(bytes), bytes: bytes.length}, LICENSE: licenseWitness}, project_license: licenseWitness}};
+  assert.deepEqual(h.checkArchiveBindings(archive, plan, 'product').license_binding, {
+    source_path: 'LICENSE', archive_path: 'extension/LICENSE.txt', ...licenseWitness, metadata_license_and_asset_match: true});
+  for (const altered of [xml.replace('<License>extension/LICENSE.txt</License>', '<License>extension/LICENSE</License>'),
+    xml.replace('Path="extension/LICENSE.txt"', 'Path="extension/OTHER.txt"'),
+    xml.replace('Type="Microsoft.VisualStudio.Services.Content.License"', 'Type="Other"'),
+    xml.replace('Addressable="true" />\n\t\t</Assets>', 'Addressable="false" />\n\t\t</Assets>'), '<broken>']) {
+    archive.members['extension.vsixmanifest'] = Buffer.from(altered);
+    assert.throws(() => h.checkArchiveBindings(archive, plan, 'product'), /license|XML/);
+  }
+  archive.members['extension.vsixmanifest'] = Buffer.from(xml);
+  archive.members['extension/LICENSE'] = license;
+  assert.throws(() => h.checkArchiveBindings(archive, plan, 'product'), /one canonical/);
 });
 test('authored loopback fixture retains actual requests/defaults/denial and shuts down', async () => {
   const http = require('node:http'), service = await h.fixture('/owned/repository');

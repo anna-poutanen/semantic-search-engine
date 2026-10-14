@@ -321,13 +321,36 @@ function checkArchiveBindings(archive, plan, name) {
   const executable = name === 'product' ? Object.keys(expected).filter(key => key.startsWith('dist/src/')) : ['extension.cjs'];
   assert.ok(executable.length > 0);
   for (const key of executable) { assert.ok(same(payload[key], expected[key]), 'Packaged frozen executable drift: ' + key); }
+  let licenseBinding;
   if (name === 'product') {
     assert.equal(archive.manifest.license, 'MIT');
-    assert.ok(same(payload.LICENSE, expected.LICENSE), 'Packaged MIT license drift');
-    assert.ok(same(payload.LICENSE, plan.source.project_license), 'Packaged license differs from project MIT license');
+    // Pinned vsce 4 LicenseProcessor renames extension-local LICENSE to LICENSE.txt.
+    const licenseNames = Object.keys(payload).filter(key => /^licen[cs]e(?:\.(?:md|txt))?$/i.test(key));
+    assert.deepEqual(licenseNames, ['LICENSE.txt'], 'Packaged MIT license must use the one canonical vsce path');
+    assert.ok(same(payload['LICENSE.txt'], expected.LICENSE), 'Packaged MIT license drift');
+    assert.ok(same(payload['LICENSE.txt'], plan.source.project_license), 'Packaged license differs from project MIT license');
+    const xml2js = require(require.resolve('xml2js', {paths: [path.join(EXT, 'node_modules/@vscode/vsce')]}));
+    assert.ok(Buffer.isBuffer(archive.members['extension.vsixmanifest']), 'Packaged license metadata is missing');
+    let parsed, parseError, complete = false;
+    new xml2js.Parser({async: false, explicitArray: true}).parseString(archive.members['extension.vsixmanifest'].toString('utf8'), (error, value) => {
+      parseError = error; parsed = value; complete = true;
+    });
+    assert.ok(complete && !parseError, 'Packaged license XML is malformed');
+    const metadata = parsed?.PackageManifest;
+    assert.equal(metadata?.$?.xmlns, 'http://schemas.microsoft.com/developer/vsx-schema/2011', 'Packaged VSIX namespace differs');
+    assert.equal(metadata.Metadata?.length, 1, 'Packaged VSIX metadata must be unique');
+    assert.deepEqual(metadata.Metadata[0].License, ['extension/LICENSE.txt'], 'Packaged license metadata path differs');
+    assert.equal(metadata.Assets?.length, 1, 'Packaged VSIX asset group must be unique');
+    const assets = (metadata.Assets[0].Asset ?? []).filter(row => row.$?.Type === 'Microsoft.VisualStudio.Services.Content.License');
+    assert.equal(assets.length, 1, 'Packaged license asset must be unique');
+    assert.equal(assets[0].$?.Path, 'extension/LICENSE.txt', 'Packaged license asset path differs');
+    assert.equal(assets[0].$?.Addressable, 'true', 'Packaged license asset must be addressable');
+    licenseBinding = {source_path: 'LICENSE', archive_path: 'extension/LICENSE.txt', bytes: payload['LICENSE.txt'].bytes,
+      sha256: payload['LICENSE.txt'].sha256, metadata_license_and_asset_match: true};
   }
   assert.ok(same(archive.manifest, json(path.join(name === 'product' ? EXT : SIDECAR, 'package.json'))), 'Packaged manifest drift');
-  return {executable_files: Object.fromEntries(executable.map(key => [key, payload[key]])), manifest_matches_source: true};
+  return {executable_files: Object.fromEntries(executable.map(key => [key, payload[key]])), manifest_matches_source: true,
+    ...(licenseBinding ? {license_binding: licenseBinding} : {})};
 }
 function verifyInstalled(directory, archive, id, version) {
   assert.equal(fs.realpathSync(directory), directory); const manifest = json(path.join(directory, 'package.json'));
