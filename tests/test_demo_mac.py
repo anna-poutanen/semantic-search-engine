@@ -394,3 +394,11 @@ def test_demo_does_not_inherit_user_git_templates_or_repository_environment(tmp_
     assert not (repo / ".git/sentinel").exists()
     assert subprocess.check_output(["git", "-C", str(unrelated), "ls-files"]) == b""
     assert set(subprocess.check_output(["git", "-C", str(repo), "ls-files"]).decode().splitlines()) == {".gitignore", *demo.SOURCES}
+
+
+def test_quiet_demo_keeps_fresh_toy_and_skips_manual_setup_instructions(tmp_path, capsys):
+    target = tmp_path / "quiet toy"
+    demo.main(["--destination", str(target), "--quiet"])
+    output = capsys.readouterr().out
+    assert output.strip() == f"Toy repository: {target.resolve()}"
+    assert (target / "src/labels.py").is_file()

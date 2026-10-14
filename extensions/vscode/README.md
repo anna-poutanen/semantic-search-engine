@@ -144,8 +144,9 @@ Qwen responses must identify Qwen; the extension rejects an omitted or different
 provider rather than presenting results as Qwen reranked. Legacy fast and H2O
 requests retain their existing wire shape. The Qwen provider change has CPU
 transport/schema coverage; earlier Development Host checks used embeddings
-without Qwen reranking. Actual editor/native reranker validation is a separate
-remaining gate. See the [Qwen setup and settings guide](https://github.com/anna-poutanen/semantic-search-engine/blob/main/docs/vscode-qwen-reranker.md).
+without Qwen reranking. The later [native Qwen editor check](https://github.com/anna-poutanen/semantic-search-engine/blob/main/results/vscode-qwen-native-2026-10-14/findings.md)
+validates saved/dirty/off provider behavior on a small fixture in an isolated
+Development Host; large-codebase relevance remains separate. See the [Qwen setup and settings guide](https://github.com/anna-poutanen/semantic-search-engine/blob/main/docs/vscode-qwen-reranker.md).
 
 Build tooling uses Node ≥22 (verified locally with Node 24.12.0 / npm 11.6.2):
 

@@ -292,6 +292,7 @@ def main(argv=None):
     parser.add_argument("--python", type=Path, default=ROOT / ".venv/bin/python", help="Installed project runtime Python; never installed by this script")
     parser.add_argument("--port", type=int, default=8750, help="Port in printed manual instructions; automatic run uses an available port")
     parser.add_argument("--run", action="store_true", help="Explicitly run real Qwen, HTTP and official MCP stdio, then stop the owned service")
+    parser.add_argument("--quiet", action="store_true", help="Print only the toy path and check outcome instead of manual setup instructions")
     parser.add_argument("--timeout", type=float, default=120, help="Positive readiness/request timeout in seconds")
     args = parser.parse_args(argv)
     if not 1 <= args.port <= 65535 or not math.isfinite(args.timeout) or args.timeout <= 0:
@@ -312,7 +313,7 @@ def main(argv=None):
                          f"Use {command(python, ROOT / 'scripts/demo_mac.py', '--run', '--python', python)} after the manual runtime-only setup")
     try:
         repo = prepare(args.destination or fresh_destination())
-        print(instructions(repo, python, args.port), flush=True)
+        print(f"Toy repository: {repo}" if args.quiet else instructions(repo, python, args.port), flush=True)
         if args.run:
             run_demo(repo, python, args.timeout)
     except (OSError, ValueError, RuntimeError, subprocess.SubprocessError) as error:
