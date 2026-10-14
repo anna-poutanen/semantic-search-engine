@@ -69,7 +69,9 @@ Own-repository terminal searches use dense retrieval with reranking off, up to
 including implementation dependencies. The tiny toy retains its smaller limits.
 These are delivery caps: a large implementation can still be truncated or omitted,
 and the local token budget does not measure a coding agent's paid token usage.
-You can adjust them for an interactive session:
+The prompt marks dependency context and truncated excerpts, and explains when a
+response reached its context limit. You can adjust the caps for an interactive
+session:
 
 ```bash
 bash "Get Started.command" --repo "/absolute/path/to/your/repo" --source-root src \
@@ -107,23 +109,29 @@ folder printed in Terminal:
 - **mcp.json** uses the portable `mcpServers` format.
 - **vscode-mcp.json** uses VS Code's `servers` format with `type: "stdio"`.
 
-They already contain the dedicated Python executable and that session's service
-address. Inspect the files, then copy or merge the server entry into your client's
-MCP configuration. For VS Code, merge the `servers` entry into the workspace's
+They already contain the dedicated Python executable, that session's service
+address and `TIKTOKEN_CACHE_DIR` pointing at the warmed local tokenizer cache.
+Inspect the files, then copy or merge the full server entry, including `env`, into
+your client's MCP configuration. For VS Code, merge the `servers` entry into the workspace's
 `.vscode/mcp.json` or your user MCP configuration; preserve any existing entries.
 See the [VS Code MCP configuration reference](https://code.visualstudio.com/docs/agents/reference/mcp-configuration)
 for the current locations and format. Other clients may use different schemas.
 
-The generated server runs this command and argument list:
+The generated server uses this command, argument list and environment:
 
 ```json
 {
   "command": "/absolute/path/to/extracted-app/.cache/quickstart/venv/bin/python",
-  "args": ["-m", "semantic_search.mcp_server", "--server", "http://127.0.0.1:PORT"]
+  "args": ["-m", "semantic_search.mcp_server", "--server", "http://127.0.0.1:PORT"],
+  "env": {
+    "TIKTOKEN_CACHE_DIR": "/absolute/path/to/extracted-app/.cache/quickstart/tiktoken"
+  }
 }
 ```
 
 The tool is `search_code`. Keep the launcher running while the MCP client searches.
+The tokenizer environment lets a client launched outside Terminal reuse the local
+cache instead of attempting its own tokenizer download.
 With the default available-port choice, use the new session's snippet after
 restarting; a fixed `--port` keeps its service address stable. Enter **:mcp** in the
 search prompt to print the current portable configuration. Generated snippets
