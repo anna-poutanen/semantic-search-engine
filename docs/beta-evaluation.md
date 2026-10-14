@@ -28,6 +28,12 @@ Startup can wait 30 minutes, with a separate 120-second HTTP request timeout.
 to these settings when comparing sessions; larger delivery caps alone are not
 evidence of better retrieval or paid-token savings.
 
+Indexing groups are capped at 8,192 padded tokens with up to four documents;
+the per-document input limit remains 8,192 tokens. Updated batching metadata
+changes the embedding fingerprint, so older vector caches rebuild once. Model
+downloads remain reusable. This policy is an implementation limit, not a measured
+latency or memory-performance claim.
+
 For tracked generated/template files that are not standalone supported source,
 repeat `--exclude-source 'src/generated/*' --exclude-source 'src/templates/*'` with
 patterns matching your checkout. Patterns are quoted globs relative to the
