@@ -14,24 +14,39 @@ MCP adapter use the same backend. See
 [the project plan](docs/project-plan.md), [the service API](docs/backend-api.md),
 and [MCP setup](docs/mcp.md).
 
-The [GitHub preview release](https://github.com/anna-poutanen/semantic-search-engine/releases/tag/v0.1.0-preview.2)
-includes the exact package tested in ordinary installed profiles and Restricted
-Mode. See [the preview guide](docs/release-preview.md)
-for installation, demonstrations and measured limits.
+## Download and try it
 
-For a small reproducible walkthrough, see [the demo guide](docs/demo.md).
-After the runtime and Qwen setup below, run:
+Download **semantic-search-mac-0.1.1.zip** from the
+[MIT-licensed Mac preview](https://github.com/anna-poutanen/semantic-search-engine/releases/tag/v0.1.1-preview.1),
+unzip it, open Terminal in that folder, and run:
 
 ```bash
-.venv/bin/python scripts/demo_mac.py --run
+bash "Get Started.command"
 ```
 
-This creates a fresh ignored Python/JS/TS toy, checks real HTTP and MCP delivery,
-and stops its own service. The [completed demo](results/demo-2026-10-13/findings.md)
-retains exact source summaries and its runtime limits. Running the script without
-`--run` prepares instructions and source without loading a model.
+The launcher installs a local Python/runtime and pinned Qwen embedding checkpoint,
+then opens an interactive three-function demo. Enter `1`, `2` or `3`, or describe
+an implementation; `q` closes the service. No preinstalled Python or API key is
+required. First setup needs internet, working Git, and at least 6 GB free space.
+See [the getting-started guide](docs/getting-started.md) for your own repository,
+the included VS Code extension, MCP configuration and troubleshooting.
 
-## Run on an Apple Silicon Mac
+```bash
+# Saved, Git-tracked Python/JavaScript/TypeScript in your own codebase.
+bash "Get Started.command" --repo "/absolute/path/to/repo" --source-root src
+
+# Automatic real HTTP + MCP toy check, with owned service cleanup.
+bash "Get Started.command" --check
+```
+
+Original project code is [MIT licensed](LICENSE). Separately installed runtimes,
+model weights and upstream materials keep their own licenses; see
+[third-party notices](THIRD_PARTY_NOTICES.md). This remains an early Apple Silicon
+preview with [measured limits](docs/release-preview.md) and external beta testing
+still to do. The small ZIP includes app source, setup helpers and the tested VSIX;
+the complete research history remains in this repository.
+
+## Developer setup and experiments on an Apple Silicon Mac
 
 The tested setup is an M4 MacBook Pro, 24 GB RAM, macOS 15.1.1. Python dependencies,
 approximately 1.1 GiB of Qwen embedding weights, another 1.1 GiB for the optional

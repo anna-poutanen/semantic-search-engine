@@ -2,7 +2,7 @@
   "name": "semantic-search-local",
   "displayName": "Semantic Search (Local)",
   "description": "Find saved Python, JavaScript and TypeScript implementations through your resident local semantic search service.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "anna-poutanen",
   "license": "MIT",
   "preview": true,
@@ -128,7 +128,10 @@
         },
         "semanticSearch.rerankProvider": {
           "type": "string",
-          "enum": ["h2o", "qwen"],
+          "enum": [
+            "h2o",
+            "qwen"
+          ],
           "enumDescriptions": [
             "H2O: existing optional reranker; requires its separately running local service.",
             "Qwen: experimental optional reranker; requires a search service started with Qwen enabled. Quality gains vary by codebase, and searches take longer."
@@ -183,7 +186,7 @@
     "host:fixture": "node scripts/host-fixture.cjs",
     "host:smoke": "npm run compile && node scripts/smoke-host.cjs",
     "vscode:prepublish": "npm run compile",
-    "package": "vsce package --no-dependencies --baseContentUrl https://github.com/anna-poutanen/semantic-search-engine/blob/main/extensions/vscode --out semantic-search-local-0.1.0.vsix"
+    "package": "vsce package --no-dependencies --baseContentUrl https://github.com/anna-poutanen/semantic-search-engine/blob/main/extensions/vscode --out semantic-search-local-0.1.1.vsix"
   },
   "devDependencies": {
     "@types/node": "22.20.5",

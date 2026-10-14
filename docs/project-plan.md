@@ -77,10 +77,11 @@ This follows the agreed plan in **Choose a project for YC roles** on October 12,
    runs used available user-level caches, rather than a clean machine. Python,
    JavaScript and TypeScript are integrated. The
    [real HTTP/MCP demo](../results/demo-2026-10-13/findings.md) passes, and the
-   [GitHub preview](https://github.com/anna-poutanen/semantic-search-engine/releases/tag/v0.1.0-preview.2)
+   [GitHub preview](https://github.com/anna-poutanen/semantic-search-engine/releases/tag/v0.1.1-preview.1)
    ships the updated exact installed and tested VSIX, including optional Qwen
-   controls. External beta users and a licensing
-   decision remain.
+   controls. The project now uses the MIT license and includes a
+   [guided Mac download](getting-started.md), local Python bootstrap and a small
+   try-it ZIP. External beta users remain.
 
 Python, TypeScript and JavaScript are implemented.
 C# and non-Mac deployment follow validation of the core. Serialize GPU work and

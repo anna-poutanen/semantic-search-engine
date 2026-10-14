@@ -1,3 +1,7 @@
+The easiest current setup is the [guided Mac download](getting-started.md).
+The developer installers and earlier fresh-environment evidence below remain
+available for reproducing experiments.
+
 # Fresh Mac installation validation
 
 The isolated dependency-only installation passed on the tested Apple Silicon
@@ -57,7 +61,7 @@ download caches add disk usage beyond the weight sizes above. No install time
 or total disk requirement has yet been measured for a clean machine.
 
 The requirements files pin versions rather than wheel hashes. The editable
-project build uses `setuptools>=75`, not an exact build-backend pin, and the
+project build uses `setuptools>=77.0.3`, not an exact build-backend pin, and the
 Python patch version is selected within 3.12. An already cached bootstrap uv is
 reused. This is not a fully hash-locked supply-chain or bit-identical build. The
 post-install inventory gate checks every declared runtime/parser version and
