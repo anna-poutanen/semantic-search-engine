@@ -6,8 +6,8 @@ Macs and Git-tracked Python, JavaScript and TypeScript source.
 
 ## Download and start
 
-1. Download **semantic-search-mac-0.1.1.zip** from the
-   [preview release](https://github.com/anna-poutanen/semantic-search-engine/releases/tag/v0.1.1-preview.1).
+1. Download **semantic-search-mac-0.1.2.zip** from the
+   [preview release](https://github.com/anna-poutanen/semantic-search-engine/releases/tag/v0.1.2-preview.1).
    Unzip it into a writable folder. Keep the whole folder together.
 2. Open Terminal, type `cd `, drag the extracted folder into Terminal, and press
    Return. Then run:
@@ -49,8 +49,36 @@ Choose the checkout's root and a repository-relative source directory. Use
 `--source-root .` when the source is at the checkout root. The app indexes saved,
 Git-tracked Python, JavaScript and TypeScript implementations; save and track
 files you want searched. Large repositories take longer to index and use more
-space. The service refreshes saved changes when you search. Sample queries 1–3
-still refer to the toy; type descriptions relevant to your own project.
+space. The service refreshes saved changes when you search. The own-repository
+prompt asks for descriptions relevant to your project; it does not show or
+substitute toy queries.
+
+Startup prints the current indexing phase and actual file/window or batch counts,
+then reports the repository, source scope and indexed-window count when ready.
+It waits up to **30 minutes** for indexing and embedding initialization, separately
+from the **120-second** timeout for each HTTP search. Increase those limits for a
+larger repository if needed:
+
+```bash
+bash "Get Started.command" --repo "/absolute/path/to/your/repo" --source-root . \
+  --startup-timeout 3600 --request-timeout 180
+```
+
+Own-repository terminal searches use dense retrieval with reranking off, up to
+**8 results**, **12,000 source characters** and a **4,096-token** response budget,
+including implementation dependencies. The tiny toy retains its smaller limits.
+These are delivery caps: a large implementation can still be truncated or omitted,
+and the local token budget does not measure a coding agent's paid token usage.
+You can adjust them for an interactive session:
+
+```bash
+bash "Get Started.command" --repo "/absolute/path/to/your/repo" --source-root src \
+  --max-results 12 --source-budget 20000 --token-budget 6000 --no-dependencies
+```
+
+If the index is empty, check the displayed source scope and save and Git-track
+supported files within it. An empty index means there are no eligible indexed
+implementations; it does not prove that a behavior is absent from the codebase.
 
 The terminal prints the service's chosen `http://127.0.0.1:PORT` address. Keep that
 terminal open while using another client. Each launcher uses an available port.
@@ -64,8 +92,20 @@ then run **Semantic Search: Connect / Check Service** and paste the address
 printed by the launcher. Run **Semantic Search: Find Implementation** to search.
 The extension requires the running local service.
 
-To use an MCP client, configure a stdio server with this executable and argument
-list, replacing both placeholders with absolute paths:
+Each ready launcher session writes two configuration snippets into the session
+folder printed in Terminal:
+
+- **mcp.json** uses the portable `mcpServers` format.
+- **vscode-mcp.json** uses VS Code's `servers` format with `type: "stdio"`.
+
+They already contain the dedicated Python executable and that session's service
+address. Inspect the files, then copy or merge the server entry into your client's
+MCP configuration. For VS Code, merge the `servers` entry into the workspace's
+`.vscode/mcp.json` or your user MCP configuration; preserve any existing entries.
+See the [VS Code MCP configuration reference](https://code.visualstudio.com/docs/agents/reference/mcp-configuration)
+for the current locations and format. Other clients may use different schemas.
+
+The generated server runs this command and argument list:
 
 ```json
 {
@@ -74,9 +114,58 @@ list, replacing both placeholders with absolute paths:
 }
 ```
 
-The tool is `search_code`. Client configuration varies; the launcher does not
-change editor settings or MCP configuration. Local retrieval runs without hosted
-inference. Your MCP client may send returned code to its chosen coding model.
+The tool is `search_code`. Keep the launcher running while the MCP client searches.
+The service picks a fresh available port each time, so use the new session's
+snippet after restarting. Generated snippets contain local paths and should stay
+local. The launcher changes no editor settings or client MCP configuration.
+Local retrieval runs without hosted inference. Your MCP client may send returned
+code to its chosen coding model. Terminal delivery limits do not change the MCP
+tool's own arguments or client defaults.
+
+## Diagnose setup and record feedback
+
+Run the offline diagnostic before or after setup, optionally checking the scope
+of your own checkout:
+
+```bash
+bash "Get Started.command" --doctor --repo "/absolute/path/to/your/repo" --source-root src
+```
+
+It reports machine compatibility, free disk space, Git, installed runtime package
+versions, Metal availability, embedding checkpoint integrity, and eligible tracked
+file counts when a repository is supplied. It loads no model, installs nothing,
+starts no service and makes no network request. It uses an existing local Python
+3.12 or newer; if none is available, the launcher prints a basic platform/Git/disk
+preflight and explains that the Python diagnostic is unavailable. It does not
+bootstrap downloads in diagnostic mode. `--skip-weight-check` skips reading the
+full weight file and leaves physical weight integrity unverified. Missing runtime
+or model checks are expected before the first setup. The Python report excludes
+repository paths, filenames, queries, source, environment variables and logs.
+
+The small ZIP also includes the local feedback collector. Record your own counts
+after trying a few searches; the following counts are an example, not measured
+beta results:
+
+```bash
+bash "Get Started.command" --feedback \
+  --output /tmp/semantic-search-beta-first-session.json \
+  --interface cli --workflow saved_search \
+  --attempts 4 --full 2 --partial 1 --errors 1 --note partial_implementation
+```
+
+Use a new output filename in an existing directory each time. Count a full
+implementation only when every required implementation is in the delivered
+source; use partial for incomplete evidence. The collector installs no model or
+runtime packages and does not start a service. The launcher can download its local
+setup tool and managed Python if no suitable Python is available yet. It writes
+an allowlisted JSON file with machine/package versions, selected interface/workflow,
+counts and fixed issue categories. It collects no repository path, query, source
+or private log, and is offline by default. An explicit
+`--server http://127.0.0.1:PORT` opts into one local, bounded `/status` request; the
+address is not saved. Run `--feedback --help` for all fields. Review the JSON before
+manually sharing it through
+[GitHub issues](https://github.com/anna-poutanen/semantic-search-engine/issues).
+Nothing is uploaded automatically.
 
 ## Check, rerun and remove
 
@@ -97,8 +186,8 @@ Rerunning checks the cached runtime and embedding weights and reuses downloads.
 Interrupted setup can be resumed by running the same command. The setup uses
 `.cache/quickstart/` for Python, packages and caches, `.cache/models/` for the
 embedding checkpoint, and `.cache/demos/` for fresh demo repositories. It leaves
-an existing developer `.venv` alone. Interactive indexes and session logs live
-in `.cache/quickstart/`; automatic toy receipts live inside that toy's
+an existing developer `.venv` alone. Interactive indexes, session logs and MCP
+snippets live in `.cache/quickstart/`; automatic toy receipts live inside that toy's
 `.semantic-search/` directory. Nothing is installed globally.
 
 Stop any launcher services before moving or deleting the extracted folder;

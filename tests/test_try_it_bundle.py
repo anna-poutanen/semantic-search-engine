@@ -5,6 +5,8 @@ import importlib.util
 import json
 from pathlib import Path
 import stat
+import subprocess
+import sys
 from unittest.mock import patch
 import zipfile
 
@@ -21,7 +23,7 @@ def write(path, data):
     path.write_bytes(data.encode() if isinstance(data, str) else data)
 
 
-def make_vsix(root, *, license_value="MIT", version="0.1.1", extra=None):
+def make_vsix(root, *, license_value="MIT", version="0.1.2", extra=None):
     manifest = {"name": "semantic-search-local", "publisher": "anna-poutanen", "version": version,
                 "license": license_value, "main": "./dist/src/extension.js"}
     path = root.parent / "tested product.vsix"
@@ -49,12 +51,12 @@ def project(tmp_path):
         write(root / name, f"Fixture for {name}\n")
     write(root / "Get Started.command", "#!/bin/zsh\nprintf 'hello'\n")
     write(root / "LICENSE", (SCRIPT.parents[1] / "LICENSE").read_bytes())
-    write(root / "pyproject.toml", '[project]\nname="semantic-search-engine"\nversion="0.1.1"\nlicense="MIT"\n')
+    write(root / "pyproject.toml", '[project]\nname="semantic-search-engine"\nversion="0.1.2"\nlicense="MIT"\n')
     write(root / bundle.GUIDE, "# Try Semantic Search\n\nOpen Get Started.command.\n")
     write(root / "src/semantic_search/__init__.py", '"""A tiny application fixture."""\n')
     write(root / "src/semantic_search/search.py", "def search():\n    return 'unicode café'\n")
     write(root / "src/semantic_search/nested/module.py", "value = 3\n")
-    manifest = {"name": "semantic-search-local", "publisher": "anna-poutanen", "version": "0.1.1",
+    manifest = {"name": "semantic-search-local", "publisher": "anna-poutanen", "version": "0.1.2",
                 "license": "MIT", "main": "./dist/src/extension.js"}
     write(root / "extensions/vscode/package.json", json.dumps(manifest))
     vsix = make_vsix(root)
@@ -85,7 +87,7 @@ def test_real_archive_has_exact_source_readme_licenses_vsix_and_launch_mode(proj
     for name in bundle.FIXED_FILES + bundle.NOTICE_FILES + tuple(bundle.python_sources(root)):
         assert members[name] == (root / name).read_bytes()
     manifest = json.loads(members[bundle.MANIFEST_NAME])
-    assert manifest["version"] == "0.1.1" and manifest["license"] == "MIT"
+    assert manifest["version"] == "0.1.2" and manifest["license"] == "MIT"
     assert manifest["readme_source"]["sha256"] == bundle.digest(members["README.md"])
     assert result["sha256"] == bundle.digest(output.read_bytes())
     assert result["files"] == len(members)
@@ -131,6 +133,42 @@ def test_allowlist_excludes_private_state_corpora_and_unrelated_assets(project):
     assert all(b"PRIVATE" not in data for data in members.values())
 
 
+def test_downloaded_feedback_collector_runs_without_runtime_packages_or_repository(project, tmp_path):
+    """Exercise the real shipped collector from a ZIP, rather than a fixture stub."""
+    root, _, output = project
+    source = SCRIPT.parents[1] / "scripts/collect_beta_feedback.py"
+    write(root / "scripts/collect_beta_feedback.py", source.read_bytes())
+    run(project)
+    extracted = tmp_path / "download with spaces"
+    extracted.mkdir()
+    with zipfile.ZipFile(output) as archive:
+        archive.extractall(extracted)
+    packaged = next(extracted.iterdir())
+    record = tmp_path / "local feedback.json"
+    result = subprocess.run(
+        [sys.executable, "-I", "-S", str(packaged / "scripts/collect_beta_feedback.py"),
+         "--output", str(record), "--attempts", "4", "--full", "2", "--partial", "1", "--errors", "1",
+         "--interface", "mcp", "--note", "partial_implementation"],
+        cwd=tmp_path, text=True, capture_output=True, timeout=15,
+    )
+    assert result.returncode == 0, result.stderr
+    value = json.loads(record.read_text())
+    assert value["counts"] == {"attempts": 4, "full_implementation": 2,
+                               "partial_implementation": 1, "operational_errors": 1}
+    assert value["session"]["interface"] == "mcp"
+    assert value["local_status"] == {"collection": "not_requested"}
+    assert value["environment"]["packages"] == {name: None for name in ("semantic-search-engine", "mcp", "tiktoken", "sqlite-vec")}
+    assert str(packaged) not in record.read_text()
+    assert not (packaged / ".cache").exists()
+    repeated = subprocess.run(
+        [sys.executable, "-I", "-S", str(packaged / "scripts/collect_beta_feedback.py"),
+         "--output", str(record)], cwd=tmp_path, text=True, capture_output=True, timeout=15,
+    )
+    assert repeated.returncode != 0
+    assert "already exists" in repeated.stderr
+    assert json.loads(record.read_text()) == value
+
+
 @pytest.mark.parametrize("cause", ["sha", "vsix-license", "vsix-version", "project-version", "project-license", "source-license", "entrypoint"])
 def test_wrong_hash_or_manifest_scope_never_creates_output(project, cause):
     root, vsix, output = project
@@ -139,11 +177,11 @@ def test_wrong_hash_or_manifest_scope_never_creates_output(project, cause):
         expected = "0" * 64
     elif cause.startswith("vsix-"):
         make_vsix(root, license_value="UNLICENSED" if cause == "vsix-license" else "MIT",
-                  version="9.0.0" if cause == "vsix-version" else "0.1.1")
+                  version="9.0.0" if cause == "vsix-version" else "0.1.2")
         expected = bundle.digest(vsix.read_bytes())
     elif cause.startswith("project-"):
         text = (root / "pyproject.toml").read_text()
-        text = text.replace('"0.1.1"', '"0.1.2"') if cause == "project-version" else text.replace('"MIT"', '"BSD-3-Clause"')
+        text = text.replace('"0.1.2"', '"0.1.3"') if cause == "project-version" else text.replace('"MIT"', '"BSD-3-Clause"')
         write(root / "pyproject.toml", text)
     else:
         path = root / "extensions/vscode/package.json"
@@ -177,7 +215,7 @@ def test_unsafe_vsix_archive_names_are_rejected(project, name):
     assert not output.exists()
 
 
-@pytest.mark.parametrize("name", ["scripts/demo_mac.py", "docs/getting-started.md", "Get Started.command"])
+@pytest.mark.parametrize("name", ["scripts/demo_mac.py", "scripts/beta_tools.py", "scripts/collect_beta_feedback.py", "docs/getting-started.md", "Get Started.command"])
 def test_missing_root_owned_file_is_an_error_not_a_placeholder(project, name):
     root, _, output = project
     (root / name).unlink()
@@ -266,7 +304,7 @@ def test_container_identity_and_declared_license_are_bound_not_only_package_json
     if cause == "identity":
         container = container.replace('Id="semantic-search-local"', 'Id="wrong"')
     elif cause == "version":
-        container = container.replace('Version="0.1.1"', 'Version="0.1.2"')
+        container = container.replace('Version="0.1.2"', 'Version="0.1.3"')
     elif cause == "license-path":
         container = container.replace("extension/LICENSE.txt", "../outside.txt")
     else:

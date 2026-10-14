@@ -19,7 +19,7 @@ FIXED_FILES = (
     "Get Started.command", "pyproject.toml", "requirements-mac.lock",
     "requirements-languages.lock", "LICENSE", "THIRD_PARTY_NOTICES.md", ".gitignore",
     "scripts/quickstart_mac.py", "scripts/setup_mac.py", "scripts/setup_embeddings.py",
-    "scripts/demo_mac.py",
+    "scripts/demo_mac.py", "scripts/beta_tools.py", "scripts/collect_beta_feedback.py",
 )
 # Keep upstream license text and attribution, without the benchmark datasets,
 # model receipts, corpus source, or any other contents of results/benchmarks.
