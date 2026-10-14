@@ -10,6 +10,7 @@ if [ "${1:-}" = "--help" ]; then
     'bash "Get Started.command" --check         Check HTTP + MCP, then close the service' \
     'bash "Get Started.command" --setup-only    Install runtime and embedding weights only' \
     'bash "Get Started.command" --repo /path/to/repo --source-root src' \
+    '  --exclude-source "src/generated/*" omits generated or templated source' \
     '  --startup-timeout 1800 --request-timeout 120 --max-results 8 --source-budget 12000 --token-budget 4096' \
     '  --port 8750 keeps a stable service address; default 0 selects an available port' \
     'bash "Get Started.command" --doctor        Offline diagnostics (no installation)' \

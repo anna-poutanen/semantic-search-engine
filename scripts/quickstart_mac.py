@@ -261,9 +261,10 @@ def format_progress(line):
 
 
 def interactive(python, repo, source_root, work, timeout=1800, *, request_timeout=120,
-                settings=None, toy=False, port=0):
+                settings=None, toy=False, port=0, exclusions=()):
     settings = dict(OWN_SETTINGS if settings is None else settings)
-    identity = hashlib.sha256((str(repo) + "\n" + source_root).encode()).hexdigest()
+    exclusions = tuple(sorted(set(exclusions)))
+    identity = hashlib.sha256((str(repo) + "\n" + source_root + "\n" + json.dumps(list(exclusions))).encode()).hexdigest()
     artifacts = reserved_directory(work / "sessions" / (time.strftime("%Y%m%d-%H%M%S") + "-" + os.urandom(4).hex()))
     log = artifacts / "service.log"
     cache = reserved_directory(work / "indexes" / identity)
@@ -275,6 +276,8 @@ def interactive(python, repo, source_root, work, timeout=1800, *, request_timeou
                 raise ValueError(f"Port {port} is unavailable; choose a different --port or use --port 0") from error
     arguments = [python, "-m", "semantic_search.cli", "serve", "--repo", repo, "--source-root", source_root,
                  "--index-cache", cache, "--port", str(port), "--no-watch", "--progress"]
+    for pattern in exclusions:
+        arguments.extend(("--exclude-source", pattern))
     process = None
     searches = errors = 0
     status = None
@@ -306,10 +309,18 @@ def interactive(python, repo, source_root, work, timeout=1800, *, request_timeou
                 status = request_json(url + "/status", timeout=min(request_timeout, remaining))
                 if Path(status["repo"]).resolve() != repo.resolve() or status["source_root"] != source_root or not status["ready"]:
                     raise ValueError("Ready service has unexpected repository identity")
+                if status.get("source_exclusions", []) != list(exclusions):
+                    raise ValueError("Ready service has unexpected source exclusions")
                 startup_elapsed = time.monotonic() - began
                 break
             if process.poll() is not None:
-                raise RuntimeError(f"Service exited before readiness. Inspect {log}; run the launcher with --doctor for local diagnostics")
+                with log.open("rb") as stream:
+                    stream.seek(max(0, log.stat().st_size - 12000))
+                    tail = stream.read(12000).decode("utf-8", errors="replace")
+                reasons = [line for line in tail.splitlines() if line.startswith(("semantic_search.backend.SourceSnapshotError:", "ValueError:", "SyntaxError:"))]
+                reason = re.sub(r"[\x00-\x1f\x7f]", " ", reasons[-1])[:1000] if reasons else "Inspect the service log for the exact failure"
+                raise RuntimeError(f"Service exited before readiness: {reason}. Inspect {log}. "
+                                   "Use --exclude-source GLOB for generated/template files; --doctor checks prerequisites, not source syntax")
             now = time.monotonic()
             if now - last_progress >= 10:
                 print(f"Still indexing/warming ({now - began:.0f}s elapsed); service log: {log}", flush=True)
@@ -321,6 +332,8 @@ def interactive(python, repo, source_root, work, timeout=1800, *, request_timeou
         windows = status.get("windows")
         if type(windows) is int and windows >= 0:
             print(f"Index: {windows} implementation windows; source directory: {source_root}")
+        if exclusions:
+            print("Excluded source: " + ", ".join(exclusions))
         if windows == 0:
             print("No eligible implementations were indexed. Check --source-root, save files and use git add. "
                   "Supported source is Python/JavaScript/TypeScript; functions and methods need implementation bodies.", flush=True)
@@ -388,6 +401,7 @@ def interactive(python, repo, source_root, work, timeout=1800, *, request_timeou
             shutdown = stop_owned(process) if process is not None else None
             (artifacts / "session.json").write_text(json.dumps({"repo": str(repo), "source_root": source_root,
                 "settings": settings, "startup_timeout": timeout, "request_timeout": request_timeout,
+                "source_exclusions": list(exclusions),
                 "startup_elapsed_s": startup_elapsed,
                 "windows": status.get("windows") if isinstance(status, dict) else None,
                 "searches": searches, "errors": errors, "shutdown": shutdown}, indent=2) + "\n")
@@ -407,6 +421,8 @@ def main(argv=None):
     modes.add_argument("--setup-only", action="store_true", help="Install runtime and weights without starting inference")
     parser.add_argument("--repo", type=Path, help="Search an existing Git repository instead of the fresh toy")
     parser.add_argument("--source-root", default="src", help="Repository-relative source directory (default: src)")
+    parser.add_argument("--exclude-source", action="append", default=[], metavar="GLOB",
+                        help="Exclude repository-relative source paths, such as generated/template files; repeat for more patterns")
     parser.add_argument("--startup-timeout", type=positive_seconds, default=1800,
                         help="Indexing and warmup allowance in seconds (default: 1800)")
     parser.add_argument("--request-timeout", type=positive_seconds, default=120,
@@ -418,6 +434,9 @@ def main(argv=None):
     parser.add_argument("--port", type=bounded_integer(0, 65535), default=0,
                         help="Service port; default 0 chooses an available port. Choose a fixed port for stable MCP setup")
     args = parser.parse_args(argv)
+    if any(not pattern.strip() or Path(pattern).is_absolute() or ".." in Path(pattern).parts for pattern in args.exclude_source):
+        parser.error("--exclude-source requires nonempty repository-relative globs without '..'")
+    args.exclude_source = sorted(set(args.exclude_source))
     if platform.system() != "Darwin" or platform.machine() != "arm64" or sys.version_info[:2] != (3, 12):
         parser.error("Use Get Started.command on an Apple Silicon Mac with its managed Python 3.12")
     if not args.check and not args.setup_only and not sys.stdin.isatty():
@@ -472,7 +491,8 @@ def main(argv=None):
                 repo = prepare(fresh_destination())
                 source_root = "src"
             interactive(python, repo, source_root, work, timeout=args.startup_timeout,
-                        request_timeout=args.request_timeout, settings=selected_settings(args, toy), toy=toy, port=args.port)
+                        request_timeout=args.request_timeout, settings=selected_settings(args, toy), toy=toy, port=args.port,
+                        exclusions=args.exclude_source)
     except KeyboardInterrupt:
         parser.exit(130, "\nInterrupted; owned service cleanup completed. Rerun to resume setup.\n")
     except (OSError, ValueError, RuntimeError, HTTPException, subprocess.SubprocessError) as error:
