@@ -28,6 +28,15 @@ Startup can wait 30 minutes, with a separate 120-second HTTP request timeout.
 to these settings when comparing sessions; larger delivery caps alone are not
 evidence of better retrieval or paid-token savings.
 
+For tracked generated/template files that are not standalone supported source,
+repeat `--exclude-source 'src/generated/*' --exclude-source 'src/templates/*'` with
+patterns matching your checkout. Patterns are quoted globs relative to the
+repository root, including the source-directory prefix. A Django template scope
+uses `--exclude-source 'django/views/templates/*'` even with `--source-root django`.
+Excluded files cannot contribute evidence. Record exclusions with the session;
+changing them changes the searchable scope and index cache. Included invalid
+source surfaces an error rather than being silently omitted.
+
 Use the ready session's `mcp.json` or `vscode-mcp.json` snippet for your client, or
 connect the included VSIX to the printed local service address. The launcher
 changes no client settings. Snippets contain local runtime paths and the chosen
@@ -113,6 +122,11 @@ missing-Python guidance rather than downloading anything. The report excludes
 repository paths, filenames, source, queries, environment variables and logs.
 `--skip-weight-check` explicitly skips physical weight integrity; missing checks
 before setup do not imply a tested runtime.
+The diagnostic only counts tracked file membership; it does not parse source or
+apply indexing exclusions, and does not accept `--exclude-source`. A passing
+diagnostic can coexist with an indexing parse error. Inspect the reported parse
+cause/service log, then correct the saved source or explicitly exclude the intended
+generated/template paths.
 The interactive `:doctor` command runs the same local checks. Search errors leave
 the prompt open for a source/query correction and retry; record errors alongside
 successful searches rather than counting a retry as an uninterrupted workflow.

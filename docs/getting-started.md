@@ -53,6 +53,24 @@ space. The service refreshes saved changes when you search. The own-repository
 prompt asks for descriptions relevant to your project; it does not show or
 substitute toy queries.
 
+Some repositories track generated files or templates with JavaScript/TypeScript
+extensions whose contents are not valid standalone source. If startup reports a
+parse error in such a file, choose a narrower source directory or explicitly
+exclude those paths:
+
+```bash
+bash "Get Started.command" --repo "/absolute/path/to/your/repo" --source-root src \
+  --exclude-source 'src/generated/*' --exclude-source 'src/templates/*'
+```
+
+Replace the example patterns with paths from your checkout. Patterns are relative
+to the **repository root**, including the source-directory prefix, and must be
+quoted so your shell does not expand them. Repeat `--exclude-source` for multiple
+patterns. For example, a Django checkout with `--source-root django` uses
+`--exclude-source 'django/views/templates/*'`. Excluded files are outside the
+searchable scope; changing exclusions selects a separate index cache. The app
+reports invalid included source instead of silently skipping it.
+
 Startup prints the current indexing phase and actual file/document/window counts,
 then reports the repository, source scope and indexed-window count when ready.
 It waits up to **30 minutes** for indexing and embedding initialization, separately
@@ -160,6 +178,10 @@ bootstrap downloads in diagnostic mode. `--skip-weight-check` skips reading the
 full weight file and leaves physical weight integrity unverified. Missing runtime
 or model checks are expected before the first setup. The Python report excludes
 repository paths, filenames, queries, source, environment variables and logs.
+Repository counts describe tracked file membership, not parsed implementations.
+The diagnostic does not parse source or accept `--exclude-source`; it can pass
+while indexing later reports a source syntax error. Use the indexing error and
+local service log to find the offending file and correct or explicitly exclude it.
 During a running session, enter **:doctor** in the search prompt for the same local
 diagnostic checks. If an HTTP search fails, the prompt stays open so you can fix
 the saved source or query and try again; enter **q** to close the service.
