@@ -1,0 +1,33 @@
+{
+  "created_utc": "2026-10-14T12:56:29.601798+00:00",
+  "purpose": "Preserve deterministic shutdown regressions against unchanged old source before production repair.",
+  "command": [
+    ".venv/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/test_cancellation_shutdown.py",
+    "--tb=short"
+  ],
+  "returncode": 1,
+  "source_sha256_before": {
+    "src/semantic_search/cancellation.py": "051c6cb8f8f99cb0b2da4eb93b6500d3b35bbc4605cf7038dbb90a4409af795b",
+    "src/semantic_search/backend.py": "ea56124ae267e44fb944f10855ae1c4078a74e4c0cd0c8145a96bd573771ddf2",
+    "tests/test_cancellation_shutdown.py": "9bd132bb00507e0c86a584246312cb813346fd6fcbd54a9a8b327b607aa5a629",
+    "tests/test_cancellation.py": "c9805cd2b624ee8894f9bf31475ae578dd241fcd93b2a18f438e43f56b2ab361"
+  },
+  "source_sha256_after": {
+    "src/semantic_search/cancellation.py": "051c6cb8f8f99cb0b2da4eb93b6500d3b35bbc4605cf7038dbb90a4409af795b",
+    "src/semantic_search/backend.py": "ea56124ae267e44fb944f10855ae1c4078a74e4c0cd0c8145a96bd573771ddf2",
+    "tests/test_cancellation_shutdown.py": "9bd132bb00507e0c86a584246312cb813346fd6fcbd54a9a8b327b607aa5a629",
+    "tests/test_cancellation.py": "c9805cd2b624ee8894f9bf31475ae578dd241fcd93b2a18f438e43f56b2ab361"
+  },
+  "source_unchanged": true,
+  "model_calls": 0,
+  "network_calls": 0,
+  "inference_kind": "CPU-only two-dimensional stub; no native model execution",
+  "expected_result": "6 failed, 1 passed: terminal close missing; late named/anonymous registration admitted; query embedding dispatched after final-refresh cancellation."
+}

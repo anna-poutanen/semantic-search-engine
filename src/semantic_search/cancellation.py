@@ -21,6 +21,7 @@ class CancellationRegistry:
         # Anonymous CLI/HTTP work still participates in backend shutdown,
         # without acquiring a caller-visible or externally cancellable ID.
         self._anonymous = set()
+        self._closed = False
 
     def _prune(self):
         now = time.monotonic()
@@ -46,20 +47,31 @@ class CancellationRegistry:
             for event in self._anonymous:
                 event.set()
 
+    def close(self):
+        """Stop admission and cancel active work as one atomic operation."""
+        with self.lock:
+            self._closed = True
+            for event in self.active.values():
+                event.set()
+            for event in self._anonymous:
+                event.set()
+
     @contextmanager
     def request(self, request_id):
         event = threading.Event()
         if request_id is not None:
             validate_request_id(request_id)
-            with self.lock:
+        with self.lock:
+            if self._closed:
+                raise SearchCancelled("Search backend is closed")
+            if request_id is not None:
                 self._prune()
                 if request_id in self.active:
                     raise ValueError("request_id is already active")
                 if self.cancelled.pop(request_id, None) is not None:
                     event.set()
                 self.active[request_id] = event
-        else:
-            with self.lock:
+            else:
                 self._anonymous.add(event)
         def check():
             if event.is_set():

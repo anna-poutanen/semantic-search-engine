@@ -343,6 +343,7 @@ class SearchBackend:
                 return response
             try:
                 stats = self._refresh(require_vectors=retrieval != "bm25", cancel_check=check)
+                check()
                 phase = time.perf_counter()
                 vector = None
                 if self._snippets and retrieval != "bm25":
@@ -489,7 +490,7 @@ class SearchBackend:
                 raise
 
     def close(self):
-        self._requests.cancel_all()
+        self._requests.close()
         if self._watcher is not None:
             self._watcher.stop()
         with self._lock:
