@@ -31,7 +31,10 @@ evidence of better retrieval or paid-token savings.
 Use the ready session's `mcp.json` or `vscode-mcp.json` snippet for your client, or
 connect the included VSIX to the printed local service address. The launcher
 changes no client settings. Snippets contain local runtime paths and the chosen
-port, so keep them local and use the new snippet after each restart. The ordinary
+port, so keep them local and use the new snippet after each restart with the
+default available-port choice. Choose the same fixed `--port 8750` on successive
+starts to retain a stable address, or `--port 0` if it is occupied. Enter `:mcp`
+in the search prompt to print the portable snippet. The ordinary
 CLI/MCP workflow searches saved source; explicit dirty-buffer search is an editor
 feature.
 
@@ -108,6 +111,9 @@ missing-Python guidance rather than downloading anything. The report excludes
 repository paths, filenames, source, queries, environment variables and logs.
 `--skip-weight-check` explicitly skips physical weight integrity; missing checks
 before setup do not imply a tested runtime.
+The interactive `:doctor` command runs the same local checks. Search errors leave
+the prompt open for a source/query correction and retry; record errors alongside
+successful searches rather than counting a retry as an uninterrupted workflow.
 
 The standalone collector uses only Python's standard library. It defaults to
 offline, sends no feedback, imports no models, opens no repository, and writes
