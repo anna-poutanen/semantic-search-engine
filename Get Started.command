@@ -10,12 +10,44 @@ if [ "${1:-}" = "--help" ]; then
     'bash "Get Started.command" --check         Check HTTP + MCP, then close the service' \
     'bash "Get Started.command" --setup-only    Install runtime and embedding weights only' \
     'bash "Get Started.command" --repo /path/to/repo --source-root src' \
+    '  --startup-timeout 1800 --request-timeout 120 --max-results 8 --source-budget 12000 --token-budget 4096' \
+    '  --port 8750 keeps a stable service address; default 0 selects an available port' \
+    'bash "Get Started.command" --doctor        Offline diagnostics (no installation)' \
+    'bash "Get Started.command" --feedback --output /path/to/new-feedback.json' \
     'Requires macOS on Apple Silicon, working Git, internet for first setup, and at least 6 GB free.'
   exit 0
 fi
-[ "$(/usr/bin/uname -s)" = Darwin ] && [ "$(/usr/bin/uname -m)" = arm64 ] || fail 'This launcher requires an Apple Silicon Mac (arm64 macOS).'
-command -v git >/dev/null 2>&1 && git --version >/dev/null 2>&1 || fail 'Install Apple command line tools with: xcode-select --install. Finish that installation, then run this launcher again.'
 WORK="$ROOT/.cache/quickstart"
+# Support commands never install model/runtime packages. Doctor never downloads.
+MODE="${1:-}"
+if [ "$MODE" = --doctor ] || [ "$MODE" = --feedback ]; then
+  SYSTEM_PYTHON="$(command -v python3 || true)"
+  for CANDIDATE in "$WORK/venv/bin/python" "$WORK/python"/cpython-3.12-*/bin/python3.12 "$SYSTEM_PYTHON"; do
+    if [ -n "$CANDIDATE" ] && [ -x "$CANDIDATE" ] && "$CANDIDATE" -c 'import sys;sys.exit(0 if sys.version_info >= (3,12) else 1)' >/dev/null 2>&1; then
+      if [ "$MODE" = --feedback ]; then
+        shift
+        exec "$CANDIDATE" "$ROOT/scripts/collect_beta_feedback.py" "$@"
+      fi
+      exec "$CANDIDATE" "$ROOT/scripts/beta_tools.py" "$@"
+    fi
+  done
+  if [ "$MODE" = --doctor ]; then
+    printf '%s\n' 'Offline preflight (full diagnostics need Python 3.12 or newer):'
+    printf 'Platform: %s %s\n' "$(/usr/bin/uname -s)" "$(/usr/bin/uname -m)"
+    if command -v git >/dev/null 2>&1 && git --version >/dev/null 2>&1; then
+      printf '%s\n' 'Git: available'
+    else
+      printf '%s\n' 'Git: missing. Install Apple command line tools with: xcode-select --install'
+    fi
+    /bin/df -Pk "$ROOT" | /usr/bin/awk 'NR == 2 {printf "Free disk: %.1f GiB\n", $4 / 1048576}'
+    printf '%s\n' 'Local Python: unavailable. Complete the normal launcher setup, then rerun --doctor.' 'No downloads, model loads or settings changes were made.'
+    exit 1
+  fi
+fi
+[ "$(/usr/bin/uname -s)" = Darwin ] && [ "$(/usr/bin/uname -m)" = arm64 ] || fail 'This launcher requires an Apple Silicon Mac (arm64 macOS).'
+if [ "$MODE" != --feedback ]; then
+  command -v git >/dev/null 2>&1 && git --version >/dev/null 2>&1 || fail 'Install Apple command line tools with: xcode-select --install. Finish that installation, then run this launcher again.'
+fi
 [ ! -L "$ROOT/.cache" ] && [ ! -L "$WORK" ] || fail 'The reserved .cache/quickstart directory must not be a symlink.'
 for DIRECTORY in "$WORK/bootstrap" "$WORK/python" "$WORK/uv-cache"; do
   [ ! -L "$DIRECTORY" ] || fail "Reserved setup directory must not be a symlink: $DIRECTORY"
@@ -55,4 +87,8 @@ printf '\nPreparing local Python 3.12 (no system Python or Homebrew required)…
 PYTHON="$("$UV" python find 3.12 --managed-python --no-project --no-config)"
 cleanup
 DOWNLOAD=''
+if [ "$MODE" = --feedback ]; then
+  shift
+  exec "$PYTHON" "$ROOT/scripts/collect_beta_feedback.py" "$@"
+fi
 exec "$PYTHON" "$ROOT/scripts/quickstart_mac.py" --uv-path "$UV" "$@"

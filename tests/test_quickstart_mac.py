@@ -25,7 +25,7 @@ def quick():
     spec = importlib.util.spec_from_file_location("quickstart_under_test", SCRIPT)
     module = importlib.util.module_from_spec(spec)
     with patch.object(sys, "path", [str(ROOT / "scripts"), *sys.path]), patch.dict(sys.modules):
-        for name in ("demo_mac", "setup_embeddings", "setup_mac"):
+        for name in ("demo_mac", "setup_embeddings", "setup_mac", "beta_tools"):
             sys.modules.pop(name, None)
         spec.loader.exec_module(module)
     with patch.dict(os.environ):
@@ -210,6 +210,7 @@ def test_interactive_owns_an_available_port_and_cleans_actual_cpu_child_on_every
     spawned, commands, requests = [], [], []
     repo = tmp_path / "repo"
     (repo / "src").mkdir(parents=True)
+    (tmp_path / ".cache/quickstart/tiktoken").mkdir(parents=True)
     original_handler = signal.getsignal(signal.SIGTERM)
     worker = "import signal,sys,time\nsignal.signal(signal.SIGTERM, lambda *_: sys.exit(0))\nprint('Ready: http://127.0.0.1:43210',flush=True)\nwhile True: time.sleep(60)\n"
     def start(arguments, **kwargs):
@@ -242,7 +243,13 @@ def test_interactive_owns_an_available_port_and_cleans_actual_cpu_child_on_every
         assert arguments[arguments.index("--source-root") + 1] == "src"
         assert requests[0] == ("http://127.0.0.1:43210/status", None)
         if cause == "normal":
-            assert requests[1][1] == {"query": quick.QUERIES[0], **quick.SETTINGS}
+            payload = dict(requests[1][1])
+            assert len(payload.pop("request_id")) == 32
+            assert payload == {"query": "1", **quick.OWN_SETTINGS}
+            session_dir = next((tmp_path / "work/sessions").iterdir())
+            server = json.loads((session_dir / "mcp.json").read_text())["mcpServers"]["semantic-search"]
+            assert server["args"][-1] == "http://127.0.0.1:43210"
+            assert server["env"]["TIKTOKEN_CACHE_DIR"] == str(tmp_path / ".cache/quickstart/tiktoken")
         else:
             assert len(requests) == 1
         session = next((tmp_path / "work/sessions").glob("*/session.json"))
@@ -582,12 +589,14 @@ def test_own_repo_scope_matches_backend_canonical_identity(quick, tmp_path, mac,
     repo = tmp_path / 'My Project'
     (repo / '.git').mkdir(parents=True)
     (repo / 'src').mkdir()
+    subprocess.run(['git', '-C', str(repo), 'init', '--quiet'], check=True)
     python = tmp_path / '.cache/quickstart/venv/bin/python'
     with patch.object(quick, 'ROOT', tmp_path), patch.object(quick.sys.stdin, 'isatty', return_value=True), \
             patch.object(quick, 'setup_runtime', return_value=(python, {})), patch.object(quick, 'setup_model'), \
             patch.object(quick, 'interactive') as interactive:
         quick.main(['--uv-path', str(tmp_path / 'uv'), '--repo', str(repo), '--source-root', value])
-    interactive.assert_called_once_with(python, repo.resolve(), expected, tmp_path / '.cache/quickstart')
+    interactive.assert_called_once_with(python, repo.resolve(), expected, tmp_path / '.cache/quickstart',
+                                       timeout=1800, request_timeout=120, settings=quick.OWN_SETTINGS, toy=False, port=0)
 
 
 def test_own_repo_source_symlink_escape_stops_before_install(quick, tmp_path, mac):
@@ -600,3 +609,151 @@ def test_own_repo_source_symlink_escape_stops_before_install(quick, tmp_path, ma
             quick.main(['--uv-path', str(tmp_path / 'uv'), '--repo', str(repo)])
     assert error.value.code == 2
     runtime.assert_not_called()
+
+
+@pytest.mark.parametrize('flag,value', [('--startup-timeout','0'),('--startup-timeout','nan'),
+                                      ('--request-timeout','inf'),('--max-results','21'),
+                                      ('--source-budget','0'),('--token-budget','511'),('--port','65536')])
+def test_beta_invalid_limits_stop_before_setup(quick, flag, value):
+    with patch.object(quick,'setup_runtime') as runtime, pytest.raises(SystemExit):
+        quick.main(['--uv-path','/unused',flag,value])
+    runtime.assert_not_called()
+
+
+def test_beta_progress_accepts_ready_and_ignores_private_or_invalid_messages(quick):
+    assert quick.format_progress('Progress: {"phase":"ready","completed":1,"total":1,"unit":"service"}') == ('ready','Search ready: 1/1 service',True)
+    cache=quick.format_progress('Progress: {"phase":"cache","completed":2,"total":5,"unit":"documents","cached_documents":2,"pending_documents":3,"path":"private"}')
+    assert '2 cached, 3 new' in cache[1] and 'private' not in cache[1]
+    for line in ('Progress: []','Progress: bad','Progress: {"phase":"embed","completed":true,"unit":"documents"}',
+                 'Progress: {"phase":"embed","completed":2,"total":1,"unit":"documents"}'):
+        assert quick.format_progress(line) is None
+
+
+def test_beta_tails_large_logs_and_partial_ready_lines(quick,tmp_path):
+    log=tmp_path/'service.log'
+    log.write_bytes(b'x'*100+b'\n'+b'x\n'*1500000+b'Ready: http://127.0.0.1:1234')
+    state={'offset':0,'pending':b''}
+    rows=[]
+    while state['offset']<log.stat().st_size:
+        rows.extend(quick.new_log_lines(log,state))
+    assert not any(row.startswith('Ready:') for row in rows)
+    with log.open('ab') as stream:stream.write(b'\n')
+    assert quick.new_log_lines(log,state)==['Ready: http://127.0.0.1:1234']
+    assert len(state['pending'])<=65536
+
+
+@pytest.fixture
+def beta_worker(quick,tmp_path):
+    """Actual owned CPU worker; HTTP responses are supplied by the test."""
+    real_popen=subprocess.Popen
+    processes=[]
+    repo=tmp_path/'repo'
+    (repo/'src').mkdir(parents=True)
+    (tmp_path/'.cache/quickstart/tiktoken').mkdir(parents=True)
+    worker="import signal,sys,time\nsignal.signal(signal.SIGTERM,lambda *_:sys.exit(0))\nprint('Progress: {\"phase\":\"ready\",\"completed\":1,\"total\":1,\"unit\":\"service\"}',flush=True)\nprint('Ready: http://127.0.0.1:43210',flush=True)\nwhile True:time.sleep(60)\n"
+    def start(arguments,**options):
+        assert '--progress' in arguments
+        process=real_popen([sys.executable,'-c',worker],**options)
+        processes.append(process)
+        return process
+    with patch.object(quick,'ROOT',tmp_path),patch.object(quick.subprocess,'Popen',side_effect=start):
+        yield repo,processes
+    for process in processes:
+        if process.poll() is None:
+            os.killpg(process.pid,signal.SIGKILL);process.wait(timeout=5)
+        assert process.returncode==0
+        with pytest.raises(ProcessLookupError):os.killpg(process.pid,0)
+
+
+@pytest.mark.parametrize('toy',[True,False])
+def test_beta_toy_menu_and_own_repo_budget_are_distinct(quick,tmp_path,beta_worker,capsys,toy):
+    repo,_=beta_worker
+    payloads=[]
+    def reply(url,payload=None,timeout=120):
+        if url.endswith('/status'):return {'repo':str(repo),'source_root':'src','ready':True,'windows':3}
+        payloads.append(payload);return {'results':[]}
+    settings=quick.SETTINGS if toy else quick.OWN_SETTINGS
+    with patch.object(quick,'request_json',side_effect=reply),patch('builtins.input',side_effect=['1', 'q']):
+        quick.interactive(Path(sys.executable),repo,'src',tmp_path/'work',settings=settings,toy=toy)
+    expected=quick.QUERIES[0] if toy else '1'
+    assert payloads[0]['query']==expected
+    assert payloads[0]['max_results']==(3 if toy else 8)
+    assert payloads[0]['include_dependencies'] is (not toy)
+    output=capsys.readouterr().out
+    assert ('  1. Normalize a label' in output) is toy
+    assert 'Search ready: 1/1 service' in output
+
+
+@pytest.mark.parametrize('failure',['snapshot','timeout','incomplete'])
+def test_beta_search_failures_allow_retry_and_cancel_abandoned_work(quick,tmp_path,beta_worker,capsys,failure):
+    import io
+    from http.client import IncompleteRead
+    from urllib.error import HTTPError
+    repo,_=beta_worker
+    calls=[]
+    def reply(url,payload=None,timeout=120):
+        calls.append((url,payload,timeout))
+        if url.endswith('/status'):return {'repo':str(repo),'source_root':'src','ready':True,'windows':3}
+        if url.endswith('/cancel'):return {'cancelled':True}
+        if len([row for row in calls if row[0].endswith('/search')])==1:
+            if failure=='snapshot':raise HTTPError(url,409,'source changed',{},io.BytesIO(b'{"error":{"message":"Fix saved source"}}'))
+            if failure=='timeout':raise TimeoutError('slow query')
+            raise IncompleteRead(b'partial',50)
+        return {'results':[{'path':'src/test.py','start_line':1,'end_line':1,'symbol':'test','source':'pass\n','truncated':True}],
+                'budget_exhausted':True}
+    with patch.object(quick,'request_json',side_effect=reply),patch('builtins.input',side_effect=['first','second','q']):
+        quick.interactive(Path(sys.executable),repo,'src',tmp_path/'work',request_timeout=7)
+    searches=[row for row in calls if row[0].endswith('/search')]
+    assert len(searches)==2 and all(row[2]==7 for row in searches)
+    assert searches[0][1]['request_id']!=searches[1][1]['request_id']
+    cancels=[row for row in calls if row[0].endswith('/cancel')]
+    assert len(cancels)==(0 if failure=='snapshot' else 1)
+    if cancels:assert cancels[0][1]=={'request_id':searches[0][1]['request_id']} and cancels[0][2]==2
+    session=json.loads(next((tmp_path/'work/sessions').glob('*/session.json')).read_text())
+    assert session['searches']==1 and session['errors']==1 and session['shutdown']=={'returncode':0,'forced_kill':False}
+    output=capsys.readouterr().out
+    assert '(excerpt truncated)' in output and 'Context limit reached' in output
+
+
+def test_beta_startup_can_pass_old_three_minute_cutoff(quick,tmp_path,beta_worker):
+    repo,_=beta_worker
+    readings=iter([0])
+    def now():return next(readings,181)
+    with patch.object(quick.time,'monotonic',side_effect=now), \
+            patch.object(quick,'request_json',return_value={'repo':str(repo),'source_root':'src','ready':True,'windows':0}), \
+            patch('builtins.input',return_value='q'):
+        quick.interactive(Path(sys.executable),repo,'src',tmp_path/'work')
+    session=json.loads(next((tmp_path/'work/sessions').glob('*/session.json')).read_text())
+    assert session['startup_timeout']==1800 and session['request_timeout']==120
+    assert session['windows']==0 and session['shutdown']['returncode']==0
+
+
+def test_beta_corrupt_git_root_stops_before_install(quick,tmp_path,mac):
+    repo=tmp_path/'broken'
+    (repo/'.git').mkdir(parents=True)
+    (repo/'src').mkdir()
+    with patch.object(quick.sys.stdin,'isatty',return_value=True),patch.object(quick,'setup_runtime') as runtime:
+        with pytest.raises(SystemExit):quick.main(['--uv-path','/unused','--repo',str(repo)])
+    runtime.assert_not_called()
+
+
+def test_beta_feedback_shell_dispatches_collector_without_uv_or_models(tmp_path):
+    root,launcher,environment=shell_fixture(tmp_path)
+    python=root/'.cache/quickstart/venv/bin/python'
+    trace=tmp_path/'dispatch.json'
+    write(python,f'#!{sys.executable}\nimport json,sys\nfrom pathlib import Path\nif "-c" not in sys.argv:Path({str(trace)!r}).write_text(json.dumps(sys.argv[1:]))\n')
+    python.chmod(0o755)
+    result=subprocess.run(['bash',launcher,'--feedback','--output','/new local feedback.json'],env=environment,capture_output=True,text=True,timeout=10)
+    assert result.returncode==0,result.stderr
+    assert json.loads(trace.read_text())==[str(root/'scripts/collect_beta_feedback.py'),'--output','/new local feedback.json']
+    assert not (root/'.cache/quickstart/bootstrap').exists()
+
+
+def test_beta_doctor_shell_is_offline_without_python(tmp_path):
+    root,launcher,environment=shell_fixture(tmp_path)
+    fake_python=tmp_path/'fake-tools/python3'
+    write(fake_python,'#!/bin/sh\nexit 1\n');fake_python.chmod(0o755)
+    environment['PATH']=str(fake_python.parent)+os.pathsep+environment['PATH']
+    result=subprocess.run(['bash',launcher,'--doctor'],env=environment,capture_output=True,text=True,timeout=10)
+    assert result.returncode==1 and 'Offline preflight' in result.stdout
+    assert 'No downloads' in result.stdout and not (root/'.cache').exists()
