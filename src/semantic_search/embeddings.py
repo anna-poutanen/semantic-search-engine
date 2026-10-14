@@ -16,6 +16,7 @@ MODEL_ID = "Qwen/Qwen3-Embedding-0.6B"
 MODEL_REVISION = "97b0c614be4d77ee51c0cef4e5f07c00f9eb65b3"
 RUNTIME_VERSION = "0.1.0"
 MAX_TOKENS = 8192
+MAX_PADDED_TOKENS = 8192
 DIMENSIONS = 1024
 QUERY_INSTRUCTION = (
     "Given a description of code behavior, retrieve the code implementation that performs it."
@@ -55,11 +56,15 @@ def last_token_pool(hidden: np.ndarray, mask: np.ndarray) -> np.ndarray:
 
 
 class QwenEmbedder:
-    def __init__(self, model_path=None, batch_size=4, progress=True):
+    def __init__(self, model_path=None, batch_size=4, progress=True, *,
+                 max_padded_tokens=MAX_PADDED_TOKENS):
         if not isinstance(batch_size, int) or isinstance(batch_size, bool) or batch_size < 1:
             raise ValueError("batch_size must be a positive integer")
+        if type(max_padded_tokens) is not int or max_padded_tokens < MAX_TOKENS:
+            raise ValueError(f"max_padded_tokens must be an integer of at least {MAX_TOKENS}")
         self.model_path = Path(model_path) if model_path is not None else DEFAULT_MODEL_PATH
         self.batch_size = batch_size
+        self.max_padded_tokens = max_padded_tokens
         self.progress = progress
         self._model = None
         self._tokenizer = None
@@ -84,7 +89,10 @@ class QwenEmbedder:
             "normalization": "L2, float32", "max_tokens": MAX_TOKENS,
             "truncation": "right", "padding_side": "right",
             "add_special_tokens": True, "batch_size": self.batch_size,
+            "max_padded_tokens": self.max_padded_tokens,
             "batch_order": "stable ascending token length; restore input order",
+            "batch_policy": ("stable ascending token length; greedy groups capped by batch_size and "
+                             "longest_token_length * document_count <= max_padded_tokens; restore input order"),
             "checkpoint_validation": "pinned Hub download provenance; original unquantized config",
         }
 
@@ -143,13 +151,21 @@ class QwenEmbedder:
         ids = encoded["input_ids"]
         if any(not tokens for tokens in ids):
             raise ValueError("Every embedding input must contain at least one token")
+        if any(len(tokens) > MAX_TOKENS for tokens in ids):
+            raise ValueError(f"Tokenizer exceeded the {MAX_TOKENS}-token embedding limit")
         order = sorted(range(len(ids)), key=lambda i: (len(ids[i]), i))
         output = np.empty((len(texts), DIMENSIONS), dtype=np.float32)
-        reported = 0
-        for start in range(0, len(order), self.batch_size):
+        reported = completed = start = 0
+        while start < len(order):
             if cancel_check is not None:
                 cancel_check()
-            indices = order[start:start + self.batch_size]
+            end = min(start + self.batch_size, len(order))
+            # A long document must not multiply its padded length by the fixed
+            # document batch count. Retain each document's existing token limit,
+            # reducing only the number of documents forwarded together.
+            while len(ids[order[end - 1]]) * (end - start) > self.max_padded_tokens:
+                end -= 1
+            indices = order[start:end]
             vectors = self._embed_batch([ids[i] for i in indices])
             if vectors.shape != (len(indices), DIMENSIONS):
                 raise ValueError(f"Unexpected Qwen embedding shape: {vectors.shape}")
@@ -160,7 +176,8 @@ class QwenEmbedder:
                 self._mx.clear_cache()
             if cancel_check is not None:
                 cancel_check()
-            completed = start + len(indices)
+            completed += len(indices)
+            start = end
             if progress_callback is not None:
                 progress_callback(completed, len(texts))
             if (self.progress and len(texts) > 1
