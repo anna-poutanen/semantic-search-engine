@@ -1,0 +1,85 @@
+{
+  "created_utc": "2026-10-14T13:29:44.368565+00:00",
+  "old_source_commit": "3327525",
+  "old_qualification_sha256": "dd89da14612204f9c6032cdb33840f620e8d5c160a9d1ad5cacfce8e987c4f11",
+  "peer_reported_defect": "Directive-only preproc_if condition identifiers counted as executable body; actual authored regression failed old source.",
+  "repair": "Recurse only through block/preproc_if/preproc_elif/preproc_else containers; skip conditions/directives/comments/empty/local-function statements; recognize actual statement nodes only. Unknown containers do not create implementation eligibility.",
+  "offset_guard": "All four byte offsets require exact int, rejecting bool/float.",
+  "actual_isolated_tests_passed": 14,
+  "main_portable_tests_passed": 6,
+  "main_optional_tests_skipped": 8,
+  "source_sha256_before": {
+    "scripts/csharp_extractor_prototype.py": "46912395aa2e3b9b7acd595929e3fb61e9c48eb393733f4879806e35d61495cc",
+    "tests/test_csharp_extractor_prototype.py": "128ba2a1c546c4a1d9532afd33de70c956aae7e6001246173818923cbfd1c469",
+    "docs/csharp-extractor-prototype.md": "abe8e34289c8f56e0543d87b169df78bc0573d95d9f632ce95e8f62ef654f1d4"
+  },
+  "source_sha256_after": {
+    "scripts/csharp_extractor_prototype.py": "46912395aa2e3b9b7acd595929e3fb61e9c48eb393733f4879806e35d61495cc",
+    "tests/test_csharp_extractor_prototype.py": "128ba2a1c546c4a1d9532afd33de70c956aae7e6001246173818923cbfd1c469",
+    "docs/csharp-extractor-prototype.md": "abe8e34289c8f56e0543d87b169df78bc0573d95d9f632ce95e8f62ef654f1d4"
+  },
+  "sources_stable": true,
+  "commands": [
+    {
+      "label": "isolated-grammar-tests",
+      "returncode": 0,
+      "command": [
+        "<PROJECT>/.cache/csharp-parser-preflight-2026-10-14/env/bin/python",
+        "-I",
+        "-c",
+        "import importlib.abc,os,runpy,socket,subprocess,sys\nclass NoModels(importlib.abc.MetaPathFinder):\n def find_spec(self,fullname,path=None,target=None):\n  if fullname.split('.')[0] in {'semantic_search','mlx','mlx_lm','mlx_vlm','torch','transformers'}: raise RuntimeError('Model/production imports blocked')\nsys.meta_path.insert(0,NoModels())\ndef blocked(*args,**kwargs):raise RuntimeError('Network/compiler/child execution blocked')\nsocket.socket.connect=socket.socket.connect_ex=socket.socket.sendto=blocked\nsubprocess.Popen=os.system=blocked\nsys.argv=['tests/test_csharp_extractor_prototype.py', '-v']\nrunpy.run_path('<PROJECT>/tests/test_csharp_extractor_prototype.py',run_name='__main__')\n"
+      ]
+    },
+    {
+      "label": "main-portable-tests",
+      "returncode": 0,
+      "command": [
+        "<PROJECT>/.venv/bin/python",
+        "-I",
+        "-c",
+        "import importlib.abc,os,runpy,socket,subprocess,sys\nclass NoModels(importlib.abc.MetaPathFinder):\n def find_spec(self,fullname,path=None,target=None):\n  if fullname.split('.')[0] in {'semantic_search','mlx','mlx_lm','mlx_vlm','torch','transformers'}: raise RuntimeError('Model/production imports blocked')\nsys.meta_path.insert(0,NoModels())\ndef blocked(*args,**kwargs):raise RuntimeError('Network/compiler/child execution blocked')\nsocket.socket.connect=socket.socket.connect_ex=socket.socket.sendto=blocked\nsubprocess.Popen=os.system=blocked\nsys.argv=['tests/test_csharp_extractor_prototype.py', '-v']\nrunpy.run_path('<PROJECT>/tests/test_csharp_extractor_prototype.py',run_name='__main__')\n"
+      ]
+    },
+    {
+      "label": "standalone-cli",
+      "returncode": 0,
+      "command": [
+        "<PROJECT>/.cache/csharp-parser-preflight-2026-10-14/env/bin/python",
+        "-I",
+        "-c",
+        "import importlib.abc,os,runpy,socket,subprocess,sys\nclass NoModels(importlib.abc.MetaPathFinder):\n def find_spec(self,fullname,path=None,target=None):\n  if fullname.split('.')[0] in {'semantic_search','mlx','mlx_lm','mlx_vlm','torch','transformers'}: raise RuntimeError('Model/production imports blocked')\nsys.meta_path.insert(0,NoModels())\ndef blocked(*args,**kwargs):raise RuntimeError('Network/compiler/child execution blocked')\nsocket.socket.connect=socket.socket.connect_ex=socket.socket.sendto=blocked\nsubprocess.Popen=os.system=blocked\nsys.argv=['scripts/csharp_extractor_prototype.py', '<PROJECT>/results/csharp-extractor-prototype-2026-10-14/final-v1/authored-source.cs', '--path', 'examples/Authored.cs', '--output', '<PROJECT>/results/csharp-extractor-prototype-2026-10-14/final-v1/prototype-example.json']\nrunpy.run_path('<PROJECT>/scripts/csharp_extractor_prototype.py',run_name='__main__')\n"
+      ]
+    },
+    {
+      "label": "ruff",
+      "returncode": 0,
+      "command": [
+        ".venv/bin/ruff",
+        "check",
+        "scripts/csharp_extractor_prototype.py",
+        "tests/test_csharp_extractor_prototype.py"
+      ]
+    },
+    {
+      "label": "whitespace",
+      "returncode": 0,
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "--",
+        "scripts/csharp_extractor_prototype.py",
+        "tests/test_csharp_extractor_prototype.py",
+        "docs/csharp-extractor-prototype.md"
+      ]
+    }
+  ],
+  "original_cli_example_byte_identical": true,
+  "original_independent_literal_window_proof_remains_applicable": true,
+  "checks_passed": true,
+  "model_calls": 0,
+  "retrieval_calls": 0,
+  "csharp_program_executions": 0,
+  "production_or_editor_changes": false,
+  "limits": "Experimental source extraction only. Original grammar qualification and historical prototype v1 evidence unchanged; no compiler semantic equivalence or retrieval claim."
+}
