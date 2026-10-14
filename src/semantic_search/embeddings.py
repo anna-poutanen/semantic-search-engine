@@ -132,7 +132,7 @@ class QwenEmbedder:
         del outputs, pooled
         return vectors
 
-    def _embed_texts(self, texts, *, cancel_check=None):
+    def _embed_texts(self, texts, *, cancel_check=None, progress_callback=None):
         if not isinstance(texts, list) or any(not isinstance(t, str) or not t.strip() for t in texts):
             raise ValueError("Embedding inputs must be a list of nonempty strings")
         if not texts:
@@ -161,15 +161,19 @@ class QwenEmbedder:
             if cancel_check is not None:
                 cancel_check()
             completed = start + len(indices)
+            if progress_callback is not None:
+                progress_callback(completed, len(texts))
             if (self.progress and len(texts) > 1
                     and (completed - reported >= 32 or completed == len(texts))):
                 print(f"Embedded {completed}/{len(texts)} documents", flush=True)
                 reported = completed
         return output
 
-    def embed_documents(self, texts: list[str], *, cancel_check=None) -> np.ndarray:
+    def embed_documents(self, texts: list[str], *, cancel_check=None,
+                        progress_callback=None) -> np.ndarray:
         try:
-            return self._embed_texts(texts, cancel_check=cancel_check)
+            return self._embed_texts(texts, cancel_check=cancel_check,
+                                    progress_callback=progress_callback)
         finally:
             if self._mx is not None:
                 self._mx.clear_cache()
