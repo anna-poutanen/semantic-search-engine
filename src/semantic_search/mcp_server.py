@@ -7,6 +7,7 @@ from __future__ import annotations
 import argparse
 from functools import partial
 import hashlib
+from importlib.metadata import version
 import logging
 from pathlib import PurePosixPath
 from typing import Annotated, Literal
@@ -239,7 +240,7 @@ def create_mcp_server(server_url="http://127.0.0.1:8750", *, client=None, agent_
                               structured_content=None if agent_text_only else envelope)
 
     return Server(
-        "semantic-search", version="0.1.0",
+        "semantic-search", version=version("semantic-search-engine"),
         instructions=("Use search_code before broad source reads. Start with five results and a "
                       "2000-token budget. Read its scope: only saved implementations under source_root "
                       "are indexed; Git projects include tracked files only, and exclusions may narrow "
