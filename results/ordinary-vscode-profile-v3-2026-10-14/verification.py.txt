@@ -1,0 +1,208 @@
+"""Read-only actual-evidence recomputation; no producer import, editor, or model call."""
+import datetime as dt
+import hashlib
+import json
+import os
+from pathlib import Path
+import zipfile
+
+ROOT = Path.cwd()
+OUT = ROOT / 'results/ordinary-vscode-profile-v3-2026-10-14'
+EXPECTED_PLAN = '03c073022e6abc034bb167794ddd3d5b2d68aaf4eea4b8b40138a1ad6085e31e'
+EXPECTED_PRODUCT = 'e798b21af047e1aca6b13d4d6e14aa5c6ec0069225eb5cdd611c9f93724aed60'
+SOURCE = 'def ordinary_message():\n    return "owned ordinary profile fixture"\n'
+
+def sha(data):
+    return hashlib.sha256(data).hexdigest()
+
+def load(path):
+    return json.loads(path.read_bytes())
+
+def canonical(value):
+    return json.dumps(value, sort_keys=True, ensure_ascii=False, separators=(',', ':'))
+
+def instant(value):
+    return dt.datetime.fromisoformat(value.replace('Z', '+00:00'))
+
+def absent(identifier, group=False):
+    try:
+        os.kill(-identifier if group else identifier, 0)
+    except ProcessLookupError:
+        return True
+    return False
+
+receipt = load(OUT / 'receipt.json')
+plan_path = Path(receipt['plan_file']['path'])
+assert sha(plan_path.read_bytes()) == receipt['plan_file']['sha256'] == EXPECTED_PLAN
+plan = load(plan_path)
+assert receipt['plan_canonical_sha256'] == sha(canonical(plan).encode())
+assert receipt['source'] == plan['source']
+assert receipt['host'] == plan['host']
+assert plan['host']['version'] == '1.141.0'
+assert plan['host']['commit'] == '2a59476c9bfcb90b3ddc372c36762471b7dfad1c'
+assert sha(Path(plan['host']['executable']).read_bytes()) == plan['host']['executable_sha256'] == 'e9760eca0a62d96ff2bb334ef5c8d3b677a6275a2dd0cf5a63c356b7a19435a2'
+assert sha(Path(plan['host']['cli']).read_bytes()) == plan['host']['cli_sha256']
+assert sha(Path(plan['node']['executable']).read_bytes()) == plan['node']['sha256']
+for base, inventory in [(ROOT / 'extensions/vscode', plan['source']['target']), (ROOT / 'scripts/ordinary_vscode_sidecar', plan['source']['sidecar']), (Path(plan['vsce']['path']), plan['vsce']['files'])]:
+    for name, expected in inventory.items():
+        path = base / name
+        assert not path.is_symlink()
+        data = path.read_bytes()
+        assert len(data) == expected['bytes'] and sha(data) == expected['sha256']
+helper = plan['source']['helper']
+assert sha((ROOT / helper['path']).read_bytes()) == helper['sha256']
+archives = {}
+for name in ['product', 'sidecar']:
+    filename = OUT / (name + '.vsix')
+    data = filename.read_bytes()
+    recorded = receipt[name + '_vsix']
+    assert len(data) == recorded['bytes'] and sha(data) == recorded['sha256']
+    with zipfile.ZipFile(filename) as archive:
+        names = archive.namelist()
+        assert len(names) == len(set(names))
+        members = {key: archive.read(key) for key in names if not key.endswith('/')}
+    assert set(members) == set(recorded['members'])
+    for key, value in members.items():
+        assert recorded['members'][key] == {'sha256': sha(value), 'bytes': len(value)}
+    archives[name] = members
+    manifest = json.loads(members['extension/package.json'])
+    if name == 'product':
+        assert len(data) == 53874 and sha(data) == EXPECTED_PRODUCT
+        assert manifest['publisher'] + '.' + manifest['name'] == 'anna-poutanen.semantic-search-local'
+        assert manifest['version'] == '0.1.0' and manifest['main'] == './dist/src/extension.js'
+        assert manifest['capabilities']['untrustedWorkspaces']['supported'] is False
+        expected_exec = {key: val for key, val in plan['source']['target'].items() if key.startswith('dist/src/')}
+    else:
+        assert manifest['publisher'] + '.' + manifest['name'] == 'semantic-search-evaluation.semantic-search-profile-probe'
+        assert manifest['activationEvents'] == ['onStartupFinished']
+        assert manifest['capabilities']['untrustedWorkspaces']['supported'] is True
+        expected_exec = {'extension.cjs': plan['source']['sidecar']['extension.cjs']}
+    assert receipt[name + '_source_binding']['manifest_matches_source'] is True
+    assert receipt[name + '_source_binding']['executable_files'] == expected_exec
+    for key, expected in expected_exec.items():
+        assert sha(members['extension/' + key]) == expected['sha256']
+        assert len(members['extension/' + key]) == expected['bytes']
+
+assert receipt['passed'] is True and receipt['interrupted'] is False and receipt['observed_signals'] == []
+assert [row['mode'] for row in receipt['modes']] == ['trusted', 'restricted']
+assert type(receipt['model_calls']) is int and receipt['model_calls'] == 0
+assert type(receipt['inference_calls']) is int and receipt['inference_calls'] == 0
+assert not Path(receipt['owned_root']).exists()
+current_probes = []
+for handle in receipt['cleanup']:
+    stop = handle['stop']
+    assert handle['pid'] == handle['pgid'] == stop['pid'] == stop['pgid']
+    assert handle['actual_pgid_verified'] is True and stop['actual_pgid_verified'] is True
+    assert stop['clean'] is True and stop['group_absent'] is True and stop['forced_kill'] is False and stop['errors'] == []
+    assert stop['signals_sent'] == []
+    assert handle['code'] == 0 and handle['signal'] is None
+    assert absent(handle['pid']) and absent(handle['pgid'], True)
+    current_probes.append({'kind': handle['kind'], 'pid': handle['pid'], 'pgid': handle['pgid'], 'current_pid_absent': True, 'current_group_absent': True})
+    assert not any('extensionDevelopmentPath' in arg or 'extensionTestsPath' in arg or arg == '--disable-extensions' or 'enable-proposed-api' in arg for arg in handle['arguments'])
+for row in receipt['modes']:
+    mode = row['mode']
+    sidecar_file = OUT / (mode + '-sidecar-result.json')
+    sidecar = load(sidecar_file)
+    assert sidecar == row['sidecar'] and sidecar['passed'] is True
+    assert sidecar['vscode_version'] == plan['host']['version'] and sidecar['sidecar_extension_mode'] == 1
+    assert sidecar['development_host_flags'] is False and sidecar['remote_name'] is None
+    assert sidecar['model_calls'] == sidecar['inference_calls'] == 0
+    assert row['passed'] is True and row['listener_closed'] is True
+    assert row['installed_before'] == row['installed_after']
+    for installed, name in zip(row['installed_before'], ['product', 'sidecar']):
+        assert installed['manifest_normalized_matches'] is True
+        archive = archives[name]
+        expected_files = {key[10:]: {'sha256': sha(value), 'bytes': len(value)} for key, value in archive.items() if key.startswith('extension/')}
+        expected_files['.vsixmanifest'] = {'sha256': sha(archive['extension.vsixmanifest']), 'bytes': len(archive['extension.vsixmanifest'])}
+        assert set(installed['files']) == set(expected_files)
+        for key in expected_files:
+            if key != 'package.json':
+                assert installed['files'][key] == expected_files[key]
+    arguments = row['host']['arguments']
+    own_phase = Path(receipt['owned_root']) / mode
+    assert arguments[0] == str(own_phase / 'repository')
+    for option, suffix in [('user-data-dir', 'user-data'), ('extensions-dir', 'extensions'), ('shared-data-dir', 'shared-data')]:
+        assert '--' + option + '=' + str(own_phase / suffix) in arguments
+    for install in row['installs']:
+        assert '--shared-data-dir=' + str(own_phase / 'shared-data') in install['arguments']
+    assert (('--disable-workspace-trust' in arguments)) == (mode == 'trusted')
+    assert row['settings']['security.workspace.trust.enabled'] is True
+    assert row['trust_disabled_cli'] == (mode == 'trusted')
+    assert row['ipc_path']['utf8_bytes'] == len(row['ipc_path']['path'].encode()) <= 103
+    assert sidecar['observed_trusted'] == (mode == 'trusted')
+    identity = row['sidecar_identity']
+    assert identity['nonce'] == sidecar['nonce'] == row['quit_request']['nonce']
+    assert identity['process_pid'] == sidecar['ownership']['process_pid'] == row['quit_request']['process_pid']
+    assert identity['observed_pgid'] == row['host']['pgid']
+    assert absent(identity['process_pid']) and absent(identity['observed_pgid'], True)
+    current_probes.append({'kind': 'sidecar-' + mode, 'pid': identity['process_pid'], 'pgid': identity['observed_pgid'], 'current_pid_absent': True, 'current_group_absent': True})
+    cleanup = row['sidecar_cleanup']
+    assert cleanup['proved_absent'] is True and cleanup['pid_absent'] is True and cleanup['pgid_absent'] is True and cleanup['errors'] == []
+    quit_request = row['quit_request']
+    assert quit_request['command'] == 'workbench.action.quit' and quit_request['after_terminal_proof'] is True
+    assert quit_request['proof_sha256'] == sha(sidecar_file.read_bytes())
+    assert instant(sidecar['finished_utc']) <= instant(quit_request['requested_utc']) <= instant(row['host_cleanup']['started_utc'])
+    host_stop = row['host_cleanup']
+    assert host_stop['graceful_quit_requested'] is True and host_stop['signals_sent'] == []
+    assert host_stop['graceful_wait']['graceful_exit_observed'] is True and host_stop['graceful_wait']['signals_sent'] == []
+    shared_line = "Creating shared storage database at '" + str(own_phase / 'shared-data/sharedStorage/state.vscdb')
+    assert shared_line in row['host']['stdout']
+    assert '.vscode-shared/sharedStorage/state.vscdb' not in row['host']['stdout']
+    if mode == 'trusted':
+        assert sidecar['extension_available'] is True and sidecar['target_initially_active'] is False
+        assert sidecar['target_active_after_connect'] is True and sidecar['activation_transition_observed'] is True
+        assert sidecar['installed_target']['path'] == row['installed_before'][0]['path']
+        assert sidecar['installed_target']['id'] == 'anna-poutanen.semantic-search-local' and sidecar['installed_target']['version'] == '0.1.0'
+        assert all(value is True for value in sidecar['checks'].values())
+        expected_defaults = {'semanticSearch.retrieval': 'dense', 'semanticSearch.rerank': False, 'semanticSearch.rerankProvider': 'h2o',
+            'semanticSearch.candidates': 4, 'semanticSearch.maxResults': 8, 'semanticSearch.sourceBudget': 12000,
+            'semanticSearch.tokenBudget': 4096, 'semanticSearch.includeDependencies': True}
+        for key, value in expected_defaults.items(): assert sidecar['default_settings'][key] == value
+        assert [(req['method'], req['endpoint'], req['status']) for req in row['product_http']] == [('GET', '/status', 200), ('POST', '/search', 200), ('GET', '/status', 200), ('POST', '/search', 400)]
+        default = row['product_http'][1]
+        body = default['request']
+        for key, value in {'retrieval': 'dense', 'rerank': False, 'candidates': 4, 'max_results': 8, 'source_budget': 12000, 'token_budget': 4096, 'include_dependencies': True}.items(): assert body[key] == value
+        assert 'rerank_provider' not in body and 'overlays' not in body
+        found = sidecar['default_search']; assert found['phase'] == 'ready' and len(found['entries']) == 1
+        hit = found['entries'][0]
+        assert hit['staleReason'] is None and hit['result']['source'] == SOURCE
+        assert hit['result']['source_hash'] == hit['result']['content_hash'] == hit['saved']['fileHash'] == sha(SOURCE.encode())
+        assert (hit['result']['start_line'], hit['result']['end_line'], hit['result']['window_end_line']) == (1, 2, 2)
+        assert hit['result']['truncated'] is False and hit['result']['h2o_score'] is None
+        response = found['response']; assert response['total_source_chars'] == len(SOURCE) == 68 <= response['source_budget'] == 12000
+        assert response['token_usage'] == {'encoding': 'cl100k_base', 'tokens': 128, 'budget': 4096, 'truncated': False}
+        assert sidecar['navigation']['start_line'] == 1 and sidecar['navigation']['end_line'] == 2
+        assert sidecar['navigation']['uri'].endswith('/trusted/repository/src/ordinary.py')
+        qwen = row['product_http'][3]
+        assert qwen['request']['rerank'] is True and qwen['request']['rerank_provider'] == 'qwen'
+        assert qwen['response'] == {'error': {'code': 'invalid_request', 'message': 'Qwen reranking is not configured'}}
+        denied = sidecar['qwen_fixture_denial']; assert denied['phase'] == 'error' and denied['entries'] == [] and denied['response'] is None
+        assert '--enable-qwen-reranker' in denied['message'] and 'Qwen reranking is not configured' in denied['message']
+    else:
+        assert sidecar['extension_available'] is False and sidecar['target_initially_active'] is False and sidecar['target_active_after_commands'] is False
+        assert sidecar['product_commands_registered'] == [] and row['product_http'] == []
+        assert [item['command'] for item in sidecar['denials']] == ['semanticSearch.connect', 'semanticSearch.find', 'semanticSearch.status']
+        for denial in sidecar['denials']:
+            assert denial['observed_trusted_before'] is False and denial['refused'] is True and denial['denial_kind'] == 'command-unavailable'
+            assert denial['error'] == "command '" + denial['command'] + "' not found"
+
+raw_files = ['receipt.json', 'trusted-sidecar-result.json', 'restricted-sidecar-result.json', 'product.vsix', 'sidecar.vsix']
+record = {'classification': 'Read-only independent recomputation of actual raw evidence, without producer imports or reruns; verifier also authored the acceptance harness',
+    'checks_passed': True, 'verified_utc': dt.datetime.now(dt.timezone.utc).isoformat(),
+    'model_calls': 0, 'inference_calls': 0, 'editor_reruns': 0, 'plan_literal_sha256': EXPECTED_PLAN,
+    'raw_artifact_sha256': {str((OUT / name).relative_to(ROOT)): sha((OUT / name).read_bytes()) for name in raw_files},
+    'raw_plan_path': str(plan_path.relative_to(ROOT)), 'raw_plan_sha256': sha(plan_path.read_bytes()),
+    'verification_source_sha256': sha(Path(__file__).read_bytes()), 'current_process_probes': current_probes,
+    'current_owned_root_absent': True, 'source_and_installed_observations_reconcile': True,
+    'modes': {'trusted': {'inactive_to_active_installed_product': True, 'product_http_attempts': 4, 'public_source_navigation_verified': True, 'graceful_quit_without_signals': True},
+              'restricted': {'workspace_trusted': False, 'product_available': False, 'public_commands_unavailable': 3, 'product_http_attempts': 0, 'graceful_quit_without_signals': True}},
+    'product_vsix': {'bytes': 53874, 'sha256': EXPECTED_PRODUCT},
+    'limits': ['Authored zero-model HTTP fixture; token count128 is a schema placeholder, not independently measured cl100k usage.',
+               'Trusted profile disables workspace trust; interactive trust-prompt/persisted-trusted-folder UX is not established.',
+               'Qwen provider selection/setup-error handling only; no reranking inference, quality, or latency claim.',
+               'Installed profiles were deleted after success; exact installed pre/post hashes, preview/editor checks, and listener closure are source-bound native producer observations. This verifier rechecks saved evidence and current process absence, not deleted files or an unretained listener port.',
+               'Original socket-path failure and v2 signal-cleanup/shared-storage exposure remain separate failed attempts.'],
+    'publication_note': 'Hashes bind raw pre-redaction bytes. Public redaction must retain an explicit private-raw/public-byte mapping.'}
+with (OUT / 'independent-verification.json').open('x') as handle:
+    json.dump(record, handle, indent=2); handle.write('\n')
+print(json.dumps({'checks_passed': True, 'raw_artifacts': len(raw_files), 'current_process_probes': len(current_probes), 'product_sha256': EXPECTED_PRODUCT}))

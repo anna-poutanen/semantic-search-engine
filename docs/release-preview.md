@@ -3,7 +3,8 @@
 An Apple Silicon prototype for finding local Python, JavaScript and TypeScript
 implementations by behavior. Qwen3-Embedding-0.6B stays resident behind a loopback
 service; SQLite FTS5 and exact cosine retrieval support BM25, dense and hybrid
-search. H2O reranking is optional and was off in the demonstrations below.
+search. H2O and Qwen reranking are optional. Dense retrieval with reranking off remains
+the fast default; optional Qwen has separate native integration evidence.
 
 The current product includes saved tracked-source indexing, source-root and
 exclusion controls, durable vector reuse, saved-file watching, bounded exact
@@ -21,8 +22,9 @@ saved source/index. Default searches continue to use saved files.
 | [Actual editor runs](../results/editor-workflows-2026-10-13/findings.md) | Saved/dirty Python–JS–TS search, previews/navigation, Unicode/BOM/CRLF, stale-input rejection, cancellation/replacement, watcher updates, rename/delete and malformed saved-source errors | VS Code 1.141.0 Development Host and a small authored fixture |
 | [Overlay/cache proof](../results/live-overlays-2026-10-13/findings.md) | Literal editor text and unchanged saved parent index; later saved/reopened vector reuse | Authored real-Qwen probe plus separate CPU live-WAL tests; no atomic cross-process SQLite lock |
 | [Installer validation](installer-validation.md) | Pinned Mac dependency setup and separate fresh-environment checks | One existing Apple Silicon Mac; cached setup timing is not cold-install/download timing |
-| [Installed package](../results/editor-package-2026-10-13/findings.md) | Exact installed VSIX payload, seven real Qwen saved/dirty searches, navigation and cancellation | Isolated Extension Development Host; ordinary profile activation remains untested |
+| [Installed package](../results/editor-package-2026-10-13/findings.md) | Exact installed VSIX payload, seven real Qwen saved/dirty searches, navigation and cancellation | Historical isolated Extension Development Host; newer ordinary-profile evidence is recorded separately |
 | [Editor guard acceptance](../results/editor-acceptance-2026-10-13/findings.md) | Actual false trust with zero product HTTP; wrong repository, connected-folder removal and offline errors | Separate Development Hosts with an authored HTTP fixture, no model |
+| [Ordinary installed profiles](../results/ordinary-vscode-profile-v3-2026-10-14/findings.md) | Normally installed public-command activation, default search, preview/navigation, Qwen setup guidance, and actual Restricted Mode with zero product HTTP | Fresh ordinary Code 1.141.0 profiles; zero-model HTTP fixture, trusted phase explicitly disables trust |
 
 The demo's public receipt contains verified summaries. Its CPU companion checks
 all 18 against saved lines/hashes and records source/package identity after
@@ -72,17 +74,20 @@ The backend remains a separately started local process; the extension installs
 no model or Python environment.
 
 Download the verified VSIX from the
-[GitHub preview release](https://github.com/anna-poutanen/semantic-search-engine/releases/tag/v0.1.0-preview.1),
+[GitHub preview release](https://github.com/anna-poutanen/semantic-search-engine/releases/tag/v0.1.0-preview.2),
 then use **Extensions: Install from VSIX**. Connect it to the separately started
-service indexing the same trusted local workspace folder. The 51,493-byte asset
-has SHA-256 `be4f32bdb58e45693244a933dbfd2effc35fdaaa4cc3f3bb44237bb1c3b9da9b`;
-GitHub's uploaded asset digest matches the tested local package.
+service indexing the same trusted local workspace folder. The 53,874-byte asset
+has SHA-256 `e798b21af047e1aca6b13d4d6e14aa5c6ec0069225eb5cdd611c9f93724aed60`;
+GitHub's uploaded asset digest is checked against the tested local package.
+The manifest remains version `0.1.0`; replacing preview 1 may require accepting
+the replacement and reloading, or CLI installation with `--force`.
 
 Separate native acceptance checks observed actual false Workspace Trust,
 multi-folder selection/removal and offline failure handling. These exercised
-product guards in a Development Host with an authored HTTP fixture. Development
-extensions can bypass ordinary enablement rules, so ordinary-profile Restricted
-Mode activation remains a distinct untested behavior.
+product guards in a Development Host with an authored HTTP fixture. The separate ordinary-profile run now observes Production extension mode,
+public activation, and actual Restricted Mode disablement. Its four trusted
+fixture HTTP requests and zero restricted requests are integration evidence,
+with no model inference; trust-prompt UX remains untested.
 
 ## Quality and measurement limits
 
@@ -99,16 +104,21 @@ before inference; this is a retrieval-settings holdout, not an untouched-source
 claim. Absent queries still returned decoys with abstention off. These results
 prove neither absence nor coding correctness. [Retrieval findings](../results/language-quality-2026-10-13/findings.md)
 
-The 16-attempt coding comparison yielded only **three qualified pairs** with
-normal completion and passes on both frozen and restored-original gates. On
-that outcome-selected subset, MCP used **9.23% more provider-reported input plus
-output** and **18.62% more uncached input**. Six usage receipts are unavailable;
-full-workload totals remain unknown. Supplemental probes found defects even in
-some gate-passing outputs. The **30% token-saving target was not established**;
-shorter local output is not provider-token or monetary savings. [Coding findings](../results/multifile-workflows-2026-10-13/findings.md)
+The [completed eighteen-attempt coding study](../results/qwen-coding-workflows-2026-10-14/findings.md)
+completes 2/6 correctly in each of ordinary tools, fast MCP and Qwen MCP. On the
+two matched correct pairs, Qwen versus fast MCP uses 18.52% more gross tokens,
+21.30% less uncached input and 0.72% more full trial time. One timeout has unknown
+usage; provider failures, supplemental defects and checker limits are preserved.
+The 30% token-saving target is unmet. Smaller local context is not provider-token
+or monetary savings.
 
-The studies and authored demos do not establish large-repository model latency,
-general workflow gains, or paid-token benefits. Cancellation is cooperative;
+The [real Django profile](../results/django-index-profile-2026-10-14/findings.md)
+validates 9,097 windows, all nine persistence stages and warm dense/hybrid backend
+P95 of about 0.72 seconds without reranking/HTTP transport. Its 3.89-second CPU
+reopen excludes model/service startup. The [Werkzeug allocation study](../results/context-holdout-werkzeug-v2-2026-10-14/findings.md)
+fails the primary twelve-excerpt complete-improvement gate; eight stays default.
+These finite samples establish no general workflow gain, throughput guarantee
+or paid-token benefit. Cancellation is cooperative;
 an active Metal forward can finish before it is observed. Source proofs do not
 lock files against changes after the final check.
 

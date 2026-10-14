@@ -31,13 +31,14 @@ the [CLI/API examples](backend-api.md), [MCP setup](mcp.md), or
 this kit changes no agent or editor settings. The ordinary CLI/MCP workflow
 searches saved source; explicit dirty-buffer search is an editor feature.
 
-The current downloadable package remains the
-[v0.1.0-preview.1 GitHub release](https://github.com/anna-poutanen/semantic-search-engine/releases/tag/v0.1.0-preview.1).
-Follow its [preview installation guide](release-preview.md). An updated package
-must be tested and uploaded separately before that handoff changes; do not assume
-the published asset contains every newer source setting. Baseline dense/off
-evaluation does not require the optional Qwen editor controls. Their source
-setup is documented separately in [the Qwen editor guide](vscode-qwen-reranker.md).
+The updated downloadable package is the
+[v0.1.0-preview.2 GitHub release](https://github.com/anna-poutanen/semantic-search-engine/releases/tag/v0.1.0-preview.2).
+Follow the [preview installation guide](release-preview.md). Its exact asset was
+installed and tested in ordinary Code profiles, including Restricted Mode;
+optional Qwen controls are included, while actual model setup stays separate.
+The manifest is still `0.1.0`; accept replacement of preview 1 and reload, or use
+CLI installation with `--force`. Baseline dense/off evaluation does not require
+optional reranking. [Qwen editor setup](vscode-qwen-reranker.md)
 
 ## A short tester session
 
@@ -64,11 +65,12 @@ Use partial or leave the task outcome unattempted when uncertain. Changes to
 source, query wording, result/token limits or reranking make a different session;
 keep its feedback record separate.
 
-Ordinary installed-profile activation and Restricted Mode behavior remain a
-readiness item until separately evidenced. Existing authored Development Host
-checks are [documented here](packaged-editor-host.md), with separate
-[editor acceptance limits](editor-acceptance.md). Report what you actually
-observe on your ordinary profile; this handoff is not a claim that it has passed.
+The [ordinary installed-profile acceptance](../results/ordinary-vscode-profile-v3-2026-10-14/findings.md)
+passes public activation and actual Restricted Mode disablement in two fresh
+profiles. It uses a zero-model HTTP fixture and explicitly disables trust for
+the trusted phase, so independent users and trust-prompt UX remain valuable
+feedback. The existing [Development Host checks](packaged-editor-host.md) and
+[editor acceptance limits](editor-acceptance.md) retain their separate scope.
 
 ## Record a small local feedback file
 
