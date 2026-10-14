@@ -1,0 +1,100 @@
+{
+  "created_utc": "2026-10-14T13:26:02.320048+00:00",
+  "checks": {
+    "sources_stable": true,
+    "main_config_and_metadata_equal_original_smoke": true,
+    "original_grammar_helper_tests_plan_doc_unchanged": true,
+    "actual_binding_bytes_equal_original_smoke": true,
+    "authored_cli_literal_window_hash_id_and_body_coverage": true,
+    "all_commands_passed": true
+  },
+  "checks_passed": true,
+  "source_sha256_before": {
+    "scripts/csharp_extractor_prototype.py": "466479547d450d2a9193ec98cc22c6c97637a94c3f235b606917dc0003c961f6",
+    "tests/test_csharp_extractor_prototype.py": "7ddf508e3fe0eaf16197cd73ed4aad8a676bf8fb5b3e7bc22f62cfb5b3863bcb",
+    "docs/csharp-extractor-prototype.md": "abe8e34289c8f56e0543d87b169df78bc0573d95d9f632ce95e8f62ef654f1d4"
+  },
+  "source_sha256_after": {
+    "scripts/csharp_extractor_prototype.py": "466479547d450d2a9193ec98cc22c6c97637a94c3f235b606917dc0003c961f6",
+    "tests/test_csharp_extractor_prototype.py": "7ddf508e3fe0eaf16197cd73ed4aad8a676bf8fb5b3e7bc22f62cfb5b3863bcb",
+    "docs/csharp-extractor-prototype.md": "abe8e34289c8f56e0543d87b169df78bc0573d95d9f632ce95e8f62ef654f1d4"
+  },
+  "commands": [
+    {
+      "label": "isolated-grammar-tests",
+      "command": [
+        "<PROJECT>/.cache/csharp-parser-preflight-2026-10-14/env/bin/python",
+        "-I",
+        "-c",
+        "import importlib.abc,os,runpy,socket,subprocess,sys\nclass NoModels(importlib.abc.MetaPathFinder):\n def find_spec(self,fullname,path=None,target=None):\n  if fullname.split('.')[0] in {'semantic_search','mlx','mlx_lm','mlx_vlm','torch','transformers'}: raise RuntimeError('Model/production imports blocked')\nsys.meta_path.insert(0,NoModels())\ndef blocked(*args,**kwargs):raise RuntimeError('Network/compiler/child execution blocked')\nsocket.socket.connect=socket.socket.connect_ex=socket.socket.sendto=blocked\nsubprocess.Popen=os.system=blocked\nsys.argv=['tests/test_csharp_extractor_prototype.py', '-v']\nrunpy.run_path('<PROJECT>/tests/test_csharp_extractor_prototype.py',run_name='__main__')\n"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "main-portable-tests",
+      "command": [
+        "<PROJECT>/.venv/bin/python",
+        "-I",
+        "-c",
+        "import importlib.abc,os,runpy,socket,subprocess,sys\nclass NoModels(importlib.abc.MetaPathFinder):\n def find_spec(self,fullname,path=None,target=None):\n  if fullname.split('.')[0] in {'semantic_search','mlx','mlx_lm','mlx_vlm','torch','transformers'}: raise RuntimeError('Model/production imports blocked')\nsys.meta_path.insert(0,NoModels())\ndef blocked(*args,**kwargs):raise RuntimeError('Network/compiler/child execution blocked')\nsocket.socket.connect=socket.socket.connect_ex=socket.socket.sendto=blocked\nsubprocess.Popen=os.system=blocked\nsys.argv=['tests/test_csharp_extractor_prototype.py', '-v']\nrunpy.run_path('<PROJECT>/tests/test_csharp_extractor_prototype.py',run_name='__main__')\n"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "standalone-cli",
+      "command": [
+        "<PROJECT>/.cache/csharp-parser-preflight-2026-10-14/env/bin/python",
+        "-I",
+        "-c",
+        "import importlib.abc,os,runpy,socket,subprocess,sys\nclass NoModels(importlib.abc.MetaPathFinder):\n def find_spec(self,fullname,path=None,target=None):\n  if fullname.split('.')[0] in {'semantic_search','mlx','mlx_lm','mlx_vlm','torch','transformers'}: raise RuntimeError('Model/production imports blocked')\nsys.meta_path.insert(0,NoModels())\ndef blocked(*args,**kwargs):raise RuntimeError('Network/compiler/child execution blocked')\nsocket.socket.connect=socket.socket.connect_ex=socket.socket.sendto=blocked\nsubprocess.Popen=os.system=blocked\nsys.argv=['scripts/csharp_extractor_prototype.py', '<PROJECT>/results/csharp-extractor-prototype-2026-10-14/final-v1/authored-source.cs', '--path', 'examples/Authored.cs', '--output', '<PROJECT>/results/csharp-extractor-prototype-2026-10-14/final-v1/prototype-example.json']\nrunpy.run_path('<PROJECT>/scripts/csharp_extractor_prototype.py',run_name='__main__')\n"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "ruff",
+      "command": [
+        ".venv/bin/ruff",
+        "check",
+        "scripts/csharp_extractor_prototype.py",
+        "tests/test_csharp_extractor_prototype.py"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "whitespace",
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "--",
+        "scripts/csharp_extractor_prototype.py",
+        "tests/test_csharp_extractor_prototype.py",
+        "docs/csharp-extractor-prototype.md"
+      ],
+      "returncode": 0
+    }
+  ],
+  "actual_isolated_tests_passed": 13,
+  "main_portable_tests_passed": 6,
+  "main_optional_tests_skipped": 7,
+  "sample_definitions": 6,
+  "sample_windows": 8,
+  "sample_input_sha256": "f9f662c8ac0a450d12464bb151cd96db7eb90708c4aba5d8791a2ddd1ad69ee7",
+  "model_calls": 0,
+  "retrieval_calls": 0,
+  "csharp_program_executions": 0,
+  "installed_packages_or_env_mutations": false,
+  "production_or_editor_changes": false,
+  "guard_scope": "No model/production-helper imports, socket connect/connect_ex/sendto, subprocess children or os.system in all test/prototype child processes. Existing already-qualified isolated grammar env reused; no installs.",
+  "review": "Root reviewed prospective prototype source and requested strict path controls + explicit literal signature/semantic-equivalence limitations; both applied before this final development qualification.",
+  "limits": "Experimental development fixture proof only; not engine integration, Git/root/generated-file membership, compiler overload resolution, dependency/editor support, or retrieval quality.",
+  "artifact_sha256": {
+    "results/csharp-extractor-prototype-2026-10-14/final-v1/authored-source.cs": "f9f662c8ac0a450d12464bb151cd96db7eb90708c4aba5d8791a2ddd1ad69ee7",
+    "results/csharp-extractor-prototype-2026-10-14/final-v1/isolated-grammar-tests.log": "0efd65591b6520a7a7f695cec1ee389644b12b2eef0a685ba9d3a4f8b80921c5",
+    "results/csharp-extractor-prototype-2026-10-14/final-v1/main-portable-tests.log": "5040a37bc3f9aecfecf8a2661f88b8a33245c5728967ac7cde7692eb8e80b7a9",
+    "results/csharp-extractor-prototype-2026-10-14/final-v1/prototype-example.json": "ab7c2b6a2ba10571ee4b5b42514e7c5a6ab36d474f4e68abd2927aebe1a15de0",
+    "results/csharp-extractor-prototype-2026-10-14/final-v1/ruff.log": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+    "results/csharp-extractor-prototype-2026-10-14/final-v1/standalone-cli.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "results/csharp-extractor-prototype-2026-10-14/final-v1/whitespace.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}
