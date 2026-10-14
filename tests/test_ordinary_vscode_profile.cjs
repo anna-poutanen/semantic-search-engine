@@ -34,6 +34,62 @@ test('CLI requires explicit prepare/run, absolute exclusive output and frozen pl
     assert.throws(() => h.args(argv));
   }
 });
+test('prospective plan defaults to ten minutes and bounds explicit preparation deadlines', () => {
+  const now = Date.parse('2030-01-01T00:00:00.000Z');
+  assert.equal(h.preparationDeadline({}, now), '2030-01-01T00:10:00.000Z');
+  assert.equal(h.preparationDeadline({timeout_seconds: '900'}, now), '2030-01-01T00:15:00.000Z');
+  assert.equal(h.preparationDeadline({deadline_utc: '2030-01-01T00:04:00.000Z'}, now), '2030-01-01T00:04:00.000Z');
+  for (const timeout_seconds of ['NaN', 'Infinity', '0', '-1', '45', '901', '']) {
+    assert.throws(() => h.preparationDeadline({timeout_seconds}, now));
+  }
+  for (const deadline_utc of ['2030-01-01', '2030-01-01T00:10:00Z', '2029-12-31T23:59:59.000Z', '2030-01-01T00:15:01.000Z']) {
+    assert.throws(() => h.preparationDeadline({deadline_utc}, now));
+  }
+  assert.throws(() => h.preparationDeadline({deadline_utc: '2030-01-01T00:04:00.000Z', timeout_seconds: 600}, now), /not both/);
+});
+test('separate CPU processes recheck identical frozen inputs without extending plan deadline', () => {
+  const {execFileSync} = require('node:child_process');
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'ordinary-deadline-freeze-'));
+  const filename = path.join(directory, 'plan.json'), modulePath = require.resolve('../scripts/ordinary_vscode_profile.cjs');
+  try {
+    execFileSync(process.execPath, ['-e', `const h=require(${JSON.stringify(modulePath)}),fs=require('node:fs');
+      const plan={schema:1,deadline_utc:h.preparationDeadline({},Date.parse('2030-01-01T00:00:00.000Z')),host:{sha:'frozen'},source:{sha:'original'},expected:{version:'0.1.1',license:'MIT'}};
+      fs.writeFileSync(${JSON.stringify(filename)},JSON.stringify(plan));`]);
+    const output = execFileSync(process.execPath, ['-e', `const h=require(${JSON.stringify(modulePath)}),fs=require('node:fs');
+      const plan=JSON.parse(fs.readFileSync(${JSON.stringify(filename)}));Date.now=()=>Date.parse('2030-01-01T00:03:00.000Z');
+      h.checkPlan(plan,deadline=>{if(deadline!==plan.deadline_utc)throw Error('Deadline drift');return {...plan,deadline_utc:deadline}});
+      console.log(JSON.stringify({deadline:plan.deadline_utc,remaining:h.runDeadline(plan)-Date.now()}));`], {encoding: 'utf8'});
+    assert.deepEqual(JSON.parse(output), {deadline: '2030-01-01T00:10:00.000Z', remaining: 420000});
+    const plan = JSON.parse(fs.readFileSync(filename));
+    assert.throws(() => h.checkPlan(plan, () => ({...plan, deadline_utc: '2030-01-01T00:13:00.000Z'})), /deadline_utc/);
+    assert.throws(() => h.checkPlan(plan, deadline => ({...plan, deadline_utc: deadline, source: {sha: 'substitution'}})), /source/);
+  } finally { fs.rmSync(directory, {recursive: true}); }
+});
+test('expired frozen deadline and short cleanup budget reject before output or native launch', async () => {
+  const output = path.join(os.tmpdir(), 'ordinary-must-not-create-' + crypto.randomBytes(12).toString('hex'));
+  await assert.rejects(h.run({deadline_utc: '2026-10-14T13:37:05.000Z'}, output), /cleanup budget/);
+  assert.equal(fs.existsSync(output), false);
+  const now = Date.parse('2030-01-01T00:00:00.000Z');
+  for (const ms of [0, 44000, 45000]) {
+    assert.throws(() => h.runDeadline({deadline_utc: new Date(now + ms).toISOString()}, now), /cleanup budget/);
+  }
+  assert.equal(h.runDeadline({deadline_utc: new Date(now + 45001).toISOString()}, now), now + 45001);
+  assert.throws(() => h.ownerDeadline({}), /frozen plan deadline/);
+});
+test('run CLI cannot replace frozen deadline with fresh timeout or explicit date', () => {
+  const base = ['--run', '--plan', '/frozen/plan.json', '--expected-plan-sha256', 'a'.repeat(64), '--output', '/exclusive/output'];
+  assert.throws(() => h.args([...base, '--timeout-seconds', '600']), /only from frozen plan/);
+  assert.throws(() => h.args([...base, '--deadline-utc', '2030-01-01T00:10:00.000Z']), /only from frozen plan/);
+});
+test('current MIT product version is frozen from valid manifest rather than pinned to historical release', () => {
+  const manifest = JSON.parse(fs.readFileSync(path.join(__dirname, '../extensions/vscode/package.json')));
+  h.validateProductManifest(manifest);
+  for (const version of ['0.1.1', '1.0.0-beta.1', '2.1.0+release.3']) { h.validateProductManifest({...manifest, version}); }
+  for (const version of ['0.1', '01.1.1', '1.0.0-01', '1.0.0 ', '../1.0.0']) {
+    assert.throws(() => h.validateProductManifest({...manifest, version}), /semver/);
+  }
+  assert.throws(() => h.validateProductManifest({...manifest, license: 'UNLICENSED'}));
+});
 test('environment removes editor overrides, injections, inherited probe/model vars, proxies and Git hooks', () => {
   const result = h.environment({PATH: '/safe', HOME: '/owned-home', NODE_OPTIONS: '--require bad', NODE_USE_ENV_PROXY: '1',
     VSCODE_IPC_HOOK: 'bad', ELECTRON_RUN_AS_NODE: '1', SEMANTIC_QWEN_PYTHON: 'bad', ORDINARY_PROFILE_NONCE: 'bad',
@@ -141,12 +197,18 @@ test('restricted ordinary sidecar retains failed command success instead of clai
 });
 test('packaged product executable must match every prepared shipped compiled file', () => {
   const manifest = JSON.parse(fs.readFileSync(path.join(__dirname, '../extensions/vscode/package.json')));
-  const bytes = Buffer.from('frozen shipped executable');
-  const archive = {manifest, members: {'extension/dist/src/extension.js': bytes}};
-  const plan = {source: {target: {'dist/src/extension.js': {sha256: h.sha(bytes), bytes: bytes.length}}}};
+  const bytes = Buffer.from('frozen shipped executable'), license = fs.readFileSync(path.join(__dirname, '../LICENSE'));
+  const licenseWitness = {sha256: h.sha(license), bytes: license.length};
+  const archive = {manifest, members: {'extension/dist/src/extension.js': bytes, 'extension/LICENSE': license}};
+  const plan = {source: {target: {'dist/src/extension.js': {sha256: h.sha(bytes), bytes: bytes.length}, LICENSE: licenseWitness}, project_license: licenseWitness}};
   assert.equal(h.checkArchiveBindings(archive, plan, 'product').manifest_matches_source, true);
   archive.members['extension/dist/src/extension.js'] = Buffer.from('substitution');
   assert.throws(() => h.checkArchiveBindings(archive, plan, 'product'), /executable drift/);
+  archive.members['extension/dist/src/extension.js'] = bytes;
+  archive.members['extension/LICENSE'] = Buffer.from('missing MIT grant');
+  assert.throws(() => h.checkArchiveBindings(archive, plan, 'product'), /MIT license drift/);
+  delete archive.members['extension/LICENSE'];
+  assert.throws(() => h.checkArchiveBindings(archive, plan, 'product'), /MIT license drift/);
 });
 test('authored loopback fixture retains actual requests/defaults/denial and shuts down', async () => {
   const http = require('node:http'), service = await h.fixture('/owned/repository');
@@ -229,6 +291,17 @@ test('late signal during final profile removal is retained and cannot publish pa
     assert.ok(process.listeners('SIGTERM').includes(handler));
   } finally { process.removeListener('SIGTERM', handler); fs.rmSync(output, {recursive: true}); if (fs.existsSync(owner.root)) { await remove(owner); } }
 });
+test('deadline elapsed during final removal cannot publish a passing receipt', async () => {
+  const owner = owned(), output = fs.mkdtempSync(path.join(os.tmpdir(), 'ordinary-late-deadline-'));
+  try {
+    const receipt = {passed: true};
+    await h.finalizePublication(owner, receipt, output, async root => {
+      fs.rmSync(root, {recursive: true}); owner.deadline = Date.now() - 1;
+    });
+    assert.equal(receipt.passed, false); assert.equal(receipt.owned_profile_removed, true);
+    assert.equal(JSON.parse(fs.readFileSync(path.join(output, 'receipt.json'))).passed, false);
+  } finally { fs.rmSync(output, {recursive: true}); if (fs.existsSync(owner.root)) { await remove(owner); } }
+});
 test('distinct surviving sidecar group is unproved and private profile is retained', async () => {
   const owner = owned(), output = fs.mkdtempSync(path.join(os.tmpdir(), 'ordinary-sidecar-survive-'));
   try {
@@ -258,6 +331,27 @@ test('sidecar disappearance independently requires both actual PID and group abs
   }
   const failed = await h.probeSidecarGone(identity, 0, {pidAlive: () => { throw new Error('probe denied'); }, groupAlive: () => false});
   assert.equal(failed.proved_absent, false); assert.deepEqual(failed.errors, ['probe denied']);
+});
+test('denied PID or group probe means still alive; only ESRCH establishes absence', () => {
+  const original = process.kill;
+  try {
+    for (const code of ['EPERM', 'ESRCH', 'EIO']) {
+      process.kill = () => { const error = new Error('probe ' + code); error.code = code; throw error; };
+      for (const probe of [h.pidAlive, h.groupAlive]) {
+        if (code === 'EIO') { assert.throws(() => probe(12345), /probe EIO/); }
+        else { assert.equal(probe(12345), code === 'EPERM'); }
+      }
+    }
+  } finally { process.kill = original; }
+});
+test('graceful disappearance polls through denied probe and still requires both ESRCH', async () => {
+  const original = process.kill; let attempts = 0;
+  try {
+    process.kill = () => { const error = new Error('transient reap'); error.code = ++attempts < 3 ? 'EPERM' : 'ESRCH'; throw error; };
+    const receipt = await h.waitForGracefulExit({pid: 12345, pgid: 12345}, 100);
+    assert.equal(receipt.graceful_exit_observed, true); assert.ok(attempts >= 4);
+    assert.deepEqual(receipt.signals_sent, []);
+  } finally { process.kill = original; }
 });
 test('restricted denial classifier accepts only exact guard or command-specific unavailable', () => {
   const command = 'semanticSearch.find';
@@ -360,7 +454,7 @@ test('editor parent waits for actual normal PID/group exit after proof instead o
     const handle = h.startOwned(owner, process.execPath, ['-e', 'setTimeout(()=>process.exit(0),150)'], {kind: 'editor'});
     handle.quit_requested = true;
     const receipt = await h.stopOwned(owner, handle, {gracefulWaitMs: 1000}); await handle.exit;
-    assert.equal(receipt.clean, true); assert.equal(receipt.graceful_wait.graceful_exit_observed, true);
+    assert.equal(receipt.clean, true, JSON.stringify(receipt)); assert.equal(receipt.graceful_wait.graceful_exit_observed, true);
     assert.equal(receipt.graceful_wait.pid_absent, true); assert.equal(receipt.graceful_wait.group_absent, true);
     assert.deepEqual(receipt.signals_sent, []); assert.equal(handle.code, 0); assert.equal(handle.signal, null);
   } finally { await remove(owner); }
