@@ -575,3 +575,28 @@ def test_valid_json_nonobject_configuration_has_actionable_refusal(quick, tmp_pa
     (tmp_path / "config.json").write_text("[]")
     with patch.object(quick, "WEIGHTS_SHA", sha), pytest.raises(ValueError, match="configuration"):
         quick.check_model(tmp_path)
+
+
+@pytest.mark.parametrize('value,expected', [('src/', 'src'), ('./src', 'src'), ('.', '.')])
+def test_own_repo_scope_matches_backend_canonical_identity(quick, tmp_path, mac, value, expected):
+    repo = tmp_path / 'My Project'
+    (repo / '.git').mkdir(parents=True)
+    (repo / 'src').mkdir()
+    python = tmp_path / '.cache/quickstart/venv/bin/python'
+    with patch.object(quick, 'ROOT', tmp_path), patch.object(quick.sys.stdin, 'isatty', return_value=True), \
+            patch.object(quick, 'setup_runtime', return_value=(python, {})), patch.object(quick, 'setup_model'), \
+            patch.object(quick, 'interactive') as interactive:
+        quick.main(['--uv-path', str(tmp_path / 'uv'), '--repo', str(repo), '--source-root', value])
+    interactive.assert_called_once_with(python, repo.resolve(), expected, tmp_path / '.cache/quickstart')
+
+
+def test_own_repo_source_symlink_escape_stops_before_install(quick, tmp_path, mac):
+    repo, external = tmp_path / 'repo', tmp_path / 'outside'
+    (repo / '.git').mkdir(parents=True)
+    external.mkdir()
+    (repo / 'src').symlink_to(external, target_is_directory=True)
+    with patch.object(quick.sys.stdin, 'isatty', return_value=True), patch.object(quick, 'setup_runtime') as runtime:
+        with pytest.raises(SystemExit) as error:
+            quick.main(['--uv-path', str(tmp_path / 'uv'), '--repo', str(repo)])
+    assert error.value.code == 2
+    runtime.assert_not_called()

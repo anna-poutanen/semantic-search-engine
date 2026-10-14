@@ -265,6 +265,10 @@ def main(argv=None):
         source = Path(args.source_root)
         if source.is_absolute() or ".." in source.parts or not (repo / source).is_dir():
             parser.error("--source-root must be an existing repository-relative directory without '..'")
+        resolved_source = (repo / source).resolve()
+        if not resolved_source.is_relative_to(repo):
+            parser.error("--source-root must resolve inside the selected repository")
+        source_root = str(resolved_source.relative_to(repo))
         if not (repo / ".git").exists():
             parser.error("--repo must name a Git checkout root (linked worktrees are supported)")
     def interrupt(signum, frame):
@@ -295,8 +299,6 @@ def main(argv=None):
             if repo is None:
                 repo = prepare(fresh_destination())
                 source_root = "src"
-            else:
-                source_root = args.source_root
             interactive(python, repo, source_root, work)
     except KeyboardInterrupt:
         parser.exit(130, "\nInterrupted; owned service cleanup completed. Rerun to resume setup.\n")
