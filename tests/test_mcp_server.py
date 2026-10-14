@@ -243,7 +243,7 @@ class MCPServerTests(unittest.IsolatedAsyncioTestCase):
                 initialized = receive(1)
                 if not modern:
                     from importlib.metadata import version
-                    assert initialized["result"]["serverInfo"]["version"] == version("semantic-search-engine")
+                    assert initialized["serverInfo"]["version"] == version("semantic-search-engine")
                 if not modern:
                     send({"jsonrpc": "2.0", "method": "notifications/initialized"})
                 send({"jsonrpc": "2.0", "id": 2, "method": "tools/list",

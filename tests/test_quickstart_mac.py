@@ -596,7 +596,7 @@ def test_own_repo_scope_matches_backend_canonical_identity(quick, tmp_path, mac,
             patch.object(quick, 'interactive') as interactive:
         quick.main(['--uv-path', str(tmp_path / 'uv'), '--repo', str(repo), '--source-root', value])
     interactive.assert_called_once_with(python, repo.resolve(), expected, tmp_path / '.cache/quickstart',
-                                       timeout=1800, request_timeout=120, settings=quick.OWN_SETTINGS, toy=False, port=0)
+                                       timeout=1800, request_timeout=120, settings=quick.OWN_SETTINGS, toy=False, port=0, exclusions=[])
 
 
 def test_own_repo_source_symlink_escape_stops_before_install(quick, tmp_path, mac):
@@ -757,3 +757,26 @@ def test_beta_doctor_shell_is_offline_without_python(tmp_path):
     result=subprocess.run(['bash',launcher,'--doctor'],env=environment,capture_output=True,text=True,timeout=10)
     assert result.returncode==1 and 'Offline preflight' in result.stdout
     assert 'No downloads' in result.stdout and not (root/'.cache').exists()
+
+
+@pytest.mark.parametrize('pattern',['','../outside/*','/absolute/*'])
+def test_beta_invalid_exclusions_stop_before_setup(quick,pattern):
+    with patch.object(quick,'setup_runtime') as runtime,pytest.raises(SystemExit):
+        quick.main(['--uv-path','/unused','--exclude-source',pattern,'--setup-only'])
+    runtime.assert_not_called()
+
+
+def test_beta_exclusions_reach_backend_and_scope_binding(quick,tmp_path,beta_worker,capsys):
+    repo,_=beta_worker
+    # Wrap the fixture's actual worker creation to inspect CLI arguments.
+    original=quick.subprocess.Popen
+    calls=[]
+    def observe(arguments,**options):calls.append(arguments);return original(arguments,**options)
+    with patch.object(quick.subprocess,'Popen',side_effect=observe), \
+            patch.object(quick,'request_json',return_value={'repo':str(repo),'source_root':'src','ready':True,'windows':0,'source_exclusions':['src/templates/*.js']}), \
+            patch('builtins.input',return_value='q'):
+        quick.interactive(Path(sys.executable),repo,'src',tmp_path/'work',exclusions=['src/templates/*.js','src/templates/*.js'])
+    assert calls[0].count('--exclude-source')==1 and calls[0][-1]=='src/templates/*.js'
+    session=json.loads(next((tmp_path/'work/sessions').glob('*/session.json')).read_text())
+    assert session['source_exclusions']==['src/templates/*.js']
+    assert 'No eligible implementations' in capsys.readouterr().out
