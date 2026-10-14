@@ -42,6 +42,28 @@ function denialKind(error, command) {
   if (message === `command '${command}' not found` || message === `command "${command}" not found`) { return 'command-unavailable'; }
   return null;
 }
+function publishProof(filename, row) {
+  const temporary = filename + '.publishing';
+  const fd = fs.openSync(temporary, 'wx', 0o600);
+  try { fs.writeFileSync(fd, JSON.stringify(row, null, 2) + '\n'); fs.fsyncSync(fd); }
+  finally { fs.closeSync(fd); }
+  // No-replace atomic publication of the complete, flushed proof inode.
+  fs.linkSync(temporary, filename); fs.unlinkSync(temporary);
+}
+function requestQuitAfterProof(vscode, owned) {
+  const bytes = fs.readFileSync(owned.result), proof = JSON.parse(bytes);
+  assert.equal(proof.nonce, owned.nonce); assert.equal(proof.mode, owned.mode);
+  assert.equal(typeof proof.passed, 'boolean');
+  const request = {nonce: owned.nonce, command: 'workbench.action.quit', process_pid: owned.process_pid,
+    proof_sha256: sha(bytes), after_terminal_proof: true, requested_utc: new Date().toISOString()};
+  const filename = path.join(owned.root, owned.mode, 'quit-request.json');
+  fs.writeFileSync(filename, JSON.stringify(request, null, 2) + '\n', {flag: 'wx', mode: 0o600});
+  return Promise.resolve(vscode.commands.executeCommand(request.command)).catch(error => {
+    fs.writeFileSync(path.join(owned.root, owned.mode, 'quit-error.json'), JSON.stringify({nonce: owned.nonce,
+      command: request.command, error: String(error.message ?? error), observed_utc: new Date().toISOString()}, null, 2) + '\n', {flag: 'wx', mode: 0o600});
+    throw error;
+  });
+}
 async function probe(vscode, owned, env = process.env) {
   const row = { classification: 'Normally installed extensions in an isolated ordinary Code profile; authored HTTP fixture',
     nonce: owned.nonce, mode: owned.mode, passed: false, vscode_version: vscode.version,
@@ -122,7 +144,7 @@ async function probe(vscode, owned, env = process.env) {
   } catch (error) { row.error = String(error.message ?? error); }
   finally {
     row.finished_utc = new Date().toISOString();
-    fs.writeFileSync(owned.result, JSON.stringify(row, null, 2) + '\n', {flag: 'wx', mode: 0o600});
+    publishProof(owned.result, row);
   }
   return row;
 }
@@ -132,6 +154,6 @@ function activate(context) {
   const vscode = require('vscode');
   assert.equal(context.extensionMode, vscode.ExtensionMode.Production, 'Sidecar must be normally installed in production mode');
   owned.extension_mode = context.extensionMode;
-  void probe(vscode, owned).catch(error => { console.error('Ordinary profile probe failed:', error.message); });
+  void probe(vscode, owned).then(() => requestQuitAfterProof(vscode, owned)).catch(error => { console.error('Ordinary profile probe failed:', error.message); });
 }
-module.exports = {activate, ownership, probe, limit, denialKind};
+module.exports = {activate, ownership, probe, limit, denialKind, publishProof, requestQuitAfterProof};
