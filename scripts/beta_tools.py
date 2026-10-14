@@ -33,7 +33,7 @@ JS_EXCLUDED = frozenset(("node_modules", "bower_components", "dist", "build", "c
 ACTIONS = {
     "unsupported_machine": "Use an Apple Silicon Mac for the current beta.",
     "git_unavailable": "Run xcode-select --install, finish the Git installation, then retry.",
-    "disk_space_low": "Free disk space before retrying setup; keep at least 4 GiB available.",
+    "disk_space_low": "Free disk space before retrying setup; keep at least 6 GiB available.",
     "disk_unavailable": "Check that the extracted download is on an accessible local disk.",
     "runtime_missing": "Run Get Started.command to install the dedicated local runtime.",
     "runtime_unavailable": "Close the launcher, then rerun Get Started.command to check or repair the dedicated runtime.",
@@ -297,11 +297,11 @@ def diagnose(root, repo=None, source_root="src", *, verify_weights=True):
         issues.append("unsupported_machine")
     try:
         free = shutil.disk_usage(root).free
-        report["disk"] = {"state": "checked", "free_bytes": free, "recommended_free_bytes": 4 * 1024**3}
-        if free < 4 * 1024**3:
+        report["disk"] = {"state": "checked", "free_bytes": free, "recommended_free_bytes": 6 * 1024**3}
+        if free < 6 * 1024**3:
             issues.append("disk_space_low")
     except OSError:
-        report["disk"] = {"state": "unavailable", "free_bytes": None, "recommended_free_bytes": 4 * 1024**3}
+        report["disk"] = {"state": "unavailable", "free_bytes": None, "recommended_free_bytes": 6 * 1024**3}
         issues.append("disk_unavailable")
     git = shutil.which("git")
     report["git"] = {"working": False, "version": None}
@@ -348,7 +348,7 @@ def loopback_url(value):
         raise ValueError("MCP requires the current numeric loopback HTTP URL, including its port") from error
 
 
-def write_mcp_config(directory, python, url):
+def write_mcp_config(directory, python, url, *, tokenizer_cache=None):
     """Exclusively create two local snippets; never write client settings.
 
     Call only with an existing owned session directory and its live service URL.
@@ -361,6 +361,13 @@ def write_mcp_config(directory, python, url):
     if not python.is_absolute() or not python.is_file() or any(ord(char) < 32 or ord(char) == 127 for char in str(python)):
         raise ValueError("MCP requires the absolute dedicated Python executable")
     server = {"command": str(python), "args": ["-m", "semantic_search.mcp_server", "--server", loopback_url(url)]}
+    if tokenizer_cache is not None:
+        tokenizer_cache = Path(tokenizer_cache)
+        if (not tokenizer_cache.is_absolute() or not tokenizer_cache.is_dir()
+                or any(path.is_symlink() for path in (tokenizer_cache, *tokenizer_cache.parents))
+                or any(ord(char) < 32 or ord(char) == 127 for char in str(tokenizer_cache))):
+            raise ValueError("MCP tokenizer cache must be an absolute existing directory without symlinks")
+        server["env"] = {"TIKTOKEN_CACHE_DIR": str(tokenizer_cache)}
     payloads = {"generic": (directory / "mcp.json", {"mcpServers": {"semantic-search": server}}),
                 "vscode": (directory / "vscode-mcp.json", {"servers": {"semantic-search": {"type": "stdio", **server}}})}
     for path, _ in payloads.values():

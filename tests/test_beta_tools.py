@@ -236,6 +236,15 @@ def test_disk_error_and_unknown_machine_only_produce_fixed_categories(tmp_path):
     assert "PRIVATE" not in json.dumps(report) and "TOKEN" not in json.dumps(report)
 
 
+def test_doctor_recommends_six_gib_free_space(tmp_path):
+    with patch.object(beta.shutil, "disk_usage", return_value=SimpleNamespace(free=5 * 1024**3)), \
+            patch.object(beta.shutil, "which", return_value=None):
+        report = beta.diagnose(tmp_path)
+    assert report["disk"]["recommended_free_bytes"] == 6 * 1024**3
+    issue = next(item for item in report["issues"] if item["code"] == "disk_space_low")
+    assert "6 GiB" in issue["action"]
+
+
 def test_live_mcp_snippets_keep_virtualenv_command_with_spaces_and_the_actual_port(tmp_path):
     python = tmp_path / "package with spaces/.cache/quickstart/venv/bin/python"
     write(python, "fake interpreter")
@@ -261,6 +270,50 @@ def test_mcp_does_not_resolve_the_python_symlink_out_of_its_virtualenv(tmp_path)
     session.mkdir()
     files = beta.write_mcp_config(session, python, "http://127.0.0.1:49312")
     assert json.loads(files["generic"].read_text())["mcpServers"]["semantic-search"]["command"] == str(python)
+
+
+def test_mcp_binds_warmed_tokenizer_cache_for_clients_without_the_launcher_environment(tmp_path):
+    python = tmp_path / "venv/bin/python"
+    write(python, "fake interpreter")
+    session = tmp_path / "session"
+    session.mkdir()
+    cache = tmp_path / "cache with spaces/tiktoken"
+    cache.mkdir(parents=True)
+    files = beta.write_mcp_config(session, python, "http://127.0.0.1:49152", tokenizer_cache=cache)
+    for name, wrapper in (("generic", "mcpServers"), ("vscode", "servers")):
+        definition = json.loads(files[name].read_text())[wrapper]["semantic-search"]
+        assert definition["env"] == {"TIKTOKEN_CACHE_DIR": str(cache)}
+        assert definition["args"][-1] == "http://127.0.0.1:49152"
+
+
+@pytest.mark.parametrize("kind", ["relative", "missing", "file", "symlink", "parent_symlink", "control"])
+def test_mcp_refuses_invalid_cache_without_creating_snippets(tmp_path, kind):
+    python = tmp_path / "venv/bin/python"
+    write(python, "fake interpreter")
+    session = tmp_path / "session"
+    session.mkdir()
+    cache = tmp_path / "cache/tiktoken"
+    cache.mkdir(parents=True)
+    if kind == "relative":
+        cache = Path("cache/tiktoken")
+    elif kind == "missing":
+        cache = tmp_path / "missing"
+    elif kind == "file":
+        cache = python
+    elif kind == "symlink":
+        alias = tmp_path / "alias"
+        alias.symlink_to(cache, target_is_directory=True)
+        cache = alias
+    elif kind == "parent_symlink":
+        alias = tmp_path / "alias"
+        alias.symlink_to(cache.parent, target_is_directory=True)
+        cache = alias / "tiktoken"
+    elif kind == "control":
+        cache = tmp_path / "cache\nwith control"
+        cache.mkdir()
+    with pytest.raises(ValueError, match="tokenizer cache"):
+        beta.write_mcp_config(session, python, "http://127.0.0.1:49152", tokenizer_cache=cache)
+    assert not list(session.iterdir())
 
 
 @pytest.mark.parametrize("url", ["http://localhost:8750", "https://127.0.0.1:8750", "http://127.0.0.1", "http://127.0.0.1:0",
