@@ -1,0 +1,36 @@
+
+Preparing local Python 3.12 (no system Python or Homebrew required)…
+Python 3.12 is already installed
+Using the checked local runtime.
+Embedding checkpoint verified. Rerankers are disabled.
+Toy repository: /private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/semantic-search-download with spaces-qo1xeg76/semantic-search-mac-0.1.1/.cache/demos/toy-20261014-190542-3928403d
+Source root: src; three tracked implementations; no commit identity required.
+Persistent SQLite index: /private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/semantic-search-download with spaces-qo1xeg76/semantic-search-mac-0.1.1/.cache/demos/toy-20261014-190542-3928403d/.semantic-search/indexes/0ffa484ed2c4f16237eb286d555aa28d05baee113a702cd9a2741d90e1c911b9.sqlite3
+Runtime Python: /private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/semantic-search-download with spaces-qo1xeg76/semantic-search-mac-0.1.1/.cache/quickstart/venv/bin/python
+If setup is missing, run these MANUALLY from the project (the demo never installs or downloads):
+cd '/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/semantic-search-download with spaces-qo1xeg76/semantic-search-mac-0.1.1'
+python3 '/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/semantic-search-download with spaces-qo1xeg76/semantic-search-mac-0.1.1/scripts/setup_mac.py' --runtime-only --venv-path '/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/semantic-search-download with spaces-qo1xeg76/semantic-search-mac-0.1.1/.cache/quickstart/venv'
+'/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/semantic-search-download with spaces-qo1xeg76/semantic-search-mac-0.1.1/.cache/quickstart/venv/bin/python' '/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/semantic-search-download with spaces-qo1xeg76/semantic-search-mac-0.1.1/scripts/setup_embeddings.py' --venv-path '/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/semantic-search-download with spaces-qo1xeg76/semantic-search-mac-0.1.1/.cache/quickstart/venv'
+Terminal 1 — foreground resident Qwen service; H2O is unused; Ctrl-C closes this service:
+'/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/semantic-search-download with spaces-qo1xeg76/semantic-search-mac-0.1.1/.cache/quickstart/venv/bin/python' -m semantic_search.cli serve --repo '/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/semantic-search-download with spaces-qo1xeg76/semantic-search-mac-0.1.1/.cache/demos/toy-20261014-190542-3928403d' --source-root src --index-cache '/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/semantic-search-download with spaces-qo1xeg76/semantic-search-mac-0.1.1/.cache/demos/toy-20261014-190542-3928403d/.semantic-search/indexes' --port 8750
+Terminal 2 — saved CLI searches after Ready (no second model is loaded):
+'/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/semantic-search-download with spaces-qo1xeg76/semantic-search-mac-0.1.1/.cache/quickstart/venv/bin/python' -m semantic_search.cli status --server http://127.0.0.1:8750
+'/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/semantic-search-download with spaces-qo1xeg76/semantic-search-mac-0.1.1/.cache/quickstart/venv/bin/python' -m semantic_search.cli search 'Normalize a label by collapsing whitespace and lowercasing it.' --server http://127.0.0.1:8750 --retrieval dense --no-rerank --max-results 3 --source-budget 4000 --token-budget 4096 --json
+'/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/semantic-search-download with spaces-qo1xeg76/semantic-search-mac-0.1.1/.cache/quickstart/venv/bin/python' -m semantic_search.cli search 'Remove duplicate values while keeping their first occurrence order.' --server http://127.0.0.1:8750 --retrieval dense --no-rerank --max-results 3 --source-budget 4000 --token-budget 4096 --json
+'/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/semantic-search-download with spaces-qo1xeg76/semantic-search-mac-0.1.1/.cache/quickstart/venv/bin/python' -m semantic_search.cli search 'Clamp a number between a minimum and maximum.' --server http://127.0.0.1:8750 --retrieval dense --no-rerank --max-results 3 --source-budget 4000 --token-budget 4096 --json
+Native HTTP example:
+curl --noproxy '*' --fail-with-body -H 'Content-Type: application/json' --data-binary '{"query": "Normalize a label by collapsing whitespace and lowercasing it.", "retrieval": "dense", "rerank": false, "candidates": 4, "max_results": 3, "source_budget": 4000, "token_budget": 4096, "include_dependencies": false}' http://127.0.0.1:8750/search
+MCP stdio adapter (an MCP client launches this command; it does not load another model):
+'/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/semantic-search-download with spaces-qo1xeg76/semantic-search-mac-0.1.1/.cache/quickstart/venv/bin/python' -m semantic_search.cli mcp --server http://127.0.0.1:8750
+Tool: search_code; arguments:
+{"query": "Normalize a label by collapsing whitespace and lowercasing it.", "retrieval": "dense", "rerank": false, "candidates": 4, "max_results": 3, "source_budget": 4000, "token_budget": 4096, "include_dependencies": false}
+VS Code: open this folder with the reviewed extension installed:
+code '/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/semantic-search-download with spaces-qo1xeg76/semantic-search-mac-0.1.1/.cache/demos/toy-20261014-190542-3928403d'
+Connect / Check Service → select this folder → http://127.0.0.1:8750; Find Implementation → use a query above → Saved tracked source.
+Preview a captured excerpt, then Open Verified Source. Edit a tracked source file without saving; repeat Find Implementation and choose Include eligible dirty tracked buffers.
+After another edit, the old result's navigation is stale; its captured preview remains available. Run a new dirty search or save and run a saved search.
+Refresh Index refreshes saved files only. New/untracked, deleted, unsupported and excluded files do not enter dirty searches.
+Automatic demo (starts one service, uses HTTP + official MCP stdio, then stops its own service):
+'/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/semantic-search-download with spaces-qo1xeg76/semantic-search-mac-0.1.1/.cache/quickstart/venv/bin/python' '/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/semantic-search-download with spaces-qo1xeg76/semantic-search-mac-0.1.1/scripts/demo_mac.py' --run --python '/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/semantic-search-download with spaces-qo1xeg76/semantic-search-mac-0.1.1/.cache/quickstart/venv/bin/python'
+Automatic mode creates another fresh toy directory. Existing folders are never reused. Fixture/index/log/receipt remain for inspection; process cleanup is automatic.
+HTTP + official MCP demo completed; owned service closed. Receipt: /private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/semantic-search-download with spaces-qo1xeg76/semantic-search-mac-0.1.1/.cache/demos/toy-20261014-190542-3928403d/.semantic-search/demo.json

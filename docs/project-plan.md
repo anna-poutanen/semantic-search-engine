@@ -81,7 +81,9 @@ This follows the agreed plan in **Choose a project for YC roles** on October 12,
    ships the updated exact installed and tested VSIX, including optional Qwen
    controls. The project now uses the MIT license and includes a
    [guided Mac download](getting-started.md), local Python bootstrap and a small
-   try-it ZIP. External beta users remain.
+   try-it ZIP. The [qualified 0.1.1 release](../results/mit-mac-preview-2026-10-14/findings.md)
+   passes actual ZIP setup, HTTP/MCP/interactive smoke and MIT package checks on
+   the existing Mac. External beta users remain.
 
 Python, TypeScript and JavaScript are implemented.
 C# and non-Mac deployment follow validation of the core. Serialize GPU work and

@@ -1,0 +1,69 @@
+
+Ready: http://127.0.0.1:53138
+Describe an implementation, enter a sample number, or q to quit.
+  1. Normalize a label by collapsing whitespace and lowercasing it.
+  2. Remove duplicate values while keeping their first occurrence order.
+  3. Clamp a number between a minimum and maximum.
+The service stays available to CLI, VS Code and MCP until you quit.
+
+Search> Where is a Cookie header added from a cookie jar when preparing a request?
+
+src/requests/cookies.py:153–161  get_cookie_header
+def get_cookie_header(jar: CookieJar, request: PreparedRequest) -> str | None:
+    """
+    Produce an appropriate Cookie header string to be sent with `request`, or None.
+
+    :rtype: str
+    """
+    r = MockRequest(request)
+    jar.add_cookie_header(r)  # type: ignore[arg-type]
+    return r.get_new_headers().get("Cookie")
+
+
+src/requests/models.py:699–720  PreparedRequest.prepare_cookies
+    def prepare_cookies(
+        self, cookies: RequestsCookieJar | CookieJar | dict[str, str] | None
+    ) -> None:
+        """Prepares the given HTTP cookie data.
+
+        This function eventually generates a ``Cookie`` header from the
+        given cookies using cookielib. Due to cookielib's design, the header
+        will not be regenerated if it already exists, meaning this function
+        can only be called once for the life of the
+        :class:`PreparedRequest <PreparedRequest>` object. Any subsequent calls
+        to ``prepare_cookies`` will have no actual effect, unless the "Cookie"
+        header is removed beforehand.
+        """
+        if isinstance(cookies, cookielib.CookieJar):
+            self._cookies = cookies
+        else:
+            self._cookies = cookiejar_from_dict(cookies)
+
+        cookies_jar = cast("CookieJar", self._cookies)
+        cookie_header = get_cookie_header(cookies_jar, self)
+        if cookie_header is not None:
+            self.headers["Cookie"] = cookie_header
+
+
+src/requests/cookies.py:135–150  extract_cookies_to_jar
+def extract_cookies_to_jar(
+    jar: CookieJar, request: PreparedRequest, response: Any
+) -> None:
+    """Extract the cookies from the response into a CookieJar.
+
+    :param jar: http.cookiejar.CookieJar (not necessarily a RequestsCookieJar)
+    :param request: our own requests.Request object
+    :param response: urllib3.HTTPResponse object
+    """
+    if not (hasattr(response, "_original_response") and response._original_response):
+        return
+    # the _original_response field is the wrapped httplib.HTTPResponse object,
+    req = MockRequest(request)
+    # pull out the HTTPMessage with the headers and put it in the mock:
+    res = MockResponse(response._original_response.msg)
+    jar.extract_cookies(res, req)  # type: ignore[arg-type]
+
+
+Search> q
+Service closed. Local session log: /private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/semantic-search-download with spaces-qo1xeg76/semantic-search-mac-0.1.1/.cache/quickstart/sessions/20261014-152058-e0a6dcc4
+
