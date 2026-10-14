@@ -62,6 +62,15 @@ class CLITests(unittest.TestCase):
                 self.call("search", "query", "--server", "http://localhost:8750", "--exclude-source", "*.ts")
         client.assert_not_called()
 
+    def test_resident_abstention_policy_is_rejected_before_http(self):
+        with patch("semantic_search.client.SearchClient") as client, \
+                contextlib.redirect_stderr(io.StringIO()) as error:
+            with self.assertRaises(SystemExit):
+                self.call("search", "query", "--server", "http://localhost:8750",
+                          "--abstention-policy", "policy.json")
+        client.assert_not_called()
+        self.assertIn("Configure --abstention-policy on the resident serve command", error.getvalue())
+
     def test_service_termination_closes_backend_and_restores_signal_handler(self):
         backend, server = Mock(), Mock()
         server.server_address = ("127.0.0.1", 8750)
@@ -143,6 +152,36 @@ class CLITests(unittest.TestCase):
         self.assertIn("src/code.py:3-3", capture.getvalue())
         self.assertIn("excerpt truncated", capture.getvalue())
         self.assertIn("Source budget reached", capture.getvalue())
+
+    def test_token_clipping_names_the_token_cap_and_does_not_blame_source(self):
+        response = {"results": [{**RESPONSE["results"][0], "truncated": True}],
+                    "budget_exhausted": True, "source_budget": 12000,
+                    "token_usage": {"budget": 512, "truncated": True}}
+        capture = io.StringIO()
+        with contextlib.redirect_stdout(capture):
+            cli.print_results(response)
+        text = capture.getvalue()
+        self.assertIn("excerpt truncated by context budget", text)
+        self.assertIn("Token budget reached", text)
+        self.assertIn("--source-budget 12000 characters", text)
+        self.assertIn("--token-budget 512 tokens", text)
+        self.assertIn("increase --token-budget", text)
+        self.assertNotIn("truncated by source budget", text)
+        self.assertNotIn("increase --source-budget", text)
+
+    def test_source_clipping_reports_both_configured_caps_and_source_guidance(self):
+        response = {"results": [{**RESPONSE["results"][0], "truncated": True}],
+                    "budget_exhausted": True, "source_budget": 200,
+                    "token_usage": {"budget": 4096, "truncated": False}}
+        capture = io.StringIO()
+        with contextlib.redirect_stdout(capture):
+            cli.print_results(response)
+        text = capture.getvalue()
+        self.assertIn("Source budget reached", text)
+        self.assertIn("--source-budget 200 characters", text)
+        self.assertIn("--token-budget 4096 tokens", text)
+        self.assertIn("increase --source-budget", text)
+        self.assertNotIn("Token budget reached", text)
 
     def test_original_benchmark_keeps_ten_bm25_candidates(self):
         with patch.object(cli, "run_experiment", return_value={"metrics": {}}) as benchmark:

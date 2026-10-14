@@ -1,5 +1,8 @@
 import threading
+import tempfile
 import unittest
+from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import patch
 
 from semantic_search.cancellation import CancellationRegistry, SearchCancelled, validate_request_id
@@ -79,12 +82,97 @@ class CancellationTests(unittest.TestCase):
                 with self.assertRaises(SearchCancelled):
                     check()
         self.assertEqual(registry.active, {})
+
         with self.assertRaisesRegex(RuntimeError, "failed work"):
             with registry.request("failure"):
                 raise RuntimeError("failed work")
         with registry.request("failure") as check:
             check()
         self.assertEqual(registry.active, {})
+
+    def test_cancel_all_tracks_overlapping_anonymous_requests_without_wire_ids(self):
+        registry = CancellationRegistry()
+        with registry.request(None) as first, registry.request(None) as second, \
+                registry.request("named") as named:
+            # Anonymous work has no externally addressable invented identity.
+            self.assertEqual(set(registry.active), {"named"})
+            registry.cancel_all()
+            for check in (first, second, named):
+                with self.assertRaises(SearchCancelled):
+                    check()
+        self.assertEqual(registry.active, {})
+        with registry.request(None) as fresh:
+            fresh()
+
+    def test_anonymous_exception_cleanup_removes_its_event(self):
+        registry = CancellationRegistry()
+        with self.assertRaisesRegex(RuntimeError, "failed anonymous work"):
+            with registry.request(None):
+                raise RuntimeError("failed anonymous work")
+        self.assertEqual(registry._anonymous, set())
+        with registry.request(None) as fresh:
+            fresh()
+        self.assertEqual(registry._anonymous, set())
+
+    def test_backend_close_stops_later_scores_for_anonymous_http_style_work(self):
+        from semantic_search.backend import SearchBackend
+
+        first_score, release, cancellation_requested = (threading.Event() for _ in range(3))
+        calls, failures, close_failures = [], [], []
+
+        class PausedScorer:
+            def score(self, query, snippet):
+                calls.append(snippet.id)
+                if len(calls) == 1:
+                    first_score.set()
+                    if not release.wait(3):
+                        raise RuntimeError("CPU scorer was not released")
+                return SimpleNamespace(score=1.)
+
+        with tempfile.TemporaryDirectory() as directory:
+            repo = Path(directory)
+            (repo / "src").mkdir()
+            (repo / "src/code.py").write_text("def alpha():\n    return 1\n\ndef beta():\n    return 2\n")
+            backend = SearchBackend(repo, "src", repo / "index.sqlite3", h2o_client=PausedScorer())
+            original_cancel_all = backend._requests.cancel_all
+
+            def cancel_all():
+                original_cancel_all()
+                cancellation_requested.set()
+
+            def search():
+                try:
+                    backend.search("return", retrieval="bm25", rerank=True, candidates=2)
+                except Exception as error:
+                    failures.append(error)
+
+            def close():
+                try:
+                    backend.close()
+                except Exception as error:
+                    close_failures.append(error)
+
+            worker, closer = threading.Thread(target=search), threading.Thread(target=close)
+            with patch.object(backend._requests, "cancel_all", cancel_all):
+                worker.start()
+                try:
+                    self.assertTrue(first_score.wait(2))
+                    closer.start()
+                    self.assertTrue(cancellation_requested.wait(2))
+                finally:
+                    release.set()
+                    worker.join(3)
+                    if closer.ident is not None:
+                        closer.join(3)
+                    backend.close()
+            self.assertFalse(worker.is_alive())
+            self.assertFalse(closer.is_alive())
+            self.assertEqual(close_failures, [])
+            self.assertEqual(len(calls), 1)
+            self.assertEqual(len(failures), 1)
+            self.assertIsInstance(failures[0], SearchCancelled)
+            self.assertTrue(backend.status()["closed"])
+            self.assertFalse(backend.status()["embedding_initialized"])
 
     def test_expired_pre_dispatch_cancel_does_not_poison_later_request(self):
         registry = CancellationRegistry()

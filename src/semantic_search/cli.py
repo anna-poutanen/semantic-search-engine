@@ -28,11 +28,21 @@ def print_results(response):
         if result.get("qwen_score") is not None:
             suffix += f" qwen_difference={result['qwen_score']:.3f}"
         if result.get("truncated"):
-            suffix += " (excerpt truncated by source budget)"
+            suffix += " (excerpt truncated by context budget)"
         print(f"\n{result['path']}:{result['start_line']}-{result['end_line']} {result['symbol']}{suffix}")
         print(result["source"])
     if response.get("budget_exhausted"):
-        print("\nSource budget reached; increase --source-budget for more evidence.")
+        usage = response.get("token_usage") or {}
+        limits = []
+        if type(response.get("source_budget")) is int:
+            limits.append(f"--source-budget {response['source_budget']} characters")
+        if type(usage.get("budget")) is int:
+            limits.append(f"--token-budget {usage['budget']} tokens")
+        caps = " (" + "; ".join(limits) + ")" if limits else ""
+        if usage.get("truncated"):
+            print(f"\nToken budget reached{caps}; increase --token-budget for more evidence.")
+        else:
+            print(f"\nSource budget reached{caps}; increase --source-budget for more evidence.")
 
 
 def interrupt_service(signum, frame):
@@ -199,6 +209,8 @@ def main(argv=None):
         if args.server:
             if args.qwen_reranker_python or args.qwen_reranker_checkpoint:
                 parser.error("Configure Qwen runtime options on the resident serve command")
+            if args.abstention_policy:
+                parser.error("Configure --abstention-policy on the resident serve command")
             if args.exclude_source:
                 parser.error("--exclude-source configures standalone --repo or serve membership")
             from semantic_search.client import SearchClient

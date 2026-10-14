@@ -18,6 +18,9 @@ class CancellationRegistry:
     def __init__(self):
         self.lock = threading.Lock()
         self.active, self.cancelled = {}, {}
+        # Anonymous CLI/HTTP work still participates in backend shutdown,
+        # without acquiring a caller-visible or externally cancellable ID.
+        self._anonymous = set()
 
     def _prune(self):
         now = time.monotonic()
@@ -40,6 +43,8 @@ class CancellationRegistry:
         with self.lock:
             for event in self.active.values():
                 event.set()
+            for event in self._anonymous:
+                event.set()
 
     @contextmanager
     def request(self, request_id):
@@ -53,6 +58,9 @@ class CancellationRegistry:
                 if self.cancelled.pop(request_id, None) is not None:
                     event.set()
                 self.active[request_id] = event
+        else:
+            with self.lock:
+                self._anonymous.add(event)
         def check():
             if event.is_set():
                 raise SearchCancelled("Search request was cancelled")
@@ -60,7 +68,9 @@ class CancellationRegistry:
             check()
             yield check
         finally:
-            if request_id is not None:
-                with self.lock:
+            with self.lock:
+                if request_id is None:
+                    self._anonymous.discard(event)
+                else:
                     if self.active.get(request_id) is event:
                         self.active.pop(request_id)
