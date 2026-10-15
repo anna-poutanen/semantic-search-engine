@@ -33,6 +33,9 @@ the per-document input limit remains 8,192 tokens. Updated batching metadata
 changes the embedding fingerprint, so older vector caches rebuild once. Model
 downloads remain reusable. This policy is an implementation limit, not a measured
 latency or memory-performance claim.
+Custom calibrated match policies require recalibration for the new embedding
+metadata; old calibration artifacts cannot be reused. The default launcher uses
+no match policy.
 
 For tracked generated/template files that are not standalone supported source,
 repeat `--exclude-source 'src/generated/*' --exclude-source 'src/templates/*'` with

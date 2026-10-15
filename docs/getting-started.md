@@ -233,6 +233,9 @@ document still has an 8,192-token input limit, separate from the search response
 budget. The updated batching metadata changes the embedding fingerprint, so an
 older vector cache rebuilds once with this policy; cached model downloads remain
 reusable.
+Custom calibrated match policies must also be recalibrated for the changed
+embedding metadata; old calibrations cannot be reused. The default launcher uses
+no match policy.
 Interrupted setup can be resumed by running the same command. The setup uses
 `.cache/quickstart/` for Python, packages and caches, `.cache/models/` for the
 embedding checkpoint, and `.cache/demos/` for fresh demo repositories. It leaves
