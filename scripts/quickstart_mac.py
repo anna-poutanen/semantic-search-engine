@@ -292,6 +292,10 @@ def interactive(python, repo, source_root, work, timeout=1800, *, request_timeou
     cache = reserved_directory(work / "indexes" / identity)
     if port:
         with socket.socket() as probe:
+            # Match HTTPServer so recently closed connections in TIME_WAIT do
+            # not prevent reuse of a stable MCP address. A live listener still
+            # owns its port; SO_REUSEPORT is deliberately not enabled.
+            probe.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             try:
                 probe.bind(("127.0.0.1", port))
             except OSError as error:
