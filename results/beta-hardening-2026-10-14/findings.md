@@ -132,6 +132,21 @@ no tests; the corrected focused invocation is `release-launcher-tests.log`.
 
 Upstream captured source retains [Django's license](NOTICE.md).
 
+## Publication
+
+[Version 0.1.2 preview 1](https://github.com/anna-poutanen/semantic-search-engine/releases/tag/v0.1.2-preview.1)
+is published at the qualified `ced5bcbd2b25d127e939d19797e414f4d0938215` commit.
+GitHub CI passed both jobs on that commit: 2,445 core tests passed with ten
+platform/optional skips, the installed lexical CLI smoke passed, and the editor
+job passed. These Linux counts are separate from the local Mac runs above.
+
+The 233,252-byte ZIP, 55,345-byte VSIX and checksum file each downloaded once
+without authentication and matched both their local hashes and GitHub asset
+digests. These synthetic verification requests are not user adoption. See
+[publication proof](publication.json). Owned temporary runtime/model/index
+copies were removed after process and port checks; the developer runtime, main
+model caches and public corpus remain. See [cleanup](cleanup.json).
+
 ## Remaining beta work
 
 Recruit independent Apple Silicon users and validate first-run setup, memory
