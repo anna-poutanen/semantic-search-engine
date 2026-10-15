@@ -10,6 +10,7 @@ import shlex
 import signal
 import subprocess
 import sys
+import time
 from types import SimpleNamespace
 from unittest.mock import patch
 
@@ -735,6 +736,92 @@ def test_beta_corrupt_git_root_stops_before_install(quick,tmp_path,mac):
     with patch.object(quick.sys.stdin,'isatty',return_value=True),patch.object(quick,'setup_runtime') as runtime:
         with pytest.raises(SystemExit):quick.main(['--uv-path','/unused','--repo',str(repo)])
     runtime.assert_not_called()
+
+
+@pytest.mark.parametrize("initial,second", [("interrupt", signal.SIGINT),
+                                            ("interrupt", signal.SIGTERM),
+                                            ("interrupt", signal.SIGHUP),
+                                            ("quit", signal.SIGINT)])
+def test_repeated_interrupt_waits_for_owned_exit_and_receipt(tmp_path, initial, second):
+    """Real signals during a real child's delayed shutdown cannot skip cleanup."""
+    driver = r'''
+import builtins,json,signal,subprocess,sys,time
+from pathlib import Path
+sys.path.insert(0,sys.argv[1])
+import quickstart_mac as quick
+root=Path(sys.argv[2]); quick.ROOT=root
+repo=root/'repo'; (repo/'src').mkdir(parents=True)
+(root/'.cache/quickstart/tiktoken').mkdir(parents=True)
+original={sig:signal.getsignal(sig) for sig in (signal.SIGINT,signal.SIGTERM,signal.SIGHUP)}
+worker="""import signal,sys,time
+from pathlib import Path
+root=Path(sys.argv[1])
+def stop(*_):
+    (root/'stopping').write_text('TERM received')
+    while not (root/'release').exists(): time.sleep(.01)
+    sys.exit(0)
+signal.signal(signal.SIGTERM,stop)
+print('Ready: http://127.0.0.1:43210',flush=True)
+while True:time.sleep(60)
+"""
+real_popen=subprocess.Popen
+def start(arguments,**kwargs):
+    child=real_popen([sys.executable,'-c',worker,str(root)],**kwargs)
+    (root/'worker-pid').write_text(str(child.pid))
+    return child
+quick.subprocess.Popen=start
+quick.request_json=lambda *args,**kwargs:{'repo':str(repo),'source_root':'src','ready':True,'windows':0}
+def prompt(*_):
+    (root/'prompt').write_text('ready')
+    if sys.argv[3]=='quit':return 'q'
+    while True:time.sleep(60)
+builtins.input=prompt
+try:
+    quick.interactive(Path(sys.executable),repo,'src',root/'work')
+except KeyboardInterrupt:
+    restored=all(signal.getsignal(sig)==handler for sig,handler in original.items())
+    (root/'outcome').write_text(json.dumps({'handlers_restored':restored}))
+    raise SystemExit(130)
+raise SystemExit('Interrupt was not propagated')
+'''
+    process = subprocess.Popen([sys.executable, "-c", driver, str(ROOT / "scripts"),
+                                str(tmp_path), initial], stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE, text=True, start_new_session=True)
+    worker_closed = False
+
+    def wait_for(name):
+        deadline = time.monotonic() + 8
+        while not (tmp_path / name).exists():
+            if process.poll() is not None or time.monotonic() >= deadline:
+                raise AssertionError(f"Coordinator stopped before {name}")
+            time.sleep(.01)
+
+    try:
+        if initial == "interrupt":
+            wait_for("prompt")
+            process.send_signal(signal.SIGINT)
+        wait_for("stopping")
+        process.send_signal(second)
+        time.sleep(.1)
+        (tmp_path / "release").write_text("complete graceful owned shutdown")
+        stdout, stderr = process.communicate(timeout=8)
+        assert process.returncode == 130, (stdout, stderr)
+        assert json.loads((tmp_path / "outcome").read_text()) == {"handlers_restored": True}
+        session = json.loads(next((tmp_path / "work/sessions").glob("*/session.json")).read_text())
+        assert session["shutdown"] == {"returncode": 0, "forced_kill": False}
+        with pytest.raises(ProcessLookupError):
+            os.killpg(int((tmp_path / "worker-pid").read_text()), 0)
+        worker_closed = True
+    finally:
+        (tmp_path / "release").write_text("release owned fixture on assertion failure")
+        if process.poll() is None:
+            os.killpg(process.pid, signal.SIGKILL)
+        process.communicate(timeout=5)
+        if not worker_closed and (tmp_path / "worker-pid").exists():
+            try:
+                os.killpg(int((tmp_path / "worker-pid").read_text()), signal.SIGKILL)
+            except ProcessLookupError:
+                pass
 
 
 def test_beta_feedback_shell_dispatches_collector_without_uv_or_models(tmp_path):
