@@ -1,6 +1,7 @@
 """Offline quickstart contracts; harmless owned CPU children replace inference."""
 from __future__ import annotations
 
+import errno
 import hashlib
 import importlib.util
 import json
@@ -8,6 +9,7 @@ import os
 from pathlib import Path
 import shlex
 import signal
+import socket
 import subprocess
 import sys
 import time
@@ -867,3 +869,54 @@ def test_beta_exclusions_reach_backend_and_scope_binding(quick,tmp_path,beta_wor
     session=json.loads(next((tmp_path/'work/sessions').glob('*/session.json')).read_text())
     assert session['source_exclusions']==['src/templates/*.js']
     assert 'No eligible implementations' in capsys.readouterr().out
+
+
+def test_fixed_port_preflight_accepts_closed_http_connection_time_wait(quick, tmp_path):
+    """A real server-first TCP close must not prevent immediate service reopen."""
+    with socket.socket() as listener:
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        listener.bind(("127.0.0.1", 0))
+        listener.listen(1)
+        listener.settimeout(2)
+        address = listener.getsockname()
+        with socket.create_connection(address, timeout=2) as client:
+            with listener.accept()[0] as accepted:
+                accepted.settimeout(2)
+                accepted.shutdown(socket.SHUT_WR)
+                assert client.recv(1) == b""
+                client.close()
+                assert accepted.recv(1) == b""
+    # Establish that the fixture exercises the old false-positive bind failure.
+    with socket.socket() as ordinary_probe, pytest.raises(OSError) as occupied:
+        ordinary_probe.bind(address)
+    assert occupied.value.errno == errno.EADDRINUSE
+    repo = tmp_path / "repo"
+    (repo / "src").mkdir(parents=True)
+
+    class ReachedBackend(RuntimeError):
+        pass
+
+    with patch.object(quick.subprocess, "Popen", side_effect=ReachedBackend("preflight passed")) as spawn:
+        with pytest.raises(ReachedBackend, match="preflight passed"):
+            quick.interactive(Path(sys.executable), repo, "src", tmp_path / "work", port=address[1])
+    spawn.assert_called_once()
+    arguments = spawn.call_args.args[0]
+    assert arguments[arguments.index("--port") + 1] == str(address[1])
+
+
+def test_fixed_port_preflight_still_rejects_real_live_listener(quick, tmp_path):
+    repo = tmp_path / "repo"
+    (repo / "src").mkdir(parents=True)
+    with socket.socket() as listener:
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        listener.bind(("127.0.0.1", 0))
+        listener.listen(1)
+        port = listener.getsockname()[1]
+        with patch.object(quick.subprocess, "Popen") as spawn:
+            with pytest.raises(ValueError, match=f"Port {port} is unavailable"):
+                quick.interactive(Path(sys.executable), repo, "src", tmp_path / "work", port=port)
+        spawn.assert_not_called()
+        # The preflight must leave the existing listener usable.
+        listener.settimeout(2)
+        with socket.create_connection(("127.0.0.1", port), timeout=2):
+            listener.accept()[0].close()
