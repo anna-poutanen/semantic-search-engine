@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+from contextlib import contextmanager
 import hashlib
 from http.client import HTTPException
 import fcntl
@@ -30,6 +31,26 @@ WEIGHTS_SHA = "0437e45c94563b09e13cb7a64478fc406947a93cb34a7e05870fc8dcd48e23fd"
 MODEL_FILES = ("model.safetensors", "config.json", "tokenizer.json", "tokenizer_config.json", "vocab.json", "merges.txt")
 
 
+@contextmanager
+def defer_cleanup_interrupts():
+    """Finish bounded owned shutdown and its receipt before honoring another interrupt."""
+    interrupted = False
+
+    def defer(signum, frame):
+        nonlocal interrupted
+        interrupted = True
+
+    previous = {signum: signal.signal(signum, defer)
+                for signum in (signal.SIGINT, signal.SIGTERM, signal.SIGHUP)}
+    try:
+        yield
+    finally:
+        for signum, handler in previous.items():
+            signal.signal(signum, handler)
+    if interrupted:
+        raise KeyboardInterrupt
+
+
 def digest(path):
     result = hashlib.sha256()
     with Path(path).open("rb") as stream:
@@ -47,7 +68,8 @@ def run(*arguments, capture=False):
             raise subprocess.CalledProcessError(process.returncode, process.args, stdout, stderr)
         return subprocess.CompletedProcess(process.args, process.returncode, stdout, stderr)
     except BaseException:
-        stop_owned(process)
+        with defer_cleanup_interrupts():
+            stop_owned(process)
         raise
 
 
@@ -398,13 +420,14 @@ def interactive(python, repo, source_root, work, timeout=1800, *, request_timeou
                 print("Context limit reached. For more source, restart with a larger --source-budget or --token-budget.", flush=True)
     finally:
         try:
-            shutdown = stop_owned(process) if process is not None else None
-            (artifacts / "session.json").write_text(json.dumps({"repo": str(repo), "source_root": source_root,
-                "settings": settings, "startup_timeout": timeout, "request_timeout": request_timeout,
-                "source_exclusions": list(exclusions),
-                "startup_elapsed_s": startup_elapsed,
-                "windows": status.get("windows") if isinstance(status, dict) else None,
-                "searches": searches, "errors": errors, "shutdown": shutdown}, indent=2) + "\n")
+            with defer_cleanup_interrupts():
+                shutdown = stop_owned(process) if process is not None else None
+                (artifacts / "session.json").write_text(json.dumps({"repo": str(repo), "source_root": source_root,
+                    "settings": settings, "startup_timeout": timeout, "request_timeout": request_timeout,
+                    "source_exclusions": list(exclusions),
+                    "startup_elapsed_s": startup_elapsed,
+                    "windows": status.get("windows") if isinstance(status, dict) else None,
+                    "searches": searches, "errors": errors, "shutdown": shutdown}, indent=2) + "\n")
         finally:
             signal.signal(signal.SIGTERM, previous)
     if shutdown != {"returncode": 0, "forced_kill": False}:
