@@ -1,0 +1,94 @@
+name: Daily release download tests
+
+on:
+  schedule:
+    - cron: '0 9 * * *'
+      timezone: America/Toronto
+  workflow_dispatch:
+    inputs:
+      count:
+        description: Download attempts (ignored if already claimed today)
+        type: choice
+        default: random
+        options: [random, '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15']
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: daily-release-download-tests
+  cancel-in-progress: false
+
+jobs:
+  download:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check persistent daily marker
+        id: day
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          test_day=$(TZ=America/Toronto date +%F)
+          echo "date=$test_day" >> "$GITHUB_OUTPUT"
+          claim_name="release-download-claim-$test_day"
+          existing=$(gh api "repos/$GITHUB_REPOSITORY/actions/artifacts?name=$claim_name" --jq '.total_count')
+          if [ "$existing" -gt 0 ]; then
+            echo "claimed=true" >> "$GITHUB_OUTPUT"
+            echo "Today's download test was already claimed. No additional downloads were attempted; see the original run's report." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "claimed=false" >> "$GITHUB_OUTPUT"
+            mkdir -p results/local/download-tests
+            printf '%s\n' "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" > results/local/download-tests/claim.txt
+          fi
+      # Save the marker before network tests, so a crash or rerun cannot add attempts.
+      - name: Claim today's download attempts
+        if: steps.day.outputs.claimed == 'false'
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-download-claim-${{ steps.day.outputs.date }}
+          path: results/local/download-tests/claim.txt
+          retention-days: 90
+          if-no-files-found: error
+      - name: Download and verify the published Mac ZIP
+        if: steps.day.outputs.claimed == 'false'
+        env:
+          DOWNLOAD_COUNT: ${{ inputs.count || 'random' }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          arguments=()
+          if [ "$DOWNLOAD_COUNT" != random ]; then
+            arguments+=(--count "$DOWNLOAD_COUNT")
+          fi
+          python scripts/test_release_downloads.py "${arguments[@]}"
+      - name: Retain download report
+        if: always() && steps.day.outputs.claimed == 'false'
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-download-report-${{ steps.day.outputs.date }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: results/local/download-tests/*.json
+          retention-days: 90
+          if-no-files-found: warn
+      - name: Summarize the result
+        if: always() && steps.day.outputs.claimed == 'false'
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          reports = list(Path('results/local/download-tests').glob('*.json'))
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as summary:
+              if not reports:
+                  summary.write('No download report was produced. Inspect the failed step; the daily marker prevents retries.\n')
+              for path in reports:
+                  report = json.loads(path.read_text())
+                  passed = sum(item['status'] == 'passed' for item in report['attempts'])
+                  summary.write(f"{report['date']}: **{report['status']}** — {passed}/{report['planned_downloads']} synthetic downloads verified.\n\n")
+                  summary.write(f"Release: {report.get('release', 'unavailable')}. See the retained JSON artifact for details.\n")
+          PY
