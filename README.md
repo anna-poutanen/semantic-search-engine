@@ -1,5 +1,11 @@
 # Semantic search engine
 
+[![Version](https://img.shields.io/github/v/release/anna-poutanen/semantic-search-engine?include_prereleases&label=version&color=orange)](https://github.com/anna-poutanen/semantic-search-engine/releases)
+[![Downloads](https://img.shields.io/github/downloads/anna-poutanen/semantic-search-engine/total?color=blue)](https://github.com/anna-poutanen/semantic-search-engine/releases)
+[![License: MIT](https://img.shields.io/github/license/anna-poutanen/semantic-search-engine?label=License&color=yellow)](LICENSE)
+
+<sub>Download totals include automated release checks.</sub>
+
 Find code implementations by describing their behavior. The implemented MCP
 tool and VS Code extension share a local search backend, so developers and coding
 agents can retrieve source excerpts without sending the whole repository to a
