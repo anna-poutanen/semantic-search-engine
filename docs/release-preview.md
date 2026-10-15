@@ -74,13 +74,18 @@ The backend remains a separately started local process; the extension installs
 no model or Python environment.
 
 Download the verified VSIX from the
-[GitHub preview release](https://github.com/anna-poutanen/semantic-search-engine/releases/tag/v0.1.1-preview.1),
+[GitHub preview release](https://github.com/anna-poutanen/semantic-search-engine/releases/tag/v0.1.2-preview.1),
 then use **Extensions: Install from VSIX**. Connect it to the separately started
 service indexing the same trusted local workspace folder. The release includes
 SHA-256 checksums for its assets. The earlier 53,874-byte preview 2 package and
 its recorded digest remain historical acceptance evidence.
-The current package is version `0.1.1` and includes the MIT license. The small Mac
+The current package is version `0.1.2` and includes the MIT license. The small Mac
 ZIP also includes a guided launcher; start with [the getting-started guide](getting-started.md).
+Version 0.1.2 adds larger configurable own-repository budgets, a separate indexing
+timeout, actual indexing progress, offline diagnostics, bundled local feedback,
+and ready-to-copy MCP snippets. Document embedding batches now have a padded-token
+cap; older vector caches rebuild once. See the
+[beta hardening qualification](../results/beta-hardening-2026-10-14/findings.md).
 
 Separate native acceptance checks observed actual false Workspace Trust,
 multi-folder selection/removal and offline failure handling. These exercised

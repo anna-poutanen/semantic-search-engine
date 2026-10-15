@@ -1,0 +1,73 @@
+{
+  "classification": "two source-authored beta integration spot checks; not held-out retrieval quality",
+  "plan_sha256": "50dcd3caa90b6efefc1346cc77792ca4844b1ef04c64f527d542d83aeb4cf667",
+  "raw_receipt_sha256": "f9f1b6fbe6bef6e738967dd10147b4cd05558a52e07c1496e1437f82f7f52efb",
+  "all_complete": true,
+  "checks": [
+    {
+      "id": "database_session_expiry",
+      "complete_expected_span_delivered": true,
+      "matches": [
+        {
+          "expected": {
+            "path": "django/contrib/sessions/backends/db.py",
+            "start_line": 191,
+            "end_line": 192
+          },
+          "delivered": {
+            "path": "django/contrib/sessions/backends/db.py",
+            "symbol": "SessionStore.clear_expired",
+            "start_line": 190,
+            "end_line": 192,
+            "source_hash": "54714cfde2be79c8f26dac29990fc8f34ccfda784d60cf964ab8f8a44eba6fea",
+            "origin": "retrieval"
+          }
+        },
+        {
+          "expected": {
+            "path": "django/contrib/sessions/backends/db.py",
+            "start_line": 195,
+            "end_line": 198
+          },
+          "delivered": {
+            "path": "django/contrib/sessions/backends/db.py",
+            "symbol": "SessionStore.aclear_expired",
+            "start_line": 194,
+            "end_line": 198,
+            "source_hash": "8962d6783f9052300187675875c98007c3d6a069ecd8f79bd828e48f903f13ba",
+            "origin": "retrieval"
+          }
+        }
+      ],
+      "delivered_excerpts": 8,
+      "source_characters": 2293,
+      "compact_tokens": 1362,
+      "elapsed_seconds": 1.7010459160082974
+    },
+    {
+      "id": "signed_timestamp_expiry",
+      "complete_expected_span_delivered": true,
+      "matches": [
+        {
+          "expected": {
+            "path": "django/core/signing.py",
+            "start_line": 262,
+            "end_line": 277
+          },
+          "delivered": {
+            "path": "django/core/signing.py",
+            "symbol": "TimestampSigner.unsign",
+            "start_line": 262,
+            "end_line": 277,
+            "source_hash": "59d4d1f69d8af2345b263dc275a94d248f4e730cdea69f82a00370fa49ff2915",
+            "origin": "retrieval"
+          }
+        }
+      ],
+      "delivered_excerpts": 8,
+      "source_characters": 2991,
+      "compact_tokens": 1599,
+      "elapsed_seconds": 0.7180179170100018
+    }
+  ]
+}

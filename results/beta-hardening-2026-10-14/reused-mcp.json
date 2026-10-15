@@ -1,0 +1,292 @@
+{
+  "kind": "generated beta MCP integration qualification; not a retrieval benchmark",
+  "captured_at_utc": "2026-10-15T15:07:54.845754+00:00",
+  "elapsed_seconds": 1.4030108750157524,
+  "generated_config_sha256": "853adba545789e01c8e86e0f5a08ffa0d2b1e66b10ffee300371e85e3a14a8df",
+  "configuration": {
+    "exact_generated_command_and_args": true,
+    "warmed_cache_from_generated_environment": true,
+    "parent_cache_setting_removed": true,
+    "default_tokenizer_directory_absent_before": true,
+    "default_tokenizer_directory_absent_after": true,
+    "client_settings_unchanged": true
+  },
+  "packages": {
+    "semantic-search-engine": "0.1.2",
+    "mcp": "2.3.0",
+    "tiktoken": "0.14.0"
+  },
+  "service": {
+    "ready": true,
+    "repo_matches": true,
+    "source_root": "django",
+    "windows": 10734
+  },
+  "network_guard": {
+    "scope": "Python socket DNS/connect in qualification parent and MCP adapter; resident backend is separate",
+    "outbound_attempts": 0,
+    "adapter_guard_installed": true,
+    "adapter_interpreter_exit_observed": true,
+    "allowed_operations": 4,
+    "events": [
+      {
+        "role": "parent",
+        "pid": 75639,
+        "kind": "installed"
+      },
+      {
+        "role": "parent",
+        "pid": 75639,
+        "kind": "allowed",
+        "operation": "getaddrinfo",
+        "classification": "loopback"
+      },
+      {
+        "role": "parent",
+        "pid": 75639,
+        "kind": "allowed",
+        "operation": "connect",
+        "classification": "loopback"
+      },
+      {
+        "role": "adapter",
+        "pid": 75640,
+        "kind": "installed"
+      },
+      {
+        "role": "adapter",
+        "pid": 75640,
+        "kind": "allowed",
+        "operation": "getaddrinfo",
+        "classification": "loopback"
+      },
+      {
+        "role": "adapter",
+        "pid": 75640,
+        "kind": "allowed",
+        "operation": "connect",
+        "classification": "loopback"
+      },
+      {
+        "role": "adapter",
+        "pid": 75640,
+        "kind": "exit"
+      },
+      {
+        "role": "parent",
+        "pid": 75639,
+        "kind": "restored"
+      }
+    ]
+  },
+  "mcp": {
+    "sdk_mode": "legacy",
+    "protocol_version": "2025-11-25",
+    "calls": [
+      {
+        "method": "tools/list",
+        "tools": [
+          "search_code"
+        ]
+      },
+      {
+        "method": "tools/call",
+        "name": "search_code",
+        "arguments": {
+          "query": "Remove expired database-backed sessions, deleting rows whose expiration is in the past."
+        }
+      }
+    ],
+    "defaults": {
+      "max_results": 8,
+      "source_budget": 12000,
+      "token_budget": 4096,
+      "include_dependencies": true
+    },
+    "searches": [
+      {
+        "query": "Remove expired database-backed sessions, deleting rows whose expiration is in the past.",
+        "verified_excerpts": [
+          {
+            "path": "django/contrib/sessions/backends/db.py",
+            "symbol": "SessionStore.aclear_expired",
+            "start_line": 194,
+            "end_line": 198,
+            "source_hash": "8962d6783f9052300187675875c98007c3d6a069ecd8f79bd828e48f903f13ba",
+            "origin": "retrieval"
+          },
+          {
+            "path": "django/contrib/sessions/backends/db.py",
+            "symbol": "SessionStore.clear_expired",
+            "start_line": 190,
+            "end_line": 192,
+            "source_hash": "54714cfde2be79c8f26dac29990fc8f34ccfda784d60cf964ab8f8a44eba6fea",
+            "origin": "retrieval"
+          },
+          {
+            "path": "django/contrib/sessions/backends/file.py",
+            "symbol": "SessionStore.aclear_expired",
+            "start_line": 224,
+            "end_line": 226,
+            "source_hash": "06fd28066c0cd7be8bf8d32b1ccbb743b4fc4c8b8026299b64dd2e9f45d277b5",
+            "origin": "retrieval"
+          },
+          {
+            "path": "django/contrib/sessions/backends/base.py",
+            "symbol": "SessionBase.aclear_expired",
+            "start_line": 521,
+            "end_line": 523,
+            "source_hash": "c18f586a0ca312d77becb6c0e94c6d8305212668998367f9621a7a3e704e6e15",
+            "origin": "retrieval"
+          },
+          {
+            "path": "django/contrib/sessions/backends/file.py",
+            "symbol": "SessionStore.clear_expired",
+            "start_line": 208,
+            "end_line": 222,
+            "source_hash": "9c89e57e7a3db8ecffffddf82a94669cd70c8abbe2309ffd35b69878a777cebd",
+            "origin": "retrieval"
+          },
+          {
+            "path": "django/contrib/sessions/backends/db.py",
+            "symbol": "SessionStore.get_model_class",
+            "start_line": 20,
+            "end_line": 26,
+            "source_hash": "00167e7a9cd7ab7119af9be999722a7cf8aca2f5a01c68b5c70c90b9b157069d",
+            "origin": "dependency"
+          },
+          {
+            "path": "django/utils/timezone.py",
+            "symbol": "now",
+            "start_line": 200,
+            "end_line": 204,
+            "source_hash": "f724443bc7bcb487cbf1a1d60cb0b02d4472ba845e8d00fc645854313372e811",
+            "origin": "dependency"
+          },
+          {
+            "path": "django/contrib/sessions/backends/file.py",
+            "symbol": "SessionStore._get_storage_path",
+            "start_line": 28,
+            "end_line": 45,
+            "source_hash": "8dfac7cdb586ded65a1d2c78e741a7b94a798c5063534d51c4ec0ea7d6735a16",
+            "origin": "dependency"
+          }
+        ],
+        "source_characters": 2293,
+        "compact_tokens": 1362,
+        "envelope": {
+          "query": "Remove expired database-backed sessions, deleting rows whose expiration is in the past.",
+          "match_status": "candidates",
+          "results": [
+            {
+              "path": "django/contrib/sessions/backends/db.py",
+              "symbol": "SessionStore.aclear_expired",
+              "start_line": 194,
+              "end_line": 198,
+              "source": "    @classmethod\n    async def aclear_expired(cls):\n        await cls.get_model_class().objects.filter(\n            expire_date__lt=timezone.now()\n        ).adelete()\n",
+              "source_hash": "8962d6783f9052300187675875c98007c3d6a069ecd8f79bd828e48f903f13ba",
+              "truncated": false,
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "path": "django/contrib/sessions/backends/db.py",
+              "symbol": "SessionStore.clear_expired",
+              "start_line": 190,
+              "end_line": 192,
+              "source": "    @classmethod\n    def clear_expired(cls):\n        cls.get_model_class().objects.filter(expire_date__lt=timezone.now()).delete()\n",
+              "source_hash": "54714cfde2be79c8f26dac29990fc8f34ccfda784d60cf964ab8f8a44eba6fea",
+              "truncated": false,
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "path": "django/contrib/sessions/backends/file.py",
+              "symbol": "SessionStore.aclear_expired",
+              "start_line": 224,
+              "end_line": 226,
+              "source": "    @classmethod\n    async def aclear_expired(cls):\n        cls.clear_expired()\n",
+              "source_hash": "06fd28066c0cd7be8bf8d32b1ccbb743b4fc4c8b8026299b64dd2e9f45d277b5",
+              "truncated": false,
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "path": "django/contrib/sessions/backends/base.py",
+              "symbol": "SessionBase.aclear_expired",
+              "start_line": 521,
+              "end_line": 523,
+              "source": "    @classmethod\n    async def aclear_expired(cls):\n        return await sync_to_async(cls.clear_expired)()\n",
+              "source_hash": "c18f586a0ca312d77becb6c0e94c6d8305212668998367f9621a7a3e704e6e15",
+              "truncated": false,
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "path": "django/contrib/sessions/backends/file.py",
+              "symbol": "SessionStore.clear_expired",
+              "start_line": 208,
+              "end_line": 222,
+              "source": "    @classmethod\n    def clear_expired(cls):\n        storage_path = cls._get_storage_path()\n        file_prefix = settings.SESSION_COOKIE_NAME\n\n        for session_file in os.listdir(storage_path):\n            if not session_file.startswith(file_prefix):\n                continue\n            session_key = session_file.removeprefix(file_prefix)\n            session = cls(session_key)\n            # When an expired session is loaded, its file is removed, and a\n            # new file is immediately created. Prevent this by disabling\n            # the create() method.\n            session.create = lambda: None\n            session.load()\n",
+              "source_hash": "9c89e57e7a3db8ecffffddf82a94669cd70c8abbe2309ffd35b69878a777cebd",
+              "truncated": false,
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "path": "django/contrib/sessions/backends/db.py",
+              "symbol": "SessionStore.get_model_class",
+              "start_line": 20,
+              "end_line": 26,
+              "source": "    @classmethod\n    def get_model_class(cls):\n        # Avoids a circular import and allows importing SessionStore when\n        # django.contrib.sessions is not in INSTALLED_APPS.\n        from django.contrib.sessions.models import Session\n\n        return Session\n",
+              "source_hash": "00167e7a9cd7ab7119af9be999722a7cf8aca2f5a01c68b5c70c90b9b157069d",
+              "truncated": false,
+              "origin": "dependency",
+              "related_to": "django/contrib/sessions/backends/db.py:SessionStore.aclear_expired:194-198"
+            },
+            {
+              "path": "django/utils/timezone.py",
+              "symbol": "now",
+              "start_line": 200,
+              "end_line": 204,
+              "source": "def now():\n    \"\"\"\n    Return an aware or naive datetime.datetime, depending on settings.USE_TZ.\n    \"\"\"\n    return datetime.now(tz=timezone.utc if settings.USE_TZ else None)\n",
+              "source_hash": "f724443bc7bcb487cbf1a1d60cb0b02d4472ba845e8d00fc645854313372e811",
+              "truncated": false,
+              "origin": "dependency",
+              "related_to": "django/contrib/sessions/backends/db.py:SessionStore.aclear_expired:194-198"
+            },
+            {
+              "path": "django/contrib/sessions/backends/file.py",
+              "symbol": "SessionStore._get_storage_path",
+              "start_line": 28,
+              "end_line": 45,
+              "source": "    @classmethod\n    def _get_storage_path(cls):\n        try:\n            return cls._storage_path\n        except AttributeError:\n            storage_path = (\n                getattr(settings, \"SESSION_FILE_PATH\", None) or tempfile.gettempdir()\n            )\n            # Make sure the storage path is valid.\n            if not os.path.isdir(storage_path):\n                raise ImproperlyConfigured(\n                    \"The session storage path %r doesn't exist. Please set your\"\n                    \" SESSION_FILE_PATH setting to an existing directory in which\"\n                    \" Django can store session data.\" % storage_path\n                )\n\n            cls._storage_path = storage_path\n            return storage_path\n",
+              "source_hash": "8dfac7cdb586ded65a1d2c78e741a7b94a798c5063534d51c4ec0ea7d6735a16",
+              "truncated": false,
+              "origin": "dependency",
+              "related_to": "django/contrib/sessions/backends/file.py:SessionStore.clear_expired:208-222"
+            }
+          ],
+          "budget_exhausted": false,
+          "token_usage": {
+            "encoding": "cl100k_base",
+            "tokens": 1362,
+            "budget": 4096,
+            "truncated": false
+          },
+          "scope": {
+            "source_root": "django",
+            "membership": "saved implementations; Git-tracked files only in Git projects",
+            "source_exclusions": [
+              "django/**/*.min.js",
+              "django/views/templates/i18n_catalog.js"
+            ],
+            "exclusions_omitted": 0
+          }
+        },
+        "elapsed_seconds": 0.8414809169771615
+      }
+    ],
+    "sdk_context_closed": true
+  }
+}
