@@ -1,0 +1,39 @@
+{
+  "classification": "two source-authored beta integration spot checks; not held-out retrieval quality",
+  "git_revision": "9e7cc2b628fe8fd3895986af9b7fc9525034c1b0",
+  "source_root": "django",
+  "source_exclusions": [
+    "django/**/*.min.js",
+    "django/views/templates/i18n_catalog.js"
+  ],
+  "queries": [
+    {
+      "id": "database_session_expiry",
+      "query": "Remove expired database-backed sessions, deleting rows whose expiration is in the past.",
+      "acceptable_complete_spans": [
+        {
+          "path": "django/contrib/sessions/backends/db.py",
+          "start_line": 191,
+          "end_line": 192
+        },
+        {
+          "path": "django/contrib/sessions/backends/db.py",
+          "start_line": 195,
+          "end_line": 198
+        }
+      ]
+    },
+    {
+      "id": "signed_timestamp_expiry",
+      "query": "Verify a signed value's timestamp and reject it when the signature is older than max_age.",
+      "acceptable_complete_spans": [
+        {
+          "path": "django/core/signing.py",
+          "start_line": 262,
+          "end_line": 277
+        }
+      ]
+    }
+  ],
+  "gate": "each query must deliver at least one complete expected span; every delivered excerpt independently verified by SDK driver"
+}
