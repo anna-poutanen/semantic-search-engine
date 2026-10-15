@@ -10,7 +10,7 @@ import zipfile
 import pytest
 
 SPEC = importlib.util.spec_from_file_location(
-    "release_downloads", Path(__file__).resolve().parents[1] / "scripts/test_release_downloads.py"
+    "release_downloads", Path(__file__).resolve().parents[1] / "scripts/smoke_release_downloads.py"
 )
 downloads = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(downloads)

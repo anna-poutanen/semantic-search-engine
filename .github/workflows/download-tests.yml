@@ -65,7 +65,7 @@ jobs:
           if [ "$DOWNLOAD_COUNT" != random ]; then
             arguments+=(--count "$DOWNLOAD_COUNT")
           fi
-          python scripts/test_release_downloads.py "${arguments[@]}"
+          python scripts/smoke_release_downloads.py "${arguments[@]}"
       - name: Retain download report
         if: always() && steps.day.outputs.claimed == 'false'
         uses: actions/upload-artifact@v4
