@@ -1,7 +1,7 @@
 # Daily release download testing
 
 The [GitHub Actions workflow](../.github/workflows/download-tests.yml) runs
-`scripts/test_release_downloads.py` daily at 9:00 a.m. America/Toronto, including
+`scripts/smoke_release_downloads.py` daily at 9:00 a.m. America/Toronto, including
 daylight-saving changes. It uses a GitHub-hosted Ubuntu runner and does not need
 your Mac or Codex to be running. Each run chooses an integer uniformly from 2 through
 15 and makes that many sequential download attempts against the newest published
@@ -36,7 +36,7 @@ The previous local Codex schedule is paused to avoid duplicate testing.
 For local development only:
 
 ```sh
-.venv/bin/python scripts/test_release_downloads.py
+.venv/bin/python scripts/smoke_release_downloads.py
 ```
 
 Local reports live in ignored `results/local/download-tests/YYYY-MM-DD.json`,
