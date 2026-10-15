@@ -16,8 +16,8 @@ and [MCP setup](docs/mcp.md).
 
 ## Download and try it
 
-Download **semantic-search-mac-0.1.1.zip** from the
-[MIT-licensed Mac preview](https://github.com/anna-poutanen/semantic-search-engine/releases/tag/v0.1.1-preview.1),
+Download **semantic-search-mac-0.1.2.zip** from the
+[MIT-licensed Mac preview](https://github.com/anna-poutanen/semantic-search-engine/releases/tag/v0.1.2-preview.1),
 unzip it, open Terminal in that folder, and run:
 
 ```bash
@@ -28,6 +28,9 @@ The launcher installs a local Python/runtime and pinned Qwen embedding checkpoin
 then opens an interactive three-function demo. Enter `1`, `2` or `3`, or describe
 an implementation; `q` closes the service. No preinstalled Python or API key is
 required. First setup needs internet, working Git, and at least 6 GB free space.
+Own-repository sessions use eight results with configurable budgets, indexing
+progress and a 30-minute startup allowance. Offline diagnostics, local feedback
+collection and ready-to-copy MCP snippets are included.
 See [the getting-started guide](docs/getting-started.md) for your own repository,
 the included VS Code extension, MCP configuration and troubleshooting.
 

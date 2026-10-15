@@ -1,0 +1,619 @@
+.................FF.........................F......FFF.                  [100%]
+=================================== FAILURES ===================================
+_ test_interactive_owns_an_available_port_and_cleans_actual_cpu_child_on_every_exit[normal] _
+
+quick = <module 'quickstart_under_test' from '/Users/annapoutanen/personal-projects/semantic-search-engine/scripts/quickstart_mac.py'>
+tmp_path = PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_interactive_owns_an_avail0')
+cause = 'normal'
+
+    @pytest.mark.parametrize("cause", ["normal", "keyboard", "identity"])
+    def test_interactive_owns_an_available_port_and_cleans_actual_cpu_child_on_every_exit(quick, tmp_path, cause):
+        """A real tiny worker emits readiness only; it opens no socket or model."""
+        real_popen = subprocess.Popen
+        spawned, commands, requests = [], [], []
+        repo = tmp_path / "repo"
+        (repo / "src").mkdir(parents=True)
+        original_handler = signal.getsignal(signal.SIGTERM)
+        worker = "import signal,sys,time\nsignal.signal(signal.SIGTERM, lambda *_: sys.exit(0))\nprint('Ready: http://127.0.0.1:43210',flush=True)\nwhile True: time.sleep(60)\n"
+        def start(arguments, **kwargs):
+            commands.append((arguments, kwargs))
+            process = real_popen([sys.executable, "-c", worker], **kwargs)
+            spawned.append(process)
+            return process
+        def response(url, payload=None, timeout=120):
+            requests.append((url, payload))
+            if url.endswith("/status"):
+                return {"repo": str(repo if cause != "identity" else tmp_path / "wrong"), "source_root": "src", "ready": True}
+            return {"results": []}
+        inputs = ["1", "q"] if cause == "normal" else KeyboardInterrupt()
+        try:
+            with patch.object(quick, "ROOT", tmp_path), patch.object(quick.subprocess, "Popen", side_effect=start), \
+                    patch.object(quick, "request_json", side_effect=response), patch("builtins.input", side_effect=inputs):
+                if cause == "normal":
+>                   quick.interactive(Path(sys.executable), repo, "src", tmp_path / "work", timeout=3)
+
+tests/test_quickstart_mac.py:230: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+python = PosixPath('/Users/annapoutanen/personal-projects/semantic-search-engine/.venv/bin/python')
+repo = PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_interactive_owns_an_avail0/repo')
+source_root = 'src'
+work = PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_interactive_owns_an_avail0/work')
+timeout = 3
+
+    def interactive(python, repo, source_root, work, timeout=1800, *, request_timeout=120,
+                    settings=None, toy=False, port=0):
+        settings = dict(OWN_SETTINGS if settings is None else settings)
+        identity = hashlib.sha256((str(repo) + "\n" + source_root).encode()).hexdigest()
+        artifacts = reserved_directory(work / "sessions" / (time.strftime("%Y%m%d-%H%M%S") + "-" + os.urandom(4).hex()))
+        log = artifacts / "service.log"
+        cache = reserved_directory(work / "indexes" / identity)
+        if port:
+            with socket.socket() as probe:
+                try:
+                    probe.bind(("127.0.0.1", port))
+                except OSError as error:
+                    raise ValueError(f"Port {port} is unavailable; choose a different --port or use --port 0") from error
+        arguments = [python, "-m", "semantic_search.cli", "serve", "--repo", repo, "--source-root", source_root,
+                     "--index-cache", cache, "--port", str(port), "--no-watch", "--progress"]
+        process = None
+        searches = errors = 0
+        status = None
+        previous = signal.signal(signal.SIGTERM, lambda signum, frame: (_ for _ in ()).throw(KeyboardInterrupt()))
+        try:
+            print(f"\nIndexing saved, Git-tracked code in {repo} ({source_root})…", flush=True)
+            print(f"Startup allowance: {timeout:g} seconds. Ctrl-C closes this service.", flush=True)
+            with log.open("wb") as stream:
+                process = subprocess.Popen([str(item) for item in arguments], cwd=ROOT, stdout=stream, stderr=subprocess.STDOUT, start_new_session=True)
+            began = time.monotonic()
+            state = {"offset": 0, "pending": b""}
+            last_phase, last_progress = None, began
+            while time.monotonic() - began < timeout:
+                url = None
+                for line in new_log_lines(log, state):
+                    progress = format_progress(line)
+                    if progress is not None:
+                        phase, message, complete = progress
+                        now = time.monotonic()
+                        if phase != last_phase or complete or now - last_progress >= 5:
+                            print(message, flush=True)
+                            last_phase, last_progress = phase, now
+                    match = re.fullmatch(r"Ready: (http://127\.0\.0\.1:[0-9]+)(?: .*)?", line.rstrip("\r"))
+                    if match:
+                        url = match[1]
+                if url:
+                    remaining = max(.1, timeout - (time.monotonic() - began))
+                    status = request_json(url + "/status", timeout=min(request_timeout, remaining))
+                    if Path(status["repo"]).resolve() != repo.resolve() or status["source_root"] != source_root or not status["ready"]:
+                        raise ValueError("Ready service has unexpected repository identity")
+                    break
+                if process.poll() is not None:
+                    raise RuntimeError(f"Service exited before readiness. Inspect {log}; run the launcher with --doctor for local diagnostics")
+                now = time.monotonic()
+                if now - last_progress >= 10:
+                    print(f"Still indexing/warming ({now - began:.0f}s elapsed); service log: {log}", flush=True)
+                    last_progress = now
+                time.sleep(.1)
+            else:
+                raise RuntimeError(f"Startup exceeded {timeout:g}s. Increase --startup-timeout for a larger repository. Inspect {log}")
+            print(f"\nReady: {url}", flush=True)
+            windows = status.get("windows")
+            if type(windows) is int and windows >= 0:
+                print(f"Index: {windows} implementation windows; source directory: {source_root}")
+            if windows == 0:
+                print("No eligible implementations were indexed. Check --source-root, save files and use git add. "
+                      "Supported source is Python/JavaScript/TypeScript; functions and methods need implementation bodies.", flush=True)
+            print(f"Search limits: {settings['max_results']} results, {settings['source_budget']} source characters, "
+                  f"{settings['token_budget']} compact tokens; dependency context {'on' if settings['include_dependencies'] else 'off'}.")
+>           from beta_tools import write_mcp_config
+E           ModuleNotFoundError: No module named 'beta_tools'
+
+scripts/quickstart_mac.py:324: ModuleNotFoundError
+----------------------------- Captured stdout call -----------------------------
+
+Indexing saved, Git-tracked code in /private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_interactive_owns_an_avail0/repo (src)…
+Startup allowance: 3 seconds. Ctrl-C closes this service.
+
+Ready: http://127.0.0.1:43210
+Search limits: 8 results, 12000 source characters, 4096 compact tokens; dependency context on.
+_ test_interactive_owns_an_available_port_and_cleans_actual_cpu_child_on_every_exit[keyboard] _
+
+quick = <module 'quickstart_under_test' from '/Users/annapoutanen/personal-projects/semantic-search-engine/scripts/quickstart_mac.py'>
+tmp_path = PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_interactive_owns_an_avail1')
+cause = 'keyboard'
+
+    @pytest.mark.parametrize("cause", ["normal", "keyboard", "identity"])
+    def test_interactive_owns_an_available_port_and_cleans_actual_cpu_child_on_every_exit(quick, tmp_path, cause):
+        """A real tiny worker emits readiness only; it opens no socket or model."""
+        real_popen = subprocess.Popen
+        spawned, commands, requests = [], [], []
+        repo = tmp_path / "repo"
+        (repo / "src").mkdir(parents=True)
+        original_handler = signal.getsignal(signal.SIGTERM)
+        worker = "import signal,sys,time\nsignal.signal(signal.SIGTERM, lambda *_: sys.exit(0))\nprint('Ready: http://127.0.0.1:43210',flush=True)\nwhile True: time.sleep(60)\n"
+        def start(arguments, **kwargs):
+            commands.append((arguments, kwargs))
+            process = real_popen([sys.executable, "-c", worker], **kwargs)
+            spawned.append(process)
+            return process
+        def response(url, payload=None, timeout=120):
+            requests.append((url, payload))
+            if url.endswith("/status"):
+                return {"repo": str(repo if cause != "identity" else tmp_path / "wrong"), "source_root": "src", "ready": True}
+            return {"results": []}
+        inputs = ["1", "q"] if cause == "normal" else KeyboardInterrupt()
+        try:
+            with patch.object(quick, "ROOT", tmp_path), patch.object(quick.subprocess, "Popen", side_effect=start), \
+                    patch.object(quick, "request_json", side_effect=response), patch("builtins.input", side_effect=inputs):
+                if cause == "normal":
+                    quick.interactive(Path(sys.executable), repo, "src", tmp_path / "work", timeout=3)
+                else:
+                    expected = KeyboardInterrupt if cause == "keyboard" else ValueError
+                    with pytest.raises(expected):
+>                       quick.interactive(Path(sys.executable), repo, "src", tmp_path / "work", timeout=3)
+
+tests/test_quickstart_mac.py:234: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+python = PosixPath('/Users/annapoutanen/personal-projects/semantic-search-engine/.venv/bin/python')
+repo = PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_interactive_owns_an_avail1/repo')
+source_root = 'src'
+work = PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_interactive_owns_an_avail1/work')
+timeout = 3
+
+    def interactive(python, repo, source_root, work, timeout=1800, *, request_timeout=120,
+                    settings=None, toy=False, port=0):
+        settings = dict(OWN_SETTINGS if settings is None else settings)
+        identity = hashlib.sha256((str(repo) + "\n" + source_root).encode()).hexdigest()
+        artifacts = reserved_directory(work / "sessions" / (time.strftime("%Y%m%d-%H%M%S") + "-" + os.urandom(4).hex()))
+        log = artifacts / "service.log"
+        cache = reserved_directory(work / "indexes" / identity)
+        if port:
+            with socket.socket() as probe:
+                try:
+                    probe.bind(("127.0.0.1", port))
+                except OSError as error:
+                    raise ValueError(f"Port {port} is unavailable; choose a different --port or use --port 0") from error
+        arguments = [python, "-m", "semantic_search.cli", "serve", "--repo", repo, "--source-root", source_root,
+                     "--index-cache", cache, "--port", str(port), "--no-watch", "--progress"]
+        process = None
+        searches = errors = 0
+        status = None
+        previous = signal.signal(signal.SIGTERM, lambda signum, frame: (_ for _ in ()).throw(KeyboardInterrupt()))
+        try:
+            print(f"\nIndexing saved, Git-tracked code in {repo} ({source_root})…", flush=True)
+            print(f"Startup allowance: {timeout:g} seconds. Ctrl-C closes this service.", flush=True)
+            with log.open("wb") as stream:
+                process = subprocess.Popen([str(item) for item in arguments], cwd=ROOT, stdout=stream, stderr=subprocess.STDOUT, start_new_session=True)
+            began = time.monotonic()
+            state = {"offset": 0, "pending": b""}
+            last_phase, last_progress = None, began
+            while time.monotonic() - began < timeout:
+                url = None
+                for line in new_log_lines(log, state):
+                    progress = format_progress(line)
+                    if progress is not None:
+                        phase, message, complete = progress
+                        now = time.monotonic()
+                        if phase != last_phase or complete or now - last_progress >= 5:
+                            print(message, flush=True)
+                            last_phase, last_progress = phase, now
+                    match = re.fullmatch(r"Ready: (http://127\.0\.0\.1:[0-9]+)(?: .*)?", line.rstrip("\r"))
+                    if match:
+                        url = match[1]
+                if url:
+                    remaining = max(.1, timeout - (time.monotonic() - began))
+                    status = request_json(url + "/status", timeout=min(request_timeout, remaining))
+                    if Path(status["repo"]).resolve() != repo.resolve() or status["source_root"] != source_root or not status["ready"]:
+                        raise ValueError("Ready service has unexpected repository identity")
+                    break
+                if process.poll() is not None:
+                    raise RuntimeError(f"Service exited before readiness. Inspect {log}; run the launcher with --doctor for local diagnostics")
+                now = time.monotonic()
+                if now - last_progress >= 10:
+                    print(f"Still indexing/warming ({now - began:.0f}s elapsed); service log: {log}", flush=True)
+                    last_progress = now
+                time.sleep(.1)
+            else:
+                raise RuntimeError(f"Startup exceeded {timeout:g}s. Increase --startup-timeout for a larger repository. Inspect {log}")
+            print(f"\nReady: {url}", flush=True)
+            windows = status.get("windows")
+            if type(windows) is int and windows >= 0:
+                print(f"Index: {windows} implementation windows; source directory: {source_root}")
+            if windows == 0:
+                print("No eligible implementations were indexed. Check --source-root, save files and use git add. "
+                      "Supported source is Python/JavaScript/TypeScript; functions and methods need implementation bodies.", flush=True)
+            print(f"Search limits: {settings['max_results']} results, {settings['source_budget']} source characters, "
+                  f"{settings['token_budget']} compact tokens; dependency context {'on' if settings['include_dependencies'] else 'off'}.")
+>           from beta_tools import write_mcp_config
+E           ModuleNotFoundError: No module named 'beta_tools'
+
+scripts/quickstart_mac.py:324: ModuleNotFoundError
+----------------------------- Captured stdout call -----------------------------
+
+Indexing saved, Git-tracked code in /private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_interactive_owns_an_avail1/repo (src)…
+Startup allowance: 3 seconds. Ctrl-C closes this service.
+
+Ready: http://127.0.0.1:43210
+Search limits: 8 results, 12000 source characters, 4096 compact tokens; dependency context on.
+_ test_checked_cached_launcher_forwards_space_containing_arguments_without_system_python[C.UTF-8] _
+
+tmp_path = PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_checked_cached_launcher_f1')
+locale = 'C.UTF-8'
+
+    @pytest.mark.parametrize("locale", ["C", "C.UTF-8"])
+    def test_checked_cached_launcher_forwards_space_containing_arguments_without_system_python(tmp_path, locale):
+        root, launcher, environment = shell_fixture(tmp_path)
+        uv = root / ".cache/quickstart/bootstrap/uv"
+        python = tmp_path / "managed test python"
+        trace = tmp_path / "python-arguments.json"
+        write(python, f'#!{sys.executable}\nimport json,os,sys\nfrom pathlib import Path\nPath({str(trace)!r}).write_text(json.dumps({{"arguments":sys.argv[1:],"cache":os.environ["UV_CACHE_DIR"],"python":os.environ["UV_PYTHON_INSTALL_DIR"],"config":os.environ["UV_NO_CONFIG"]}}))\n')
+        python.chmod(0o755)
+        write(uv, '#!/bin/sh\ncase "$1 $2" in "--version ") printf "uv 0.13.0 (test build)\\n";; "python install") exit 0;; "python find") printf "%s\\n" "$FAKE_MANAGED_PYTHON";; *) exit 99;; esac\n')
+        uv.chmod(0o755)
+        write(uv.with_name("uv.sha256"), hashlib.sha256(uv.read_bytes()).hexdigest() + "\n")
+        environment["FAKE_MANAGED_PYTHON"] = str(python)
+        environment.update({"LC_ALL": locale, "LC_CTYPE": locale, "LANG": locale})
+>       result = subprocess.run(["bash", launcher, "--repo", "/a repo with spaces", "--source-root", "source files"],
+                                env=environment, capture_output=True, text=True, timeout=5)
+
+tests/test_quickstart_mac.py:496: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../.local/share/uv/python/cpython-3.12.15-macos-aarch64-none/lib/python3.12/subprocess.py:550: in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+../../.local/share/uv/python/cpython-3.12.15-macos-aarch64-none/lib/python3.12/subprocess.py:1209: in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+../../.local/share/uv/python/cpython-3.12.15-macos-aarch64-none/lib/python3.12/subprocess.py:2116: in _communicate
+    self._check_timeout(endtime, orig_timeout, stdout, stderr)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <Popen: returncode: -9 args: ['bash', PosixPath('/private/var/folders/_z/73g...>
+endtime = 234841.811527291, orig_timeout = 5
+stdout_seq = [b'\nPreparing local Python 3.12 (no system Python or Homebrew required)\xe2\x80\xa6\n']
+stderr_seq = [], skip_check_and_raise = False
+
+    def _check_timeout(self, endtime, orig_timeout, stdout_seq, stderr_seq,
+                       skip_check_and_raise=False):
+        """Convenience for checking if a timeout has expired."""
+        if endtime is None:
+            return
+        if skip_check_and_raise or _time() > endtime:
+>           raise TimeoutExpired(
+                    self.args, orig_timeout,
+                    output=b''.join(stdout_seq) if stdout_seq else None,
+                    stderr=b''.join(stderr_seq) if stderr_seq else None)
+E           subprocess.TimeoutExpired: Command '['bash', PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_checked_cached_launcher_f1/download with spaces/Get Started.command'), '--repo', '/a repo with spaces', '--source-root', 'source files']' timed out after 5 seconds
+
+../../.local/share/uv/python/cpython-3.12.15-macos-aarch64-none/lib/python3.12/subprocess.py:1253: TimeoutExpired
+_______ test_own_repo_scope_matches_backend_canonical_identity[src/-src] _______
+
+self = <MagicMock name='interactive' id='4419202768'>
+args = (PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_s...73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba0/.cache/quickstart'))
+kwargs = {}
+expected = call(PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_re...73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba0/.cache/quickstart'))
+actual = call(PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_re...': 4, 'max_results': 8, 'source_budget': 12000, 'token_budget': 4096, 'include_dependencies': True}, toy=False, port=0)
+_error_message = <function NonCallableMock.assert_called_with.<locals>._error_message at 0x10748eca0>
+cause = None
+
+    def assert_called_with(self, /, *args, **kwargs):
+        """assert that the last call was made with the specified arguments.
+    
+        Raises an AssertionError if the args and keyword args passed in are
+        different to the last call to the mock."""
+        if self.call_args is None:
+            expected = self._format_mock_call_signature(args, kwargs)
+            actual = 'not called.'
+            error_message = ('expected call not found.\nExpected: %s\n  Actual: %s'
+                    % (expected, actual))
+            raise AssertionError(error_message)
+    
+        def _error_message():
+            msg = self._format_mock_failure_message(args, kwargs)
+            return msg
+        expected = self._call_matcher(_Call((args, kwargs), two=True))
+        actual = self._call_matcher(self.call_args)
+        if actual != expected:
+            cause = expected if isinstance(expected, Exception) else None
+>           raise AssertionError(_error_message()) from cause
+E           AssertionError: expected call not found.
+E           Expected: interactive(PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba0/.cache/quickstart/venv/bin/python'), PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba0/My Project'), 'src', PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba0/.cache/quickstart'))
+E             Actual: interactive(PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba0/.cache/quickstart/venv/bin/python'), PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba0/My Project'), 'src', PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba0/.cache/quickstart'), timeout=1800, request_timeout=120, settings={'retrieval': 'dense', 'rerank': False, 'candidates': 4, 'max_results': 8, 'source_budget': 12000, 'token_budget': 4096, 'include_dependencies': True}, toy=False, port=0)
+
+../../.local/share/uv/python/cpython-3.12.15-macos-aarch64-none/lib/python3.12/unittest/mock.py:949: AssertionError
+
+During handling of the above exception, another exception occurred:
+
+self = <MagicMock name='interactive' id='4419202768'>
+args = (PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_s...73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba0/.cache/quickstart'))
+kwargs = {}
+
+    def assert_called_once_with(self, /, *args, **kwargs):
+        """assert that the mock was called exactly once and that that call was
+        with the specified arguments."""
+        if not self.call_count == 1:
+            msg = ("Expected '%s' to be called once. Called %s times.%s"
+                   % (self._mock_name or 'mock',
+                      self.call_count,
+                      self._calls_repr()))
+            raise AssertionError(msg)
+>       return self.assert_called_with(*args, **kwargs)
+E       AssertionError: expected call not found.
+E       Expected: interactive(PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba0/.cache/quickstart/venv/bin/python'), PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba0/My Project'), 'src', PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba0/.cache/quickstart'))
+E         Actual: interactive(PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba0/.cache/quickstart/venv/bin/python'), PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba0/My Project'), 'src', PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba0/.cache/quickstart'), timeout=1800, request_timeout=120, settings={'retrieval': 'dense', 'rerank': False, 'candidates': 4, 'max_results': 8, 'source_budget': 12000, 'token_budget': 4096, 'include_dependencies': True}, toy=False, port=0)
+E       
+E       pytest introspection follows:
+E       
+E       Kwargs:
+E       assert {'port': 0, '...t': 1800, ...} == {}
+E         
+E         Left contains 5 more items:
+E         {'port': 0,
+E          'request_timeout': 120,
+E          'settings': {'candidates': 4,
+E                       'include_dependencies': True,
+E                       'max_results': 8,...
+E         
+E         ...Full output truncated (7 lines hidden), use '-vv' to show
+
+../../.local/share/uv/python/cpython-3.12.15-macos-aarch64-none/lib/python3.12/unittest/mock.py:961: AssertionError
+
+During handling of the above exception, another exception occurred:
+
+quick = <module 'quickstart_under_test' from '/Users/annapoutanen/personal-projects/semantic-search-engine/scripts/quickstart_mac.py'>
+tmp_path = PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba0')
+mac = None, value = 'src/', expected = 'src'
+
+    @pytest.mark.parametrize('value,expected', [('src/', 'src'), ('./src', 'src'), ('.', '.')])
+    def test_own_repo_scope_matches_backend_canonical_identity(quick, tmp_path, mac, value, expected):
+        repo = tmp_path / 'My Project'
+        (repo / '.git').mkdir(parents=True)
+        (repo / 'src').mkdir()
+        python = tmp_path / '.cache/quickstart/venv/bin/python'
+        with patch.object(quick, 'ROOT', tmp_path), patch.object(quick.sys.stdin, 'isatty', return_value=True), \
+                patch.object(quick, 'setup_runtime', return_value=(python, {})), patch.object(quick, 'setup_model'), \
+                patch.object(quick, 'interactive') as interactive:
+            quick.main(['--uv-path', str(tmp_path / 'uv'), '--repo', str(repo), '--source-root', value])
+>       interactive.assert_called_once_with(python, repo.resolve(), expected, tmp_path / '.cache/quickstart')
+E       AssertionError: expected call not found.
+E       Expected: interactive(PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba0/.cache/quickstart/venv/bin/python'), PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba0/My Project'), 'src', PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba0/.cache/quickstart'))
+E         Actual: interactive(PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba0/.cache/quickstart/venv/bin/python'), PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba0/My Project'), 'src', PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba0/.cache/quickstart'), timeout=1800, request_timeout=120, settings={'retrieval': 'dense', 'rerank': False, 'candidates': 4, 'max_results': 8, 'source_budget': 12000, 'token_budget': 4096, 'include_dependencies': True}, toy=False, port=0)
+E       
+E       pytest introspection follows:
+E       
+E       Kwargs:
+E       assert {'port': 0, '...t': 1800, ...} == {}
+E         
+E         Left contains 5 more items:
+E         {'port': 0,
+E          'request_timeout': 120,
+E          'settings': {'candidates': 4,
+E                       'include_dependencies': True,
+E                       'max_results': 8,...
+E         
+E         ...Full output truncated (7 lines hidden), use '-vv' to show
+
+tests/test_quickstart_mac.py:590: AssertionError
+______ test_own_repo_scope_matches_backend_canonical_identity[./src-src] _______
+
+self = <MagicMock name='interactive' id='4415011440'>
+args = (PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_s...73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba1/.cache/quickstart'))
+kwargs = {}
+expected = call(PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_re...73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba1/.cache/quickstart'))
+actual = call(PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_re...': 4, 'max_results': 8, 'source_budget': 12000, 'token_budget': 4096, 'include_dependencies': True}, toy=False, port=0)
+_error_message = <function NonCallableMock.assert_called_with.<locals>._error_message at 0x107676ac0>
+cause = None
+
+    def assert_called_with(self, /, *args, **kwargs):
+        """assert that the last call was made with the specified arguments.
+    
+        Raises an AssertionError if the args and keyword args passed in are
+        different to the last call to the mock."""
+        if self.call_args is None:
+            expected = self._format_mock_call_signature(args, kwargs)
+            actual = 'not called.'
+            error_message = ('expected call not found.\nExpected: %s\n  Actual: %s'
+                    % (expected, actual))
+            raise AssertionError(error_message)
+    
+        def _error_message():
+            msg = self._format_mock_failure_message(args, kwargs)
+            return msg
+        expected = self._call_matcher(_Call((args, kwargs), two=True))
+        actual = self._call_matcher(self.call_args)
+        if actual != expected:
+            cause = expected if isinstance(expected, Exception) else None
+>           raise AssertionError(_error_message()) from cause
+E           AssertionError: expected call not found.
+E           Expected: interactive(PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba1/.cache/quickstart/venv/bin/python'), PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba1/My Project'), 'src', PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba1/.cache/quickstart'))
+E             Actual: interactive(PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba1/.cache/quickstart/venv/bin/python'), PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba1/My Project'), 'src', PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba1/.cache/quickstart'), timeout=1800, request_timeout=120, settings={'retrieval': 'dense', 'rerank': False, 'candidates': 4, 'max_results': 8, 'source_budget': 12000, 'token_budget': 4096, 'include_dependencies': True}, toy=False, port=0)
+
+../../.local/share/uv/python/cpython-3.12.15-macos-aarch64-none/lib/python3.12/unittest/mock.py:949: AssertionError
+
+During handling of the above exception, another exception occurred:
+
+self = <MagicMock name='interactive' id='4415011440'>
+args = (PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_s...73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba1/.cache/quickstart'))
+kwargs = {}
+
+    def assert_called_once_with(self, /, *args, **kwargs):
+        """assert that the mock was called exactly once and that that call was
+        with the specified arguments."""
+        if not self.call_count == 1:
+            msg = ("Expected '%s' to be called once. Called %s times.%s"
+                   % (self._mock_name or 'mock',
+                      self.call_count,
+                      self._calls_repr()))
+            raise AssertionError(msg)
+>       return self.assert_called_with(*args, **kwargs)
+E       AssertionError: expected call not found.
+E       Expected: interactive(PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba1/.cache/quickstart/venv/bin/python'), PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba1/My Project'), 'src', PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba1/.cache/quickstart'))
+E         Actual: interactive(PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba1/.cache/quickstart/venv/bin/python'), PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba1/My Project'), 'src', PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba1/.cache/quickstart'), timeout=1800, request_timeout=120, settings={'retrieval': 'dense', 'rerank': False, 'candidates': 4, 'max_results': 8, 'source_budget': 12000, 'token_budget': 4096, 'include_dependencies': True}, toy=False, port=0)
+E       
+E       pytest introspection follows:
+E       
+E       Kwargs:
+E       assert {'port': 0, '...t': 1800, ...} == {}
+E         
+E         Left contains 5 more items:
+E         {'port': 0,
+E          'request_timeout': 120,
+E          'settings': {'candidates': 4,
+E                       'include_dependencies': True,
+E                       'max_results': 8,...
+E         
+E         ...Full output truncated (7 lines hidden), use '-vv' to show
+
+../../.local/share/uv/python/cpython-3.12.15-macos-aarch64-none/lib/python3.12/unittest/mock.py:961: AssertionError
+
+During handling of the above exception, another exception occurred:
+
+quick = <module 'quickstart_under_test' from '/Users/annapoutanen/personal-projects/semantic-search-engine/scripts/quickstart_mac.py'>
+tmp_path = PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba1')
+mac = None, value = './src', expected = 'src'
+
+    @pytest.mark.parametrize('value,expected', [('src/', 'src'), ('./src', 'src'), ('.', '.')])
+    def test_own_repo_scope_matches_backend_canonical_identity(quick, tmp_path, mac, value, expected):
+        repo = tmp_path / 'My Project'
+        (repo / '.git').mkdir(parents=True)
+        (repo / 'src').mkdir()
+        python = tmp_path / '.cache/quickstart/venv/bin/python'
+        with patch.object(quick, 'ROOT', tmp_path), patch.object(quick.sys.stdin, 'isatty', return_value=True), \
+                patch.object(quick, 'setup_runtime', return_value=(python, {})), patch.object(quick, 'setup_model'), \
+                patch.object(quick, 'interactive') as interactive:
+            quick.main(['--uv-path', str(tmp_path / 'uv'), '--repo', str(repo), '--source-root', value])
+>       interactive.assert_called_once_with(python, repo.resolve(), expected, tmp_path / '.cache/quickstart')
+E       AssertionError: expected call not found.
+E       Expected: interactive(PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba1/.cache/quickstart/venv/bin/python'), PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba1/My Project'), 'src', PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba1/.cache/quickstart'))
+E         Actual: interactive(PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba1/.cache/quickstart/venv/bin/python'), PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba1/My Project'), 'src', PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba1/.cache/quickstart'), timeout=1800, request_timeout=120, settings={'retrieval': 'dense', 'rerank': False, 'candidates': 4, 'max_results': 8, 'source_budget': 12000, 'token_budget': 4096, 'include_dependencies': True}, toy=False, port=0)
+E       
+E       pytest introspection follows:
+E       
+E       Kwargs:
+E       assert {'port': 0, '...t': 1800, ...} == {}
+E         
+E         Left contains 5 more items:
+E         {'port': 0,
+E          'request_timeout': 120,
+E          'settings': {'candidates': 4,
+E                       'include_dependencies': True,
+E                       'max_results': 8,...
+E         
+E         ...Full output truncated (7 lines hidden), use '-vv' to show
+
+tests/test_quickstart_mac.py:590: AssertionError
+_________ test_own_repo_scope_matches_backend_canonical_identity[.-.] __________
+
+self = <MagicMock name='interactive' id='4414626208'>
+args = (PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_s...73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba2/.cache/quickstart'))
+kwargs = {}
+expected = call(PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_re...73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba2/.cache/quickstart'))
+actual = call(PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_re...': 4, 'max_results': 8, 'source_budget': 12000, 'token_budget': 4096, 'include_dependencies': True}, toy=False, port=0)
+_error_message = <function NonCallableMock.assert_called_with.<locals>._error_message at 0x107674040>
+cause = None
+
+    def assert_called_with(self, /, *args, **kwargs):
+        """assert that the last call was made with the specified arguments.
+    
+        Raises an AssertionError if the args and keyword args passed in are
+        different to the last call to the mock."""
+        if self.call_args is None:
+            expected = self._format_mock_call_signature(args, kwargs)
+            actual = 'not called.'
+            error_message = ('expected call not found.\nExpected: %s\n  Actual: %s'
+                    % (expected, actual))
+            raise AssertionError(error_message)
+    
+        def _error_message():
+            msg = self._format_mock_failure_message(args, kwargs)
+            return msg
+        expected = self._call_matcher(_Call((args, kwargs), two=True))
+        actual = self._call_matcher(self.call_args)
+        if actual != expected:
+            cause = expected if isinstance(expected, Exception) else None
+>           raise AssertionError(_error_message()) from cause
+E           AssertionError: expected call not found.
+E           Expected: interactive(PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba2/.cache/quickstart/venv/bin/python'), PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba2/My Project'), '.', PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba2/.cache/quickstart'))
+E             Actual: interactive(PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba2/.cache/quickstart/venv/bin/python'), PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba2/My Project'), '.', PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba2/.cache/quickstart'), timeout=1800, request_timeout=120, settings={'retrieval': 'dense', 'rerank': False, 'candidates': 4, 'max_results': 8, 'source_budget': 12000, 'token_budget': 4096, 'include_dependencies': True}, toy=False, port=0)
+
+../../.local/share/uv/python/cpython-3.12.15-macos-aarch64-none/lib/python3.12/unittest/mock.py:949: AssertionError
+
+During handling of the above exception, another exception occurred:
+
+self = <MagicMock name='interactive' id='4414626208'>
+args = (PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_s...73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba2/.cache/quickstart'))
+kwargs = {}
+
+    def assert_called_once_with(self, /, *args, **kwargs):
+        """assert that the mock was called exactly once and that that call was
+        with the specified arguments."""
+        if not self.call_count == 1:
+            msg = ("Expected '%s' to be called once. Called %s times.%s"
+                   % (self._mock_name or 'mock',
+                      self.call_count,
+                      self._calls_repr()))
+            raise AssertionError(msg)
+>       return self.assert_called_with(*args, **kwargs)
+E       AssertionError: expected call not found.
+E       Expected: interactive(PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba2/.cache/quickstart/venv/bin/python'), PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba2/My Project'), '.', PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba2/.cache/quickstart'))
+E         Actual: interactive(PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba2/.cache/quickstart/venv/bin/python'), PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba2/My Project'), '.', PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba2/.cache/quickstart'), timeout=1800, request_timeout=120, settings={'retrieval': 'dense', 'rerank': False, 'candidates': 4, 'max_results': 8, 'source_budget': 12000, 'token_budget': 4096, 'include_dependencies': True}, toy=False, port=0)
+E       
+E       pytest introspection follows:
+E       
+E       Kwargs:
+E       assert {'port': 0, '...t': 1800, ...} == {}
+E         
+E         Left contains 5 more items:
+E         {'port': 0,
+E          'request_timeout': 120,
+E          'settings': {'candidates': 4,
+E                       'include_dependencies': True,
+E                       'max_results': 8,...
+E         
+E         ...Full output truncated (7 lines hidden), use '-vv' to show
+
+../../.local/share/uv/python/cpython-3.12.15-macos-aarch64-none/lib/python3.12/unittest/mock.py:961: AssertionError
+
+During handling of the above exception, another exception occurred:
+
+quick = <module 'quickstart_under_test' from '/Users/annapoutanen/personal-projects/semantic-search-engine/scripts/quickstart_mac.py'>
+tmp_path = PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba2')
+mac = None, value = '.', expected = '.'
+
+    @pytest.mark.parametrize('value,expected', [('src/', 'src'), ('./src', 'src'), ('.', '.')])
+    def test_own_repo_scope_matches_backend_canonical_identity(quick, tmp_path, mac, value, expected):
+        repo = tmp_path / 'My Project'
+        (repo / '.git').mkdir(parents=True)
+        (repo / 'src').mkdir()
+        python = tmp_path / '.cache/quickstart/venv/bin/python'
+        with patch.object(quick, 'ROOT', tmp_path), patch.object(quick.sys.stdin, 'isatty', return_value=True), \
+                patch.object(quick, 'setup_runtime', return_value=(python, {})), patch.object(quick, 'setup_model'), \
+                patch.object(quick, 'interactive') as interactive:
+            quick.main(['--uv-path', str(tmp_path / 'uv'), '--repo', str(repo), '--source-root', value])
+>       interactive.assert_called_once_with(python, repo.resolve(), expected, tmp_path / '.cache/quickstart')
+E       AssertionError: expected call not found.
+E       Expected: interactive(PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba2/.cache/quickstart/venv/bin/python'), PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba2/My Project'), '.', PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba2/.cache/quickstart'))
+E         Actual: interactive(PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba2/.cache/quickstart/venv/bin/python'), PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba2/My Project'), '.', PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-687/test_own_repo_scope_matches_ba2/.cache/quickstart'), timeout=1800, request_timeout=120, settings={'retrieval': 'dense', 'rerank': False, 'candidates': 4, 'max_results': 8, 'source_budget': 12000, 'token_budget': 4096, 'include_dependencies': True}, toy=False, port=0)
+E       
+E       pytest introspection follows:
+E       
+E       Kwargs:
+E       assert {'port': 0, '...t': 1800, ...} == {}
+E         
+E         Left contains 5 more items:
+E         {'port': 0,
+E          'request_timeout': 120,
+E          'settings': {'candidates': 4,
+E                       'include_dependencies': True,
+E                       'max_results': 8,...
+E         
+E         ...Full output truncated (7 lines hidden), use '-vv' to show
+
+tests/test_quickstart_mac.py:590: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_quickstart_mac.py::test_interactive_owns_an_available_port_and_cleans_actual_cpu_child_on_every_exit[normal]
+FAILED tests/test_quickstart_mac.py::test_interactive_owns_an_available_port_and_cleans_actual_cpu_child_on_every_exit[keyboard]
+FAILED tests/test_quickstart_mac.py::test_checked_cached_launcher_forwards_space_containing_arguments_without_system_python[C.UTF-8]
+FAILED tests/test_quickstart_mac.py::test_own_repo_scope_matches_backend_canonical_identity[src/-src]
+FAILED tests/test_quickstart_mac.py::test_own_repo_scope_matches_backend_canonical_identity[./src-src]
+FAILED tests/test_quickstart_mac.py::test_own_repo_scope_matches_backend_canonical_identity[.-.]
+6 failed, 49 passed in 14.01s

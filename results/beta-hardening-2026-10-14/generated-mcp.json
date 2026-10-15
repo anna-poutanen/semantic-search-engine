@@ -1,0 +1,495 @@
+{
+  "kind": "generated beta MCP integration qualification; not a retrieval benchmark",
+  "captured_at_utc": "2026-10-15T15:03:57.463184+00:00",
+  "elapsed_seconds": 3.954093375010416,
+  "generated_config_sha256": "853adba545789e01c8e86e0f5a08ffa0d2b1e66b10ffee300371e85e3a14a8df",
+  "configuration": {
+    "exact_generated_command_and_args": true,
+    "warmed_cache_from_generated_environment": true,
+    "parent_cache_setting_removed": true,
+    "default_tokenizer_directory_absent_before": true,
+    "default_tokenizer_directory_absent_after": true,
+    "client_settings_unchanged": true
+  },
+  "packages": {
+    "semantic-search-engine": "0.1.2",
+    "mcp": "2.3.0",
+    "tiktoken": "0.14.0"
+  },
+  "service": {
+    "ready": true,
+    "repo_matches": true,
+    "source_root": "django",
+    "windows": 10734
+  },
+  "network_guard": {
+    "scope": "Python socket DNS/connect in qualification parent and MCP adapter; resident backend is separate",
+    "outbound_attempts": 0,
+    "adapter_guard_installed": true,
+    "adapter_interpreter_exit_observed": true,
+    "allowed_operations": 6,
+    "events": [
+      {
+        "role": "parent",
+        "pid": 74848,
+        "kind": "installed"
+      },
+      {
+        "role": "parent",
+        "pid": 74848,
+        "kind": "allowed",
+        "operation": "getaddrinfo",
+        "classification": "loopback"
+      },
+      {
+        "role": "parent",
+        "pid": 74848,
+        "kind": "allowed",
+        "operation": "connect",
+        "classification": "loopback"
+      },
+      {
+        "role": "adapter",
+        "pid": 74856,
+        "kind": "installed"
+      },
+      {
+        "role": "adapter",
+        "pid": 74856,
+        "kind": "allowed",
+        "operation": "getaddrinfo",
+        "classification": "loopback"
+      },
+      {
+        "role": "adapter",
+        "pid": 74856,
+        "kind": "allowed",
+        "operation": "connect",
+        "classification": "loopback"
+      },
+      {
+        "role": "adapter",
+        "pid": 74856,
+        "kind": "allowed",
+        "operation": "getaddrinfo",
+        "classification": "loopback"
+      },
+      {
+        "role": "adapter",
+        "pid": 74856,
+        "kind": "allowed",
+        "operation": "connect",
+        "classification": "loopback"
+      },
+      {
+        "role": "adapter",
+        "pid": 74856,
+        "kind": "exit"
+      },
+      {
+        "role": "parent",
+        "pid": 74848,
+        "kind": "restored"
+      }
+    ]
+  },
+  "mcp": {
+    "sdk_mode": "legacy",
+    "protocol_version": "2025-11-25",
+    "calls": [
+      {
+        "method": "tools/list",
+        "tools": [
+          "search_code"
+        ]
+      },
+      {
+        "method": "tools/call",
+        "name": "search_code",
+        "arguments": {
+          "query": "Remove expired database-backed sessions, deleting rows whose expiration is in the past."
+        }
+      },
+      {
+        "method": "tools/call",
+        "name": "search_code",
+        "arguments": {
+          "query": "Verify a signed value's timestamp and reject it when the signature is older than max_age."
+        }
+      }
+    ],
+    "defaults": {
+      "max_results": 8,
+      "source_budget": 12000,
+      "token_budget": 4096,
+      "include_dependencies": true
+    },
+    "searches": [
+      {
+        "query": "Remove expired database-backed sessions, deleting rows whose expiration is in the past.",
+        "verified_excerpts": [
+          {
+            "path": "django/contrib/sessions/backends/db.py",
+            "symbol": "SessionStore.aclear_expired",
+            "start_line": 194,
+            "end_line": 198,
+            "source_hash": "8962d6783f9052300187675875c98007c3d6a069ecd8f79bd828e48f903f13ba",
+            "origin": "retrieval"
+          },
+          {
+            "path": "django/contrib/sessions/backends/db.py",
+            "symbol": "SessionStore.clear_expired",
+            "start_line": 190,
+            "end_line": 192,
+            "source_hash": "54714cfde2be79c8f26dac29990fc8f34ccfda784d60cf964ab8f8a44eba6fea",
+            "origin": "retrieval"
+          },
+          {
+            "path": "django/contrib/sessions/backends/file.py",
+            "symbol": "SessionStore.aclear_expired",
+            "start_line": 224,
+            "end_line": 226,
+            "source_hash": "06fd28066c0cd7be8bf8d32b1ccbb743b4fc4c8b8026299b64dd2e9f45d277b5",
+            "origin": "retrieval"
+          },
+          {
+            "path": "django/contrib/sessions/backends/base.py",
+            "symbol": "SessionBase.aclear_expired",
+            "start_line": 521,
+            "end_line": 523,
+            "source_hash": "c18f586a0ca312d77becb6c0e94c6d8305212668998367f9621a7a3e704e6e15",
+            "origin": "retrieval"
+          },
+          {
+            "path": "django/contrib/sessions/backends/file.py",
+            "symbol": "SessionStore.clear_expired",
+            "start_line": 208,
+            "end_line": 222,
+            "source_hash": "9c89e57e7a3db8ecffffddf82a94669cd70c8abbe2309ffd35b69878a777cebd",
+            "origin": "retrieval"
+          },
+          {
+            "path": "django/contrib/sessions/backends/db.py",
+            "symbol": "SessionStore.get_model_class",
+            "start_line": 20,
+            "end_line": 26,
+            "source_hash": "00167e7a9cd7ab7119af9be999722a7cf8aca2f5a01c68b5c70c90b9b157069d",
+            "origin": "dependency"
+          },
+          {
+            "path": "django/utils/timezone.py",
+            "symbol": "now",
+            "start_line": 200,
+            "end_line": 204,
+            "source_hash": "f724443bc7bcb487cbf1a1d60cb0b02d4472ba845e8d00fc645854313372e811",
+            "origin": "dependency"
+          },
+          {
+            "path": "django/contrib/sessions/backends/file.py",
+            "symbol": "SessionStore._get_storage_path",
+            "start_line": 28,
+            "end_line": 45,
+            "source_hash": "8dfac7cdb586ded65a1d2c78e741a7b94a798c5063534d51c4ec0ea7d6735a16",
+            "origin": "dependency"
+          }
+        ],
+        "source_characters": 2293,
+        "compact_tokens": 1362,
+        "envelope": {
+          "query": "Remove expired database-backed sessions, deleting rows whose expiration is in the past.",
+          "match_status": "candidates",
+          "results": [
+            {
+              "path": "django/contrib/sessions/backends/db.py",
+              "symbol": "SessionStore.aclear_expired",
+              "start_line": 194,
+              "end_line": 198,
+              "source": "    @classmethod\n    async def aclear_expired(cls):\n        await cls.get_model_class().objects.filter(\n            expire_date__lt=timezone.now()\n        ).adelete()\n",
+              "source_hash": "8962d6783f9052300187675875c98007c3d6a069ecd8f79bd828e48f903f13ba",
+              "truncated": false,
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "path": "django/contrib/sessions/backends/db.py",
+              "symbol": "SessionStore.clear_expired",
+              "start_line": 190,
+              "end_line": 192,
+              "source": "    @classmethod\n    def clear_expired(cls):\n        cls.get_model_class().objects.filter(expire_date__lt=timezone.now()).delete()\n",
+              "source_hash": "54714cfde2be79c8f26dac29990fc8f34ccfda784d60cf964ab8f8a44eba6fea",
+              "truncated": false,
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "path": "django/contrib/sessions/backends/file.py",
+              "symbol": "SessionStore.aclear_expired",
+              "start_line": 224,
+              "end_line": 226,
+              "source": "    @classmethod\n    async def aclear_expired(cls):\n        cls.clear_expired()\n",
+              "source_hash": "06fd28066c0cd7be8bf8d32b1ccbb743b4fc4c8b8026299b64dd2e9f45d277b5",
+              "truncated": false,
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "path": "django/contrib/sessions/backends/base.py",
+              "symbol": "SessionBase.aclear_expired",
+              "start_line": 521,
+              "end_line": 523,
+              "source": "    @classmethod\n    async def aclear_expired(cls):\n        return await sync_to_async(cls.clear_expired)()\n",
+              "source_hash": "c18f586a0ca312d77becb6c0e94c6d8305212668998367f9621a7a3e704e6e15",
+              "truncated": false,
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "path": "django/contrib/sessions/backends/file.py",
+              "symbol": "SessionStore.clear_expired",
+              "start_line": 208,
+              "end_line": 222,
+              "source": "    @classmethod\n    def clear_expired(cls):\n        storage_path = cls._get_storage_path()\n        file_prefix = settings.SESSION_COOKIE_NAME\n\n        for session_file in os.listdir(storage_path):\n            if not session_file.startswith(file_prefix):\n                continue\n            session_key = session_file.removeprefix(file_prefix)\n            session = cls(session_key)\n            # When an expired session is loaded, its file is removed, and a\n            # new file is immediately created. Prevent this by disabling\n            # the create() method.\n            session.create = lambda: None\n            session.load()\n",
+              "source_hash": "9c89e57e7a3db8ecffffddf82a94669cd70c8abbe2309ffd35b69878a777cebd",
+              "truncated": false,
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "path": "django/contrib/sessions/backends/db.py",
+              "symbol": "SessionStore.get_model_class",
+              "start_line": 20,
+              "end_line": 26,
+              "source": "    @classmethod\n    def get_model_class(cls):\n        # Avoids a circular import and allows importing SessionStore when\n        # django.contrib.sessions is not in INSTALLED_APPS.\n        from django.contrib.sessions.models import Session\n\n        return Session\n",
+              "source_hash": "00167e7a9cd7ab7119af9be999722a7cf8aca2f5a01c68b5c70c90b9b157069d",
+              "truncated": false,
+              "origin": "dependency",
+              "related_to": "django/contrib/sessions/backends/db.py:SessionStore.aclear_expired:194-198"
+            },
+            {
+              "path": "django/utils/timezone.py",
+              "symbol": "now",
+              "start_line": 200,
+              "end_line": 204,
+              "source": "def now():\n    \"\"\"\n    Return an aware or naive datetime.datetime, depending on settings.USE_TZ.\n    \"\"\"\n    return datetime.now(tz=timezone.utc if settings.USE_TZ else None)\n",
+              "source_hash": "f724443bc7bcb487cbf1a1d60cb0b02d4472ba845e8d00fc645854313372e811",
+              "truncated": false,
+              "origin": "dependency",
+              "related_to": "django/contrib/sessions/backends/db.py:SessionStore.aclear_expired:194-198"
+            },
+            {
+              "path": "django/contrib/sessions/backends/file.py",
+              "symbol": "SessionStore._get_storage_path",
+              "start_line": 28,
+              "end_line": 45,
+              "source": "    @classmethod\n    def _get_storage_path(cls):\n        try:\n            return cls._storage_path\n        except AttributeError:\n            storage_path = (\n                getattr(settings, \"SESSION_FILE_PATH\", None) or tempfile.gettempdir()\n            )\n            # Make sure the storage path is valid.\n            if not os.path.isdir(storage_path):\n                raise ImproperlyConfigured(\n                    \"The session storage path %r doesn't exist. Please set your\"\n                    \" SESSION_FILE_PATH setting to an existing directory in which\"\n                    \" Django can store session data.\" % storage_path\n                )\n\n            cls._storage_path = storage_path\n            return storage_path\n",
+              "source_hash": "8dfac7cdb586ded65a1d2c78e741a7b94a798c5063534d51c4ec0ea7d6735a16",
+              "truncated": false,
+              "origin": "dependency",
+              "related_to": "django/contrib/sessions/backends/file.py:SessionStore.clear_expired:208-222"
+            }
+          ],
+          "budget_exhausted": false,
+          "token_usage": {
+            "encoding": "cl100k_base",
+            "tokens": 1362,
+            "budget": 4096,
+            "truncated": false
+          },
+          "scope": {
+            "source_root": "django",
+            "membership": "saved implementations; Git-tracked files only in Git projects",
+            "source_exclusions": [
+              "django/**/*.min.js",
+              "django/views/templates/i18n_catalog.js"
+            ],
+            "exclusions_omitted": 0
+          }
+        },
+        "elapsed_seconds": 1.7010459160082974
+      },
+      {
+        "query": "Verify a signed value's timestamp and reject it when the signature is older than max_age.",
+        "verified_excerpts": [
+          {
+            "path": "django/core/signing.py",
+            "symbol": "TimestampSigner.unsign",
+            "start_line": 262,
+            "end_line": 277,
+            "source_hash": "59d4d1f69d8af2345b263dc275a94d248f4e730cdea69f82a00370fa49ff2915",
+            "origin": "retrieval"
+          },
+          {
+            "path": "django/core/signing.py",
+            "symbol": "loads",
+            "start_line": 155,
+            "end_line": 174,
+            "source_hash": "59bafe879935190816f11b4f1b83518f76186f77de40d5207a9c03f07af8190f",
+            "origin": "retrieval"
+          },
+          {
+            "path": "django/core/signing.py",
+            "symbol": "TimestampSigner.sign",
+            "start_line": 258,
+            "end_line": 260,
+            "source_hash": "a44750f1471e733c608e265d3c4cd0ecb2b09c83d1f0036d3fa7ab27e1027ce4",
+            "origin": "retrieval"
+          },
+          {
+            "path": "django/core/signing.py",
+            "symbol": "Signer.unsign",
+            "start_line": 206,
+            "end_line": 213,
+            "source_hash": "cee86ac658b8b7d9b52e8235853c71f3a14c9796fb1e9365c81a73d9af608de8",
+            "origin": "retrieval"
+          },
+          {
+            "path": "django/http/request.py",
+            "symbol": "HttpRequest.get_signed_cookie",
+            "start_line": 215,
+            "end_line": 237,
+            "source_hash": "61738b6a6f2b27a90c66ecd558b5ba772d0d083440613f6be795708c5bef7a6f",
+            "origin": "retrieval"
+          },
+          {
+            "path": "django/core/signing.py",
+            "symbol": "b62_decode",
+            "start_line": 76,
+            "end_line": 86,
+            "source_hash": "e82ab440be753e5dd2b6d8931e716c1b1d7c9d4c52b8bea62681c2098197e810",
+            "origin": "dependency"
+          },
+          {
+            "path": "django/core/signing.py",
+            "symbol": "TimestampSigner.timestamp",
+            "start_line": 255,
+            "end_line": 256,
+            "source_hash": "e22ca39ff5af1352a99d8c9780335d51c7b07279371f7eda2c0da9605c935bf8",
+            "origin": "dependency"
+          },
+          {
+            "path": "django/utils/crypto.py",
+            "symbol": "constant_time_compare",
+            "start_line": 65,
+            "end_line": 67,
+            "source_hash": "0ae07b195623154dce7fafdc04f1f841feaa9fc5f27f60e12ee0dc94099efffe",
+            "origin": "dependency"
+          }
+        ],
+        "source_characters": 2991,
+        "compact_tokens": 1599,
+        "envelope": {
+          "query": "Verify a signed value's timestamp and reject it when the signature is older than max_age.",
+          "match_status": "candidates",
+          "results": [
+            {
+              "path": "django/core/signing.py",
+              "symbol": "TimestampSigner.unsign",
+              "start_line": 262,
+              "end_line": 277,
+              "source": "    def unsign(self, value, max_age=None):\n        \"\"\"\n        Retrieve original value and check it wasn't signed more\n        than max_age seconds ago.\n        \"\"\"\n        result = super().unsign(value)\n        value, timestamp = result.rsplit(self.sep, 1)\n        timestamp = b62_decode(timestamp)\n        if max_age is not None:\n            if isinstance(max_age, datetime.timedelta):\n                max_age = max_age.total_seconds()\n            # Check timestamp is not older than max_age\n            age = time.time() - timestamp\n            if age > max_age:\n                raise SignatureExpired(\"Signature age %s > %s seconds\" % (age, max_age))\n        return value\n",
+              "source_hash": "59d4d1f69d8af2345b263dc275a94d248f4e730cdea69f82a00370fa49ff2915",
+              "truncated": false,
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "path": "django/core/signing.py",
+              "symbol": "loads",
+              "start_line": 155,
+              "end_line": 174,
+              "source": "def loads(\n    s,\n    key=None,\n    salt=\"django.core.signing\",\n    serializer=JSONSerializer,\n    max_age=None,\n    fallback_keys=None,\n):\n    \"\"\"\n    Reverse of dumps(), raise BadSignature if signature fails.\n\n    The serializer is expected to accept a bytestring.\n    \"\"\"\n    return TimestampSigner(\n        key=key, salt=salt, fallback_keys=fallback_keys\n    ).unsign_object(\n        s,\n        serializer=serializer,\n        max_age=max_age,\n    )\n",
+              "source_hash": "59bafe879935190816f11b4f1b83518f76186f77de40d5207a9c03f07af8190f",
+              "truncated": false,
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "path": "django/core/signing.py",
+              "symbol": "TimestampSigner.sign",
+              "start_line": 258,
+              "end_line": 260,
+              "source": "    def sign(self, value):\n        value = \"%s%s%s\" % (value, self.sep, self.timestamp())\n        return super().sign(value)\n",
+              "source_hash": "a44750f1471e733c608e265d3c4cd0ecb2b09c83d1f0036d3fa7ab27e1027ce4",
+              "truncated": false,
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "path": "django/core/signing.py",
+              "symbol": "Signer.unsign",
+              "start_line": 206,
+              "end_line": 213,
+              "source": "    def unsign(self, signed_value):\n        if self.sep not in signed_value:\n            raise BadSignature('No \"%s\" found in value' % self.sep)\n        value, sig = signed_value.rsplit(self.sep, 1)\n        for key in [self.key, *self.fallback_keys]:\n            if constant_time_compare(sig, self.signature(value, key)):\n                return value\n        raise BadSignature('Signature \"%s\" does not match' % sig)\n",
+              "source_hash": "cee86ac658b8b7d9b52e8235853c71f3a14c9796fb1e9365c81a73d9af608de8",
+              "truncated": false,
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "path": "django/http/request.py",
+              "symbol": "HttpRequest.get_signed_cookie",
+              "start_line": 215,
+              "end_line": 237,
+              "source": "    def get_signed_cookie(self, key, default=RAISE_ERROR, salt=\"\", max_age=None):\n        \"\"\"\n        Attempt to return a signed cookie. If the signature fails or the\n        cookie has expired, raise an exception, unless the `default` argument\n        is provided,  in which case return that value.\n        \"\"\"\n        try:\n            cookie_value = self.COOKIES[key]\n        except KeyError:\n            if default is not RAISE_ERROR:\n                return default\n            else:\n                raise\n        try:\n            value = signing.get_cookie_signer(salt=key + salt).unsign(\n                cookie_value, max_age=max_age\n            )\n        except signing.BadSignature:\n            if default is not RAISE_ERROR:\n                return default\n            else:\n                raise\n        return value\n",
+              "source_hash": "61738b6a6f2b27a90c66ecd558b5ba772d0d083440613f6be795708c5bef7a6f",
+              "truncated": false,
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "path": "django/core/signing.py",
+              "symbol": "b62_decode",
+              "start_line": 76,
+              "end_line": 86,
+              "source": "def b62_decode(s):\n    if s == \"0\":\n        return 0\n    sign = 1\n    if s[0] == \"-\":\n        s = s[1:]\n        sign = -1\n    decoded = 0\n    for digit in s:\n        decoded = decoded * 62 + BASE62_ALPHABET.index(digit)\n    return sign * decoded\n",
+              "source_hash": "e82ab440be753e5dd2b6d8931e716c1b1d7c9d4c52b8bea62681c2098197e810",
+              "truncated": false,
+              "origin": "dependency",
+              "related_to": "django/core/signing.py:TimestampSigner.unsign:262-277"
+            },
+            {
+              "path": "django/core/signing.py",
+              "symbol": "TimestampSigner.timestamp",
+              "start_line": 255,
+              "end_line": 256,
+              "source": "    def timestamp(self):\n        return b62_encode(int(time.time()))\n",
+              "source_hash": "e22ca39ff5af1352a99d8c9780335d51c7b07279371f7eda2c0da9605c935bf8",
+              "truncated": false,
+              "origin": "dependency",
+              "related_to": "django/core/signing.py:TimestampSigner.sign:258-260"
+            },
+            {
+              "path": "django/utils/crypto.py",
+              "symbol": "constant_time_compare",
+              "start_line": 65,
+              "end_line": 67,
+              "source": "def constant_time_compare(val1, val2):\n    \"\"\"Return True if the two strings are equal, False otherwise.\"\"\"\n    return secrets.compare_digest(force_bytes(val1), force_bytes(val2))\n",
+              "source_hash": "0ae07b195623154dce7fafdc04f1f841feaa9fc5f27f60e12ee0dc94099efffe",
+              "truncated": false,
+              "origin": "dependency",
+              "related_to": "django/core/signing.py:Signer.unsign:206-213"
+            }
+          ],
+          "budget_exhausted": false,
+          "token_usage": {
+            "encoding": "cl100k_base",
+            "tokens": 1599,
+            "budget": 4096,
+            "truncated": false
+          },
+          "scope": {
+            "source_root": "django",
+            "membership": "saved implementations; Git-tracked files only in Git projects",
+            "source_exclusions": [
+              "django/**/*.min.js",
+              "django/views/templates/i18n_catalog.js"
+            ],
+            "exclusions_omitted": 0
+          }
+        },
+        "elapsed_seconds": 0.7180179170100018
+      }
+    ],
+    "sdk_context_closed": true
+  }
+}
