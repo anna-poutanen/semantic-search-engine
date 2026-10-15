@@ -1,13 +1,13 @@
 # Try Semantic Search on your Mac
 
 Describe what code does and get the implementation, with its file and line numbers.
-The app runs locally and is MIT licensed. This preview supports Apple Silicon
+The app runs locally and is MIT licensed. This release supports Apple Silicon
 Macs and Git-tracked Python, JavaScript and TypeScript source.
 
 ## Download and start
 
 1. Download **semantic-search-mac-0.1.2.zip** from the
-   [preview release](https://github.com/anna-poutanen/semantic-search-engine/releases/tag/v0.1.2-preview.1).
+   [v0.1.2 release](https://github.com/anna-poutanen/semantic-search-engine/releases/tag/v0.1.2).
    Unzip it into a writable folder. Keep the whole folder together.
 2. Open Terminal, type `cd `, drag the extracted folder into Terminal, and press
    Return. Then run:
@@ -269,7 +269,7 @@ separately installed dependencies; those retain their own licenses. In
 particular, the separately installed `mlx-embeddings` runtime is GPL-3.0-or-later;
 the project's MIT license does not change that license.
 
-This is an early Mac preview. Retrieval can miss implementations, especially
+This is an early Mac release. Retrieval can miss implementations, especially
 multi-file behaviors. Inspect the returned source before using it. There is no
 Windows/Linux dense-runtime installer, Marketplace release, or evidence from
 external beta users yet. The public repository includes the full benchmark

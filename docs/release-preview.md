@@ -1,4 +1,4 @@
-# Local semantic search — portfolio preview
+# Local semantic search — portfolio release
 
 An Apple Silicon prototype for finding local Python, JavaScript and TypeScript
 implementations by behavior. Qwen3-Embedding-0.6B stays resident behind a loopback
@@ -74,7 +74,7 @@ The backend remains a separately started local process; the extension installs
 no model or Python environment.
 
 Download the verified VSIX from the
-[GitHub preview release](https://github.com/anna-poutanen/semantic-search-engine/releases/tag/v0.1.2-preview.1),
+[GitHub release](https://github.com/anna-poutanen/semantic-search-engine/releases/tag/v0.1.2),
 then use **Extensions: Install from VSIX**. Connect it to the separately started
 service indexing the same trusted local workspace folder. The release includes
 SHA-256 checksums for its assets. The earlier 53,874-byte preview 2 package and
@@ -133,7 +133,7 @@ or paid-token benefit. Cancellation is cooperative;
 an active Metal forward can finish before it is observed. Source proofs do not
 lock files against changes after the final check.
 
-This is a GitHub portfolio preview, with no Marketplace publication. Original project code and the current extension are MIT licensed. Separately
+This is a GitHub portfolio release, with no Marketplace publication. Original project code and the current extension are MIT licensed. Separately
 installed dependencies and model weights retain their licenses, as described in
 [third-party notices](../THIRD_PARTY_NOTICES.md). Historical preview artifacts
 retain the metadata with which they were published.

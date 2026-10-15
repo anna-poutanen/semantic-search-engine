@@ -78,8 +78,8 @@ The [CLI/API examples](backend-api.md), [MCP setup](mcp.md) and
 [VS Code guide](../extensions/vscode/README.md) also cover the full checkout.
 
 The updated downloadable package is the
-[v0.1.2-preview.1 GitHub release](https://github.com/anna-poutanen/semantic-search-engine/releases/tag/v0.1.2-preview.1).
-Follow the [preview installation guide](release-preview.md). The MIT-licensed
+[v0.1.2 GitHub release](https://github.com/anna-poutanen/semantic-search-engine/releases/tag/v0.1.2).
+Follow the [release installation guide](release-preview.md). The MIT-licensed
 manifest is `0.1.2`; accept the update and reload, or use
 CLI installation with `--force`. Baseline dense/off evaluation does not require
 optional reranking. [Qwen editor setup](vscode-qwen-reranker.md)
@@ -210,7 +210,7 @@ optional H2O or Qwen reranker.
 Summarize independent sessions by workflow, version and public revision, retaining
 full/partial/error denominators and observed regressions. Verify and publish any
 updated VSIX before changing the release handoff. Ordinary-profile evidence and
-broader repository/workflow behavior remain separate gates. The preview package
+broader repository/workflow behavior remain separate gates. The release package
 now includes the project MIT license. Upstream source, model weights and
 separately installed dependencies retain their licenses. Any future
 paid-token or workflow-benefit claim needs actual consumer usage and correctness

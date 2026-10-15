@@ -72,12 +72,12 @@ This follows the agreed plan in **Choose a project for YC roles** on October 12,
    also passes: public-command activation, defaults, previews/navigation and
    Restricted Mode with zero product HTTP. Its zero-model fixture and explicit
    trust-disabled trusted phase remain separate from the real-model studies.
-7. **Portfolio preview (published; external beta remains):** the fast Mac installer omits optional H2O;
+7. **Portfolio release (published; external beta remains):** the fast Mac installer omits optional H2O;
    a new environment passed dependency checks and real Qwen inference. These
    runs used available user-level caches, rather than a clean machine. Python,
    JavaScript and TypeScript are integrated. The
    [real HTTP/MCP demo](../results/demo-2026-10-13/findings.md) passes, and the
-   [GitHub preview](https://github.com/anna-poutanen/semantic-search-engine/releases/tag/v0.1.2-preview.1)
+   [GitHub release](https://github.com/anna-poutanen/semantic-search-engine/releases/tag/v0.1.2)
    ships the updated exact installed and tested VSIX, including optional Qwen
    controls. The project now uses the MIT license and includes a
    [guided Mac download](getting-started.md), local Python bootstrap and a small
@@ -144,7 +144,7 @@ multi-file behaviors under the fixed eight-excerpt budget. Express is developmen
 evidence; Zod holds out retrieval parameter selection, after parser eligibility
 was inspected. All absent queries return decoys without an abstention policy.
 
-The reproducible demo and verified local preview are published. An offline
+The reproducible demo and verified local release are published. An offline
 [packing experiment](../results/context-packing-development-2026-10-13/gold-scoring.md)
 skipped contained excerpts and backfilled spare capacity. It changed 28/90
 delivered outputs and improved three evidence ranks, but recovered no complete
