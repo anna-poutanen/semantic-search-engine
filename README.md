@@ -1,10 +1,8 @@
 # Semantic search engine
 
-[![Version](https://img.shields.io/github/v/release/anna-poutanen/semantic-search-engine?include_prereleases&label=version&color=orange)](https://github.com/anna-poutanen/semantic-search-engine/releases)
+[![Version](https://img.shields.io/github/v/release/anna-poutanen/semantic-search-engine?label=version&color=orange)](https://github.com/anna-poutanen/semantic-search-engine/releases)
 [![Downloads](https://img.shields.io/github/downloads/anna-poutanen/semantic-search-engine/total?color=blue)](https://github.com/anna-poutanen/semantic-search-engine/releases)
 [![License: MIT](https://img.shields.io/github/license/anna-poutanen/semantic-search-engine?label=License&color=yellow)](LICENSE)
-
-<sub>Download totals include automated release checks.</sub>
 
 Find code implementations by describing their behavior. The implemented MCP
 tool and VS Code extension share a local search backend, so developers and coding
@@ -23,7 +21,7 @@ and [MCP setup](docs/mcp.md).
 ## Download and try it
 
 Download **semantic-search-mac-0.1.2.zip** from the
-[MIT-licensed Mac preview](https://github.com/anna-poutanen/semantic-search-engine/releases/tag/v0.1.2-preview.1),
+[MIT-licensed Mac release](https://github.com/anna-poutanen/semantic-search-engine/releases/tag/v0.1.2),
 unzip it, open Terminal in that folder, and run:
 
 ```bash
@@ -51,7 +49,7 @@ bash "Get Started.command" --check
 Original project code is [MIT licensed](LICENSE). Separately installed runtimes,
 model weights and upstream materials keep their own licenses; see
 [third-party notices](THIRD_PARTY_NOTICES.md). This remains an early Apple Silicon
-preview with [measured limits](docs/release-preview.md) and external beta testing
+release with [measured limits](docs/release-preview.md) and external beta testing
 still to do. The small ZIP includes app source, setup helpers and the tested VSIX;
 the complete research history remains in this repository.
 
