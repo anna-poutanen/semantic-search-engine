@@ -71,6 +71,12 @@ patterns. For example, a Django checkout with `--source-root django` uses
 searchable scope; changing exclusions selects a separate index cache. The app
 reports invalid included source instead of silently skipping it.
 
+Tracked minified/vendor files can be expensive to index and may add little useful
+evidence for your task. If they are outside your intended scope, exclude them
+explicitly; for example, `--exclude-source 'src/**/*.min.js'` matches minified
+JavaScript under nested `src` directories. Choose a repository-root pattern that
+matches the files you intend to omit.
+
 Startup prints the current indexing phase and actual file/document/window counts,
 then reports the repository, source scope and indexed-window count when ready.
 It waits up to **30 minutes** for indexing and embedding initialization, separately
