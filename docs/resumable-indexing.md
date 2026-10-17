@@ -94,7 +94,7 @@ implementing a progress callback does not enable resume.
 
 ## Verification
 
-The implementation adds 56 CPU tests across
+The implementation adds 55 CPU tests across
 [`test_embedding_checkpoints.py`](../tests/test_embedding_checkpoints.py),
 [`test_checkpoint_store_edges.py`](../tests/test_checkpoint_store_edges.py) and
 [`test_resumable_backend.py`](../tests/test_resumable_backend.py). They cover
@@ -107,6 +107,14 @@ callback returns, verifies the old source/keyword/dense snapshot through another
 connection, sends SIGKILL, then starts a new process and checks that only missing
 documents are embedded. These tests use deterministic CPU vectors; they do not
 measure native-model latency, retrieval improvements or another Mac's behavior.
+
+A separate [real Qwen verification](../results/resumable-indexing-2026-10-17/findings.md)
+passes on twelve original Flask source windows. A fresh process reused one
+existing document plus four checkpointed before SIGKILL, embedded only the seven
+remaining documents, and produced bitwise-identical raw and active vectors to
+an uninterrupted run. The old active tables remained unchanged until successful
+publication. This is a one-Mac durability and vector-parity check, rather than a
+retrieval-quality or indexing-speed benchmark.
 
 See [the backend API](backend-api.md) for persistence, cancellation and source
 validation contracts.
