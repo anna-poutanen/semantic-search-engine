@@ -43,6 +43,14 @@ This follows the agreed plan in **Choose a project for YC roles** on October 12,
    and source extraction, rather than model/service startup. Final database
    size is 144.5 MB after worker exit; larger scales and concurrent throughput
    remain unmeasured.
+   **Unreleased source-checkout improvement:** [resumable indexing](resumable-indexing.md)
+   checkpoints completed native embedding batches independently of the active
+   snapshot. Restarting reuses exact document/model matches; cancellation,
+   source changes and process termination cannot publish an incomplete snapshot.
+   [Real Qwen SIGKILL/restart verification](../results/resumable-indexing-2026-10-17/findings.md)
+   reuses five saved documents, embeds seven missing documents and matches an
+   uninterrupted run bit for bit across twelve original Flask windows.
+   The v0.1.3 download predates this improvement.
 5. **MCP (adapter and repeated multi-file study complete):** one stdio
    `search_code` tool uses the resident service with strict schemas, cancellation,
    eight-result context, and a default 4,096-token compact `cl100k_base` JSON cap.

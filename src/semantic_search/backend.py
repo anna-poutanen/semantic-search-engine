@@ -30,7 +30,7 @@ class CancellableEmbedder:
     def metadata(self):
         return self.embedder.metadata
 
-    def embed_documents(self, texts, *, progress_callback=None):
+    def embed_documents(self, texts, *, progress_callback=None, batch_callback=None):
         self.check()
         parameters = inspect.signature(self.embedder.embed_documents).parameters
         extra = {}
@@ -38,6 +38,12 @@ class CancellableEmbedder:
             extra["cancel_check"] = self.check
         if progress_callback is not None and "progress_callback" in parameters:
             extra["progress_callback"] = progress_callback
+        if batch_callback is not None and "batch_callback" in parameters:
+            def checked_batch(indices, vectors):
+                self.check()
+                batch_callback(indices, vectors)
+
+            extra["batch_callback"] = checked_batch
         result = self.embedder.embed_documents(texts, **extra)
         self.check()
         return result
