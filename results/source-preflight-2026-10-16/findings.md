@@ -66,7 +66,10 @@ The first full-suite run passed 2,503 checks and skipped 15, but failed one hist
 CPU replay check because the isolated checkout lacked its expected local offline
 tokenizer cache. That check passed alone with the preverified existing cache.
 The same verified cache was then copied into this checkout, without downloading,
-before repeating the full suite. See the final regression receipt for the result.
+before repeating the full suite: **2,509 passed, 10 skipped, zero failures** in
+65.17 seconds. The [regression receipt](run/regression.json) records both attempts
+and retains the final test output. Independent review reproduced all three Django
+reports exactly and verified all five recorded implementation hashes.
 
 ## Next validation
 
