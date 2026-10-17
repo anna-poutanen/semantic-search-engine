@@ -1,0 +1,618 @@
+
+Preparing local Python 3.12 (no system Python or Homebrew required)…
+Python 3.12 is already installed
+Using the checked local runtime.
+
+Checking saved source before embedding model setup…
+Source preflight: ready (Git-tracked files).
+Repository: "/Users/annapoutanen/personal-projects/semantic-search-engine/.cache/corpora/flask"; source directory: "src/flask".
+Files: 24 included, 0 explicitly excluded, 24 parsed (24 eligible).
+Included languages: python 24.
+358 implementation windows, 358 distinct rendered documents.
+Preflight checked source only; it did not load models, measure tokens, or create an index.
+Embedding checkpoint verified. Rerankers are disabled.
+
+Indexing saved, Git-tracked code in /Users/annapoutanen/personal-projects/semantic-search-engine/.cache/corpora/flask (src/flask)…
+Startup allowance: 1800 seconds. Ctrl-C closes this service.
+Scanning tracked source: 0 files
+Scanning tracked source: 24/24 files
+Extracting implementations: 0/24 files
+Extracting implementations: 24/24 files
+Reusable embeddings: 358/358 documents (358 cached, 0 new)
+Saving the index: 0/358 windows
+Saving the index: 358/358 windows
+Index snapshot complete: 358/358 windows
+Search ready: 1/1 service
+
+Ready: http://127.0.0.1:53203
+Index: 358 implementation windows; source directory: src/flask
+Search limits: 8 results, 12000 source characters, 4096 compact tokens; dependency context on.
+MCP configuration: /private/tmp/semantic-search-v013-xp5u9oyp/Download With Spaces/semantic-search-mac-0.1.3/.cache/quickstart/sessions/20261017-001258-f080959b/mcp.json
+VS Code MCP configuration: /private/tmp/semantic-search-v013-xp5u9oyp/Download With Spaces/semantic-search-mac-0.1.3/.cache/quickstart/sessions/20261017-001258-f080959b/vscode-mcp.json
+Copy the server entry into your MCP client. The service must stay running; :mcp prints the configuration.
+Describe an implementation, :doctor for local diagnostics, or q to quit.
+
+Search> Open and decode a signed cookie session, returning an empty session when its signature is invalid.
+
+src/flask/sessions.py:323–335  SecureCookieSessionInterface.open_session
+    def open_session(self, app: Flask, request: Request) -> SecureCookieSession | None:
+        s = self.get_signing_serializer(app)
+        if s is None:
+            return None
+        val = request.cookies.get(self.get_cookie_name(app))
+        if not val:
+            return self.session_class()
+        max_age = int(app.permanent_session_lifetime.total_seconds())
+        try:
+            data = s.loads(val, max_age=max_age)
+            return self.session_class(data)
+        except BadSignature:
+            return self.session_class()
+
+
+src/flask/sessions.py:73–80  SecureCookieSession.__init__
+    def __init__(
+        self,
+        initial: c.Mapping[str, t.Any] | None = None,
+    ) -> None:
+        def on_update(self: te.Self) -> None:
+            self.modified = True
+
+        super().__init__(initial, on_update)
+
+
+src/flask/sessions.py:303–321  SecureCookieSessionInterface.get_signing_serializer
+    def get_signing_serializer(self, app: Flask) -> URLSafeTimedSerializer | None:
+        if not app.secret_key:
+            return None
+
+        keys: list[str | bytes] = []
+
+        if fallbacks := app.config["SECRET_KEY_FALLBACKS"]:
+            keys.extend(fallbacks)
+
+        keys.append(app.secret_key)  # itsdangerous expects current key at top
+        return URLSafeTimedSerializer(
+            keys,  # type: ignore[arg-type]
+            salt=self.salt,
+            serializer=self.serializer,
+            signer_kwargs={
+                "key_derivation": self.key_derivation,
+                "digest_method": self.digest_method,
+            },
+        )
+
+
+src/flask/sessions.py:337–385  SecureCookieSessionInterface.save_session
+    def save_session(
+        self, app: Flask, session: SessionMixin, response: Response
+    ) -> None:
+        name = self.get_cookie_name(app)
+        domain = self.get_cookie_domain(app)
+        path = self.get_cookie_path(app)
+        secure = self.get_cookie_secure(app)
+        partitioned = self.get_cookie_partitioned(app)
+        samesite = self.get_cookie_samesite(app)
+        httponly = self.get_cookie_httponly(app)
+
+        # Add a "Vary: Cookie" header if the session was accessed at all.
+        if session.accessed:
+            response.vary.add("Cookie")
+
+        # If the session is modified to be empty, remove the cookie.
+        # If the session is empty, return without setting the cookie.
+        if not session:
+            if session.modified:
+                response.delete_cookie(
+                    name,
+                    domain=domain,
+                    path=path,
+                    secure=secure,
+                    partitioned=partitioned,
+                    samesite=samesite,
+                    httponly=httponly,
+                )
+                response.vary.add("Cookie")
+
+            return
+
+        if not self.should_set_cookie(app, session):
+            return
+
+        expires = self.get_expiration_time(app, session)
+        val = self.get_signing_serializer(app).dumps(dict(session))  # type: ignore[union-attr]
+        response.set_cookie(
+            name,
+            val,
+            expires=expires,
+            httponly=httponly,
+            domain=domain,
+            path=path,
+            secure=secure,
+            partitioned=partitioned,
+            samesite=samesite,
+        )
+        response.vary.add("Cookie")
+
+
+src/flask/sessions.py:175–185  SessionInterface.get_cookie_domain
+    def get_cookie_domain(self, app: Flask) -> str | None:
+        """The value of the ``Domain`` parameter on the session cookie. If not set,
+        browsers will only send the cookie to the exact domain it was set from.
+        Otherwise, they will send it to any subdomain of the given value as well.
+
+        Uses the :data:`SESSION_COOKIE_DOMAIN` config.
+
+        .. versionchanged:: 2.3
+            Not set by default, does not fall back to ``SERVER_NAME``.
+        """
+        return app.config["SESSION_COOKIE_DOMAIN"]  # type: ignore[no-any-return]
+
+
+src/flask/sessions.py:208–213  SessionInterface.get_cookie_samesite
+    def get_cookie_samesite(self, app: Flask) -> str | None:
+        """Return ``'Strict'`` or ``'Lax'`` if the cookie should use the
+        ``SameSite`` attribute. This currently just returns the value of
+        the :data:`SESSION_COOKIE_SAMESITE` setting.
+        """
+        return app.config["SESSION_COOKIE_SAMESITE"]  # type: ignore[no-any-return]
+
+
+src/flask/sessions.py:202–206  SessionInterface.get_cookie_secure
+    def get_cookie_secure(self, app: Flask) -> bool:
+        """Returns True if the cookie should be secure.  This currently
+        just returns the value of the ``SESSION_COOKIE_SECURE`` setting.
+        """
+        return app.config["SESSION_COOKIE_SECURE"]  # type: ignore[no-any-return]
+
+
+src/flask/sessions.py:171–173  SessionInterface.get_cookie_name
+    def get_cookie_name(self, app: Flask) -> str:
+        """The name of the session cookie. Uses``app.config["SESSION_COOKIE_NAME"]``."""
+        return app.config["SESSION_COOKIE_NAME"]  # type: ignore[no-any-return]
+
+
+Search> :mcp
+{
+  "mcpServers": {
+    "semantic-search": {
+      "command": "/private/tmp/semantic-search-v013-xp5u9oyp/Download With Spaces/semantic-search-mac-0.1.3/.cache/quickstart/venv/bin/python",
+      "args": [
+        "-m",
+        "semantic_search.mcp_server",
+        "--server",
+        "http://127.0.0.1:53203"
+      ],
+      "env": {
+        "TIKTOKEN_CACHE_DIR": "/private/tmp/semantic-search-v013-xp5u9oyp/Download With Spaces/semantic-search-mac-0.1.3/.cache/quickstart/tiktoken"
+      }
+    }
+  }
+}
+
+
+Search> :doctor
+{
+  "schema_version": 1,
+  "offline": true,
+  "machine": {
+    "os": "Darwin",
+    "os_version": "27.0.1",
+    "architecture": "arm64",
+    "memory_bytes": 25769803776,
+    "logical_cpu_count": 10,
+    "supported": true
+  },
+  "issues": [],
+  "disk": {
+    "state": "checked",
+    "free_bytes": 380668973056,
+    "recommended_free_bytes": 6442450944
+  },
+  "git": {
+    "working": true,
+    "version": "2.54.0"
+  },
+  "runtime": {
+    "state": "checked",
+    "python": "3.12.15",
+    "python_312": true,
+    "dedicated_environment": true,
+    "metal": true,
+    "packages": {
+      "annotated-doc": {
+        "expected": "0.0.5",
+        "installed": "0.0.5",
+        "matches": true
+      },
+      "annotated-types": {
+        "expected": "0.8.0",
+        "installed": "0.8.0",
+        "matches": true
+      },
+      "anyio": {
+        "expected": "4.15.1",
+        "installed": "4.15.1",
+        "matches": true
+      },
+      "attrs": {
+        "expected": "26.1.0",
+        "installed": "26.1.0",
+        "matches": true
+      },
+      "certifi": {
+        "expected": "2026.7.22",
+        "installed": "2026.7.22",
+        "matches": true
+      },
+      "cffi": {
+        "expected": "2.1.1",
+        "installed": "2.1.1",
+        "matches": true
+      },
+      "charset-normalizer": {
+        "expected": "3.5.2",
+        "installed": "3.5.2",
+        "matches": true
+      },
+      "click": {
+        "expected": "8.5.0",
+        "installed": "8.5.0",
+        "matches": true
+      },
+      "cryptography": {
+        "expected": "50.0.2",
+        "installed": "50.0.2",
+        "matches": true
+      },
+      "fastapi": {
+        "expected": "0.143.0",
+        "installed": "0.143.0",
+        "matches": true
+      },
+      "filelock": {
+        "expected": "4.1.1",
+        "installed": "4.1.1",
+        "matches": true
+      },
+      "fsspec": {
+        "expected": "2026.9.0",
+        "installed": "2026.9.0",
+        "matches": true
+      },
+      "h11": {
+        "expected": "0.16.0",
+        "installed": "0.16.0",
+        "matches": true
+      },
+      "hf-xet": {
+        "expected": "1.7.0",
+        "installed": "1.7.0",
+        "matches": true
+      },
+      "httpcore2": {
+        "expected": "2.13.1",
+        "installed": "2.13.1",
+        "matches": true
+      },
+      "httpx2": {
+        "expected": "2.13.1",
+        "installed": "2.13.1",
+        "matches": true
+      },
+      "huggingface-hub": {
+        "expected": "2.2.0",
+        "installed": "2.2.0",
+        "matches": true
+      },
+      "idna": {
+        "expected": "3.20",
+        "installed": "3.20",
+        "matches": true
+      },
+      "jinja2": {
+        "expected": "3.1.6",
+        "installed": "3.1.6",
+        "matches": true
+      },
+      "jsonschema": {
+        "expected": "4.26.0",
+        "installed": "4.26.0",
+        "matches": true
+      },
+      "jsonschema-specifications": {
+        "expected": "2025.9.1",
+        "installed": "2025.9.1",
+        "matches": true
+      },
+      "llguidance": {
+        "expected": "1.9.1",
+        "installed": "1.9.1",
+        "matches": true
+      },
+      "markdown-it-py": {
+        "expected": "4.2.0",
+        "installed": "4.2.0",
+        "matches": true
+      },
+      "markupsafe": {
+        "expected": "3.0.4",
+        "installed": "3.0.4",
+        "matches": true
+      },
+      "mcp": {
+        "expected": "2.3.0",
+        "installed": "2.3.0",
+        "matches": true
+      },
+      "mcp-types": {
+        "expected": "2.3.0",
+        "installed": "2.3.0",
+        "matches": true
+      },
+      "mdurl": {
+        "expected": "0.1.2",
+        "installed": "0.1.2",
+        "matches": true
+      },
+      "miniaudio": {
+        "expected": "1.71",
+        "installed": "1.71",
+        "matches": true
+      },
+      "mlx": {
+        "expected": "0.32.3",
+        "installed": "0.32.3",
+        "matches": true
+      },
+      "mlx-audio": {
+        "expected": "0.5.8",
+        "installed": "0.5.8",
+        "matches": true
+      },
+      "mlx-embeddings": {
+        "expected": "0.1.0",
+        "installed": "0.1.0",
+        "matches": true
+      },
+      "mlx-metal": {
+        "expected": "0.32.3",
+        "installed": "0.32.3",
+        "matches": true
+      },
+      "mlx-vlm": {
+        "expected": "0.7.6",
+        "installed": "0.7.6",
+        "matches": true
+      },
+      "numpy": {
+        "expected": "2.5.4",
+        "installed": "2.5.4",
+        "matches": true
+      },
+      "opencv-python": {
+        "expected": "5.0.0.93",
+        "installed": "5.0.0.93",
+        "matches": true
+      },
+      "opentelemetry-api": {
+        "expected": "1.45.1",
+        "installed": "1.45.1",
+        "matches": true
+      },
+      "packaging": {
+        "expected": "26.3",
+        "installed": "26.3",
+        "matches": true
+      },
+      "pillow": {
+        "expected": "12.3.0",
+        "installed": "12.3.0",
+        "matches": true
+      },
+      "protobuf": {
+        "expected": "7.36.2",
+        "installed": "7.36.2",
+        "matches": true
+      },
+      "pycparser": {
+        "expected": "3.11",
+        "installed": "3.11",
+        "matches": true
+      },
+      "pydantic": {
+        "expected": "2.14.1",
+        "installed": "2.14.1",
+        "matches": true
+      },
+      "pydantic-core": {
+        "expected": "2.50.1",
+        "installed": "2.50.1",
+        "matches": true
+      },
+      "pygments": {
+        "expected": "2.21.0",
+        "installed": "2.21.0",
+        "matches": true
+      },
+      "pyjwt": {
+        "expected": "2.15.1",
+        "installed": "2.15.1",
+        "matches": true
+      },
+      "python-multipart": {
+        "expected": "0.0.32",
+        "installed": "0.0.32",
+        "matches": true
+      },
+      "pyyaml": {
+        "expected": "6.0.3",
+        "installed": "6.0.3",
+        "matches": true
+      },
+      "referencing": {
+        "expected": "0.37.0",
+        "installed": "0.37.0",
+        "matches": true
+      },
+      "regex": {
+        "expected": "2026.9.29",
+        "installed": "2026.9.29",
+        "matches": true
+      },
+      "requests": {
+        "expected": "2.34.2",
+        "installed": "2.34.2",
+        "matches": true
+      },
+      "rich": {
+        "expected": "15.0.0",
+        "installed": "15.0.0",
+        "matches": true
+      },
+      "rpds-py": {
+        "expected": "2026.9.1",
+        "installed": "2026.9.1",
+        "matches": true
+      },
+      "safetensors": {
+        "expected": "0.8.0",
+        "installed": "0.8.0",
+        "matches": true
+      },
+      "scipy": {
+        "expected": "1.18.1",
+        "installed": "1.18.1",
+        "matches": true
+      },
+      "sentencepiece": {
+        "expected": "0.2.2",
+        "installed": "0.2.2",
+        "matches": true
+      },
+      "shellingham": {
+        "expected": "1.5.4",
+        "installed": "1.5.4",
+        "matches": true
+      },
+      "sounddevice": {
+        "expected": "0.5.6",
+        "installed": "0.5.6",
+        "matches": true
+      },
+      "sqlite-vec": {
+        "expected": "0.1.9",
+        "installed": "0.1.9",
+        "matches": true
+      },
+      "sse-starlette": {
+        "expected": "3.5.0",
+        "installed": "3.5.0",
+        "matches": true
+      },
+      "starlette": {
+        "expected": "1.7.0",
+        "installed": "1.7.0",
+        "matches": true
+      },
+      "tiktoken": {
+        "expected": "0.14.0",
+        "installed": "0.14.0",
+        "matches": true
+      },
+      "tokenizers": {
+        "expected": "0.23.3",
+        "installed": "0.23.3",
+        "matches": true
+      },
+      "tqdm": {
+        "expected": "4.70.1",
+        "installed": "4.70.1",
+        "matches": true
+      },
+      "transformers": {
+        "expected": "5.19.0",
+        "installed": "5.19.0",
+        "matches": true
+      },
+      "truststore": {
+        "expected": "0.10.5",
+        "installed": "0.10.5",
+        "matches": true
+      },
+      "typer": {
+        "expected": "0.27.3",
+        "installed": "0.27.3",
+        "matches": true
+      },
+      "typing-extensions": {
+        "expected": "4.16.0",
+        "installed": "4.16.0",
+        "matches": true
+      },
+      "typing-inspection": {
+        "expected": "0.4.4",
+        "installed": "0.4.4",
+        "matches": true
+      },
+      "urllib3": {
+        "expected": "2.8.0",
+        "installed": "2.8.0",
+        "matches": true
+      },
+      "uvicorn": {
+        "expected": "0.54.0",
+        "installed": "0.54.0",
+        "matches": true
+      },
+      "websockets": {
+        "expected": "17.2",
+        "installed": "17.2",
+        "matches": true
+      },
+      "tree-sitter": {
+        "expected": "0.26.0",
+        "installed": "0.26.0",
+        "matches": true
+      },
+      "tree-sitter-javascript": {
+        "expected": "0.25.0",
+        "installed": "0.25.0",
+        "matches": true
+      },
+      "tree-sitter-typescript": {
+        "expected": "0.23.2",
+        "installed": "0.23.2",
+        "matches": true
+      },
+      "semantic-search-engine": {
+        "expected": "0.1.3",
+        "installed": "0.1.3",
+        "matches": true
+      }
+    },
+    "versions_match": true
+  },
+  "model": {
+    "id": "Qwen/Qwen3-Embedding-0.6B",
+    "revision": "97b0c614be4d77ee51c0cef4e5f07c00f9eb65b3",
+    "state": "checked",
+    "files_complete": true,
+    "config_matches": true,
+    "provenance_matches": true,
+    "weights_sha256": "matches"
+  },
+  "repository": {
+    "state": "checked",
+    "git_working_tree": true,
+    "source_root_exists": true,
+    "tracked_files_in_scope": 26,
+    "supported_tracked_files": 24,
+    "counts_describe": "saved tracked file membership, not parsed implementations"
+  },
+  "checks_passed": true
+}
+
+Search> q
+Service closed. Local session log: /private/tmp/semantic-search-v013-xp5u9oyp/Download With Spaces/semantic-search-mac-0.1.3/.cache/quickstart/sessions/20261017-001258-f080959b
+To record feedback without source text: bash "Get Started.command" --feedback --output /path/to/new-feedback.json

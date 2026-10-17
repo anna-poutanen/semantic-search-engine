@@ -77,22 +77,25 @@ This follows the agreed plan in **Choose a project for YC roles** on October 12,
    runs used available user-level caches, rather than a clean machine. Python,
    JavaScript and TypeScript are integrated. The
    [real HTTP/MCP demo](../results/demo-2026-10-13/findings.md) passes, and the
-   [GitHub release](https://github.com/anna-poutanen/semantic-search-engine/releases/tag/v0.1.2)
+   [GitHub release](https://github.com/anna-poutanen/semantic-search-engine/releases/tag/v0.1.3)
    ships the updated exact installed and tested VSIX, including optional Qwen
    controls. The project now uses the MIT license and includes a
    [guided Mac download](getting-started.md), local Python bootstrap and a small
    try-it ZIP. The [qualified 0.1.1 release](../results/mit-mac-preview-2026-10-14/findings.md)
    passes actual ZIP setup, HTTP/MCP/interactive smoke and MIT package checks on
-   the existing Mac. Version 0.1.2 adds own-repository budgets and timeouts,
+   the existing Mac. Version 0.1.2 added own-repository budgets and timeouts,
    indexing progress, token-bounded document batches, offline diagnostics,
    bundled local feedback and generated MCP configuration. Its
    [hardening qualification](../results/beta-hardening-2026-10-14/findings.md)
    records the tested scope and preserved failures. External beta users remain.
-   The next source change adds a [CPU source preflight](source-preflight.md)
+   Version 0.1.3 includes a [CPU source preflight](source-preflight.md)
    before embedding model setup: exact scope counts, parser failures, minified
    filenames and large-window warnings, with explicit exclusion suggestions.
    This addresses observed Django startup failures; it does not change retrieval
-   defaults or establish coding-agent token savings. It is not in v0.1.2 assets.
+   defaults or establish coding-agent token savings. Preflight can install runtime
+   packages and the tokenizer cache first; embedding weights and inference wait
+   until included source passes. External Mac beta testing remains the next
+   release-validation gap.
 
 Python, TypeScript and JavaScript are implemented.
 C# and non-Mac deployment follow validation of the core. Serialize GPU work and

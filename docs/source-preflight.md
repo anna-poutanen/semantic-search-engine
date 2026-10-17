@@ -1,7 +1,7 @@
 # Check source before indexing
 
-Status: implemented in the source checkout after v0.1.2; not yet included in a
-published download. The v0.1.2 release assets remain unchanged.
+Included in the [v0.1.3 Mac download](https://github.com/anna-poutanen/semantic-search-engine/releases/tag/v0.1.3)
+and source checkout. Earlier release assets remain unchanged.
 
 An invalid tracked template can stop indexing, while minified vendor files can
 turn a modest file count into very large embedding inputs. Check the exact saved
