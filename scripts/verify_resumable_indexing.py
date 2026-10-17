@@ -273,6 +273,10 @@ def qualify(args):
     require(repo.is_dir() and root.is_dir() and root.is_relative_to(repo), "Invalid saved source scope")
     source_root = root.relative_to(repo).as_posix()
     require(args.model_path.is_dir(), "Expected an existing local pinned Qwen checkpoint")
+    args.work_dir, args.output_dir = args.work_dir.resolve(), args.output_dir.resolve()
+    require(not args.work_dir.is_relative_to(args.output_dir)
+            and not args.output_dir.is_relative_to(args.work_dir),
+            "Private work and public evidence directories must not overlap")
     for directory in (args.work_dir, args.output_dir):
         require(not directory.exists() or not any(directory.iterdir()),
                 "Qualification directories must be new or empty")
