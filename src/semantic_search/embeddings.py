@@ -140,7 +140,8 @@ class QwenEmbedder:
         del outputs, pooled
         return vectors
 
-    def _embed_texts(self, texts, *, cancel_check=None, progress_callback=None):
+    def _embed_texts(self, texts, *, cancel_check=None, progress_callback=None,
+                     batch_callback=None):
         if not isinstance(texts, list) or any(not isinstance(t, str) or not t.strip() for t in texts):
             raise ValueError("Embedding inputs must be a list of nonempty strings")
         if not texts:
@@ -176,6 +177,11 @@ class QwenEmbedder:
                 self._mx.clear_cache()
             if cancel_check is not None:
                 cancel_check()
+            if batch_callback is not None:
+                # Report native batch positions in the original request, before
+                # progress observers can cancel. Checkpoint consumers own these
+                # copies and cannot alter the output or the remaining schedule.
+                batch_callback(indices.copy(), output[indices].copy())
             completed += len(indices)
             start = end
             if progress_callback is not None:
@@ -187,10 +193,16 @@ class QwenEmbedder:
         return output
 
     def embed_documents(self, texts: list[str], *, cancel_check=None,
-                        progress_callback=None) -> np.ndarray:
+                        progress_callback=None, batch_callback=None) -> np.ndarray:
+        """Embed in input order; optionally checkpoint each completed native batch.
+
+        Checkpoints receive isolated original input indices and float32 vectors.
+        They run after cancellation checks and before progress observers.
+        """
         try:
             return self._embed_texts(texts, cancel_check=cancel_check,
-                                    progress_callback=progress_callback)
+                                    progress_callback=progress_callback,
+                                    batch_callback=batch_callback)
         finally:
             if self._mx is not None:
                 self._mx.clear_cache()
