@@ -73,6 +73,22 @@ def run(*arguments, capture=False):
         raise
 
 
+def check_source(python, repo, source_root, exclusions=()):
+    """Inspect saved source in the managed runtime before touching model weights."""
+    print("\nChecking saved source before embedding model setup…", flush=True)
+    arguments = [python, "-m", "semantic_search.cli", "inspect", "--repo", repo,
+                 "--source-root", source_root]
+    for pattern in exclusions:
+        arguments.extend(("--exclude-source", pattern))
+    try:
+        run(*arguments)
+    except subprocess.CalledProcessError as error:
+        if error.returncode == 1:
+            raise ValueError("Source preflight blocked indexing. Fix the reported files or explicitly "
+                             "exclude them, then rerun with --preflight --repo and the same scope") from None
+        raise
+
+
 def reserved_directory(path):
     path = Path(path)
     for ancestor in (path, *path.parents):
@@ -446,6 +462,8 @@ def main(argv=None):
     modes = parser.add_mutually_exclusive_group()
     modes.add_argument("--check", action="store_true", help="Run the toy HTTP + MCP checks and exit")
     modes.add_argument("--setup-only", action="store_true", help="Install runtime and weights without starting inference")
+    modes.add_argument("--preflight", action="store_true",
+                       help="Inspect --repo source without embedding weights, inference or an index (runtime setup may download packages)")
     parser.add_argument("--repo", type=Path, help="Search an existing Git repository instead of the fresh toy")
     parser.add_argument("--source-root", default="src", help="Repository-relative source directory (default: src)")
     parser.add_argument("--exclude-source", action="append", default=[], metavar="GLOB",
@@ -466,8 +484,10 @@ def main(argv=None):
     args.exclude_source = sorted(set(args.exclude_source))
     if platform.system() != "Darwin" or platform.machine() != "arm64" or sys.version_info[:2] != (3, 12):
         parser.error("Use Get Started.command on an Apple Silicon Mac with its managed Python 3.12")
-    if not args.check and not args.setup_only and not sys.stdin.isatty():
-        parser.error("Interactive mode requires a terminal. Use --check for an automatic demo or --setup-only")
+    if args.preflight and not args.repo:
+        parser.error("--preflight requires --repo and optionally --source-root")
+    if not args.check and not args.setup_only and not args.preflight and not sys.stdin.isatty():
+        parser.error("Interactive mode requires a terminal. Use --check, --setup-only or --preflight --repo")
     if args.check and args.repo:
         parser.error("--check validates the fresh toy; use interactive --repo for your project")
     repo = args.repo.expanduser().resolve() if args.repo else None
@@ -507,6 +527,11 @@ def main(argv=None):
             except BlockingIOError:
                 raise ValueError("Another launcher is setting up this download. Wait for it to finish and retry") from None
             python, _inventory = setup_runtime(args.uv_path.absolute(), work)
+            if repo is not None and not args.setup_only:
+                check_source(python, repo, source_root, args.exclude_source)
+            if args.preflight:
+                print("\nSource preflight complete. No embedding weights, inference or index were used.", flush=True)
+                return
             setup_model(python)
         if args.setup_only:
             print(f"\nSetup complete. Start the demo with: bash {str(ROOT / 'Get Started.command')!r}")
