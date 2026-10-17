@@ -56,9 +56,10 @@ in one final transaction after all embeddings and the captured source pass
 validation. Source and cancellation checks run before active writes and again
 immediately before their transaction commits.
 
-If a refresh fails, the previous active snapshot remains intact and completed
-batch vectors remain cached. A first index interrupted before publication has
-no active snapshot yet. The backend still validates current source before
+If a refresh fails before publication, the previous active snapshot remains
+intact and completed batch vectors remain cached. An error reported after the
+commit cannot undo an already published snapshot. A first index interrupted
+before publication has no active snapshot yet. The backend still validates current source before
 searching; it can reject a request rather than returning an old snapshot for
 changed files. Checkpointing does not promise concurrent search availability
 during indexing: the backend serializes model work, refreshes and searches.
