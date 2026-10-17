@@ -6,8 +6,8 @@ Macs and Git-tracked Python, JavaScript and TypeScript source.
 
 ## Download and start
 
-1. Download **semantic-search-mac-0.1.2.zip** from the
-   [v0.1.2 release](https://github.com/anna-poutanen/semantic-search-engine/releases/tag/v0.1.2).
+1. Download **semantic-search-mac-0.1.3.zip** from the
+   [v0.1.3 release](https://github.com/anna-poutanen/semantic-search-engine/releases/tag/v0.1.3).
    Unzip it into a writable folder. Keep the whole folder together.
 2. Open Terminal, type `cd `, drag the extracted folder into Terminal, and press
    Return. Then run:
@@ -53,16 +53,16 @@ space. The service refreshes saved changes when you search. The own-repository
 prompt asks for descriptions relevant to your project; it does not show or
 substitute toy queries.
 
-The source checkout adds a [source preflight](https://github.com/anna-poutanen/semantic-search-engine/blob/main/docs/source-preflight.md) before embedding
+Version 0.1.3 includes a [source preflight](https://github.com/anna-poutanen/semantic-search-engine/blob/main/docs/source-preflight.md) before embedding
 model setup, and an inspection-only launcher mode:
 
 ```bash
 bash "Get Started.command" --preflight --repo "/absolute/path/to/your/repo" --source-root src
 ```
 
-This feature is **unreleased** and is not in the v0.1.2 download above. It may
-install the managed runtime and its packages/tokenizer cache, but does not download
-embedding weights, run inference, create an index or start a service. It reports
+Preflight may install the managed runtime and its packages/tokenizer cache, but
+does not download embedding weights, run inference, create an index or start a
+service. It reports
 invalid included source, likely minified filenames and unusually large rendered
 windows before a costly indexing attempt. Review suggested exclusions before
 using them; no file is automatically excluded. `--doctor` remains a separate
