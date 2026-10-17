@@ -6,7 +6,11 @@ import math
 from pathlib import Path
 import signal
 
-from semantic_search.experiment import run_experiment
+
+def run_experiment(*args, **kwargs):
+    # Inspection and client commands do not need benchmark/model imports.
+    from semantic_search.experiment import run_experiment as run
+    return run(*args, **kwargs)
 
 
 def index_path(repo, source_root, directory, source_exclusions=()):
@@ -65,6 +69,14 @@ def start_qwen_owner(args):
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     subparsers = parser.add_subparsers(dest="command", required=True)
+    inspect = subparsers.add_parser("inspect", help="Check saved source before indexing, without loading models")
+    inspect.add_argument("--repo", type=Path, required=True)
+    inspect.add_argument("--source-root", default="src")
+    inspect.add_argument("--exclude-source", action="append", default=[], metavar="GLOB",
+                         help="Exclude a repository-relative saved-source glob (repeatable)")
+    inspect.add_argument("--limit", type=int, default=10,
+                         help="Maximum paths or diagnostics shown in each report section")
+    inspect.add_argument("--json", action="store_true", help="Print the structured source preflight report")
     benchmark = subparsers.add_parser("benchmark")
     benchmark.add_argument("--repo", type=Path, default=Path(".cache/corpora/flask"))
     benchmark.add_argument("--dataset", type=Path, default=Path("benchmarks/flask_queries.json"))
@@ -134,7 +146,17 @@ def main(argv=None):
     search.add_argument("--url", default="http://127.0.0.1:8741", help="H2O URL for standalone search")
     search.add_argument("--json", action="store_true", help="Print structured results and timings")
     args = parser.parse_args(argv)
-    if args.command == "benchmark":
+    if args.command == "inspect":
+        from semantic_search.preflight import inspect_source, format_preflight
+        try:
+            report = inspect_source(args.repo, args.source_root,
+                                    source_exclusions=args.exclude_source, limit=args.limit)
+        except (OSError, ValueError) as error:
+            parser.error(str(error))
+        print(json.dumps(report, indent=2, sort_keys=True, allow_nan=False)
+              if args.json else format_preflight(report))
+        return 0 if report["status"] == "ready" else 1
+    elif args.command == "benchmark":
         if args.candidates < 1 or args.max_lines <= 40:
             parser.error("Require positive --candidates and --max-lines > 40")
         result = run_experiment(args.repo, args.dataset, args.output, args.url,
@@ -264,4 +286,4 @@ def main(argv=None):
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

@@ -596,10 +596,77 @@ def test_own_repo_scope_matches_backend_canonical_identity(quick, tmp_path, mac,
     python = tmp_path / '.cache/quickstart/venv/bin/python'
     with patch.object(quick, 'ROOT', tmp_path), patch.object(quick.sys.stdin, 'isatty', return_value=True), \
             patch.object(quick, 'setup_runtime', return_value=(python, {})), patch.object(quick, 'setup_model'), \
+            patch.object(quick, 'check_source') as preflight, \
             patch.object(quick, 'interactive') as interactive:
         quick.main(['--uv-path', str(tmp_path / 'uv'), '--repo', str(repo), '--source-root', value])
+    preflight.assert_called_once_with(python, repo.resolve(), expected, [])
     interactive.assert_called_once_with(python, repo.resolve(), expected, tmp_path / '.cache/quickstart',
                                        timeout=1800, request_timeout=120, settings=quick.OWN_SETTINGS, toy=False, port=0, exclusions=[])
+
+
+@pytest.mark.parametrize('preflight_only', [True, False])
+@pytest.mark.parametrize('blocked', [True, False])
+def test_source_preflight_precedes_weights_and_service(quick, tmp_path, mac, preflight_only, blocked):
+    repo = tmp_path / 'My Project'
+    (repo / 'src').mkdir(parents=True)
+    subprocess.run(['git', '-C', str(repo), 'init', '--quiet'], check=True)
+    python = tmp_path / '.cache/quickstart/venv/bin/python'
+    events = []
+
+    def inspect(*args):
+        events.append('source')
+        assert args == (python, repo.resolve(), 'src', ['src/generated/*'])
+        if blocked:
+            raise ValueError('Source preflight blocked indexing')
+
+    arguments = ['--uv-path', str(tmp_path / 'uv'), '--repo', str(repo),
+                 '--exclude-source', 'src/generated/*']
+    if preflight_only:
+        arguments.append('--preflight')
+    with patch.object(quick, 'ROOT', tmp_path), \
+            patch.object(quick.sys.stdin, 'isatty', return_value=not preflight_only), \
+            patch.object(quick, 'setup_runtime', side_effect=lambda *_: (events.append('runtime') or python, {})), \
+            patch.object(quick, 'check_source', side_effect=inspect), \
+            patch.object(quick, 'setup_model', side_effect=lambda *_: events.append('model')) as model, \
+            patch.object(quick, 'interactive', side_effect=lambda *_, **kwargs: events.append('service')) as interactive:
+        if blocked:
+            with pytest.raises(SystemExit) as error:
+                quick.main(arguments)
+            assert error.value.code == 1
+        else:
+            quick.main(arguments)
+    assert events == (['runtime', 'source', 'model', 'service'] if not blocked and not preflight_only
+                      else ['runtime', 'source'])
+    if blocked or preflight_only:
+        model.assert_not_called()
+        interactive.assert_not_called()
+
+
+def test_preflight_requires_repo_before_runtime_or_cache_writes(quick, tmp_path, mac):
+    with patch.object(quick, 'ROOT', tmp_path), patch.object(quick, 'setup_runtime') as runtime:
+        with pytest.raises(SystemExit) as error:
+            quick.main(['--uv-path', '/unused', '--preflight'])
+    assert error.value.code == 2
+    runtime.assert_not_called()
+    assert not (tmp_path / '.cache').exists()
+
+
+@pytest.mark.parametrize('returncode', [0, 1, 2])
+def test_source_check_uses_cli_scope_and_preserves_non_source_failures(quick, tmp_path, returncode):
+    python, repo = tmp_path / 'python', tmp_path / 'My Project'
+    command = (python, '-m', 'semantic_search.cli', 'inspect', '--repo', repo,
+               '--source-root', 'src', '--exclude-source', 'src/templates/*.js')
+    effect = subprocess.CalledProcessError(returncode, command) if returncode else None
+    with patch.object(quick, 'run', side_effect=effect) as run:
+        if returncode == 1:
+            with pytest.raises(ValueError, match='Source preflight blocked indexing'):
+                quick.check_source(python, repo, 'src', ['src/templates/*.js'])
+        elif returncode:
+            with pytest.raises(subprocess.CalledProcessError):
+                quick.check_source(python, repo, 'src', ['src/templates/*.js'])
+        else:
+            quick.check_source(python, repo, 'src', ['src/templates/*.js'])
+    run.assert_called_once_with(*command)
 
 
 def test_own_repo_source_symlink_escape_stops_before_install(quick, tmp_path, mac):
