@@ -35,3 +35,10 @@ this GitHub release is regular, not a prerelease.
 · [Measured limits](https://github.com/anna-poutanen/semantic-search-engine/blob/main/docs/release-preview.md)
 
 Use **SHA256SUMS.txt** to verify the ZIP and VSIX.
+
+Validation includes actual fresh-folder Python/package/model downloads and six
+real HTTP/MCP toy searches, own-repository Flask search with persistent-vector
+reuse across restarts, generated MCP configuration checks, diagnostics and local
+feedback collection. The exact VSIX passes its tests and isolated CLI installation.
+See the [release qualification](https://github.com/anna-poutanen/semantic-search-engine/blob/main/results/release-0.1.3-2026-10-17/findings.md)
+for receipts, preserved harness corrections and tested limits.
