@@ -88,6 +88,11 @@ This follows the agreed plan in **Choose a project for YC roles** on October 12,
    bundled local feedback and generated MCP configuration. Its
    [hardening qualification](../results/beta-hardening-2026-10-14/findings.md)
    records the tested scope and preserved failures. External beta users remain.
+   The next source change adds a [CPU source preflight](source-preflight.md)
+   before embedding model setup: exact scope counts, parser failures, minified
+   filenames and large-window warnings, with explicit exclusion suggestions.
+   This addresses observed Django startup failures; it does not change retrieval
+   defaults or establish coding-agent token savings. It is not in v0.1.2 assets.
 
 Python, TypeScript and JavaScript are implemented.
 C# and non-Mac deployment follow validation of the core. Serialize GPU work and

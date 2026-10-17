@@ -53,6 +53,21 @@ space. The service refreshes saved changes when you search. The own-repository
 prompt asks for descriptions relevant to your project; it does not show or
 substitute toy queries.
 
+The source checkout adds a [source preflight](https://github.com/anna-poutanen/semantic-search-engine/blob/main/docs/source-preflight.md) before embedding
+model setup, and an inspection-only launcher mode:
+
+```bash
+bash "Get Started.command" --preflight --repo "/absolute/path/to/your/repo" --source-root src
+```
+
+This feature is **unreleased** and is not in the v0.1.2 download above. It may
+install the managed runtime and its packages/tokenizer cache, but does not download
+embedding weights, run inference, create an index or start a service. It reports
+invalid included source, likely minified filenames and unusually large rendered
+windows before a costly indexing attempt. Review suggested exclusions before
+using them; no file is automatically excluded. `--doctor` remains a separate
+offline environment check that does not inspect repository source.
+
 Some repositories track generated files or templates with JavaScript/TypeScript
 extensions whose contents are not valid standalone source. If startup reports a
 parse error in such a file, choose a narrower source directory or explicitly
