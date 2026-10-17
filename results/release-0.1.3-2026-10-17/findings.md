@@ -7,7 +7,7 @@ Its application source digest is
 `17a6214ba5d21e8de949bc02547073f252a232460cf5f84ccd042d6998ca937c`.
 The embedded and separate 55,345-byte VSIX has SHA-256
 `af5c556a9013e4c2a7d0fa77df9d0eab5136a5204af90a9f1f6e598c14289b48`.
-All three files for publication are bound by [SHA256SUMS.txt](SHA256SUMS.txt)
+The ZIP and VSIX for publication are bound by [SHA256SUMS.txt](SHA256SUMS.txt)
 and [the build receipt](bundle.json). The checksum file lists the ZIP and VSIX;
 publication separately records the checksum file's own digest.
 
@@ -94,7 +94,38 @@ Only its version/container metadata and README differ from v0.1.2; all nine runt
 JavaScript members and notices are byte-identical. Native GUI activation was not
 rerun for this metadata update. See [editor findings](editor/findings.md).
 
-After publishing, public download hashes and a second fresh-folder setup from the
-anonymously downloaded ZIP will be recorded separately. Independent Mac beta
-testing, broader coding-workflow benefits and agent token savings remain
-unestablished. The release changes onboarding diagnostics, not retrieval defaults.
+## Publication and public setup
+
+[v0.1.3](https://github.com/anna-poutanen/semantic-search-engine/releases/tag/v0.1.3)
+is published as the regular Latest release, not a draft or prerelease. Its tag
+points to `4ac5b0a51f571743c9fa7256b7aba94487851a63`, whose core/editor jobs both
+passed; see [the target CI receipt](release-target-ci.json). The stable
+[badge response](badge.json) reports `v0.1.3`.
+
+The ZIP, VSIX and checksum file each downloaded once without authentication,
+returned HTTP 200 and exactly matched both the qualified local bytes and GitHub's
+asset SHA-256. All public ZIP payloads matched its manifest. These are synthetic
+verification downloads, not adoption. See [publication.json](publication.json).
+
+The anonymously downloaded ZIP was then used for a **second complete first-setup
+flow** in another new app folder with no cache, outside Git and with spaces in its
+path. It downloaded its own uv, managed Python, packages and original model weights;
+passed the same invalid/excluded-source checks before weights; and passed another
+three HTTP plus three official MCP source/hash/token checks with clean shutdown.
+The [public setup receipt](public-download-setup/cold-setup.json), logs and
+[toy receipt](public-download-setup/toy-check.json) retain the results. Independent
+final review verified the public metadata, downloaded payloads, receipt/log hashes
+and toy source hashes. This remains two new app environments on the same existing
+Mac, not two independent machines.
+
+Both owned temporary runtimes, weights, test indexes and demo folders were removed
+after their final archive-byte checks. Their services had already stopped; the
+owned sleep-prevention process was also stopped. Original project caches and the
+normal editor profile were preserved. The local main checkout was updated while
+preserving all 268 unrelated working files byte-for-byte and the existing README
+edits; see [cleanup](cleanup.json) and
+[working-file preservation](working-file-preservation.json).
+
+Independent Mac beta testing, broader coding-workflow benefits and agent token
+savings remain unestablished. The release changes onboarding diagnostics, not
+retrieval defaults.
