@@ -255,6 +255,10 @@ def main(argv=None):
     for name in tuple(environment):
         if name.startswith("GIT_") and name not in ("GIT_CONFIG_NOSYSTEM", "GIT_CONFIG_GLOBAL"):
             environment.pop(name)
+    # Direct CLI inspection must share the launcher's warmed encoding cache.
+    # Leaving this unset creates the application's fallback cache and invalidates
+    # the later generated-MCP check's intentional no-fallback precondition.
+    environment["TIKTOKEN_CACHE_DIR"] = str(app / ".cache/quickstart/tiktoken")
     # Preserve HEAD and physical bytes; vary only the explicitly tracked source
     # membership so both runs have exactly the same repo/source-root cache identity.
     subprocess.run(["git", "-C", str(fixture), "rm", "--cached", "-r", "--quiet", "--", SOURCE_ROOT], check=True)
@@ -315,12 +319,31 @@ def main(argv=None):
         worker_state = interrupted.kill_frozen()
         after_kill = snapshot(database)
         require(after_kill == frozen, "SIGKILL lost committed vectors or changed active tables")
+        interruption = {
+            "method": "Observe committed cache through separate SQLite connection; SIGSTOP owned service and launcher PGs; inspect; SIGKILL both",
+            "observed_before_stop": observed, "frozen": frozen, "after_sigkill": after_kill,
+            "active_tables_unchanged": True, "committed_vectors_survived": True,
+            "service_state_after_kill": worker_state, "launcher_returncode": interrupted.process.returncode,
+            "additional_durable_documents": after_kill["cached_documents"] - old["cached_documents"]}
+        interruption_receipt = {
+            "version": VERSION, "captured_at": datetime.now(timezone.utc).isoformat(),
+            "zip_sha256": state["zip_sha256"], "revision": revision, "source_root": SOURCE_ROOT,
+            "seed": {"tracked_source_files": ["src/flask/sessions.py"], "session": seed_session, "snapshot": old},
+            "scope": {"total_documents": total_documents, "total_windows": total_windows},
+            "interruption": interruption,
+            "qualification_complete": False,
+            "limits": "This receipt proves only the interruption checkpoint; resume and MCP checks follow."}
+        # Preserve the independent durability witness before any optional client
+        # verification, artifact copy, or subsequent launcher run can fail.
+        write_json(output / "interruption.json", interruption_receipt)
         copy_artifacts(interrupted, output, "interrupted")
         interrupted_cache = next(event for event in progress_events(interrupted.session())
                                  if event["phase"] == "cache")
         require(interrupted_cache["cached_documents"] == old["cached_documents"]
                 and interrupted_cache["total"] == total_documents,
                 "Expanded launch did not begin from the seeded production cache")
+        interruption["initial_progress_cache"] = interrupted_cache
+        write_json(output / "interruption.json", interruption_receipt)
         state["resume_qualification"].update(index_database=str(database),
             killed_launcher_pid=interrupted.process.pid, killed_service_pid=interrupted.service["pid"],
             cached_after_interruption=after_kill["cached_documents"])
@@ -394,12 +417,7 @@ def main(argv=None):
                   "revision": revision, "source_root": SOURCE_ROOT,
                   "unmodified_extracted_launcher_and_service": True, "inference_patches": False,
                   "seed": {"tracked_source_files": ["src/flask/sessions.py"], "session": seed_session, "snapshot": old},
-                  "interruption": {"method": "Observe committed cache through separate SQLite connection; SIGSTOP owned service and launcher PGs; inspect; SIGKILL both",
-                      "initial_progress_cache": interrupted_cache,
-                      "observed_before_stop": observed, "frozen": frozen, "after_sigkill": after_kill,
-                      "active_tables_unchanged": True, "committed_vectors_survived": True,
-                      "service_state_after_kill": worker_state, "launcher_returncode": interrupted.process.returncode,
-                      "additional_durable_documents": after_kill["cached_documents"] - old["cached_documents"]},
+                  "interruption": interruption,
                   "scope": {"total_documents": total_documents, "total_windows": total_windows},
                   "runs": runs, "support_commands_passed": True, "scripted_external_testers": 0,
                   "limits": ["Existing Mac; not an independent machine", "Existing known public queries; not new retrieval evidence",
