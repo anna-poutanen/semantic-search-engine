@@ -74,6 +74,38 @@ def cache_preserved_subset(observed, current):
                for key, value in observed["embedding_cache_entries"].items())
 
 
+def isolate_fallback_cache(owner, app):
+    """Preserve prior toy/CLI cache while establishing the MCP probe's fixture."""
+    require(app.is_relative_to(owner), "Tokenizer cache is outside the owned extraction")
+    require(not (app / ".cache").is_symlink(), "Owned application cache must not be a symlink")
+    fallback = app / ".cache/tokenizers"
+    existed = fallback.exists() or fallback.is_symlink()
+    record = {
+        "fallback_cache_existed_after_setup": existed,
+        "qualification_precondition_only": True,
+        "reason": "Prior toy or CLI activity can create the fallback tokenizer cache; preserve it outside the app before verifying the generated MCP config uses its warmed cache.",
+        "quarantine_relative_to_owner": None,
+        "files": [], "app_source_or_runtime_changed": False}
+    if existed:
+        require(not fallback.is_symlink() and fallback.is_dir(),
+                "Fallback tokenizer cache must be a real directory")
+        for path in sorted(fallback.rglob("*")):
+            require(not path.is_symlink() and (path.is_dir() or path.is_file()),
+                    "Fallback tokenizer cache contains a symlink or special file")
+            if path.is_file():
+                record["files"].append({"path": path.relative_to(fallback).as_posix(),
+                                        "bytes": path.stat().st_size, "sha256": digest(path)})
+        name = ("qualification-toy-tokenizer-cache-"
+                + datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ") + "-" + os.urandom(4).hex())
+        quarantine = owner / name
+        require(not quarantine.exists(), "Tokenizer cache quarantine already exists")
+        fallback.rename(quarantine)
+        record["quarantine_relative_to_owner"] = quarantine.relative_to(owner).as_posix()
+    require(not fallback.exists() and not fallback.is_symlink(),
+            "Fallback tokenizer cache remains present after qualification isolation")
+    return record
+
+
 def process_rows():
     output = subprocess.check_output(["/bin/ps", "-axo", "pid=,ppid=,pgid=,stat=,command="], text=True)
     rows = []
@@ -246,6 +278,10 @@ def main(argv=None):
     require((owner / "OWNED_RELEASE_QUALIFICATION").is_file() and app.is_relative_to(owner), "Unrecognized extraction ownership")
     require(json.loads((app / "BUNDLE_MANIFEST.json").read_text())["version"] == VERSION,
             "Extracted app version differs from the release")
+    tokenizer_isolation = isolate_fallback_cache(owner, app)
+    state["resume_tokenizer_cache_isolation"] = tokenizer_isolation
+    write_json(state_path, state)
+    fallback_tokenizer_cache = app / ".cache/tokenizers"
     python = app / ".cache/quickstart/venv/bin/python"
     source_repo = args.repo.resolve()
     revision = subprocess.check_output(["git", "-C", str(source_repo), "rev-parse", "HEAD"], text=True).strip()
@@ -351,6 +387,7 @@ def main(argv=None):
             "seed": {"tracked_source_files": ["src/flask/sessions.py"], "session": seed_session, "snapshot": old},
             "scope": {"total_documents": total_documents, "total_windows": total_windows},
             "interruption": interruption,
+            "tokenizer_cache_isolation": tokenizer_isolation,
             "qualification_complete": False,
             "limits": "This receipt proves only the interruption checkpoint; resume and MCP checks follow."}
         # Preserve the independent durability witness before any optional client
@@ -382,6 +419,8 @@ def main(argv=None):
                        "--repo", str(fixture), "--source-root", SOURCE_ROOT, "--output", str(mcp_output)]
             for query in QUERIES:
                 command.extend(("--query", query))
+            require(not fallback_tokenizer_cache.exists() and not fallback_tokenizer_cache.is_symlink(),
+                    "Fallback tokenizer cache unexpectedly appeared before generated MCP verification")
             with (output / f"{stage}-mcp.log").open("xb") as stream:
                 subprocess.run(command, cwd=app, env=environment, stdout=stream, stderr=subprocess.STDOUT,
                                check=True, timeout=300)
@@ -389,6 +428,8 @@ def main(argv=None):
             require(mcp["packages"]["semantic-search-engine"] == VERSION
                     and mcp["network_guard"]["outbound_attempts"] == 0,
                     "Generated MCP config failed version or guarded socket checks")
+            require(not fallback_tokenizer_cache.exists() and not fallback_tokenizer_cache.is_symlink(),
+                    "Generated MCP verification created a fallback tokenizer cache")
             marker = len(launcher.transcript)
             os.write(launcher.master, (QUERY + "\n").encode())
             launcher.prompt(marker, 120)
@@ -419,6 +460,7 @@ def main(argv=None):
             copy_artifacts(launcher, output, stage)
             runs.append({"stage": stage, "startup_wall_s": startup, "cache": cache,
                          "session": saved, "generated_config_reused_after_restart": stage == "restart",
+                         "fallback_tokenizer_cache_absent_before_and_after_mcp": True,
                          "terminal_query_verified": True, "mcp_source_and_budget_checks_passed": True})
             print(json.dumps({"stage": stage, "cache": cache, "shutdown": saved["shutdown"]}), flush=True)
         for name, arguments in (
@@ -438,6 +480,7 @@ def main(argv=None):
                   "unmodified_extracted_launcher_and_service": True, "inference_patches": False,
                   "seed": {"tracked_source_files": ["src/flask/sessions.py"], "session": seed_session, "snapshot": old},
                   "interruption": interruption,
+                  "tokenizer_cache_isolation": tokenizer_isolation,
                   "scope": {"total_documents": total_documents, "total_windows": total_windows},
                   "runs": runs, "support_commands_passed": True, "scripted_external_testers": 0,
                   "limits": ["Existing Mac; not an independent machine", "Existing known public queries; not new retrieval evidence",
