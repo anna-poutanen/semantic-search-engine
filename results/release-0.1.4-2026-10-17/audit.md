@@ -1,10 +1,11 @@
-# Independent v0.1.4 candidate audit
+# Independent v0.1.4 release audit
 
-The final candidate passes independent archive, source-binding and native
-integration-evidence checks. This audit binds the guide-clarified artifact built
-after `1644590`. The final artifact's native setup and resume receipts have been
-checked; publication, final tag-target CI and anonymous public-download checks
-remain pending and are tracked by the release owner.
+The final release passes independent archive, source-binding, native integration
+and public-download evidence checks. This audit binds the guide-clarified
+artifact built after `1644590` and published from
+`289d1cf60f4cb3d1b5171c708b8e06903b555710`. Both the pre-publication and
+anonymously downloaded copies passed fresh setup and interrupted-index resume.
+All qualification phases described below are complete.
 
 ## Exact artifact
 
@@ -117,16 +118,77 @@ zero outbound attempts and interpreter exit. Their scope excludes the separate
 resident backend. All original extracted archive files still match the ZIP
 after these sessions.
 
-An earlier external qualification preflight omitted the launcher tokenizer-cache
-environment, causing a generated-MCP verifier precondition to stop after a real
-resume had completed. That attempt is preserved in
+An earlier qualification stopped at the generated-MCP verifier precondition
+after a real resume had completed; see
 [before-mcp-cache-precondition](before-mcp-cache-precondition/failure.json).
-The corrected external harness explicitly selects the launcher cache and saves
-its interruption witness before optional client checks; final own-repository
-qualification reran from an empty index in the same cold-qualified runtime.
-This correction did not change shipping source or artifact bytes.
+The external inspection command omitted its explicit launcher tokenizer-cache
+environment. Correcting that environment prevents one source of a fallback
+cache, but was an incomplete explanation: normal automatic toy MCP activity can
+also populate that cache. The dedicated generated-cache-only probe additionally
+requires prior fallback cache isolation, as recorded in the public flow below.
+These are qualification preconditions, not new product defects.
 
-No archive, lifecycle or native integration blocker remains in this audit.
-These are checks on the existing development Mac, not independent-machine,
-retrieval-quality, coding-benefit or latency evidence. Publication and public
-setup must bind the same final ZIP, rather than earlier guide-only candidates.
+## Publication and complete public flow
+
+[v0.1.4](https://github.com/anna-poutanen/semantic-search-engine/releases/tag/v0.1.4)
+is the regular Latest release. I independently queried GitHub's current API
+without authorization headers or proxy configuration: the release is neither a
+draft nor a prerelease, its tag points to
+`289d1cf60f4cb3d1b5171c708b8e06903b555710`, and both retained
+[release-target CI runs](release-target-ci.json) report successful completion at
+that exact commit. Every shipped source/guide/license byte also matches the
+release commit.
+
+The [publication receipt](publication.json) records one anonymous HTTP-200
+download of each ZIP, VSIX and checksum asset. I independently matched the
+downloaded files with the qualified local files and current GitHub asset
+digests, and rechecked the public ZIP manifest and embedded VSIX. These are
+synthetic verification downloads, not adoption.
+
+The [public cold-setup receipt](public-download-setup/cold-setup.json) binds that
+downloaded ZIP to another initially cache-free extraction outside Git, with
+spaces in its path. It downloaded its own managed Python, packages and original
+model weights and passed the same invalid/excluded-source preflight and three
+HTTP plus three official MCP toy searches. All step-log hashes match. I rechecked
+its 18 toy source hashes and clean owned-service shutdown.
+
+The final [public resume proof](public-download-setup/resume-integration.json)
+again seeded 20 windows, independently witnessed 24 committed cache entries,
+killed only the owned processes, then reused 24 and embedded 334. Every witnessed
+cache entry's hash survived; all four active tables retained the seeded state.
+The cache-only restart reused all 358 documents with zero pending inference.
+Both normal final sessions stopped cleanly and reused the same generated MCP
+configuration. I independently rechecked their 32 delivered physical excerpts
+and exact token budgets, matching the pre-publication totals. Original guarded
+client/adapter runs report zero outbound attempts and observed adapter exit.
+My recheck explicitly used the warmed quickstart tokenizer directory; it left
+the app's fallback directory absent.
+
+Two external-observer corrections are preserved. The first
+[WAL observation attempt](public-download-setup/before-wal-freeze-observer/failure.json)
+tried to begin a new SQLite read after forcibly suspending its writer and
+received `SQLITE_PROTOCOL`. SQLite documents
+[WAL transaction retry exhaustion](https://www.sqlite.org/rescode.html#protocol);
+its [read-start implementation](https://raw.githubusercontent.com/sqlite/sqlite/master/src/wal.c)
+explains how descheduling a lock holder can prolong a normally brief retry
+state. That mechanism is consistent with this observer failure, but the exact
+interrupted instruction was not captured. The archived database subsequently
+passed independent read-only integrity and foreign-key checks without repair.
+The corrected observer records its live committed witness, kills before another
+read, then verifies each witnessed vector after termination while allowing
+additional committed rows. The final attempt had no overshoot: 24 observed and
+24 recovered entries.
+
+The [later cache-precondition attempt](public-download-setup/before-existing-toy-cache/failure.json)
+found a fallback cache whose recorded birth time coincided with automatic toy
+MCP setup, before own-repository qualification. The final external harness
+inventories and preserves that owned cache outside the app before the specific
+generated-cache-only probe. I verified those quarantined file hashes and both
+clients' absent-before/absent-after checks. The public receipt explicitly marks
+this as qualification-only isolation. No shipping source, runtime or asset was
+changed by either observer correction. All public extracted archive files still
+match the ZIP after the final workflows.
+
+No archive, lifecycle, native integration or publication blocker remains in this
+audit. These are repeated checks on the existing development Mac, not
+independent-machine, retrieval-quality, coding-benefit or latency evidence.
