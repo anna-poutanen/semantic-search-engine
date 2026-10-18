@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+from contextlib import asynccontextmanager
 import hashlib
 import json
 import math
@@ -168,10 +169,22 @@ def exercise_http(url, repo, timeout):
 
 
 async def exercise_mcp(python, url, repo, timeout):
-    from mcp import Client, StdioServerParameters  # Official optional SDK; --run only.
+    import anyio
+    from mcp import Client, StdioServerParameters, stdio_client  # Official optional SDK; --run only.
     from semantic_search.context import encoding, serialize_context
     parameters = StdioServerParameters(command=str(python), args=["-m", "semantic_search.mcp_server", "--server", url], cwd=ROOT)
-    async with Client(parameters, mode="legacy", read_timeout_seconds=timeout) as client:
+
+    @asynccontextmanager
+    async def owned_transport():
+        # The SDK arms its bounded process-tree cleanup after spawning. Defer
+        # cancellation across that handoff, then allow handshake/search to stop
+        # normally with the transport's cleanup already in place.
+        with anyio.CancelScope(shield=True) as starting:
+            async with stdio_client(parameters) as streams:
+                starting.shield = False
+                yield streams
+
+    async with Client(owned_transport(), mode="legacy", read_timeout_seconds=timeout) as client:
         tools = (await client.list_tools()).tools
         if [tool.name for tool in tools] != ["search_code"]:
             raise ValueError("Demo MCP adapter exposed unexpected tools")
