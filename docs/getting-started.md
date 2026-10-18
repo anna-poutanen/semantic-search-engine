@@ -6,8 +6,8 @@ Macs and Git-tracked Python, JavaScript and TypeScript source.
 
 ## Download and start
 
-1. Download **semantic-search-mac-0.1.3.zip** from the
-   [v0.1.3 release](https://github.com/anna-poutanen/semantic-search-engine/releases/tag/v0.1.3).
+1. Download **semantic-search-mac-0.1.4.zip** from the
+   [v0.1.4 release](https://github.com/anna-poutanen/semantic-search-engine/releases/tag/v0.1.4).
    Unzip it into a writable folder. Keep the whole folder together.
 2. Open Terminal, type `cd `, drag the extracted folder into Terminal, and press
    Return. Then run:
@@ -264,16 +264,16 @@ an existing developer `.venv` alone. Interactive indexes, session logs and MCP
 snippets live in `.cache/quickstart/`; automatic toy receipts live inside that toy's
 `.semantic-search/` directory. Nothing is installed globally.
 
-**Unreleased source-checkout feature after v0.1.3:** indexing now saves completed
-Qwen embedding batches as it runs. If indexing is interrupted, repeat the same
-command from the same checkout, keeping the repository, source scope, exclusions
-and index-cache location unchanged. It rescans saved source and reuses compatible
-completed documents; an in-flight batch may repeat. Edited documents are embedded
-again, and an incomplete refresh never replaces the complete active index. This
-works without enabling progress output. The v0.1.3 download above does **not**
-include this feature; see
+**Version 0.1.4 includes resumable indexing:** completed Qwen embedding batches
+are saved as indexing runs. If indexing is interrupted, repeat the same command
+from the same extracted app folder, keeping the repository, source scope,
+exclusions and index-cache location unchanged. It rescans saved source and reuses
+compatible completed documents; an in-flight batch may repeat. Edited documents
+are embedded again, and an incomplete refresh never replaces the complete active
+index. This works without enabling progress output. See
 [resumable indexing](https://github.com/anna-poutanen/semantic-search-engine/blob/main/docs/resumable-indexing.md)
-for source-checkout behavior and limits.
+for restart behavior and limits. A new toy session creates a different tiny
+repository, so use the same own-repository command to resume a real index.
 
 Stop any launcher services before moving or deleting the extracted folder;
 installed virtual environments depend on its location. If you move it after

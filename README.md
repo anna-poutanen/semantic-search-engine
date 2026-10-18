@@ -20,8 +20,8 @@ and [MCP setup](docs/mcp.md).
 
 ## Download and try it
 
-Download **semantic-search-mac-0.1.3.zip** from the
-[MIT-licensed Mac release](https://github.com/anna-poutanen/semantic-search-engine/releases/tag/v0.1.3),
+Download **semantic-search-mac-0.1.4.zip** from the
+[MIT-licensed Mac release](https://github.com/anna-poutanen/semantic-search-engine/releases/tag/v0.1.4),
 unzip it, open Terminal in that folder, and run:
 
 ```bash
@@ -35,7 +35,9 @@ required. First setup needs internet, working Git, and at least 6 GB free space.
 Own-repository sessions use eight results with configurable budgets, indexing
 progress and a 30-minute startup allowance. Source preflight checks included
 files before embedding model setup and suggests explicit exclusions for invalid
-source. Offline diagnostics, local feedback collection and ready-to-copy MCP
+source. Interrupted indexing resumes from completed embedding batches when you
+repeat the same command with the same scope and cache. Offline diagnostics,
+local feedback collection and ready-to-copy MCP
 snippets are included.
 See [the getting-started guide](docs/getting-started.md) for your own repository,
 the included VS Code extension, MCP configuration and troubleshooting.
