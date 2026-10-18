@@ -1,8 +1,7 @@
 # Resumable indexing
 
-**Unreleased source-checkout feature after v0.1.3.** The published v0.1.3 ZIP does
-not include completed-batch resume. This page describes the implementation in
-source, without changing the release's download or setup instructions.
+**Included in v0.1.4.** The [Mac download](getting-started.md) and source checkout
+both support completed-batch resume. The earlier v0.1.3 ZIP predates this feature.
 
 Qwen indexing saves each completed embedding batch to SQLite before reporting
 that batch as finished. If the process is cancelled, exits or is killed, the next
@@ -12,7 +11,13 @@ when progress output is disabled.
 
 ## Restart an interrupted index
 
-Run the same source-checkout command again. For example:
+From the extracted v0.1.4 app folder, rerun the same own-repository command:
+
+```sh
+bash "Get Started.command" --repo /absolute/path/to/your/repo --source-root src
+```
+
+For a developer source checkout, rerun the same service command instead:
 
 ```sh
 .venv/bin/semantic-search serve \
@@ -21,8 +26,8 @@ Run the same source-checkout command again. For example:
 
 Keep the repository path, source root, exclusions and index-cache directory the
 same. Those settings select the cache; moving or deleting it prevents reuse.
-The source-checkout launcher uses the same automatic behavior when rerun with
-the same own-repository arguments. The toy walkthrough creates a fresh demo
+The launcher uses the same automatic behavior when rerun with the same
+own-repository arguments. The toy walkthrough creates a fresh demo
 repository each time, so it is not a restart test for an existing repository.
 
 Restart still includes source scanning, parsing, model initialization and final

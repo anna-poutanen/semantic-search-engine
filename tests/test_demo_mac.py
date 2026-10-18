@@ -1,5 +1,6 @@
 """Model-free preparation, toy source proofs and owned-process lifecycle tests."""
 import asyncio
+from contextlib import asynccontextmanager, nullcontext
 import hashlib
 import importlib.util
 import json
@@ -222,12 +223,14 @@ def test_official_mcp_worker_lifecycle_uses_only_shared_service_and_calls_each_t
     repo, seen = demo.prepare(tmp_path / "fixture"), []
     class FakeClient:
         protocol_version = "cpu-mock"
-        def __init__(self, parameters, **kwargs):
-            seen.append(parameters)
-            assert parameters.args == ["-m", "semantic_search.mcp_server", "--server", "http://127.0.0.1:12345"]
+        def __init__(self, transport, **kwargs):
+            assert kwargs == {"mode": "legacy", "read_timeout_seconds": 2}
+            self.transport = transport
         async def __aenter__(self):
+            assert await self.transport.__aenter__() == ("reader", "writer")
             return self
         async def __aexit__(self, *args):
+            await self.transport.__aexit__(*args)
             seen.append("closed")
         async def list_tools(self):
             return SimpleNamespace(tools=[SimpleNamespace(name="search_code")])
@@ -242,11 +245,34 @@ def test_official_mcp_worker_lifecycle_uses_only_shared_service_and_calls_each_t
                 value["token_usage"]["tokens"] = tokens
             return SimpleNamespace(is_error=False, structured_content=value,
                                    content=[SimpleNamespace(type="text", text=serialize_context(value))])
-    sdk = SimpleNamespace(Client=FakeClient, StdioServerParameters=lambda **kwargs: SimpleNamespace(**kwargs))
+    @asynccontextmanager
+    async def fake_stdio(parameters):
+        seen.append(parameters)
+        assert parameters.args == ["-m", "semantic_search.mcp_server", "--server", "http://127.0.0.1:12345"]
+        yield "reader", "writer"
+
+    sdk = SimpleNamespace(Client=FakeClient, StdioServerParameters=lambda **kwargs: SimpleNamespace(**kwargs),
+                          stdio_client=fake_stdio)
     with patch.dict(sys.modules, {"mcp": sdk}):
         result = asyncio.run(demo.exercise_mcp("/fake/bin/python", "http://127.0.0.1:12345", repo, 2))
     assert result["protocol_version"] == "cpu-mock" and len(result["searches"]) == 3
     assert seen[1:-1] == list(demo.QUERIES) and seen[-1] == "closed"
+
+
+def test_mcp_spawn_failure_preserves_error_and_restores_signal_handlers(tmp_path):
+    sdk = pytest.importorskip("mcp")
+    repo = demo.prepare(tmp_path / "fixture")
+    handlers = {signum: signal.getsignal(signum) for signum in (signal.SIGINT, signal.SIGTERM)}
+
+    @asynccontextmanager
+    async def failed_spawn(parameters):
+        raise OSError("owned adapter could not start")
+        yield  # pragma: no cover
+
+    with patch.object(sdk, "stdio_client", side_effect=failed_spawn):
+        with pytest.raises(OSError, match="owned adapter could not start"):
+            demo.run_mcp(sys.executable, "http://127.0.0.1:12345", repo, 2)
+    assert {signum: signal.getsignal(signum) for signum in handlers} == handlers
 
 
 def test_invalid_cli_limits_and_run_runtime_guidance_create_no_fixture(tmp_path, capsys):
@@ -291,7 +317,7 @@ def process_alive(pid):
 
 
 @pytest.mark.skipif(os.name != "posix", reason="Mac/POSIX process-tree proof")
-@pytest.mark.parametrize("mode", ["timeout", "sigint"])
+@pytest.mark.parametrize("mode", ["timeout", "sigint", "sigint_during_spawn"])
 def test_actual_model_free_sdk_adapter_and_descendant_stop_on_timeout_or_sigint(tmp_path, mode):
     sdk = pytest.importorskip("mcp")
     repo = demo.prepare(tmp_path / "fixture")
@@ -308,6 +334,27 @@ def test_actual_model_free_sdk_adapter_and_descendant_stop_on_timeout_or_sigint(
         ' child.terminate(); child.wait(timeout=2)\n'
     )
     parameters = sdk.StdioServerParameters
+    spawn_handoff = []
+    spawn_patch = nullcontext()
+    if mode == "sigint_during_spawn":
+        import anyio
+        import mcp.client.stdio as stdio
+
+        spawn = stdio._create_platform_compatible_process
+
+        async def delayed_handoff(**kwargs):
+            process = await spawn(**kwargs)
+            spawn_handoff.append("spawned")
+            deadline = time.monotonic() + 5
+            while not pids.exists() and time.monotonic() < deadline:
+                await anyio.sleep(.01)
+            # Keep a real spawned process in the handoff window until SIGINT is
+            # delivered. Cancellation here must wait until SDK cleanup is armed.
+            await anyio.sleep(.1)
+            spawn_handoff.append("returned")
+            return process
+
+        spawn_patch = patch.object(stdio, "_create_platform_compatible_process", side_effect=delayed_handoff)
     trigger = None
     def send_interrupt():
         deadline = time.monotonic() + 5
@@ -315,12 +362,12 @@ def test_actual_model_free_sdk_adapter_and_descendant_stop_on_timeout_or_sigint(
             time.sleep(.01)
         if pids.exists():
             os.kill(os.getpid(), signal.SIGINT)
-    if mode == "sigint":
+    if mode.startswith("sigint"):
         trigger = threading.Thread(target=send_interrupt, daemon=True)
         trigger.start()
     try:
-        with patch.object(sdk, "StdioServerParameters", side_effect=lambda **kwargs: parameters(command=sys.executable, args=[str(script), str(pids)], cwd=tmp_path)):
-            if mode == "sigint":
+        with spawn_patch, patch.object(sdk, "StdioServerParameters", side_effect=lambda **kwargs: parameters(command=sys.executable, args=[str(script), str(pids)], cwd=tmp_path)):
+            if mode.startswith("sigint"):
                 with pytest.raises(KeyboardInterrupt):
                     demo.run_mcp(sys.executable, "http://127.0.0.1:12345", repo, 10)
             else:
@@ -332,6 +379,8 @@ def test_actual_model_free_sdk_adapter_and_descendant_stop_on_timeout_or_sigint(
         while any(process_alive(pid) for pid in owned) and time.monotonic() < deadline:
             time.sleep(.02)
         assert not any(process_alive(pid) for pid in owned)
+        if mode == "sigint_during_spawn":
+            assert spawn_handoff == ["spawned", "returned"]
     finally:
         if trigger:
             trigger.join(timeout=5)

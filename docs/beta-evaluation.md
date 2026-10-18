@@ -78,9 +78,9 @@ The [CLI/API examples](backend-api.md), [MCP setup](mcp.md) and
 [VS Code guide](../extensions/vscode/README.md) also cover the full checkout.
 
 The updated downloadable package is the
-[v0.1.3 GitHub release](https://github.com/anna-poutanen/semantic-search-engine/releases/tag/v0.1.3).
+[v0.1.4 GitHub release](https://github.com/anna-poutanen/semantic-search-engine/releases/tag/v0.1.4).
 Follow the [release installation guide](release-preview.md). The MIT-licensed
-manifest is `0.1.3`; accept the update and reload, or use
+manifest is `0.1.4`; accept the update and reload, or use
 CLI installation with `--force`. Baseline dense/off evaluation does not require
 optional reranking. [Qwen editor setup](vscode-qwen-reranker.md)
 
