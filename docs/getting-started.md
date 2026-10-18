@@ -28,8 +28,8 @@ handling of a downloaded unsigned `.command` file.
 
 First setup needs internet, at least **6 GB free disk space**, and downloads a
 local Python runtime, pinned packages and approximately **1.1 GiB of Qwen
-embedding weights**. Download time depends on your connection. The tested Mac is
-an M4 MacBook Pro with 24 GB RAM and macOS 15.1.1; other machines have not yet had
+embedding weights**. Download time depends on your connection. Current release
+qualification uses an Apple M4 Mac with 24 GB RAM and macOS 27.0.1; other machines have not yet had
 external beta testing. H2O and the optional Qwen reranker are excluded from this
 setup. Keep the Mac awake while installing.
 
@@ -248,15 +248,14 @@ bash "Get Started.command" --setup-only
 ```
 
 Rerunning checks the cached runtime and embedding weights and reuses downloads.
-Indexing groups now contain up to four documents and at most 8,192 padded tokens
+The batch policy introduced in v0.1.2 groups up to four documents and at most 8,192 padded tokens
 (the longest document's token length multiplied by the document count). Each
 document still has an 8,192-token input limit, separate from the search response
-budget. The updated batching metadata changes the embedding fingerprint, so an
-older vector cache rebuilds once with this policy; cached model downloads remain
-reusable.
-Custom calibrated match policies must also be recalibrated for the changed
-embedding metadata; old calibrations cannot be reused. The default launcher uses
-no match policy.
+budget. Caches from before that policy have different embedding metadata and
+rebuild once; cached model downloads remain reusable. Version 0.1.4 keeps
+v0.1.3's schema and embedding metadata, so compatible v0.1.3 vectors are reused
+without a rebuild. Custom match policies calibrated before the batch-policy
+change also require recalibration; the default launcher uses no match policy.
 Interrupted setup can be resumed by running the same command. The setup uses
 `.cache/quickstart/` for Python, packages and caches, `.cache/models/` for the
 embedding checkpoint, and `.cache/demos/` for fresh demo repositories. It leaves

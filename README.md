@@ -59,7 +59,7 @@ the complete research history remains in this repository.
 
 ## Developer setup and experiments on an Apple Silicon Mac
 
-The tested setup is an M4 MacBook Pro, 24 GB RAM, macOS 15.1.1. Python dependencies,
+Current release qualification uses an Apple M4 Mac with 24 GB RAM and macOS 27.0.1. Python dependencies,
 approximately 1.1 GiB of Qwen embedding weights, another 1.1 GiB for the optional
 Qwen reranker, and the optional 4.8 GiB H2O checkpoint are stored locally
 under ignored `.venv/` and `.cache/` directories. Retrieval and local scoring do
