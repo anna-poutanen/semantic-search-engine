@@ -1,0 +1,16 @@
+{
+  "stage": "External SQLite observer after forcibly SIGSTOPping the writer",
+  "error": "sqlite3.OperationalError: locking protocol",
+  "location": "frozen = snapshot(database), before intentional SIGKILL",
+  "after_cleanup_quick_check": [
+    [
+      "ok"
+    ]
+  ],
+  "after_cleanup_counts": {
+    "snippets": 20,
+    "active_vectors": 20,
+    "embeddings": 28
+  },
+  "correction": "Read the committed witness while writer runs, stop/kill without another SQLite read while stopped, then verify observed cache rows survive recovery. No app/release asset changes."
+}
