@@ -55,8 +55,13 @@ def snapshot(database):
                      if isinstance(value, bytes) else value for value in row] for row in rows]
             tables[name] = {"rows": len(rows), "sha256": hashlib.sha256(
                 json.dumps(safe, sort_keys=True, separators=(",", ":")).encode()).hexdigest()}
-        cache = connection.execute("SELECT count(*) FROM embeddings").fetchone()[0]
-    return {"active_tables": tables, "cached_documents": cache}
+        cache = [(fingerprint, document, dimensions, len(blob), hashlib.sha256(blob).hexdigest())
+                 for fingerprint, document, dimensions, blob in connection.execute(
+                     "SELECT model_fingerprint,document_hash,dimensions,vector FROM embeddings "
+                     "ORDER BY model_fingerprint,document_hash")]
+    return {"active_tables": tables, "cached_documents": len(cache),
+            "embedding_cache_sha256": hashlib.sha256(json.dumps(
+                cache, separators=(",", ":")).encode()).hexdigest()}
 
 
 def process_rows():
