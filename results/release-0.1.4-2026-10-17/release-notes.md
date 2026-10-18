@@ -27,6 +27,9 @@ source, vector and cancellation checks. Compatible older vectors remain valid:
 this feature changes neither the SQLite schema nor the embedding fingerprint.
 Retrieval defaults and the pinned model are unchanged.
 
+This release also fixes cancellation during the automatic demo's MCP process
+startup, ensuring the adapter's cleanup is armed before an interrupt is handled.
+
 The runtime supports Apple Silicon Macs. Existing
 [real Qwen interruption/restart evidence](https://github.com/anna-poutanen/semantic-search-engine/blob/main/results/resumable-indexing-2026-10-17/findings.md)
 checks durability and vector parity on the development Mac; it does not establish
@@ -40,3 +43,13 @@ GitHub release is regular, not a prerelease.
 · [Measured limits](https://github.com/anna-poutanen/semantic-search-engine/blob/main/docs/release-preview.md)
 
 Use **SHA256SUMS.txt** to verify the ZIP and VSIX.
+
+Qualification passed a fresh-folder Python/package/model download, six real
+HTTP/MCP toy searches and actual own-repository interruption/resume on 358 Flask
+windows. After termination, the same launcher reused 24 saved documents and
+embedded only the 334 remaining; a later restart reused all 358. Generated MCP
+configuration, source/budget checks, diagnostics, feedback and the exact VSIX's
+isolated CLI installation also passed. The local Python suite reports 2,566
+passed and 10 skipped.
+See [release qualification](https://github.com/anna-poutanen/semantic-search-engine/blob/main/results/release-0.1.4-2026-10-17/findings.md)
+for receipts, preserved failures and limits.
