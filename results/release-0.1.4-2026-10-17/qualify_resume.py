@@ -60,8 +60,18 @@ def snapshot(database):
                      "SELECT model_fingerprint,document_hash,dimensions,vector FROM embeddings "
                      "ORDER BY model_fingerprint,document_hash")]
     return {"active_tables": tables, "cached_documents": len(cache),
+            "embedding_cache_entries": {
+                f"{fingerprint}:{document}": hashlib.sha256(json.dumps(
+                    [dimensions, size, vector_hash], separators=(",", ":")).encode()).hexdigest()
+                for fingerprint, document, dimensions, size, vector_hash in cache},
             "embedding_cache_sha256": hashlib.sha256(json.dumps(
                 cache, separators=(",", ":")).encode()).hexdigest()}
+
+
+def cache_preserved_subset(observed, current):
+    """Allow later commits while requiring every witnessed vector to survive."""
+    return all(current["embedding_cache_entries"].get(key) == value
+               for key, value in observed["embedding_cache_entries"].items())
 
 
 def process_rows():
@@ -149,7 +159,7 @@ class TerminalLauncher:
                 raise RuntimeError(f"{self.stage}: launcher exited before prompt; inspect log")
         raise TimeoutError(f"{self.stage}: launcher prompt deadline exceeded")
 
-    def stop_for_snapshot(self):
+    def stop_for_kill(self):
         require(self.discover_service() is not None, "Cannot freeze an unknown service")
         self.signal_service(signal.SIGSTOP)
         os.killpg(self.process.pid, signal.SIGSTOP)
@@ -308,21 +318,31 @@ def main(argv=None):
             if interrupted.session() is not None and interrupted.discover_service() is not None:
                 candidate = snapshot(database)
                 if candidate["cached_documents"] > old["cached_documents"]:
+                    require(candidate["active_tables"] == old["active_tables"],
+                            "Partial work replaced the active snapshot before interruption")
+                    require(candidate["cached_documents"] < total_documents
+                            and cache_preserved_subset(old, candidate),
+                            "Live cache witness is not a valid durable proper subset")
                     observed = candidate
-                    interrupted.stop_for_snapshot()
+                    # Never open SQLite while a writer is SIGSTOPped: it may
+                    # hold a WAL coordination lock between protocol steps.
+                    interrupted.stop_for_kill()
                     break
         require(observed is not None, "No independently committed new batch observed before deadline")
-        frozen = snapshot(database)
-        require(frozen["active_tables"] == old["active_tables"], "Partial work replaced the active snapshot")
-        require(old["cached_documents"] < frozen["cached_documents"] < total_documents,
-                "Interruption did not leave a durable proper subset")
         worker_state = interrupted.kill_frozen()
         after_kill = snapshot(database)
-        require(after_kill == frozen, "SIGKILL lost committed vectors or changed active tables")
+        require(after_kill["active_tables"] == old["active_tables"],
+                "Interrupted work replaced the active snapshot")
+        require(old["cached_documents"] < after_kill["cached_documents"] < total_documents,
+                "Interruption did not leave a durable proper subset")
+        require(cache_preserved_subset(observed, after_kill),
+                "SIGKILL lost or changed a previously witnessed committed vector")
         interruption = {
-            "method": "Observe committed cache through separate SQLite connection; SIGSTOP owned service and launcher PGs; inspect; SIGKILL both",
-            "observed_before_stop": observed, "frozen": frozen, "after_sigkill": after_kill,
+            "method": "Observe committed cache while writer runs; SIGSTOP owned service and launcher PGs; immediately SIGKILL both without SQLite reads while paused; inspect after termination",
+            "last_observation_before_stop": observed, "after_sigkill": after_kill,
             "active_tables_unchanged": True, "committed_vectors_survived": True,
+            "observed_cache_preserved_as_subset": True,
+            "committed_documents_after_last_observation": after_kill["cached_documents"] - observed["cached_documents"],
             "service_state_after_kill": worker_state, "launcher_returncode": interrupted.process.returncode,
             "additional_durable_documents": after_kill["cached_documents"] - old["cached_documents"]}
         interruption_receipt = {
