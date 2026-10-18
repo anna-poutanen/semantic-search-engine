@@ -53,3 +53,8 @@ isolated CLI installation also passed. The local Python suite reports 2,566
 passed and 10 skipped.
 See [release qualification](https://github.com/anna-poutanen/semantic-search-engine/blob/main/results/release-0.1.4-2026-10-17/findings.md)
 for receipts, preserved failures and limits.
+
+After publication, all three assets were downloaded anonymously and matched the
+qualified bytes. A separate fresh setup from the public ZIP repeated the real
+HTTP/MCP checks and the complete interrupted-index/resume/cache-only restart
+flow successfully. Final main/tag core and editor checks passed.

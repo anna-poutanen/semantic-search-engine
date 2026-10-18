@@ -1,5 +1,12 @@
 # v0.1.4 release qualification
 
+[v0.1.4](https://github.com/anna-poutanen/semantic-search-engine/releases/tag/v0.1.4)
+is published as the regular latest release at commit
+`289d1cf60f4cb3d1b5171c708b8e06903b555710`. The source/guide payloads match
+that merged commit byte for byte. PR checks and both final main/tag CI runs
+passed; see [source binding](release-source-binding.json),
+[PR checks](pr-ci.json) and [target CI](release-target-ci.json).
+
 The release candidate packages automatic completed-batch resume and fixes a
 demo MCP cancellation race found during qualification. The exact Mac ZIP is
 241,525 bytes, SHA-256
@@ -90,9 +97,49 @@ real-model extension searches were not rerun.
 - [External MCP verifier precondition](before-mcp-cache-precondition/failure.json):
   the first interruption run completed production resume, then the test driver
   failed its generated-cache-only MCP precondition because its direct preflight
-  omitted the launcher's tokenizer-cache setting. The driver was corrected and
+  omitted the launcher's tokenizer-cache setting and a prior normal toy run
+  could already populate the app's fallback cache. The driver was corrected and
   the entire own-index interruption/resume/MCP sequence repeated from an empty
   owned index. Release code and assets did not change for this harness fix.
+
+## Anonymous public download and fresh repeat
+
+[Public verification](publication.json) fetched all three assets without an
+Authorization header or inherited proxies, verified regular/latest status and
+the tag target through public GitHub APIs, and checked API digests, exact local
+bytes, checksums, every manifest payload and the embedded VSIX.
+
+The anonymously downloaded ZIP then passed a second independent, initially
+cache-free [full setup](public-download-setup/cold-setup.json) on this same Mac,
+including new managed Python/packages/model downloads and six real toy HTTP/MCP
+searches. Its [complete interruption/resume run](public-download-setup/resume-integration.json)
+again preserved the 20-window active snapshot, reused 24 committed documents,
+embedded the remaining 334 and then reopened all 358 without document inference.
+Generated MCP config reuse, source/token checks, terminal queries, diagnostics,
+scripted feedback and clean shutdowns passed in this public extraction too.
+
+Two external qualification corrections remain preserved:
+
+- [Paused-writer observer](public-download-setup/before-wal-freeze-observer/failure.json):
+  reading a new SQLite snapshot after forcibly stopping the writer produced
+  `SQLITE_PROTOCOL` in the observer. The database passed subsequent full integrity
+  and foreign-key checks without repair. The final observer reads committed
+  witnesses while the writer runs, stops/kills without another SQLite read while
+  paused, then verifies every witnessed cache entry survives after process death.
+  Committed overshoot is allowed and measured; pending counts use the actual
+  post-termination cache. The precise interrupted lock was not captured.
+- [Existing toy cache](public-download-setup/before-existing-toy-cache/failure.json):
+  the normal prior toy MCP check had already created the app's fallback tokenizer
+  cache. To prove generated MCP configuration uses its explicit warmed cache,
+  the harness now inventories and preserves that owned fallback outside the app
+  before the probe. The final receipt records the isolation. This is a test
+  precondition, rather than a requirement imposed on ordinary users. The earlier
+  preflight-only attribution was incomplete; no product source or asset changed
+  for these observer corrections.
+
+The two final complete setups and resume sequences are separate from the earlier
+pre-guide draft and failed observer attempts. Private temporary installs are
+removed after verification; the public receipts and reproduction scripts remain.
 
 ## Scope and reproduction
 

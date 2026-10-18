@@ -1,0 +1,489 @@
+{
+  "kind": "generated beta MCP integration qualification; not a retrieval benchmark",
+  "captured_at_utc": "2026-10-18T03:03:09.157640+00:00",
+  "elapsed_seconds": 1.0748644999985117,
+  "generated_config_sha256": "ce02d8fc21c0a4ace297b78ad943c805383ded2ca858f9e88b2a8a125f219e6c",
+  "configuration": {
+    "exact_generated_command_and_args": true,
+    "warmed_cache_from_generated_environment": true,
+    "parent_cache_setting_removed": true,
+    "default_tokenizer_directory_absent_before": true,
+    "default_tokenizer_directory_absent_after": true,
+    "client_settings_unchanged": true
+  },
+  "packages": {
+    "semantic-search-engine": "0.1.4",
+    "mcp": "2.3.0",
+    "tiktoken": "0.14.0"
+  },
+  "service": {
+    "ready": true,
+    "repo_matches": true,
+    "source_root": "src/flask",
+    "windows": 358
+  },
+  "network_guard": {
+    "scope": "Python socket DNS/connect in qualification parent and MCP adapter; resident backend is separate",
+    "outbound_attempts": 0,
+    "adapter_guard_installed": true,
+    "adapter_interpreter_exit_observed": true,
+    "allowed_operations": 6,
+    "events": [
+      {
+        "role": "parent",
+        "pid": 93646,
+        "kind": "installed"
+      },
+      {
+        "role": "parent",
+        "pid": 93646,
+        "kind": "allowed",
+        "operation": "getaddrinfo",
+        "classification": "loopback"
+      },
+      {
+        "role": "parent",
+        "pid": 93646,
+        "kind": "allowed",
+        "operation": "connect",
+        "classification": "loopback"
+      },
+      {
+        "role": "adapter",
+        "pid": 93649,
+        "kind": "installed"
+      },
+      {
+        "role": "adapter",
+        "pid": 93649,
+        "kind": "allowed",
+        "operation": "getaddrinfo",
+        "classification": "loopback"
+      },
+      {
+        "role": "adapter",
+        "pid": 93649,
+        "kind": "allowed",
+        "operation": "connect",
+        "classification": "loopback"
+      },
+      {
+        "role": "adapter",
+        "pid": 93649,
+        "kind": "allowed",
+        "operation": "getaddrinfo",
+        "classification": "loopback"
+      },
+      {
+        "role": "adapter",
+        "pid": 93649,
+        "kind": "allowed",
+        "operation": "connect",
+        "classification": "loopback"
+      },
+      {
+        "role": "adapter",
+        "pid": 93649,
+        "kind": "exit"
+      },
+      {
+        "role": "parent",
+        "pid": 93646,
+        "kind": "restored"
+      }
+    ]
+  },
+  "mcp": {
+    "sdk_mode": "legacy",
+    "protocol_version": "2025-11-25",
+    "calls": [
+      {
+        "method": "tools/list",
+        "tools": [
+          "search_code"
+        ]
+      },
+      {
+        "method": "tools/call",
+        "name": "search_code",
+        "arguments": {
+          "query": "Open and decode a signed cookie session, returning an empty session when its signature is invalid."
+        }
+      },
+      {
+        "method": "tools/call",
+        "name": "search_code",
+        "arguments": {
+          "query": "Dispatch a request to its view function and handle exceptions during request processing."
+        }
+      }
+    ],
+    "defaults": {
+      "max_results": 8,
+      "source_budget": 12000,
+      "token_budget": 4096,
+      "include_dependencies": true
+    },
+    "searches": [
+      {
+        "query": "Open and decode a signed cookie session, returning an empty session when its signature is invalid.",
+        "verified_excerpts": [
+          {
+            "path": "src/flask/sessions.py",
+            "symbol": "SecureCookieSessionInterface.open_session",
+            "start_line": 323,
+            "end_line": 335,
+            "source_hash": "61f68cced15fcddcd4d492ddffcb5aedf57cf2782af232e5a2dbe85ae1f915bf",
+            "origin": "retrieval"
+          },
+          {
+            "path": "src/flask/sessions.py",
+            "symbol": "SecureCookieSession.__init__",
+            "start_line": 73,
+            "end_line": 80,
+            "source_hash": "59676d96f1fcd0a5f0d67194a8985b26b12d145b43bbf3cd0f01e7fd36c0de42",
+            "origin": "retrieval"
+          },
+          {
+            "path": "src/flask/sessions.py",
+            "symbol": "SecureCookieSessionInterface.get_signing_serializer",
+            "start_line": 303,
+            "end_line": 321,
+            "source_hash": "5d09536190054e4e57b99a2298600c9480c3effb9a4b40b05c188218794e7eaa",
+            "origin": "retrieval"
+          },
+          {
+            "path": "src/flask/sessions.py",
+            "symbol": "SecureCookieSessionInterface.save_session",
+            "start_line": 337,
+            "end_line": 385,
+            "source_hash": "16c167ac0dc0443af1b687278b414d0851556a7f34f9c872764fc835334fe98c",
+            "origin": "retrieval"
+          },
+          {
+            "path": "src/flask/sessions.py",
+            "symbol": "SessionInterface.get_cookie_domain",
+            "start_line": 175,
+            "end_line": 185,
+            "source_hash": "88ae4e03662e2c03d382d1e5c1e9ffd28ff86699d171b314fc2941a71857a9cf",
+            "origin": "retrieval"
+          },
+          {
+            "path": "src/flask/sessions.py",
+            "symbol": "SessionInterface.get_cookie_samesite",
+            "start_line": 208,
+            "end_line": 213,
+            "source_hash": "8bea663a05db6f858f507c7101a82d047a5fae1e021fec0190d21eddf6525ba6",
+            "origin": "retrieval"
+          },
+          {
+            "path": "src/flask/sessions.py",
+            "symbol": "SessionInterface.get_cookie_secure",
+            "start_line": 202,
+            "end_line": 206,
+            "source_hash": "15e8438f0657af8591b5f2b67aa86a818144669cbe5aced86615ff19a0d50206",
+            "origin": "retrieval"
+          },
+          {
+            "path": "src/flask/sessions.py",
+            "symbol": "SessionInterface.get_cookie_name",
+            "start_line": 171,
+            "end_line": 173,
+            "source_hash": "5606f825306bc9ceae064bff2c07eeb5020362b7ef23e8ff9ac9797828d1abc6",
+            "origin": "retrieval"
+          }
+        ],
+        "source_characters": 4546,
+        "compact_tokens": 1926,
+        "envelope": {
+          "query": "Open and decode a signed cookie session, returning an empty session when its signature is invalid.",
+          "match_status": "candidates",
+          "results": [
+            {
+              "path": "src/flask/sessions.py",
+              "symbol": "SecureCookieSessionInterface.open_session",
+              "start_line": 323,
+              "end_line": 335,
+              "source": "    def open_session(self, app: Flask, request: Request) -> SecureCookieSession | None:\n        s = self.get_signing_serializer(app)\n        if s is None:\n            return None\n        val = request.cookies.get(self.get_cookie_name(app))\n        if not val:\n            return self.session_class()\n        max_age = int(app.permanent_session_lifetime.total_seconds())\n        try:\n            data = s.loads(val, max_age=max_age)\n            return self.session_class(data)\n        except BadSignature:\n            return self.session_class()\n",
+              "source_hash": "61f68cced15fcddcd4d492ddffcb5aedf57cf2782af232e5a2dbe85ae1f915bf",
+              "truncated": false,
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "path": "src/flask/sessions.py",
+              "symbol": "SecureCookieSession.__init__",
+              "start_line": 73,
+              "end_line": 80,
+              "source": "    def __init__(\n        self,\n        initial: c.Mapping[str, t.Any] | None = None,\n    ) -> None:\n        def on_update(self: te.Self) -> None:\n            self.modified = True\n\n        super().__init__(initial, on_update)\n",
+              "source_hash": "59676d96f1fcd0a5f0d67194a8985b26b12d145b43bbf3cd0f01e7fd36c0de42",
+              "truncated": false,
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "path": "src/flask/sessions.py",
+              "symbol": "SecureCookieSessionInterface.get_signing_serializer",
+              "start_line": 303,
+              "end_line": 321,
+              "source": "    def get_signing_serializer(self, app: Flask) -> URLSafeTimedSerializer | None:\n        if not app.secret_key:\n            return None\n\n        keys: list[str | bytes] = []\n\n        if fallbacks := app.config[\"SECRET_KEY_FALLBACKS\"]:\n            keys.extend(fallbacks)\n\n        keys.append(app.secret_key)  # itsdangerous expects current key at top\n        return URLSafeTimedSerializer(\n            keys,  # type: ignore[arg-type]\n            salt=self.salt,\n            serializer=self.serializer,\n            signer_kwargs={\n                \"key_derivation\": self.key_derivation,\n                \"digest_method\": self.digest_method,\n            },\n        )\n",
+              "source_hash": "5d09536190054e4e57b99a2298600c9480c3effb9a4b40b05c188218794e7eaa",
+              "truncated": false,
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "path": "src/flask/sessions.py",
+              "symbol": "SecureCookieSessionInterface.save_session",
+              "start_line": 337,
+              "end_line": 385,
+              "source": "    def save_session(\n        self, app: Flask, session: SessionMixin, response: Response\n    ) -> None:\n        name = self.get_cookie_name(app)\n        domain = self.get_cookie_domain(app)\n        path = self.get_cookie_path(app)\n        secure = self.get_cookie_secure(app)\n        partitioned = self.get_cookie_partitioned(app)\n        samesite = self.get_cookie_samesite(app)\n        httponly = self.get_cookie_httponly(app)\n\n        # Add a \"Vary: Cookie\" header if the session was accessed at all.\n        if session.accessed:\n            response.vary.add(\"Cookie\")\n\n        # If the session is modified to be empty, remove the cookie.\n        # If the session is empty, return without setting the cookie.\n        if not session:\n            if session.modified:\n                response.delete_cookie(\n                    name,\n                    domain=domain,\n                    path=path,\n                    secure=secure,\n                    partitioned=partitioned,\n                    samesite=samesite,\n                    httponly=httponly,\n                )\n                response.vary.add(\"Cookie\")\n\n            return\n\n        if not self.should_set_cookie(app, session):\n            return\n\n        expires = self.get_expiration_time(app, session)\n        val = self.get_signing_serializer(app).dumps(dict(session))  # type: ignore[union-attr]\n        response.set_cookie(\n            name,\n            val,\n            expires=expires,\n            httponly=httponly,\n            domain=domain,\n            path=path,\n            secure=secure,\n            partitioned=partitioned,\n            samesite=samesite,\n        )\n        response.vary.add(\"Cookie\")\n",
+              "source_hash": "16c167ac0dc0443af1b687278b414d0851556a7f34f9c872764fc835334fe98c",
+              "truncated": false,
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "path": "src/flask/sessions.py",
+              "symbol": "SessionInterface.get_cookie_domain",
+              "start_line": 175,
+              "end_line": 185,
+              "source": "    def get_cookie_domain(self, app: Flask) -> str | None:\n        \"\"\"The value of the ``Domain`` parameter on the session cookie. If not set,\n        browsers will only send the cookie to the exact domain it was set from.\n        Otherwise, they will send it to any subdomain of the given value as well.\n\n        Uses the :data:`SESSION_COOKIE_DOMAIN` config.\n\n        .. versionchanged:: 2.3\n            Not set by default, does not fall back to ``SERVER_NAME``.\n        \"\"\"\n        return app.config[\"SESSION_COOKIE_DOMAIN\"]  # type: ignore[no-any-return]\n",
+              "source_hash": "88ae4e03662e2c03d382d1e5c1e9ffd28ff86699d171b314fc2941a71857a9cf",
+              "truncated": false,
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "path": "src/flask/sessions.py",
+              "symbol": "SessionInterface.get_cookie_samesite",
+              "start_line": 208,
+              "end_line": 213,
+              "source": "    def get_cookie_samesite(self, app: Flask) -> str | None:\n        \"\"\"Return ``'Strict'`` or ``'Lax'`` if the cookie should use the\n        ``SameSite`` attribute. This currently just returns the value of\n        the :data:`SESSION_COOKIE_SAMESITE` setting.\n        \"\"\"\n        return app.config[\"SESSION_COOKIE_SAMESITE\"]  # type: ignore[no-any-return]\n",
+              "source_hash": "8bea663a05db6f858f507c7101a82d047a5fae1e021fec0190d21eddf6525ba6",
+              "truncated": false,
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "path": "src/flask/sessions.py",
+              "symbol": "SessionInterface.get_cookie_secure",
+              "start_line": 202,
+              "end_line": 206,
+              "source": "    def get_cookie_secure(self, app: Flask) -> bool:\n        \"\"\"Returns True if the cookie should be secure.  This currently\n        just returns the value of the ``SESSION_COOKIE_SECURE`` setting.\n        \"\"\"\n        return app.config[\"SESSION_COOKIE_SECURE\"]  # type: ignore[no-any-return]\n",
+              "source_hash": "15e8438f0657af8591b5f2b67aa86a818144669cbe5aced86615ff19a0d50206",
+              "truncated": false,
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "path": "src/flask/sessions.py",
+              "symbol": "SessionInterface.get_cookie_name",
+              "start_line": 171,
+              "end_line": 173,
+              "source": "    def get_cookie_name(self, app: Flask) -> str:\n        \"\"\"The name of the session cookie. Uses``app.config[\"SESSION_COOKIE_NAME\"]``.\"\"\"\n        return app.config[\"SESSION_COOKIE_NAME\"]  # type: ignore[no-any-return]\n",
+              "source_hash": "5606f825306bc9ceae064bff2c07eeb5020362b7ef23e8ff9ac9797828d1abc6",
+              "truncated": false,
+              "origin": "retrieval",
+              "related_to": null
+            }
+          ],
+          "budget_exhausted": false,
+          "token_usage": {
+            "encoding": "cl100k_base",
+            "tokens": 1926,
+            "budget": 4096,
+            "truncated": false
+          },
+          "scope": {
+            "source_root": "src/flask",
+            "membership": "saved implementations; Git-tracked files only in Git projects",
+            "source_exclusions": [],
+            "exclusions_omitted": 0
+          }
+        },
+        "elapsed_seconds": 0.3298890420119278
+      },
+      {
+        "query": "Dispatch a request to its view function and handle exceptions during request processing.",
+        "verified_excerpts": [
+          {
+            "path": "src/flask/app.py",
+            "symbol": "Flask.dispatch_request",
+            "start_line": 966,
+            "end_line": 990,
+            "source_hash": "ec2d9caf7631f17b6d2efaaa8082d1959042167dcba3feffcde369d8de162259",
+            "origin": "retrieval"
+          },
+          {
+            "path": "src/flask/views.py",
+            "symbol": "View.as_view.view",
+            "start_line": 115,
+            "end_line": 116,
+            "source_hash": "f4ead9d8c3019d72aee79893f40ca136b3406d9999cd4017bf82d78e9019b941",
+            "origin": "retrieval"
+          },
+          {
+            "path": "src/flask/app.py",
+            "symbol": "Flask.finalize_request",
+            "start_line": 1021,
+            "end_line": 1051,
+            "source_hash": "fab6ea0d025d54414b932a2738bca4e2200049511a8d6e5a4497015b6eb14ad0",
+            "origin": "retrieval"
+          },
+          {
+            "path": "src/flask/app.py",
+            "symbol": "Flask.full_dispatch_request",
+            "start_line": 992,
+            "end_line": 1019,
+            "source_hash": "93697c8bd37e856190696604f51e80aa76b4c445f612043903945da71a23a6c9",
+            "origin": "retrieval"
+          },
+          {
+            "path": "src/flask/views.py",
+            "symbol": "MethodView.dispatch_request",
+            "start_line": 182,
+            "end_line": 191,
+            "source_hash": "5b2dd911c983d770b50127b8364c89a5f78fcdb80840977d06c92074f0bd7bc1",
+            "origin": "retrieval"
+          },
+          {
+            "path": "src/flask/app.py",
+            "symbol": "Flask.raise_routing_exception",
+            "start_line": 560,
+            "end_line": 586,
+            "source_hash": "50dd5a4a1d8ab236ac6feaa863448dd88e329c1c105b9c4ba65b1b4bddb21848",
+            "origin": "dependency"
+          },
+          {
+            "path": "src/flask/app.py",
+            "symbol": "Flask.make_default_options_response",
+            "start_line": 1053,
+            "end_line": 1063,
+            "source_hash": "73e98bd2bf9c667413e95236944c9ed6d886bf7f22f868fcefdb386685609c93",
+            "origin": "dependency"
+          },
+          {
+            "path": "src/flask/app.py",
+            "symbol": "Flask.make_response",
+            "start_line": 1224,
+            "end_line": 1364,
+            "source_hash": "995bd7db0a036b9312a47b1543390112ce513b78a61ccff606ff1057a5182ca5",
+            "origin": "dependency"
+          }
+        ],
+        "source_characters": 11517,
+        "compact_tokens": 3385,
+        "envelope": {
+          "query": "Dispatch a request to its view function and handle exceptions during request processing.",
+          "match_status": "candidates",
+          "results": [
+            {
+              "path": "src/flask/app.py",
+              "symbol": "Flask.dispatch_request",
+              "start_line": 966,
+              "end_line": 990,
+              "source": "    def dispatch_request(self, ctx: AppContext) -> ft.ResponseReturnValue:\n        \"\"\"Does the request dispatching.  Matches the URL and returns the\n        return value of the view or error handler.  This does not have to\n        be a response object.  In order to convert the return value to a\n        proper response object, call :func:`make_response`.\n\n        .. versionchanged:: 0.7\n           This no longer does the exception handling, this code was\n           moved to the new :meth:`full_dispatch_request`.\n        \"\"\"\n        req = ctx.request\n\n        if req.routing_exception is not None:\n            self.raise_routing_exception(req)\n        rule: Rule = req.url_rule  # type: ignore[assignment]\n        # if we provide automatic options for this URL and the\n        # request came with the OPTIONS method, reply automatically\n        if (\n            getattr(rule, \"provide_automatic_options\", False)\n            and req.method == \"OPTIONS\"\n        ):\n            return self.make_default_options_response(ctx)\n        # otherwise dispatch to the handler for that endpoint\n        view_args: dict[str, t.Any] = req.view_args  # type: ignore[assignment]\n        return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]\n",
+              "source_hash": "ec2d9caf7631f17b6d2efaaa8082d1959042167dcba3feffcde369d8de162259",
+              "truncated": false,
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "path": "src/flask/views.py",
+              "symbol": "View.as_view.view",
+              "start_line": 115,
+              "end_line": 116,
+              "source": "            def view(**kwargs: t.Any) -> ft.ResponseReturnValue:\n                return current_app.ensure_sync(self.dispatch_request)(**kwargs)  # type: ignore[no-any-return]\n",
+              "source_hash": "f4ead9d8c3019d72aee79893f40ca136b3406d9999cd4017bf82d78e9019b941",
+              "truncated": false,
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "path": "src/flask/app.py",
+              "symbol": "Flask.finalize_request",
+              "start_line": 1021,
+              "end_line": 1051,
+              "source": "    def finalize_request(\n        self,\n        ctx: AppContext,\n        rv: ft.ResponseReturnValue | HTTPException,\n        from_error_handler: bool = False,\n    ) -> Response:\n        \"\"\"Given the return value from a view function this finalizes\n        the request by converting it into a response and invoking the\n        postprocessing functions.  This is invoked for both normal\n        request dispatching as well as error handlers.\n\n        Because this means that it might be called as a result of a\n        failure a special safe mode is available which can be enabled\n        with the `from_error_handler` flag.  If enabled, failures in\n        response processing will be logged and otherwise ignored.\n\n        :internal:\n        \"\"\"\n        response = self.make_response(rv)\n        try:\n            response = self.process_response(ctx, response)\n            request_finished.send(\n                self, _async_wrapper=self.ensure_sync, response=response\n            )\n        except Exception:\n            if not from_error_handler:\n                raise\n            self.logger.exception(\n                \"Request finalizing failed with an error while handling an error\"\n            )\n        return response\n",
+              "source_hash": "fab6ea0d025d54414b932a2738bca4e2200049511a8d6e5a4497015b6eb14ad0",
+              "truncated": false,
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "path": "src/flask/app.py",
+              "symbol": "Flask.full_dispatch_request",
+              "start_line": 992,
+              "end_line": 1019,
+              "source": "    def full_dispatch_request(self, ctx: AppContext) -> Response:\n        \"\"\"Dispatches the request and on top of that performs request\n        pre and postprocessing as well as HTTP exception catching and\n        error handling.\n\n        .. versionadded:: 0.7\n        \"\"\"\n        if not self._got_first_request and self.should_ignore_error is not None:\n            import warnings\n\n            warnings.warn(\n                \"The 'should_ignore_error' method is deprecated and will\"\n                \" be removed in Flask 3.3. Handle errors as needed in\"\n                \" teardown handlers instead.\",\n                DeprecationWarning,\n                stacklevel=1,\n            )\n\n        self._got_first_request = True\n\n        try:\n            request_started.send(self, _async_wrapper=self.ensure_sync)\n            rv = self.preprocess_request(ctx)\n            if rv is None:\n                rv = self.dispatch_request(ctx)\n        except Exception as e:\n            rv = self.handle_user_exception(ctx, e)\n        return self.finalize_request(ctx, rv)\n",
+              "source_hash": "93697c8bd37e856190696604f51e80aa76b4c445f612043903945da71a23a6c9",
+              "truncated": false,
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "path": "src/flask/views.py",
+              "symbol": "MethodView.dispatch_request",
+              "start_line": 182,
+              "end_line": 191,
+              "source": "    def dispatch_request(self, **kwargs: t.Any) -> ft.ResponseReturnValue:\n        meth = getattr(self, request.method.lower(), None)\n\n        # If the request method is HEAD and we don't have a handler for it\n        # retry with GET.\n        if meth is None and request.method == \"HEAD\":\n            meth = getattr(self, \"get\", None)\n\n        assert meth is not None, f\"Unimplemented method {request.method!r}\"\n        return current_app.ensure_sync(meth)(**kwargs)  # type: ignore[no-any-return]\n",
+              "source_hash": "5b2dd911c983d770b50127b8364c89a5f78fcdb80840977d06c92074f0bd7bc1",
+              "truncated": false,
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "path": "src/flask/app.py",
+              "symbol": "Flask.raise_routing_exception",
+              "start_line": 560,
+              "end_line": 586,
+              "source": "    def raise_routing_exception(self, request: Request) -> t.NoReturn:\n        \"\"\"Intercept routing exceptions and possibly do something else.\n\n        In debug mode, intercept a routing redirect and replace it with\n        an error if the body will be discarded.\n\n        With modern Werkzeug this shouldn't occur, since it now uses a\n        308 status which tells the browser to resend the method and\n        body.\n\n        .. versionchanged:: 2.1\n            Don't intercept 307 and 308 redirects.\n\n        :meta private:\n        :internal:\n        \"\"\"\n        if (\n            not self.debug\n            or not isinstance(request.routing_exception, RequestRedirect)\n            or request.routing_exception.code in {307, 308}\n            or request.method in {\"GET\", \"HEAD\", \"OPTIONS\"}\n        ):\n            raise request.routing_exception  # type: ignore[misc]\n\n        from .debughelpers import FormDataRoutingRedirect\n\n        raise FormDataRoutingRedirect(request)\n",
+              "source_hash": "50dd5a4a1d8ab236ac6feaa863448dd88e329c1c105b9c4ba65b1b4bddb21848",
+              "truncated": false,
+              "origin": "dependency",
+              "related_to": "src/flask/app.py:Flask.dispatch_request:966-990"
+            },
+            {
+              "path": "src/flask/app.py",
+              "symbol": "Flask.make_default_options_response",
+              "start_line": 1053,
+              "end_line": 1063,
+              "source": "    def make_default_options_response(self, ctx: AppContext) -> Response:\n        \"\"\"This method is called to create the default ``OPTIONS`` response.\n        This can be changed through subclassing to change the default\n        behavior of ``OPTIONS`` responses.\n\n        .. versionadded:: 0.7\n        \"\"\"\n        methods = ctx.url_adapter.allowed_methods()  # type: ignore[union-attr]\n        rv = self.response_class()\n        rv.allow.update(methods)\n        return rv\n",
+              "source_hash": "73e98bd2bf9c667413e95236944c9ed6d886bf7f22f868fcefdb386685609c93",
+              "truncated": false,
+              "origin": "dependency",
+              "related_to": "src/flask/app.py:Flask.dispatch_request:966-990"
+            },
+            {
+              "path": "src/flask/app.py",
+              "symbol": "Flask.make_response",
+              "start_line": 1224,
+              "end_line": 1364,
+              "source": "    def make_response(self, rv: ft.ResponseReturnValue) -> Response:\n        \"\"\"Convert the return value from a view function to an instance of\n        :attr:`response_class`.\n\n        :param rv: the return value from the view function. The view function\n            must return a response. Returning ``None``, or the view ending\n            without returning, is not allowed. The following types are allowed\n            for ``view_rv``:\n\n            ``str``\n                A response object is created with the string encoded to UTF-8\n                as the body.\n\n            ``bytes``\n                A response object is created with the bytes as the body.\n\n            ``dict``\n                Converted to a JSON response.\n\n            ``list``\n                Converted to a JSON response.\n\n            ``generator`` or ``iterator``\n                A generator that returns ``str`` or ``bytes`` to be\n                streamed as the response.\n\n            ``tuple``\n                Either ``(body, status, headers)``, ``(body, status)``, or\n                ``(body, headers)``, where ``body`` is any of the other types\n                allowed here, ``status`` is a string or an integer, and\n                ``headers`` is a dictionary or a list of ``(key, value)``\n                tuples. If ``body`` is a :attr:`response_class` instance,\n                ``status`` overwrites the exiting value and ``headers`` are\n                extended.\n\n            :attr:`response_class`\n                The object is returned unchanged.\n\n            other :class:`~werkzeug.wrappers.Response` class\n                The object is coerced to :attr:`response_class`.\n\n            :func:`callable`\n                The function is called as a WSGI application. The result is\n                used to create a response object.\n\n        .. versionchanged:: 2.2\n            A generator will be converted to a streaming response.\n            A list will be converted to a JSON response.\n\n        .. versionchanged:: 1.1\n            A dict will be converted to a JSON response.\n\n        .. versionchanged:: 0.9\n           Previously a tuple was interpreted as the arguments for the\n           response object.\n        \"\"\"\n\n        status: int | None = None\n        headers: HeadersValue | None = None\n\n        # unpack tuple returns\n        if isinstance(rv, tuple):\n            len_rv = len(rv)\n\n            # a 3-tuple is unpacked directly\n            if len_rv == 3:\n                rv, status, headers = rv  # type: ignore[misc]\n            # decide if a 2-tuple has status or headers\n            elif len_rv == 2:\n                if isinstance(rv[1], (Headers, dict, tuple, list)):\n                    rv, headers = rv  # pyright: ignore\n                else:\n                    rv, status = rv  # type: ignore[assignment,misc]\n            # other sized tuples are not allowed\n            else:\n                raise TypeError(\n                    \"The view function did not return a valid response tuple.\"\n                    \" The tuple must have the form (body, status, headers),\"\n                    \" (body, status), or (body, headers).\"\n                )\n\n        # the body must not be None\n        if rv is None:\n            raise TypeError(\n                f\"The view function for {request.endpoint!r} did not\"\n                \" return a valid response. The function either returned\"\n                \" None or ended without a return statement.\"\n            )\n\n        # make sure the body is an instance of the response class\n        if not isinstance(rv, self.response_class):\n            if isinstance(rv, (str, bytes, bytearray)) or isinstance(rv, cabc.Iterator):\n                # let the response class set the status and headers instead of\n                # waiting to do it manually, so that the class can handle any\n                # special logic\n                rv = self.response_class(\n                    rv,  # pyright: ignore\n                    status=status,\n                    headers=headers,  # type: ignore[arg-type]\n                )\n                status = headers = None\n            elif isinstance(rv, (dict, list)):\n                rv = self.json.response(rv)\n            elif isinstance(rv, BaseResponse) or callable(rv):\n                # evaluate a WSGI callable, or coerce a different response\n                # class to the correct type\n                try:\n                    rv = self.response_class.force_type(\n                        rv,  # type: ignore[arg-type]\n                        request.environ,\n                    )\n                except TypeError as e:\n                    raise TypeError(\n                        f\"{e}\\nThe view function did not return a valid\"\n                        \" response. The return type must be a string,\"\n                        \" dict, list, tuple with headers or status,\"\n                        \" Response instance, or WSGI callable, but it\"\n                        f\" was a {type(rv).__name__}.\"\n                    ).with_traceback(sys.exc_info()[2]) from None\n            else:\n                raise TypeError(\n                    \"The view function did not return a valid\"\n                    \" response. The return type must be a string,\"\n                    \" dict, list, tuple with headers or status,\"\n                    \" Response instance, or WSGI callable, but it was a\"\n                    f\" {type(rv).__name__}.\"\n                )\n\n        rv = t.cast(Response, rv)\n        # prefer the status if it was provided\n        if status is not None:\n            if isinstance(status, (str, bytes, bytearray)):\n                rv.status = status\n            else:\n                rv.status_code = status\n\n        # extend existing headers with provided headers\n        if headers:\n            rv.headers.update(headers)\n\n        return rv\n",
+              "source_hash": "995bd7db0a036b9312a47b1543390112ce513b78a61ccff606ff1057a5182ca5",
+              "truncated": false,
+              "origin": "dependency",
+              "related_to": "src/flask/app.py:Flask.finalize_request:1021-1051"
+            }
+          ],
+          "budget_exhausted": false,
+          "token_usage": {
+            "encoding": "cl100k_base",
+            "tokens": 3385,
+            "budget": 4096,
+            "truncated": false
+          },
+          "scope": {
+            "source_root": "src/flask",
+            "membership": "saved implementations; Git-tracked files only in Git projects",
+            "source_exclusions": [],
+            "exclusions_omitted": 0
+          }
+        },
+        "elapsed_seconds": 0.15982129199255724
+      }
+    ],
+    "sdk_context_closed": true
+  }
+}
