@@ -1,0 +1,93 @@
+........................................................................ [  2%]
+........................................................................ [  5%]
+........................................................................ [  8%]
+........................................................................ [ 11%]
+........................................................................ [ 13%]
+........................................................................ [ 16%]
+........................................................................ [ 19%]
+........................................................................ [ 22%]
+........................................................................ [ 25%]
+........................................................................ [ 27%]
+........................................................................ [ 30%]
+........................................................................ [ 33%]
+........................................................................ [ 36%]
+.ssssssss.............................F................................. [ 39%]
+........................................................................ [ 41%]
+........................................................................ [ 44%]
+..............................s......................................... [ 47%]
+........................................................................ [ 50%]
+........................................................................ [ 53%]
+........................................................................ [ 55%]
+........................................................................ [ 58%]
+........................................................................ [ 61%]
+........................................................................ [ 64%]
+........................................................................ [ 67%]
+........................................................................ [ 69%]
+........................................................................ [ 72%]
+........................................................................ [ 75%]
+........................................................................ [ 78%]
+........................................................................ [ 81%]
+........................................................................ [ 83%]
+........................................................................ [ 86%]
+........................................................................ [ 89%]
+........................................s............................... [ 92%]
+........................................................................ [ 95%]
+........................................................................ [ 97%]
+......................................................                   [100%]
+=================================== FAILURES ===================================
+_ test_actual_model_free_sdk_adapter_and_descendant_stop_on_timeout_or_sigint[sigint] _
+
+tmp_path = PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-16/test_actual_model_free_sdk_ada1')
+mode = 'sigint'
+
+    @pytest.mark.skipif(os.name != "posix", reason="Mac/POSIX process-tree proof")
+    @pytest.mark.parametrize("mode", ["timeout", "sigint"])
+    def test_actual_model_free_sdk_adapter_and_descendant_stop_on_timeout_or_sigint(tmp_path, mode):
+        sdk = pytest.importorskip("mcp")
+        repo = demo.prepare(tmp_path / "fixture")
+        script, pids = tmp_path / "fake_adapter.py", tmp_path / "pids.json"
+        script.write_text(
+            'import json, os, subprocess, sys\n'
+            'child = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(300)"])\n'
+            'temporary = sys.argv[1] + ".pending"\n'
+            'with open(temporary, "w") as stream: json.dump([os.getpid(), child.pid], stream)\n'
+            'os.replace(temporary, sys.argv[1])\n'
+            'try:\n'
+            ' for line in sys.stdin: pass\n'
+            'finally:\n'
+            ' child.terminate(); child.wait(timeout=2)\n'
+        )
+        parameters = sdk.StdioServerParameters
+        trigger = None
+        def send_interrupt():
+            deadline = time.monotonic() + 5
+            while not pids.exists() and time.monotonic() < deadline:
+                time.sleep(.01)
+            if pids.exists():
+                os.kill(os.getpid(), signal.SIGINT)
+        if mode == "sigint":
+            trigger = threading.Thread(target=send_interrupt, daemon=True)
+            trigger.start()
+        try:
+            with patch.object(sdk, "StdioServerParameters", side_effect=lambda **kwargs: parameters(command=sys.executable, args=[str(script), str(pids)], cwd=tmp_path)):
+                if mode == "sigint":
+                    with pytest.raises(KeyboardInterrupt):
+                        demo.run_mcp(sys.executable, "http://127.0.0.1:12345", repo, 10)
+                else:
+                    with pytest.raises(Exception):
+                        demo.run_mcp(sys.executable, "http://127.0.0.1:12345", repo, .2)
+            assert pids.exists()
+            owned = json.loads(pids.read_text())
+            deadline = time.monotonic() + 3
+            while any(process_alive(pid) for pid in owned) and time.monotonic() < deadline:
+                time.sleep(.02)
+>           assert not any(process_alive(pid) for pid in owned)
+E           assert not True
+E            +  where True = any(<generator object test_actual_model_free_sdk_adapter_and_descendant_stop_on_timeout_or_sigint.<locals>.<genexpr> at 0x10f33fd30>)
+
+tests/test_demo_mac.py:334: AssertionError
+------------------------------ Captured log call -------------------------------
+WARNING  asyncio:unix_events.py:1424 Loop <_UnixSelectorEventLoop running=False closed=True debug=False> that handles pid 68927 is closed
+=========================== short test summary info ============================
+FAILED tests/test_demo_mac.py::test_actual_model_free_sdk_adapter_and_descendant_stop_on_timeout_or_sigint[sigint]
+1 failed, 2563 passed, 10 skipped in 67.59s (0:01:07)

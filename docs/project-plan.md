@@ -43,14 +43,14 @@ This follows the agreed plan in **Choose a project for YC roles** on October 12,
    and source extraction, rather than model/service startup. Final database
    size is 144.5 MB after worker exit; larger scales and concurrent throughput
    remain unmeasured.
-   **Unreleased source-checkout improvement:** [resumable indexing](resumable-indexing.md)
+   **Included in v0.1.4:** [resumable indexing](resumable-indexing.md)
    checkpoints completed native embedding batches independently of the active
    snapshot. Restarting reuses exact document/model matches; cancellation,
    source changes and process termination cannot publish an incomplete snapshot.
    [Real Qwen SIGKILL/restart verification](../results/resumable-indexing-2026-10-17/findings.md)
    reuses five saved documents, embeds seven missing documents and matches an
    uninterrupted run bit for bit across twelve original Flask windows.
-   The v0.1.3 download predates this improvement.
+   The earlier v0.1.3 download predates this improvement.
 5. **MCP (adapter and repeated multi-file study complete):** one stdio
    `search_code` tool uses the resident service with strict schemas, cancellation,
    eight-result context, and a default 4,096-token compact `cl100k_base` JSON cap.
@@ -85,7 +85,7 @@ This follows the agreed plan in **Choose a project for YC roles** on October 12,
    runs used available user-level caches, rather than a clean machine. Python,
    JavaScript and TypeScript are integrated. The
    [real HTTP/MCP demo](../results/demo-2026-10-13/findings.md) passes, and the
-   [GitHub release](https://github.com/anna-poutanen/semantic-search-engine/releases/tag/v0.1.3)
+   [GitHub release](https://github.com/anna-poutanen/semantic-search-engine/releases/tag/v0.1.4)
    ships the updated exact installed and tested VSIX, including optional Qwen
    controls. The project now uses the MIT license and includes a
    [guided Mac download](getting-started.md), local Python bootstrap and a small
@@ -102,8 +102,9 @@ This follows the agreed plan in **Choose a project for YC roles** on October 12,
    This addresses observed Django startup failures; it does not change retrieval
    defaults or establish coding-agent token savings. Preflight can install runtime
    packages and the tokenizer cache first; embedding weights and inference wait
-   until included source passes. External Mac beta testing remains the next
-   release-validation gap.
+   until included source passes. Version 0.1.4 adds automatic completed-batch
+   resume with atomic active-index publication, as described above. External Mac
+   beta testing remains the next release-validation gap.
 
 Python, TypeScript and JavaScript are implemented.
 C# and non-Mac deployment follow validation of the core. Serialize GPU work and

@@ -6,8 +6,8 @@ Macs and Git-tracked Python, JavaScript and TypeScript source.
 
 ## Download and start
 
-1. Download **semantic-search-mac-0.1.3.zip** from the
-   [v0.1.3 release](https://github.com/anna-poutanen/semantic-search-engine/releases/tag/v0.1.3).
+1. Download **semantic-search-mac-0.1.4.zip** from the
+   [v0.1.4 release](https://github.com/anna-poutanen/semantic-search-engine/releases/tag/v0.1.4).
    Unzip it into a writable folder. Keep the whole folder together.
 2. Open Terminal, type `cd `, drag the extracted folder into Terminal, and press
    Return. Then run:
@@ -28,8 +28,8 @@ handling of a downloaded unsigned `.command` file.
 
 First setup needs internet, at least **6 GB free disk space**, and downloads a
 local Python runtime, pinned packages and approximately **1.1 GiB of Qwen
-embedding weights**. Download time depends on your connection. The tested Mac is
-an M4 MacBook Pro with 24 GB RAM and macOS 15.1.1; other machines have not yet had
+embedding weights**. Download time depends on your connection. Current release
+qualification uses an Apple M4 Mac with 24 GB RAM and macOS 27.0.1; other machines have not yet had
 external beta testing. H2O and the optional Qwen reranker are excluded from this
 setup. Keep the Mac awake while installing.
 
@@ -248,15 +248,14 @@ bash "Get Started.command" --setup-only
 ```
 
 Rerunning checks the cached runtime and embedding weights and reuses downloads.
-Indexing groups now contain up to four documents and at most 8,192 padded tokens
+The batch policy introduced in v0.1.2 groups up to four documents and at most 8,192 padded tokens
 (the longest document's token length multiplied by the document count). Each
 document still has an 8,192-token input limit, separate from the search response
-budget. The updated batching metadata changes the embedding fingerprint, so an
-older vector cache rebuilds once with this policy; cached model downloads remain
-reusable.
-Custom calibrated match policies must also be recalibrated for the changed
-embedding metadata; old calibrations cannot be reused. The default launcher uses
-no match policy.
+budget. Caches from before that policy have different embedding metadata and
+rebuild once; cached model downloads remain reusable. Version 0.1.4 keeps
+v0.1.3's schema and embedding metadata, so compatible v0.1.3 vectors are reused
+without a rebuild. Custom match policies calibrated before the batch-policy
+change also require recalibration; the default launcher uses no match policy.
 Interrupted setup can be resumed by running the same command. The setup uses
 `.cache/quickstart/` for Python, packages and caches, `.cache/models/` for the
 embedding checkpoint, and `.cache/demos/` for fresh demo repositories. It leaves
@@ -264,16 +263,16 @@ an existing developer `.venv` alone. Interactive indexes, session logs and MCP
 snippets live in `.cache/quickstart/`; automatic toy receipts live inside that toy's
 `.semantic-search/` directory. Nothing is installed globally.
 
-**Unreleased source-checkout feature after v0.1.3:** indexing now saves completed
-Qwen embedding batches as it runs. If indexing is interrupted, repeat the same
-command from the same checkout, keeping the repository, source scope, exclusions
-and index-cache location unchanged. It rescans saved source and reuses compatible
-completed documents; an in-flight batch may repeat. Edited documents are embedded
-again, and an incomplete refresh never replaces the complete active index. This
-works without enabling progress output. The v0.1.3 download above does **not**
-include this feature; see
+**Version 0.1.4 includes resumable indexing:** completed Qwen embedding batches
+are saved as indexing runs. If indexing is interrupted, repeat the same command
+from the same extracted app folder, keeping the repository, source scope,
+exclusions and index-cache location unchanged. It rescans saved source and reuses
+compatible completed documents; an in-flight batch may repeat. Edited documents
+are embedded again, and an incomplete refresh never replaces the complete active
+index. This works without enabling progress output. See
 [resumable indexing](https://github.com/anna-poutanen/semantic-search-engine/blob/main/docs/resumable-indexing.md)
-for source-checkout behavior and limits.
+for restart behavior and limits. A new toy session creates a different tiny
+repository, so use the same own-repository command to resume a real index.
 
 Stop any launcher services before moving or deleting the extracted folder;
 installed virtual environments depend on its location. If you move it after
