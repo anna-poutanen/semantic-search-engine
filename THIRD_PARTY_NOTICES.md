@@ -74,6 +74,17 @@ Later source-reviewed fixtures retain their own pinned notices:
 Published inventories, source snapshots and result excerpts retain these
 upstream notices. The ignored checkouts are downloaded separately.
 
+## Pallets Jinja
+
+The multi-file retrieval holdout refers to Jinja 3.1.6 at peeled commit
+`15206881c006c79667fe5154fe80c01c65410679`. The source inventory and evaluation
+artifacts may contain excerpts from that revision. Jinja source remains covered
+by its BSD-3-Clause license, copyright 2007 Pallets, reproduced verbatim in
+[benchmarks/JINJA_LICENSE.txt](benchmarks/JINJA_LICENSE.txt). The ignored source
+checkout is downloaded separately and is not redistributed as another tree.
+
+Source: [pallets/jinja](https://github.com/pallets/jinja/tree/15206881c006c79667fe5154fe80c01c65410679)
+
 ## H2O-Lightning and the community MLX runtime
 
 The weights and runtime are downloaded separately and not redistributed here.
