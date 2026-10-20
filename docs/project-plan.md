@@ -24,6 +24,14 @@ This follows the agreed plan in **Choose a project for YC roles** on October 12,
    overall. The optional rejection policy rejects 3/4 absent Rich cases and 1/20
    real behaviors. [Results and failures](../results/retrieval-quality-2026-10-12/findings.md)
    preserve the [frozen protocol](retrieval-quality-protocol.md).
+   The [multi-file follow-up](multifile-retrieval.md) now attributes the original
+   27 missing groups to nine upstream retrieval losses, two symbol-window
+   deduplication losses, fifteen result-cap losses and one dependency displacement.
+   Its clause-based candidate improves Zod but fails a fresh Jinja gate (2/8
+   complete multi-file cases versus dense's 3/8). Existing hybrid reaches 5/8 on
+   that small corpus. The candidate remains research-only; defaults stay dense.
+   Improving the default multi-file selector remains open, especially candidate
+   merging, distinct implementations sharing symbol labels, and dependency slots.
 4. **Persistent index (core and real-model validation complete at tested scale):**
    durable SQLite FTS5 keyword retrieval, pinned sqlite-vec exact exhaustive
    cosine retrieval, reusable document/model vector caching, atomic source

@@ -89,6 +89,22 @@ The final command stays running in a terminal. In a second terminal:
 .venv/bin/semantic-search refresh
 ```
 
+For a question spanning several implementations, you can compare the existing
+hybrid mode with the dense default:
+
+```bash
+.venv/bin/semantic-search search \
+  "Where is a request pushed into local context, and where is an invalid session cookie replaced with an empty session?" \
+  --server http://127.0.0.1:8750 --retrieval hybrid \
+  --max-results 8 --include-dependencies --token-budget 4096
+```
+
+In the [new multi-file study](docs/multifile-retrieval.md), hybrid completed 5/8
+multi-file queries on fresh Jinja, versus dense's 3/8. This is a small authored
+sample; dense remains the default. The new clause-based `multifile` experiment
+failed its fresh-codebase gate (2/8) and is a research-only source option, absent
+from the v0.1.4 ZIP and VSIX.
+
 For optional H2O reranking, install its pinned runtime and weights with
 `python3 scripts/setup_mac.py`, start `.venv/bin/python scripts/serve_mac.py` in
 another terminal, then pass `--rerank`:

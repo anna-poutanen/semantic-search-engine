@@ -1,7 +1,37 @@
 # Multi-file retrieval
 
-`retrieval="multifile"` is an explicit alternative to dense search for compound
-behavior questions. It uses the existing Qwen full-query embedding once, keeps
+The new clause-based `retrieval="multifile"` candidate **failed** its prospective
+fresh Jinja gate: 2/8 complete multi-file queries versus dense's 3/8. Keep it as
+a research-only source option. It is not recommended for normal setup, and the
+v0.1.4 ZIP and VSIX do not include it. Dense remains the product default.
+
+The existing hybrid control completed 5/8 on this corpus, at a warm backend
+median of 226 ms versus dense's 215 ms. Its median compact context was 2,654.5
+tokens versus 2,085, within the same 4,096-token cap. These are descriptive
+control results on one small authored holdout, not a new generalization claim
+or a reason to switch every search. To try that measured workflow, use:
+
+```sh
+semantic-search search "your compound behavior question" --server http://127.0.0.1:8750 \
+  --retrieval hybrid --max-results 8 --include-dependencies --token-budget 4096
+# MCP can select the same existing mode with retrieval: "hybrid" per call,
+# or use this explicit adapter default (restart the adapter afterward):
+semantic-search mcp --default-retrieval hybrid
+```
+
+[Fresh Jinja audit](../results/multifile-jinja-2026-10-19/findings.md),
+[Express development audit](../results/multifile-express-2026-10-19/findings.md),
+[Zod development audit](../results/multifile-zod-2026-10-19/findings.md), and
+[all exploratory settings and regressions](../results/multifile-development-2026-10-19/findings.md)
+are retained. A separate post-hoc CPU component reconstruction verifies that
+every final missing group in the new mode existed in at least one underlying
+dense or clause-lexical component. Zod loses two groups during candidate merging;
+Jinja loses five at the result cap and two to dependency displacement. This
+reconstruction runs no model and supplies no additional latency samples.
+
+## Experimental algorithm
+
+The research-only clause mode uses the existing Qwen full-query embedding once, keeps
 the first three distinct dense symbols, and interleaves lexical matches for
 literal clauses of the question. It does not invoke a query-writing model or a
 reranker. Dense remains the default.
@@ -68,11 +98,15 @@ Reproduce with the pinned corpus and the installed Apple Silicon model runtime:
 PYTHONPATH=src .venv/bin/python scripts/benchmark_multifile.py \
   --dataset benchmarks/multifile_holdout_queries.json \
   --corpus /path/to/pinned/jinja --model /path/to/qwen3-embedding-0.6b \
+  --role repository_holdout \
+  --source-review results/multifile-preflight-2026-10-19/source-review.json \
   --output results/local/new-multifile-run --freeze
 # Commit the plan before --run; the run rejects changed bindings or old output.
 PYTHONPATH=src .venv/bin/python scripts/benchmark_multifile.py \
   --dataset benchmarks/multifile_holdout_queries.json \
   --corpus /path/to/pinned/jinja --model /path/to/qwen3-embedding-0.6b \
+  --role repository_holdout \
+  --source-review results/multifile-preflight-2026-10-19/source-review.json \
   --output results/local/new-multifile-run --run
 ```
 
