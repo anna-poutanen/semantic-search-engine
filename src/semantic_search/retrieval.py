@@ -156,3 +156,101 @@ class HybridRetriever:
                 scores[snippet.id] += 1 / (self.rrf_k + rank)
         ranked = sorted(scores, key=lambda identifier: (-scores[identifier], identifier))
         return [(self.snippets[identifier], scores[identifier]) for identifier in ranked[:limit]]
+
+
+_CLAUSE_STOP_WORDS = frozenset("""
+where is are the a an and or to of for in on at by with from when while does do as
+be it its into only that this then otherwise can without which each either any
+all before after also through using return returns make made
+""".split())
+
+
+def multifile_clauses(query: str) -> tuple[str, ...]:
+    """Return 2–4 literal query fragments with at least three content terms.
+
+    Splitting never generates model prompts, synonyms, identifiers or code. The
+    fixed content-word rule only decides which original fragments are eligible.
+    """
+    if not isinstance(query, str) or not query.strip():
+        raise ValueError("Query must be a nonempty string")
+    clauses = []
+    for part in re.split(r",|\band\b|\bwhile\b|\bthen\b", query, flags=re.IGNORECASE):
+        part = part.strip(" ?.,")
+        terms = set()
+        for term in tokenize(part):
+            if term in _CLAUSE_STOP_WORDS or len(term) < 3:
+                continue
+            if term.endswith("ies") and len(term) > 4:
+                term = term[:-3] + "y"
+            elif term.endswith("s") and len(term) > 3 and not term.endswith("ss"):
+                term = term[:-1]
+            terms.add(term)
+        if len(terms) >= 3:
+            clauses.append(part)
+    return tuple(clauses[:4]) if len(clauses) >= 2 else ()
+
+
+class MultifileRetriever:
+    """Opt-in dense retrieval supplemented by literal-clause lexical matches.
+
+    One existing full-query embedding supplies the dense top50. Retain its first
+    three distinct symbols, interleave the first three distinct-symbol lexical
+    hits per eligible clause, then append the remaining dense symbols, capped at
+    50. Fetch depths are independent of the requested output limit. The returned
+    values express merged rank priority, never cosine similarity or confidence.
+    """
+
+    def __init__(self, lexical, dense):
+        self.lexical, self.dense = lexical, dense
+        self.snippets = {}
+        for retriever in (lexical, dense):
+            seen = set()
+            for snippet in retriever.snippets:
+                if snippet.id in seen:
+                    raise ValueError("Each retrieval corpus must have unique snippet IDs")
+                seen.add(snippet.id)
+                previous = self.snippets.get(snippet.id)
+                if previous is not None and previous != snippet:
+                    raise ValueError("A shared snippet ID must identify the same source window")
+                self.snippets[snippet.id] = snippet
+
+    @staticmethod
+    def _symbols(pairs):
+        seen, result = set(), []
+        for snippet, score in pairs:
+            key = (snippet.path, snippet.symbol)
+            if key not in seen:
+                seen.add(key)
+                result.append((snippet, score))
+        return result
+
+    def search(self, query: str, query_vector, limit: int = 10):
+        if type(limit) is not int or limit < 0:
+            raise ValueError("limit must be a nonnegative integer")
+        clauses = multifile_clauses(query)
+        if limit == 0:
+            return []
+        dense = self.dense.search(query_vector, limit=50)
+        if not clauses:
+            ordered = dense
+        else:
+            base = self._symbols(dense)
+            ordered = list(base[:3])
+            seen = {(snippet.path, snippet.symbol) for snippet, _ in ordered}
+            rankings = [self._symbols(self.lexical.search(clause, limit=50))
+                        for clause in clauses]
+            for depth in range(3):
+                for ranking in rankings:
+                    if depth < len(ranking):
+                        snippet, score = ranking[depth]
+                        key = (snippet.path, snippet.symbol)
+                        if key not in seen:
+                            seen.add(key)
+                            ordered.append((snippet, score))
+            for snippet, score in base:
+                key = (snippet.path, snippet.symbol)
+                if key not in seen:
+                    seen.add(key)
+                    ordered.append((snippet, score))
+        return [(snippet, 1.0 / (60 + rank))
+                for rank, (snippet, _) in enumerate(ordered[:50], 1)][:limit]

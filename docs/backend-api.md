@@ -42,7 +42,7 @@ In another terminal:
   --include-dependencies --token-budget 4096 --json
 ```
 
-For optional H2O scoring, first install its pinned source and checkpoint with `python3 scripts/setup_mac.py`. Keep `.venv/bin/python scripts/serve_mac.py` running in another terminal, then add `--rerank --candidates 4` to a search. The search daemon's `--url` selects the H2O base URL; it defaults to `http://127.0.0.1:8741`. Dense searches work without that process. Use `--retrieval bm25` or `--retrieval hybrid` to select the other retrievers. `--lexical-only` forces BM25 and disables reranking; `--no-rerank` is an alias for the default fast mode.
+For optional H2O scoring, first install its pinned source and checkpoint with `python3 scripts/setup_mac.py`. Keep `.venv/bin/python scripts/serve_mac.py` running in another terminal, then add `--rerank --candidates 4` to a search. The search daemon's `--url` selects the H2O base URL; it defaults to `http://127.0.0.1:8741`. Dense searches work without that process. Use `--retrieval bm25` or `--retrieval hybrid` to select the other retrievers. The unreleased source checkout also accepts research-only `--retrieval multifile`; this experimental policy failed its fresh Jinja gate and is not recommended for normal setup; see [multi-file retrieval](multifile-retrieval.md). `--lexical-only` forces BM25 and disables reranking; `--no-rerank` is an alias for the default fast mode.
 
 For optional Qwen scoring, use the [separate installer](qwen-reranker-setup.md),
 start `serve` with `--enable-qwen-reranker`, and search with
@@ -82,7 +82,7 @@ Example search body with the HTTP defaults; `request_id` is optional:
 }
 ```
 
-Only `query` is required. It must be nonblank valid Unicode text of at most 8,192 characters. `retrieval` accepts `dense`, `bm25`, or `hybrid`; `rerank` must be a boolean. Integer bounds are `candidates` 1–50, `max_results` 1–20, and `source_budget` 0–100,000. The CLI requires a positive source budget. Optional `overlays` explicitly overrides eligible saved tracked files for one request with full editor text, version, and UTF-8 content hash; see [request-only overlays](unsaved-overlays.md) for bounds, provenance, cache isolation, and client freshness checks. Unknown options return HTTP 400.
+Only `query` is required. It must be nonblank valid Unicode text of at most 8,192 characters. `retrieval` accepts `dense`, `bm25`, `hybrid`, or `multifile`; `rerank` must be a boolean. Integer bounds are `candidates` 1–50, `max_results` 1–20, and `source_budget` 0–100,000. The CLI requires a positive source budget. Optional `overlays` explicitly overrides eligible saved tracked files for one request with full editor text, version, and UTF-8 content hash; see [request-only overlays](unsaved-overlays.md) for bounds, provenance, cache isolation, and client freshness checks. Unknown options return HTTP 400.
 
 `rerank_provider` accepts `"h2o"` (the implicit default) or `"qwen"`. Selecting a
 provider does not turn reranking on. An enabled Qwen request requires the service

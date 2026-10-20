@@ -33,7 +33,8 @@ class SearchArguments(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True)
     query: str = Field(min_length=1, max_length=8192,
                        description="Describe the code behavior or implementation to find.")
-    retrieval: Literal["bm25", "dense", "hybrid"] = "dense"
+    retrieval: Literal["bm25", "dense", "hybrid", "multifile"] = Field(default="dense",
+        description="Dense is the default; hybrid mixes dense and lexical ranks. Multifile is research-only and failed its fresh-codebase gate.")
     rerank: bool = Field(default=False, description="Rerank the candidate prefix with the configured local provider.")
     rerank_provider: Literal["h2o", "qwen"] = Field(default="h2o",
         description="Choose the optional local Qwen or H2O scorer; reranking adds latency.")
@@ -273,7 +274,7 @@ def main(argv=None):
                         help="Loopback HTTP search service URL")
     parser.add_argument("--agent-text-only", action="store_true",
                         help="Return one compact JSON text copy without structuredContent/outputSchema")
-    parser.add_argument("--default-retrieval", choices=("bm25", "dense", "hybrid"), default="dense")
+    parser.add_argument("--default-retrieval", choices=("bm25", "dense", "hybrid", "multifile"), default="dense")
     parser.add_argument("--default-rerank", action=argparse.BooleanOptionalAction, default=False)
     parser.add_argument("--default-rerank-provider", choices=("h2o", "qwen"), default="h2o")
     parser.add_argument("--default-candidates", type=int, default=4)

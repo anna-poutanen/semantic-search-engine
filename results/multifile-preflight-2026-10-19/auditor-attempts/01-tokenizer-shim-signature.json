@@ -1,0 +1,14 @@
+{
+  "classification": "Auditor-only failure before any study rows or model imports",
+  "failed_at_utc": "2026-10-20T01:21:35.618320+00:00",
+  "studies": [
+    "multifile-express-2026-10-19",
+    "multifile-zod-2026-10-19",
+    "multifile-jinja-2026-10-19"
+  ],
+  "stage": "load_encoder -> tiktoken.get_encoding -> read_file_cached",
+  "exception": "TypeError: load_encoder.<locals>.cached() takes 1 positional argument but 2 were given",
+  "reason": "The auditor shim omitted the optional expected_hash positional argument used by tiktoken 0.14.0.",
+  "correction": "Accept expected_hash=None, enforce the known expected hash, and add a regression test calling the shim with a positional expected hash.",
+  "producer_data_or_labels_changed": false
+}
