@@ -23,3 +23,15 @@ attribution, which remains attached to any exported snippet that includes it:
 
 This notice records the upstream attribution; it does not change the Zod
 repository license or imply that the linked external source is indexed.
+
+## Jinja multi-file retrieval holdout
+
+[Pallets Jinja](https://github.com/pallets/jinja) 3.1.6 is pinned to peeled commit
+`15206881c006c79667fe5154fe80c01c65410679`. Its annotated tag object is
+`2d4ce43010630478ee88b463f731389fa18953f4`. Indexed source and published result
+excerpts retain its BSD-3-Clause license and **Copyright 2007 Pallets** notice.
+The complete upstream license is copied verbatim in
+[JINJA_LICENSE.txt](JINJA_LICENSE.txt), SHA-256
+`3b49dcee4105eb37bac10faf1be260408fe85d252b8e9df2e0979fc1e094437b`.
+No separate upstream `NOTICE` file is present in this pinned checkout. The corpus
+is downloaded into ignored local storage rather than committed as a source tree.

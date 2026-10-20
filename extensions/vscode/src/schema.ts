@@ -3,7 +3,7 @@ import { supportedSourcePath } from './source';
 import type { BufferOverride, BufferBinding } from './overlays';
 
 export class ValidationError extends Error {}
-export type Retrieval = 'dense' | 'bm25' | 'hybrid';
+export type Retrieval = 'dense' | 'bm25' | 'hybrid' | 'multifile';
 export type RerankProvider = 'h2o' | 'qwen';
 export interface SearchOptions {
   retrieval: Retrieval; rerank: boolean; candidates: number; max_results: number;
@@ -88,7 +88,7 @@ export function relativePath(value: unknown, allowRoot = false): string {
   return result;
 }
 export function validateOptions(options: SearchOptions): SearchOptions {
-  if (!['dense', 'bm25', 'hybrid'].includes(options.retrieval)) { throw new ValidationError('Invalid retrieval mode'); }
+  if (!['dense', 'bm25', 'hybrid', 'multifile'].includes(options.retrieval)) { throw new ValidationError('Invalid retrieval mode'); }
   bool(options.rerank); bool(options.include_dependencies);
   if (options.rerank_provider !== undefined && !['h2o', 'qwen'].includes(options.rerank_provider)) {
     throw new ValidationError('Choose H2O or Qwen as the optional reranking provider');

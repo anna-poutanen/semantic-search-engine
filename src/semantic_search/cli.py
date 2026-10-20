@@ -113,7 +113,7 @@ def main(argv=None):
     mcp.add_argument("--server", default="http://127.0.0.1:8750")
     mcp.add_argument("--agent-text-only", action="store_true",
                      help="Send one compact JSON text copy without structured output")
-    mcp.add_argument("--default-retrieval", choices=("bm25", "dense", "hybrid"), default="dense")
+    mcp.add_argument("--default-retrieval", choices=("bm25", "dense", "hybrid", "multifile"), default="dense")
     mcp.add_argument("--default-rerank", action=argparse.BooleanOptionalAction, default=False)
     mcp.add_argument("--default-rerank-provider", choices=("h2o", "qwen"), default="h2o")
     mcp.add_argument("--default-candidates", type=int, default=4)
@@ -127,7 +127,8 @@ def main(argv=None):
     search.add_argument("--source-root", default="src/flask")
     search.add_argument("--exclude-source", action="append", default=[], metavar="GLOB",
                         help="Exclude a saved-source glob for standalone --repo search")
-    search.add_argument("--retrieval", choices=("bm25", "dense", "hybrid"), default="dense")
+    search.add_argument("--retrieval", choices=("bm25", "dense", "hybrid", "multifile"), default="dense",
+                        help="multifile supplements dense anchors with literal-clause lexical matches")
     search.add_argument("--candidates", type=int, default=4)
     search.add_argument("--max-results", type=int, default=5)
     search.add_argument("--source-budget", type=int, default=12000,
