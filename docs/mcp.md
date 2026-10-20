@@ -95,7 +95,7 @@ Only `query` is required. Unknown fields and implicit conversions such as `"fals
 | Argument | Default | Meaning and bounds |
 |---|---|---|
 | `query` | Required | Nonblank valid Unicode description, up to 8,192 characters |
-| `retrieval` | `"dense"` | `"dense"`, `"bm25"`, or `"hybrid"` |
+| `retrieval` | `"dense"` | `"dense"`, `"bm25"`, `"hybrid"`, or `"multifile"` |
 | `rerank` | `false` | Enable the selected local scorer on the retrieval shortlist |
 | `rerank_provider` | `"h2o"` | `"h2o"` or `"qwen"`; used when reranking is enabled |
 | `candidates` | `4` | 1–50 windows scored when reranking; not a count of guaranteed matches |
@@ -103,6 +103,16 @@ Only `query` is required. Unknown fields and implicit conversions such as `"fals
 | `source_budget` | `12000` | 0–100,000 source characters across excerpts; metadata is additional |
 | `token_budget` | `4096` | 512–32,000 `cl100k_base` tokens for the exact compact JSON text payload |
 | `include_dependencies` | `true` | Use spare result slots for bounded, statically resolved local callees |
+
+For multi-file questions, the existing `retrieval: "hybrid"` option is worth
+comparing with dense. It completed 5/8 multi-file queries on fresh Jinja versus
+3/8 for dense under the same eight-result, 4,096-token caps. This small authored
+study does not establish a universal winner. Select it per call or explicitly
+start the adapter with `--default-retrieval hybrid`; the service needs no reranker.
+
+The source-only `multifile` mode is a research experiment that failed that fresh
+gate (2/8). It is not recommended for normal setup and is not in the v0.1.4
+download. See [the algorithm, regressions and validation](multifile-retrieval.md).
 
 Example call arguments:
 

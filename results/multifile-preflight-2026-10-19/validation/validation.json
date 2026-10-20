@@ -1,0 +1,41 @@
+{
+  "full_python": {
+    "passed": 2622,
+    "skipped": 10,
+    "duration_s": 140.58,
+    "log": "python-full.log.gz",
+    "command": "PYTHONPATH=src TIKTOKEN_CACHE_DIR=.cache/tokenizers <installed-python> -m pytest -q",
+    "timing": "Before later CLI/MCP explanatory wording changes and the frozen-source auditor resolver tests."
+  },
+  "final_focused_python": {
+    "passed": 79,
+    "duration_s": 14.74,
+    "log": "python-final-focused.log.gz",
+    "command": "PYTHONPATH=src <installed-python> -m pytest tests/test_multifile_report.py tests/test_multifile_components.py tests/test_multifile_benchmark.py tests/test_multifile_workflow.py tests/test_cli.py tests/test_mcp_server.py -q",
+    "timing": "Final source wording, producer guardrails and auditor resolver; overlaps the full suite, not additional independent trials."
+  },
+  "editor": {
+    "unit_passed": 117,
+    "helper_passed": 61,
+    "failed": 0,
+    "skipped": 0,
+    "type_script_compile_exit_code": 0,
+    "commands": [
+      "node --test dist/test/*.test.js",
+      "node --test ../../tests/test_ordinary_vscode_profile.cjs ../../tests/test_host_shared_storage.cjs"
+    ],
+    "dependency_setup": "Exact pinned main-checkout node_modules reused through a temporary worktree symlink after a missing-dependency attempt; symlink removed. No dependency changes."
+  },
+  "native": {
+    "requests": 396,
+    "unique_queries": 44,
+    "quality_repetition": 1,
+    "repetitions": 3,
+    "candidate_windows_verified": 19710,
+    "delivered_excerpts_verified": 3075,
+    "fresh_repository_gate_passed": false,
+    "implementation_commit": "56b4756497d68670ab4d23408a6df280db6eac69",
+    "plan_commit": "4363ef294fa7ad09b5486ef3f2ca44e84ed3e976"
+  },
+  "scope": "CPU and native retrieval correctness/budget checks. No coding-agent, provider token usage, transport timing, beta download or new release qualification."
+}

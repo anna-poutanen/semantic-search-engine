@@ -1,0 +1,298 @@
+{
+  "status": "all_independent_checks_passed; candidate_fails_fresh_quality_gate",
+  "audited_at_utc": "2026-10-20T01:27:48.006521+00:00",
+  "auditor": "independent /root/resume_review agent",
+  "auditor_source_sha256": "bf9721878359734bfc6be83b37c7de91fc00f5f8d86561457416cea916e36d3d",
+  "auditor_focused_tests": {
+    "passed": 27,
+    "elapsed_s": 0.42
+  },
+  "studies": [
+    {
+      "study": "express",
+      "classification": "development",
+      "checks_passed": true,
+      "requests": 135,
+      "unique_queries": 15,
+      "candidate_windows": 6663,
+      "delivered_excerpts": 1080,
+      "source_files": 6,
+      "extraction_windows": 190,
+      "conditions": {
+        "dense": {
+          "present": 12,
+          "complete": 10,
+          "multi_file": 4,
+          "multi_complete": 2,
+          "single_file": 8,
+          "single_complete": 8,
+          "required_groups": 19,
+          "delivered_groups": 17,
+          "median_backend_s": 0.17993929199292324,
+          "p95_backend_s": 0.22139020802569576,
+          "repeat_rank_changes": 0
+        },
+        "multifile": {
+          "present": 12,
+          "complete": 10,
+          "multi_file": 4,
+          "multi_complete": 2,
+          "single_file": 8,
+          "single_complete": 8,
+          "required_groups": 19,
+          "delivered_groups": 17,
+          "median_backend_s": 0.19169150001835078,
+          "p95_backend_s": 0.24444783298531547,
+          "repeat_rank_changes": 0
+        },
+        "hybrid": {
+          "present": 12,
+          "complete": 11,
+          "multi_file": 4,
+          "multi_complete": 3,
+          "single_file": 8,
+          "single_complete": 8,
+          "required_groups": 19,
+          "delivered_groups": 18,
+          "median_backend_s": 0.18588633302715607,
+          "p95_backend_s": 0.21323549997759983,
+          "repeat_rank_changes": 0
+        }
+      },
+      "gate": {
+        "definition": "Multifile versus dense: at least one net multi-file gain with no complete single-file loss; warm median overhead <=25%. Retain all group regressions. No tuning on fresh outcomes.",
+        "passed": false,
+        "net_multi_file_complete_gain": 0,
+        "complete_single_file_losses": [],
+        "warm_median_ratio": 1.0653120721731513,
+        "warm_median_overhead_percent": 6.531207217315127,
+        "quality_passed": false,
+        "latency_passed": true,
+        "all_group_regressions": []
+      },
+      "frozen_source_commit": "56b4756497d68670ab4d23408a6df280db6eac69",
+      "changed_live_files_resolved_from_verified_commit": {
+        "src/semantic_search/cli.py": {
+          "sha256": "d8a4e911949a30dd4bd6924415e9e7b0fcd8dbd3346cfeee78562e0489313dc9",
+          "git_commit": "56b4756497d68670ab4d23408a6df280db6eac69",
+          "bytes_read_from": "verified_git_blob",
+          "working_tree_sha256": "f78382c55cea598f50585aa4809caa5aabe9eaa701d3f754771a1bf4565a86df",
+          "working_tree_matches_frozen": false,
+          "committed_blob_sha256_verified": true
+        },
+        "src/semantic_search/mcp_server.py": {
+          "sha256": "bb8924f7e3d42662ab79aa13c23cff34e3a34bcf98d60915bd1908987e3dd04c",
+          "git_commit": "56b4756497d68670ab4d23408a6df280db6eac69",
+          "bytes_read_from": "verified_git_blob",
+          "working_tree_sha256": "48d7d6b97ffcb95ec27506af67156f4b5b5eb9e114d9916303367deb887009a4",
+          "working_tree_matches_frozen": false,
+          "committed_blob_sha256_verified": true
+        }
+      },
+      "query_vector_changes": 0
+    },
+    {
+      "study": "zod",
+      "classification": "development",
+      "checks_passed": true,
+      "requests": 135,
+      "unique_queries": 15,
+      "candidate_windows": 6747,
+      "delivered_excerpts": 993,
+      "source_files": 107,
+      "extraction_windows": 1802,
+      "conditions": {
+        "dense": {
+          "present": 12,
+          "complete": 8,
+          "multi_file": 4,
+          "multi_complete": 0,
+          "single_file": 8,
+          "single_complete": 8,
+          "required_groups": 19,
+          "delivered_groups": 13,
+          "median_backend_s": 0.34002954099560156,
+          "p95_backend_s": 0.5875492499908432,
+          "repeat_rank_changes": 0
+        },
+        "multifile": {
+          "present": 12,
+          "complete": 9,
+          "multi_file": 4,
+          "multi_complete": 1,
+          "single_file": 8,
+          "single_complete": 8,
+          "required_groups": 19,
+          "delivered_groups": 14,
+          "median_backend_s": 0.35765683301724494,
+          "p95_backend_s": 0.6017426250036806,
+          "repeat_rank_changes": 0
+        },
+        "hybrid": {
+          "present": 12,
+          "complete": 7,
+          "multi_file": 4,
+          "multi_complete": 0,
+          "single_file": 8,
+          "single_complete": 7,
+          "required_groups": 19,
+          "delivered_groups": 11,
+          "median_backend_s": 0.36047625000355765,
+          "p95_backend_s": 0.48206062501412816,
+          "repeat_rank_changes": 0
+        }
+      },
+      "gate": {
+        "definition": "Multifile versus dense: at least one net multi-file gain with no complete single-file loss; warm median overhead <=25%. Retain all group regressions. No tuning on fresh outcomes.",
+        "passed": true,
+        "net_multi_file_complete_gain": 1,
+        "complete_single_file_losses": [],
+        "warm_median_ratio": 1.0518404723602277,
+        "warm_median_overhead_percent": 5.184047236022771,
+        "quality_passed": true,
+        "latency_passed": true,
+        "all_group_regressions": []
+      },
+      "frozen_source_commit": "56b4756497d68670ab4d23408a6df280db6eac69",
+      "changed_live_files_resolved_from_verified_commit": {
+        "src/semantic_search/cli.py": {
+          "sha256": "d8a4e911949a30dd4bd6924415e9e7b0fcd8dbd3346cfeee78562e0489313dc9",
+          "git_commit": "56b4756497d68670ab4d23408a6df280db6eac69",
+          "bytes_read_from": "verified_git_blob",
+          "working_tree_sha256": "f78382c55cea598f50585aa4809caa5aabe9eaa701d3f754771a1bf4565a86df",
+          "working_tree_matches_frozen": false,
+          "committed_blob_sha256_verified": true
+        },
+        "src/semantic_search/mcp_server.py": {
+          "sha256": "bb8924f7e3d42662ab79aa13c23cff34e3a34bcf98d60915bd1908987e3dd04c",
+          "git_commit": "56b4756497d68670ab4d23408a6df280db6eac69",
+          "bytes_read_from": "verified_git_blob",
+          "working_tree_sha256": "48d7d6b97ffcb95ec27506af67156f4b5b5eb9e114d9916303367deb887009a4",
+          "working_tree_matches_frozen": false,
+          "committed_blob_sha256_verified": true
+        }
+      },
+      "query_vector_changes": 0
+    },
+    {
+      "study": "jinja",
+      "classification": "repository_holdout",
+      "checks_passed": true,
+      "requests": 126,
+      "unique_queries": 14,
+      "candidate_windows": 6300,
+      "delivered_excerpts": 1002,
+      "source_files": 25,
+      "extraction_windows": 745,
+      "conditions": {
+        "dense": {
+          "present": 12,
+          "complete": 7,
+          "multi_file": 8,
+          "multi_complete": 3,
+          "single_file": 4,
+          "single_complete": 4,
+          "required_groups": 23,
+          "delivered_groups": 17,
+          "median_backend_s": 0.21542875000159256,
+          "p95_backend_s": 0.2582353330217302,
+          "repeat_rank_changes": 0
+        },
+        "multifile": {
+          "present": 12,
+          "complete": 6,
+          "multi_file": 8,
+          "multi_complete": 2,
+          "single_file": 4,
+          "single_complete": 4,
+          "required_groups": 23,
+          "delivered_groups": 16,
+          "median_backend_s": 0.22832487449340988,
+          "p95_backend_s": 0.2852677920018323,
+          "repeat_rank_changes": 0
+        },
+        "hybrid": {
+          "present": 12,
+          "complete": 9,
+          "multi_file": 8,
+          "multi_complete": 5,
+          "single_file": 4,
+          "single_complete": 4,
+          "required_groups": 23,
+          "delivered_groups": 19,
+          "median_backend_s": 0.2262614999926882,
+          "p95_backend_s": 0.27569041698006913,
+          "repeat_rank_changes": 0
+        }
+      },
+      "gate": {
+        "definition": "Multifile versus dense: at least one net multi-file gain with no complete single-file loss; warm median overhead <=25%. Retain all group regressions. No tuning on fresh outcomes.",
+        "passed": false,
+        "net_multi_file_complete_gain": -1,
+        "complete_single_file_losses": [],
+        "warm_median_ratio": 1.05986259722401,
+        "warm_median_overhead_percent": 5.986259722401011,
+        "quality_passed": false,
+        "latency_passed": true,
+        "all_group_regressions": [
+          "jinja_decorated_helper_context_injection"
+        ]
+      },
+      "frozen_source_commit": "56b4756497d68670ab4d23408a6df280db6eac69",
+      "changed_live_files_resolved_from_verified_commit": {
+        "src/semantic_search/cli.py": {
+          "sha256": "d8a4e911949a30dd4bd6924415e9e7b0fcd8dbd3346cfeee78562e0489313dc9",
+          "git_commit": "56b4756497d68670ab4d23408a6df280db6eac69",
+          "bytes_read_from": "verified_git_blob",
+          "working_tree_sha256": "f78382c55cea598f50585aa4809caa5aabe9eaa701d3f754771a1bf4565a86df",
+          "working_tree_matches_frozen": false,
+          "committed_blob_sha256_verified": true
+        },
+        "src/semantic_search/mcp_server.py": {
+          "sha256": "bb8924f7e3d42662ab79aa13c23cff34e3a34bcf98d60915bd1908987e3dd04c",
+          "git_commit": "56b4756497d68670ab4d23408a6df280db6eac69",
+          "bytes_read_from": "verified_git_blob",
+          "working_tree_sha256": "48d7d6b97ffcb95ec27506af67156f4b5b5eb9e114d9916303367deb887009a4",
+          "working_tree_matches_frozen": false,
+          "committed_blob_sha256_verified": true
+        }
+      },
+      "query_vector_changes": 0
+    }
+  ],
+  "totals": {
+    "requests": 396,
+    "unique_queries": 44,
+    "candidate_windows": 19710,
+    "delivered_excerpts": 3075
+  },
+  "source_provenance": "All benchmark implementation bytes matched planned SHA-256 at frozen commit 56b4756497d68670ab4d23408a6df280db6eac69. Only later CLI/MCP research-warning wording differs in the live tree; each audit reads verified frozen Git blobs for their identity, without executing them. Live source-only extraction helper hashes still match the freeze and reconstructed inventories are exact.",
+  "artifact_sha256": {
+    "results/multifile-express-2026-10-19/plan.json": "228f5e16280aba49112acfb7f257ddd4baf7d0be8b250ab9eb190189e974d96b",
+    "results/multifile-express-2026-10-19/summary.json": "195566d0218714da8bfe68ee0488a8f41229e6887963e6ffbec85bb916b47c8a",
+    "results/multifile-express-2026-10-19/searches.jsonl.gz": "6f736a4fa3237de28971622936dfdfc483ab0a537ac91cb335e4ef087acdb331",
+    "results/multifile-express-2026-10-19/audit.json": "a80d275a88a431a5c21d843fb3e89ca5793440a1d89c1724c5ebc2d2984ca433",
+    "results/multifile-express-2026-10-19/findings.md": "5144d8bb6f6aa1047b8fccf73eed38da33f80fa1afc41b1af81d5b6d9b9b667b",
+    "results/multifile-zod-2026-10-19/plan.json": "7d7753b8c8355a62422717b817b02e8479b85b2a638d534376ad4826e2c1c685",
+    "results/multifile-zod-2026-10-19/summary.json": "2e41aa2ff6c82ae132e163ab4aefba7358a52a4d18c0c38288e4e01d264ccc25",
+    "results/multifile-zod-2026-10-19/searches.jsonl.gz": "d9a91144e45f4c571a130985229d8df053a71b6a4ec96d354472e2869be810ad",
+    "results/multifile-zod-2026-10-19/audit.json": "25bf1a0815226db6e185b4176e21830c59cd5895e540787d1b8fd27479e72e28",
+    "results/multifile-zod-2026-10-19/findings.md": "d03968804064f937ac3588356d1d18f7033404348a60879390791d661c0e6eee",
+    "results/multifile-jinja-2026-10-19/plan.json": "acc32852c9a203b529736d593ce70290f70a24b021079c56d7a9105c70425003",
+    "results/multifile-jinja-2026-10-19/summary.json": "11d4d515865484f050c61c884a0b729ad73404fd80fe994bab51e43c168a681a",
+    "results/multifile-jinja-2026-10-19/searches.jsonl.gz": "072ec62f0838b9be74fd4b843fde0eaf2c26514125cd00d4a98a30e1bef8fb6d",
+    "results/multifile-jinja-2026-10-19/audit.json": "f41ec14c407c83fb860cee33e22fee98837d00a12928d8c10dd8662bf1bac390",
+    "results/multifile-jinja-2026-10-19/findings.md": "04954cc469c4c29b7de992e11c358b6c8014b98cda98354a1d698524a3fa83a7",
+    "scripts/report_multifile.py": "bf9721878359734bfc6be83b37c7de91fc00f5f8d86561457416cea916e36d3d",
+    "tests/test_multifile_report.py": "833464aa67136f7c75f114cfdfc2cf802a7971fd268667abb8f4a6d6cc04d117",
+    "results/multifile-preflight-2026-10-19/source-review.json": "5b994d2f3eb4d48fb9f2763e2bf9fa99cc71337c4fcdd574457b8c68de110e5c"
+  },
+  "preserved_audit_attempts": "results/multifile-preflight-2026-10-19/auditor-attempts",
+  "limits": [
+    "The multifile upstream stage refers to the merged output pool, not component dense/clause-FTS recall.",
+    "This audit verifies saved evidence and measured protocol. No native model, backend request or new ranking was executed.",
+    "Complete-query coverage counts one quality repetition; all repeats supply warm backend latency/stability only.",
+    "No coding-correctness, actual paid-token savings, external-user adoption or general workload improvement claim.",
+    "Fresh Jinja gate fails; the stronger existing hybrid comparator is descriptive and does not make the proposed multifile mode pass."
+  ]
+}

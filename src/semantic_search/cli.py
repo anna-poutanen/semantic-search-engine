@@ -128,7 +128,7 @@ def main(argv=None):
     search.add_argument("--exclude-source", action="append", default=[], metavar="GLOB",
                         help="Exclude a saved-source glob for standalone --repo search")
     search.add_argument("--retrieval", choices=("bm25", "dense", "hybrid", "multifile"), default="dense",
-                        help="multifile supplements dense anchors with literal-clause lexical matches")
+                        help="multifile is a research-only clause experiment that failed its fresh-codebase gate")
     search.add_argument("--candidates", type=int, default=4)
     search.add_argument("--max-results", type=int, default=5)
     search.add_argument("--source-budget", type=int, default=12000,
