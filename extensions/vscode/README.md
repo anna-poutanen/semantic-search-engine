@@ -130,6 +130,13 @@ Resource-scoped `semanticSearch.*` settings expose `serviceUrl`, `retrieval`,
 `includeDependencies`. Defaults are dense/no rerank, 4 candidates, 8 results,
 12,000 source characters, a 4,096 `cl100k_base` compact-context cap, and static
 dependency context. The token cap is not a coding model's paid-token counter.
+For compound multi-file questions, the existing `retrieval: "hybrid"` setting
+completed 5/8 cases on fresh Jinja versus dense's 3/8 under the same eight-result,
+4,096-token caps. This small study is descriptive; dense stays the default.
+The source-only `multifile` experiment failed that fresh gate (2/8), is not
+recommended for normal setup, and is absent from the v0.1.4 VSIX.
+See [the full multi-file study](../../docs/multifile-retrieval.md).
+
 With `rerank` off, retrieval stays fast. Turning it on uses `rerankProvider`:
 `h2o` preserves the existing optional H2O service, while `qwen` selects the
 experimental local Qwen reranker. Both add latency and require separate setup.

@@ -15,10 +15,11 @@ from urllib.parse import urlsplit
 
 from semantic_search.corpus import _source_files, extract_snippets
 from semantic_search.model import H2OClient
-from semantic_search.retrieval import HybridRetriever
+from semantic_search.retrieval import HybridRetriever, MultifileRetriever
 from semantic_search.cancellation import CancellationRegistry, SearchCancelled
 from semantic_search.context import apply_token_budget, indexed_scope
 from semantic_search.source import physical_lines
+from semantic_search.selection import select_context
 from semantic_search.languages import decode_source, extractor_fingerprint, validate_exclusions, validate_source
 
 
@@ -112,7 +113,7 @@ class SearchBackend:
         self._vectors_manifest = None
         self._vectors_model_fingerprint = None
         self._snippets = []
-        self._lexical = self._dense = self._hybrid = None
+        self._lexical = self._dense = self._hybrid = self._multifile = None
         self._last_stats = None
         self._last_error = None
         self._references = None
@@ -267,7 +268,7 @@ class SearchBackend:
                                    "windows": len(snippets)})
         stats = {"indexed_windows": 0, "reused_windows": 0, "deleted_windows": 0,
                  "total_windows": len(snippets)}
-        dense = hybrid = None
+        dense = hybrid = multifile = None
         from semantic_search.persistent_retrieval import PersistentDenseRetriever, PersistentLexicalRetriever
         index = self._get_index()
         def before_commit():
@@ -288,13 +289,14 @@ class SearchBackend:
         lexical = PersistentLexicalRetriever(index)
         if dense is not None:
             hybrid = HybridRetriever(lexical, dense, rrf_k=60, fetch_depth=50)
+            multifile = MultifileRetriever(lexical, dense)
         cancel_check()
         self._confirm_snapshot(digest)
         self._manifest, self._snippets = digest, snippets
         self._references = references
         self._vectors_manifest = digest if require_vectors else None
         self._vectors_model_fingerprint = fingerprint
-        self._lexical, self._dense, self._hybrid = lexical, dense, hybrid
+        self._lexical, self._dense, self._hybrid, self._multifile = lexical, dense, hybrid, multifile
         stats = {**stats, "memory_cache_hit": False, "source_manifest": digest,
                  "source_files": len(raw), "elapsed_s": time.perf_counter() - started}
         self._last_stats, self._last_error = stats, None
@@ -357,8 +359,8 @@ class SearchBackend:
             query.encode("utf-8")
         except UnicodeError as error:
             raise ValueError("query must contain valid Unicode text") from error
-        if retrieval not in ("bm25", "dense", "hybrid"):
-            raise ValueError("retrieval must be bm25, dense, or hybrid")
+        if retrieval not in ("bm25", "dense", "hybrid", "multifile"):
+            raise ValueError("retrieval must be bm25, dense, hybrid, or multifile")
         if type(rerank) is not bool:
             raise ValueError("rerank must be a boolean")
         if rerank_provider not in ("h2o", "qwen"):
@@ -404,8 +406,10 @@ class SearchBackend:
                         pairs = self._lexical.search(query, limit)
                     elif retrieval == "dense":
                         pairs = self._dense.search(vector, limit)
-                    else:
+                    elif retrieval == "hybrid":
                         pairs = self._hybrid.search(query, vector, limit)
+                    else:
+                        pairs = self._multifile.search(query, vector, limit)
                 full_candidate_count = len(pairs)
                 match_status = "candidates" if pairs else "no_candidates"
                 top_cosine = (pairs[0][1] if retrieval == "dense" and pairs else
@@ -442,35 +446,9 @@ class SearchBackend:
                 h2o_s = reranker_s if rerank and not qwen_rerank else 0.0
                 qwen_s = reranker_s if qwen_rerank else 0.0
                 phase = time.perf_counter()
-                seen, selected = set(), []
-                for snippet, score in pairs:
-                    key = (snippet.path, snippet.symbol)
-                    if key not in seen:
-                        seen.add(key)
-                        selected.append((snippet, score))
-                eligible = selected[:max_results]
-                origins = {snippet.id: ("retrieval", None) for snippet, _ in eligible}
-                if include_dependencies and self._references is not None:
-                    expanded, included = [], set()
-                    # Preserve the first five ranked anchors. Additional slots
-                    # carry explicit callees before less relevant anchors.
-                    anchors = eligible[:min(5, max_results)]
-                    for snippet, score in anchors:
-                        expanded.append((snippet, score))
-                        included.add((snippet.path, snippet.symbol))
-                    for snippet, score in anchors:
-                        for related in self._references.dependencies(snippet, limit=2):
-                            key = (related.path, related.symbol)
-                            if key not in included and len(expanded) < max_results:
-                                expanded.append((related, score))
-                                origins[related.id] = ("dependency", snippet.id)
-                                included.add(key)
-                    for snippet, score in eligible:
-                        key = (snippet.path, snippet.symbol)
-                        if key not in included and len(expanded) < max_results:
-                            expanded.append((snippet, score))
-                            included.add(key)
-                    eligible = expanded
+                selected, eligible, origins = select_context(
+                    pairs, query=query, max_results=max_results,
+                    include_dependencies=include_dependencies, references=self._references)
                 remaining, results = source_budget, []
                 for snippet, score in eligible:
                     source = snippet.text
@@ -520,6 +498,8 @@ class SearchBackend:
                 response["match_evidence"] = {"top_cosine": top_cosine,
                     "threshold": self._policy.threshold if self._policy else None,
                     "meaning": "Candidate relevance is not proof that a behavior exists or is absent."}
+                if retrieval == "multifile":
+                    response["match_evidence"]["retrieval_score_kind"] = "multifile_rank_priority"
                 if qwen_rerank:
                     response["match_evidence"]["ranking_score_kind"] = "qwen_yes_minus_no_logit_difference"
                 if token_budget is not None:

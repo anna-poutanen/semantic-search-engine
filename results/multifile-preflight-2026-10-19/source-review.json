@@ -1,0 +1,661 @@
+{
+  "status": "passed_source_review_before_holdout_retrieval",
+  "reviewed_at_utc": "2026-10-20T01:12:34.118298+00:00",
+  "reviewer": "independent /root/resume_review agent; not the label author",
+  "review_type": "Source, AST, byte-hash, referenced-test reading and extraction eligibility only; no runtime behavioral proof",
+  "dataset": {
+    "path": "benchmarks/multifile_holdout_queries.json",
+    "sha256": "29ec1612ba3342ce51ab71571d1a5f4a50a891c0a643607fb8a4c66231ae0007"
+  },
+  "protocol": {
+    "path": "docs/multifile-holdout-source-review.md",
+    "sha256": "5d700794ce5a515ac8d34c37725a76c7ce4a8566d4b12210b9cdd21531bcb111"
+  },
+  "corpus": {
+    "repository": "https://github.com/pallets/jinja",
+    "commit": "15206881c006c79667fe5154fe80c01c65410679",
+    "annotated_tag_object": "2d4ce43010630478ee88b463f731389fa18953f4",
+    "working_tree_clean": true,
+    "source_root": "src/jinja2",
+    "source_files": 25,
+    "complete_tracked_python_inventory": true,
+    "source_inventory_sha256": "f945458472cb85a4cc350ce84996f5a2c305c7029181c4288cc142538d1cbce8",
+    "license_sha256": "3b49dcee4105eb37bac10faf1be260408fe85d252b8e9df2e0979fc1e094437b",
+    "license_copy_exact": true
+  },
+  "extraction": {
+    "max_lines": 160,
+    "overlap_lines": 40,
+    "windows": 745,
+    "window_inventory_sha256": "9505568294748caba4b890a70f95231bd3ee5793ff57f155794aa6ce301a0a4d",
+    "exact_symbol_fully_contained_gold_rows": 23,
+    "source_implementations_sha256": {
+      "src/semantic_search/corpus.py": "feae67386ad0b6551c3391d4d1e5dd49656e9a90c6c313d640ea5399eb8a8d6a",
+      "src/semantic_search/languages.py": "aab5dfe8247ed1f30662cf6f0f442289d9459ebb30d099e259475a1911c88399",
+      "src/semantic_search/source.py": "eb8dc397d95bb82bee8941dc3ff62ad3af911439f63d014af2e4b5a5f06036d4"
+    }
+  },
+  "counts": {
+    "queries": 14,
+    "multi_file_present": 8,
+    "single_file_present": 4,
+    "scoped_absent": 2,
+    "multi_file_groups": 19,
+    "all_positive_groups": 23,
+    "target_rows": 23,
+    "referenced_test_definitions_read": 14
+  },
+  "leakage_controls": {
+    "holdout_retrieval_calls_invoked_by_reviewer": 0,
+    "holdout_model_or_embedding_calls_invoked_by_reviewer": 0,
+    "holdout_indexing_calls_invoked_by_reviewer": 0,
+    "holdout_rankings_scores_candidates_or_rule_activation_outputs_observed": false,
+    "retrieval_module_imported_for_review": false,
+    "product_or_label_edits_made": false,
+    "upstream_tests_executed": false,
+    "network_calls_required": 0,
+    "known_exposure": "Reviewer has seen historical non-Jinja development diagnoses and parent summaries of non-Jinja selector experiments. Reviewer read Jinja gold/source only; this is independent review of authored labels, not independent task authorship or model-pretraining isolation."
+  },
+  "absence_review": {
+    "scope": "All 25 production Python source files under src/jinja2, excluding host applications, dependency internals, third-party extensions, upstream tests and examples.",
+    "searched_terms": [
+      "websocket|socket|broadcast|\\bDOM\\b|browser",
+      "auto_reload|uptodate",
+      "timeout|expire|\\bttl\\b|rendered|dump_bytecode|_body_stream|open\\("
+    ],
+    "nearby_implementations_read": [
+      "FileSystemBytecodeCache.load_bytecode/dump_bytecode",
+      "MemcachedBytecodeCache.load_bytecode/dump_bytecode",
+      "Environment._load_template",
+      "Template.render/render_async/generate/generate_async",
+      "Template._get_default_module/_get_default_module_async",
+      "TemplateModule.__init__",
+      "TemplateStream.dump",
+      "FileSystemLoader.get_source"
+    ]
+  },
+  "query_reviews": [
+    {
+      "query_id": "jinja_bytecode_reject_and_recompile",
+      "kind": "present",
+      "required_groups": 2,
+      "decision": "supported",
+      "source_review": "Both rejection/reset of incompatible cached code and the loader compile/set-bucket decision are required. Expected checksum creation and bucket delegation were traced separately; no extra disk-backend behavior is implied.",
+      "targets": [
+        {
+          "group": 1,
+          "path": "src/jinja2/bccache.py",
+          "symbol": "Bucket.load_bytecode",
+          "evidence_lines": [
+            68,
+            81
+          ],
+          "source_file_sha256": "821d2ab3daee9675e8d0f857e634c9cb6507cc8f3016743ade8fefc3b9e1cd18",
+          "evidence_sha256": "cc9a14bc523d78846eb892944381f99b73878b7300a5344198f8c9a1e2a4a31f",
+          "exact_symbol_eligible_windows": [
+            "src/jinja2/bccache.py:Bucket.load_bytecode:65-82"
+          ]
+        },
+        {
+          "group": 2,
+          "path": "src/jinja2/loaders.py",
+          "symbol": "BaseLoader.load",
+          "evidence_lines": [
+            130,
+            145
+          ],
+          "source_file_sha256": "c08ae7c63bdc6ea8795705b6f0d4a47e8b620eaf2a342c4839215b1948922c1e",
+          "evidence_sha256": "b4932d129c8bdea2fae0f39f574325f6924e296f9aa8a1b2fc710e2c4973ddc0",
+          "exact_symbol_eligible_windows": [
+            "src/jinja2/loaders.py:BaseLoader.load:107-149"
+          ]
+        }
+      ]
+    },
+    {
+      "query_id": "jinja_file_change_invalidates_template_cache",
+      "kind": "present",
+      "required_groups": 2,
+      "decision": "supported",
+      "source_review": "Both captured-mtime freshness callback (including missing-file OSError) and auto_reload cache reuse versus loader.load decision are required. Template.is_up_to_date delegates to the captured callback; another load attempt may fail for a missing file.",
+      "targets": [
+        {
+          "group": 1,
+          "path": "src/jinja2/loaders.py",
+          "symbol": "FileSystemLoader.get_source",
+          "evidence_lines": [
+            217,
+            226
+          ],
+          "source_file_sha256": "c08ae7c63bdc6ea8795705b6f0d4a47e8b620eaf2a342c4839215b1948922c1e",
+          "evidence_sha256": "31dc24c1d9c9ae52f426ee7184fe6919d93a25bcd7c00ba3348cdf6836bb94ce",
+          "exact_symbol_eligible_windows": [
+            "src/jinja2/loaders.py:FileSystemLoader.get_source:194-226"
+          ]
+        },
+        {
+          "group": 2,
+          "path": "src/jinja2/environment.py",
+          "symbol": "Environment._load_template",
+          "evidence_lines": [
+            962,
+            978
+          ],
+          "source_file_sha256": "f6786b3fb0a1f8d6c65f4d30bf2af8cb2fae84d1ead8e09ceb48201ab9e2fdf9",
+          "evidence_sha256": "9014e2343cc27e8bc8effe348b28e36e9a8f14682aaaa8ccec574b88ceb724c5",
+          "exact_symbol_eligible_windows": [
+            "src/jinja2/environment.py:Environment._load_template:956-979"
+          ]
+        }
+      ]
+    },
+    {
+      "query_id": "jinja_include_parent_and_local_context",
+      "kind": "present",
+      "required_groups": 2,
+      "decision": "supported",
+      "source_review": "The compiler emits the with-context include using shared parent plus locals, and runtime.new_context copies a shared parent before merging non-missing locals. Template.new_context forwarding confirms the connection.",
+      "targets": [
+        {
+          "group": 1,
+          "path": "src/jinja2/compiler.py",
+          "symbol": "CodeGenerator.visit_Include",
+          "evidence_lines": [
+            1074,
+            1086
+          ],
+          "source_file_sha256": "f51a42425e57f3c0479652623ec1cf876f791e1d2e029bf0149350baeb542de3",
+          "evidence_sha256": "0a9d83da4db1e759c5227e16bc4a564103206ca296344f7bbac81d977d9bbf5c",
+          "exact_symbol_eligible_windows": [
+            "src/jinja2/compiler.py:CodeGenerator.visit_Include:1042-1098"
+          ]
+        },
+        {
+          "group": 2,
+          "path": "src/jinja2/runtime.py",
+          "symbol": "new_context",
+          "evidence_lines": [
+            103,
+            118
+          ],
+          "source_file_sha256": "80393e1af76b8895ea82c19b1e0adc2933f4629eb33d7ce1ceb2290851f78c05",
+          "evidence_sha256": "368fff8749aa8b4fe52209cd44a625f699fcb105579c42bd52bb55dc2f1a3d7f",
+          "exact_symbol_eligible_windows": [
+            "src/jinja2/runtime.py:new_context:93-119"
+          ]
+        }
+      ]
+    },
+    {
+      "query_id": "jinja_decorated_helper_context_injection",
+      "kind": "present",
+      "required_groups": 2,
+      "decision": "supported",
+      "source_review": "Decorator marker assignment and Context.call marker dispatch/prepending are distinct required steps. Derived loop/block context handling and removal of internal keyword arguments match the query.",
+      "targets": [
+        {
+          "group": 1,
+          "path": "src/jinja2/utils.py",
+          "symbol": "pass_context",
+          "evidence_lines": [
+            51,
+            52
+          ],
+          "source_file_sha256": "ad1a77a3d7bb64a4b87f2ad645b10bc8b729b8655315c9e8a1a39ad6ac7f1489",
+          "evidence_sha256": "5d36cd2c837d7f95bdcd85a518ea4fe394afe55f846585f656438bf3f15050f6",
+          "exact_symbol_eligible_windows": [
+            "src/jinja2/utils.py:pass_context:38-52"
+          ]
+        },
+        {
+          "group": 2,
+          "path": "src/jinja2/runtime.py",
+          "symbol": "Context.call",
+          "evidence_lines": [
+            284,
+            303
+          ],
+          "source_file_sha256": "80393e1af76b8895ea82c19b1e0adc2933f4629eb33d7ce1ceb2290851f78c05",
+          "evidence_sha256": "7f4ef3ffdf255912dfb0848d2665c323c4e63279358645a06e77553951a56f9e",
+          "exact_symbol_eligible_windows": [
+            "src/jinja2/runtime.py:Context.call:262-308"
+          ]
+        }
+      ]
+    },
+    {
+      "query_id": "jinja_json_policy_and_html_safe_serialization",
+      "kind": "present",
+      "required_groups": 2,
+      "decision": "supported",
+      "source_review": "The filter obtains configured dumps/kwargs and optional indent, and the utility serializes, escapes four HTML-sensitive characters and wraps Markup. No double-quoted attribute safety claim is made.",
+      "targets": [
+        {
+          "group": 1,
+          "path": "src/jinja2/filters.py",
+          "symbol": "do_tojson",
+          "evidence_lines": [
+            1713,
+            1721
+          ],
+          "source_file_sha256": "3d0fc481df67f634a0b671906321782b98f69d8c21508ba584f9f28a691dafe9",
+          "evidence_sha256": "2026c3d0ce1dc3a1a0bb449eb00fa6e1991d6ff71f76893b760db31338e9f762",
+          "exact_symbol_eligible_windows": [
+            "src/jinja2/filters.py:do_tojson:1695-1721"
+          ]
+        },
+        {
+          "group": 2,
+          "path": "src/jinja2/utils.py",
+          "symbol": "htmlsafe_json_dumps",
+          "evidence_lines": [
+            665,
+            674
+          ],
+          "source_file_sha256": "ad1a77a3d7bb64a4b87f2ad645b10bc8b729b8655315c9e8a1a39ad6ac7f1489",
+          "evidence_sha256": "84cf023c6e116317f9f242152fcc22150c984034b22ac8fb56f343639bd9f243",
+          "exact_symbol_eligible_windows": [
+            "src/jinja2/utils.py:htmlsafe_json_dumps:637-674"
+          ]
+        }
+      ]
+    },
+    {
+      "query_id": "jinja_async_filter_first_and_iteration",
+      "kind": "present",
+      "required_groups": 3,
+      "decision": "supported",
+      "source_review": "Environment-dependent variant dispatch, the async first-item/empty handler, and sync-versus-async iterable adaptation are required. Both iterable kinds work through the async implementation; sync_do_first and StopIteration-to-StopAsyncIteration adapter were reviewed as supporting context.",
+      "targets": [
+        {
+          "group": 1,
+          "path": "src/jinja2/async_utils.py",
+          "symbol": "async_variant",
+          "evidence_lines": [
+            17,
+            48
+          ],
+          "source_file_sha256": "bcaf8f76cba8ace3275929c4913de25094489139d880ed93e8c9c6c43807239a",
+          "evidence_sha256": "b518b22144b339712cbc4fc3b3d333f6311f9eb40ec9c5c67ea8ec7f40351d73",
+          "exact_symbol_eligible_windows": [
+            "src/jinja2/async_utils.py:async_variant:15-56"
+          ]
+        },
+        {
+          "group": 2,
+          "path": "src/jinja2/filters.py",
+          "symbol": "do_first",
+          "evidence_lines": [
+            667,
+            670
+          ],
+          "source_file_sha256": "3d0fc481df67f634a0b671906321782b98f69d8c21508ba584f9f28a691dafe9",
+          "evidence_sha256": "5abba19acb4db55d057dcdb9abdfef776b8d2748cfee388dda46aba6856e72a0",
+          "exact_symbol_eligible_windows": [
+            "src/jinja2/filters.py:do_first:663-670"
+          ]
+        },
+        {
+          "group": 3,
+          "path": "src/jinja2/async_utils.py",
+          "symbol": "auto_aiter",
+          "evidence_lines": [
+            90,
+            93
+          ],
+          "source_file_sha256": "bcaf8f76cba8ace3275929c4913de25094489139d880ed93e8c9c6c43807239a",
+          "evidence_sha256": "ca8378bc0c662bbd9b8fef3637935db00757d0a1d30eb0e312c43aa0a55084b5",
+          "exact_symbol_eligible_windows": [
+            "src/jinja2/async_utils.py:auto_aiter:87-93"
+          ]
+        }
+      ]
+    },
+    {
+      "query_id": "jinja_sandbox_attribute_security_placeholder",
+      "kind": "present",
+      "required_groups": 3,
+      "decision": "supported",
+      "source_review": "Denied attribute routing, construction with exc=SecurityError, and raising the stored exception are separately required. Undefined.__init__ stores exc and __getattr__/operator aliases trigger failure. Empty string conversion is an intentional exception to immediate failure.",
+      "targets": [
+        {
+          "group": 1,
+          "path": "src/jinja2/sandbox.py",
+          "symbol": "SandboxedEnvironment.getattr",
+          "evidence_lines": [
+            329,
+            332
+          ],
+          "source_file_sha256": "330d9a8ad958d88f256bb15885c5f6606f41b5461c2e70f41a1ddddbd7035ab6",
+          "evidence_sha256": "332278209ec4deae97f4edbd9d14a407c0aa74c1e1e69f925a031703f0234051",
+          "exact_symbol_eligible_windows": [
+            "src/jinja2/sandbox.py:SandboxedEnvironment.getattr:314-332"
+          ]
+        },
+        {
+          "group": 2,
+          "path": "src/jinja2/sandbox.py",
+          "symbol": "SandboxedEnvironment.unsafe_undefined",
+          "evidence_lines": [
+            336,
+            342
+          ],
+          "source_file_sha256": "330d9a8ad958d88f256bb15885c5f6606f41b5461c2e70f41a1ddddbd7035ab6",
+          "evidence_sha256": "a94c40efa1757ab9e9cda01b13de9c9fe9c93b554f787ad53bcca315ce7e5677",
+          "exact_symbol_eligible_windows": [
+            "src/jinja2/sandbox.py:SandboxedEnvironment.unsafe_undefined:334-342"
+          ]
+        },
+        {
+          "group": 3,
+          "path": "src/jinja2/runtime.py",
+          "symbol": "Undefined._fail_with_undefined_error",
+          "evidence_lines": [
+            859,
+            859
+          ],
+          "source_file_sha256": "80393e1af76b8895ea82c19b1e0adc2933f4629eb33d7ce1ceb2290851f78c05",
+          "evidence_sha256": "4d3b7535e518a14aae4666748d43af73ea6adfd5a94562299d6e96c35767afc4",
+          "exact_symbol_eligible_windows": [
+            "src/jinja2/runtime.py:Undefined._fail_with_undefined_error:852-859"
+          ]
+        }
+      ]
+    },
+    {
+      "query_id": "jinja_filename_autoescape_to_generated_output",
+      "kind": "present",
+      "required_groups": 3,
+      "decision": "supported",
+      "source_review": "Filename/string policy selection, EvalContext evaluation of the callable with template_name, and generated escape-versus-str output are necessary stages in three files. Constant folding and external MarkupSafe internals are outside the claim.",
+      "targets": [
+        {
+          "group": 1,
+          "path": "src/jinja2/utils.py",
+          "symbol": "select_autoescape",
+          "evidence_lines": [
+            621,
+            634
+          ],
+          "source_file_sha256": "ad1a77a3d7bb64a4b87f2ad645b10bc8b729b8655315c9e8a1a39ad6ac7f1489",
+          "evidence_sha256": "d0ea41b52bfa4dbbf883984d2d1184327db7521aef9f7eca08ac81c7001612c9",
+          "exact_symbol_eligible_windows": [
+            "src/jinja2/utils.py:select_autoescape:581-634"
+          ]
+        },
+        {
+          "group": 2,
+          "path": "src/jinja2/nodes.py",
+          "symbol": "EvalContext.__init__",
+          "evidence_lines": [
+            79,
+            84
+          ],
+          "source_file_sha256": "9b50eecdcafaaa1648f0943a57226050d8a78c07f96d0ce28d29839ccb2f531f",
+          "evidence_sha256": "3bfdfae32829cf7a7a24dad97270cbccf7ff8708e8b8240d1176c1bf5ba8c067",
+          "exact_symbol_eligible_windows": [
+            "src/jinja2/nodes.py:EvalContext.__init__:76-84"
+          ]
+        },
+        {
+          "group": 3,
+          "path": "src/jinja2/compiler.py",
+          "symbol": "CodeGenerator._output_child_pre",
+          "evidence_lines": [
+            1482,
+            1487
+          ],
+          "source_file_sha256": "f51a42425e57f3c0479652623ec1cf876f791e1d2e029bf0149350baeb542de3",
+          "evidence_sha256": "8cd38d90c72936e7c1d5c22c2705fe6341bd934571b9bed5c63ad85345f5805b",
+          "exact_symbol_eligible_windows": [
+            "src/jinja2/compiler.py:CodeGenerator._output_child_pre:1476-1490"
+          ]
+        }
+      ]
+    },
+    {
+      "query_id": "jinja_batch_last_row_padding",
+      "kind": "present",
+      "required_groups": 1,
+      "decision": "supported",
+      "source_review": "The complete selected body yields fixed-size rows, then pads a nonempty short final row only for a non-None fill value. Empty input produces no row.",
+      "targets": [
+        {
+          "group": 1,
+          "path": "src/jinja2/filters.py",
+          "symbol": "do_batch",
+          "evidence_lines": [
+            1132,
+            1145
+          ],
+          "source_file_sha256": "3d0fc481df67f634a0b671906321782b98f69d8c21508ba584f9f28a691dafe9",
+          "evidence_sha256": "7eb62733a5a00bf2951a1e097f8372902640362d6ad450c8d0ecfb5391a16843",
+          "exact_symbol_eligible_windows": [
+            "src/jinja2/filters.py:do_batch:1111-1145"
+          ]
+        }
+      ]
+    },
+    {
+      "query_id": "jinja_truncate_suffix_and_tolerance",
+      "kind": "present",
+      "required_groups": 1,
+      "decision": "supported",
+      "source_review": "The selected executable span reads configured leeway, validates bounds, returns text within tolerance, otherwise reserves suffix length and uses a final-space split unless killwords. No no-space word-boundary guarantee is implied.",
+      "targets": [
+        {
+          "group": 1,
+          "path": "src/jinja2/filters.py",
+          "symbol": "do_truncate",
+          "evidence_lines": [
+            905,
+            918
+          ],
+          "source_file_sha256": "3d0fc481df67f634a0b671906321782b98f69d8c21508ba584f9f28a691dafe9",
+          "evidence_sha256": "fbfcb7f7c355cc20ff6d71a9d6bb4dbe3ffa3b6720d7487a4de2838e7a953b99",
+          "exact_symbol_eligible_windows": [
+            "src/jinja2/filters.py:do_truncate:873-918"
+          ]
+        }
+      ]
+    },
+    {
+      "query_id": "jinja_bounded_cache_replacement",
+      "kind": "present",
+      "required_groups": 1,
+      "decision": "supported",
+      "source_review": "The lock-protected insertion removes an existing key or evicts the leftmost capacity entry, then appends and stores. __getitem__, items and __iter__ confirm recency orientation.",
+      "targets": [
+        {
+          "group": 1,
+          "path": "src/jinja2/utils.py",
+          "symbol": "LRUCache.__setitem__",
+          "evidence_lines": [
+            534,
+            541
+          ],
+          "source_file_sha256": "ad1a77a3d7bb64a4b87f2ad645b10bc8b729b8655315c9e8a1a39ad6ac7f1489",
+          "evidence_sha256": "b8557e4cef70a52e60e2e33a4b98500b93302ad8ff6f7291e33ed84a06f263f6",
+          "exact_symbol_eligible_windows": [
+            "src/jinja2/utils.py:LRUCache.__setitem__:530-541"
+          ]
+        }
+      ]
+    },
+    {
+      "query_id": "jinja_template_path_components",
+      "kind": "present",
+      "required_groups": 1,
+      "decision": "supported",
+      "source_review": "The selected complete body rejects parent and platform-separator components while skipping empty/dot components. This is component validation, not a general filesystem or symlink security proof.",
+      "targets": [
+        {
+          "group": 1,
+          "path": "src/jinja2/loaders.py",
+          "symbol": "split_template_path",
+          "evidence_lines": [
+            29,
+            39
+          ],
+          "source_file_sha256": "c08ae7c63bdc6ea8795705b6f0d4a47e8b620eaf2a342c4839215b1948922c1e",
+          "evidence_sha256": "aee09fa4564bd2cad6435d6e8f90a108f938a101e4b1c5e5056e141f5509a7bc",
+          "exact_symbol_eligible_windows": [
+            "src/jinja2/loaders.py:split_template_path:25-39"
+          ]
+        }
+      ]
+    },
+    {
+      "query_id": "jinja_absent_rendered_output_disk_ttl",
+      "kind": "absent",
+      "required_groups": 0,
+      "decision": "supported",
+      "source_review": "Supported as a scoped absence judgment. Filesystem and memcached bytecode backends cache compiled code; timeout belongs to compiled-bytecode storage. Default modules cache rendered bodies in memory. TemplateStream.dump can write rendered output to a file but has no expiry, input-keyed reuse or render bypass, so it does not satisfy the full query.",
+      "targets": []
+    },
+    {
+      "query_id": "jinja_absent_live_dom_socket_push",
+      "kind": "absent",
+      "required_groups": 0,
+      "decision": "supported",
+      "source_review": "Supported as a scoped absence judgment. Loader/environment freshness is checked on load; render/generate supply strings or iterators. No scoped socket transport, browser connection registry, DOM diff or edit broadcast was found; host application and third-party extensions are excluded.",
+      "targets": []
+    }
+  ],
+  "referenced_tests": [
+    {
+      "query_id": "jinja_bytecode_reject_and_recompile",
+      "test": "tests/test_bytecode_cache.py::TestByteCodeCache.test_simple",
+      "file_sha256": "001ef6b3ea0166c12e707686ceee670cf551a86faed5dbdfb31387aae14ed56f",
+      "definition_lines": [
+        17,
+        20
+      ]
+    },
+    {
+      "query_id": "jinja_file_change_invalidates_template_cache",
+      "test": "tests/test_loader.py::TestFileSystemLoader.test_caches_template_based_on_mtime",
+      "file_sha256": "54f212a12dc547c87f6270655db927bac8788bf9f1de43f5ff2bd1d3f80f593e",
+      "definition_lines": [
+        148,
+        158
+      ]
+    },
+    {
+      "query_id": "jinja_include_parent_and_local_context",
+      "test": "tests/test_imports.py::TestIncludes.test_context_include",
+      "file_sha256": "e986eee813edecafdccf49d4af46f251427c7450fa65d903609aa3ef33451f24",
+      "definition_lines": [
+        126,
+        132
+      ]
+    },
+    {
+      "query_id": "jinja_decorated_helper_context_injection",
+      "test": "tests/test_regression.py::TestBug.test_pass_context_loop_vars",
+      "file_sha256": "98de7df7c5ec257cb2366114191fc814ab6bd3f4c04187d0386e0298ba222428",
+      "definition_lines": [
+        620,
+        638
+      ]
+    },
+    {
+      "query_id": "jinja_json_policy_and_html_safe_serialization",
+      "test": "tests/test_filters.py::TestFilter.test_json_dump",
+      "file_sha256": "07d1f75783c44a6f418d6debeea448e9f94acd7524a1d077837dadfda9b0cb70",
+      "definition_lines": [
+        816,
+        829
+      ]
+    },
+    {
+      "query_id": "jinja_async_filter_first_and_iteration",
+      "test": "tests/test_async_filters.py::test_first",
+      "file_sha256": "f388b68e584f42ea19bd7c0e902c80fb4baf0eae3a8331ba34cb1de3ee0a197a",
+      "definition_lines": [
+        58,
+        65
+      ]
+    },
+    {
+      "query_id": "jinja_sandbox_attribute_security_placeholder",
+      "test": "tests/test_security.py::TestSandbox.test_unsafe",
+      "file_sha256": "abb0bb0b0746760452adeca09426dc78a39f273163f96161a9be34162fd47917",
+      "definition_lines": [
+        38,
+        56
+      ]
+    },
+    {
+      "query_id": "jinja_filename_autoescape_to_generated_output",
+      "test": "tests/test_utils.py::TestHelpers.test_autoescape_select",
+      "file_sha256": "79bde913e796cd5e97221efd638c2fed29ee71ff93e07013094bcb3447d2fe8f",
+      "definition_lines": [
+        118,
+        132
+      ]
+    },
+    {
+      "query_id": "jinja_filename_autoescape_to_generated_output",
+      "test": "tests/test_api.py::TestExtendedAPI.test_autoescape_autoselect",
+      "file_sha256": "d6929b0602fa0ae0d824d26e9e38071a1db8a11c286e3478f61c44f53777879c",
+      "definition_lines": [
+        135,
+        150
+      ]
+    },
+    {
+      "query_id": "jinja_batch_last_row_padding",
+      "test": "tests/test_filters.py::TestFilter.test_batch",
+      "file_sha256": "07d1f75783c44a6f418d6debeea448e9f94acd7524a1d077837dadfda9b0cb70",
+      "definition_lines": [
+        65,
+        71
+      ]
+    },
+    {
+      "query_id": "jinja_truncate_suffix_and_tolerance",
+      "test": "tests/test_filters.py::TestFilter.test_truncate",
+      "file_sha256": "07d1f75783c44a6f418d6debeea448e9f94acd7524a1d077837dadfda9b0cb70",
+      "definition_lines": [
+        332,
+        339
+      ]
+    },
+    {
+      "query_id": "jinja_truncate_suffix_and_tolerance",
+      "test": "tests/test_filters.py::TestFilter.test_truncate_very_short",
+      "file_sha256": "07d1f75783c44a6f418d6debeea448e9f94acd7524a1d077837dadfda9b0cb70",
+      "definition_lines": [
+        341,
+        346
+      ]
+    },
+    {
+      "query_id": "jinja_bounded_cache_replacement",
+      "test": "tests/test_utils.py::TestLRUCache.test_simple",
+      "file_sha256": "79bde913e796cd5e97221efd638c2fed29ee71ff93e07013094bcb3447d2fe8f",
+      "definition_lines": [
+        20,
+        27
+      ]
+    },
+    {
+      "query_id": "jinja_template_path_components",
+      "test": "tests/test_loader.py::TestLoaders.test_split_template_path",
+      "file_sha256": "54f212a12dc547c87f6270655db927bac8788bf9f1de43f5ff2bd1d3f80f593e",
+      "definition_lines": [
+        113,
+        116
+      ]
+    }
+  ],
+  "limitations": [
+    "Small authored sample with deliberate multi-file emphasis; not representative external-user workload.",
+    "Source-review absence labels are scoped judgments, not runtime proof or a claim about third-party extensions.",
+    "Source-span scoring credits any verified containing window regardless of symbol label; one window may cover more than one group.",
+    "Supporting forwarding/adaptation/storage helpers were checked for semantic linkage without automatically making each helper an extra gold group.",
+    "Evaluation configuration and product implementation must be independently frozen before inference. This receipt freezes labels/source review, not ranking policy.",
+    "No Jinja holdout model/retrieval output was inspected during this review. Any future label correction after outputs must be reported as contamination rather than silently repairing gold."
+  ]
+}
