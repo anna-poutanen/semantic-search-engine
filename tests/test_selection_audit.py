@@ -183,6 +183,42 @@ def test_native_quality_uses_first_repetition_and_dense_gate_cannot_be_rescued()
     assert summary["per_retrieval"]["hybrid"]["passed"] is True
     assert summary["dense_promotion_gate_passed"] is False
     assert summary["per_retrieval"]["dense"]["arms"]["candidate"]["complete_positives"] == 0
+    for mode in ("dense", "hybrid"):
+        for arm in ("baseline", "candidate"):
+            assert summary["per_retrieval"][mode]["arms"][arm]["present_queries"] == 1
+            assert summary["per_retrieval"][mode]["arms"][arm]["multi_file_queries"] == 1
+
+
+def test_native_denominators_exclude_absent_queries_and_repeated_calls():
+    rows = []
+    for mode in ("dense", "hybrid"):
+        for repetition in range(1, 4):
+            for arm in ("baseline", "candidate"):
+                for name, kind, multi in (("multi", "present", True),
+                                          ("single", "present", False),
+                                          ("absent", "absent", False)):
+                    _, response = fixture()
+                    response["match_status"] = "candidates"
+                    rows.append({"query_id": name, "retrieval": mode, "repetition": repetition, "arm": arm,
+                        "kind": kind, "multi_file": multi, "response": response,
+                        "elapsed_backend_s": .2, "delivered_ranks": [] if kind == "absent" else [1, None]})
+    summary = audit.native_summary(rows)
+    for mode in ("dense", "hybrid"):
+        for arm in ("baseline", "candidate"):
+            metrics = summary["per_retrieval"][mode]["arms"][arm]
+            assert metrics["measured_calls"] == 9
+            assert metrics["present_queries"] == 2
+            assert metrics["multi_file_queries"] == 1
+            assert len(metrics["absent_inventory"]) == 1
+
+
+def test_only_declared_test_discovery_repair_can_resolve_native_project_config():
+    original = b'[project]\nname = "example"\n[tool.setuptools.packages.find]\nwhere = ["src"]\n'
+    scoped = original + b'\n[tool.pytest.ini_options]\ntestpaths = ["tests"]\n'
+    assert audit.pytest_scope_only(original, scoped)
+    assert not audit.pytest_scope_only(original, scoped.replace(b'"example"', b'"changed"'))
+    assert not audit.pytest_scope_only(original, scoped + b'addopts = "--ignore=tests"\n')
+    assert not audit.pytest_scope_only(original, scoped.replace(b'["tests"]', b'["elsewhere"]'))
 
 
 def test_clean_subprocess_rejects_producer_model_imports_and_never_needs_network():
