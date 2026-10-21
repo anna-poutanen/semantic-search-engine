@@ -1,12 +1,16 @@
 # Context selection follow-up
 
+The candidate failed the fresh improvement gate: both arms completed **4/8
+multi-file urllib3 behaviors**. The production default remains dense retrieval
+with the original selector and dependency allocation. The new selector and
+backfill implementation remain research code, exercised by the benchmark harness.
+
 The development replay recovered two complete behaviors by removing redundant
 excerpts only when another delivered excerpt already contained their entire
 literal source, then filling the freed slots. Reserving more slots for ranked
 candidates lost required dependency evidence and was rejected. This study keeps
 the original eight-excerpt, 12,000-source-character and 4,096-compact-token caps.
-The fresh native validation and promotion decision are recorded below when the
-frozen run and independent audit finish.
+The gain did not carry over to the fresh native test.
 
 ## What changed
 
@@ -102,6 +106,85 @@ audit and stay within 25% median warm overhead. Dense must pass before the produ
 default changes; a hybrid-only result cannot rescue it. The study does not measure
 HTTP/MCP transport latency, coding correctness, provider billing or agent savings.
 
+All **168 measured calls** finished, using 168 actual query embeddings plus four
+explicit warm-up embeddings. Index/model initialization and warm-up took 47.5
+seconds. Full candidate orders/scores and compact payloads stayed identical across
+all three repetitions within each arm/mode.
+
+| Retrieval / selector | Complete positives | Complete multi-file | Full groups | Warm median | Warm P95 |
+|---|---:|---:|---:|---:|---:|
+| Dense / original | 8/12 | 4/8 | 17/22 | 227 ms | 255 ms |
+| Dense / candidate | 8/12 | 4/8 | 17/22 | 238 ms | 262 ms |
+| Hybrid / original | 7/12 | 4/8 | 15/22 | 241 ms | 278 ms |
+| Hybrid / candidate | 7/12 | 4/8 | 15/22 | 248 ms | 298 ms |
+
+There are no gained or lost complete queries or full groups, and no lost
+single-file first hits. Dense preserves all four single-file controls; hybrid
+covers three in both arms. Warm median overhead is 4.60% for dense and 2.93% for
+hybrid, inside the latency allowance, but neither arm adds the required complete
+multi-file behavior. One contained excerpt is removed and one candidate appended
+in each retrieval mode's first repetition, without changing any gold coverage.
+Both scoped absent queries still return `candidates`; this does not prove either
+feature exists or is absent.
+
+The [native results](../results/selection-holdout-urllib3-2026-10-21/summary.json)
+retain the plan, exact source inventory, raw stage/response/vector receipts,
+independent audit and all missing-group diagnoses. The next quality target is
+the still-excluded complementary implementation evidence under the fixed cap;
+this experiment does not justify another coding comparison or a default change.
+
+The [independent missing-evidence trace](../results/selection-holdout-urllib3-2026-10-21/missing-evidence-diagnosis.md)
+explains every miss. Across 12 missing query/group/retrieval-mode cases (eight
+distinct query/group units, before duplicating baseline/candidate arms), one is
+absent from the retrieved 50, one loses a complementary window of the same long
+function during deduplication, seven lie beyond the eight-result prefix, two are
+displaced by dependencies, and one is clipped by the character budget. None
+first disappears during token packing or the new postprocessor. Distinguishing
+separate definitions does not solve complementary-window selection within one
+long implementation. Simply reserving ranked slots is also insufficient: the
+development control already demonstrated losses of necessary dependency evidence.
+
+## Reproduction
+
+Use Python 3.12 and the pinned Mac runtime/model recorded in the plan, plus the
+exact corpus commit and offline tokenizer bytes. The development and native
+protocols explain the frozen inputs and commit barrier. Scripts refuse changed
+bindings, existing outcomes and resumed attempts; use a new output directory.
+The exact historical native producer is in commit `3e0747f`, before inference.
+The independent auditor is separate and must be committed before it executes.
+
+For another native measurement with current code, the same urllib3 labels are
+now **observed timing/development evidence**:
+
+```sh
+PYTHONPATH=src .venv/bin/python scripts/benchmark_selection.py \
+  --dataset benchmarks/selection_holdout_queries.json \
+  --corpus /path/to/clean/urllib3 \
+  --model /path/to/qwen3-embedding-0.6b \
+  --output results/local/selection-measurement \
+  --candidate definition_coverage_backfill \
+  --source-review results/selection-preflight-2026-10-21/source-review.json \
+  --development-study results/selection-development-v2-2026-10-21 \
+  --role development_warm_timing --freeze
+# Review and commit the unchanged bound files and plan, then repeat with --run.
+```
+
+Audit saved receipts without loading any model:
+
+```sh
+.venv/bin/python scripts/audit_selection.py --mode native \
+  --corpus /path/to/clean/urllib3 \
+  --results results/selection-holdout-urllib3-2026-10-21 \
+  --output results/local/new-selection-audit.json
+```
+
+Set `TIKTOKEN_CACHE_DIR` to the directory containing the pinned local
+`cl100k_base` rank file if using a separate tokenizer cache. To reproduce the
+original run's bound producer exactly, use its historical commit in a clean
+checkout; a new measurement with current code cannot be represented as that
+original fresh attempt. Full commands and input matrices for CPU replay are in
+the [development protocol](selection-development-protocol.md).
+
 ## Verification and limits
 
 Focused tests cover same-name Python/JavaScript/TypeScript definitions, long
@@ -117,10 +200,23 @@ freeze, source guards, metrics and failure receipts.
 The first full suite exposed a test-isolation error: a replay guard test assumed
 the entire pytest process had never imported the backend. It now tests the actual
 offline guard in a fresh subprocess, matching the replay's clean-process contract.
-Production and replay algorithms were unchanged by that repair. Initial editor
+Production and replay algorithms were unchanged by that repair. Preserved audit
+source snapshots also exposed pytest discovering archived test files under
+`results/`; primary test discovery now explicitly uses `tests/`. This test-only
+configuration change happened after native inference and is identified against
+the frozen execution blob during audit. The first native audit found a schema
+mismatch: it omitted the producer's positive/multi-file denominator fields.
+Its failure receipt is retained; the narrow auditor repair independently
+recomputed those counts and left all producer data and quality gates unchanged.
+Initial editor
 helper checks also ran before TypeScript compilation completed; the correctly
-sequenced run passed. Final test totals are recorded with the native audit and
-GitHub checks.
+sequenced run passed. The final local full run passed **2,726 core tests**, with
+ten documented optional-environment skips; it collected before two final auditor
+regressions were added. A subsequent focused run passed all **34 final auditor
+and native-harness tests**. TypeScript compilation and all **117 editor tests**
+and **61 editor helper tests** passed. The [validation receipt and logs](../results/selection-validation-2026-10-21/validation.json)
+retain exact commands, counts, hashes, scope and initial failure logs. GitHub runs
+the full final suite again before merge.
 
 The benchmarks are small source-authored samples. Literal source-complete AND
 coverage is useful for diagnosis, but does not establish coding correctness or
