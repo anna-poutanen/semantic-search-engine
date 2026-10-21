@@ -1,0 +1,280 @@
+"""Independent source-only receipt producer; never imports experimental selection."""
+import fnmatch
+import hashlib
+import importlib.abc
+import json
+from pathlib import Path
+import socket
+import subprocess
+import sys
+from datetime import datetime, timezone
+
+
+class SourceOnly(importlib.abc.MetaPathFinder):
+    def find_spec(self, name, path=None, target=None):
+        prefixes = ("mlx", "mlx_embeddings", "torch", "transformers", "jax", "numpy",
+                    "semantic_search.backend", "semantic_search.embeddings", "semantic_search.model",
+                    "semantic_search.index", "semantic_search.store", "semantic_search.selection",
+                    "semantic_search.context_backfill", "semantic_search.window_assembly",
+                    "semantic_search.context", "semantic_search.persistent_retrieval")
+        if any(name == p or name.startswith(p + ".") for p in prefixes):
+            raise RuntimeError("Independent source review forbids " + name)
+
+
+sys.meta_path.insert(0, SourceOnly())
+
+
+def deny(*args, **kwargs):
+    raise RuntimeError("Independent source review forbids network")
+
+
+socket.create_connection = socket.getaddrinfo = socket.socket.connect = socket.socket.connect_ex = socket.socket.sendto = deny
+from semantic_search.corpus import extract_snippets
+from semantic_search.javascript import definitions, parse_source, node_text
+from semantic_search.languages import EXTRACTORS, decode_source, extractor_fingerprint
+
+ROOT = Path(__file__).resolve().parents[1]
+CORPUS = Path("/Users/annapoutanen/personal-projects/semantic-search-engine/.cache/corpora/tanstack-query-window-holdout")
+DATASET = ROOT / "benchmarks/window_holdout_queries.json"
+PROTOCOL = ROOT / "docs/window-holdout-source-review.md"
+data = json.loads(DATASET.read_bytes())
+
+
+def sha(raw):
+    return hashlib.sha256(raw).hexdigest()
+
+
+def digest(value):
+    return sha((json.dumps(value, sort_keys=True, separators=(",", ":")) + "\n").encode())
+
+
+def git(*args):
+    return subprocess.check_output(["git", "-C", str(CORPUS), *args], text=True).strip()
+
+
+assert sha(DATASET.read_bytes()) == "ec4ebb01aa366d51af9966e830bd490592ef2a784e9e9de5d57ea558beb25931"
+assert sha(PROTOCOL.read_bytes()) == "4bccce3ce6952b0e700ef7273e3a0928555dad1d444b9ad5d88cef1b40b7373a"
+assert git("rev-parse", "HEAD") == data["revision"]
+assert not git("status", "--porcelain=v1")
+assert git("rev-parse", data["release"]) == data["annotated_tag_object"]
+assert git("rev-parse", data["release"] + "^{}") == data["revision"]
+package_raw = (CORPUS / "packages/query-core/package.json").read_bytes()
+package = json.loads(package_raw)
+assert package["version"] == "5.90.5"
+assert package["files"] == ["build", "src", "!src/__tests__"]
+assert data["source_exclusions"] == ["packages/query-core/src/__tests__/**"]
+
+tracked = git("ls-files", "-z", data["source_root"]).split("\0")
+supported = [p for p in tracked if p and Path(p).suffix in EXTRACTORS]
+excluded = {p for p in supported if any(fnmatch.fnmatchcase(p, g) for g in data["source_exclusions"])}
+included = set(supported) - excluded
+assert included == set(data["source_files"])
+assert excluded == set(data["excluded_supported_files"])
+for field in ("source_files", "excluded_supported_files", "upstream_test_files_read"):
+    for path, meta in data[field].items():
+        raw = (CORPUS / path).read_bytes()
+        assert len(raw) == meta["bytes"] and sha(raw) == meta["sha256"], (field, path)
+assert digest(data["source_files"]) == data["source_inventory_sha256"]
+assert digest(data["excluded_supported_files"]) == data["excluded_supported_inventory_sha256"]
+
+sources = {p: decode_source(p, (CORPUS / p).read_bytes()) for p in data["source_files"]}
+trees = {p: parse_source(p, text) for p, text in sources.items()}
+defs = {p: definitions(p, text, trees[p]) for p, text in sources.items()}
+keys = {}
+windows = extract_snippets(CORPUS, data["source_root"], 160, 40, sources=sources,
+                           source_exclusions=data["source_exclusions"], definition_keys=keys)
+window_inventory = []
+for window in windows:
+    lines = sources[window.path].splitlines(keepends=True)
+    assert window.text == "".join(lines[window.start_line - 1:window.end_line])
+    assert sha(window.text.encode()) == window.content_hash
+    window_inventory.append({name: getattr(window, name) for name in
+                             ("id", "path", "symbol", "start_line", "end_line", "content_hash")})
+
+counts = {"queries": len(data["queries"]), "present": 0, "multi_file_present": 0,
+          "single_file_present": 0, "scoped_absent": 0, "required_positive_evidence_groups": 0,
+          "target_rows": 0, "source_files": len(included), "excluded_supported_files": len(excluded),
+          "source_windows_160_40": len(windows), "extracted_definitions": len(set(keys.values())),
+          "source_files_with_extracted_implementations": len({w.path for w in windows})}
+targets, tests = [], {}
+for query in data["queries"]:
+    groups = query["target_groups"]
+    if query["kind"] == "absent":
+        assert not groups and query["scope"] == data["source_root"]
+        counts["scoped_absent"] += 1
+        continue
+    counts["present"] += 1
+    counts["required_positive_evidence_groups"] += len(groups)
+    paths = {t["path"] for group in groups for t in group}
+    counts["multi_file_present" if len(paths) > 1 else "single_file_present"] += 1
+    for group_number, group in enumerate(groups, 1):
+        assert len({(t["path"], tuple(t["evidence_lines"]), t["evidence_sha256"]) for t in group}) == 1
+        for target in group:
+            path = target["path"]
+            source = sources[path]
+            raw = source.encode()
+            lines = source.splitlines(keepends=True)
+            low, high = target["evidence_lines"]
+            evidence = "".join(lines[low - 1:high]).encode()
+            offsets = [0]
+            for line in lines:
+                offsets.append(offsets[-1] + len(line.encode()))
+            assert target["source_file_sha256"] == sha(raw)
+            assert target["evidence_sha256"] == sha(evidence)
+            assert target["evidence_byte_bounds"] == [offsets[low - 1], offsets[high]]
+            matched = [d for d in defs[path] if d.symbol == target["symbol"]
+                       and [d.start_line, d.end_line] == target["definition_lines"]
+                       and [d.node.start_byte, d.node.end_byte] == target["ast_definition_byte_bounds"]]
+            assert len(matched) == 1, (query["id"], target["symbol"])
+            definition = matched[0]
+            assert [definition.span.start_byte, definition.span.end_byte] == target["definition_span_byte_bounds"]
+            assert sha(raw[definition.node.start_byte:definition.node.end_byte]) == target["definition_sha256"]
+            assert definition.start_line <= low <= high <= definition.end_line
+            assert sorted(set(definition.implementation_lines) & set(range(low, high + 1))) == target["executable_evidence_lines"]
+            assert target["executable_evidence_lines"]
+            eligible = [w.id for w in windows if w.path == path and w.symbol == target["symbol"]
+                        and w.start_line <= low <= high <= w.end_line]
+            assert eligible, (query["id"], target["symbol"], low, high)
+            targets.append({"query_id": query["id"], "group": group_number,
+                            "path": path, "symbol": target["symbol"],
+                            "evidence_lines": target["evidence_lines"],
+                            "evidence_sha256": sha(evidence),
+                            "canonical_definition_key": [path, definition.symbol, definition.start_line,
+                                                         definition.end_line, definition.node.start_byte],
+                            "eligible_window_ids": eligible})
+            counts["target_rows"] += 1
+    for reference in query.get("upstream_tests_read", []):
+        path, title = reference.split("::", 1)
+        if reference in tests:
+            continue
+        text = (CORPUS / path).read_text()
+        raw = text.encode()
+        stack, matched = [parse_source(path, text).root_node], []
+        while stack:
+            node = stack.pop()
+            stack.extend(reversed(node.named_children))
+            if node.type != "call_expression":
+                continue
+            fn, args = node.child_by_field_name("function"), node.child_by_field_name("arguments")
+            if fn is None or args is None or node_text(fn, raw) not in ("test", "it") or not args.named_children:
+                continue
+            first = args.named_children[0]
+            if first.type == "string" and node_text(first, raw)[1:-1] == title:
+                matched.append(node)
+        assert len(matched) == 1, reference
+        node = matched[0]
+        tests[reference] = {"lines": [node.start_point[0] + 1, node.end_point[0] + 1],
+                            "call_source_sha256": sha(raw[node.start_byte:node.end_byte]),
+                            "full_body_read": True, "executed": False}
+assert counts == data["counts"]
+
+license_checks = {}
+for name, expected in (("TANSTACK_QUERY_LICENSE.txt", "a405ee70c632bb938acb7ac5f210e814409b3760ea9d2329d8ed8ffcfd11a0e7"),
+                       ("IS_PLAIN_OBJECT_LICENSE.txt", "4cd903859549d4b20b571041f96dfae1136ed079c476126268f9d7cc1b611150")):
+    raw = (ROOT / "benchmarks" / name).read_bytes()
+    assert sha(raw) == expected
+    assert b"Permission is hereby granted" in raw
+    license_checks[name] = {"sha256": sha(raw), "full_notice_read": True}
+assert (ROOT / "benchmarks/TANSTACK_QUERY_LICENSE.txt").read_bytes() == (CORPUS / "LICENSE").read_bytes()
+assert "Copied from: https://github.com/jonschlinkert/is-plain-object" in sources["packages/query-core/src/utils.ts"]
+assert "github.com/facebook/react" in sources["packages/query-core/src/thenable.ts"]
+assert not any(Path(p).name.lower().startswith("notice") for p in git("ls-files").splitlines())
+notices = ["THIRD_PARTY_NOTICES.md", "benchmarks/CORPUS_NOTICES.md"]
+for path in notices:
+    notice = (ROOT / path).read_text()
+    assert "TanStack Query" in notice and "is-plain-object" in notice and "Jon Schlinkert" in notice
+
+absent_terms = ("writeFile", "fs/promises", "node:fs", "localStorage", "indexedDB",
+                "BroadcastChannel", "postMessage", "temporary", "atomic", "rename(")
+absent_matches = {term: [p for p, source in sources.items() if term in source] for term in absent_terms}
+assert not any(absent_matches.values())
+# Actual parsed import declarations, unlike matches inside illustrative type comments.
+imports = {}
+for path, tree in trees.items():
+    values = []
+    for node in tree.root_node.named_children:
+        if node.type == "import_statement":
+            source = node.child_by_field_name("source")
+            if source is not None:
+                value = node_text(source, sources[path].encode())[1:-1]
+                values.append(value)
+                assert value.startswith("./"), (path, value)
+    imports[path] = values
+
+semantic = {
+    "tanstack_inflight_reuse_and_success_delivery": "Active retryer reuse, success/callback completion, dispatch delivery and observer refresh are separate necessary links; cancelRefetch remains conditional.",
+    "tanstack_last_observer_signal_cancellation": "Final-observer policy, signal-consumption getter, retryer cancellation and query abort/revert callback require both sides of the callback boundary; transport compliance is not assumed.",
+    "tanstack_mutation_scope_serial_continuation": "Execution supplies canRun, cache restricts named scope, finally always requests runNext, and cache continues a paused peer. No cross-scope ordering is asserted.",
+    "tanstack_invalidation_and_refetch_filter": "Client invalidation/refetchType dispatch, query invalidation transition, and disabled/static refetch filtering are distinct required operations. The reducer's invalidate branch was read as linkage context.",
+    "tanstack_infinite_pages_bounded_both_directions": "Direction selection, paired page/pageParam update, append truncation and prepend truncation are all required. Application page-parameter callbacks remain outside the claim.",
+    "tanstack_optimistic_result_and_result_promise": "Optimistic overlay, fetch-state construction, conditional actual pending-thenable finalization call through line 623, and thenable mutation/cleanup are all required; both named configuration conditions are retained.",
+    "tanstack_hydrate_pending_promise_without_second_query_fn": "Hydration guards and deserialization, initialPromise forwarding, and first-attempt retryer reuse are separate links. Later retries can invoke the query function; no JSON promise serialization is asserted.",
+    "tanstack_selector_memoization_and_deep_sharing": "Reference/selector memoization, sharing configuration dispatch, and recursive plain-array/object sharing are all required. This does not promise arbitrary-object equality semantics.",
+    "tanstack_stable_query_hash": "The JSON replacer recursively sorts plain-object property names and preserves array order; no collision-free or cyclic serialization claim.",
+    "tanstack_recursive_partial_key_match": "Object.keys of the requested subset recurses directionally into the larger key; this is not symmetric equality.",
+    "tanstack_nested_notification_batch_finally": "The transaction counter decrements in finally and flushes only at zero; actual nested-batch and thrown-callback tests were read.",
+    "tanstack_gc_time_never_shortens": "Math.max preserves the prior duration and the configured or environment-dependent default; timer-provider implementation is not required.",
+    "tanstack_atomic_disk_cache": "All included imports are relative implementation modules. No filesystem or browser-storage implementation occurs; persister callouts delegate to caller-supplied functions. Other monorepo packages are outside scope.",
+    "tanstack_cross_tab_broadcast": "Local listener dispatch and browser focus/online handlers do not implement a cross-tab send/receive channel; no BroadcastChannel or postMessage occurs in included source. Other monorepo packages are outside scope.",
+}
+assert set(semantic) == {q["id"] for q in data["queries"]}
+receipt = {
+    "status": "passed_source_review_before_holdout_retrieval",
+    "reviewed_at_utc": datetime.now(timezone.utc).isoformat(),
+    "reviewer": "independent /root/window_capacity agent; not the source-label author",
+    "review_type": "Exact pinned source inventory, syntax/AST identities and bytes, evidence-window eligibility, semantic AND/OR necessity, upstream test-body reading and notices; no runtime behavioral proof",
+    "dataset": {"path": str(DATASET.relative_to(ROOT)), "sha256": sha(DATASET.read_bytes())},
+    "protocol": {"path": str(PROTOCOL.relative_to(ROOT)), "sha256": sha(PROTOCOL.read_bytes())},
+    "corpus": {"repository": data["repo_url"], "release": data["release"], "commit": data["revision"],
+               "annotated_tag_object": data["annotated_tag_object"], "working_tree_clean": True,
+               "source_root": data["source_root"], "source_exclusions": data["source_exclusions"],
+               "source_inventory_sha256": data["source_inventory_sha256"],
+               "excluded_supported_inventory_sha256": data["excluded_supported_inventory_sha256"],
+               "complete_tracked_supported_source_inventory": True,
+               "exclusions_match_published_package_files": True,
+               "package_json_sha256": sha(package_raw)},
+    "counts": counts,
+    "extraction": {"max_lines": 160, "overlap_lines": 40, "windows": len(windows),
+                   "window_inventory_sha256": digest(window_inventory),
+                   "window_inventory_digest_format": "SHA256 of UTF-8 JSON in extractor order of id/path/symbol/start_line/end_line/content_hash; sort_keys=True, compact comma/colon separators, final LF",
+                   "unique_window_ids": len({w.id for w in windows}) == len(windows),
+                   "every_window_source_faithful": True,
+                   "every_target_source_faithful_executable_and_fully_eligible": True,
+                   "definition_hash_semantics": "definition_sha256 is SHA256 of exact original AST function node bytes [ast_definition_byte_bounds]; wrapper span bounds are independently checked separately",
+                   "extractor_fingerprint": extractor_fingerprint(),
+                   "source_implementations_sha256": {p: sha((ROOT / p).read_bytes()) for p in
+                       ("src/semantic_search/corpus.py", "src/semantic_search/javascript.py",
+                        "src/semantic_search/languages.py", "src/semantic_search/source.py")}},
+    "targets": targets,
+    "semantic_review": semantic,
+    "all_or_alternatives_preserve_identical_complete_evidence_bytes": True,
+    "all_multi_file_queries_require_groups_in_at_least_two_files": True,
+    "upstream_test_definitions": tests,
+    "upstream_test_files_read": data["upstream_test_files_read"],
+    "upstream_tests_executed": False,
+    "scoped_absence_searches": {"included_source_matches": absent_matches,
+                               "all_actual_parsed_imports": imports,
+                               "persister_extension_points_and_local_listener_managers_read": True},
+    "licenses": {"copies": license_checks, "root_license_copy_exact": True,
+                 "is_plain_object_notice_reference": "https://github.com/jonschlinkert/is-plain-object/blob/74620fdf57c9d2809c6b0d112bb12ceaae3d7308/LICENSE",
+                 "is_plain_object_notice_reference_supplied_by_source_author": True,
+                 "source_level_copied_code_credit_verified": True,
+                 "react_promise_reference_links_verified": True,
+                 "separate_tracked_notice_file": False,
+                 "notices_sha256": {p: sha((ROOT / p).read_bytes()) for p in notices}},
+    "prior_exposure": "Reviewer previously inspected only observed development and urllib3 source-capacity traces. Reviewer has not inspected this prospective selector implementation or any TanStack index, rankings, activations, returned-result or coverage outcomes.",
+    "calls": {"model": 0, "index": 0, "retrieval": 0, "selector": 0, "postprocessor": 0,
+              "rule_activation": 0, "gold_coverage_scoring": 0, "network": 0},
+    "review_source": {"validator_sha256": sha(Path(__file__).read_bytes()),
+                      "manual_semantic_and_upstream_test_reading_preceded_receipt": True},
+    "limitations": ["Source-only review does not execute upstream tests or certify runtime behavior.",
+                    "Project-experiment repository holdout is not model-pretraining isolation.",
+                    "Existing extraction/qualification is used for compatibility and checked against original AST bounds and human-read source; no selection implementation is imported.",
+                    "After the first retrieval this repository becomes observed data and cannot choose parameters or be called fresh again."],
+}
+output = ROOT / "results/window-preflight-2026-10-21/source-review.json"
+output.parent.mkdir(parents=True, exist_ok=True)
+with output.open("x") as stream:
+    stream.write(json.dumps(receipt, ensure_ascii=False, indent=2, allow_nan=False) + "\n")
+print(json.dumps({"path": str(output.relative_to(ROOT)), "sha256": sha(output.read_bytes()),
+                  "counts": counts, "upstream_test_definitions_read": len(tests), "status": receipt["status"]}, indent=2))
