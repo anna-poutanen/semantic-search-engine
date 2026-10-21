@@ -5,12 +5,15 @@ from __future__ import annotations
 import ast
 import hashlib
 import subprocess
-from collections.abc import Mapping
+from collections.abc import Mapping, MutableMapping
 from dataclasses import dataclass
 from pathlib import Path
 from semantic_search.source import physical_lines
 from semantic_search.languages import (EXTRACTORS, decode_source, extractor_for,
                                       path_excluded, source_eligible, validate_exclusions)
+
+
+DefinitionKey = tuple[str, str, int, int] | tuple[str, str, int, int, int]
 
 
 @dataclass(frozen=True)
@@ -142,6 +145,7 @@ def extract_snippets(
     *,
     sources: Mapping[str, str] | None = None,
     source_exclusions=(),
+    definition_keys: MutableMapping[str, DefinitionKey] | None = None,
 ) -> list[Snippet]:
     """Return functions and methods, windowing long bodies without changing source.
 
@@ -151,9 +155,14 @@ def extract_snippets(
     Classes are traversed for methods, rather than indexed again as whole files.
     Optional sources maps repository-relative paths to already captured decoded
     source; this mode parses exactly that membership without rereading files.
+    Optional definition_keys receives each emitted snippet ID's definition identity.
+    Its source span is shared by all windows, including across omitted docstrings;
+    this metadata never changes snippet contents or the persistent index format.
     """
     if max_lines < 1 or not 0 <= overlap_lines < max_lines:
         raise ValueError("Require max_lines > 0 and 0 <= overlap_lines < max_lines")
+    if definition_keys is not None and not isinstance(definition_keys, MutableMapping):
+        raise ValueError("definition_keys must be a mutable mapping")
     repo = Path(repo).resolve()
     source_exclusions = validate_exclusions(source_exclusions)
     root = (repo / source_root).resolve()
@@ -188,7 +197,8 @@ def extract_snippets(
         relative_path = path.relative_to(repo).as_posix()
         if extractor_for(path).language != "python":
             from semantic_search.javascript import extract_javascript
-            snippets.extend(extract_javascript(relative_path, source, max_lines, overlap_lines))
+            snippets.extend(extract_javascript(relative_path, source, max_lines, overlap_lines,
+                                               definition_keys=definition_keys))
             continue
         lines = physical_lines(source)
         definitions = _Definitions()
@@ -197,6 +207,7 @@ def extract_snippets(
             implementation_lines = _implementation_lines(node, definitions.docstrings)
             first_line = min([node.lineno, *(item.lineno for item in node.decorator_list)])
             final_line = node.end_lineno or node.lineno
+            definition_key = (relative_path, symbol, first_line, final_line)
             start = first_line
             while start <= final_line:
                 end = min(start + max_lines - 1, final_line)
@@ -211,6 +222,8 @@ def extract_snippets(
                         text=text,
                         content_hash=hashlib.sha256(text.encode("utf-8")).hexdigest(),
                     ))
+                    if definition_keys is not None:
+                        definition_keys[snippets[-1].id] = definition_key
                 if end == final_line:
                     break
                 start += max_lines - overlap_lines

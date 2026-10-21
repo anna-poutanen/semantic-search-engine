@@ -105,6 +105,12 @@ sample; dense remains the default. The new clause-based `multifile` experiment
 failed its fresh-codebase gate (2/8) and is a research-only source option, absent
 from the v0.1.4 ZIP and VSIX.
 
+The [context-selection follow-up](docs/context-selection.md) tests definition
+identity, dependency allocation and source-preserving backfill. Backfill recovers
+two observed development behaviors but adds no complete multi-file behavior on
+fresh urllib3 (both arms 4/8), so the default selector stays unchanged. Frozen
+plans, all responses, warm timings and independent audits are included.
+
 For optional H2O reranking, install its pinned runtime and weights with
 `python3 scripts/setup_mac.py`, start `.venv/bin/python scripts/serve_mac.py` in
 another terminal, then pass `--rerank`:
