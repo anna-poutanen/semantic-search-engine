@@ -111,6 +111,14 @@ two observed development behaviors but adds no complete multi-file behavior on
 fresh urllib3 (both arms 4/8), so the default selector stays unchanged. Frozen
 plans, all responses, warm timings and independent audits are included.
 
+The [complementary-window experiment](docs/complementary-windows.md) tests three
+literal-source assembly rules within the same context budget. Across 365 saved
+cases (187 distinct queries), none adds a complete query over coverage control;
+an unguarded union loses one correct result, while both guarded variants preserve
+it. All 1,825 outcomes pass independent source/token audits. Production stays
+unchanged, and the new source-reviewed codebase remains untested pending a
+candidate that improves development quality.
+
 For optional H2O reranking, install its pinned runtime and weights with
 `python3 scripts/setup_mac.py`, start `.venv/bin/python scripts/serve_mac.py` in
 another terminal, then pass `--rerank`:
