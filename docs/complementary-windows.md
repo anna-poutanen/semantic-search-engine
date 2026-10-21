@@ -87,6 +87,31 @@ one complete single-file query. Both guarded conditions avoid the regression.
 The prior coverage control's two complete-query gains remain known development
 results and are not evidence that window assembly improved quality.
 
+The separately bound [post hoc stage analysis](../results/window-development-2026-10-21/activation-analysis.md)
+explains the lack of gains; its derived counts are outside the original audit.
+Connected union creates 79 composites
+across 72 selected case rows, but only 28 case rows deliver one after packing and
+backfill. The source guard rejects 21 of those proposals. In the seven accepted
+cases, clipping delivers no additional physical source lines over coverage
+control. Forward continuation makes 77 trials: 50 have no character room, 23 have
+no token room, and four add just six lines across two reused Zod query units.
+Those four extend a clipped excerpt through its own original window; none reaches
+a different companion window.
+
+Coverage control has 79 missing evidence-group occurrences across this reused
+condition matrix: 61 are present in selected candidates but excluded from the
+eligible context, 16 are absent from the recorded input pool, one is dropped by
+representative-window selection, and one is lost in packing. These are diagnostic
+occurrences rather than independent queries. Of the 61 selection misses, 53
+covering representatives rank beyond eight and eight rank six through eight but
+are displaced by dependency allocation. Of the 16 input-pool misses, four use
+the already scored K24 reranker pool, so absence there does not prove that
+initial retrieval never found the implementation. The one window-selection miss is a
+urllib3 rewind query: joining recovers its full evidence at selected rank eleven,
+which still cannot enter the eight returned rows. This points to allocation
+across distinct implementations as the next experiment; more whole-window
+concatenation does not address the dominant observed bottleneck.
+
 The [independent audit](../results/window-development-2026-10-21/independent-audit.json)
 passes on its first attempt and verifies all **1,825 outcomes**, both exact
 historical barriers, physical source/assembly receipts, compact tokens and every
@@ -136,7 +161,10 @@ Python-produced full/clipped fixtures are accepted by strict MCP validation and
 the editor's saved-source verifier. Cancellation, immutable indexed snippets and
 one-query-embedding behavior also have integration coverage.
 
-The local full core suite passes **2,876 tests, 10 skipped**; the final expanded
+[GitHub CI](https://github.com/anna-poutanen/semantic-search-engine/actions/runs/39649819472)
+passes the final code with **2,883 core tests, 10 skipped**, plus all editor/helper
+tests and the installed Linux CLI smoke. The local full core suite passes
+**2,876 tests, 10 skipped**; the final expanded
 audit/native harness suite passes **60 tests**, including seven gate regressions
 added after the full-suite run. The editor passes **118 tests**, and its profile
 and shared-storage helpers pass **61 tests**. Five installed lexical CLI processes
