@@ -39,10 +39,19 @@ This follows the agreed plan in **Choose a project for YC roles** on October 12,
    loses dependency evidence and is rejected. The chosen candidate completes
    4/8 multi-file urllib3 holdout queries, unchanged from the original selector,
    across 168 actual native requests. It fails the frozen improvement gate;
-   defaults and v0.1.4 assets stay unchanged. Next, address complementary windows
-   and implementations excluded by the fixed result cap before another coding
-   comparison. The new source-only labels, raw traces, timings, rejected controls,
-   failure receipts and independent audits are preserved.
+   defaults and v0.1.4 assets stay unchanged. The
+   [complementary-window follow-up](complementary-windows.md) implements literal
+   same-definition unions, guarded forward continuation and a proposal/reference
+   source-preservation guard. Its five-condition replay verifies 365 original
+   responses and 337 prior coverage controls before evaluating 1,825 outcomes.
+   None adds a required group or complete query over coverage control; unguarded
+   union loses one complete Zod BM25 result, while both guarded variants avoid
+   every observed loss. No candidate qualifies for fresh inference or promotion.
+   The independently source-reviewed TanStack Query corpus remains unobserved.
+   Next, investigate budget allocation across distinct implementations excluded
+   by the fixed result cap before another coding comparison. All source-only
+   labels, raw traces, rejected controls, failure receipts and independent audits
+   are preserved.
 4. **Persistent index (core and real-model validation complete at tested scale):**
    durable SQLite FTS5 keyword retrieval, pinned sqlite-vec exact exhaustive
    cosine retrieval, reusable document/model vector caching, atomic source
