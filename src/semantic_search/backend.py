@@ -462,7 +462,7 @@ class SearchBackend:
                     ambiguous_symbols=self._ambiguous_definitions)
                 def result_row(snippet, score, source, origin="retrieval", related_to=None):
                     truncated = source != snippet.text
-                    return {"id": snippet.id, "path": snippet.path, "symbol": snippet.symbol,
+                    row = {"id": snippet.id, "path": snippet.path, "symbol": snippet.symbol,
                                     "start_line": snippet.start_line,
                                     "end_line": snippet.start_line + len(physical_lines(source)) - 1,
                                     "window_end_line": snippet.end_line,
@@ -475,54 +475,81 @@ class SearchBackend:
                                     "related_to": related_to,
                                     **self._source_provenance(snippet.path),
                                     "truncated": truncated}
+                    assembly = getattr(snippet, "assembly", None)
+                    if assembly is not None:
+                        from copy import deepcopy
+                        row["assembly"] = deepcopy(assembly)
+                    return row
 
-                remaining, results = source_budget, []
-                for snippet, score in eligible:
-                    source = snippet.text
-                    if len(source) > remaining:
-                        lines, used = [], 0
-                        for line in physical_lines(source):
-                            if used + len(line) > remaining:
-                                break
-                            lines.append(line)
-                            used += len(line)
-                        source = "".join(lines)
-                    if not source:
-                        continue
-                    remaining -= len(source)
-                    results.append(result_row(snippet, score, source,
-                        *origins.get(snippet.id, ("retrieval", None))))
-                self._confirm_snapshot(self._manifest)
-                packaging_s = time.perf_counter() - phase
-                response = {"repo": str(self.repo), "source_root": self.source_root,
-                        "scope": self._search_scope(),
-                        "query": query, "retrieval": retrieval, "rerank": rerank,
-                        "rerank_provider": rerank_provider, "reranker_batch_size": 1 if qwen_rerank else None,
-                        "retrieval_candidate_windows": full_candidate_count, "results": results, "candidate_windows": len(pairs),
-                        "available_symbols": len(selected), "source_budget": source_budget,
-                        "total_source_chars": source_budget - remaining,
-                        "budget_exhausted": any(r["truncated"] for r in results) or len(results) < len(eligible),
-                        "indexstats": stats,
-                        "timings": {"index_s": stats["elapsed_s"], "query_embedding_s": embedding_s,
-                                    "retrieval_s": retrieval_s, "h2o_s": h2o_s, "qwen_s": qwen_s,
-                                    "packaging_s": packaging_s, "total_s": time.perf_counter() - started}}
-                if qwen_rerank:
-                    response["reranker_receipts"] = {identifier: judgment.response
-                        for identifier, judgment in qwen_judgments.items()}
-                response["match_status"] = match_status
-                response["match_evidence"] = {"top_cosine": top_cosine,
-                    "threshold": self._policy.threshold if self._policy else None,
-                    "meaning": "Candidate relevance is not proof that a behavior exists or is absent."}
-                if retrieval == "multifile":
-                    response["match_evidence"]["retrieval_score_kind"] = "multifile_rank_priority"
-                if qwen_rerank:
-                    response["match_evidence"]["ranking_score_kind"] = "qwen_yes_minus_no_logit_difference"
-                if token_budget is not None:
-                    response = apply_token_budget(response, token_budget)
+                def build_response(selected, eligible, origins):
+                    check()
+                    remaining, results = source_budget, []
+                    for snippet, score in eligible:
+                        source = snippet.text
+                        if len(source) > remaining:
+                            lines, used = [], 0
+                            for line in physical_lines(source):
+                                if used + len(line) > remaining:
+                                    break
+                                lines.append(line)
+                                used += len(line)
+                            source = "".join(lines)
+                        if not source:
+                            continue
+                        remaining -= len(source)
+                        results.append(result_row(snippet, score, source,
+                            *origins.get(snippet.id, ("retrieval", None))))
+                    self._confirm_snapshot(self._manifest)
+                    packaging_s = time.perf_counter() - phase
+                    response = {"repo": str(self.repo), "source_root": self.source_root,
+                            "scope": self._search_scope(),
+                            "query": query, "retrieval": retrieval, "rerank": rerank,
+                            "rerank_provider": rerank_provider, "reranker_batch_size": 1 if qwen_rerank else None,
+                            "retrieval_candidate_windows": full_candidate_count, "results": results, "candidate_windows": len(pairs),
+                            "available_symbols": len(selected), "source_budget": source_budget,
+                            "total_source_chars": source_budget - remaining,
+                            "budget_exhausted": any(r["truncated"] for r in results) or len(results) < len(eligible),
+                            "indexstats": stats,
+                            "timings": {"index_s": stats["elapsed_s"], "query_embedding_s": embedding_s,
+                                        "retrieval_s": retrieval_s, "h2o_s": h2o_s, "qwen_s": qwen_s,
+                                        "packaging_s": packaging_s, "total_s": time.perf_counter() - started}}
+                    if qwen_rerank:
+                        response["reranker_receipts"] = {identifier: judgment.response
+                            for identifier, judgment in qwen_judgments.items()}
+                    response["match_status"] = match_status
+                    response["match_evidence"] = {"top_cosine": top_cosine,
+                        "threshold": self._policy.threshold if self._policy else None,
+                        "meaning": "Candidate relevance is not proof that a behavior exists or is absent."}
+                    if retrieval == "multifile":
+                        response["match_evidence"]["retrieval_score_kind"] = "multifile_rank_priority"
+                    if qwen_rerank:
+                        response["match_evidence"]["ranking_score_kind"] = "qwen_yes_minus_no_logit_difference"
+                    if token_budget is not None:
+                        response = apply_token_budget(response, token_budget)
+                    return response
+
+                response = build_response(selected, eligible, origins)
+
+                def reference_factory():
+                    from semantic_search.selection import definition_context
+                    from semantic_search.context_backfill import coalesce_context
+                    control_selected, control_eligible, control_origins = definition_context(
+                        pairs, query=query, max_results=max_results,
+                        include_dependencies=include_dependencies, references=self._references,
+                        definition_keys=self._definition_keys,
+                        ambiguous_symbols=self._ambiguous_definitions)
+                    reference = build_response(control_selected, control_eligible, control_origins)
+                    return coalesce_context(reference,
+                        (result_row(snippet, score, snippet.text) for snippet, score in control_selected),
+                        max_results=max_results, source_budget=source_budget,
+                        token_budget=token_budget, cancel_check=check)
+
                 response = postprocess_context(response,
                     (result_row(snippet, score, snippet.text) for snippet, score in selected),
                     max_results=max_results, source_budget=source_budget,
-                    token_budget=token_budget, cancel_check=check)
+                    token_budget=token_budget, cancel_check=check,
+                    ranked_candidates=(result_row(snippet, score, snippet.text) for snippet, score in pairs),
+                    definition_keys=self._definition_keys, reference_factory=reference_factory)
                 check()
                 self._confirm_snapshot(self._manifest)
                 response["timings"]["packaging_s"] = time.perf_counter() - phase

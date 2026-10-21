@@ -346,6 +346,41 @@ class BackendTests(unittest.TestCase):
             self.assertEqual(row["source"], "".join(self.source.read_text().splitlines(keepends=True)[
                 row["start_line"] - 1:row["end_line"]]))
 
+    def test_connected_windows_are_ephemeral_and_keep_client_source_hash_contract(self):
+        from semantic_search.selection import connected_window_context
+        from semantic_search.context import compact_result
+        source = "def alpha():\n" + "".join(f"    value_{i} = {i}\n" for i in range(200))
+        self.source.write_text(source)
+        with patch("semantic_search.backend.select_context", connected_window_context):
+            result = self.backend.search("alpha", retrieval="bm25", include_dependencies=False,
+                                         token_budget=4096)
+        self.assertEqual(len(result["results"]), 1)
+        row = result["results"][0]
+        self.assertEqual(row["source"], source)
+        self.assertEqual((row["start_line"], row["end_line"], row["window_end_line"]), (1, 201, 201))
+        self.assertEqual(row["content_hash"], hashlib.sha256(source.encode()).hexdigest())
+        self.assertEqual(row["source_hash"], row["content_hash"])
+        self.assertEqual(row["assembly"]["kind"], "connected_windows")
+        self.assertEqual(len(row["assembly"]["members"]), 2)
+        self.assertEqual(result["indexstats"]["total_windows"], 2)
+        self.assertNotIn(row["id"], self.backend._definition_keys)
+        self.assertIsNone(row["h2o_score"])
+        self.assertIsNone(row["qwen_score"])
+        self.assertNotIn("assembly", compact_result(result)["results"][0])
+
+    def test_guarded_union_reference_reuses_retrieval_and_one_query_embedding(self):
+        from semantic_search.selection import connected_window_context, guarded_connected_context
+        source = "def alpha():\n" + "".join(f"    value_{i} = {i}\n" for i in range(200))
+        self.source.write_text(source)
+        with patch("semantic_search.backend.select_context", connected_window_context), \
+                patch("semantic_search.backend.postprocess_context", guarded_connected_context):
+            result = self.backend.search("alpha", include_dependencies=False, token_budget=4096)
+        self.assertEqual(self.embedder.queries, ["alpha"])
+        self.assertEqual(len(self.embedder.documents), 1)
+        self.assertEqual(result["results"][0]["source"], source)
+        self.assertTrue(result["_window_guard"]["accepted"])
+        self.assertEqual(result["_window_guard"]["accepted_composites"], 1)
+
     def test_queued_request_cancels_before_entering_model_work(self):
         self.backend.refresh()
         failures = []

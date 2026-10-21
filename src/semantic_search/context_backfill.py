@@ -68,7 +68,8 @@ def _prefix(row, lines, full):
 
 
 def coalesce_context(response, candidates, *, max_results, source_budget,
-                     token_budget=None, cancel_check=lambda: None):
+                     token_budget=None, cancel_check=lambda: None,
+                     ranked_candidates=None, definition_keys=None, reference_factory=None):
     """Return a copy with covered rows removed and up to eight new-row trials.
 
     ``response`` is the ordinary packer's already budgeted response. Candidates

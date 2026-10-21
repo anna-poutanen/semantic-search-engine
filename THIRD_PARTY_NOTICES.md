@@ -99,6 +99,22 @@ is downloaded separately and is not redistributed as another tree.
 
 Source: [urllib3/urllib3](https://github.com/urllib3/urllib3/tree/aaab4eccc10c965897540b21e15f11859d0b62e7)
 
+## TanStack Query complementary-window holdout
+
+The complementary-window holdout uses `@tanstack/query-core@5.90.5` at commit
+`ecdf96296b1dfcee617a5a5b9afdf2a42ad436ba`. Its MIT license, including
+Copyright (c) 2021-present Tanner Linsley, is copied verbatim in
+[benchmarks/TANSTACK_QUERY_LICENSE.txt](benchmarks/TANSTACK_QUERY_LICENSE.txt).
+The indexed utils.ts also credits copied code from is-plain-object; that
+project's additional MIT notice, Copyright (c) 2014-2017, Jon Schlinkert, is
+preserved in [benchmarks/IS_PLAIN_OBJECT_LICENSE.txt](benchmarks/IS_PLAIN_OBJECT_LICENSE.txt).
+The thenable.ts header retains its React promise-type reference links.
+Original source credits and applicable notices remain with published excerpts;
+see [the corpus notices](benchmarks/CORPUS_NOTICES.md). The ignored source
+checkout is downloaded separately rather than redistributed as another tree.
+
+Source: [TanStack/query](https://github.com/TanStack/query/tree/ecdf96296b1dfcee617a5a5b9afdf2a42ad436ba)
+
 ## H2O-Lightning and the community MLX runtime
 
 The weights and runtime are downloaded separately and not redistributed here.
