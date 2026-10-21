@@ -2,6 +2,7 @@
 from copy import deepcopy
 import importlib.util
 from pathlib import Path
+import subprocess
 import sys
 from types import SimpleNamespace
 
@@ -128,13 +129,28 @@ def test_qualification_requires_full_group_nonregression_and_distinct_complete_g
 
 
 def test_network_and_model_imports_are_blocked_without_loading_models():
-    import socket
-    assert not any(name.startswith(("torch", "mlx", "semantic_search.backend")) for name in sys.modules)
-    with replay.offline_cpu_guard():
-        with pytest.raises(RuntimeError, match="Network is forbidden"):
-            socket.create_connection(("example.com", 443))
-        with pytest.raises(RuntimeError, match="Model/numerical import forbidden"):
-            importlib.import_module("semantic_search.backend")
+    # The full suite legitimately imports the backend and numpy in other tests.
+    # Exercise the replay's required clean-process contract in a fresh interpreter.
+    code = '''
+import importlib.util, socket, sys
+spec = importlib.util.spec_from_file_location("replay", sys.argv[1])
+replay = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(replay)
+with replay.offline_cpu_guard():
+    for operation, message in (
+        (lambda: socket.create_connection(("example.com", 443)), "Network is forbidden"),
+        (lambda: __import__("semantic_search.backend"), "Model/numerical import forbidden"),
+    ):
+        try:
+            operation()
+        except RuntimeError as error:
+            assert message in str(error), str(error)
+        else:
+            raise AssertionError("Guard allowed forbidden operation")
+assert not any(name.startswith(("torch", "mlx", "semantic_search.backend")) for name in sys.modules)
+'''
+    subprocess.run([sys.executable, "-c", code, str(ROOT / "scripts/replay_selection.py")],
+                   check=True, capture_output=True, text=True)
 
 
 def test_undeclared_conditions_fail_before_git_or_output_access(tmp_path):
