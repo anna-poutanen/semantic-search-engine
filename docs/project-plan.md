@@ -32,6 +32,17 @@ This follows the agreed plan in **Choose a project for YC roles** on October 12,
    that small corpus. The candidate remains research-only; defaults stay dense.
    Improving the default multi-file selector remains open, especially candidate
    merging, distinct implementations sharing symbol labels, and dependency slots.
+   The [context-selection follow-up](context-selection.md) implements canonical
+   definition identity, cached ambiguity metadata and guarded source-preserving
+   backfill. All 337 observed controls reproduce exactly; coverage/backfill adds
+   two distinct complete queries without a lost group. Reserving ranked slots
+   loses dependency evidence and is rejected. The chosen candidate completes
+   4/8 multi-file urllib3 holdout queries, unchanged from the original selector,
+   across 168 actual native requests. It fails the frozen improvement gate;
+   defaults and v0.1.4 assets stay unchanged. Next, address complementary windows
+   and implementations excluded by the fixed result cap before another coding
+   comparison. The new source-only labels, raw traces, timings, rejected controls,
+   failure receipts and independent audits are preserved.
 4. **Persistent index (core and real-model validation complete at tested scale):**
    durable SQLite FTS5 keyword retrieval, pinned sqlite-vec exact exhaustive
    cosine retrieval, reusable document/model vector caching, atomic source
