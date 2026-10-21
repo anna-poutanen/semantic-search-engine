@@ -1,5 +1,5 @@
 """Selection contracts distinguish definition identity from dependency capacity."""
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 from semantic_search.corpus import Snippet
 from semantic_search.selection import (
@@ -92,3 +92,14 @@ def test_noop_postprocessor_does_not_evaluate_lazy_candidate_rows():
         yield
     response = {"results": []}
     assert unchanged_context(response, forbidden()) is response
+
+
+def test_precomputed_ambiguity_reuses_snapshot_metadata_without_corpus_scan():
+    anchor, helper = snippet(1), snippet(2)
+    graph = Mock()
+    graph.dependencies.return_value = [helper]
+    with patch("semantic_search.selection._ambiguous_symbols", side_effect=AssertionError("rescanned")):
+        _, eligible, _ = definition_context([(anchor, 1.)], query="query", max_results=8,
+            include_dependencies=True, references=graph, definition_keys={},
+            ambiguous_symbols=frozenset({(helper.path, helper.symbol)}))
+    assert identifiers(eligible) == [anchor.id]

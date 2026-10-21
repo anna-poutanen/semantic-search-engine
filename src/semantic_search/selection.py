@@ -3,7 +3,7 @@ from __future__ import annotations
 
 
 def ranked_context(pairs, *, query, max_results, include_dependencies, references,
-                   definition_keys=None):
+                   definition_keys=None, ambiguous_symbols=None):
     """Keep ranked symbols and the existing bounded static-callee expansion."""
     seen, selected = set(), []
     for snippet, score in pairs:
@@ -49,7 +49,7 @@ def _ambiguous_symbols(definition_keys):
 
 
 def _context(pairs, *, query, max_results, include_dependencies, references,
-             definition_keys, use_definitions, preserve_rank):
+             definition_keys, use_definitions, preserve_rank, ambiguous_symbols):
     key_for = (lambda snippet: _definition_key(snippet, definition_keys)) if use_definitions else (
         lambda snippet: (snippet.path, snippet.symbol))
     seen, selected = set(), []
@@ -67,7 +67,8 @@ def _context(pairs, *, query, max_results, include_dependencies, references,
     included = {key_for(snippet) for snippet, _ in expanded}
     # Static graph edges use display labels. Without resolving which of several
     # definitions owns an edge, adding a callee would assert false provenance.
-    ambiguous = _ambiguous_symbols(definition_keys) if use_definitions else set()
+    ambiguous = ((ambiguous_symbols if ambiguous_symbols is not None else
+                  _ambiguous_symbols(definition_keys)) if use_definitions else set())
     for snippet, score in anchors:
         if len(expanded) >= max_results:
             break
@@ -90,27 +91,30 @@ def _context(pairs, *, query, max_results, include_dependencies, references,
 
 
 def definition_context(pairs, *, query, max_results, include_dependencies, references,
-                       definition_keys=None):
+                       definition_keys=None, ambiguous_symbols=None):
     """Keep one ranked window per actual definition with the existing allocation."""
     return _context(pairs, query=query, max_results=max_results,
                     include_dependencies=include_dependencies, references=references,
-                    definition_keys=definition_keys, use_definitions=True, preserve_rank=False)
+                    definition_keys=definition_keys, use_definitions=True, preserve_rank=False,
+                    ambiguous_symbols=ambiguous_symbols)
 
 
 def rank_preserving_context(pairs, *, query, max_results, include_dependencies, references,
-                            definition_keys=None):
+                            definition_keys=None, ambiguous_symbols=None):
     """Control: keep the ranked prefix and use genuinely spare slots for callees."""
     return _context(pairs, query=query, max_results=max_results,
                     include_dependencies=include_dependencies, references=references,
-                    definition_keys=definition_keys, use_definitions=False, preserve_rank=True)
+                    definition_keys=definition_keys, use_definitions=False, preserve_rank=True,
+                    ambiguous_symbols=ambiguous_symbols)
 
 
 def definition_rank_preserving_context(pairs, *, query, max_results, include_dependencies,
-                                       references, definition_keys=None):
+                                       references, definition_keys=None, ambiguous_symbols=None):
     """Combined definition identity and rank-preserving allocation control."""
     return _context(pairs, query=query, max_results=max_results,
                     include_dependencies=include_dependencies, references=references,
-                    definition_keys=definition_keys, use_definitions=True, preserve_rank=True)
+                    definition_keys=definition_keys, use_definitions=True, preserve_rank=True,
+                    ambiguous_symbols=ambiguous_symbols)
 
 
 def unchanged_context(response, candidates, **kwargs):

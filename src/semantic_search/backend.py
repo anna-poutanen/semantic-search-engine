@@ -19,7 +19,7 @@ from semantic_search.retrieval import HybridRetriever, MultifileRetriever
 from semantic_search.cancellation import CancellationRegistry, SearchCancelled
 from semantic_search.context import apply_token_budget, indexed_scope
 from semantic_search.source import physical_lines
-from semantic_search.selection import select_context, postprocess_context
+from semantic_search.selection import select_context, postprocess_context, _ambiguous_symbols
 from semantic_search.languages import decode_source, extractor_fingerprint, validate_exclusions, validate_source
 
 
@@ -118,6 +118,7 @@ class SearchBackend:
         self._last_error = None
         self._references = None
         self._definition_keys = {}
+        self._ambiguous_definitions = frozenset()
         self._watcher = None
         self._watch_request_id = f"watch-{id(self)}"
         from semantic_search.matching import MatchPolicy
@@ -246,6 +247,7 @@ class SearchBackend:
             snippets = self._snippets
             references = self._references
             definition_keys = self._definition_keys
+            ambiguous_definitions = self._ambiguous_definitions
         else:
             self._report_progress({"phase": "extract", "completed": 0,
                                    "total": len(raw), "unit": "files"})
@@ -266,6 +268,8 @@ class SearchBackend:
             self._confirm_snapshot(digest)
             from semantic_search.relations import ReferenceGraph
             references = ReferenceGraph(decoded, snippets)
+            ambiguous_definitions = frozenset(_ambiguous_symbols(definition_keys))
+            cancel_check()
             self._report_progress({"phase": "extract", "completed": len(raw),
                                    "total": len(raw), "unit": "files",
                                    "windows": len(snippets)})
@@ -298,6 +302,7 @@ class SearchBackend:
         self._manifest, self._snippets = digest, snippets
         self._references = references
         self._definition_keys = definition_keys
+        self._ambiguous_definitions = ambiguous_definitions
         self._vectors_manifest = digest if require_vectors else None
         self._vectors_model_fingerprint = fingerprint
         self._lexical, self._dense, self._hybrid, self._multifile = lexical, dense, hybrid, multifile
@@ -453,7 +458,8 @@ class SearchBackend:
                 selected, eligible, origins = select_context(
                     pairs, query=query, max_results=max_results,
                     include_dependencies=include_dependencies, references=self._references,
-                    definition_keys=self._definition_keys)
+                    definition_keys=self._definition_keys,
+                    ambiguous_symbols=self._ambiguous_definitions)
                 def result_row(snippet, score, source, origin="retrieval", related_to=None):
                     truncated = source != snippet.text
                     return {"id": snippet.id, "path": snippet.path, "symbol": snippet.symbol,

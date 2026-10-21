@@ -288,21 +288,25 @@ class BackendTests(unittest.TestCase):
         self.backend.refresh()
         previous = self.backend.status()["store"]
         previous_keys = self.backend._definition_keys.copy()
+        previous_ambiguity = self.backend._ambiguous_definitions
         self.source.write_text("def gamma():\n    return 'gamma'\n")
         self.embedder.after_documents = lambda: self.backend.cancel("index-request")
         with self.assertRaises(SearchCancelled):
             self.backend.search("gamma", request_id="index-request")
         self.assertEqual(self.backend.status()["store"], previous)
         self.assertEqual(self.backend._definition_keys, previous_keys)
+        self.assertEqual(self.backend._ambiguous_definitions, previous_ambiguity)
         self.embedder.after_documents = None
         self.assertEqual(self.backend.search("gamma")["results"][0]["symbol"], "gamma")
         self.assertEqual(set(self.backend._definition_keys.values()), {("src/code.py", "gamma", 1, 2)})
+        self.assertEqual(self.backend._ambiguous_definitions, frozenset())
 
     def test_definition_metadata_reconstructed_on_cached_index_and_reused_warm(self):
         self.source.write_text("def duplicate():\n    return 1\ndef duplicate():\n    return 2\n")
         self.backend.refresh()
         expected = self.backend._definition_keys.copy()
         self.assertEqual(len(set(expected.values())), 2)
+        self.assertEqual(self.backend._ambiguous_definitions, frozenset({("src/code.py", "duplicate")}))
         with patch("semantic_search.backend.extract_snippets", side_effect=AssertionError("warm reparse")):
             self.backend.search("duplicate")
         self.assertEqual(self.backend._definition_keys, expected)
@@ -310,7 +314,37 @@ class BackendTests(unittest.TestCase):
                                   embedder=self.embedder) as reopened:
             result = reopened.search("duplicate")
             self.assertEqual(reopened._definition_keys, expected)
+            self.assertEqual(reopened._ambiguous_definitions, self.backend._ambiguous_definitions)
             self.assertEqual(result["indexstats"]["indexed_windows"], 0)
+
+    def test_definition_selector_receives_distinct_saved_definition_keys(self):
+        from semantic_search.selection import definition_context
+        self.source.write_text("def duplicate():\n    return 1\ndef duplicate():\n    return 2\n")
+        with patch("semantic_search.backend.select_context", definition_context):
+            result = self.backend.search("duplicate", retrieval="bm25", include_dependencies=False)
+        self.assertEqual([row["symbol"] for row in result["results"]], ["duplicate", "duplicate"])
+        self.assertEqual({row["start_line"] for row in result["results"]}, {1, 3})
+
+    def test_postpacking_backfill_receives_full_later_ranked_source(self):
+        from semantic_search.context_backfill import coalesce_context
+        self.source.write_text("def alpha_outer():\n    def alpha_inner():\n        return 'alpha'\n"
+                               "    return alpha_inner()\ndef alpha_later():\n    return 'alpha'\n")
+
+        def ordered(pairs, **kwargs):
+            order = {"alpha_outer.alpha_inner": 0, "alpha_outer": 1, "alpha_later": 2}
+            pairs = sorted(pairs, key=lambda pair: order[pair[0].symbol])
+            return pairs, pairs[:2], {row.id: ("retrieval", None) for row, _ in pairs[:2]}
+
+        with patch("semantic_search.backend.select_context", ordered), \
+                patch("semantic_search.backend.postprocess_context", coalesce_context):
+            result = self.backend.search("alpha", retrieval="bm25", max_results=2,
+                                         include_dependencies=False, token_budget=4096)
+        self.assertEqual([row["symbol"] for row in result["results"]], ["alpha_outer", "alpha_later"])
+        self.assertEqual(len(result["_selection_backfill"]["coalesced_ids"]), 1)
+        self.assertEqual(len(result["_selection_backfill"]["appended_ids"]), 1)
+        for row in result["results"]:
+            self.assertEqual(row["source"], "".join(self.source.read_text().splitlines(keepends=True)[
+                row["start_line"] - 1:row["end_line"]]))
 
     def test_queued_request_cancels_before_entering_model_work(self):
         self.backend.refresh()
