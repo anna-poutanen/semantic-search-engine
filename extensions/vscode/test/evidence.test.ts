@@ -64,3 +64,21 @@ test('CRLF, Unicode separators, UTF-8 BOM, Latin-1 and truncated full-window evi
     await assert.rejects(verifySavedResult(binding, { ...partial, content_hash: '0'.repeat(64) }), /no longer matches/);
   } finally { await fs.rm(root, { recursive: true }); }
 });
+test('Python-produced composite windows preserve strict parsing and saved full-window verification', async () => {
+  const fixturePath = path.resolve(__dirname, '../../../../tests/fixtures/window_union.json');
+  const fixture = JSON.parse(await fs.readFile(fixturePath, 'utf8'));
+  const root = await repo();
+  try {
+    await fs.writeFile(path.join(root, 'src/code.py'), fixture.source);
+    const binding = await bindRepository(root, root, 'src');
+    for (const value of [fixture.full, fixture.truncated]) {
+      const parsed = parseResult(value);
+      assert.match(parsed.id, /^context:connected_windows:/);
+      assert.equal(parsed.window_end_line, 6);
+      await verifySavedResult(binding, parsed);
+      assert.equal('assembly' in parsed, false);
+      const counterfeited = { ...parsed, content_hash: value.assembly.members[0].content_hash };
+      await assert.rejects(verifySavedResult(binding, counterfeited), /no longer matches/);
+    }
+  } finally { await fs.rm(root, { recursive: true }); }
+});

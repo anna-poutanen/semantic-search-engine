@@ -58,3 +58,26 @@ notice for its standard-library origin. The original source-level notice is:
 
 Published excerpts from that file retain this applicable source-level notice;
 the root MIT attribution does not replace it.
+
+## TanStack Query complementary-window holdout
+
+[TanStack Query](https://github.com/TanStack/query) release
+`@tanstack/query-core@5.90.5` is pinned to peeled commit
+`ecdf96296b1dfcee617a5a5b9afdf2a42ad436ba`, through annotated tag object
+`b5dd42fe7e65865ae0d3a2b3f7f206a7c0fe4173`. Its MIT license, including
+**Copyright (c) 2021-present Tanner Linsley**, is copied byte for byte in
+[TANSTACK_QUERY_LICENSE.txt](TANSTACK_QUERY_LICENSE.txt), SHA-256
+`a405ee70c632bb938acb7ac5f210e814409b3760ea9d2329d8ed8ffcfd11a0e7`.
+The pinned checkout tracks no separate NOTICE file. Its source is downloaded
+into ignored local storage rather than committed as another source tree.
+
+The included `packages/query-core/src/utils.ts:327` explicitly credits copied
+code from [jonschlinkert/is-plain-object](https://github.com/jonschlinkert/is-plain-object).
+That project's additional MIT notice, Copyright (c) 2014-2017, Jon Schlinkert,
+is preserved in [IS_PLAIN_OBJECT_LICENSE.txt](IS_PLAIN_OBJECT_LICENSE.txt),
+SHA-256 `4cd903859549d4b20b571041f96dfae1136ed079c476126268f9d7cc1b611150`,
+fetched from upstream commit `74620fdf57c9d2809c6b0d112bb12ceaae3d7308`.
+This is an attribution reference, not another indexed corpus.
+`thenable.ts` retains links to React promise-type references and declares no
+different source-level license. Original source-level credits remain with any
+excerpt containing them; applicable MIT notices accompany published evidence.

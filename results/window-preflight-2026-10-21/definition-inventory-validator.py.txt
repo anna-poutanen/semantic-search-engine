@@ -1,0 +1,114 @@
+"""Source-only canonical inventory freeze, before selection or retrieval."""
+import hashlib
+import importlib.abc
+import importlib.metadata
+import json
+from pathlib import Path
+import socket
+import sys
+from dataclasses import asdict
+
+class SourceOnly(importlib.abc.MetaPathFinder):
+    def find_spec(self, name, path=None, target=None):
+        prefixes = ("mlx", "mlx_embeddings", "torch", "transformers", "jax", "numpy",
+                    "semantic_search.backend", "semantic_search.embeddings", "semantic_search.model",
+                    "semantic_search.index", "semantic_search.store", "semantic_search.selection",
+                    "semantic_search.context_backfill", "semantic_search.window_assembly",
+                    "semantic_search.context", "semantic_search.persistent_retrieval")
+        if any(name == p or name.startswith(p + ".") for p in prefixes):
+            raise RuntimeError("Source-only inventory forbids " + name)
+
+sys.meta_path.insert(0, SourceOnly())
+def denied(*args, **kwargs):
+    raise RuntimeError("Source-only inventory forbids network")
+socket.create_connection = socket.getaddrinfo = socket.socket.connect = socket.socket.connect_ex = socket.socket.sendto = denied
+from semantic_search.corpus import extract_snippets
+from semantic_search.javascript import definitions
+from tree_sitter import Parser, Language
+import tree_sitter_typescript
+
+ROOT = Path(__file__).resolve().parents[1]
+CORPUS = Path("/Users/annapoutanen/personal-projects/semantic-search-engine/.cache/corpora/tanstack-query-window-holdout")
+def sha(raw):
+    return hashlib.sha256(raw).hexdigest()
+def bound(relative):
+    return {"path": relative, "sha256": sha((ROOT / relative).read_bytes())}
+data = json.loads((ROOT / "benchmarks/window_holdout_queries.json").read_bytes())
+review = json.loads((ROOT / "results/window-preflight-2026-10-21/source-review.json").read_bytes())
+assert review["dataset"] == bound("benchmarks/window_holdout_queries.json")
+assert review["protocol"] == bound("docs/window-holdout-source-review.md")
+pins = {"tree-sitter": "0.26.0", "tree-sitter-typescript": "0.23.2"}
+assert {p: importlib.metadata.version(p) for p in pins} == pins
+parser = Parser(Language(tree_sitter_typescript.language_typescript()))
+sources, independent = {}, {}
+for path, metadata in data["source_files"].items():
+    raw = (CORPUS / path).read_bytes()
+    assert len(raw) == metadata["bytes"] and sha(raw) == metadata["sha256"]
+    sources[path] = raw.decode()
+    tree = parser.parse(raw)
+    assert not tree.root_node.has_error
+    nodes, stack = {}, [tree.root_node]
+    while stack:
+        node = stack.pop()
+        nodes[(node.start_byte, node.end_byte, node.type)] = node
+        stack.extend(node.named_children)
+    independent[path] = nodes
+keys = {}
+snippets = extract_snippets(CORPUS, data["source_root"], 160, 40, sources=sources,
+                            source_exclusions=data["source_exclusions"], definition_keys=keys)
+assert len(snippets) == 331 and len(keys) == 331 and len(set(keys.values())) == 329
+checks = {}
+for path, source in sources.items():
+    raw = source.encode()
+    for definition in definitions(path, source):
+        key = (path, definition.symbol, definition.start_line, definition.end_line, definition.node.start_byte)
+        node = independent[path][(definition.node.start_byte, definition.node.end_byte, definition.node.type)]
+        span = independent[path][(definition.span.start_byte, definition.span.end_byte, definition.span.type)]
+        first, last = span.start_point[0] + 1, span.end_point[0] + 1
+        # End positions at column zero belong to the preceding physical line.
+        if span.end_point[1] == 0:
+            last -= 1
+        if definition.kind == "initializer_group":
+            assert node.type == "class_body" and first <= definition.start_line <= definition.end_line <= last
+        else:
+            assert first == definition.start_line and last == definition.end_line
+        for snippet in snippets:
+            if keys[snippet.id] != key:
+                continue
+            assert snippet.start_line >= definition.start_line and snippet.end_line <= definition.end_line
+            checks[snippet.id] = {"node_type": node.type, "kind": definition.kind,
+                "node_byte_bounds": [node.start_byte, node.end_byte],
+                "node_sha256": sha(raw[node.start_byte:node.end_byte]),
+                "wrapper_span_type": span.type,
+                "wrapper_span_byte_bounds": [span.start_byte, span.end_byte],
+                "wrapper_span_lines": [first, last], "definition_lines": [definition.start_line, definition.end_line],
+                "exact_original_grammar_node_exists": True,
+                "qualified_label_basis": "Source-only extraction map; full AST qualification independently source-reviewed for all 43 gold targets, other qualified labels are frozen compatibility identities rather than an independently reimplemented qualifier"}
+assert set(checks) == set(keys)
+output = ROOT / "results/window-preflight-2026-10-21/definition-inventory.json"
+result = {"format_version": 1, "status": "passed_source_only_definition_inventory",
+    "dataset": bound("benchmarks/window_holdout_queries.json"),
+    "protocol": bound("docs/window-holdout-source-review.md"),
+    "source_review": bound("results/window-preflight-2026-10-21/source-review.json"),
+    "corpus": {"revision": data["revision"], "source_root": data["source_root"], "source_exclusions": data["source_exclusions"]},
+    "source_files": data["source_files"], "excluded_supported_files": data["excluded_supported_files"],
+    "settings": {"max_lines": 160, "overlap_lines": 40},
+    "inventory": [asdict(s) for s in snippets], "definition_keys": {k: list(v) for k, v in keys.items()},
+    "independent_ast_boundary_checks": checks, "independent_parser_pins": pins,
+    "source_implementations_sha256": review["extraction"]["source_implementations_sha256"],
+    "validator_sha256": sha(Path(__file__).read_bytes()),
+    "calls": {name: 0 for name in ("model", "index", "retrieval", "selector", "postprocessor", "rule_activation", "gold_coverage_scoring", "network")},
+    "limits": ["No retrieval, selection-rule activation or outcome calculation was performed.",
+               "Independent grammar-node/span boundaries are verified for every window; qualified labels outside the reviewed gold targets are frozen source-extractor identities, not an independently reimplemented semantic qualifier."]}
+with output.open("x") as stream:
+    stream.write(json.dumps(result, ensure_ascii=False, indent=2) + "\n")
+validator = output.with_name("definition-inventory-validator.py.txt")
+with validator.open("xb") as stream:
+    stream.write(Path(__file__).read_bytes())
+receipt = {"status": result["status"], "inventory": bound(output.relative_to(ROOT).as_posix()),
+           "validator": bound(validator.relative_to(ROOT).as_posix()), "source_review_unchanged": result["source_review"],
+           "inventory_windows": len(snippets), "definition_keys": len(keys), "distinct_definitions": len(set(keys.values())),
+           "all_source_ast_boundary_checks_passed": True, "calls": result["calls"]}
+with output.with_name("definition-inventory-receipt.json").open("x") as stream:
+    stream.write(json.dumps(receipt, indent=2) + "\n")
+print(json.dumps(receipt, indent=2))
