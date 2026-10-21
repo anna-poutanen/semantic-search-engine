@@ -35,3 +35,26 @@ The complete upstream license is copied verbatim in
 `3b49dcee4105eb37bac10faf1be260408fe85d252b8e9df2e0979fc1e094437b`.
 No separate upstream `NOTICE` file is present in this pinned checkout. The corpus
 is downloaded into ignored local storage rather than committed as a source tree.
+
+## urllib3 response-selection holdout
+
+[urllib3](https://github.com/urllib3/urllib3) 2.5.0 is pinned to peeled commit
+`aaab4eccc10c965897540b21e15f11859d0b62e7`; annotated tag object
+`e6e91da8dbf0e4efec05cb9839608a787fc11e10`. Its root MIT license is copied
+verbatim in [URLLIB3_LICENSE.txt](URLLIB3_LICENSE.txt), SHA-256
+`130e3a64d5fdd5d096a752694634a7d9df284469de86e5732100268041e3d686`, including
+**Copyright (c) 2008-2020 Andrey Petrov and contributors.** No separate upstream
+NOTICE file is tracked. The corpus is downloaded into ignored local storage.
+
+The indexed `src/urllib3/util/ssl_match_hostname.py` explicitly retains a
+[Python Software Foundation license](https://docs.python.org/3/license.html)
+notice for its standard-library origin. The original source-level notice is:
+
+```text
+# Note: This file is under the PSF license as the code comes from the python
+# stdlib.   http://docs.python.org/3/license.html
+# It is modified to remove commonName support.
+```
+
+Published excerpts from that file retain this applicable source-level notice;
+the root MIT attribution does not replace it.
