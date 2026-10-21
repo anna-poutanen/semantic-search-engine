@@ -1,0 +1,943 @@
+{
+  "status": "passed_source_review_before_holdout_retrieval",
+  "reviewed_at_utc": "2026-10-21T16:52:43.740512+00:00",
+  "reviewer": "independent /root/next_quality_step agent; not the label author",
+  "review_type": "Pinned source, qualified AST, exact byte/evidence hashes, upstream test reading and production extraction eligibility only; no runtime behavioral proof",
+  "dataset": {
+    "path": "benchmarks/selection_holdout_queries.json",
+    "sha256": "b29dfe038e4d227d9820b0df316bdf2e88a94639a634eea7782d4ed47c4dbd02"
+  },
+  "protocol": {
+    "path": "docs/selection-holdout-source-review.md",
+    "sha256": "1ef64f70c5e6acdee45ce7d5398cbfbed474a20eb805e19dd1a40be0369f11e6"
+  },
+  "corpus": {
+    "repository": "https://github.com/urllib3/urllib3",
+    "release": "2.5.0",
+    "commit": "aaab4eccc10c965897540b21e15f11859d0b62e7",
+    "annotated_tag_object": "e6e91da8dbf0e4efec05cb9839608a787fc11e10",
+    "working_tree_clean": true,
+    "source_root": "src/urllib3",
+    "source_exclusions": [],
+    "source_files": 36,
+    "python_source_files": 35,
+    "javascript_source_files": 1,
+    "complete_tracked_supported_source_inventory": true,
+    "source_inventory_sha256": "01cbd8fe6af43de9286e6353c16f78cb1750b5333afcbf0f550b64bd203a7d99",
+    "license_sha256": "130e3a64d5fdd5d096a752694634a7d9df284469de86e5732100268041e3d686",
+    "license_copy_exact": true,
+    "separate_tracked_notice_file": false,
+    "psf_source_notice_retained_verbatim": true,
+    "notices_paths": [
+      "benchmarks/CORPUS_NOTICES.md",
+      "THIRD_PARTY_NOTICES.md"
+    ]
+  },
+  "extraction": {
+    "max_lines": 160,
+    "overlap_lines": 40,
+    "windows": 453,
+    "window_inventory_sha256": "d724d7dc0ad2fa3b8b4415be47d844645a633c212f8e2873acd128f6bb416482",
+    "window_inventory_digest_format": "SHA256 of UTF-8 JSON in extractor order containing id/path/symbol/start_line/end_line/content_hash, sort_keys=True, compact comma/colon separators, followed by LF",
+    "every_window_source_faithful": true,
+    "unique_window_ids": true,
+    "exact_symbol_fully_contained_gold_rows": 22,
+    "source_implementations_sha256": {
+      "src/semantic_search/corpus.py": "6c2f3b8b659c8fe3dc5007a454e4daf616ba69ea262299ad9b1ce81b1e963a56",
+      "src/semantic_search/languages.py": "aab5dfe8247ed1f30662cf6f0f442289d9459ebb30d099e259475a1911c88399",
+      "src/semantic_search/source.py": "eb8dc397d95bb82bee8941dc3ff62ad3af911439f63d014af2e4b5a5f06036d4",
+      "src/semantic_search/javascript.py": "2d3fde18d585d138ffe0462aeaf73d273397c1da3de847310b93310216ba4d23"
+    },
+    "extractor_fingerprint": {
+      "policy": "saved-implementations-v3",
+      "python_ast": [
+        3,
+        12
+      ],
+      "extensions": {
+        ".py": null,
+        ".js": "javascript",
+        ".jsx": "javascript",
+        ".mjs": "javascript",
+        ".cjs": "javascript",
+        ".ts": "typescript",
+        ".mts": "typescript",
+        ".cts": "typescript",
+        ".tsx": "tsx"
+      },
+      "parser_pins": {
+        "tree-sitter": "0.26.0",
+        "tree-sitter-javascript": "0.25.0",
+        "tree-sitter-typescript": "0.23.2"
+      },
+      "installed_parsers": {
+        "tree-sitter": "0.26.0",
+        "tree-sitter-javascript": "0.25.0",
+        "tree-sitter-typescript": "0.23.2"
+      },
+      "js_excluded_directories": [
+        ".next",
+        ".nuxt",
+        ".svelte-kit",
+        "bower_components",
+        "build",
+        "coverage",
+        "dist",
+        "node_modules",
+        "out"
+      ],
+      "window_lines": 160,
+      "overlap_lines": 40
+    }
+  },
+  "counts": {
+    "queries": 14,
+    "present": 12,
+    "required_positive_evidence_groups": 22,
+    "multi_file_present": 8,
+    "multi_file_groups": 18,
+    "target_rows": 22,
+    "single_file_present": 4,
+    "scoped_absent": 2,
+    "source_files": 36,
+    "source_windows_160_40": 453,
+    "referenced_test_definitions_read": 26
+  },
+  "leakage_controls": {
+    "holdout_retrieval_calls_invoked_by_reviewer": 0,
+    "holdout_model_or_embedding_calls_invoked_by_reviewer": 0,
+    "holdout_indexing_calls_invoked_by_reviewer": 0,
+    "holdout_ranking_or_selection_calls_invoked_by_reviewer": 0,
+    "holdout_rankings_scores_candidates_or_rule_activation_outputs_observed": false,
+    "retrieval_module_imported_for_review": false,
+    "model_modules_imported_for_review": false,
+    "product_or_label_edits_made": false,
+    "upstream_tests_executed": false,
+    "network_calls_required": 0,
+    "known_exposure": "Reviewer previously read historical non-urllib3 development diagnoses and discussed context-selection implementation options. No urllib3 ranking, retrieval, selection, model output, or rule activation was inspected. This is independent label review, not independent task authorship, ecosystem independence, or model-pretraining isolation."
+  },
+  "freshness_review": {
+    "git_history_patterns": "urllib3/urllib3|urllib3-selection-holdout|selection_holdout_queries",
+    "git_history_paths": [
+      "benchmarks",
+      "docs",
+      "results",
+      "scripts",
+      "tests"
+    ],
+    "git_history_command": "git log --all --format=%H:%s -G PATTERNS -- PATHS",
+    "matching_historical_commits": 0,
+    "qualification": "This checks the named corpus/dataset patterns in reachable local history. The source author separately recorded broader exposure checks; ecosystem familiarity and dependency references do not establish prior benchmark evaluation."
+  },
+  "absence_review": {
+    "scope": "All 36 saved supported source files under src/urllib3 at the pinned commit; excludes tests/examples/docs, caller implementations, dependency internals and browser-managed behavior.",
+    "searched_terms": [
+      "cache|etag|if-none-match|expires|expiry|ttl|persist|shelve|sqlite",
+      "oauth|bearer|refresh|token|authorization|401",
+      "cache_content|_body|RecentlyUsedContainer|_HTTP2ProbeCache",
+      "lock|acquire_and_get|is_retry|make_headers"
+    ],
+    "nearby_implementations_read": [
+      "HTTPResponse.data/read",
+      "EmscriptenHttpResponseWrapper.read/data",
+      "RecentlyUsedContainer.__getitem__/__setitem__",
+      "PoolManager.connection_from_pool_key",
+      "_HTTP2ProbeCache.acquire_and_get/set_and_release",
+      "make_headers",
+      "Retry.is_retry",
+      "PoolManager.urlopen redirect filtering",
+      "emscripten_fetch_worker.js fetch/read handler"
+    ]
+  },
+  "query_reviews": [
+    {
+      "query_id": "urllib3_multipart_request_and_boundary_body",
+      "kind": "present",
+      "required_groups": 2,
+      "decision": "supported",
+      "targets": [
+        {
+          "group": 1,
+          "path": "src/urllib3/_request_methods.py",
+          "symbol": "RequestMethods.request_encode_body",
+          "evidence_lines": [
+            263,
+            274
+          ],
+          "source_file_sha256": "802785f3948efd45385a83f0607228cffb70f9e33f1153a42c5a7c385b02ec30",
+          "evidence_sha256": "261fdc24c24e28723cda5d8333ed2c9a156ee6c685e075c2655b35db7d2ede46",
+          "ast_definition_lines": [
+            184,
+            278
+          ],
+          "contains_executable_statement_start": true,
+          "exact_symbol_eligible_windows": [
+            "src/urllib3/_request_methods.py:RequestMethods.request_encode_body:184-278"
+          ]
+        },
+        {
+          "group": 2,
+          "path": "src/urllib3/filepost.py",
+          "symbol": "encode_multipart_formdata",
+          "evidence_lines": [
+            65,
+            89
+          ],
+          "source_file_sha256": "53c78d67e9a928a1e1ae56c7104893c7180ad7a21e8e111aeeecf8db2a80fdd2",
+          "evidence_sha256": "1752443c02593a858845863061be0fc730942d00225c9e8f1940e3bf194a164a",
+          "ast_definition_lines": [
+            51,
+            89
+          ],
+          "contains_executable_statement_start": true,
+          "exact_symbol_eligible_windows": [
+            "src/urllib3/filepost.py:encode_multipart_formdata:51-89"
+          ]
+        }
+      ],
+      "source_review": "The request method must select multipart encoding and apply the body/default Content-Type; the independent encoder must write each part and terminal delimiter using the same boundary returned in the media type. Both files are necessary. Explicit caller Content-Type survives setdefault; tuple adaptation/header formatting are supporting context."
+    },
+    {
+      "query_id": "urllib3_file_body_position_before_repeated_send",
+      "kind": "present",
+      "required_groups": 3,
+      "decision": "supported",
+      "targets": [
+        {
+          "group": 1,
+          "path": "src/urllib3/connectionpool.py",
+          "symbol": "HTTPConnectionPool.urlopen",
+          "evidence_lines": [
+            759,
+            761
+          ],
+          "source_file_sha256": "64486e76c6bc048b9b0f63345e8c4106c8f16ec5f0320512707ee843d8be8f56",
+          "evidence_sha256": "c3dc4c4ab0102a8465e1f0c153eff308b52d66c7548c996076b708b8998e716f",
+          "ast_definition_lines": [
+            592,
+            960
+          ],
+          "contains_executable_statement_start": true,
+          "exact_symbol_eligible_windows": [
+            "src/urllib3/connectionpool.py:HTTPConnectionPool.urlopen:712-871"
+          ]
+        },
+        {
+          "group": 2,
+          "path": "src/urllib3/util/request.py",
+          "symbol": "set_file_position",
+          "evidence_lines": [
+            151,
+            161
+          ],
+          "source_file_sha256": "5ee02c1014f9f030196144f0a4c1f91ebdc0d4e3e830dbcd21822e9db22a6dcf",
+          "evidence_sha256": "0d8136116b230d3ed9ac4980e8013f04af595a9b43f369b250b2332a2946570a",
+          "ast_definition_lines": [
+            144,
+            161
+          ],
+          "contains_executable_statement_start": true,
+          "exact_symbol_eligible_windows": [
+            "src/urllib3/util/request.py:set_file_position:144-161"
+          ]
+        },
+        {
+          "group": 3,
+          "path": "src/urllib3/util/request.py",
+          "symbol": "rewind_body",
+          "evidence_lines": [
+            175,
+            187
+          ],
+          "source_file_sha256": "5ee02c1014f9f030196144f0a4c1f91ebdc0d4e3e830dbcd21822e9db22a6dcf",
+          "evidence_sha256": "38e9480a7bf0c4f4bdb6c871d451f8bd86e97bf50ccac1f4bc901029de8d598f",
+          "ast_definition_lines": [
+            164,
+            191
+          ],
+          "contains_executable_statement_start": true,
+          "exact_symbol_eligible_windows": [
+            "src/urllib3/util/request.py:rewind_body:164-191"
+          ]
+        }
+      ],
+      "source_review": "The pool positioning call occurs before request dispatch and receives body_pos again on retry/redirect recursion. set_file_position records tell or delegates restoration; rewind_body seeks and raises for failed tell or seek. All three groups are needed for the requested complete flow in two files. No arbitrary-iterable replay claim is made."
+    },
+    {
+      "query_id": "urllib3_response_status_retry_and_drain",
+      "kind": "present",
+      "required_groups": 2,
+      "decision": "supported",
+      "targets": [
+        {
+          "group": 1,
+          "path": "src/urllib3/util/retry.py",
+          "symbol": "Retry.is_retry",
+          "evidence_lines": [
+            396,
+            407
+          ],
+          "source_file_sha256": "6e3fb6614a9b9712e5bfc4c78397f1c30f83339e1709b8e0657210ef55e2a026",
+          "evidence_sha256": "f255e31fde09dcf1926ca85bf65b70e6f4300511284a13f71e34fb351021236b",
+          "ast_definition_lines": [
+            387,
+            407
+          ],
+          "contains_executable_statement_start": true,
+          "exact_symbol_eligible_windows": [
+            "src/urllib3/util/retry.py:Retry.is_retry:387-407"
+          ]
+        },
+        {
+          "group": 2,
+          "path": "src/urllib3/connectionpool.py",
+          "symbol": "HTTPConnectionPool.urlopen",
+          "evidence_lines": [
+            928,
+            947
+          ],
+          "source_file_sha256": "64486e76c6bc048b9b0f63345e8c4106c8f16ec5f0320512707ee843d8be8f56",
+          "evidence_sha256": "0ac946fdb3e9efa3244ae0cce2ebfdd38da5c73ead0f798df126ec84eef24e12",
+          "ast_definition_lines": [
+            592,
+            960
+          ],
+          "contains_executable_statement_start": true,
+          "exact_symbol_eligible_windows": [
+            "src/urllib3/connectionpool.py:HTTPConnectionPool.urlopen:832-960"
+          ]
+        }
+      ],
+      "source_review": "Retry.is_retry contains method eligibility and forced-status or supported Retry-After conditions. The pool invokes this policy, updates retries, handles exhaustion, drains before sleeping and recursively sends again. Both files are required. The delay parser and every retry-budget branch are linkage context, not extra requirements."
+    },
+    {
+      "query_id": "urllib3_redirect_origin_check_and_header_removal",
+      "kind": "present",
+      "required_groups": 2,
+      "decision": "supported",
+      "targets": [
+        {
+          "group": 1,
+          "path": "src/urllib3/connectionpool.py",
+          "symbol": "HTTPConnectionPool.is_same_host",
+          "evidence_lines": [
+            575,
+            590
+          ],
+          "source_file_sha256": "64486e76c6bc048b9b0f63345e8c4106c8f16ec5f0320512707ee843d8be8f56",
+          "evidence_sha256": "1775c7aa7cc37825bef1baeb6d011f7d82133dd5793aa443d466bbcb36d04196",
+          "ast_definition_lines": [
+            570,
+            590
+          ],
+          "contains_executable_statement_start": true,
+          "exact_symbol_eligible_windows": [
+            "src/urllib3/connectionpool.py:HTTPConnectionPool.is_same_host:570-590"
+          ]
+        },
+        {
+          "group": 2,
+          "path": "src/urllib3/poolmanager.py",
+          "symbol": "PoolManager.urlopen",
+          "evidence_lines": [
+            479,
+            489
+          ],
+          "source_file_sha256": "a0ab203f512c008e0e5602bdfbd0f70185d94b91d857cc8a512a20f906c9f13b",
+          "evidence_sha256": "874ed3b345e09d0bc12289daca7db6bbd7b630a02220f567aa5dbd8b56854fc5",
+          "ast_definition_lines": [
+            425,
+            505
+          ],
+          "contains_executable_statement_start": true,
+          "exact_symbol_eligible_windows": [
+            "src/urllib3/poolmanager.py:PoolManager.urlopen:425-505"
+          ]
+        }
+      ],
+      "source_review": "The pool compares normalized scheme/host and reconciled default ports; the manager resolves the redirect, calls that comparison and removes configured names case-insensitively from a copied header mapping. Both files are needed. Same-origin redirects or an empty removal set do not enter filtering."
+    },
+    {
+      "query_id": "urllib3_release_response_connection_to_bounded_pool",
+      "kind": "present",
+      "required_groups": 2,
+      "decision": "supported",
+      "targets": [
+        {
+          "group": 1,
+          "path": "src/urllib3/response.py",
+          "symbol": "HTTPResponse.release_conn",
+          "evidence_lines": [
+            667,
+            671
+          ],
+          "source_file_sha256": "4d54d2bba43553453b8681d8308471c6e878ceba1e328f1be442380ce035dc4a",
+          "evidence_sha256": "7cef45c3f8d847acf193298769a40122fe5b8aeddcdeed9710f2907389f87709",
+          "ast_definition_lines": [
+            666,
+            671
+          ],
+          "contains_executable_statement_start": true,
+          "exact_symbol_eligible_windows": [
+            "src/urllib3/response.py:HTTPResponse.release_conn:666-671"
+          ]
+        },
+        {
+          "group": 2,
+          "path": "src/urllib3/connectionpool.py",
+          "symbol": "HTTPConnectionPool._put_conn",
+          "evidence_lines": [
+            308,
+            335
+          ],
+          "source_file_sha256": "64486e76c6bc048b9b0f63345e8c4106c8f16ec5f0320512707ee843d8be8f56",
+          "evidence_sha256": "6cf4a5fb4da626b1e43219b393460ba07c0a793ea8208b40a0126471f76a897a",
+          "ast_definition_lines": [
+            294,
+            335
+          ],
+          "contains_executable_statement_start": true,
+          "exact_symbol_eligible_windows": [
+            "src/urllib3/connectionpool.py:HTTPConnectionPool._put_conn:294-335"
+          ]
+        }
+      ],
+      "source_review": "release_conn hands the connection to its pool and clears its own reference after successful return, making a later ordinary release a no-op. _put_conn handles nonblocking queue insertion and closes connections that cannot be retained, including full/closed pools. Both files are necessary. The query is bounded to nonblocking full-pool handling; this is not a concurrency guarantee."
+    },
+    {
+      "query_id": "urllib3_elapsed_total_budget_to_socket_read",
+      "kind": "present",
+      "required_groups": 3,
+      "decision": "supported",
+      "targets": [
+        {
+          "group": 1,
+          "path": "src/urllib3/connectionpool.py",
+          "symbol": "HTTPConnectionPool._make_request",
+          "evidence_lines": [
+            457,
+            459
+          ],
+          "source_file_sha256": "64486e76c6bc048b9b0f63345e8c4106c8f16ec5f0320512707ee843d8be8f56",
+          "evidence_sha256": "6da30cd716ec61c23ac50eff9cb1e1d33094203aefa7c95f90343b5351645c39",
+          "ast_definition_lines": [
+            377,
+            556
+          ],
+          "contains_executable_statement_start": true,
+          "exact_symbol_eligible_windows": [
+            "src/urllib3/connectionpool.py:HTTPConnectionPool._make_request:377-536"
+          ]
+        },
+        {
+          "group": 2,
+          "path": "src/urllib3/util/timeout.py",
+          "symbol": "Timeout.read_timeout",
+          "evidence_lines": [
+            262,
+            275
+          ],
+          "source_file_sha256": "e1e4f5155799654ee1ee6603d49ab639735ee1fc5e91d36f868594919bac4690",
+          "evidence_sha256": "4ee81e04f34b6257dcf0295c4675f61da9009d2fa933841efb541c8a63d595a0",
+          "ast_definition_lines": [
+            246,
+            275
+          ],
+          "contains_executable_statement_start": true,
+          "exact_symbol_eligible_windows": [
+            "src/urllib3/util/timeout.py:Timeout.read_timeout:245-275"
+          ]
+        },
+        {
+          "group": 3,
+          "path": "src/urllib3/connectionpool.py",
+          "symbol": "HTTPConnectionPool._make_request",
+          "evidence_lines": [
+            517,
+            534
+          ],
+          "source_file_sha256": "64486e76c6bc048b9b0f63345e8c4106c8f16ec5f0320512707ee843d8be8f56",
+          "evidence_sha256": "4d56b9b514ad82e97352b8165c0a0b37f0dd91d31404181410324bf9964b9760",
+          "ast_definition_lines": [
+            377,
+            556
+          ],
+          "contains_executable_statement_start": true,
+          "exact_symbol_eligible_windows": [
+            "src/urllib3/connectionpool.py:HTTPConnectionPool._make_request:377-536",
+            "src/urllib3/connectionpool.py:HTTPConnectionPool._make_request:497-556"
+          ]
+        }
+      ],
+      "source_review": "The pool starts the timer before validation/send, Timeout.read_timeout subtracts elapsed monotonic duration from total and caps by the read limit, and the pool sets the allowance before getresponse. HTTPConnection.getresponse applies that value to its socket. The three groups in two files are needed; a containing window may cover the two pool groups together. This is the read-transition allowance, not an end-to-end body/retry deadline."
+    },
+    {
+      "query_id": "urllib3_file_body_chunks_and_wire_framing",
+      "kind": "present",
+      "required_groups": 2,
+      "decision": "supported",
+      "targets": [
+        {
+          "group": 1,
+          "path": "src/urllib3/util/request.py",
+          "symbol": "body_to_chunks",
+          "evidence_lines": [
+            230,
+            244
+          ],
+          "source_file_sha256": "5ee02c1014f9f030196144f0a4c1f91ebdc0d4e3e830dbcd21822e9db22a6dcf",
+          "evidence_sha256": "b358c6f5f25e1f6c16288760717249c93eed66d13fe2b494dba28635f47f34d9",
+          "ast_definition_lines": [
+            199,
+            266
+          ],
+          "contains_executable_statement_start": true,
+          "exact_symbol_eligible_windows": [
+            "src/urllib3/util/request.py:body_to_chunks:199-266"
+          ]
+        },
+        {
+          "group": 2,
+          "path": "src/urllib3/connection.py",
+          "symbol": "HTTPConnection.request",
+          "evidence_lines": [
+            460,
+            513
+          ],
+          "source_file_sha256": "88fe2981226da6eb17c9895e8f3367fa08a1ff0582c4c53eab2e8e53591a6a97",
+          "evidence_sha256": "14b6cc4a9362b0e27d96071ea97ec09930194bb607584e2c13bcf3b7dbaa4de1",
+          "ast_definition_lines": [
+            418,
+            513
+          ],
+          "contains_executable_statement_start": true,
+          "exact_symbol_eligible_windows": [
+            "src/urllib3/connection.py:HTTPConnection.request:418-513"
+          ]
+        }
+      ],
+      "source_review": "body_to_chunks reads file-like bodies by blocksize and returns unknown content length; the connection uses that result to choose framing when headers are absent, skips empty pieces, writes size/data framing and sends the terminal zero chunk. Both adapter and wire sender are necessary. Explicit framing headers remain authoritative; blocks need not be full-sized."
+    },
+    {
+      "query_id": "urllib3_certificate_name_policy_and_error_context",
+      "kind": "present",
+      "required_groups": 2,
+      "decision": "supported",
+      "targets": [
+        {
+          "group": 1,
+          "path": "src/urllib3/util/ssl_match_hostname.py",
+          "symbol": "match_hostname",
+          "evidence_lines": [
+            127,
+            159
+          ],
+          "source_file_sha256": "0e2ec353bce892896d6a94ff1744a3db57df631c1a4bf704e5aa4eb70b9e7b20",
+          "evidence_sha256": "0c9c3cd6d0f34e84e3bd8ddb95c545812a16f6c8963ac3a93e3b7fcc581771d8",
+          "ast_definition_lines": [
+            95,
+            159
+          ],
+          "contains_executable_statement_start": true,
+          "exact_symbol_eligible_windows": [
+            "src/urllib3/util/ssl_match_hostname.py:match_hostname:95-159"
+          ]
+        },
+        {
+          "group": 2,
+          "path": "src/urllib3/connection.py",
+          "symbol": "_match_hostname",
+          "evidence_lines": [
+            1032,
+            1043
+          ],
+          "source_file_sha256": "88fe2981226da6eb17c9895e8f3367fa08a1ff0582c4c53eab2e8e53591a6a97",
+          "evidence_sha256": "913a989645eb0efc2487dc3da08e07f096a4a42a2548af94b1e4471e8588de35",
+          "ast_definition_lines": [
+            1020,
+            1043
+          ],
+          "contains_executable_statement_start": true,
+          "exact_symbol_eligible_windows": [
+            "src/urllib3/connection.py:_match_hostname:1020-1043"
+          ]
+        }
+      ],
+      "source_review": "The vendored matcher checks DNS/IP alternatives, gates common-name fallback and raises mismatches. The connection wrapper invokes it, attaches the peer certificate to CertificateError and reraises. Both files are needed. TLS trust and wildcard/IP helpers were read as supporting context, and the matcher retains its PSF source notice."
+    },
+    {
+      "query_id": "urllib3_multipart_parameter_escaping",
+      "kind": "present",
+      "required_groups": 1,
+      "decision": "supported",
+      "targets": [
+        {
+          "group": 1,
+          "path": "src/urllib3/fields.py",
+          "symbol": "format_multipart_header_param",
+          "evidence_lines": [
+            109,
+            114
+          ],
+          "source_file_sha256": "1427fb5142d291fd7472e4d15164d0112cf1825d564fc7b6682cb791fc998a7b",
+          "evidence_sha256": "559937b4a3d263bee77930f7fa4d5025bc5b0e990d969abe1406d2274d2d7a1e",
+          "ast_definition_lines": [
+            79,
+            114
+          ],
+          "contains_executable_statement_start": true,
+          "exact_symbol_eligible_windows": [
+            "src/urllib3/fields.py:format_multipart_header_param:79-114"
+          ]
+        }
+      ],
+      "source_review": "The executable interval decodes bytes as UTF-8, translates LF/CR/double quote to percent escapes and returns the quoted parameter. This proves the requested multipart-specific behavior without claiming general header sanitization."
+    },
+    {
+      "query_id": "urllib3_consecutive_error_backoff_and_jitter",
+      "kind": "present",
+      "required_groups": 1,
+      "decision": "supported",
+      "targets": [
+        {
+          "group": 1,
+          "path": "src/urllib3/util/retry.py",
+          "symbol": "Retry.get_backoff_time",
+          "evidence_lines": [
+            294,
+            306
+          ],
+          "source_file_sha256": "6e3fb6614a9b9712e5bfc4c78397f1c30f83339e1709b8e0657210ef55e2a026",
+          "evidence_sha256": "980609d56c32c8b63c3fa22db8ea21467bfffda23ff6dbb2cd5550f2bc6f4cc7",
+          "ast_definition_lines": [
+            289,
+            306
+          ],
+          "contains_executable_statement_start": true,
+          "exact_symbol_eligible_windows": [
+            "src/urllib3/util/retry.py:Retry.get_backoff_time:289-306"
+          ]
+        }
+      ],
+      "source_review": "The interval takes the most recent consecutive non-redirect history, returns zero for length at most one, applies exponential factor and optional jitter, and clamps to the configured nonnegative maximum. Server-directed Retry-After sleep is outside this query."
+    },
+    {
+      "query_id": "urllib3_duplicate_header_append_or_combine",
+      "kind": "present",
+      "required_groups": 1,
+      "decision": "supported",
+      "targets": [
+        {
+          "group": 1,
+          "path": "src/urllib3/_collections.py",
+          "symbol": "HTTPHeaderDict.add",
+          "evidence_lines": [
+            319,
+            333
+          ],
+          "source_file_sha256": "b4cedce89d622ad599615fd01986fcfabecdaf5e76e037a19ec6b451f87afe65",
+          "evidence_sha256": "7a0b603320bb1fbc367d2c02e5cd75498747cc4139c4293e8272857f6f6f1dca",
+          "ast_definition_lines": [
+            300,
+            333
+          ],
+          "contains_executable_statement_start": true,
+          "exact_symbol_eligible_windows": [
+            "src/urllib3/_collections.py:HTTPHeaderDict.add:300-333"
+          ]
+        }
+      ],
+      "source_review": "The interval lowercases lookup keys, retains original spelling and either appends a separate value or combines into the last value with comma-space. getlist/items and the referenced repeated-header tests confirm the representation distinction."
+    },
+    {
+      "query_id": "urllib3_bounded_read_across_queued_chunks",
+      "kind": "present",
+      "required_groups": 1,
+      "decision": "supported",
+      "targets": [
+        {
+          "group": 1,
+          "path": "src/urllib3/response.py",
+          "symbol": "BytesQueueBuffer.get",
+          "evidence_lines": [
+            289,
+            309
+          ],
+          "source_file_sha256": "4d54d2bba43553453b8681d8308471c6e878ceba1e328f1be442380ce035dc4a",
+          "evidence_sha256": "58b31786e51551ac48bc0396f0f828165b6aec608244f3c7d295de7ce8ebc723",
+          "ast_definition_lines": [
+            281,
+            309
+          ],
+          "contains_executable_statement_start": true,
+          "exact_symbol_eligible_windows": [
+            "src/urllib3/response.py:BytesQueueBuffer.get:281-309"
+          ]
+        }
+      ],
+      "source_review": "The interval consumes queued bytes until the positive requested limit or exhaustion, puts a split suffix back at the queue front and subtracts only consumed bytes from _size. Preceding guards establish nonempty positive reads; the chosen interval contains the complete requested buffer mutation."
+    },
+    {
+      "query_id": "urllib3_absent_disk_response_cache_revalidation",
+      "kind": "absent",
+      "required_groups": 0,
+      "decision": "supported",
+      "targets": [],
+      "source_review": "Supported as a scoped source-review absence. HTTPResponse and Emscripten response body caching is per-object memory storage; PoolManager/RecentlyUsedContainer cache connections and HTTP/2 probe caching stores support booleans. The worker delegates fetch to the browser without an on-disk representation cache, expiry policy or saved-entity-tag revalidation flow in this source scope. External/browser/dependency caching is excluded."
+    },
+    {
+      "query_id": "urllib3_absent_single_oauth_refresh",
+      "kind": "absent",
+      "required_groups": 0,
+      "decision": "supported",
+      "targets": [],
+      "source_review": "Supported as a scoped source-review absence. make_headers constructs Basic credentials, configured status retries repeat requests and redirect filtering removes selected credentials; none performs token acquisition/refresh. HTTP/2 probe locking coordinates protocol support, and the OAuth mention is a signing docstring caveat. Caller bearer headers, browser credentials and external auth implementations are excluded."
+    }
+  ],
+  "referenced_tests": [
+    {
+      "query_id": "urllib3_multipart_request_and_boundary_body",
+      "test": "test/test_filepost.py::TestMultipartEncoding.test_field_encoding",
+      "file_sha256": "566e3f7d2fbdceaec64c3f1565a610253b1f96105a3aa82840afee6d4da94f0c",
+      "definition_lines": [
+        28,
+        44
+      ]
+    },
+    {
+      "query_id": "urllib3_multipart_request_and_boundary_body",
+      "test": "test/with_dummyserver/test_connectionpool.py::TestConnectionPool.test_post_with_multipart",
+      "file_sha256": "77f8510e7124dc77503db26b03c8552a1e94582e6ca3ee5ce1d6c05a6b47c90a",
+      "definition_lines": [
+        592,
+        614
+      ]
+    },
+    {
+      "query_id": "urllib3_file_body_position_before_repeated_send",
+      "test": "test/with_dummyserver/test_connectionpool.py::TestFileBodiesOnRetryOrRedirect.test_redirect_put_file",
+      "file_sha256": "77f8510e7124dc77503db26b03c8552a1e94582e6ca3ee5ce1d6c05a6b47c90a",
+      "definition_lines": [
+        1394,
+        1417
+      ]
+    },
+    {
+      "query_id": "urllib3_file_body_position_before_repeated_send",
+      "test": "test/with_dummyserver/test_connectionpool.py::TestFileBodiesOnRetryOrRedirect.test_redirect_with_failed_tell",
+      "file_sha256": "77f8510e7124dc77503db26b03c8552a1e94582e6ca3ee5ce1d6c05a6b47c90a",
+      "definition_lines": [
+        1419,
+        1435
+      ]
+    },
+    {
+      "query_id": "urllib3_file_body_position_before_repeated_send",
+      "test": "test/test_util.py::TestUtil.test_rewind_body_failed_seek",
+      "file_sha256": "375420e8fd7688330244d412e0eabbbb167cecb7ef1e9211defd5612247d0f4f",
+      "definition_lines": [
+        618,
+        624
+      ]
+    },
+    {
+      "query_id": "urllib3_response_status_retry_and_drain",
+      "test": "test/test_retry.py::TestRetry.test_status_forcelist",
+      "file_sha256": "25f042ee51932011321c3e18e93857d7b5e71421808e9fcf4358206fc7a098bd",
+      "definition_lines": [
+        239,
+        251
+      ]
+    },
+    {
+      "query_id": "urllib3_response_status_retry_and_drain",
+      "test": "test/test_retry.py::TestRetry.test_allowed_methods_with_status_forcelist",
+      "file_sha256": "25f042ee51932011321c3e18e93857d7b5e71421808e9fcf4358206fc7a098bd",
+      "definition_lines": [
+        253,
+        262
+      ]
+    },
+    {
+      "query_id": "urllib3_response_status_retry_and_drain",
+      "test": "test/with_dummyserver/test_connectionpool.py::TestRetryAfter.test_retry_after",
+      "file_sha256": "77f8510e7124dc77503db26b03c8552a1e94582e6ca3ee5ce1d6c05a6b47c90a",
+      "definition_lines": [
+        1284,
+        1340
+      ]
+    },
+    {
+      "query_id": "urllib3_redirect_origin_check_and_header_removal",
+      "test": "test/with_dummyserver/test_poolmanager.py::TestPoolManager.test_redirect_cross_host_remove_headers",
+      "file_sha256": "faf9d96beadea3d2704c768bcccca9cd09249cef312a14351812ad3443db542b",
+      "definition_lines": [
+        242,
+        283
+      ]
+    },
+    {
+      "query_id": "urllib3_release_response_connection_to_bounded_pool",
+      "test": "test/test_connectionpool.py::TestConnectionPool.test_put_conn_when_pool_is_full_nonblocking",
+      "file_sha256": "5936bc3164b830a2103e6d6b57cef59bbfdb035e68264b585dd6a47e6b584f7c",
+      "definition_lines": [
+        232,
+        258
+      ]
+    },
+    {
+      "query_id": "urllib3_release_response_connection_to_bounded_pool",
+      "test": "test/test_connectionpool.py::TestConnectionPool.test_put_conn_closed_pool",
+      "file_sha256": "5936bc3164b830a2103e6d6b57cef59bbfdb035e68264b585dd6a47e6b584f7c",
+      "definition_lines": [
+        280,
+        292
+      ]
+    },
+    {
+      "query_id": "urllib3_elapsed_total_budget_to_socket_read",
+      "test": "test/test_util.py::TestUtil.test_timeout",
+      "file_sha256": "375420e8fd7688330244d412e0eabbbb167cecb7ef1e9211defd5612247d0f4f",
+      "definition_lines": [
+        673,
+        712
+      ]
+    },
+    {
+      "query_id": "urllib3_elapsed_total_budget_to_socket_read",
+      "test": "test/with_dummyserver/test_connectionpool.py::TestConnectionPoolTimeouts.test_total_timeout",
+      "file_sha256": "77f8510e7124dc77503db26b03c8552a1e94582e6ca3ee5ce1d6c05a6b47c90a",
+      "definition_lines": [
+        171,
+        194
+      ]
+    },
+    {
+      "query_id": "urllib3_file_body_chunks_and_wire_framing",
+      "test": "test/with_dummyserver/test_chunked_transfer.py::TestChunkedTransfer.test_chunks",
+      "file_sha256": "864990ba7a5b53ccff25a94ba479bf8aa5327db249c009a73af7058dd8b6b8d3",
+      "definition_lines": [
+        46,
+        60
+      ]
+    },
+    {
+      "query_id": "urllib3_certificate_name_policy_and_error_context",
+      "test": "test/test_connection.py::TestConnection.test_match_hostname_mismatch",
+      "file_sha256": "c7c52e1e8454542219a35dda6152c97fed556662477c67e4beb4b370bdf02652",
+      "definition_lines": [
+        54,
+        67
+      ]
+    },
+    {
+      "query_id": "urllib3_certificate_name_policy_and_error_context",
+      "test": "test/test_connection.py::TestConnection.test_match_hostname_ignore_common_name",
+      "file_sha256": "c7c52e1e8454542219a35dda6152c97fed556662477c67e4beb4b370bdf02652",
+      "definition_lines": [
+        113,
+        120
+      ]
+    },
+    {
+      "query_id": "urllib3_certificate_name_policy_and_error_context",
+      "test": "test/test_connection.py::TestConnection.test_match_hostname_check_common_name",
+      "file_sha256": "c7c52e1e8454542219a35dda6152c97fed556662477c67e4beb4b370bdf02652",
+      "definition_lines": [
+        122,
+        125
+      ]
+    },
+    {
+      "query_id": "urllib3_multipart_parameter_escaping",
+      "test": "test/test_fields.py::TestRequestField.test_format_multipart_header_param",
+      "file_sha256": "2db541b7ad606c91e227e76f5a3f9f16b465dbeba8b3cee24f402c445e34a740",
+      "definition_lines": [
+        102,
+        106
+      ]
+    },
+    {
+      "query_id": "urllib3_consecutive_error_backoff_and_jitter",
+      "test": "test/test_retry.py::TestRetry.test_backoff",
+      "file_sha256": "25f042ee51932011321c3e18e93857d7b5e71421808e9fcf4358206fc7a098bd",
+      "definition_lines": [
+        134,
+        158
+      ]
+    },
+    {
+      "query_id": "urllib3_consecutive_error_backoff_and_jitter",
+      "test": "test/test_retry.py::TestRetry.test_backoff_jitter",
+      "file_sha256": "25f042ee51932011321c3e18e93857d7b5e71421808e9fcf4358206fc7a098bd",
+      "definition_lines": [
+        184,
+        211
+      ]
+    },
+    {
+      "query_id": "urllib3_consecutive_error_backoff_and_jitter",
+      "test": "test/test_retry.py::TestRetry.test_backoff_reset_after_redirect",
+      "file_sha256": "25f042ee51932011321c3e18e93857d7b5e71421808e9fcf4358206fc7a098bd",
+      "definition_lines": [
+        220,
+        230
+      ]
+    },
+    {
+      "query_id": "urllib3_duplicate_header_append_or_combine",
+      "test": "test/test_collections.py::TestHTTPHeaderDict.test_add_well_known_multiheader",
+      "file_sha256": "09ff2eb920bad6eb11e4b92a7e0e44cd43e0a436df0a2f907c817a28b2bbd9be",
+      "definition_lines": [
+        233,
+        236
+      ]
+    },
+    {
+      "query_id": "urllib3_duplicate_header_append_or_combine",
+      "test": "test/test_collections.py::TestHTTPHeaderDict.test_add_comma_separated_multiheader",
+      "file_sha256": "09ff2eb920bad6eb11e4b92a7e0e44cd43e0a436df0a2f907c817a28b2bbd9be",
+      "definition_lines": [
+        238,
+        245
+      ]
+    },
+    {
+      "query_id": "urllib3_duplicate_header_append_or_combine",
+      "test": "test/test_collections.py::TestHTTPHeaderDict.test_header_repeat",
+      "file_sha256": "09ff2eb920bad6eb11e4b92a7e0e44cd43e0a436df0a2f907c817a28b2bbd9be",
+      "definition_lines": [
+        265,
+        291
+      ]
+    },
+    {
+      "query_id": "urllib3_bounded_read_across_queued_chunks",
+      "test": "test/test_response.py::TestBytesQueueBuffer.test_multiple_chunks",
+      "file_sha256": "93b56f51cafb30f22baa3c22cdc5d421c890ed2e127674790b4b2791780d620c",
+      "definition_lines": [
+        69,
+        81
+      ]
+    },
+    {
+      "query_id": "urllib3_bounded_read_across_queued_chunks",
+      "test": "test/test_response.py::TestBytesQueueBuffer.test_read_too_much",
+      "file_sha256": "93b56f51cafb30f22baa3c22cdc5d421c890ed2e127674790b4b2791780d620c",
+      "definition_lines": [
+        64,
+        67
+      ]
+    }
+  ],
+  "corrections_required": [],
+  "limitations": [
+    "Small deliberately compound-heavy authored sample; not representative external-user workload.",
+    "All required compound groups were reviewed as semantically necessary implementation steps across at least two distinct files; forwarding/support helpers were not automatically added as gold.",
+    "Source-review absence labels are bounded judgments, not runtime proofs or claims about external extensions.",
+    "Coverage requires the exact pinned path and entire inclusive evidence interval in delivered verified source; any containing source window can count regardless of symbol label, and one window can cover several groups.",
+    "The reviewed source hashes and windows establish eligibility only. They do not establish retrieved, selected or delivered evidence.",
+    "This receipt freezes the labels/source review. Algorithm and evaluation configuration still require an independent freeze before the first holdout retrieval or inference.",
+    "No product or gold files were changed during review. After any holdout outcome is visible, a label correction cannot silently repair a miss; it must be reported as contamination."
+  ]
+}

@@ -287,13 +287,30 @@ class BackendTests(unittest.TestCase):
     def test_cancelled_index_build_keeps_previous_atomic_snapshot(self):
         self.backend.refresh()
         previous = self.backend.status()["store"]
+        previous_keys = self.backend._definition_keys.copy()
         self.source.write_text("def gamma():\n    return 'gamma'\n")
         self.embedder.after_documents = lambda: self.backend.cancel("index-request")
         with self.assertRaises(SearchCancelled):
             self.backend.search("gamma", request_id="index-request")
         self.assertEqual(self.backend.status()["store"], previous)
+        self.assertEqual(self.backend._definition_keys, previous_keys)
         self.embedder.after_documents = None
         self.assertEqual(self.backend.search("gamma")["results"][0]["symbol"], "gamma")
+        self.assertEqual(set(self.backend._definition_keys.values()), {("src/code.py", "gamma", 1, 2)})
+
+    def test_definition_metadata_reconstructed_on_cached_index_and_reused_warm(self):
+        self.source.write_text("def duplicate():\n    return 1\ndef duplicate():\n    return 2\n")
+        self.backend.refresh()
+        expected = self.backend._definition_keys.copy()
+        self.assertEqual(len(set(expected.values())), 2)
+        with patch("semantic_search.backend.extract_snippets", side_effect=AssertionError("warm reparse")):
+            self.backend.search("duplicate")
+        self.assertEqual(self.backend._definition_keys, expected)
+        with SearchBackendForTest(self.repo, "src", self.repo / "index.sqlite3",
+                                  embedder=self.embedder) as reopened:
+            result = reopened.search("duplicate")
+            self.assertEqual(reopened._definition_keys, expected)
+            self.assertEqual(result["indexstats"]["indexed_windows"], 0)
 
     def test_queued_request_cancels_before_entering_model_work(self):
         self.backend.refresh()

@@ -85,6 +85,20 @@ checkout is downloaded separately and is not redistributed as another tree.
 
 Source: [pallets/jinja](https://github.com/pallets/jinja/tree/15206881c006c79667fe5154fe80c01c65410679)
 
+## urllib3 response-selection holdout
+
+The response-selection holdout refers to urllib3 2.5.0 at peeled commit
+`aaab4eccc10c965897540b21e15f11859d0b62e7`. Its root MIT license, including
+Copyright (c) 2008-2020 Andrey Petrov and contributors, is copied verbatim in
+[benchmarks/URLLIB3_LICENSE.txt](benchmarks/URLLIB3_LICENSE.txt).
+`src/urllib3/util/ssl_match_hostname.py` separately retains the PSF license of
+its Python standard-library origin; its original source-level notice is
+preserved in [the corpus notices](benchmarks/CORPUS_NOTICES.md). Applicable
+notices remain with any published source excerpts. The ignored source checkout
+is downloaded separately and is not redistributed as another tree.
+
+Source: [urllib3/urllib3](https://github.com/urllib3/urllib3/tree/aaab4eccc10c965897540b21e15f11859d0b62e7)
+
 ## H2O-Lightning and the community MLX runtime
 
 The weights and runtime are downloaded separately and not redistributed here.

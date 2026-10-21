@@ -19,7 +19,7 @@ from semantic_search.retrieval import HybridRetriever, MultifileRetriever
 from semantic_search.cancellation import CancellationRegistry, SearchCancelled
 from semantic_search.context import apply_token_budget, indexed_scope
 from semantic_search.source import physical_lines
-from semantic_search.selection import select_context
+from semantic_search.selection import select_context, postprocess_context
 from semantic_search.languages import decode_source, extractor_fingerprint, validate_exclusions, validate_source
 
 
@@ -117,6 +117,7 @@ class SearchBackend:
         self._last_stats = None
         self._last_error = None
         self._references = None
+        self._definition_keys = {}
         self._watcher = None
         self._watch_request_id = f"watch-{id(self)}"
         from semantic_search.matching import MatchPolicy
@@ -244,14 +245,16 @@ class SearchBackend:
         if unchanged:
             snippets = self._snippets
             references = self._references
+            definition_keys = self._definition_keys
         else:
             self._report_progress({"phase": "extract", "completed": 0,
                                    "total": len(raw), "unit": "files"})
             decoded = self._validate_source(raw)
+            definition_keys = {}
             try:
                 snippets = extract_snippets(self.repo, self.source_root, max_lines=160,
                                             overlap_lines=40, sources=decoded,
-                                            source_exclusions=self.source_exclusions)
+                                            definition_keys=definition_keys, source_exclusions=self.source_exclusions)
             except (OSError, SyntaxError, UnicodeError, ValueError, ImportError) as error:
                 raise SourceSnapshotError(f"Cannot extract saved source: {error}") from error
             # Assert every returned source window matches the captured bytes.
@@ -294,6 +297,7 @@ class SearchBackend:
         self._confirm_snapshot(digest)
         self._manifest, self._snippets = digest, snippets
         self._references = references
+        self._definition_keys = definition_keys
         self._vectors_manifest = digest if require_vectors else None
         self._vectors_model_fingerprint = fingerprint
         self._lexical, self._dense, self._hybrid, self._multifile = lexical, dense, hybrid, multifile
@@ -448,7 +452,24 @@ class SearchBackend:
                 phase = time.perf_counter()
                 selected, eligible, origins = select_context(
                     pairs, query=query, max_results=max_results,
-                    include_dependencies=include_dependencies, references=self._references)
+                    include_dependencies=include_dependencies, references=self._references,
+                    definition_keys=self._definition_keys)
+                def result_row(snippet, score, source, origin="retrieval", related_to=None):
+                    truncated = source != snippet.text
+                    return {"id": snippet.id, "path": snippet.path, "symbol": snippet.symbol,
+                                    "start_line": snippet.start_line,
+                                    "end_line": snippet.start_line + len(physical_lines(source)) - 1,
+                                    "window_end_line": snippet.end_line,
+                                    "source": source, "content_hash": snippet.content_hash,
+                                    "source_hash": hashlib.sha256(source.encode()).hexdigest(),
+                                    "retrieval_score": float(score),
+                                    "h2o_score": judgments[snippet.id].score if snippet.id in judgments else None,
+                                    "qwen_score": qwen_judgments[snippet.id].score if snippet.id in qwen_judgments else None,
+                                    "origin": origin,
+                                    "related_to": related_to,
+                                    **self._source_provenance(snippet.path),
+                                    "truncated": truncated}
+
                 remaining, results = source_budget, []
                 for snippet, score in eligible:
                     source = snippet.text
@@ -463,20 +484,8 @@ class SearchBackend:
                     if not source:
                         continue
                     remaining -= len(source)
-                    truncated = source != snippet.text
-                    results.append({"id": snippet.id, "path": snippet.path, "symbol": snippet.symbol,
-                                    "start_line": snippet.start_line,
-                                    "end_line": snippet.start_line + len(physical_lines(source)) - 1,
-                                    "window_end_line": snippet.end_line,
-                                    "source": source, "content_hash": snippet.content_hash,
-                                    "source_hash": hashlib.sha256(source.encode()).hexdigest(),
-                                    "retrieval_score": float(score),
-                                    "h2o_score": judgments[snippet.id].score if snippet.id in judgments else None,
-                                    "qwen_score": qwen_judgments[snippet.id].score if snippet.id in qwen_judgments else None,
-                                    "origin": origins.get(snippet.id, ("retrieval", None))[0],
-                                    "related_to": origins.get(snippet.id, ("retrieval", None))[1],
-                                    **self._source_provenance(snippet.path),
-                                    "truncated": truncated})
+                    results.append(result_row(snippet, score, source,
+                        *origins.get(snippet.id, ("retrieval", None))))
                 self._confirm_snapshot(self._manifest)
                 packaging_s = time.perf_counter() - phase
                 response = {"repo": str(self.repo), "source_root": self.source_root,
@@ -504,6 +513,10 @@ class SearchBackend:
                     response["match_evidence"]["ranking_score_kind"] = "qwen_yes_minus_no_logit_difference"
                 if token_budget is not None:
                     response = apply_token_budget(response, token_budget)
+                response = postprocess_context(response,
+                    (result_row(snippet, score, snippet.text) for snippet, score in selected),
+                    max_results=max_results, source_budget=source_budget,
+                    token_budget=token_budget, cancel_check=check)
                 check()
                 self._confirm_snapshot(self._manifest)
                 response["timings"]["packaging_s"] = time.perf_counter() - phase

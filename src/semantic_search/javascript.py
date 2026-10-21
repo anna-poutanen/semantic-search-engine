@@ -4,6 +4,7 @@ from __future__ import annotations
 import hashlib
 import unicodedata
 from bisect import bisect_right
+from collections.abc import MutableMapping
 from dataclasses import dataclass
 from importlib.metadata import PackageNotFoundError, version
 
@@ -488,8 +489,11 @@ def definitions(path, source, tree=None):
     return output
 
 
-def extract_javascript(path, source, max_lines, overlap_lines):
+def extract_javascript(path, source, max_lines, overlap_lines, *, definition_keys=None):
+    """Extract unchanged windows and optionally expose their precise definition keys."""
     from semantic_search.corpus import Snippet
+    if definition_keys is not None and not isinstance(definition_keys, MutableMapping):
+        raise ValueError("definition_keys must be a mutable mapping")
     lines = physical_lines(source)
     output = []
     seen_ids = set()
@@ -497,6 +501,7 @@ def extract_javascript(path, source, max_lines, overlap_lines):
         implementation = definition.implementation_lines
         start = definition.start_line
         final = definition.end_line
+        definition_key = (path, definition.symbol, start, final, definition.node.start_byte)
         while start <= final:
             end = min(start + max_lines - 1, final)
             if any(start <= line <= end for line in implementation):
@@ -509,6 +514,8 @@ def extract_javascript(path, source, max_lines, overlap_lines):
                 output.append(Snippet(identity, path,
                                       definition.symbol, start, end, text,
                                       hashlib.sha256(text.encode("utf-8")).hexdigest()))
+                if definition_keys is not None:
+                    definition_keys[identity] = definition_key
             if end == final:
                 break
             start += max_lines - overlap_lines
