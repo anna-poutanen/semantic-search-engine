@@ -3,8 +3,8 @@
 The [GitHub Actions workflow](../.github/workflows/download-tests.yml) runs
 `scripts/smoke_release_downloads.py` daily at 9:00 a.m. America/Toronto, including
 daylight-saving changes. It uses a GitHub-hosted Ubuntu runner and does not need
-your Mac or Codex to be running. Each run chooses an integer uniformly from 2 through
-15 and makes that many sequential download attempts against the newest published
+your Mac or Codex to be running. Each run chooses an integer uniformly from 5 through
+20 and makes that many sequential download attempts against the newest published
 Mac ZIP, including preview releases. It queries public GitHub release metadata
 to discover the asset, so it does not depend on a hardcoded release tag.
 
@@ -29,7 +29,7 @@ interrupted run is retained for inspection and is not repeated that day, so an
 outage or interruption can produce fewer successful downloads than planned.
 
 Use **Run workflow** on the Actions page to trigger the same guarded checks
-manually. The optional count input accepts 2–15; the default is random. A skipped
+manually. The optional count input accepts 5–20; the default is random. A skipped
 run does not imply the original test succeeded: inspect the original report.
 The previous local Codex schedule is paused to avoid duplicate testing.
 
@@ -42,7 +42,7 @@ For local development only:
 Local reports live in ignored `results/local/download-tests/YYYY-MM-DD.json`,
 using Toronto calendar dates. A local daily lock and report prevent repeated
 local downloads, but do not share GitHub's marker: use Actions for manual checks
-to preserve the cloud daily cap. `--count 2` through `--count 15` overrides the
+to preserve the cloud daily cap. `--count 5` through `--count 20` overrides the
 local random selection. Existing daily reports are returned unchanged. A failed
 or incomplete report exits nonzero. Failure notifications follow your GitHub
 Actions notification preferences.

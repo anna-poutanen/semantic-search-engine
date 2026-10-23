@@ -38,12 +38,16 @@ def test_newest_published_mac_zip_includes_previews(release):
     assert downloads.select_asset([older, draft, published, no_zip])[0] == "v1-preview"
 
 
-@pytest.mark.parametrize("random_value,count", [(0, 2), (13, 15)])
+@pytest.mark.parametrize("random_value,count", [(0, 5), (15, 20)])
 def test_random_bounds_and_repeated_day_does_no_downloads(tmp_path, monkeypatch, release, random_value, count):
     published, data = release
     fetch = Mock(side_effect=[json.dumps([published]).encode()] + [data] * count)
     monkeypatch.setattr(downloads, "fetch", fetch)
-    monkeypatch.setattr(downloads.secrets, "randbelow", lambda bound: random_value)
+    def choose(bound):
+        assert bound == 16
+        return random_value
+
+    monkeypatch.setattr(downloads.secrets, "randbelow", choose)
     report = downloads.run(tmp_path, day="2026-10-15")
     assert report["status"] == "passed"
     assert len(report["attempts"]) == report["planned_downloads"] == count
@@ -53,19 +57,19 @@ def test_random_bounds_and_repeated_day_does_no_downloads(tmp_path, monkeypatch,
 
 def test_failed_downloads_are_recorded_without_extra_retries(tmp_path, monkeypatch, release):
     published, data = release
-    fetch = Mock(side_effect=[json.dumps([published]).encode(), OSError("offline"), data])
+    fetch = Mock(side_effect=[json.dumps([published]).encode(), OSError("offline")] + [data] * 4)
     monkeypatch.setattr(downloads, "fetch", fetch)
-    report = downloads.run(tmp_path, count=2)
+    report = downloads.run(tmp_path, count=5)
     assert report["status"] == "failed"
-    assert [row["status"] for row in report["attempts"]] == ["failed", "passed"]
-    assert downloads.run(tmp_path, count=15) == report
-    assert fetch.call_count == 3
+    assert [row["status"] for row in report["attempts"]] == ["failed"] + ["passed"] * 4
+    assert downloads.run(tmp_path, count=20) == report
+    assert fetch.call_count == 6
 
 
 def test_metadata_failure_and_interrupted_run_do_not_redownload(tmp_path, monkeypatch):
     fetch = Mock(side_effect=OSError("offline"))
     monkeypatch.setattr(downloads, "fetch", fetch)
-    report = downloads.run(tmp_path, count=2, day="2026-10-15")
+    report = downloads.run(tmp_path, count=5, day="2026-10-15")
     assert report["status"] == "failed" and not report["attempts"]
     report["status"] = "running"
     downloads.save(tmp_path / "2026-10-15.json", report)
@@ -84,9 +88,9 @@ def test_bad_digest_and_invalid_archive_rejected(release):
                                   "digest": "sha256:" + hashlib.sha256(bad_zip).hexdigest()})
 
 
-@pytest.mark.parametrize("count", [0, 1, 16])
+@pytest.mark.parametrize("count", [0, 4, 21])
 def test_count_outside_daily_limit_rejected(tmp_path, count):
-    with pytest.raises(ValueError, match="between 2 and 15"):
+    with pytest.raises(ValueError, match="between 5 and 20"):
         downloads.run(tmp_path, count=count)
 
 

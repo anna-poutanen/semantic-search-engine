@@ -22,6 +22,8 @@ REPOSITORY = "anna-poutanen/semantic-search-engine"
 RELEASES_URL = f"https://api.github.com/repos/{REPOSITORY}/releases?per_page=100"
 OUTPUT = ROOT / "results/local/download-tests"
 MAX_DOWNLOAD_BYTES = 10_000_000
+MIN_DOWNLOADS = 5
+MAX_DOWNLOADS = 20
 
 
 def fetch(url, limit):
@@ -82,8 +84,8 @@ def save(path, report):
 
 
 def run(output=OUTPUT, count=None, day=None):
-    if count is not None and not 2 <= count <= 15:
-        raise ValueError("Download count must be between 2 and 15")
+    if count is not None and not MIN_DOWNLOADS <= count <= MAX_DOWNLOADS:
+        raise ValueError(f"Download count must be between {MIN_DOWNLOADS} and {MAX_DOWNLOADS}")
     day = day or datetime.now(ZoneInfo("America/Toronto")).date().isoformat()
     output = Path(output)
     output.mkdir(parents=True, exist_ok=True)
@@ -95,7 +97,8 @@ def run(output=OUTPUT, count=None, day=None):
             return json.loads(path.read_text())
         report = {"date": day, "timezone": "America/Toronto", "synthetic": True,
                   "started_at": datetime.now(timezone.utc).isoformat(),
-                  "planned_downloads": count if count is not None else secrets.randbelow(14) + 2,
+                  "planned_downloads": count if count is not None else secrets.randbelow(
+                      MAX_DOWNLOADS - MIN_DOWNLOADS + 1) + MIN_DOWNLOADS,
                   "attempts": [], "status": "running"}
         save(path, report)
         try:
@@ -127,7 +130,8 @@ def run(output=OUTPUT, count=None, day=None):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output-dir", type=Path, default=OUTPUT)
-    parser.add_argument("--count", type=int, choices=range(2, 16), help="Default: random 2–15")
+    parser.add_argument("--count", type=int, choices=range(MIN_DOWNLOADS, MAX_DOWNLOADS + 1),
+                        help=f"Default: random {MIN_DOWNLOADS}–{MAX_DOWNLOADS}")
     args = parser.parse_args()
     report = run(args.output_dir, args.count)
     print(json.dumps(report, indent=2))
