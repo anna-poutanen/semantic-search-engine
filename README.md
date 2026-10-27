@@ -119,6 +119,13 @@ it. All 1,825 outcomes pass independent source/token audits. Production stays
 unchanged, and the new source-reviewed codebase remains untested pending a
 candidate that improves development quality.
 
+The [complementary-implementation allocation study](docs/complementary-allocation.md)
+now tests query-aspect selection within the same eight slots. It newly completes
+three observed behaviors, but also loses existing implementation evidence, so
+both rules fail the promotion gate. All 730 new outcomes and their 730 control
+references pass independent audit; 3,017 core tests pass. Defaults and release
+assets stay unchanged, and the fresh codebase remains unqueried.
+
 For optional H2O reranking, install its pinned runtime and weights with
 `python3 scripts/setup_mac.py`, start `.venv/bin/python scripts/serve_mac.py` in
 another terminal, then pass `--rerank`:

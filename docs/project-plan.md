@@ -48,8 +48,14 @@ This follows the agreed plan in **Choose a project for YC roles** on October 12,
    union loses one complete Zod BM25 result, while both guarded variants avoid
    every observed loss. No candidate qualifies for fresh inference or promotion.
    The independently source-reviewed TanStack Query corpus remains unobserved.
-   Next, investigate budget allocation across distinct implementations excluded
-   by the fixed result cap before another coding comparison. All source-only
+   The [allocation follow-up](complementary-allocation.md) tests two query-aspect
+   selectors while protecting dependencies and owners. They newly complete one
+   and three distinct query units, respectively, but lose four and twelve full
+   group occurrences against coverage control. Every one of the 730 new outcomes
+   and 730 immutable control references passes independent audit; neither rule
+   qualifies for fresh inference or promotion. The next quality target is
+   source-aware complementary selection with evidence protection after packing.
+   Another coding comparison remains gated on retrieval improvement. All source-only
    labels, raw traces, rejected controls, failure receipts and independent audits
    are preserved.
 4. **Persistent index (core and real-model validation complete at tested scale):**

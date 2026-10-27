@@ -1,0 +1,2394 @@
+{
+  "classification": "Post hoc descriptive activation and loss analysis of fixed independently audited DEVELOPMENT outcomes",
+  "created_at_utc": "2026-10-27T01:27:11.389501+00:00",
+  "input_sha256": {
+    "frozen-plan.json": "bbe9a4f9d9c25e41aef8f641d242c021d8f0a16cbb808ff7fae331145ba27f13",
+    "run-start.json": "37af0b8d3b93a747680c4d4e02c8939fca947453e25d57cd065fbeaa17d93813",
+    "replay.jsonl.gz": "7d0edbadb8173028e168d8514d90c4c8ffa73757173aefc7721103500d225c8b",
+    "summary.json": "c1abc50c68e176a6f631a17fe2f1b186b153a5025fe64e4bb4dd50056a75438c",
+    "independent-audit.json": "39ea33f1b11e4a9b9072eb74effc0ea7b02e2dea7c18c68a7de3499eb7390ba2"
+  },
+  "independent_audit_covers_this_derived_analysis": false,
+  "calls": {
+    "model": 0,
+    "index": 0,
+    "retrieval": 0,
+    "network": 0,
+    "new_variant_evaluation": 0
+  },
+  "method": "Stream the fixed 730 candidate records only. Count actual receipt flags, compare eligible IDs to the saved baseline ID receipt and final compact hash to the immutable coverage-control hash. For the already reported lost groups, inspect saved target IDs, physical delivered bounds, initial protected matched-term unions and actual picks. No alternate ordering, utility, score or response is generated. Classifications are descriptive source-stage explanations, not new interventions.",
+  "denominators": {
+    "observed_case_rows_per_condition": 365,
+    "distinct_dataset_query_units": 187,
+    "stored_new_outcomes": 730,
+    "referenced_immutable_controls": 730
+  },
+  "activity": {
+    "aspect_fill": {
+      "case_occurrences": {
+        "literal_clause_active": 329,
+        "accepted": 160,
+        "eligible_changed": 151,
+        "compact_changed": 146
+      },
+      "distinct_dataset_query_units": {
+        "literal_clause_active": 172,
+        "accepted": 88,
+        "eligible_changed": 85,
+        "compact_changed": 85
+      },
+      "fallback_case_counts": {
+        "no_novel_query_terms": 36,
+        "no_free_slots": 127,
+        "no_literal_clauses": 36,
+        "query_terms_not_preserved": 6
+      }
+    },
+    "aspect_balanced": {
+      "case_occurrences": {
+        "literal_clause_active": 329,
+        "accepted": 275,
+        "eligible_changed": 274,
+        "compact_changed": 272
+      },
+      "distinct_dataset_query_units": {
+        "literal_clause_active": 172,
+        "accepted": 151,
+        "eligible_changed": 150,
+        "compact_changed": 150
+      },
+      "fallback_case_counts": {
+        "no_novel_query_terms": 43,
+        "no_free_slots": 6,
+        "no_literal_clauses": 36,
+        "query_terms_not_preserved": 5
+      }
+    }
+  },
+  "loss_causes_vs_coverage_control": {
+    "aspect_fill": {
+      "removed_from_eligible_allocation": 4
+    },
+    "aspect_balanced": {
+      "removed_from_eligible_allocation": 9,
+      "character_budget_after_reordering": 2,
+      "prior_backfill_opportunity_consumed": 1
+    }
+  },
+  "qualification": {
+    "aspect_fill": {
+      "qualified": false,
+      "against_controls": {
+        "legacy": {
+          "lost_groups": 4,
+          "lost_complete_rows": 4,
+          "lost_single_file_first_hits": 0
+        },
+        "coverage_control": {
+          "lost_groups": 4,
+          "lost_complete_rows": 4,
+          "lost_single_file_first_hits": 0
+        }
+      },
+      "additional_distinct_complete_queries_vs_coverage_control": [
+        "jinja/jinja_bytecode_reject_and_recompile"
+      ],
+      "gained_additional_distinct_complete_queries": 1,
+      "requires_fresh_native_validation": true,
+      "automatic_default_change": false
+    },
+    "aspect_balanced": {
+      "qualified": false,
+      "against_controls": {
+        "legacy": {
+          "lost_groups": 11,
+          "lost_complete_rows": 9,
+          "lost_single_file_first_hits": 1
+        },
+        "coverage_control": {
+          "lost_groups": 12,
+          "lost_complete_rows": 10,
+          "lost_single_file_first_hits": 1
+        }
+      },
+      "additional_distinct_complete_queries_vs_coverage_control": [
+        "jinja/jinja_bytecode_reject_and_recompile",
+        "jinja/jinja_include_parent_and_local_context",
+        "urllib3/urllib3_redirect_origin_check_and_header_removal"
+      ],
+      "gained_additional_distinct_complete_queries": 3,
+      "requires_fresh_native_validation": true,
+      "automatic_default_change": false
+    }
+  },
+  "losses_vs_coverage_control": [
+    {
+      "subset": "language_observed",
+      "dataset": "express",
+      "query_id": "express_configured_query_parser",
+      "condition": "bm25",
+      "selector": "aspect_fill",
+      "query": "Where is the configured simple, extended, custom, or disabled query parser compiled and then invoked on the raw URL query, with disabled parsing returning an empty object?",
+      "group": {
+        "group": 1,
+        "evidence": [
+          {
+            "path": "lib/application.js",
+            "symbol": "app.set",
+            "evidence_lines": [
+              360,
+              370
+            ],
+            "definition_lines": [
+              351,
+              383
+            ],
+            "declaration_anchor": "app.set = function set(",
+            "evidence_sha256": "efe63283caf4a428422fdb9b91ca3a1321b1e7e5a3d94693454e2d7e5fb9d649",
+            "source_file_sha256": "6d7e08355025786982d17042fc0355b6a5e9339545dc27e2782b3aaa28a7bc04"
+          }
+        ],
+        "baseline_rank": 8,
+        "variant_rank": null,
+        "baseline_excerpts": [
+          "lib/application.js:app.set:351-383"
+        ],
+        "variant_excerpts": [],
+        "baseline_covering_origins": [
+          {
+            "id": "lib/application.js:app.set:351-383",
+            "origin": "retrieval",
+            "related_to": null
+          }
+        ],
+        "baseline_dependency_only": false
+      },
+      "classification": "removed_from_eligible_allocation",
+      "target_in_baseline_eligible": true,
+      "target_in_new_eligible": false,
+      "planner_accepted": true,
+      "literal_query_term_guard_passed": true,
+      "protected_ids": [
+        "lib/request.js:query:230-241",
+        "lib/utils.js:exports.compileQueryParser:162-184",
+        "lib/express.js:<module>:78-78",
+        "lib/utils.js:parseExtendedQueryString:267-271",
+        "lib/response.js:res.status:65-77"
+      ],
+      "picks": [
+        {
+          "id": "lib/response.js:res.jsonp:264-308",
+          "rank": 18,
+          "novel_terms": [
+            "empty"
+          ],
+          "weighted_gain": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "utility": {
+            "numerator": 1,
+            "denominator": 18
+          },
+          "reason": "novel_query_terms"
+        },
+        {
+          "id": "lib/response.js:res.location:797-799",
+          "rank": 13,
+          "novel_terms": [
+            "url"
+          ],
+          "weighted_gain": {
+            "numerator": 1,
+            "denominator": 3
+          },
+          "utility": {
+            "numerator": 1,
+            "denominator": 39
+          },
+          "reason": "novel_query_terms"
+        },
+        {
+          "id": "lib/application.js:<module>.compileQueryParser:22-22",
+          "rank": 6,
+          "novel_terms": [],
+          "weighted_gain": {
+            "numerator": 0,
+            "denominator": 1
+          },
+          "utility": {
+            "numerator": 0,
+            "denominator": 1
+          },
+          "reason": "rank_fill"
+        }
+      ],
+      "targets": [
+        {
+          "id": "lib/application.js:app.set:351-383",
+          "selected_rank": 8,
+          "matched_query_terms": [
+            "object",
+            "parser",
+            "query"
+          ],
+          "novel_terms_relative_to_protected_rows": []
+        }
+      ],
+      "pre_postprocess_target_rows": [],
+      "final_target_rows": [],
+      "source_chars": 2856,
+      "tokens": {
+        "encoding": "cl100k_base",
+        "tokens": 1611,
+        "budget": 4096,
+        "truncated": false
+      },
+      "compact_sha256": "60496ba8ab30ac01b3d99ce872d49131a1d192bb37c827f1570b6b2e072dd09a",
+      "control_references": {
+        "legacy": {
+          "line_number": 126,
+          "record_sha256": "7a2e28a684f6015a2e05b25554f67e790d11e601b00b3543453b0a13abfc7adf",
+          "response_sha256": "32e6c2594298b62dff8f675ef8a01a1b03c6d26487ef951b2677fdff38b47dcb",
+          "compact_sha256": "b646b9da2302e72d6298843fc9c49cd1f5a672a2e7df7a5ccdff2bf6910acbbf"
+        },
+        "coverage_control": {
+          "line_number": 127,
+          "record_sha256": "3abe9cc04b98be69fd2b207157a69ce38325ac8eb02be007836e6a661e16e1a6",
+          "response_sha256": "54e0799ead0682920c2dad9f93ce2ffba8efb9928aa1c00889612f756a4dcde5",
+          "compact_sha256": "b646b9da2302e72d6298843fc9c49cd1f5a672a2e7df7a5ccdff2bf6910acbbf"
+        }
+      }
+    },
+    {
+      "subset": "language_observed",
+      "dataset": "express",
+      "query_id": "express_configured_query_parser",
+      "condition": "bm25",
+      "selector": "aspect_balanced",
+      "query": "Where is the configured simple, extended, custom, or disabled query parser compiled and then invoked on the raw URL query, with disabled parsing returning an empty object?",
+      "group": {
+        "group": 1,
+        "evidence": [
+          {
+            "path": "lib/application.js",
+            "symbol": "app.set",
+            "evidence_lines": [
+              360,
+              370
+            ],
+            "definition_lines": [
+              351,
+              383
+            ],
+            "declaration_anchor": "app.set = function set(",
+            "evidence_sha256": "efe63283caf4a428422fdb9b91ca3a1321b1e7e5a3d94693454e2d7e5fb9d649",
+            "source_file_sha256": "6d7e08355025786982d17042fc0355b6a5e9339545dc27e2782b3aaa28a7bc04"
+          }
+        ],
+        "baseline_rank": 8,
+        "variant_rank": null,
+        "baseline_excerpts": [
+          "lib/application.js:app.set:351-383"
+        ],
+        "variant_excerpts": [],
+        "baseline_covering_origins": [
+          {
+            "id": "lib/application.js:app.set:351-383",
+            "origin": "retrieval",
+            "related_to": null
+          }
+        ],
+        "baseline_dependency_only": false
+      },
+      "classification": "removed_from_eligible_allocation",
+      "target_in_baseline_eligible": true,
+      "target_in_new_eligible": false,
+      "planner_accepted": true,
+      "literal_query_term_guard_passed": true,
+      "protected_ids": [
+        "lib/request.js:query:230-241",
+        "lib/utils.js:exports.compileQueryParser:162-184",
+        "lib/express.js:<module>:78-78"
+      ],
+      "picks": [
+        {
+          "id": "lib/response.js:res.jsonp:264-308",
+          "rank": 18,
+          "novel_terms": [
+            "empty"
+          ],
+          "weighted_gain": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "utility": {
+            "numerator": 1,
+            "denominator": 18
+          },
+          "reason": "novel_query_terms"
+        },
+        {
+          "id": "lib/response.js:res.location:797-799",
+          "rank": 13,
+          "novel_terms": [
+            "url"
+          ],
+          "weighted_gain": {
+            "numerator": 1,
+            "denominator": 3
+          },
+          "utility": {
+            "numerator": 1,
+            "denominator": 39
+          },
+          "reason": "novel_query_terms"
+        },
+        {
+          "id": "lib/utils.js:parseExtendedQueryString:267-271",
+          "rank": 4,
+          "novel_terms": [],
+          "weighted_gain": {
+            "numerator": 0,
+            "denominator": 1
+          },
+          "utility": {
+            "numerator": 0,
+            "denominator": 1
+          },
+          "reason": "rank_fill"
+        },
+        {
+          "id": "lib/response.js:res.status:65-77",
+          "rank": 5,
+          "novel_terms": [],
+          "weighted_gain": {
+            "numerator": 0,
+            "denominator": 1
+          },
+          "utility": {
+            "numerator": 0,
+            "denominator": 1
+          },
+          "reason": "rank_fill"
+        },
+        {
+          "id": "lib/application.js:<module>.compileQueryParser:22-22",
+          "rank": 6,
+          "novel_terms": [],
+          "weighted_gain": {
+            "numerator": 0,
+            "denominator": 1
+          },
+          "utility": {
+            "numerator": 0,
+            "denominator": 1
+          },
+          "reason": "rank_fill"
+        }
+      ],
+      "targets": [
+        {
+          "id": "lib/application.js:app.set:351-383",
+          "selected_rank": 8,
+          "matched_query_terms": [
+            "object",
+            "parser",
+            "query"
+          ],
+          "novel_terms_relative_to_protected_rows": []
+        }
+      ],
+      "pre_postprocess_target_rows": [],
+      "final_target_rows": [],
+      "source_chars": 2856,
+      "tokens": {
+        "encoding": "cl100k_base",
+        "tokens": 1611,
+        "budget": 4096,
+        "truncated": false
+      },
+      "compact_sha256": "91c0e58181ffd68c3682625b68955704544b42606a3f112571495116fbc8b3da",
+      "control_references": {
+        "legacy": {
+          "line_number": 126,
+          "record_sha256": "7a2e28a684f6015a2e05b25554f67e790d11e601b00b3543453b0a13abfc7adf",
+          "response_sha256": "32e6c2594298b62dff8f675ef8a01a1b03c6d26487ef951b2677fdff38b47dcb",
+          "compact_sha256": "b646b9da2302e72d6298843fc9c49cd1f5a672a2e7df7a5ccdff2bf6910acbbf"
+        },
+        "coverage_control": {
+          "line_number": 127,
+          "record_sha256": "3abe9cc04b98be69fd2b207157a69ce38325ac8eb02be007836e6a661e16e1a6",
+          "response_sha256": "54e0799ead0682920c2dad9f93ce2ffba8efb9928aa1c00889612f756a4dcde5",
+          "compact_sha256": "b646b9da2302e72d6298843fc9c49cd1f5a672a2e7df7a5ccdff2bf6910acbbf"
+        }
+      }
+    },
+    {
+      "subset": "language_observed",
+      "dataset": "express",
+      "query_id": "express_trusted_forwarded_protocol",
+      "condition": "bm25",
+      "selector": "aspect_fill",
+      "query": "Where is a proxy-trust policy compiled from a boolean, hop count, address list, or custom function, then used to decide whether the forwarded protocol header may override the socket protocol?",
+      "group": {
+        "group": 1,
+        "evidence": [
+          {
+            "path": "lib/application.js",
+            "symbol": "app.set",
+            "evidence_lines": [
+              371,
+              379
+            ],
+            "definition_lines": [
+              351,
+              383
+            ],
+            "declaration_anchor": "app.set = function set(",
+            "evidence_sha256": "2b979c3bf787072a49f9a4e336f9fc59b11d4752293e77a87f703b51fc58df8a",
+            "source_file_sha256": "6d7e08355025786982d17042fc0355b6a5e9339545dc27e2782b3aaa28a7bc04"
+          }
+        ],
+        "baseline_rank": 8,
+        "variant_rank": null,
+        "baseline_excerpts": [
+          "lib/application.js:app.set:351-383"
+        ],
+        "variant_excerpts": [],
+        "baseline_covering_origins": [
+          {
+            "id": "lib/application.js:app.set:351-383",
+            "origin": "retrieval",
+            "related_to": null
+          }
+        ],
+        "baseline_dependency_only": false
+      },
+      "classification": "removed_from_eligible_allocation",
+      "target_in_baseline_eligible": true,
+      "target_in_new_eligible": false,
+      "planner_accepted": true,
+      "literal_query_term_guard_passed": true,
+      "protected_ids": [
+        "lib/request.js:protocol:297-315",
+        "lib/request.js:host:418-431",
+        "lib/request.js:ips:357-366",
+        "lib/utils.js:exports.compileTrust:194-214",
+        "lib/response.js:res.redirect:815-867"
+      ],
+      "picks": [
+        {
+          "id": "lib/response.js:res.download:437-486",
+          "rank": 13,
+          "novel_terms": [
+            "may"
+          ],
+          "weighted_gain": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "utility": {
+            "numerator": 1,
+            "denominator": 13
+          },
+          "reason": "novel_query_terms"
+        },
+        {
+          "id": "lib/response.js:res.send:126-222",
+          "rank": 15,
+          "novel_terms": [
+            "boolean"
+          ],
+          "weighted_gain": {
+            "numerator": 1,
+            "denominator": 2
+          },
+          "utility": {
+            "numerator": 1,
+            "denominator": 30
+          },
+          "reason": "novel_query_terms"
+        },
+        {
+          "id": "lib/request.js:req.header:63-83",
+          "rank": 6,
+          "novel_terms": [],
+          "weighted_gain": {
+            "numerator": 0,
+            "denominator": 1
+          },
+          "utility": {
+            "numerator": 0,
+            "denominator": 1
+          },
+          "reason": "rank_fill"
+        }
+      ],
+      "targets": [
+        {
+          "id": "lib/application.js:app.set:351-383",
+          "selected_rank": 8,
+          "matched_query_terms": [
+            "proxy",
+            "trust"
+          ],
+          "novel_terms_relative_to_protected_rows": []
+        }
+      ],
+      "pre_postprocess_target_rows": [],
+      "final_target_rows": [],
+      "source_chars": 6943,
+      "tokens": {
+        "encoding": "cl100k_base",
+        "tokens": 2851,
+        "budget": 4096,
+        "truncated": false
+      },
+      "compact_sha256": "8d58584b2a8eacb1aa3c5aabaa3e693ea650aaa9e4ba27adef75f2795f7b28f1",
+      "control_references": {
+        "legacy": {
+          "line_number": 136,
+          "record_sha256": "8f0759338b6013d967d1dbe48b57a79ff52d5f54e13e14b3722896eea7b6d349",
+          "response_sha256": "98549b18daee7966d081940808db1f38b103333c2c230c5baaea7886955cc84a",
+          "compact_sha256": "292a30e9a2c7fbc5b275a8a97e643420b7444121f09de9de371ebffd7e3e4e83"
+        },
+        "coverage_control": {
+          "line_number": 137,
+          "record_sha256": "f2a64ea2991f70b7bf4d6c1a6ffee27a0cd5abbd606a992787a74d49112f77fe",
+          "response_sha256": "067a621d1131ae1ee813eeb1e6c713b865159bef7df209371858e1f158edf4cd",
+          "compact_sha256": "292a30e9a2c7fbc5b275a8a97e643420b7444121f09de9de371ebffd7e3e4e83"
+        }
+      }
+    },
+    {
+      "subset": "language_observed",
+      "dataset": "express",
+      "query_id": "express_trusted_forwarded_protocol",
+      "condition": "bm25",
+      "selector": "aspect_balanced",
+      "query": "Where is a proxy-trust policy compiled from a boolean, hop count, address list, or custom function, then used to decide whether the forwarded protocol header may override the socket protocol?",
+      "group": {
+        "group": 1,
+        "evidence": [
+          {
+            "path": "lib/application.js",
+            "symbol": "app.set",
+            "evidence_lines": [
+              371,
+              379
+            ],
+            "definition_lines": [
+              351,
+              383
+            ],
+            "declaration_anchor": "app.set = function set(",
+            "evidence_sha256": "2b979c3bf787072a49f9a4e336f9fc59b11d4752293e77a87f703b51fc58df8a",
+            "source_file_sha256": "6d7e08355025786982d17042fc0355b6a5e9339545dc27e2782b3aaa28a7bc04"
+          }
+        ],
+        "baseline_rank": 8,
+        "variant_rank": null,
+        "baseline_excerpts": [
+          "lib/application.js:app.set:351-383"
+        ],
+        "variant_excerpts": [],
+        "baseline_covering_origins": [
+          {
+            "id": "lib/application.js:app.set:351-383",
+            "origin": "retrieval",
+            "related_to": null
+          }
+        ],
+        "baseline_dependency_only": false
+      },
+      "classification": "removed_from_eligible_allocation",
+      "target_in_baseline_eligible": true,
+      "target_in_new_eligible": false,
+      "planner_accepted": true,
+      "literal_query_term_guard_passed": true,
+      "protected_ids": [
+        "lib/request.js:protocol:297-315",
+        "lib/request.js:host:418-431",
+        "lib/request.js:ips:357-366"
+      ],
+      "picks": [
+        {
+          "id": "lib/response.js:res.download:437-486",
+          "rank": 13,
+          "novel_terms": [
+            "may"
+          ],
+          "weighted_gain": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "utility": {
+            "numerator": 1,
+            "denominator": 13
+          },
+          "reason": "novel_query_terms"
+        },
+        {
+          "id": "lib/response.js:res.send:126-222",
+          "rank": 15,
+          "novel_terms": [
+            "boolean"
+          ],
+          "weighted_gain": {
+            "numerator": 1,
+            "denominator": 2
+          },
+          "utility": {
+            "numerator": 1,
+            "denominator": 30
+          },
+          "reason": "novel_query_terms"
+        },
+        {
+          "id": "lib/utils.js:exports.compileTrust:194-214",
+          "rank": 4,
+          "novel_terms": [],
+          "weighted_gain": {
+            "numerator": 0,
+            "denominator": 1
+          },
+          "utility": {
+            "numerator": 0,
+            "denominator": 1
+          },
+          "reason": "rank_fill"
+        },
+        {
+          "id": "lib/response.js:res.redirect:815-867",
+          "rank": 5,
+          "novel_terms": [],
+          "weighted_gain": {
+            "numerator": 0,
+            "denominator": 1
+          },
+          "utility": {
+            "numerator": 0,
+            "denominator": 1
+          },
+          "reason": "rank_fill"
+        },
+        {
+          "id": "lib/request.js:req.header:63-83",
+          "rank": 6,
+          "novel_terms": [],
+          "weighted_gain": {
+            "numerator": 0,
+            "denominator": 1
+          },
+          "utility": {
+            "numerator": 0,
+            "denominator": 1
+          },
+          "reason": "rank_fill"
+        }
+      ],
+      "targets": [
+        {
+          "id": "lib/application.js:app.set:351-383",
+          "selected_rank": 8,
+          "matched_query_terms": [
+            "proxy",
+            "trust"
+          ],
+          "novel_terms_relative_to_protected_rows": []
+        }
+      ],
+      "pre_postprocess_target_rows": [],
+      "final_target_rows": [],
+      "source_chars": 6943,
+      "tokens": {
+        "encoding": "cl100k_base",
+        "tokens": 2851,
+        "budget": 4096,
+        "truncated": false
+      },
+      "compact_sha256": "6b9c6069595a5438e17c44eeb52d296cb2e836e3c2b26f9daadfff333d2212b9",
+      "control_references": {
+        "legacy": {
+          "line_number": 136,
+          "record_sha256": "8f0759338b6013d967d1dbe48b57a79ff52d5f54e13e14b3722896eea7b6d349",
+          "response_sha256": "98549b18daee7966d081940808db1f38b103333c2c230c5baaea7886955cc84a",
+          "compact_sha256": "292a30e9a2c7fbc5b275a8a97e643420b7444121f09de9de371ebffd7e3e4e83"
+        },
+        "coverage_control": {
+          "line_number": 137,
+          "record_sha256": "f2a64ea2991f70b7bf4d6c1a6ffee27a0cd5abbd606a992787a74d49112f77fe",
+          "response_sha256": "067a621d1131ae1ee813eeb1e6c713b865159bef7df209371858e1f158edf4cd",
+          "compact_sha256": "292a30e9a2c7fbc5b275a8a97e643420b7444121f09de9de371ebffd7e3e4e83"
+        }
+      }
+    },
+    {
+      "subset": "language_observed",
+      "dataset": "express",
+      "query_id": "express_trusted_forwarded_protocol",
+      "condition": "hybrid",
+      "selector": "aspect_fill",
+      "query": "Where is a proxy-trust policy compiled from a boolean, hop count, address list, or custom function, then used to decide whether the forwarded protocol header may override the socket protocol?",
+      "group": {
+        "group": 1,
+        "evidence": [
+          {
+            "path": "lib/application.js",
+            "symbol": "app.set",
+            "evidence_lines": [
+              371,
+              379
+            ],
+            "definition_lines": [
+              351,
+              383
+            ],
+            "declaration_anchor": "app.set = function set(",
+            "evidence_sha256": "2b979c3bf787072a49f9a4e336f9fc59b11d4752293e77a87f703b51fc58df8a",
+            "source_file_sha256": "6d7e08355025786982d17042fc0355b6a5e9339545dc27e2782b3aaa28a7bc04"
+          }
+        ],
+        "baseline_rank": 8,
+        "variant_rank": null,
+        "baseline_excerpts": [
+          "lib/application.js:app.set:351-383"
+        ],
+        "variant_excerpts": [],
+        "baseline_covering_origins": [
+          {
+            "id": "lib/application.js:app.set:351-383",
+            "origin": "retrieval",
+            "related_to": null
+          }
+        ],
+        "baseline_dependency_only": false
+      },
+      "classification": "removed_from_eligible_allocation",
+      "target_in_baseline_eligible": true,
+      "target_in_new_eligible": false,
+      "planner_accepted": true,
+      "literal_query_term_guard_passed": true,
+      "protected_ids": [
+        "lib/request.js:protocol:297-315",
+        "lib/utils.js:exports.compileTrust:194-214",
+        "lib/request.js:host:418-431",
+        "lib/request.js:ips:357-366",
+        "lib/application.js:<module>.trustProxyDefaultSymbol:47-47"
+      ],
+      "picks": [
+        {
+          "id": "lib/application.js:app.enabled:420-422",
+          "rank": 12,
+          "novel_terms": [
+            "boolean"
+          ],
+          "weighted_gain": {
+            "numerator": 1,
+            "denominator": 2
+          },
+          "utility": {
+            "numerator": 1,
+            "denominator": 24
+          },
+          "reason": "novel_query_terms"
+        },
+        {
+          "id": "lib/response.js:res.download:437-486",
+          "rank": 27,
+          "novel_terms": [
+            "may"
+          ],
+          "weighted_gain": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "utility": {
+            "numerator": 1,
+            "denominator": 27
+          },
+          "reason": "novel_query_terms"
+        },
+        {
+          "id": "lib/request.js:ip:340-343",
+          "rank": 6,
+          "novel_terms": [],
+          "weighted_gain": {
+            "numerator": 0,
+            "denominator": 1
+          },
+          "utility": {
+            "numerator": 0,
+            "denominator": 1
+          },
+          "reason": "rank_fill"
+        }
+      ],
+      "targets": [
+        {
+          "id": "lib/application.js:app.set:351-383",
+          "selected_rank": 8,
+          "matched_query_terms": [
+            "proxy",
+            "trust"
+          ],
+          "novel_terms_relative_to_protected_rows": []
+        }
+      ],
+      "pre_postprocess_target_rows": [],
+      "final_target_rows": [],
+      "source_chars": 3233,
+      "tokens": {
+        "encoding": "cl100k_base",
+        "tokens": 1723,
+        "budget": 4096,
+        "truncated": false
+      },
+      "compact_sha256": "6d7d9342a14ca3b523b7f61fcfa572c745b8e2b029b90dce6c3e7891feac2231",
+      "control_references": {
+        "legacy": {
+          "line_number": 146,
+          "record_sha256": "b947bf73231452687d7f74dcc44e0b4aa0d72c116efb61c6015fa54b31dd601c",
+          "response_sha256": "c6a4196e6c21d3e5ef2dc8981bf723e8237fe85e742d096389d2aa92361e4f0c",
+          "compact_sha256": "198f609670b9319bb1195517e7fa32c7947a15d0dd4df17b14072cee12a8962e"
+        },
+        "coverage_control": {
+          "line_number": 147,
+          "record_sha256": "513489ad2ef2526d8ebe1ac9f0c3bbbcda4b20471527159b7a80baddb6ad5a2e",
+          "response_sha256": "5b413883b35e7d4b7368064398e1e2c45952fba216c288d474aabaf66822a873",
+          "compact_sha256": "198f609670b9319bb1195517e7fa32c7947a15d0dd4df17b14072cee12a8962e"
+        }
+      }
+    },
+    {
+      "subset": "language_observed",
+      "dataset": "express",
+      "query_id": "express_trusted_forwarded_protocol",
+      "condition": "hybrid",
+      "selector": "aspect_balanced",
+      "query": "Where is a proxy-trust policy compiled from a boolean, hop count, address list, or custom function, then used to decide whether the forwarded protocol header may override the socket protocol?",
+      "group": {
+        "group": 1,
+        "evidence": [
+          {
+            "path": "lib/application.js",
+            "symbol": "app.set",
+            "evidence_lines": [
+              371,
+              379
+            ],
+            "definition_lines": [
+              351,
+              383
+            ],
+            "declaration_anchor": "app.set = function set(",
+            "evidence_sha256": "2b979c3bf787072a49f9a4e336f9fc59b11d4752293e77a87f703b51fc58df8a",
+            "source_file_sha256": "6d7e08355025786982d17042fc0355b6a5e9339545dc27e2782b3aaa28a7bc04"
+          }
+        ],
+        "baseline_rank": 8,
+        "variant_rank": null,
+        "baseline_excerpts": [
+          "lib/application.js:app.set:351-383"
+        ],
+        "variant_excerpts": [],
+        "baseline_covering_origins": [
+          {
+            "id": "lib/application.js:app.set:351-383",
+            "origin": "retrieval",
+            "related_to": null
+          }
+        ],
+        "baseline_dependency_only": false
+      },
+      "classification": "removed_from_eligible_allocation",
+      "target_in_baseline_eligible": true,
+      "target_in_new_eligible": false,
+      "planner_accepted": true,
+      "literal_query_term_guard_passed": true,
+      "protected_ids": [
+        "lib/request.js:protocol:297-315",
+        "lib/utils.js:exports.compileTrust:194-214",
+        "lib/request.js:host:418-431"
+      ],
+      "picks": [
+        {
+          "id": "lib/application.js:app.enabled:420-422",
+          "rank": 12,
+          "novel_terms": [
+            "boolean"
+          ],
+          "weighted_gain": {
+            "numerator": 1,
+            "denominator": 2
+          },
+          "utility": {
+            "numerator": 1,
+            "denominator": 24
+          },
+          "reason": "novel_query_terms"
+        },
+        {
+          "id": "lib/response.js:res.download:437-486",
+          "rank": 27,
+          "novel_terms": [
+            "may"
+          ],
+          "weighted_gain": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "utility": {
+            "numerator": 1,
+            "denominator": 27
+          },
+          "reason": "novel_query_terms"
+        },
+        {
+          "id": "lib/request.js:ips:357-366",
+          "rank": 4,
+          "novel_terms": [],
+          "weighted_gain": {
+            "numerator": 0,
+            "denominator": 1
+          },
+          "utility": {
+            "numerator": 0,
+            "denominator": 1
+          },
+          "reason": "rank_fill"
+        },
+        {
+          "id": "lib/application.js:<module>.trustProxyDefaultSymbol:47-47",
+          "rank": 5,
+          "novel_terms": [],
+          "weighted_gain": {
+            "numerator": 0,
+            "denominator": 1
+          },
+          "utility": {
+            "numerator": 0,
+            "denominator": 1
+          },
+          "reason": "rank_fill"
+        },
+        {
+          "id": "lib/request.js:ip:340-343",
+          "rank": 6,
+          "novel_terms": [],
+          "weighted_gain": {
+            "numerator": 0,
+            "denominator": 1
+          },
+          "utility": {
+            "numerator": 0,
+            "denominator": 1
+          },
+          "reason": "rank_fill"
+        }
+      ],
+      "targets": [
+        {
+          "id": "lib/application.js:app.set:351-383",
+          "selected_rank": 8,
+          "matched_query_terms": [
+            "proxy",
+            "trust"
+          ],
+          "novel_terms_relative_to_protected_rows": []
+        }
+      ],
+      "pre_postprocess_target_rows": [],
+      "final_target_rows": [],
+      "source_chars": 3233,
+      "tokens": {
+        "encoding": "cl100k_base",
+        "tokens": 1723,
+        "budget": 4096,
+        "truncated": false
+      },
+      "compact_sha256": "8a60c9bd4019a9a5fd9aa0cd682c70c87e7d038dd7aa8b3268aa188f5a4bf1dd",
+      "control_references": {
+        "legacy": {
+          "line_number": 146,
+          "record_sha256": "b947bf73231452687d7f74dcc44e0b4aa0d72c116efb61c6015fa54b31dd601c",
+          "response_sha256": "c6a4196e6c21d3e5ef2dc8981bf723e8237fe85e742d096389d2aa92361e4f0c",
+          "compact_sha256": "198f609670b9319bb1195517e7fa32c7947a15d0dd4df17b14072cee12a8962e"
+        },
+        "coverage_control": {
+          "line_number": 147,
+          "record_sha256": "513489ad2ef2526d8ebe1ac9f0c3bbbcda4b20471527159b7a80baddb6ad5a2e",
+          "response_sha256": "5b413883b35e7d4b7368064398e1e2c45952fba216c288d474aabaf66822a873",
+          "compact_sha256": "198f609670b9319bb1195517e7fa32c7947a15d0dd4df17b14072cee12a8962e"
+        }
+      }
+    },
+    {
+      "subset": "native_express_observed",
+      "dataset": "express",
+      "query_id": "express_trusted_forwarded_protocol",
+      "condition": "hybrid",
+      "selector": "aspect_fill",
+      "query": "Where is a proxy-trust policy compiled from a boolean, hop count, address list, or custom function, then used to decide whether the forwarded protocol header may override the socket protocol?",
+      "group": {
+        "group": 1,
+        "evidence": [
+          {
+            "path": "lib/application.js",
+            "symbol": "app.set",
+            "evidence_lines": [
+              371,
+              379
+            ],
+            "definition_lines": [
+              351,
+              383
+            ],
+            "declaration_anchor": "app.set = function set(",
+            "evidence_sha256": "2b979c3bf787072a49f9a4e336f9fc59b11d4752293e77a87f703b51fc58df8a",
+            "source_file_sha256": "6d7e08355025786982d17042fc0355b6a5e9339545dc27e2782b3aaa28a7bc04"
+          }
+        ],
+        "baseline_rank": 8,
+        "variant_rank": null,
+        "baseline_excerpts": [
+          "lib/application.js:app.set:351-383"
+        ],
+        "variant_excerpts": [],
+        "baseline_covering_origins": [
+          {
+            "id": "lib/application.js:app.set:351-383",
+            "origin": "retrieval",
+            "related_to": null
+          }
+        ],
+        "baseline_dependency_only": false
+      },
+      "classification": "removed_from_eligible_allocation",
+      "target_in_baseline_eligible": true,
+      "target_in_new_eligible": false,
+      "planner_accepted": true,
+      "literal_query_term_guard_passed": true,
+      "protected_ids": [
+        "lib/request.js:protocol:297-315",
+        "lib/utils.js:exports.compileTrust:194-214",
+        "lib/request.js:host:418-431",
+        "lib/request.js:ips:357-366",
+        "lib/application.js:<module>.trustProxyDefaultSymbol:47-47"
+      ],
+      "picks": [
+        {
+          "id": "lib/application.js:app.enabled:420-422",
+          "rank": 12,
+          "novel_terms": [
+            "boolean"
+          ],
+          "weighted_gain": {
+            "numerator": 1,
+            "denominator": 2
+          },
+          "utility": {
+            "numerator": 1,
+            "denominator": 24
+          },
+          "reason": "novel_query_terms"
+        },
+        {
+          "id": "lib/response.js:res.download:437-486",
+          "rank": 27,
+          "novel_terms": [
+            "may"
+          ],
+          "weighted_gain": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "utility": {
+            "numerator": 1,
+            "denominator": 27
+          },
+          "reason": "novel_query_terms"
+        },
+        {
+          "id": "lib/request.js:ip:340-343",
+          "rank": 6,
+          "novel_terms": [],
+          "weighted_gain": {
+            "numerator": 0,
+            "denominator": 1
+          },
+          "utility": {
+            "numerator": 0,
+            "denominator": 1
+          },
+          "reason": "rank_fill"
+        }
+      ],
+      "targets": [
+        {
+          "id": "lib/application.js:app.set:351-383",
+          "selected_rank": 8,
+          "matched_query_terms": [
+            "proxy",
+            "trust"
+          ],
+          "novel_terms_relative_to_protected_rows": []
+        }
+      ],
+      "pre_postprocess_target_rows": [],
+      "final_target_rows": [],
+      "source_chars": 3233,
+      "tokens": {
+        "encoding": "cl100k_base",
+        "tokens": 1723,
+        "budget": 4096,
+        "truncated": false
+      },
+      "compact_sha256": "6d7d9342a14ca3b523b7f61fcfa572c745b8e2b029b90dce6c3e7891feac2231",
+      "control_references": {
+        "legacy": {
+          "line_number": 546,
+          "record_sha256": "1a908bce08ce641f6ed542183fb7fc18b891869743f8be53db6e7d0483ad1c0a",
+          "response_sha256": "dcb69e630a2d910b5289c727aec29946b6f09bd332665b34eaabab9684c4c282",
+          "compact_sha256": "198f609670b9319bb1195517e7fa32c7947a15d0dd4df17b14072cee12a8962e"
+        },
+        "coverage_control": {
+          "line_number": 547,
+          "record_sha256": "4f5cf67da98574c06e8a188b31bdc84f9feb8aea70c46d65230dc4e174ae6fac",
+          "response_sha256": "c9b7d44f38f71f3b1f4e184ae5957ea1d03012fc953fb9c1aeb31736e443681b",
+          "compact_sha256": "198f609670b9319bb1195517e7fa32c7947a15d0dd4df17b14072cee12a8962e"
+        }
+      }
+    },
+    {
+      "subset": "native_express_observed",
+      "dataset": "express",
+      "query_id": "express_trusted_forwarded_protocol",
+      "condition": "hybrid",
+      "selector": "aspect_balanced",
+      "query": "Where is a proxy-trust policy compiled from a boolean, hop count, address list, or custom function, then used to decide whether the forwarded protocol header may override the socket protocol?",
+      "group": {
+        "group": 1,
+        "evidence": [
+          {
+            "path": "lib/application.js",
+            "symbol": "app.set",
+            "evidence_lines": [
+              371,
+              379
+            ],
+            "definition_lines": [
+              351,
+              383
+            ],
+            "declaration_anchor": "app.set = function set(",
+            "evidence_sha256": "2b979c3bf787072a49f9a4e336f9fc59b11d4752293e77a87f703b51fc58df8a",
+            "source_file_sha256": "6d7e08355025786982d17042fc0355b6a5e9339545dc27e2782b3aaa28a7bc04"
+          }
+        ],
+        "baseline_rank": 8,
+        "variant_rank": null,
+        "baseline_excerpts": [
+          "lib/application.js:app.set:351-383"
+        ],
+        "variant_excerpts": [],
+        "baseline_covering_origins": [
+          {
+            "id": "lib/application.js:app.set:351-383",
+            "origin": "retrieval",
+            "related_to": null
+          }
+        ],
+        "baseline_dependency_only": false
+      },
+      "classification": "removed_from_eligible_allocation",
+      "target_in_baseline_eligible": true,
+      "target_in_new_eligible": false,
+      "planner_accepted": true,
+      "literal_query_term_guard_passed": true,
+      "protected_ids": [
+        "lib/request.js:protocol:297-315",
+        "lib/utils.js:exports.compileTrust:194-214",
+        "lib/request.js:host:418-431"
+      ],
+      "picks": [
+        {
+          "id": "lib/application.js:app.enabled:420-422",
+          "rank": 12,
+          "novel_terms": [
+            "boolean"
+          ],
+          "weighted_gain": {
+            "numerator": 1,
+            "denominator": 2
+          },
+          "utility": {
+            "numerator": 1,
+            "denominator": 24
+          },
+          "reason": "novel_query_terms"
+        },
+        {
+          "id": "lib/response.js:res.download:437-486",
+          "rank": 27,
+          "novel_terms": [
+            "may"
+          ],
+          "weighted_gain": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "utility": {
+            "numerator": 1,
+            "denominator": 27
+          },
+          "reason": "novel_query_terms"
+        },
+        {
+          "id": "lib/request.js:ips:357-366",
+          "rank": 4,
+          "novel_terms": [],
+          "weighted_gain": {
+            "numerator": 0,
+            "denominator": 1
+          },
+          "utility": {
+            "numerator": 0,
+            "denominator": 1
+          },
+          "reason": "rank_fill"
+        },
+        {
+          "id": "lib/application.js:<module>.trustProxyDefaultSymbol:47-47",
+          "rank": 5,
+          "novel_terms": [],
+          "weighted_gain": {
+            "numerator": 0,
+            "denominator": 1
+          },
+          "utility": {
+            "numerator": 0,
+            "denominator": 1
+          },
+          "reason": "rank_fill"
+        },
+        {
+          "id": "lib/request.js:ip:340-343",
+          "rank": 6,
+          "novel_terms": [],
+          "weighted_gain": {
+            "numerator": 0,
+            "denominator": 1
+          },
+          "utility": {
+            "numerator": 0,
+            "denominator": 1
+          },
+          "reason": "rank_fill"
+        }
+      ],
+      "targets": [
+        {
+          "id": "lib/application.js:app.set:351-383",
+          "selected_rank": 8,
+          "matched_query_terms": [
+            "proxy",
+            "trust"
+          ],
+          "novel_terms_relative_to_protected_rows": []
+        }
+      ],
+      "pre_postprocess_target_rows": [],
+      "final_target_rows": [],
+      "source_chars": 3233,
+      "tokens": {
+        "encoding": "cl100k_base",
+        "tokens": 1723,
+        "budget": 4096,
+        "truncated": false
+      },
+      "compact_sha256": "8a60c9bd4019a9a5fd9aa0cd682c70c87e7d038dd7aa8b3268aa188f5a4bf1dd",
+      "control_references": {
+        "legacy": {
+          "line_number": 546,
+          "record_sha256": "1a908bce08ce641f6ed542183fb7fc18b891869743f8be53db6e7d0483ad1c0a",
+          "response_sha256": "dcb69e630a2d910b5289c727aec29946b6f09bd332665b34eaabab9684c4c282",
+          "compact_sha256": "198f609670b9319bb1195517e7fa32c7947a15d0dd4df17b14072cee12a8962e"
+        },
+        "coverage_control": {
+          "line_number": 547,
+          "record_sha256": "4f5cf67da98574c06e8a188b31bdc84f9feb8aea70c46d65230dc4e174ae6fac",
+          "response_sha256": "c9b7d44f38f71f3b1f4e184ae5957ea1d03012fc953fb9c1aeb31736e443681b",
+          "compact_sha256": "198f609670b9319bb1195517e7fa32c7947a15d0dd4df17b14072cee12a8962e"
+        }
+      }
+    },
+    {
+      "subset": "native_jinja_observed",
+      "dataset": "jinja",
+      "query_id": "jinja_include_parent_and_local_context",
+      "condition": "hybrid",
+      "selector": "aspect_balanced",
+      "query": "When one template includes another with its current variables, where is the rendering call generated with shared parent data and local variables, and where are those locals merged without mutating the caller's shared dictionary?",
+      "group": {
+        "group": 2,
+        "evidence": [
+          {
+            "path": "src/jinja2/runtime.py",
+            "symbol": "new_context",
+            "evidence_lines": [
+              103,
+              118
+            ],
+            "source_file_sha256": "80393e1af76b8895ea82c19b1e0adc2933f4629eb33d7ce1ceb2290851f78c05",
+            "evidence_sha256": "368fff8749aa8b4fe52209cd44a625f699fcb105579c42bd52bb55dc2f1a3d7f"
+          }
+        ],
+        "baseline_rank": 4,
+        "variant_rank": null,
+        "baseline_excerpts": [
+          "src/jinja2/runtime.py:new_context:93-119"
+        ],
+        "variant_excerpts": [],
+        "baseline_covering_origins": [
+          {
+            "id": "src/jinja2/runtime.py:new_context:93-119",
+            "origin": "retrieval",
+            "related_to": null
+          }
+        ],
+        "baseline_dependency_only": false
+      },
+      "classification": "removed_from_eligible_allocation",
+      "target_in_baseline_eligible": true,
+      "target_in_new_eligible": false,
+      "planner_accepted": true,
+      "literal_query_term_guard_passed": true,
+      "protected_ids": [
+        "src/jinja2/environment.py:Template.new_context:1375-1390",
+        "src/jinja2/debug.py:get_template_locals:150-191",
+        "src/jinja2/environment.py:Template.make_module:1392-1405",
+        "src/jinja2/environment.py:Environment.get_template:981-1016",
+        "src/jinja2/environment.py:Environment.join_path:944-954",
+        "src/jinja2/environment.py:Environment._load_template:956-979"
+      ],
+      "picks": [
+        {
+          "id": "src/jinja2/compiler.py:CodeGenerator.visit_Extends:1000-1040",
+          "rank": 9,
+          "novel_terms": [
+            "generated",
+            "one"
+          ],
+          "weighted_gain": {
+            "numerator": 11,
+            "denominator": 10
+          },
+          "utility": {
+            "numerator": 11,
+            "denominator": 90
+          },
+          "reason": "novel_query_terms"
+        },
+        {
+          "id": "src/jinja2/environment.py:Environment.make_globals:1113-1133",
+          "rank": 8,
+          "novel_terms": [
+            "mutating"
+          ],
+          "weighted_gain": {
+            "numerator": 1,
+            "denominator": 2
+          },
+          "utility": {
+            "numerator": 1,
+            "denominator": 16
+          },
+          "reason": "novel_query_terms"
+        }
+      ],
+      "targets": [
+        {
+          "id": "src/jinja2/runtime.py:new_context:93-119",
+          "selected_rank": 4,
+          "matched_query_terms": [
+            "local",
+            "parent",
+            "shared",
+            "template"
+          ],
+          "novel_terms_relative_to_protected_rows": []
+        }
+      ],
+      "pre_postprocess_target_rows": [],
+      "final_target_rows": [],
+      "source_chars": 8437,
+      "tokens": {
+        "encoding": "cl100k_base",
+        "tokens": 2851,
+        "budget": 4096,
+        "truncated": false
+      },
+      "compact_sha256": "39bf54cbe2a0ea60b5dea92189f7ee36d088c7312607e438ce77e44098566a55",
+      "control_references": {
+        "legacy": {
+          "line_number": 771,
+          "record_sha256": "e2b731146bd61086f13280f20aff02173eccc17f5e504a83485923c6f94b5651",
+          "response_sha256": "5eccb837ff046c490f01d0dc6b33a2dffbc7e0984d646526f3bee2047cbd1119",
+          "compact_sha256": "83ad111c14ca80f25efeee50f89b83b99a8140c327cabda4fd8d7f4dd58ce7da"
+        },
+        "coverage_control": {
+          "line_number": 772,
+          "record_sha256": "319a76daae4ec7384a2ad9b35e46f5cc493bc6ef39f3ebd388b640fbb2587bbd",
+          "response_sha256": "8208e2f74f0495faa4d58ec5c596813319e14f71212f09fd32e3c4f6a94a4fcc",
+          "compact_sha256": "83ad111c14ca80f25efeee50f89b83b99a8140c327cabda4fd8d7f4dd58ce7da"
+        }
+      }
+    },
+    {
+      "subset": "qwen_development_observed",
+      "dataset": "flask",
+      "query_id": "request_dispatch_pipeline",
+      "condition": "hybrid_k24_b1",
+      "selector": "aspect_balanced",
+      "query": "Where is the incoming request processed so that an early hook can supply the result, otherwise the route handler runs, and exceptions are converted into a response?",
+      "group": {
+        "group": 1,
+        "evidence": [
+          {
+            "evidence_lines": [
+              1012,
+              1019
+            ],
+            "evidence_sha256": "440d2b96c8dbaeb3a6e97cbf4da789198dd97ee4c4644c7d9fe3db6c93b27047",
+            "path": "src/flask/app.py",
+            "symbol": "Flask.full_dispatch_request"
+          }
+        ],
+        "baseline_rank": 4,
+        "variant_rank": null,
+        "baseline_excerpts": [
+          "src/flask/app.py:Flask.full_dispatch_request:992-1019"
+        ],
+        "variant_excerpts": [],
+        "baseline_covering_origins": [
+          {
+            "id": "src/flask/app.py:Flask.full_dispatch_request:992-1019",
+            "origin": "retrieval",
+            "related_to": null
+          }
+        ],
+        "baseline_dependency_only": false
+      },
+      "classification": "character_budget_after_reordering",
+      "target_in_baseline_eligible": true,
+      "target_in_new_eligible": true,
+      "planner_accepted": true,
+      "literal_query_term_guard_passed": true,
+      "protected_ids": [
+        "src/flask/app.py:Flask.dispatch_request:966-990",
+        "src/flask/app.py:Flask.finalize_request:1021-1051",
+        "src/flask/ctx.py:AppContext.match_request:405-414",
+        "src/flask/app.py:Flask.raise_routing_exception:560-586",
+        "src/flask/app.py:Flask.make_default_options_response:1053-1063",
+        "src/flask/app.py:Flask.make_response:1224-1364"
+      ],
+      "picks": [
+        {
+          "id": "src/flask/ctx.py:after_this_request:118-148",
+          "rank": 12,
+          "novel_terms": [
+            "route",
+            "run"
+          ],
+          "weighted_gain": {
+            "numerator": 7,
+            "denominator": 12
+          },
+          "utility": {
+            "numerator": 7,
+            "denominator": 144
+          },
+          "reason": "novel_query_terms"
+        },
+        {
+          "id": "src/flask/app.py:Flask.full_dispatch_request:992-1019",
+          "rank": 4,
+          "novel_terms": [],
+          "weighted_gain": {
+            "numerator": 0,
+            "denominator": 1
+          },
+          "utility": {
+            "numerator": 0,
+            "denominator": 1
+          },
+          "reason": "rank_fill"
+        }
+      ],
+      "targets": [
+        {
+          "id": "src/flask/app.py:Flask.full_dispatch_request:992-1019",
+          "selected_rank": 4,
+          "matched_query_terms": [
+            "exception",
+            "handler",
+            "request",
+            "response"
+          ],
+          "novel_terms_relative_to_protected_rows": []
+        }
+      ],
+      "pre_postprocess_target_rows": [
+        {
+          "id": "src/flask/app.py:Flask.full_dispatch_request:992-1019",
+          "path": "src/flask/app.py",
+          "start_line": 992,
+          "end_line": 1011,
+          "window_end_line": 1019,
+          "source_hash": "0fb1211da9cfabb959a967c6b69d65246854b2bd6608c91af66010e839296b4c",
+          "truncated": true
+        }
+      ],
+      "final_target_rows": [
+        {
+          "id": "src/flask/app.py:Flask.full_dispatch_request:992-1019",
+          "path": "src/flask/app.py",
+          "start_line": 992,
+          "end_line": 1011,
+          "window_end_line": 1019,
+          "source_hash": "0fb1211da9cfabb959a967c6b69d65246854b2bd6608c91af66010e839296b4c",
+          "truncated": true
+        }
+      ],
+      "source_chars": 11991,
+      "tokens": {
+        "encoding": "cl100k_base",
+        "tokens": 3544,
+        "budget": 4096,
+        "truncated": false
+      },
+      "compact_sha256": "9a052f9e98bdd3d30d7e92295eed1dbdd48b2c48553fe4158bd6744b99ccfcdc",
+      "control_references": {
+        "legacy": {
+          "line_number": 891,
+          "record_sha256": "6f6e862d8ca831bb0c7595a7b0aea1eef4742e1b880387dd99228f34510352cb",
+          "response_sha256": "ebe514a5cfb1b372f796c1fa6c752c6a90b26136c745226d12d1183755c1ebcd",
+          "compact_sha256": "39e8ab703e016268468bc0db7e094bfa8627edd6ba4c517325b3911674e26df2"
+        },
+        "coverage_control": {
+          "line_number": 892,
+          "record_sha256": "272be9bb0033ee2d5743a5ae66f5199412ad4034e64c5eb0e59dad3609879f92",
+          "response_sha256": "15c5d97d209aeff563ed70d0deb424a25fd75a00385461a47fbf39cff121c218",
+          "compact_sha256": "39e8ab703e016268468bc0db7e094bfa8627edd6ba4c517325b3911674e26df2"
+        }
+      }
+    },
+    {
+      "subset": "qwen_development_observed",
+      "dataset": "starlette",
+      "query_id": "starlette_exception_registration_and_dispatch",
+      "condition": "hybrid_k24_b1",
+      "selector": "aspect_balanced",
+      "query": "Where are registered exception handlers attached to a request scope, and where is the matching handler selected while refusing to replace a response that has already started?",
+      "group": {
+        "group": 1,
+        "evidence": [
+          {
+            "evidence_lines": [
+              51,
+              62
+            ],
+            "evidence_sha256": "d4644d7ce0081d64a839ccdc023faa9f960f5bb961fe29b6fbba0a952e6b7677",
+            "path": "starlette/middleware/exceptions.py",
+            "symbol": "ExceptionMiddleware.__call__"
+          }
+        ],
+        "baseline_rank": 8,
+        "variant_rank": null,
+        "baseline_excerpts": [
+          "starlette/middleware/exceptions.py:ExceptionMiddleware.__call__:46-62"
+        ],
+        "variant_excerpts": [],
+        "baseline_covering_origins": [
+          {
+            "id": "starlette/middleware/exceptions.py:ExceptionMiddleware.__call__:46-62",
+            "origin": "retrieval",
+            "related_to": null
+          }
+        ],
+        "baseline_dependency_only": false
+      },
+      "classification": "prior_backfill_opportunity_consumed",
+      "target_in_baseline_eligible": false,
+      "target_in_new_eligible": false,
+      "planner_accepted": true,
+      "literal_query_term_guard_passed": true,
+      "protected_ids": [
+        "starlette/_exception_handler.py:wrap_app_handling_exceptions:23-65",
+        "starlette/_exception_handler.py:wrap_app_handling_exceptions.wrapped_app:31-63",
+        "starlette/middleware/errors.py:ServerErrorMiddleware.__call__:150-187",
+        "starlette/_exception_handler.py:_lookup_exception_handler:16-20",
+        "starlette/_utils.py:is_async_callable:35-39",
+        "starlette/middleware/errors.py:ServerErrorMiddleware.debug_response:250-257"
+      ],
+      "picks": [
+        {
+          "id": "starlette/routing.py:Router.app:717-765",
+          "rank": 12,
+          "novel_terms": [
+            "matching"
+          ],
+          "weighted_gain": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "utility": {
+            "numerator": 1,
+            "denominator": 12
+          },
+          "reason": "novel_query_terms"
+        },
+        {
+          "id": "starlette/applications.py:Starlette.__init__:30-77",
+          "rank": 13,
+          "novel_terms": [
+            "replace"
+          ],
+          "weighted_gain": {
+            "numerator": 1,
+            "denominator": 2
+          },
+          "utility": {
+            "numerator": 1,
+            "denominator": 26
+          },
+          "reason": "novel_query_terms"
+        }
+      ],
+      "targets": [
+        {
+          "id": "starlette/middleware/exceptions.py:ExceptionMiddleware.__call__:46-62",
+          "selected_rank": 6,
+          "matched_query_terms": [
+            "exception",
+            "handler",
+            "request",
+            "scope"
+          ],
+          "novel_terms_relative_to_protected_rows": []
+        }
+      ],
+      "pre_postprocess_target_rows": [],
+      "final_target_rows": [],
+      "source_chars": 9343,
+      "tokens": {
+        "encoding": "cl100k_base",
+        "tokens": 2853,
+        "budget": 4096,
+        "truncated": false
+      },
+      "compact_sha256": "19864b309623d19123a3d5dc8ecbaddfba266834796090dd9d60034795b3f3f6",
+      "control_references": {
+        "legacy": {
+          "line_number": 1271,
+          "record_sha256": "9f257fb3c5f722f2ea664d612cfecd8e351526ecf3328dfa4530451772d91f00",
+          "response_sha256": "b2f6001b89df4d5fdaca3b08caf46634ee44246b5a64f98deff0b636e7091ac4",
+          "compact_sha256": "81051059ef85e5449f6279fd61ee68b2f21069342e7391a507a88108797ddaa8"
+        },
+        "coverage_control": {
+          "line_number": 1272,
+          "record_sha256": "b1eb5988e49de74de36aa3cc815d1b84d0fdc85809ce129bb2bc7451412d258b",
+          "response_sha256": "2545ab550e5c1b56119b72474f6e7e9671ce0d10dca6d84444a19a056c61242c",
+          "compact_sha256": "48a6f0f87e9692b71a97821fbc6929cec096e1eb67b97cd22e66c50e1d276502"
+        }
+      }
+    },
+    {
+      "subset": "qwen_development_observed",
+      "dataset": "rich",
+      "query_id": "rich_progress_spinner_frames",
+      "condition": "hybrid_k24_b1",
+      "selector": "aspect_balanced",
+      "query": "Where does a progress column stop animating a finished task, and where is an unfinished spinner's frame selected from elapsed time and animation speed?",
+      "group": {
+        "group": 1,
+        "evidence": [
+          {
+            "evidence_lines": [
+              610,
+              615
+            ],
+            "evidence_sha256": "a074dc5b9d7132a779113d132f51d9da8ed03a446dfcfe2767be1d31b2058149",
+            "path": "rich/progress.py",
+            "symbol": "SpinnerColumn.render"
+          }
+        ],
+        "baseline_rank": 4,
+        "variant_rank": null,
+        "baseline_excerpts": [
+          "rich/progress.py:SpinnerColumn.render:609-615"
+        ],
+        "variant_excerpts": [],
+        "baseline_covering_origins": [
+          {
+            "id": "rich/progress.py:SpinnerColumn.render:609-615",
+            "origin": "retrieval",
+            "related_to": null
+          }
+        ],
+        "baseline_dependency_only": false
+      },
+      "classification": "removed_from_eligible_allocation",
+      "target_in_baseline_eligible": true,
+      "target_in_new_eligible": false,
+      "planner_accepted": true,
+      "literal_query_term_guard_passed": true,
+      "protected_ids": [
+        "rich/spinner.py:Spinner.render:61-93",
+        "rich/progress.py:Task._reset:1056-1060",
+        "rich/progress.py:SpinnerColumn.__init__:578-592",
+        "rich/text.py:Text.assemble:356-400",
+        "rich/table.py:Table.grid:253-284",
+        "rich/text.py:Text.from_markup:259-291"
+      ],
+      "picks": [
+        {
+          "id": "rich/status.py:Status.stop:89-91",
+          "rank": 5,
+          "novel_terms": [
+            "stop"
+          ],
+          "weighted_gain": {
+            "numerator": 1,
+            "denominator": 3
+          },
+          "utility": {
+            "numerator": 1,
+            "denominator": 15
+          },
+          "reason": "novel_query_terms"
+        },
+        {
+          "id": "rich/progress.py:TimeElapsedColumn.render:693-699",
+          "rank": 8,
+          "novel_terms": [
+            "elapsed"
+          ],
+          "weighted_gain": {
+            "numerator": 1,
+            "denominator": 8
+          },
+          "utility": {
+            "numerator": 1,
+            "denominator": 64
+          },
+          "reason": "novel_query_terms"
+        }
+      ],
+      "targets": [
+        {
+          "id": "rich/progress.py:SpinnerColumn.render:609-615",
+          "selected_rank": 4,
+          "matched_query_terms": [
+            "column",
+            "finished",
+            "progress",
+            "spinner",
+            "task",
+            "time"
+          ],
+          "novel_terms_relative_to_protected_rows": []
+        }
+      ],
+      "pre_postprocess_target_rows": [],
+      "final_target_rows": [],
+      "source_chars": 6677,
+      "tokens": {
+        "encoding": "cl100k_base",
+        "tokens": 2461,
+        "budget": 4096,
+        "truncated": false
+      },
+      "compact_sha256": "e01c63ad36535476f83b1cdb752a3451958d3a1f905972c4200b7b54581a310f",
+      "control_references": {
+        "legacy": {
+          "line_number": 1391,
+          "record_sha256": "25be7c5af11114433e43d8986884e9ad113ab1e6dae2ab63c9dc5a387b841753",
+          "response_sha256": "be89495352044413925a258e08697988b677819a9445c5066867085e52f8ab8f",
+          "compact_sha256": "09f3cb25bf5c64a1e35f64af842adea513b0b9da0bc1879a09e2ad3325137303"
+        },
+        "coverage_control": {
+          "line_number": 1392,
+          "record_sha256": "3e2895b70d3a8799b8daa1e1d1707df675a775d8ed872dd14e5efda1c779ccbe",
+          "response_sha256": "c17a23e91bfe02a1da5ddfc01ea2a0faee4142747febaafa81281d33b021b806",
+          "compact_sha256": "09f3cb25bf5c64a1e35f64af842adea513b0b9da0bc1879a09e2ad3325137303"
+        }
+      }
+    },
+    {
+      "subset": "qwen_httpx_observed",
+      "dataset": "httpx",
+      "query_id": "httpx_multipart_unknown_length_framing",
+      "condition": "hybrid_k24_b1",
+      "selector": "aspect_balanced",
+      "query": "Construct a multipart upload and choose a complete Content-Length when every part has a known size, otherwise send chunked framing while retaining the multipart boundary in the content type.",
+      "group": {
+        "group": 1,
+        "evidence": [
+          {
+            "declaration_anchor": "def encode_multipart_data(",
+            "definition_lines": [
+              152,
+              157
+            ],
+            "evidence_lines": [
+              152,
+              157
+            ],
+            "evidence_sha256": "001535a3c1f0e6a8282a605f04ddf4fe06a8504beba8db9dc1d435b9f9717a51",
+            "path": "httpx/_content.py",
+            "source_file_sha256": "2c61b3ac94d1dcebcde0c6f519554d2d7917247fbaa0a97002db4ef69e70ff28",
+            "symbol": "encode_multipart_data"
+          }
+        ],
+        "baseline_rank": 5,
+        "variant_rank": null,
+        "baseline_excerpts": [
+          "httpx/_content.py:encode_multipart_data:152-157"
+        ],
+        "variant_excerpts": [],
+        "baseline_covering_origins": [
+          {
+            "id": "httpx/_content.py:encode_multipart_data:152-157",
+            "origin": "retrieval",
+            "related_to": null
+          }
+        ],
+        "baseline_dependency_only": false
+      },
+      "classification": "removed_from_eligible_allocation",
+      "target_in_baseline_eligible": true,
+      "target_in_new_eligible": false,
+      "planner_accepted": true,
+      "literal_query_term_guard_passed": true,
+      "protected_ids": [
+        "httpx/_multipart.py:MultipartStream.get_headers:287-292",
+        "httpx/_multipart.py:MultipartStream.get_content_length:265-283",
+        "httpx/_multipart.py:MultipartStream.__init__:229-242",
+        "httpx/_multipart.py:MultipartStream._iter_fields:244-256"
+      ],
+      "picks": [
+        {
+          "id": "httpx/_transports/asgi.py:ASGITransport.handle_async_request.send:148-167",
+          "rank": 16,
+          "novel_terms": [
+            "complete",
+            "part",
+            "send"
+          ],
+          "weighted_gain": {
+            "numerator": 9,
+            "denominator": 4
+          },
+          "utility": {
+            "numerator": 9,
+            "denominator": 64
+          },
+          "reason": "novel_query_terms"
+        },
+        {
+          "id": "httpx/_multipart.py:FileField.__init__:122-169",
+          "rank": 10,
+          "novel_terms": [
+            "has",
+            "upload"
+          ],
+          "weighted_gain": {
+            "numerator": 3,
+            "denominator": 4
+          },
+          "utility": {
+            "numerator": 3,
+            "denominator": 40
+          },
+          "reason": "novel_query_terms"
+        },
+        {
+          "id": "httpx/_content.py:AsyncIteratorByteStream.__aiter__:75-89",
+          "rank": 19,
+          "novel_terms": [
+            "size"
+          ],
+          "weighted_gain": {
+            "numerator": 1,
+            "denominator": 4
+          },
+          "utility": {
+            "numerator": 1,
+            "denominator": 76
+          },
+          "reason": "novel_query_terms"
+        },
+        {
+          "id": "httpx/_multipart.py:MultipartStream.iter_chunks:258-263",
+          "rank": 4,
+          "novel_terms": [],
+          "weighted_gain": {
+            "numerator": 0,
+            "denominator": 1
+          },
+          "utility": {
+            "numerator": 0,
+            "denominator": 1
+          },
+          "reason": "rank_fill"
+        }
+      ],
+      "targets": [
+        {
+          "id": "httpx/_content.py:encode_multipart_data:152-157",
+          "selected_rank": 5,
+          "matched_query_terms": [
+            "boundary",
+            "content",
+            "multipart"
+          ],
+          "novel_terms_relative_to_protected_rows": []
+        }
+      ],
+      "pre_postprocess_target_rows": [],
+      "final_target_rows": [],
+      "source_chars": 5643,
+      "tokens": {
+        "encoding": "cl100k_base",
+        "tokens": 2167,
+        "budget": 4096,
+        "truncated": false
+      },
+      "compact_sha256": "ae03e959b72aaeb3dc81506260475502bbebef2791fb797ad6181a2f8132ae18",
+      "control_references": {
+        "legacy": {
+          "line_number": 1626,
+          "record_sha256": "d8199c024b621845d3126a1bf94bb0dd05cfb73f0c424c5c66f7b064a06e87eb",
+          "response_sha256": "fea779835c121eeb1028561f17f8b1420f4a938f5121b8ed2cfbf7e696b863d6",
+          "compact_sha256": "cd24cd45f4488e9b25384c153c91c1b07346462f7f1febe3daf757ed00408372"
+        },
+        "coverage_control": {
+          "line_number": 1627,
+          "record_sha256": "226154bdab29cdd7fe1f58960099d5dec1c98fb7fe43ea5e722abb1507a4d93e",
+          "response_sha256": "f75a9efef32db4c486f9ab81ea96e06bd4ca331eb3e8a5db0ccba57358ca8c80",
+          "compact_sha256": "cd24cd45f4488e9b25384c153c91c1b07346462f7f1febe3daf757ed00408372"
+        }
+      }
+    },
+    {
+      "subset": "native_urllib3_observed",
+      "dataset": "urllib3",
+      "query_id": "urllib3_multipart_request_and_boundary_body",
+      "condition": "dense",
+      "selector": "aspect_balanced",
+      "query": "Where are form fields selected for multipart request encoding, and where are their parts written with a shared boundary that also appears in the resulting content type?",
+      "group": {
+        "group": 1,
+        "evidence": [
+          {
+            "path": "src/urllib3/_request_methods.py",
+            "symbol": "RequestMethods.request_encode_body",
+            "evidence_lines": [
+              263,
+              274
+            ],
+            "source_file_sha256": "802785f3948efd45385a83f0607228cffb70f9e33f1153a42c5a7c385b02ec30",
+            "evidence_sha256": "261fdc24c24e28723cda5d8333ed2c9a156ee6c685e075c2655b35db7d2ede46"
+          }
+        ],
+        "baseline_rank": 8,
+        "variant_rank": null,
+        "baseline_excerpts": [
+          "src/urllib3/_request_methods.py:RequestMethods.request_encode_body:184-278"
+        ],
+        "variant_excerpts": [],
+        "baseline_covering_origins": [
+          {
+            "id": "src/urllib3/_request_methods.py:RequestMethods.request_encode_body:184-278",
+            "origin": "retrieval",
+            "related_to": null
+          }
+        ],
+        "baseline_dependency_only": false
+      },
+      "classification": "removed_from_eligible_allocation",
+      "target_in_baseline_eligible": true,
+      "target_in_new_eligible": false,
+      "planner_accepted": true,
+      "literal_query_term_guard_passed": true,
+      "protected_ids": [
+        "src/urllib3/filepost.py:encode_multipart_formdata:51-89",
+        "src/urllib3/fields.py:RequestField.make_multipart:310-341",
+        "src/urllib3/fields.py:RequestField._render_part:244-258",
+        "src/urllib3/filepost.py:iter_field_objects:29-48",
+        "src/urllib3/fields.py:RequestField._render_parts:260-289"
+      ],
+      "picks": [
+        {
+          "id": "src/urllib3/contrib/emscripten/emscripten_fetch_worker.js:<module>:12-109",
+          "rank": 31,
+          "novel_terms": [
+            "written"
+          ],
+          "weighted_gain": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "utility": {
+            "numerator": 1,
+            "denominator": 31
+          },
+          "reason": "novel_query_terms"
+        },
+        {
+          "id": "src/urllib3/util/request.py:make_headers:63-141",
+          "rank": 35,
+          "novel_terms": [
+            "encoding",
+            "their"
+          ],
+          "weighted_gain": {
+            "numerator": 18,
+            "denominator": 17
+          },
+          "utility": {
+            "numerator": 18,
+            "denominator": 595
+          },
+          "reason": "novel_query_terms"
+        },
+        {
+          "id": "src/urllib3/contrib/emscripten/fetch.py:_StreamingFetcher.send:231-301",
+          "rank": 48,
+          "novel_terms": [
+            "shared"
+          ],
+          "weighted_gain": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "utility": {
+            "numerator": 1,
+            "denominator": 48
+          },
+          "reason": "novel_query_terms"
+        }
+      ],
+      "targets": [
+        {
+          "id": "src/urllib3/_request_methods.py:RequestMethods.request_encode_body:184-278",
+          "selected_rank": 6,
+          "matched_query_terms": [
+            "boundary",
+            "content",
+            "encoding",
+            "field",
+            "form",
+            "multipart",
+            "request",
+            "type"
+          ],
+          "novel_terms_relative_to_protected_rows": [
+            "encoding"
+          ]
+        }
+      ],
+      "pre_postprocess_target_rows": [],
+      "final_target_rows": [],
+      "source_chars": 11960,
+      "tokens": {
+        "encoding": "cl100k_base",
+        "tokens": 3953,
+        "budget": 4096,
+        "truncated": false
+      },
+      "compact_sha256": "2a8bc664bd04d8aa929112dd88edd68c10f51be48dd1c514f14191086e35fdea",
+      "control_references": {
+        "legacy": {
+          "line_number": 1686,
+          "record_sha256": "2192a7f71aeb1c15a78293d4c093d99d407b28a9525f055b183c277db925706d",
+          "response_sha256": "584f60788076e468252d1aef8d6c38cdcc2624f960a87710e64abac8ed488aaf",
+          "compact_sha256": "51beda8b0aac0dd2c84560ff5c19aa3e473ce8075607a76a70b67c721ec90f1c"
+        },
+        "coverage_control": {
+          "line_number": 1687,
+          "record_sha256": "dcd258f0058fecd93c8a453a85c3fc9d8b5b77532920f26b78a0972c46b407c8",
+          "response_sha256": "f6e26de7c3560ca8e1d719c68e7dae932d09f51273337afb1323c2cf153e7d11",
+          "compact_sha256": "51beda8b0aac0dd2c84560ff5c19aa3e473ce8075607a76a70b67c721ec90f1c"
+        }
+      }
+    },
+    {
+      "subset": "native_urllib3_observed",
+      "dataset": "urllib3",
+      "query_id": "urllib3_response_status_retry_and_drain",
+      "condition": "dense",
+      "selector": "aspect_balanced",
+      "query": "Where do configured response statuses or a server retry-delay header make an HTTP response eligible for another attempt, and where is that response drained before waiting and sending again?",
+      "group": {
+        "group": 1,
+        "evidence": [
+          {
+            "path": "src/urllib3/util/retry.py",
+            "symbol": "Retry.is_retry",
+            "evidence_lines": [
+              396,
+              407
+            ],
+            "source_file_sha256": "6e3fb6614a9b9712e5bfc4c78397f1c30f83339e1709b8e0657210ef55e2a026",
+            "evidence_sha256": "f255e31fde09dcf1926ca85bf65b70e6f4300511284a13f71e34fb351021236b"
+          }
+        ],
+        "baseline_rank": 5,
+        "variant_rank": null,
+        "baseline_excerpts": [
+          "src/urllib3/util/retry.py:Retry.is_retry:387-407"
+        ],
+        "variant_excerpts": [],
+        "baseline_covering_origins": [
+          {
+            "id": "src/urllib3/util/retry.py:Retry.is_retry:387-407",
+            "origin": "retrieval",
+            "related_to": null
+          }
+        ],
+        "baseline_dependency_only": false
+      },
+      "classification": "removed_from_eligible_allocation",
+      "target_in_baseline_eligible": true,
+      "target_in_new_eligible": false,
+      "planner_accepted": true,
+      "literal_query_term_guard_passed": true,
+      "protected_ids": [
+        "src/urllib3/util/retry.py:Retry.sleep_for_retry:335-341",
+        "src/urllib3/util/retry.py:Retry.sleep:349-363",
+        "src/urllib3/response.py:HTTPResponse.drain_conn:673-682",
+        "src/urllib3/util/retry.py:Retry.get_retry_after:325-333",
+        "src/urllib3/util/retry.py:Retry._sleep_backoff:343-347",
+        "src/urllib3/response.py:HTTPResponse.read:941-1013",
+        "src/urllib3/util/retry.py:Retry.parse_retry_after:308-323"
+      ],
+      "picks": [
+        {
+          "id": "src/urllib3/contrib/emscripten/emscripten_fetch_worker.js:<module>:12-109",
+          "rank": 50,
+          "novel_terms": [
+            "another"
+          ],
+          "weighted_gain": {
+            "numerator": 1,
+            "denominator": 1
+          },
+          "utility": {
+            "numerator": 1,
+            "denominator": 50
+          },
+          "reason": "novel_query_terms"
+        }
+      ],
+      "targets": [
+        {
+          "id": "src/urllib3/util/retry.py:Retry.is_retry:387-407",
+          "selected_rank": 5,
+          "matched_query_terms": [
+            "header",
+            "retry"
+          ],
+          "novel_terms_relative_to_protected_rows": []
+        }
+      ],
+      "pre_postprocess_target_rows": [],
+      "final_target_rows": [],
+      "source_chars": 8516,
+      "tokens": {
+        "encoding": "cl100k_base",
+        "tokens": 2942,
+        "budget": 4096,
+        "truncated": false
+      },
+      "compact_sha256": "c9552cbecbf4faf997e8f750f014cbf0ecc0962b09951b296cc4623bd655de7f",
+      "control_references": {
+        "legacy": {
+          "line_number": 1711,
+          "record_sha256": "1242d0fc5f0824c07495ef7c413ce5b61e5b3c110a918f99aa849b1f832a4e15",
+          "response_sha256": "3bd6a80479e1ef00d6be4df028aad2eb851a0fd346084fa43d810e3fc3cfbae0",
+          "compact_sha256": "cf0beeb4749e00d163145a5c60f56a512667a52a08f4f9486adbb31667acabbf"
+        },
+        "coverage_control": {
+          "line_number": 1712,
+          "record_sha256": "8bbf043938ed5a7193cf9674077411a9ad2d31e78384d5e78c75eee714199197",
+          "response_sha256": "3f764999be00b8a62e20f7bbda49bd857684903041f261387ed6832f104f526e",
+          "compact_sha256": "cf0beeb4749e00d163145a5c60f56a512667a52a08f4f9486adbb31667acabbf"
+        }
+      }
+    },
+    {
+      "subset": "native_urllib3_observed",
+      "dataset": "urllib3",
+      "query_id": "urllib3_file_body_chunks_and_wire_framing",
+      "condition": "dense",
+      "selector": "aspect_balanced",
+      "query": "Where is a file-like request body read in blocks without assuming its length, and where does the sender choose chunked framing when no framing header was supplied, skip empty pieces and terminate the wire body?",
+      "group": {
+        "group": 2,
+        "evidence": [
+          {
+            "path": "src/urllib3/connection.py",
+            "symbol": "HTTPConnection.request",
+            "evidence_lines": [
+              460,
+              513
+            ],
+            "source_file_sha256": "88fe2981226da6eb17c9895e8f3367fa08a1ff0582c4c53eab2e8e53591a6a97",
+            "evidence_sha256": "14b6cc4a9362b0e27d96071ea97ec09930194bb607584e2c13bcf3b7dbaa4de1"
+          }
+        ],
+        "baseline_rank": 4,
+        "variant_rank": null,
+        "baseline_excerpts": [
+          "src/urllib3/connection.py:HTTPConnection.request:418-513"
+        ],
+        "variant_excerpts": [],
+        "baseline_covering_origins": [
+          {
+            "id": "src/urllib3/connection.py:HTTPConnection.request:418-513",
+            "origin": "retrieval",
+            "related_to": null
+          }
+        ],
+        "baseline_dependency_only": false
+      },
+      "classification": "character_budget_after_reordering",
+      "target_in_baseline_eligible": true,
+      "target_in_new_eligible": true,
+      "planner_accepted": true,
+      "literal_query_term_guard_passed": true,
+      "protected_ids": [
+        "src/urllib3/util/request.py:body_to_chunks:199-266",
+        "src/urllib3/response.py:HTTPResponse.read_chunked:1202-1277",
+        "src/urllib3/response.py:HTTPResponse._handle_chunk:1180-1200",
+        "src/urllib3/util/util.py:to_bytes:7-16",
+        "src/urllib3/response.py:HTTPResponse.supports_chunked_reads:1153-1160",
+        "src/urllib3/response.py:HTTPResponse._error_catcher:766-830"
+      ],
+      "picks": [
+        {
+          "id": "src/urllib3/connection.py:HTTPConnection.request:418-513",
+          "rank": 4,
+          "novel_terms": [
+            "empty",
+            "skip",
+            "wire"
+          ],
+          "weighted_gain": {
+            "numerator": 7,
+            "denominator": 4
+          },
+          "utility": {
+            "numerator": 7,
+            "denominator": 16
+          },
+          "reason": "novel_query_terms"
+        },
+        {
+          "id": "src/urllib3/connection.py:HTTPConnection.request_chunked:515-532",
+          "rank": 10,
+          "novel_terms": [
+            "block"
+          ],
+          "weighted_gain": {
+            "numerator": 1,
+            "denominator": 3
+          },
+          "utility": {
+            "numerator": 1,
+            "denominator": 30
+          },
+          "reason": "novel_query_terms"
+        }
+      ],
+      "targets": [
+        {
+          "id": "src/urllib3/connection.py:HTTPConnection.request:418-513",
+          "selected_rank": 4,
+          "matched_query_terms": [
+            "body",
+            "chunked",
+            "empty",
+            "framing",
+            "header",
+            "length",
+            "request",
+            "skip",
+            "wire"
+          ],
+          "novel_terms_relative_to_protected_rows": [
+            "empty",
+            "skip",
+            "wire"
+          ]
+        }
+      ],
+      "pre_postprocess_target_rows": [
+        {
+          "id": "src/urllib3/connection.py:HTTPConnection.request:418-513",
+          "path": "src/urllib3/connection.py",
+          "start_line": 418,
+          "end_line": 465,
+          "window_end_line": 513,
+          "source_hash": "1415e5b4c09d2436b1fa32e4de30ab9e19af813cbfe190dfbca14d63b05b24b7",
+          "truncated": true
+        }
+      ],
+      "final_target_rows": [
+        {
+          "id": "src/urllib3/connection.py:HTTPConnection.request:418-513",
+          "path": "src/urllib3/connection.py",
+          "start_line": 418,
+          "end_line": 465,
+          "window_end_line": 513,
+          "source_hash": "1415e5b4c09d2436b1fa32e4de30ab9e19af813cbfe190dfbca14d63b05b24b7",
+          "truncated": true
+        }
+      ],
+      "source_chars": 12000,
+      "tokens": {
+        "encoding": "cl100k_base",
+        "tokens": 3612,
+        "budget": 4096,
+        "truncated": false
+      },
+      "compact_sha256": "624001752c620145737b1589157af87cbe9890ca2ca5e543a8881f28ae1cd0c8",
+      "control_references": {
+        "legacy": {
+          "line_number": 1751,
+          "record_sha256": "ba18e7e1a15359a511b19370add804adb0e0f205f3fafdb6d411f39c487a65f9",
+          "response_sha256": "3e5d28ec52db5c4cd6d37433656a4f1a5d817d1d788ea343c5949cc9bf4459b5",
+          "compact_sha256": "0883bd38793766742d98f0bbdc86611cc07c2a776c8f9709d6483bf770d569c7"
+        },
+        "coverage_control": {
+          "line_number": 1752,
+          "record_sha256": "eb30c8b1670e1e4f53aff3bf324edc02aaba552befa654d938a7dfec1c854499",
+          "response_sha256": "b86439540abb4b4c55110c8b419922a24c66ef02c39b50dec61bbe135632090b",
+          "compact_sha256": "8443a054ec28cde06d045bc8f1d56862fe7f5076a0cf68c39389276e6d18e8bf"
+        }
+      }
+    }
+  ],
+  "interpretation": [
+    "Every lost-group occurrence passed the prospective lexical term containment guard. Literal term preservation does not establish preservation of the requested behavior.",
+    "All four aspect_fill losses remove app.set from allocation across two distinct Express query units; duplicate hybrid rows are shared evidence, not independent failures.",
+    "Nine aspect_balanced losses remove previously eligible implementations; one consumes the old coverage/backfill opportunity for ExceptionMiddleware.__call__. Two retain the target but move it later so the 12000-character cap clips required evidence.",
+    "The two packing losses leave token headroom: Flask ends at line 1011 before the required 1012–1019 while using 11,991 characters / 3,544 tokens; urllib3 dense request ends at 465 before the required endpoint 513 while using 12,000 characters / 3,612 tokens.",
+    "Rare literal terms can be incidental: may selects res.download; boolean selects res.send/app.enabled; another selects an Emscripten worker module; complete/part/send select ASGI transport code. Adding stopwords would not by itself establish correct orchestration or behavior.",
+    "Both candidate conditions fail the frozen development qualification. Production defaults should remain unchanged and the fresh corpus should stay unobserved for this rejected study."
+  ]
+}
