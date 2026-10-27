@@ -1,0 +1,2799 @@
+{
+  "classification": "Derived post hoc activity verification of already frozen observed outcomes; outside canonical quality audit",
+  "created_at_utc": "2026-10-27T20:32:18.963635+00:00",
+  "producer_execution_commit": "e34d6f6ab2d8e6c5884e607ce8068ee090dc4299",
+  "input_sha256": {
+    "results/source-allocation-development-2026-10-27/frozen-plan.json": "34867a89333e0a2b9e4f7e97c204823eb3bc13a4c4f1d418164c3a92c4039fc7",
+    "results/source-allocation-development-2026-10-27/run-start.json": "67fef7c226cb7d8d74dad3949225753f8e2af9cc29c61a44409e43dea398f84d",
+    "results/source-allocation-development-2026-10-27/replay.jsonl.gz": "f96178f0b8c0135c8ad180d5198f29a812695a3e9c403322b8b39fd06fca5588",
+    "results/source-allocation-development-2026-10-27/control-references.json": "99f65610b680aa3b15d740be55d7ddb5260979dcf2f67f38fc47adbabd71050e",
+    "results/source-allocation-development-2026-10-27/negative-references.json": "c5ba3ccf4b1d0a55af136b67697a39b565b977366ad216e9bffb1886fe01a298",
+    "results/source-allocation-development-2026-10-27/summary.json": "9006cb4fd2285ecf38ff86127bb29053d1f9dcba4dc41eef14f65b7b9c1bf1b6",
+    "results/window-development-2026-10-21/replay.jsonl.gz": "b4ae35799692e681e9e42a4dc7e5bfd71932766a78909cff231d35706baa34a8"
+  },
+  "case_rows_per_arm": 365,
+  "distinct_dataset_query_units": 187,
+  "method": {
+    "scope": "Read-only stdlib pass over all730 new records and immutable referenced controls; no selector, packer, model, retrieval, index or fresh-corpus execution.",
+    "controls": "Verified each referenced original control line number, canonical record SHA, full-response SHA and exact compact SHA; every candidate reference_response exactly equals its coverage control.",
+    "activity": "Activation from actual planner receipt; proposal from actual plan.accepted; eligible changes compare baseline_eligible_ids with actual eligible stage; actual guard acceptance/fallback from captured actual guard receipt.",
+    "final_compact_changes": "Exact stored compact text comparison against original coverage-control payload, cross-checked against content hashes.",
+    "actual_source": "Sets of (path, inclusive physical line number, exact CR/LF/CRLF line bytes, source-overlay key presence and values); source changes ignore order and metadata-only differences.",
+    "planned_added_id_delivery": "Counts only actual final result rows whose original ID appears in the planner added_ids. Containing rows with different IDs are not counted as delivered planned IDs.",
+    "new_actual_source": "At least one actual delivered physical source line absent from the union of actual coverage-control source lines with the same path and overlay provenance; no full-window or gold credit.",
+    "distinct_source_fragments": "Deduplicated (dataset,path,start_line,end_line,actual source_hash), so clipped variants count as distinct fragments. Dataset/ID and fragment counts are not independent trials.",
+    "fallbacks": "All guard failures, including inactive plans, retained; accepted_plan_guard_fallback isolates actual proposed changes rejected after packing.",
+    "limitations": "Derived post hoc operational counts, not a new candidate, quality qualification, independent audit, timing measurement, generalization result or coding/billing claim."
+  },
+  "per_arm": {
+    "source_graph": {
+      "counts": {
+        "literal_clause_active": {
+          "case_rows": 329,
+          "distinct_dataset_query_units": 172
+        },
+        "plan_proposal_accepted": {
+          "case_rows": 58,
+          "distinct_dataset_query_units": 45
+        },
+        "eligible_order_changed": {
+          "case_rows": 58,
+          "distinct_dataset_query_units": 45
+        },
+        "guard_source_preserved": {
+          "case_rows": 353,
+          "distinct_dataset_query_units": 185
+        },
+        "guard_accepted": {
+          "case_rows": 50,
+          "distinct_dataset_query_units": 41
+        },
+        "guard_fallback": {
+          "case_rows": 315,
+          "distinct_dataset_query_units": 159
+        },
+        "accepted_plan_guard_fallback": {
+          "case_rows": 8,
+          "distinct_dataset_query_units": 5
+        },
+        "final_compact_changed": {
+          "case_rows": 47,
+          "distinct_dataset_query_units": 38
+        },
+        "final_result_rows_changed": {
+          "case_rows": 47,
+          "distinct_dataset_query_units": 38
+        },
+        "actual_source_line_set_changed": {
+          "case_rows": 46,
+          "distinct_dataset_query_units": 37
+        },
+        "new_actual_source_lines": {
+          "case_rows": 45,
+          "distinct_dataset_query_units": 37
+        },
+        "lost_actual_source_lines": {
+          "case_rows": 45,
+          "distinct_dataset_query_units": 36
+        },
+        "planned_addition_delivered_by_id": {
+          "case_rows": 48,
+          "distinct_dataset_query_units": 39
+        },
+        "planned_addition_delivered_with_new_source": {
+          "case_rows": 45,
+          "distinct_dataset_query_units": 37
+        },
+        "final_has_new_result_id": {
+          "case_rows": 45,
+          "distinct_dataset_query_units": 37
+        }
+      },
+      "planner_fallback_reasons": {
+        "no_exchangeable_slots": {
+          "case_rows": 130,
+          "distinct_dataset_query_units": 86
+        },
+        "no_graph_neighbors": {
+          "case_rows": 43,
+          "distinct_dataset_query_units": 17
+        },
+        "no_literal_clauses": {
+          "case_rows": 36,
+          "distinct_dataset_query_units": 15
+        },
+        "no_new_graph_neighbor": {
+          "case_rows": 98,
+          "distinct_dataset_query_units": 53
+        }
+      },
+      "guard_fallback_reasons": {
+        "inactive_plan": {
+          "case_rows": 307,
+          "distinct_dataset_query_units": 158
+        },
+        "protected_source_not_preserved": {
+          "case_rows": 8,
+          "distinct_dataset_query_units": 5
+        }
+      },
+      "added_sources": {
+        "planned_id_occurrences": 64,
+        "distinct_planned_dataset_ids": 48,
+        "delivered_added_id_occurrences": 54,
+        "distinct_delivered_added_dataset_ids": 43,
+        "distinct_delivered_added_source_fragments": 43,
+        "delivered_added_occurrences_with_new_actual_source": 51,
+        "distinct_added_source_fragments_with_new_actual_source": 41,
+        "new_actual_source_fragments": [
+          {
+            "dataset": "click",
+            "path": "src/click/core.py",
+            "start_line": 1353,
+            "end_line": 1368,
+            "source_hash": "54b5e2638142f67863021e860dc2c160918c40e32bb31fb6782f1620da4d83f7"
+          },
+          {
+            "dataset": "click",
+            "path": "src/click/core.py",
+            "start_line": 2739,
+            "end_line": 2847,
+            "source_hash": "1d3e1c8ebf7343ff4e53e97ada825fd64f22eb798383bb4c1f058ac4b8be3858"
+          },
+          {
+            "dataset": "click",
+            "path": "src/click/parser.py",
+            "start_line": 357,
+            "end_line": 371,
+            "source_hash": "b721ab34d210f5f40fab449c3e01f7540248c734c0542a19bb5e1e9ee5e8d53f"
+          },
+          {
+            "dataset": "express",
+            "path": "lib/application.js",
+            "start_line": 351,
+            "end_line": 383,
+            "source_hash": "d6e4aecb0cefdfc53173f9c140767132136c24c5a203f8af43b95dfe315a31c1"
+          },
+          {
+            "dataset": "express",
+            "path": "lib/response.js",
+            "start_line": 375,
+            "end_line": 417,
+            "source_hash": "2688014f5ed9267dfa51f7b8198c1269aa24d632256a002639b3c7b6a7b08561"
+          },
+          {
+            "dataset": "flask",
+            "path": "src/flask/sansio/scaffold.py",
+            "start_line": 649,
+            "end_line": 662,
+            "source_hash": "7dfc8b606697573e452b97cb36c590b8fa80b100ac5b131a415112f2025ddaad"
+          },
+          {
+            "dataset": "httpx",
+            "path": "httpx/_content.py",
+            "start_line": 186,
+            "end_line": 218,
+            "source_hash": "6651ed432577431e4bd1617f2c8eab330b2ff249e4ee500e02694fadbf74d8ff"
+          },
+          {
+            "dataset": "httpx",
+            "path": "httpx/_decoders.py",
+            "start_line": 237,
+            "end_line": 258,
+            "source_hash": "8f2517ec7ae252374606f85de68e8438682ad5cc6ec8b44e6f934be92a9ab03a"
+          },
+          {
+            "dataset": "httpx",
+            "path": "httpx/_models.py",
+            "start_line": 1084,
+            "end_line": 1099,
+            "source_hash": "ac01259d6d59021ce9fc1c154cc767e52b053086d8f1f3187b91fc122a42c0d5"
+          },
+          {
+            "dataset": "httpx",
+            "path": "httpx/_models.py",
+            "start_line": 1213,
+            "end_line": 1217,
+            "source_hash": "19384f98a9223700b90df503163b033c58841b0167d259bf6d7f866d2b02a16a"
+          },
+          {
+            "dataset": "httpx",
+            "path": "httpx/_urlparse.py",
+            "start_line": 213,
+            "end_line": 345,
+            "source_hash": "3e531bf2e492ce3870e3066a3ebe8d0dedb7b1009c684732402107e6ae476b96"
+          },
+          {
+            "dataset": "jinja",
+            "path": "src/jinja2/async_utils.py",
+            "start_line": 16,
+            "end_line": 54,
+            "source_hash": "fc8994e0b3b697366eb9b53cdb878b8fb4a14a1fd1c6ee8bedb01336187b507b"
+          },
+          {
+            "dataset": "jinja",
+            "path": "src/jinja2/bccache.py",
+            "start_line": 92,
+            "end_line": 94,
+            "source_hash": "249db2de7701e6b9b88d874d50906f68a7c84fcbd8ae9589a6ce4748629b2891"
+          },
+          {
+            "dataset": "jinja",
+            "path": "src/jinja2/compiler.py",
+            "start_line": 418,
+            "end_line": 420,
+            "source_hash": "58ce547888c2c2250bfbb1bece5c3b331dc43f9c673fdb3eb2d318170c15976e"
+          },
+          {
+            "dataset": "jinja",
+            "path": "src/jinja2/environment.py",
+            "start_line": 386,
+            "end_line": 455,
+            "source_hash": "52cf7976c40646dd6be42de3f23c2dd85da7fecd7389a2606365967fce995543"
+          },
+          {
+            "dataset": "jinja",
+            "path": "src/jinja2/environment.py",
+            "start_line": 1018,
+            "end_line": 1070,
+            "source_hash": "51019d4205cfb2b0e7bacc72c3d3f5b2519bfe7009ccc0da69970225eca220aa"
+          },
+          {
+            "dataset": "jinja",
+            "path": "src/jinja2/environment.py",
+            "start_line": 1072,
+            "end_line": 1090,
+            "source_hash": "2225903ed87fe552b6a1d7cd4d7ec013f9d622e0ce65601e75af8f3caa05f3b2"
+          },
+          {
+            "dataset": "jinja",
+            "path": "src/jinja2/environment.py",
+            "start_line": 1425,
+            "end_line": 1450,
+            "source_hash": "1373f325dfe8ded6d441e8d2b8844bc7eb817d4353ce3574ac6bcc4f75b76be0"
+          },
+          {
+            "dataset": "jinja",
+            "path": "src/jinja2/runtime.py",
+            "start_line": 310,
+            "end_line": 320,
+            "source_hash": "c867207753ddad307597d6cf93bb4dcdd8e08bd795af3ae3c6f3b1e052f724ec"
+          },
+          {
+            "dataset": "jinja",
+            "path": "src/jinja2/runtime.py",
+            "start_line": 633,
+            "end_line": 635,
+            "source_hash": "905c2252ce2faeddebc8fb97b848f7fbc1ef2c963be0469e5debc8a3b1ceead9"
+          },
+          {
+            "dataset": "koa",
+            "path": "lib/response.js",
+            "start_line": 29,
+            "end_line": 35,
+            "source_hash": "1ef48aff57e0f8b450d67a5a2b02b1dc4d72782b938b057070ab76d3ffd23214"
+          },
+          {
+            "dataset": "requests",
+            "path": "src/requests/sessions.py",
+            "start_line": 309,
+            "end_line": 309,
+            "source_hash": "96a0bd292a831afcf5f2ec1d4df424c9a6f925e641a35b00f9564100030846fb"
+          },
+          {
+            "dataset": "requests",
+            "path": "src/requests/sessions.py",
+            "start_line": 334,
+            "end_line": 368,
+            "source_hash": "af1d06abd7643f36583273e3d77018177d258399ced71f6bd481cd61a54d8fb4"
+          },
+          {
+            "dataset": "rich",
+            "path": "rich/_wrap.py",
+            "start_line": 26,
+            "end_line": 78,
+            "source_hash": "edb3968cf35fdb49e153149471378854e03307a12d1b13c143913c6b68abd3a3"
+          },
+          {
+            "dataset": "rich",
+            "path": "rich/jupyter.py",
+            "start_line": 59,
+            "end_line": 81,
+            "source_hash": "914d0b653d432cd4838fbc05a0f34c8805422c5a311f12a80f1d6c30a1eff3e4"
+          },
+          {
+            "dataset": "rich",
+            "path": "rich/palette.py",
+            "start_line": 20,
+            "end_line": 41,
+            "source_hash": "a37b6716106d07693d027fa8b1c5fcff1133006d44930094bd9153aff413d2a6"
+          },
+          {
+            "dataset": "rich",
+            "path": "rich/palette.py",
+            "start_line": 84,
+            "end_line": 97,
+            "source_hash": "fc2a5746950239034890cfa70b0b6111d76a8c42385b2f51c760884438235b35"
+          },
+          {
+            "dataset": "rich",
+            "path": "rich/progress.py",
+            "start_line": 1477,
+            "end_line": 1514,
+            "source_hash": "8c021b2de6845b6e67c67fc3c2a9443555c029dcc08cf4c4490322a6b816e8db"
+          },
+          {
+            "dataset": "rich",
+            "path": "rich/segment.py",
+            "start_line": 325,
+            "end_line": 368,
+            "source_hash": "cc50eecfd279281f5f44e8a8860239e0e539b11395ab990cf8ef1c8012f681d0"
+          },
+          {
+            "dataset": "rich",
+            "path": "rich/styled.py",
+            "start_line": 23,
+            "end_line": 29,
+            "source_hash": "3923381df095ca766cd52b528a902950c0c0b6b96790c1cdfe7035fd01c295a5"
+          },
+          {
+            "dataset": "rich",
+            "path": "rich/text.py",
+            "start_line": 1063,
+            "end_line": 1105,
+            "source_hash": "86dae2644022bf59414d08afa09a2cfb7673fd39aa22646d5d72e801a55bee00"
+          },
+          {
+            "dataset": "starlette",
+            "path": "starlette/middleware/cors.py",
+            "start_line": 146,
+            "end_line": 167,
+            "source_hash": "8c4115dfa3cf88951489714bb87e15a6abeb24b7384feb35a3d972b1caf14616"
+          },
+          {
+            "dataset": "starlette",
+            "path": "starlette/requests.py",
+            "start_line": 252,
+            "end_line": 285,
+            "source_hash": "18580b8ca9616f87c58e4ed90ee235ff76a36207b0a97af7c08aa0a961b3c0e2"
+          },
+          {
+            "dataset": "starlette",
+            "path": "starlette/routing.py",
+            "start_line": 717,
+            "end_line": 765,
+            "source_hash": "fcc830362c49f85b234bbdd2032f13b624218289e1b6eba54d0124fc4ed10133"
+          },
+          {
+            "dataset": "urllib3",
+            "path": "src/urllib3/_collections.py",
+            "start_line": 335,
+            "end_line": 366,
+            "source_hash": "f05fefacb4cc2bef6b139292e9f9bbc7624867bfb3d199154edff4cb646c0021"
+          },
+          {
+            "dataset": "urllib3",
+            "path": "src/urllib3/connectionpool.py",
+            "start_line": 592,
+            "end_line": 687,
+            "source_hash": "b881770c905a9053a595d65af6680774aac8d526e3ab946fbf45962764484309"
+          },
+          {
+            "dataset": "urllib3",
+            "path": "src/urllib3/fields.py",
+            "start_line": 117,
+            "end_line": 132,
+            "source_hash": "4a0659a21abda75390d04e7c139ec57a8e820f70cdb5403ea415636049b86021"
+          },
+          {
+            "dataset": "urllib3",
+            "path": "src/urllib3/fields.py",
+            "start_line": 135,
+            "end_line": 150,
+            "source_hash": "d95b072f5a2d30e89796a5ef1fa2ab020d016617962e0a14efd4b138eafb2e62"
+          },
+          {
+            "dataset": "urllib3",
+            "path": "src/urllib3/fields.py",
+            "start_line": 260,
+            "end_line": 289,
+            "source_hash": "928fe104f3227a41a15371f08f5a79960e2bf74c06d36b5cf8c6f475150cae30"
+          },
+          {
+            "dataset": "urllib3",
+            "path": "src/urllib3/response.py",
+            "start_line": 602,
+            "end_line": 664,
+            "source_hash": "e66673e19d1a54d5b4657848e9b4f0fffc99934a84838db1849cea078a39878b"
+          },
+          {
+            "dataset": "zod",
+            "path": "packages/zod/src/v4/core/schemas.ts",
+            "start_line": 1091,
+            "end_line": 1101,
+            "source_hash": "7a92d0632029b7766dd1d534725b09ff74d4510f14eed1b5505d627fc9c10db4"
+          }
+        ]
+      },
+      "per_study_dataset_original_condition": {
+        "language_observed/express/bm25": {
+          "cases": 15,
+          "literal_clause_active": 15,
+          "plan_proposal_accepted": 0,
+          "eligible_order_changed": 0,
+          "guard_source_preserved": 15,
+          "guard_accepted": 0,
+          "guard_fallback": 15,
+          "accepted_plan_guard_fallback": 0,
+          "final_compact_changed": 0,
+          "final_result_rows_changed": 0,
+          "actual_source_line_set_changed": 0,
+          "new_actual_source_lines": 0,
+          "lost_actual_source_lines": 0,
+          "planned_addition_delivered_by_id": 0,
+          "planned_addition_delivered_with_new_source": 0,
+          "final_has_new_result_id": 0
+        },
+        "language_observed/express/dense": {
+          "cases": 15,
+          "literal_clause_active": 15,
+          "plan_proposal_accepted": 3,
+          "eligible_order_changed": 3,
+          "guard_source_preserved": 15,
+          "guard_accepted": 3,
+          "guard_fallback": 12,
+          "accepted_plan_guard_fallback": 0,
+          "final_compact_changed": 3,
+          "final_result_rows_changed": 3,
+          "actual_source_line_set_changed": 3,
+          "new_actual_source_lines": 3,
+          "lost_actual_source_lines": 3,
+          "planned_addition_delivered_by_id": 3,
+          "planned_addition_delivered_with_new_source": 3,
+          "final_has_new_result_id": 3
+        },
+        "language_observed/express/hybrid": {
+          "cases": 15,
+          "literal_clause_active": 15,
+          "plan_proposal_accepted": 1,
+          "eligible_order_changed": 1,
+          "guard_source_preserved": 15,
+          "guard_accepted": 1,
+          "guard_fallback": 14,
+          "accepted_plan_guard_fallback": 0,
+          "final_compact_changed": 1,
+          "final_result_rows_changed": 1,
+          "actual_source_line_set_changed": 1,
+          "new_actual_source_lines": 1,
+          "lost_actual_source_lines": 1,
+          "planned_addition_delivered_by_id": 1,
+          "planned_addition_delivered_with_new_source": 1,
+          "final_has_new_result_id": 1
+        },
+        "language_observed/zod/bm25": {
+          "cases": 15,
+          "literal_clause_active": 11,
+          "plan_proposal_accepted": 1,
+          "eligible_order_changed": 1,
+          "guard_source_preserved": 15,
+          "guard_accepted": 1,
+          "guard_fallback": 14,
+          "accepted_plan_guard_fallback": 0,
+          "final_compact_changed": 0,
+          "final_result_rows_changed": 0,
+          "actual_source_line_set_changed": 0,
+          "new_actual_source_lines": 0,
+          "lost_actual_source_lines": 0,
+          "planned_addition_delivered_by_id": 0,
+          "planned_addition_delivered_with_new_source": 0,
+          "final_has_new_result_id": 0
+        },
+        "language_observed/zod/dense": {
+          "cases": 15,
+          "literal_clause_active": 11,
+          "plan_proposal_accepted": 2,
+          "eligible_order_changed": 2,
+          "guard_source_preserved": 13,
+          "guard_accepted": 0,
+          "guard_fallback": 15,
+          "accepted_plan_guard_fallback": 2,
+          "final_compact_changed": 0,
+          "final_result_rows_changed": 0,
+          "actual_source_line_set_changed": 0,
+          "new_actual_source_lines": 0,
+          "lost_actual_source_lines": 0,
+          "planned_addition_delivered_by_id": 1,
+          "planned_addition_delivered_with_new_source": 0,
+          "final_has_new_result_id": 0
+        },
+        "language_observed/zod/hybrid": {
+          "cases": 15,
+          "literal_clause_active": 11,
+          "plan_proposal_accepted": 1,
+          "eligible_order_changed": 1,
+          "guard_source_preserved": 13,
+          "guard_accepted": 0,
+          "guard_fallback": 15,
+          "accepted_plan_guard_fallback": 1,
+          "final_compact_changed": 0,
+          "final_result_rows_changed": 0,
+          "actual_source_line_set_changed": 0,
+          "new_actual_source_lines": 0,
+          "lost_actual_source_lines": 0,
+          "planned_addition_delivered_by_id": 0,
+          "planned_addition_delivered_with_new_source": 0,
+          "final_has_new_result_id": 0
+        },
+        "native_express_observed/express/dense": {
+          "cases": 15,
+          "literal_clause_active": 15,
+          "plan_proposal_accepted": 3,
+          "eligible_order_changed": 3,
+          "guard_source_preserved": 15,
+          "guard_accepted": 3,
+          "guard_fallback": 12,
+          "accepted_plan_guard_fallback": 0,
+          "final_compact_changed": 3,
+          "final_result_rows_changed": 3,
+          "actual_source_line_set_changed": 3,
+          "new_actual_source_lines": 3,
+          "lost_actual_source_lines": 3,
+          "planned_addition_delivered_by_id": 3,
+          "planned_addition_delivered_with_new_source": 3,
+          "final_has_new_result_id": 3
+        },
+        "native_express_observed/express/hybrid": {
+          "cases": 15,
+          "literal_clause_active": 15,
+          "plan_proposal_accepted": 1,
+          "eligible_order_changed": 1,
+          "guard_source_preserved": 15,
+          "guard_accepted": 1,
+          "guard_fallback": 14,
+          "accepted_plan_guard_fallback": 0,
+          "final_compact_changed": 1,
+          "final_result_rows_changed": 1,
+          "actual_source_line_set_changed": 1,
+          "new_actual_source_lines": 1,
+          "lost_actual_source_lines": 1,
+          "planned_addition_delivered_by_id": 1,
+          "planned_addition_delivered_with_new_source": 1,
+          "final_has_new_result_id": 1
+        },
+        "native_jinja_observed/jinja/dense": {
+          "cases": 14,
+          "literal_clause_active": 13,
+          "plan_proposal_accepted": 8,
+          "eligible_order_changed": 8,
+          "guard_source_preserved": 13,
+          "guard_accepted": 7,
+          "guard_fallback": 7,
+          "accepted_plan_guard_fallback": 1,
+          "final_compact_changed": 7,
+          "final_result_rows_changed": 7,
+          "actual_source_line_set_changed": 7,
+          "new_actual_source_lines": 7,
+          "lost_actual_source_lines": 7,
+          "planned_addition_delivered_by_id": 7,
+          "planned_addition_delivered_with_new_source": 7,
+          "final_has_new_result_id": 7
+        },
+        "native_jinja_observed/jinja/hybrid": {
+          "cases": 14,
+          "literal_clause_active": 13,
+          "plan_proposal_accepted": 3,
+          "eligible_order_changed": 3,
+          "guard_source_preserved": 14,
+          "guard_accepted": 3,
+          "guard_fallback": 11,
+          "accepted_plan_guard_fallback": 0,
+          "final_compact_changed": 3,
+          "final_result_rows_changed": 3,
+          "actual_source_line_set_changed": 3,
+          "new_actual_source_lines": 3,
+          "lost_actual_source_lines": 3,
+          "planned_addition_delivered_by_id": 3,
+          "planned_addition_delivered_with_new_source": 3,
+          "final_has_new_result_id": 3
+        },
+        "native_urllib3_observed/urllib3/dense": {
+          "cases": 14,
+          "literal_clause_active": 14,
+          "plan_proposal_accepted": 2,
+          "eligible_order_changed": 2,
+          "guard_source_preserved": 14,
+          "guard_accepted": 2,
+          "guard_fallback": 12,
+          "accepted_plan_guard_fallback": 0,
+          "final_compact_changed": 2,
+          "final_result_rows_changed": 2,
+          "actual_source_line_set_changed": 2,
+          "new_actual_source_lines": 2,
+          "lost_actual_source_lines": 2,
+          "planned_addition_delivered_by_id": 2,
+          "planned_addition_delivered_with_new_source": 2,
+          "final_has_new_result_id": 2
+        },
+        "native_urllib3_observed/urllib3/hybrid": {
+          "cases": 14,
+          "literal_clause_active": 14,
+          "plan_proposal_accepted": 4,
+          "eligible_order_changed": 4,
+          "guard_source_preserved": 14,
+          "guard_accepted": 4,
+          "guard_fallback": 10,
+          "accepted_plan_guard_fallback": 0,
+          "final_compact_changed": 4,
+          "final_result_rows_changed": 4,
+          "actual_source_line_set_changed": 4,
+          "new_actual_source_lines": 3,
+          "lost_actual_source_lines": 4,
+          "planned_addition_delivered_by_id": 3,
+          "planned_addition_delivered_with_new_source": 3,
+          "final_has_new_result_id": 3
+        },
+        "native_zod_observed/zod/dense": {
+          "cases": 15,
+          "literal_clause_active": 11,
+          "plan_proposal_accepted": 2,
+          "eligible_order_changed": 2,
+          "guard_source_preserved": 13,
+          "guard_accepted": 0,
+          "guard_fallback": 15,
+          "accepted_plan_guard_fallback": 2,
+          "final_compact_changed": 0,
+          "final_result_rows_changed": 0,
+          "actual_source_line_set_changed": 0,
+          "new_actual_source_lines": 0,
+          "lost_actual_source_lines": 0,
+          "planned_addition_delivered_by_id": 1,
+          "planned_addition_delivered_with_new_source": 0,
+          "final_has_new_result_id": 0
+        },
+        "native_zod_observed/zod/hybrid": {
+          "cases": 15,
+          "literal_clause_active": 11,
+          "plan_proposal_accepted": 1,
+          "eligible_order_changed": 1,
+          "guard_source_preserved": 13,
+          "guard_accepted": 0,
+          "guard_fallback": 15,
+          "accepted_plan_guard_fallback": 1,
+          "final_compact_changed": 0,
+          "final_result_rows_changed": 0,
+          "actual_source_line_set_changed": 0,
+          "new_actual_source_lines": 0,
+          "lost_actual_source_lines": 0,
+          "planned_addition_delivered_by_id": 0,
+          "planned_addition_delivered_with_new_source": 0,
+          "final_has_new_result_id": 0
+        },
+        "qwen_development_observed/click/hybrid_k24_b1": {
+          "cases": 24,
+          "literal_clause_active": 21,
+          "plan_proposal_accepted": 4,
+          "eligible_order_changed": 4,
+          "guard_source_preserved": 24,
+          "guard_accepted": 4,
+          "guard_fallback": 20,
+          "accepted_plan_guard_fallback": 0,
+          "final_compact_changed": 4,
+          "final_result_rows_changed": 4,
+          "actual_source_line_set_changed": 3,
+          "new_actual_source_lines": 3,
+          "lost_actual_source_lines": 3,
+          "planned_addition_delivered_by_id": 4,
+          "planned_addition_delivered_with_new_source": 3,
+          "final_has_new_result_id": 3
+        },
+        "qwen_development_observed/express/hybrid_k24_b1": {
+          "cases": 15,
+          "literal_clause_active": 15,
+          "plan_proposal_accepted": 0,
+          "eligible_order_changed": 0,
+          "guard_source_preserved": 15,
+          "guard_accepted": 0,
+          "guard_fallback": 15,
+          "accepted_plan_guard_fallback": 0,
+          "final_compact_changed": 0,
+          "final_result_rows_changed": 0,
+          "actual_source_line_set_changed": 0,
+          "new_actual_source_lines": 0,
+          "lost_actual_source_lines": 0,
+          "planned_addition_delivered_by_id": 0,
+          "planned_addition_delivered_with_new_source": 0,
+          "final_has_new_result_id": 0
+        },
+        "qwen_development_observed/flask/hybrid_k24_b1": {
+          "cases": 14,
+          "literal_clause_active": 13,
+          "plan_proposal_accepted": 1,
+          "eligible_order_changed": 1,
+          "guard_source_preserved": 14,
+          "guard_accepted": 1,
+          "guard_fallback": 13,
+          "accepted_plan_guard_fallback": 0,
+          "final_compact_changed": 1,
+          "final_result_rows_changed": 1,
+          "actual_source_line_set_changed": 1,
+          "new_actual_source_lines": 1,
+          "lost_actual_source_lines": 1,
+          "planned_addition_delivered_by_id": 1,
+          "planned_addition_delivered_with_new_source": 1,
+          "final_has_new_result_id": 1
+        },
+        "qwen_development_observed/koa/hybrid_k24_b1": {
+          "cases": 8,
+          "literal_clause_active": 8,
+          "plan_proposal_accepted": 3,
+          "eligible_order_changed": 3,
+          "guard_source_preserved": 7,
+          "guard_accepted": 2,
+          "guard_fallback": 6,
+          "accepted_plan_guard_fallback": 1,
+          "final_compact_changed": 1,
+          "final_result_rows_changed": 1,
+          "actual_source_line_set_changed": 1,
+          "new_actual_source_lines": 1,
+          "lost_actual_source_lines": 1,
+          "planned_addition_delivered_by_id": 1,
+          "planned_addition_delivered_with_new_source": 1,
+          "final_has_new_result_id": 1
+        },
+        "qwen_development_observed/requests/hybrid_k24_b1": {
+          "cases": 20,
+          "literal_clause_active": 19,
+          "plan_proposal_accepted": 2,
+          "eligible_order_changed": 2,
+          "guard_source_preserved": 20,
+          "guard_accepted": 2,
+          "guard_fallback": 18,
+          "accepted_plan_guard_fallback": 0,
+          "final_compact_changed": 2,
+          "final_result_rows_changed": 2,
+          "actual_source_line_set_changed": 2,
+          "new_actual_source_lines": 2,
+          "lost_actual_source_lines": 1,
+          "planned_addition_delivered_by_id": 2,
+          "planned_addition_delivered_with_new_source": 2,
+          "final_has_new_result_id": 2
+        },
+        "qwen_development_observed/rich/hybrid_k24_b1": {
+          "cases": 24,
+          "literal_clause_active": 22,
+          "plan_proposal_accepted": 6,
+          "eligible_order_changed": 6,
+          "guard_source_preserved": 24,
+          "guard_accepted": 6,
+          "guard_fallback": 18,
+          "accepted_plan_guard_fallback": 0,
+          "final_compact_changed": 6,
+          "final_result_rows_changed": 6,
+          "actual_source_line_set_changed": 6,
+          "new_actual_source_lines": 6,
+          "lost_actual_source_lines": 6,
+          "planned_addition_delivered_by_id": 6,
+          "planned_addition_delivered_with_new_source": 6,
+          "final_has_new_result_id": 6
+        },
+        "qwen_development_observed/starlette/hybrid_k24_b1": {
+          "cases": 24,
+          "literal_clause_active": 22,
+          "plan_proposal_accepted": 4,
+          "eligible_order_changed": 4,
+          "guard_source_preserved": 23,
+          "guard_accepted": 4,
+          "guard_fallback": 20,
+          "accepted_plan_guard_fallback": 0,
+          "final_compact_changed": 3,
+          "final_result_rows_changed": 3,
+          "actual_source_line_set_changed": 3,
+          "new_actual_source_lines": 3,
+          "lost_actual_source_lines": 3,
+          "planned_addition_delivered_by_id": 3,
+          "planned_addition_delivered_with_new_source": 3,
+          "final_has_new_result_id": 3
+        },
+        "qwen_development_observed/zod/hybrid_k24_b1": {
+          "cases": 15,
+          "literal_clause_active": 11,
+          "plan_proposal_accepted": 1,
+          "eligible_order_changed": 1,
+          "guard_source_preserved": 14,
+          "guard_accepted": 1,
+          "guard_fallback": 14,
+          "accepted_plan_guard_fallback": 0,
+          "final_compact_changed": 1,
+          "final_result_rows_changed": 1,
+          "actual_source_line_set_changed": 1,
+          "new_actual_source_lines": 1,
+          "lost_actual_source_lines": 1,
+          "planned_addition_delivered_by_id": 1,
+          "planned_addition_delivered_with_new_source": 1,
+          "final_has_new_result_id": 1
+        },
+        "qwen_httpx_observed/httpx/hybrid_k24_b1": {
+          "cases": 15,
+          "literal_clause_active": 14,
+          "plan_proposal_accepted": 5,
+          "eligible_order_changed": 5,
+          "guard_source_preserved": 15,
+          "guard_accepted": 5,
+          "guard_fallback": 10,
+          "accepted_plan_guard_fallback": 0,
+          "final_compact_changed": 5,
+          "final_result_rows_changed": 5,
+          "actual_source_line_set_changed": 5,
+          "new_actual_source_lines": 5,
+          "lost_actual_source_lines": 5,
+          "planned_addition_delivered_by_id": 5,
+          "planned_addition_delivered_with_new_source": 5,
+          "final_has_new_result_id": 5
+        }
+      },
+      "added_id_delivery_cases": [
+        {
+          "subset": "language_observed",
+          "dataset": "express",
+          "query_id": "express_configured_query_parser",
+          "condition": "hybrid",
+          "guard_accepted": true,
+          "delivered_added_ids": [
+            "lib/application.js:app.set:351-383"
+          ],
+          "delivered_added_ids_with_new_actual_source": [
+            "lib/application.js:app.set:351-383"
+          ]
+        },
+        {
+          "subset": "language_observed",
+          "dataset": "express",
+          "query_id": "express_configured_query_parser",
+          "condition": "dense",
+          "guard_accepted": true,
+          "delivered_added_ids": [
+            "lib/application.js:app.set:351-383"
+          ],
+          "delivered_added_ids_with_new_actual_source": [
+            "lib/application.js:app.set:351-383"
+          ]
+        },
+        {
+          "subset": "language_observed",
+          "dataset": "express",
+          "query_id": "express_trusted_forwarded_protocol",
+          "condition": "dense",
+          "guard_accepted": true,
+          "delivered_added_ids": [
+            "lib/application.js:app.set:351-383"
+          ],
+          "delivered_added_ids_with_new_actual_source": [
+            "lib/application.js:app.set:351-383"
+          ]
+        },
+        {
+          "subset": "language_observed",
+          "dataset": "express",
+          "query_id": "express_absent_outbound_retry",
+          "condition": "dense",
+          "guard_accepted": true,
+          "delivered_added_ids": [
+            "lib/response.js:res.sendFile:375-417"
+          ],
+          "delivered_added_ids_with_new_actual_source": [
+            "lib/response.js:res.sendFile:375-417"
+          ]
+        },
+        {
+          "subset": "language_observed",
+          "dataset": "zod",
+          "query_id": "zod_sync_rejects_async",
+          "condition": "dense",
+          "guard_accepted": false,
+          "delivered_added_ids": [
+            "packages/zod/src/v4/core/parse.ts:validate:137-149"
+          ],
+          "delivered_added_ids_with_new_actual_source": []
+        },
+        {
+          "subset": "native_express_observed",
+          "dataset": "express",
+          "query_id": "express_configured_query_parser",
+          "condition": "hybrid",
+          "guard_accepted": true,
+          "delivered_added_ids": [
+            "lib/application.js:app.set:351-383"
+          ],
+          "delivered_added_ids_with_new_actual_source": [
+            "lib/application.js:app.set:351-383"
+          ]
+        },
+        {
+          "subset": "native_express_observed",
+          "dataset": "express",
+          "query_id": "express_configured_query_parser",
+          "condition": "dense",
+          "guard_accepted": true,
+          "delivered_added_ids": [
+            "lib/application.js:app.set:351-383"
+          ],
+          "delivered_added_ids_with_new_actual_source": [
+            "lib/application.js:app.set:351-383"
+          ]
+        },
+        {
+          "subset": "native_express_observed",
+          "dataset": "express",
+          "query_id": "express_trusted_forwarded_protocol",
+          "condition": "dense",
+          "guard_accepted": true,
+          "delivered_added_ids": [
+            "lib/application.js:app.set:351-383"
+          ],
+          "delivered_added_ids_with_new_actual_source": [
+            "lib/application.js:app.set:351-383"
+          ]
+        },
+        {
+          "subset": "native_express_observed",
+          "dataset": "express",
+          "query_id": "express_absent_outbound_retry",
+          "condition": "dense",
+          "guard_accepted": true,
+          "delivered_added_ids": [
+            "lib/response.js:res.sendFile:375-417"
+          ],
+          "delivered_added_ids_with_new_actual_source": [
+            "lib/response.js:res.sendFile:375-417"
+          ]
+        },
+        {
+          "subset": "native_zod_observed",
+          "dataset": "zod",
+          "query_id": "zod_sync_rejects_async",
+          "condition": "dense",
+          "guard_accepted": false,
+          "delivered_added_ids": [
+            "packages/zod/src/v4/core/parse.ts:validate:137-149"
+          ],
+          "delivered_added_ids_with_new_actual_source": []
+        },
+        {
+          "subset": "native_jinja_observed",
+          "dataset": "jinja",
+          "query_id": "jinja_bytecode_reject_and_recompile",
+          "condition": "dense",
+          "guard_accepted": true,
+          "delivered_added_ids": [
+            "src/jinja2/bccache.py:Bucket.bytecode_from_string:92-94"
+          ],
+          "delivered_added_ids_with_new_actual_source": [
+            "src/jinja2/bccache.py:Bucket.bytecode_from_string:92-94"
+          ]
+        },
+        {
+          "subset": "native_jinja_observed",
+          "dataset": "jinja",
+          "query_id": "jinja_file_change_invalidates_template_cache",
+          "condition": "dense",
+          "guard_accepted": true,
+          "delivered_added_ids": [
+            "src/jinja2/environment.py:Environment.select_template:1018-1070"
+          ],
+          "delivered_added_ids_with_new_actual_source": [
+            "src/jinja2/environment.py:Environment.select_template:1018-1070"
+          ]
+        },
+        {
+          "subset": "native_jinja_observed",
+          "dataset": "jinja",
+          "query_id": "jinja_include_parent_and_local_context",
+          "condition": "hybrid",
+          "guard_accepted": true,
+          "delivered_added_ids": [
+            "src/jinja2/runtime.py:Context.derived:310-320"
+          ],
+          "delivered_added_ids_with_new_actual_source": [
+            "src/jinja2/runtime.py:Context.derived:310-320"
+          ]
+        },
+        {
+          "subset": "native_jinja_observed",
+          "dataset": "jinja",
+          "query_id": "jinja_include_parent_and_local_context",
+          "condition": "dense",
+          "guard_accepted": true,
+          "delivered_added_ids": [
+            "src/jinja2/runtime.py:Context.derived:310-320",
+            "src/jinja2/environment.py:Template._get_default_module:1425-1450"
+          ],
+          "delivered_added_ids_with_new_actual_source": [
+            "src/jinja2/runtime.py:Context.derived:310-320",
+            "src/jinja2/environment.py:Template._get_default_module:1425-1450"
+          ]
+        },
+        {
+          "subset": "native_jinja_observed",
+          "dataset": "jinja",
+          "query_id": "jinja_decorated_helper_context_injection",
+          "condition": "dense",
+          "guard_accepted": true,
+          "delivered_added_ids": [
+            "src/jinja2/async_utils.py:async_variant.decorator:16-54"
+          ],
+          "delivered_added_ids_with_new_actual_source": [
+            "src/jinja2/async_utils.py:async_variant.decorator:16-54"
+          ]
+        },
+        {
+          "subset": "native_jinja_observed",
+          "dataset": "jinja",
+          "query_id": "jinja_json_policy_and_html_safe_serialization",
+          "condition": "dense",
+          "guard_accepted": true,
+          "delivered_added_ids": [
+            "src/jinja2/compiler.py:CodeGenerator.outdent:418-420"
+          ],
+          "delivered_added_ids_with_new_actual_source": [
+            "src/jinja2/compiler.py:CodeGenerator.outdent:418-420"
+          ]
+        },
+        {
+          "subset": "native_jinja_observed",
+          "dataset": "jinja",
+          "query_id": "jinja_async_filter_first_and_iteration",
+          "condition": "dense",
+          "guard_accepted": true,
+          "delivered_added_ids": [
+            "src/jinja2/runtime.py:AsyncLoopContext.last:633-635"
+          ],
+          "delivered_added_ids_with_new_actual_source": [
+            "src/jinja2/runtime.py:AsyncLoopContext.last:633-635"
+          ]
+        },
+        {
+          "subset": "native_jinja_observed",
+          "dataset": "jinja",
+          "query_id": "jinja_bounded_cache_replacement",
+          "condition": "hybrid",
+          "guard_accepted": true,
+          "delivered_added_ids": [
+            "src/jinja2/environment.py:Environment.overlay:386-455"
+          ],
+          "delivered_added_ids_with_new_actual_source": [
+            "src/jinja2/environment.py:Environment.overlay:386-455"
+          ]
+        },
+        {
+          "subset": "native_jinja_observed",
+          "dataset": "jinja",
+          "query_id": "jinja_template_path_components",
+          "condition": "hybrid",
+          "guard_accepted": true,
+          "delivered_added_ids": [
+            "src/jinja2/environment.py:Environment.select_template:1018-1070",
+            "src/jinja2/environment.py:Environment.get_or_select_template:1072-1090"
+          ],
+          "delivered_added_ids_with_new_actual_source": [
+            "src/jinja2/environment.py:Environment.select_template:1018-1070",
+            "src/jinja2/environment.py:Environment.get_or_select_template:1072-1090"
+          ]
+        },
+        {
+          "subset": "native_jinja_observed",
+          "dataset": "jinja",
+          "query_id": "jinja_template_path_components",
+          "condition": "dense",
+          "guard_accepted": true,
+          "delivered_added_ids": [
+            "src/jinja2/environment.py:Environment.select_template:1018-1070"
+          ],
+          "delivered_added_ids_with_new_actual_source": [
+            "src/jinja2/environment.py:Environment.select_template:1018-1070"
+          ]
+        },
+        {
+          "subset": "qwen_development_observed",
+          "dataset": "flask",
+          "query_id": "exception_handler_precedence",
+          "condition": "hybrid_k24_b1",
+          "guard_accepted": true,
+          "delivered_added_ids": [
+            "src/flask/sansio/scaffold.py:Scaffold.register_error_handler:649-662"
+          ],
+          "delivered_added_ids_with_new_actual_source": [
+            "src/flask/sansio/scaffold.py:Scaffold.register_error_handler:649-662"
+          ]
+        },
+        {
+          "subset": "qwen_development_observed",
+          "dataset": "requests",
+          "query_id": "requests_redirect_method_rewrite",
+          "condition": "hybrid_k24_b1",
+          "guard_accepted": true,
+          "delivered_added_ids": [
+            "src/requests/sessions.py:SessionRedirectMixin.rebuild_auth:309-332"
+          ],
+          "delivered_added_ids_with_new_actual_source": [
+            "src/requests/sessions.py:SessionRedirectMixin.rebuild_auth:309-332"
+          ]
+        },
+        {
+          "subset": "qwen_development_observed",
+          "dataset": "requests",
+          "query_id": "requests_proxy_exclusion_rules",
+          "condition": "hybrid_k24_b1",
+          "guard_accepted": true,
+          "delivered_added_ids": [
+            "src/requests/sessions.py:SessionRedirectMixin.rebuild_proxies:334-368"
+          ],
+          "delivered_added_ids_with_new_actual_source": [
+            "src/requests/sessions.py:SessionRedirectMixin.rebuild_proxies:334-368"
+          ]
+        },
+        {
+          "subset": "qwen_development_observed",
+          "dataset": "click",
+          "query_id": "click_long_option_values",
+          "condition": "hybrid_k24_b1",
+          "guard_accepted": true,
+          "delivered_added_ids": [
+            "src/click/parser.py:OptionParser._process_args_for_options:357-371"
+          ],
+          "delivered_added_ids_with_new_actual_source": [
+            "src/click/parser.py:OptionParser._process_args_for_options:357-371"
+          ]
+        },
+        {
+          "subset": "qwen_development_observed",
+          "dataset": "click",
+          "query_id": "click_variadic_positionals",
+          "condition": "hybrid_k24_b1",
+          "guard_accepted": true,
+          "delivered_added_ids": [
+            "src/click/parser.py:OptionParser._match_long_opt:393-421"
+          ],
+          "delivered_added_ids_with_new_actual_source": []
+        },
+        {
+          "subset": "qwen_development_observed",
+          "dataset": "click",
+          "query_id": "click_unwrapped_help_paragraph",
+          "condition": "hybrid_k24_b1",
+          "guard_accepted": true,
+          "delivered_added_ids": [
+            "src/click/core.py:Command.format_help:1353-1368"
+          ],
+          "delivered_added_ids_with_new_actual_source": [
+            "src/click/core.py:Command.format_help:1353-1368"
+          ]
+        },
+        {
+          "subset": "qwen_development_observed",
+          "dataset": "click",
+          "query_id": "click_yaml_config_autoload",
+          "condition": "hybrid_k24_b1",
+          "guard_accepted": true,
+          "delivered_added_ids": [
+            "src/click/core.py:Option.get_help_record:2739-2847"
+          ],
+          "delivered_added_ids_with_new_actual_source": [
+            "src/click/core.py:Option.get_help_record:2739-2847"
+          ]
+        },
+        {
+          "subset": "qwen_development_observed",
+          "dataset": "starlette",
+          "query_id": "starlette_urlencoded_field_assembly",
+          "condition": "hybrid_k24_b1",
+          "guard_accepted": true,
+          "delivered_added_ids": [
+            "starlette/requests.py:Request._get_form:252-285"
+          ],
+          "delivered_added_ids_with_new_actual_source": [
+            "starlette/requests.py:Request._get_form:252-285"
+          ]
+        },
+        {
+          "subset": "qwen_development_observed",
+          "dataset": "starlette",
+          "query_id": "starlette_lifespan_state_and_failures",
+          "condition": "hybrid_k24_b1",
+          "guard_accepted": true,
+          "delivered_added_ids": [
+            "starlette/routing.py:Router.app:717-765"
+          ],
+          "delivered_added_ids_with_new_actual_source": [
+            "starlette/routing.py:Router.app:717-765"
+          ]
+        },
+        {
+          "subset": "qwen_development_observed",
+          "dataset": "starlette",
+          "query_id": "starlette_trusted_host_redirect",
+          "condition": "hybrid_k24_b1",
+          "guard_accepted": true,
+          "delivered_added_ids": [
+            "starlette/middleware/cors.py:CORSMiddleware.send:146-167"
+          ],
+          "delivered_added_ids_with_new_actual_source": [
+            "starlette/middleware/cors.py:CORSMiddleware.send:146-167"
+          ]
+        },
+        {
+          "subset": "qwen_development_observed",
+          "dataset": "rich",
+          "query_id": "rich_ellipsis_and_padding",
+          "condition": "hybrid_k24_b1",
+          "guard_accepted": true,
+          "delivered_added_ids": [
+            "rich/_wrap.py:divide_line:26-78"
+          ],
+          "delivered_added_ids_with_new_actual_source": [
+            "rich/_wrap.py:divide_line:26-78"
+          ]
+        },
+        {
+          "subset": "qwen_development_observed",
+          "dataset": "rich",
+          "query_id": "rich_split_style_offsets",
+          "condition": "hybrid_k24_b1",
+          "guard_accepted": true,
+          "delivered_added_ids": [
+            "rich/text.py:Text.split:1063-1105"
+          ],
+          "delivered_added_ids_with_new_actual_source": [
+            "rich/text.py:Text.split:1063-1105"
+          ]
+        },
+        {
+          "subset": "qwen_development_observed",
+          "dataset": "rich",
+          "query_id": "rich_wide_character_fit",
+          "condition": "hybrid_k24_b1",
+          "guard_accepted": true,
+          "delivered_added_ids": [
+            "rich/segment.py:Segment.adjust_line_length:325-368"
+          ],
+          "delivered_added_ids_with_new_actual_source": [
+            "rich/segment.py:Segment.adjust_line_length:325-368"
+          ]
+        },
+        {
+          "subset": "qwen_development_observed",
+          "dataset": "rich",
+          "query_id": "rich_remove_output_links",
+          "condition": "hybrid_k24_b1",
+          "guard_accepted": true,
+          "delivered_added_ids": [
+            "rich/jupyter.py:_render_segments:59-81",
+            "rich/styled.py:Styled.__rich_console__:23-29"
+          ],
+          "delivered_added_ids_with_new_actual_source": [
+            "rich/jupyter.py:_render_segments:59-81",
+            "rich/styled.py:Styled.__rich_console__:23-29"
+          ]
+        },
+        {
+          "subset": "qwen_development_observed",
+          "dataset": "rich",
+          "query_id": "rich_color_syntax_parsing",
+          "condition": "hybrid_k24_b1",
+          "guard_accepted": true,
+          "delivered_added_ids": [
+            "rich/palette.py:Palette.__rich__:20-41",
+            "rich/palette.py:ColorBox.__rich_console__:84-97"
+          ],
+          "delivered_added_ids_with_new_actual_source": [
+            "rich/palette.py:Palette.__rich__:20-41",
+            "rich/palette.py:ColorBox.__rich_console__:84-97"
+          ]
+        },
+        {
+          "subset": "qwen_development_observed",
+          "dataset": "rich",
+          "query_id": "rich_manual_progress_iteration",
+          "condition": "hybrid_k24_b1",
+          "guard_accepted": true,
+          "delivered_added_ids": [
+            "rich/progress.py:Progress.reset:1477-1514"
+          ],
+          "delivered_added_ids_with_new_actual_source": [
+            "rich/progress.py:Progress.reset:1477-1514"
+          ]
+        },
+        {
+          "subset": "qwen_development_observed",
+          "dataset": "zod",
+          "query_id": "zod_urlsafe_base64_bytes",
+          "condition": "hybrid_k24_b1",
+          "guard_accepted": true,
+          "delivered_added_ids": [
+            "packages/zod/src/v4/core/schemas.ts:$ZodBase64URL.inst._zod.check:1091-1101"
+          ],
+          "delivered_added_ids_with_new_actual_source": [
+            "packages/zod/src/v4/core/schemas.ts:$ZodBase64URL.inst._zod.check:1091-1101"
+          ]
+        },
+        {
+          "subset": "qwen_development_observed",
+          "dataset": "koa",
+          "query_id": "koa_header_only_metadata",
+          "condition": "hybrid_k24_b1",
+          "guard_accepted": true,
+          "delivered_added_ids": [
+            "lib/response.js:normalizeHeader:29-35"
+          ],
+          "delivered_added_ids_with_new_actual_source": [
+            "lib/response.js:normalizeHeader:29-35"
+          ]
+        },
+        {
+          "subset": "qwen_httpx_observed",
+          "dataset": "httpx",
+          "query_id": "httpx_json_request_encoding_and_headers",
+          "condition": "hybrid_k24_b1",
+          "guard_accepted": true,
+          "delivered_added_ids": [
+            "httpx/_content.py:encode_request:186-218"
+          ],
+          "delivered_added_ids_with_new_actual_source": [
+            "httpx/_content.py:encode_request:186-218"
+          ]
+        },
+        {
+          "subset": "qwen_httpx_observed",
+          "dataset": "httpx",
+          "query_id": "httpx_stacked_content_decoding",
+          "condition": "hybrid_k24_b1",
+          "guard_accepted": true,
+          "delivered_added_ids": [
+            "httpx/_decoders.py:ByteChunker.decode:237-258"
+          ],
+          "delivered_added_ids_with_new_actual_source": [
+            "httpx/_decoders.py:ByteChunker.decode:237-258"
+          ]
+        },
+        {
+          "subset": "qwen_httpx_observed",
+          "dataset": "httpx",
+          "query_id": "httpx_multipart_unknown_length_framing",
+          "condition": "hybrid_k24_b1",
+          "guard_accepted": true,
+          "delivered_added_ids": [
+            "httpx/_content.py:encode_request:186-218"
+          ],
+          "delivered_added_ids_with_new_actual_source": [
+            "httpx/_content.py:encode_request:186-218"
+          ]
+        },
+        {
+          "subset": "qwen_httpx_observed",
+          "dataset": "httpx",
+          "query_id": "httpx_cookie_scope_ambiguity",
+          "condition": "hybrid_k24_b1",
+          "guard_accepted": true,
+          "delivered_added_ids": [
+            "httpx/_models.py:Cookies.__getitem__:1213-1217",
+            "httpx/_models.py:Cookies.__init__:1084-1099"
+          ],
+          "delivered_added_ids_with_new_actual_source": [
+            "httpx/_models.py:Cookies.__getitem__:1213-1217",
+            "httpx/_models.py:Cookies.__init__:1084-1099"
+          ]
+        },
+        {
+          "subset": "qwen_httpx_observed",
+          "dataset": "httpx",
+          "query_id": "httpx_unicode_and_wire_hostname_views",
+          "condition": "hybrid_k24_b1",
+          "guard_accepted": true,
+          "delivered_added_ids": [
+            "httpx/_urlparse.py:urlparse:213-345"
+          ],
+          "delivered_added_ids_with_new_actual_source": [
+            "httpx/_urlparse.py:urlparse:213-345"
+          ]
+        },
+        {
+          "subset": "native_urllib3_observed",
+          "dataset": "urllib3",
+          "query_id": "urllib3_multipart_parameter_escaping",
+          "condition": "dense",
+          "guard_accepted": true,
+          "delivered_added_ids": [
+            "src/urllib3/fields.py:RequestField._render_parts:260-289"
+          ],
+          "delivered_added_ids_with_new_actual_source": [
+            "src/urllib3/fields.py:RequestField._render_parts:260-289"
+          ]
+        },
+        {
+          "subset": "native_urllib3_observed",
+          "dataset": "urllib3",
+          "query_id": "urllib3_multipart_parameter_escaping",
+          "condition": "hybrid",
+          "guard_accepted": true,
+          "delivered_added_ids": [
+            "src/urllib3/fields.py:format_header_param:135-150"
+          ],
+          "delivered_added_ids_with_new_actual_source": [
+            "src/urllib3/fields.py:format_header_param:135-150"
+          ]
+        },
+        {
+          "subset": "native_urllib3_observed",
+          "dataset": "urllib3",
+          "query_id": "urllib3_consecutive_error_backoff_and_jitter",
+          "condition": "hybrid",
+          "guard_accepted": true,
+          "delivered_added_ids": [
+            "src/urllib3/connectionpool.py:HTTPConnectionPool.urlopen:592-751"
+          ],
+          "delivered_added_ids_with_new_actual_source": [
+            "src/urllib3/connectionpool.py:HTTPConnectionPool.urlopen:592-751"
+          ]
+        },
+        {
+          "subset": "native_urllib3_observed",
+          "dataset": "urllib3",
+          "query_id": "urllib3_duplicate_header_append_or_combine",
+          "condition": "hybrid",
+          "guard_accepted": true,
+          "delivered_added_ids": [
+            "src/urllib3/_collections.py:HTTPHeaderDict.extend:335-366",
+            "src/urllib3/fields.py:format_header_param_html5:117-132"
+          ],
+          "delivered_added_ids_with_new_actual_source": [
+            "src/urllib3/_collections.py:HTTPHeaderDict.extend:335-366",
+            "src/urllib3/fields.py:format_header_param_html5:117-132"
+          ]
+        },
+        {
+          "subset": "native_urllib3_observed",
+          "dataset": "urllib3",
+          "query_id": "urllib3_absent_disk_response_cache_revalidation",
+          "condition": "dense",
+          "guard_accepted": true,
+          "delivered_added_ids": [
+            "src/urllib3/response.py:HTTPResponse.__init__:602-664"
+          ],
+          "delivered_added_ids_with_new_actual_source": [
+            "src/urllib3/response.py:HTTPResponse.__init__:602-664"
+          ]
+        }
+      ],
+      "final_compact_change_cases": [
+        {
+          "subset": "language_observed",
+          "dataset": "express",
+          "query_id": "express_configured_query_parser",
+          "condition": "hybrid",
+          "guard_accepted": true,
+          "planned_additions": [
+            "lib/application.js:app.set:351-383"
+          ],
+          "added_ids_actually_delivered": [
+            "lib/application.js:app.set:351-383"
+          ],
+          "new_actual_source": true,
+          "lost_actual_source": true
+        },
+        {
+          "subset": "language_observed",
+          "dataset": "express",
+          "query_id": "express_configured_query_parser",
+          "condition": "dense",
+          "guard_accepted": true,
+          "planned_additions": [
+            "lib/application.js:app.set:351-383"
+          ],
+          "added_ids_actually_delivered": [
+            "lib/application.js:app.set:351-383"
+          ],
+          "new_actual_source": true,
+          "lost_actual_source": true
+        },
+        {
+          "subset": "language_observed",
+          "dataset": "express",
+          "query_id": "express_trusted_forwarded_protocol",
+          "condition": "dense",
+          "guard_accepted": true,
+          "planned_additions": [
+            "lib/application.js:app.set:351-383"
+          ],
+          "added_ids_actually_delivered": [
+            "lib/application.js:app.set:351-383"
+          ],
+          "new_actual_source": true,
+          "lost_actual_source": true
+        },
+        {
+          "subset": "language_observed",
+          "dataset": "express",
+          "query_id": "express_absent_outbound_retry",
+          "condition": "dense",
+          "guard_accepted": true,
+          "planned_additions": [
+            "lib/response.js:res.sendFile:375-417"
+          ],
+          "added_ids_actually_delivered": [
+            "lib/response.js:res.sendFile:375-417"
+          ],
+          "new_actual_source": true,
+          "lost_actual_source": true
+        },
+        {
+          "subset": "native_express_observed",
+          "dataset": "express",
+          "query_id": "express_configured_query_parser",
+          "condition": "hybrid",
+          "guard_accepted": true,
+          "planned_additions": [
+            "lib/application.js:app.set:351-383"
+          ],
+          "added_ids_actually_delivered": [
+            "lib/application.js:app.set:351-383"
+          ],
+          "new_actual_source": true,
+          "lost_actual_source": true
+        },
+        {
+          "subset": "native_express_observed",
+          "dataset": "express",
+          "query_id": "express_configured_query_parser",
+          "condition": "dense",
+          "guard_accepted": true,
+          "planned_additions": [
+            "lib/application.js:app.set:351-383"
+          ],
+          "added_ids_actually_delivered": [
+            "lib/application.js:app.set:351-383"
+          ],
+          "new_actual_source": true,
+          "lost_actual_source": true
+        },
+        {
+          "subset": "native_express_observed",
+          "dataset": "express",
+          "query_id": "express_trusted_forwarded_protocol",
+          "condition": "dense",
+          "guard_accepted": true,
+          "planned_additions": [
+            "lib/application.js:app.set:351-383"
+          ],
+          "added_ids_actually_delivered": [
+            "lib/application.js:app.set:351-383"
+          ],
+          "new_actual_source": true,
+          "lost_actual_source": true
+        },
+        {
+          "subset": "native_express_observed",
+          "dataset": "express",
+          "query_id": "express_absent_outbound_retry",
+          "condition": "dense",
+          "guard_accepted": true,
+          "planned_additions": [
+            "lib/response.js:res.sendFile:375-417"
+          ],
+          "added_ids_actually_delivered": [
+            "lib/response.js:res.sendFile:375-417"
+          ],
+          "new_actual_source": true,
+          "lost_actual_source": true
+        },
+        {
+          "subset": "native_jinja_observed",
+          "dataset": "jinja",
+          "query_id": "jinja_bytecode_reject_and_recompile",
+          "condition": "dense",
+          "guard_accepted": true,
+          "planned_additions": [
+            "src/jinja2/bccache.py:Bucket.bytecode_from_string:92-94"
+          ],
+          "added_ids_actually_delivered": [
+            "src/jinja2/bccache.py:Bucket.bytecode_from_string:92-94"
+          ],
+          "new_actual_source": true,
+          "lost_actual_source": true
+        },
+        {
+          "subset": "native_jinja_observed",
+          "dataset": "jinja",
+          "query_id": "jinja_file_change_invalidates_template_cache",
+          "condition": "dense",
+          "guard_accepted": true,
+          "planned_additions": [
+            "src/jinja2/environment.py:Environment.select_template:1018-1070"
+          ],
+          "added_ids_actually_delivered": [
+            "src/jinja2/environment.py:Environment.select_template:1018-1070"
+          ],
+          "new_actual_source": true,
+          "lost_actual_source": true
+        },
+        {
+          "subset": "native_jinja_observed",
+          "dataset": "jinja",
+          "query_id": "jinja_include_parent_and_local_context",
+          "condition": "hybrid",
+          "guard_accepted": true,
+          "planned_additions": [
+            "src/jinja2/runtime.py:Context.derived:310-320"
+          ],
+          "added_ids_actually_delivered": [
+            "src/jinja2/runtime.py:Context.derived:310-320"
+          ],
+          "new_actual_source": true,
+          "lost_actual_source": true
+        },
+        {
+          "subset": "native_jinja_observed",
+          "dataset": "jinja",
+          "query_id": "jinja_include_parent_and_local_context",
+          "condition": "dense",
+          "guard_accepted": true,
+          "planned_additions": [
+            "src/jinja2/runtime.py:Context.derived:310-320",
+            "src/jinja2/environment.py:Template._get_default_module:1425-1450"
+          ],
+          "added_ids_actually_delivered": [
+            "src/jinja2/runtime.py:Context.derived:310-320",
+            "src/jinja2/environment.py:Template._get_default_module:1425-1450"
+          ],
+          "new_actual_source": true,
+          "lost_actual_source": true
+        },
+        {
+          "subset": "native_jinja_observed",
+          "dataset": "jinja",
+          "query_id": "jinja_decorated_helper_context_injection",
+          "condition": "dense",
+          "guard_accepted": true,
+          "planned_additions": [
+            "src/jinja2/async_utils.py:async_variant.decorator:16-54"
+          ],
+          "added_ids_actually_delivered": [
+            "src/jinja2/async_utils.py:async_variant.decorator:16-54"
+          ],
+          "new_actual_source": true,
+          "lost_actual_source": true
+        },
+        {
+          "subset": "native_jinja_observed",
+          "dataset": "jinja",
+          "query_id": "jinja_json_policy_and_html_safe_serialization",
+          "condition": "dense",
+          "guard_accepted": true,
+          "planned_additions": [
+            "src/jinja2/compiler.py:CodeGenerator.outdent:418-420"
+          ],
+          "added_ids_actually_delivered": [
+            "src/jinja2/compiler.py:CodeGenerator.outdent:418-420"
+          ],
+          "new_actual_source": true,
+          "lost_actual_source": true
+        },
+        {
+          "subset": "native_jinja_observed",
+          "dataset": "jinja",
+          "query_id": "jinja_async_filter_first_and_iteration",
+          "condition": "dense",
+          "guard_accepted": true,
+          "planned_additions": [
+            "src/jinja2/runtime.py:AsyncLoopContext.last:633-635"
+          ],
+          "added_ids_actually_delivered": [
+            "src/jinja2/runtime.py:AsyncLoopContext.last:633-635"
+          ],
+          "new_actual_source": true,
+          "lost_actual_source": true
+        },
+        {
+          "subset": "native_jinja_observed",
+          "dataset": "jinja",
+          "query_id": "jinja_bounded_cache_replacement",
+          "condition": "hybrid",
+          "guard_accepted": true,
+          "planned_additions": [
+            "src/jinja2/environment.py:Environment.overlay:386-455"
+          ],
+          "added_ids_actually_delivered": [
+            "src/jinja2/environment.py:Environment.overlay:386-455"
+          ],
+          "new_actual_source": true,
+          "lost_actual_source": true
+        },
+        {
+          "subset": "native_jinja_observed",
+          "dataset": "jinja",
+          "query_id": "jinja_template_path_components",
+          "condition": "hybrid",
+          "guard_accepted": true,
+          "planned_additions": [
+            "src/jinja2/environment.py:Environment.select_template:1018-1070",
+            "src/jinja2/environment.py:Environment.get_or_select_template:1072-1090"
+          ],
+          "added_ids_actually_delivered": [
+            "src/jinja2/environment.py:Environment.select_template:1018-1070",
+            "src/jinja2/environment.py:Environment.get_or_select_template:1072-1090"
+          ],
+          "new_actual_source": true,
+          "lost_actual_source": true
+        },
+        {
+          "subset": "native_jinja_observed",
+          "dataset": "jinja",
+          "query_id": "jinja_template_path_components",
+          "condition": "dense",
+          "guard_accepted": true,
+          "planned_additions": [
+            "src/jinja2/environment.py:Environment.select_template:1018-1070"
+          ],
+          "added_ids_actually_delivered": [
+            "src/jinja2/environment.py:Environment.select_template:1018-1070"
+          ],
+          "new_actual_source": true,
+          "lost_actual_source": true
+        },
+        {
+          "subset": "qwen_development_observed",
+          "dataset": "flask",
+          "query_id": "exception_handler_precedence",
+          "condition": "hybrid_k24_b1",
+          "guard_accepted": true,
+          "planned_additions": [
+            "src/flask/sansio/scaffold.py:Scaffold.register_error_handler:649-662"
+          ],
+          "added_ids_actually_delivered": [
+            "src/flask/sansio/scaffold.py:Scaffold.register_error_handler:649-662"
+          ],
+          "new_actual_source": true,
+          "lost_actual_source": true
+        },
+        {
+          "subset": "qwen_development_observed",
+          "dataset": "requests",
+          "query_id": "requests_redirect_method_rewrite",
+          "condition": "hybrid_k24_b1",
+          "guard_accepted": true,
+          "planned_additions": [
+            "src/requests/sessions.py:SessionRedirectMixin.rebuild_auth:309-332"
+          ],
+          "added_ids_actually_delivered": [
+            "src/requests/sessions.py:SessionRedirectMixin.rebuild_auth:309-332"
+          ],
+          "new_actual_source": true,
+          "lost_actual_source": false
+        },
+        {
+          "subset": "qwen_development_observed",
+          "dataset": "requests",
+          "query_id": "requests_proxy_exclusion_rules",
+          "condition": "hybrid_k24_b1",
+          "guard_accepted": true,
+          "planned_additions": [
+            "src/requests/sessions.py:SessionRedirectMixin.rebuild_proxies:334-368"
+          ],
+          "added_ids_actually_delivered": [
+            "src/requests/sessions.py:SessionRedirectMixin.rebuild_proxies:334-368"
+          ],
+          "new_actual_source": true,
+          "lost_actual_source": true
+        },
+        {
+          "subset": "qwen_development_observed",
+          "dataset": "click",
+          "query_id": "click_long_option_values",
+          "condition": "hybrid_k24_b1",
+          "guard_accepted": true,
+          "planned_additions": [
+            "src/click/parser.py:OptionParser._process_args_for_options:357-371"
+          ],
+          "added_ids_actually_delivered": [
+            "src/click/parser.py:OptionParser._process_args_for_options:357-371"
+          ],
+          "new_actual_source": true,
+          "lost_actual_source": true
+        },
+        {
+          "subset": "qwen_development_observed",
+          "dataset": "click",
+          "query_id": "click_variadic_positionals",
+          "condition": "hybrid_k24_b1",
+          "guard_accepted": true,
+          "planned_additions": [
+            "src/click/parser.py:OptionParser._match_long_opt:393-421"
+          ],
+          "added_ids_actually_delivered": [
+            "src/click/parser.py:OptionParser._match_long_opt:393-421"
+          ],
+          "new_actual_source": false,
+          "lost_actual_source": false
+        },
+        {
+          "subset": "qwen_development_observed",
+          "dataset": "click",
+          "query_id": "click_unwrapped_help_paragraph",
+          "condition": "hybrid_k24_b1",
+          "guard_accepted": true,
+          "planned_additions": [
+            "src/click/core.py:Command.format_help:1353-1368"
+          ],
+          "added_ids_actually_delivered": [
+            "src/click/core.py:Command.format_help:1353-1368"
+          ],
+          "new_actual_source": true,
+          "lost_actual_source": true
+        },
+        {
+          "subset": "qwen_development_observed",
+          "dataset": "click",
+          "query_id": "click_yaml_config_autoload",
+          "condition": "hybrid_k24_b1",
+          "guard_accepted": true,
+          "planned_additions": [
+            "src/click/core.py:Option.get_help_record:2739-2847"
+          ],
+          "added_ids_actually_delivered": [
+            "src/click/core.py:Option.get_help_record:2739-2847"
+          ],
+          "new_actual_source": true,
+          "lost_actual_source": true
+        },
+        {
+          "subset": "qwen_development_observed",
+          "dataset": "starlette",
+          "query_id": "starlette_urlencoded_field_assembly",
+          "condition": "hybrid_k24_b1",
+          "guard_accepted": true,
+          "planned_additions": [
+            "starlette/requests.py:Request._get_form:252-285"
+          ],
+          "added_ids_actually_delivered": [
+            "starlette/requests.py:Request._get_form:252-285"
+          ],
+          "new_actual_source": true,
+          "lost_actual_source": true
+        },
+        {
+          "subset": "qwen_development_observed",
+          "dataset": "starlette",
+          "query_id": "starlette_lifespan_state_and_failures",
+          "condition": "hybrid_k24_b1",
+          "guard_accepted": true,
+          "planned_additions": [
+            "starlette/routing.py:Router.app:717-765"
+          ],
+          "added_ids_actually_delivered": [
+            "starlette/routing.py:Router.app:717-765"
+          ],
+          "new_actual_source": true,
+          "lost_actual_source": true
+        },
+        {
+          "subset": "qwen_development_observed",
+          "dataset": "starlette",
+          "query_id": "starlette_trusted_host_redirect",
+          "condition": "hybrid_k24_b1",
+          "guard_accepted": true,
+          "planned_additions": [
+            "starlette/middleware/cors.py:CORSMiddleware.send:146-167"
+          ],
+          "added_ids_actually_delivered": [
+            "starlette/middleware/cors.py:CORSMiddleware.send:146-167"
+          ],
+          "new_actual_source": true,
+          "lost_actual_source": true
+        },
+        {
+          "subset": "qwen_development_observed",
+          "dataset": "rich",
+          "query_id": "rich_ellipsis_and_padding",
+          "condition": "hybrid_k24_b1",
+          "guard_accepted": true,
+          "planned_additions": [
+            "rich/_wrap.py:divide_line:26-78"
+          ],
+          "added_ids_actually_delivered": [
+            "rich/_wrap.py:divide_line:26-78"
+          ],
+          "new_actual_source": true,
+          "lost_actual_source": true
+        },
+        {
+          "subset": "qwen_development_observed",
+          "dataset": "rich",
+          "query_id": "rich_split_style_offsets",
+          "condition": "hybrid_k24_b1",
+          "guard_accepted": true,
+          "planned_additions": [
+            "rich/text.py:Text.split:1063-1105"
+          ],
+          "added_ids_actually_delivered": [
+            "rich/text.py:Text.split:1063-1105"
+          ],
+          "new_actual_source": true,
+          "lost_actual_source": true
+        },
+        {
+          "subset": "qwen_development_observed",
+          "dataset": "rich",
+          "query_id": "rich_wide_character_fit",
+          "condition": "hybrid_k24_b1",
+          "guard_accepted": true,
+          "planned_additions": [
+            "rich/segment.py:Segment.adjust_line_length:325-368"
+          ],
+          "added_ids_actually_delivered": [
+            "rich/segment.py:Segment.adjust_line_length:325-368"
+          ],
+          "new_actual_source": true,
+          "lost_actual_source": true
+        },
+        {
+          "subset": "qwen_development_observed",
+          "dataset": "rich",
+          "query_id": "rich_remove_output_links",
+          "condition": "hybrid_k24_b1",
+          "guard_accepted": true,
+          "planned_additions": [
+            "rich/jupyter.py:_render_segments:59-81",
+            "rich/styled.py:Styled.__rich_console__:23-29"
+          ],
+          "added_ids_actually_delivered": [
+            "rich/jupyter.py:_render_segments:59-81",
+            "rich/styled.py:Styled.__rich_console__:23-29"
+          ],
+          "new_actual_source": true,
+          "lost_actual_source": true
+        },
+        {
+          "subset": "qwen_development_observed",
+          "dataset": "rich",
+          "query_id": "rich_color_syntax_parsing",
+          "condition": "hybrid_k24_b1",
+          "guard_accepted": true,
+          "planned_additions": [
+            "rich/palette.py:Palette.__rich__:20-41",
+            "rich/palette.py:ColorBox.__rich_console__:84-97"
+          ],
+          "added_ids_actually_delivered": [
+            "rich/palette.py:Palette.__rich__:20-41",
+            "rich/palette.py:ColorBox.__rich_console__:84-97"
+          ],
+          "new_actual_source": true,
+          "lost_actual_source": true
+        },
+        {
+          "subset": "qwen_development_observed",
+          "dataset": "rich",
+          "query_id": "rich_manual_progress_iteration",
+          "condition": "hybrid_k24_b1",
+          "guard_accepted": true,
+          "planned_additions": [
+            "rich/progress.py:Progress.reset:1477-1514"
+          ],
+          "added_ids_actually_delivered": [
+            "rich/progress.py:Progress.reset:1477-1514"
+          ],
+          "new_actual_source": true,
+          "lost_actual_source": true
+        },
+        {
+          "subset": "qwen_development_observed",
+          "dataset": "zod",
+          "query_id": "zod_urlsafe_base64_bytes",
+          "condition": "hybrid_k24_b1",
+          "guard_accepted": true,
+          "planned_additions": [
+            "packages/zod/src/v4/core/schemas.ts:$ZodBase64URL.inst._zod.check:1091-1101"
+          ],
+          "added_ids_actually_delivered": [
+            "packages/zod/src/v4/core/schemas.ts:$ZodBase64URL.inst._zod.check:1091-1101"
+          ],
+          "new_actual_source": true,
+          "lost_actual_source": true
+        },
+        {
+          "subset": "qwen_development_observed",
+          "dataset": "koa",
+          "query_id": "koa_header_only_metadata",
+          "condition": "hybrid_k24_b1",
+          "guard_accepted": true,
+          "planned_additions": [
+            "lib/response.js:normalizeHeader:29-35"
+          ],
+          "added_ids_actually_delivered": [
+            "lib/response.js:normalizeHeader:29-35"
+          ],
+          "new_actual_source": true,
+          "lost_actual_source": true
+        },
+        {
+          "subset": "qwen_httpx_observed",
+          "dataset": "httpx",
+          "query_id": "httpx_json_request_encoding_and_headers",
+          "condition": "hybrid_k24_b1",
+          "guard_accepted": true,
+          "planned_additions": [
+            "httpx/_content.py:encode_request:186-218"
+          ],
+          "added_ids_actually_delivered": [
+            "httpx/_content.py:encode_request:186-218"
+          ],
+          "new_actual_source": true,
+          "lost_actual_source": true
+        },
+        {
+          "subset": "qwen_httpx_observed",
+          "dataset": "httpx",
+          "query_id": "httpx_stacked_content_decoding",
+          "condition": "hybrid_k24_b1",
+          "guard_accepted": true,
+          "planned_additions": [
+            "httpx/_decoders.py:ByteChunker.decode:237-258"
+          ],
+          "added_ids_actually_delivered": [
+            "httpx/_decoders.py:ByteChunker.decode:237-258"
+          ],
+          "new_actual_source": true,
+          "lost_actual_source": true
+        },
+        {
+          "subset": "qwen_httpx_observed",
+          "dataset": "httpx",
+          "query_id": "httpx_multipart_unknown_length_framing",
+          "condition": "hybrid_k24_b1",
+          "guard_accepted": true,
+          "planned_additions": [
+            "httpx/_content.py:encode_request:186-218"
+          ],
+          "added_ids_actually_delivered": [
+            "httpx/_content.py:encode_request:186-218"
+          ],
+          "new_actual_source": true,
+          "lost_actual_source": true
+        },
+        {
+          "subset": "qwen_httpx_observed",
+          "dataset": "httpx",
+          "query_id": "httpx_cookie_scope_ambiguity",
+          "condition": "hybrid_k24_b1",
+          "guard_accepted": true,
+          "planned_additions": [
+            "httpx/_models.py:Cookies.__getitem__:1213-1217",
+            "httpx/_models.py:Cookies.__init__:1084-1099"
+          ],
+          "added_ids_actually_delivered": [
+            "httpx/_models.py:Cookies.__getitem__:1213-1217",
+            "httpx/_models.py:Cookies.__init__:1084-1099"
+          ],
+          "new_actual_source": true,
+          "lost_actual_source": true
+        },
+        {
+          "subset": "qwen_httpx_observed",
+          "dataset": "httpx",
+          "query_id": "httpx_unicode_and_wire_hostname_views",
+          "condition": "hybrid_k24_b1",
+          "guard_accepted": true,
+          "planned_additions": [
+            "httpx/_urlparse.py:urlparse:213-345"
+          ],
+          "added_ids_actually_delivered": [
+            "httpx/_urlparse.py:urlparse:213-345"
+          ],
+          "new_actual_source": true,
+          "lost_actual_source": true
+        },
+        {
+          "subset": "native_urllib3_observed",
+          "dataset": "urllib3",
+          "query_id": "urllib3_multipart_parameter_escaping",
+          "condition": "dense",
+          "guard_accepted": true,
+          "planned_additions": [
+            "src/urllib3/fields.py:RequestField._render_parts:260-289"
+          ],
+          "added_ids_actually_delivered": [
+            "src/urllib3/fields.py:RequestField._render_parts:260-289"
+          ],
+          "new_actual_source": true,
+          "lost_actual_source": true
+        },
+        {
+          "subset": "native_urllib3_observed",
+          "dataset": "urllib3",
+          "query_id": "urllib3_multipart_parameter_escaping",
+          "condition": "hybrid",
+          "guard_accepted": true,
+          "planned_additions": [
+            "src/urllib3/fields.py:format_header_param:135-150"
+          ],
+          "added_ids_actually_delivered": [
+            "src/urllib3/fields.py:format_header_param:135-150"
+          ],
+          "new_actual_source": true,
+          "lost_actual_source": true
+        },
+        {
+          "subset": "native_urllib3_observed",
+          "dataset": "urllib3",
+          "query_id": "urllib3_consecutive_error_backoff_and_jitter",
+          "condition": "hybrid",
+          "guard_accepted": true,
+          "planned_additions": [
+            "src/urllib3/connectionpool.py:HTTPConnectionPool.urlopen:592-751"
+          ],
+          "added_ids_actually_delivered": [
+            "src/urllib3/connectionpool.py:HTTPConnectionPool.urlopen:592-751"
+          ],
+          "new_actual_source": true,
+          "lost_actual_source": true
+        },
+        {
+          "subset": "native_urllib3_observed",
+          "dataset": "urllib3",
+          "query_id": "urllib3_duplicate_header_append_or_combine",
+          "condition": "hybrid",
+          "guard_accepted": true,
+          "planned_additions": [
+            "src/urllib3/_collections.py:HTTPHeaderDict.extend:335-366",
+            "src/urllib3/fields.py:format_header_param_html5:117-132"
+          ],
+          "added_ids_actually_delivered": [
+            "src/urllib3/_collections.py:HTTPHeaderDict.extend:335-366",
+            "src/urllib3/fields.py:format_header_param_html5:117-132"
+          ],
+          "new_actual_source": true,
+          "lost_actual_source": true
+        },
+        {
+          "subset": "native_urllib3_observed",
+          "dataset": "urllib3",
+          "query_id": "urllib3_absent_disk_response_cache_revalidation",
+          "condition": "dense",
+          "guard_accepted": true,
+          "planned_additions": [
+            "src/urllib3/response.py:HTTPResponse.__init__:602-664"
+          ],
+          "added_ids_actually_delivered": [
+            "src/urllib3/response.py:HTTPResponse.__init__:602-664"
+          ],
+          "new_actual_source": true,
+          "lost_actual_source": true
+        },
+        {
+          "subset": "native_urllib3_observed",
+          "dataset": "urllib3",
+          "query_id": "urllib3_absent_disk_response_cache_revalidation",
+          "condition": "hybrid",
+          "guard_accepted": true,
+          "planned_additions": [
+            "src/urllib3/response.py:HTTPResponse.__init__:602-664"
+          ],
+          "added_ids_actually_delivered": [],
+          "new_actual_source": false,
+          "lost_actual_source": true
+        }
+      ]
+    },
+    "source_graph_all": {
+      "counts": {
+        "literal_clause_active": {
+          "case_rows": 329,
+          "distinct_dataset_query_units": 172
+        },
+        "plan_proposal_accepted": {
+          "case_rows": 58,
+          "distinct_dataset_query_units": 45
+        },
+        "eligible_order_changed": {
+          "case_rows": 58,
+          "distinct_dataset_query_units": 45
+        },
+        "guard_source_preserved": {
+          "case_rows": 308,
+          "distinct_dataset_query_units": 161
+        },
+        "guard_accepted": {
+          "case_rows": 5,
+          "distinct_dataset_query_units": 5
+        },
+        "guard_fallback": {
+          "case_rows": 360,
+          "distinct_dataset_query_units": 183
+        },
+        "accepted_plan_guard_fallback": {
+          "case_rows": 53,
+          "distinct_dataset_query_units": 40
+        },
+        "final_compact_changed": {
+          "case_rows": 2,
+          "distinct_dataset_query_units": 2
+        },
+        "final_result_rows_changed": {
+          "case_rows": 2,
+          "distinct_dataset_query_units": 2
+        },
+        "actual_source_line_set_changed": {
+          "case_rows": 1,
+          "distinct_dataset_query_units": 1
+        },
+        "new_actual_source_lines": {
+          "case_rows": 1,
+          "distinct_dataset_query_units": 1
+        },
+        "lost_actual_source_lines": {
+          "case_rows": 0,
+          "distinct_dataset_query_units": 0
+        },
+        "planned_addition_delivered_by_id": {
+          "case_rows": 4,
+          "distinct_dataset_query_units": 3
+        },
+        "planned_addition_delivered_with_new_source": {
+          "case_rows": 1,
+          "distinct_dataset_query_units": 1
+        },
+        "final_has_new_result_id": {
+          "case_rows": 1,
+          "distinct_dataset_query_units": 1
+        }
+      },
+      "planner_fallback_reasons": {
+        "no_exchangeable_slots": {
+          "case_rows": 130,
+          "distinct_dataset_query_units": 86
+        },
+        "no_graph_neighbors": {
+          "case_rows": 43,
+          "distinct_dataset_query_units": 17
+        },
+        "no_literal_clauses": {
+          "case_rows": 36,
+          "distinct_dataset_query_units": 15
+        },
+        "no_new_graph_neighbor": {
+          "case_rows": 98,
+          "distinct_dataset_query_units": 53
+        }
+      },
+      "guard_fallback_reasons": {
+        "inactive_plan": {
+          "case_rows": 307,
+          "distinct_dataset_query_units": 158
+        },
+        "protected_source_not_preserved": {
+          "case_rows": 53,
+          "distinct_dataset_query_units": 40
+        }
+      },
+      "added_sources": {
+        "planned_id_occurrences": 64,
+        "distinct_planned_dataset_ids": 48,
+        "delivered_added_id_occurrences": 4,
+        "distinct_delivered_added_dataset_ids": 3,
+        "distinct_delivered_added_source_fragments": 3,
+        "delivered_added_occurrences_with_new_actual_source": 1,
+        "distinct_added_source_fragments_with_new_actual_source": 1,
+        "new_actual_source_fragments": [
+          {
+            "dataset": "requests",
+            "path": "src/requests/sessions.py",
+            "start_line": 309,
+            "end_line": 309,
+            "source_hash": "96a0bd292a831afcf5f2ec1d4df424c9a6f925e641a35b00f9564100030846fb"
+          }
+        ]
+      },
+      "per_study_dataset_original_condition": {
+        "language_observed/express/bm25": {
+          "cases": 15,
+          "literal_clause_active": 15,
+          "plan_proposal_accepted": 0,
+          "eligible_order_changed": 0,
+          "guard_source_preserved": 15,
+          "guard_accepted": 0,
+          "guard_fallback": 15,
+          "accepted_plan_guard_fallback": 0,
+          "final_compact_changed": 0,
+          "final_result_rows_changed": 0,
+          "actual_source_line_set_changed": 0,
+          "new_actual_source_lines": 0,
+          "lost_actual_source_lines": 0,
+          "planned_addition_delivered_by_id": 0,
+          "planned_addition_delivered_with_new_source": 0,
+          "final_has_new_result_id": 0
+        },
+        "language_observed/express/dense": {
+          "cases": 15,
+          "literal_clause_active": 15,
+          "plan_proposal_accepted": 3,
+          "eligible_order_changed": 3,
+          "guard_source_preserved": 12,
+          "guard_accepted": 0,
+          "guard_fallback": 15,
+          "accepted_plan_guard_fallback": 3,
+          "final_compact_changed": 0,
+          "final_result_rows_changed": 0,
+          "actual_source_line_set_changed": 0,
+          "new_actual_source_lines": 0,
+          "lost_actual_source_lines": 0,
+          "planned_addition_delivered_by_id": 0,
+          "planned_addition_delivered_with_new_source": 0,
+          "final_has_new_result_id": 0
+        },
+        "language_observed/express/hybrid": {
+          "cases": 15,
+          "literal_clause_active": 15,
+          "plan_proposal_accepted": 1,
+          "eligible_order_changed": 1,
+          "guard_source_preserved": 14,
+          "guard_accepted": 0,
+          "guard_fallback": 15,
+          "accepted_plan_guard_fallback": 1,
+          "final_compact_changed": 0,
+          "final_result_rows_changed": 0,
+          "actual_source_line_set_changed": 0,
+          "new_actual_source_lines": 0,
+          "lost_actual_source_lines": 0,
+          "planned_addition_delivered_by_id": 0,
+          "planned_addition_delivered_with_new_source": 0,
+          "final_has_new_result_id": 0
+        },
+        "language_observed/zod/bm25": {
+          "cases": 15,
+          "literal_clause_active": 11,
+          "plan_proposal_accepted": 1,
+          "eligible_order_changed": 1,
+          "guard_source_preserved": 15,
+          "guard_accepted": 1,
+          "guard_fallback": 14,
+          "accepted_plan_guard_fallback": 0,
+          "final_compact_changed": 0,
+          "final_result_rows_changed": 0,
+          "actual_source_line_set_changed": 0,
+          "new_actual_source_lines": 0,
+          "lost_actual_source_lines": 0,
+          "planned_addition_delivered_by_id": 0,
+          "planned_addition_delivered_with_new_source": 0,
+          "final_has_new_result_id": 0
+        },
+        "language_observed/zod/dense": {
+          "cases": 15,
+          "literal_clause_active": 11,
+          "plan_proposal_accepted": 2,
+          "eligible_order_changed": 2,
+          "guard_source_preserved": 13,
+          "guard_accepted": 0,
+          "guard_fallback": 15,
+          "accepted_plan_guard_fallback": 2,
+          "final_compact_changed": 0,
+          "final_result_rows_changed": 0,
+          "actual_source_line_set_changed": 0,
+          "new_actual_source_lines": 0,
+          "lost_actual_source_lines": 0,
+          "planned_addition_delivered_by_id": 1,
+          "planned_addition_delivered_with_new_source": 0,
+          "final_has_new_result_id": 0
+        },
+        "language_observed/zod/hybrid": {
+          "cases": 15,
+          "literal_clause_active": 11,
+          "plan_proposal_accepted": 1,
+          "eligible_order_changed": 1,
+          "guard_source_preserved": 13,
+          "guard_accepted": 0,
+          "guard_fallback": 15,
+          "accepted_plan_guard_fallback": 1,
+          "final_compact_changed": 0,
+          "final_result_rows_changed": 0,
+          "actual_source_line_set_changed": 0,
+          "new_actual_source_lines": 0,
+          "lost_actual_source_lines": 0,
+          "planned_addition_delivered_by_id": 0,
+          "planned_addition_delivered_with_new_source": 0,
+          "final_has_new_result_id": 0
+        },
+        "native_express_observed/express/dense": {
+          "cases": 15,
+          "literal_clause_active": 15,
+          "plan_proposal_accepted": 3,
+          "eligible_order_changed": 3,
+          "guard_source_preserved": 12,
+          "guard_accepted": 0,
+          "guard_fallback": 15,
+          "accepted_plan_guard_fallback": 3,
+          "final_compact_changed": 0,
+          "final_result_rows_changed": 0,
+          "actual_source_line_set_changed": 0,
+          "new_actual_source_lines": 0,
+          "lost_actual_source_lines": 0,
+          "planned_addition_delivered_by_id": 0,
+          "planned_addition_delivered_with_new_source": 0,
+          "final_has_new_result_id": 0
+        },
+        "native_express_observed/express/hybrid": {
+          "cases": 15,
+          "literal_clause_active": 15,
+          "plan_proposal_accepted": 1,
+          "eligible_order_changed": 1,
+          "guard_source_preserved": 14,
+          "guard_accepted": 0,
+          "guard_fallback": 15,
+          "accepted_plan_guard_fallback": 1,
+          "final_compact_changed": 0,
+          "final_result_rows_changed": 0,
+          "actual_source_line_set_changed": 0,
+          "new_actual_source_lines": 0,
+          "lost_actual_source_lines": 0,
+          "planned_addition_delivered_by_id": 0,
+          "planned_addition_delivered_with_new_source": 0,
+          "final_has_new_result_id": 0
+        },
+        "native_jinja_observed/jinja/dense": {
+          "cases": 14,
+          "literal_clause_active": 13,
+          "plan_proposal_accepted": 8,
+          "eligible_order_changed": 8,
+          "guard_source_preserved": 6,
+          "guard_accepted": 0,
+          "guard_fallback": 14,
+          "accepted_plan_guard_fallback": 8,
+          "final_compact_changed": 0,
+          "final_result_rows_changed": 0,
+          "actual_source_line_set_changed": 0,
+          "new_actual_source_lines": 0,
+          "lost_actual_source_lines": 0,
+          "planned_addition_delivered_by_id": 0,
+          "planned_addition_delivered_with_new_source": 0,
+          "final_has_new_result_id": 0
+        },
+        "native_jinja_observed/jinja/hybrid": {
+          "cases": 14,
+          "literal_clause_active": 13,
+          "plan_proposal_accepted": 3,
+          "eligible_order_changed": 3,
+          "guard_source_preserved": 11,
+          "guard_accepted": 0,
+          "guard_fallback": 14,
+          "accepted_plan_guard_fallback": 3,
+          "final_compact_changed": 0,
+          "final_result_rows_changed": 0,
+          "actual_source_line_set_changed": 0,
+          "new_actual_source_lines": 0,
+          "lost_actual_source_lines": 0,
+          "planned_addition_delivered_by_id": 0,
+          "planned_addition_delivered_with_new_source": 0,
+          "final_has_new_result_id": 0
+        },
+        "native_urllib3_observed/urllib3/dense": {
+          "cases": 14,
+          "literal_clause_active": 14,
+          "plan_proposal_accepted": 2,
+          "eligible_order_changed": 2,
+          "guard_source_preserved": 12,
+          "guard_accepted": 0,
+          "guard_fallback": 14,
+          "accepted_plan_guard_fallback": 2,
+          "final_compact_changed": 0,
+          "final_result_rows_changed": 0,
+          "actual_source_line_set_changed": 0,
+          "new_actual_source_lines": 0,
+          "lost_actual_source_lines": 0,
+          "planned_addition_delivered_by_id": 0,
+          "planned_addition_delivered_with_new_source": 0,
+          "final_has_new_result_id": 0
+        },
+        "native_urllib3_observed/urllib3/hybrid": {
+          "cases": 14,
+          "literal_clause_active": 14,
+          "plan_proposal_accepted": 4,
+          "eligible_order_changed": 4,
+          "guard_source_preserved": 10,
+          "guard_accepted": 0,
+          "guard_fallback": 14,
+          "accepted_plan_guard_fallback": 4,
+          "final_compact_changed": 0,
+          "final_result_rows_changed": 0,
+          "actual_source_line_set_changed": 0,
+          "new_actual_source_lines": 0,
+          "lost_actual_source_lines": 0,
+          "planned_addition_delivered_by_id": 0,
+          "planned_addition_delivered_with_new_source": 0,
+          "final_has_new_result_id": 0
+        },
+        "native_zod_observed/zod/dense": {
+          "cases": 15,
+          "literal_clause_active": 11,
+          "plan_proposal_accepted": 2,
+          "eligible_order_changed": 2,
+          "guard_source_preserved": 13,
+          "guard_accepted": 0,
+          "guard_fallback": 15,
+          "accepted_plan_guard_fallback": 2,
+          "final_compact_changed": 0,
+          "final_result_rows_changed": 0,
+          "actual_source_line_set_changed": 0,
+          "new_actual_source_lines": 0,
+          "lost_actual_source_lines": 0,
+          "planned_addition_delivered_by_id": 1,
+          "planned_addition_delivered_with_new_source": 0,
+          "final_has_new_result_id": 0
+        },
+        "native_zod_observed/zod/hybrid": {
+          "cases": 15,
+          "literal_clause_active": 11,
+          "plan_proposal_accepted": 1,
+          "eligible_order_changed": 1,
+          "guard_source_preserved": 13,
+          "guard_accepted": 0,
+          "guard_fallback": 15,
+          "accepted_plan_guard_fallback": 1,
+          "final_compact_changed": 0,
+          "final_result_rows_changed": 0,
+          "actual_source_line_set_changed": 0,
+          "new_actual_source_lines": 0,
+          "lost_actual_source_lines": 0,
+          "planned_addition_delivered_by_id": 0,
+          "planned_addition_delivered_with_new_source": 0,
+          "final_has_new_result_id": 0
+        },
+        "qwen_development_observed/click/hybrid_k24_b1": {
+          "cases": 24,
+          "literal_clause_active": 21,
+          "plan_proposal_accepted": 4,
+          "eligible_order_changed": 4,
+          "guard_source_preserved": 21,
+          "guard_accepted": 1,
+          "guard_fallback": 23,
+          "accepted_plan_guard_fallback": 3,
+          "final_compact_changed": 1,
+          "final_result_rows_changed": 1,
+          "actual_source_line_set_changed": 0,
+          "new_actual_source_lines": 0,
+          "lost_actual_source_lines": 0,
+          "planned_addition_delivered_by_id": 1,
+          "planned_addition_delivered_with_new_source": 0,
+          "final_has_new_result_id": 0
+        },
+        "qwen_development_observed/express/hybrid_k24_b1": {
+          "cases": 15,
+          "literal_clause_active": 15,
+          "plan_proposal_accepted": 0,
+          "eligible_order_changed": 0,
+          "guard_source_preserved": 15,
+          "guard_accepted": 0,
+          "guard_fallback": 15,
+          "accepted_plan_guard_fallback": 0,
+          "final_compact_changed": 0,
+          "final_result_rows_changed": 0,
+          "actual_source_line_set_changed": 0,
+          "new_actual_source_lines": 0,
+          "lost_actual_source_lines": 0,
+          "planned_addition_delivered_by_id": 0,
+          "planned_addition_delivered_with_new_source": 0,
+          "final_has_new_result_id": 0
+        },
+        "qwen_development_observed/flask/hybrid_k24_b1": {
+          "cases": 14,
+          "literal_clause_active": 13,
+          "plan_proposal_accepted": 1,
+          "eligible_order_changed": 1,
+          "guard_source_preserved": 13,
+          "guard_accepted": 0,
+          "guard_fallback": 14,
+          "accepted_plan_guard_fallback": 1,
+          "final_compact_changed": 0,
+          "final_result_rows_changed": 0,
+          "actual_source_line_set_changed": 0,
+          "new_actual_source_lines": 0,
+          "lost_actual_source_lines": 0,
+          "planned_addition_delivered_by_id": 0,
+          "planned_addition_delivered_with_new_source": 0,
+          "final_has_new_result_id": 0
+        },
+        "qwen_development_observed/koa/hybrid_k24_b1": {
+          "cases": 8,
+          "literal_clause_active": 8,
+          "plan_proposal_accepted": 3,
+          "eligible_order_changed": 3,
+          "guard_source_preserved": 6,
+          "guard_accepted": 1,
+          "guard_fallback": 7,
+          "accepted_plan_guard_fallback": 2,
+          "final_compact_changed": 0,
+          "final_result_rows_changed": 0,
+          "actual_source_line_set_changed": 0,
+          "new_actual_source_lines": 0,
+          "lost_actual_source_lines": 0,
+          "planned_addition_delivered_by_id": 0,
+          "planned_addition_delivered_with_new_source": 0,
+          "final_has_new_result_id": 0
+        },
+        "qwen_development_observed/requests/hybrid_k24_b1": {
+          "cases": 20,
+          "literal_clause_active": 19,
+          "plan_proposal_accepted": 2,
+          "eligible_order_changed": 2,
+          "guard_source_preserved": 19,
+          "guard_accepted": 1,
+          "guard_fallback": 19,
+          "accepted_plan_guard_fallback": 1,
+          "final_compact_changed": 1,
+          "final_result_rows_changed": 1,
+          "actual_source_line_set_changed": 1,
+          "new_actual_source_lines": 1,
+          "lost_actual_source_lines": 0,
+          "planned_addition_delivered_by_id": 1,
+          "planned_addition_delivered_with_new_source": 1,
+          "final_has_new_result_id": 1
+        },
+        "qwen_development_observed/rich/hybrid_k24_b1": {
+          "cases": 24,
+          "literal_clause_active": 22,
+          "plan_proposal_accepted": 6,
+          "eligible_order_changed": 6,
+          "guard_source_preserved": 18,
+          "guard_accepted": 0,
+          "guard_fallback": 24,
+          "accepted_plan_guard_fallback": 6,
+          "final_compact_changed": 0,
+          "final_result_rows_changed": 0,
+          "actual_source_line_set_changed": 0,
+          "new_actual_source_lines": 0,
+          "lost_actual_source_lines": 0,
+          "planned_addition_delivered_by_id": 0,
+          "planned_addition_delivered_with_new_source": 0,
+          "final_has_new_result_id": 0
+        },
+        "qwen_development_observed/starlette/hybrid_k24_b1": {
+          "cases": 24,
+          "literal_clause_active": 22,
+          "plan_proposal_accepted": 4,
+          "eligible_order_changed": 4,
+          "guard_source_preserved": 20,
+          "guard_accepted": 1,
+          "guard_fallback": 23,
+          "accepted_plan_guard_fallback": 3,
+          "final_compact_changed": 0,
+          "final_result_rows_changed": 0,
+          "actual_source_line_set_changed": 0,
+          "new_actual_source_lines": 0,
+          "lost_actual_source_lines": 0,
+          "planned_addition_delivered_by_id": 0,
+          "planned_addition_delivered_with_new_source": 0,
+          "final_has_new_result_id": 0
+        },
+        "qwen_development_observed/zod/hybrid_k24_b1": {
+          "cases": 15,
+          "literal_clause_active": 11,
+          "plan_proposal_accepted": 1,
+          "eligible_order_changed": 1,
+          "guard_source_preserved": 13,
+          "guard_accepted": 0,
+          "guard_fallback": 15,
+          "accepted_plan_guard_fallback": 1,
+          "final_compact_changed": 0,
+          "final_result_rows_changed": 0,
+          "actual_source_line_set_changed": 0,
+          "new_actual_source_lines": 0,
+          "lost_actual_source_lines": 0,
+          "planned_addition_delivered_by_id": 0,
+          "planned_addition_delivered_with_new_source": 0,
+          "final_has_new_result_id": 0
+        },
+        "qwen_httpx_observed/httpx/hybrid_k24_b1": {
+          "cases": 15,
+          "literal_clause_active": 14,
+          "plan_proposal_accepted": 5,
+          "eligible_order_changed": 5,
+          "guard_source_preserved": 10,
+          "guard_accepted": 0,
+          "guard_fallback": 15,
+          "accepted_plan_guard_fallback": 5,
+          "final_compact_changed": 0,
+          "final_result_rows_changed": 0,
+          "actual_source_line_set_changed": 0,
+          "new_actual_source_lines": 0,
+          "lost_actual_source_lines": 0,
+          "planned_addition_delivered_by_id": 0,
+          "planned_addition_delivered_with_new_source": 0,
+          "final_has_new_result_id": 0
+        }
+      },
+      "added_id_delivery_cases": [
+        {
+          "subset": "language_observed",
+          "dataset": "zod",
+          "query_id": "zod_sync_rejects_async",
+          "condition": "dense",
+          "guard_accepted": false,
+          "delivered_added_ids": [
+            "packages/zod/src/v4/core/parse.ts:validate:137-149"
+          ],
+          "delivered_added_ids_with_new_actual_source": []
+        },
+        {
+          "subset": "native_zod_observed",
+          "dataset": "zod",
+          "query_id": "zod_sync_rejects_async",
+          "condition": "dense",
+          "guard_accepted": false,
+          "delivered_added_ids": [
+            "packages/zod/src/v4/core/parse.ts:validate:137-149"
+          ],
+          "delivered_added_ids_with_new_actual_source": []
+        },
+        {
+          "subset": "qwen_development_observed",
+          "dataset": "requests",
+          "query_id": "requests_redirect_method_rewrite",
+          "condition": "hybrid_k24_b1",
+          "guard_accepted": true,
+          "delivered_added_ids": [
+            "src/requests/sessions.py:SessionRedirectMixin.rebuild_auth:309-332"
+          ],
+          "delivered_added_ids_with_new_actual_source": [
+            "src/requests/sessions.py:SessionRedirectMixin.rebuild_auth:309-332"
+          ]
+        },
+        {
+          "subset": "qwen_development_observed",
+          "dataset": "click",
+          "query_id": "click_variadic_positionals",
+          "condition": "hybrid_k24_b1",
+          "guard_accepted": true,
+          "delivered_added_ids": [
+            "src/click/parser.py:OptionParser._match_long_opt:393-421"
+          ],
+          "delivered_added_ids_with_new_actual_source": []
+        }
+      ],
+      "final_compact_change_cases": [
+        {
+          "subset": "qwen_development_observed",
+          "dataset": "requests",
+          "query_id": "requests_redirect_method_rewrite",
+          "condition": "hybrid_k24_b1",
+          "guard_accepted": true,
+          "planned_additions": [
+            "src/requests/sessions.py:SessionRedirectMixin.rebuild_auth:309-332"
+          ],
+          "added_ids_actually_delivered": [
+            "src/requests/sessions.py:SessionRedirectMixin.rebuild_auth:309-332"
+          ],
+          "new_actual_source": true,
+          "lost_actual_source": false
+        },
+        {
+          "subset": "qwen_development_observed",
+          "dataset": "click",
+          "query_id": "click_variadic_positionals",
+          "condition": "hybrid_k24_b1",
+          "guard_accepted": true,
+          "planned_additions": [
+            "src/click/parser.py:OptionParser._match_long_opt:393-421"
+          ],
+          "added_ids_actually_delivered": [
+            "src/click/parser.py:OptionParser._match_long_opt:393-421"
+          ],
+          "new_actual_source": false,
+          "lost_actual_source": false
+        }
+      ]
+    }
+  },
+  "calls": {
+    "model": 0,
+    "retrieval": 0,
+    "index": 0,
+    "network": 0,
+    "fresh_corpus": 0
+  },
+  "new_variant_outcomes_computed": 0
+}
