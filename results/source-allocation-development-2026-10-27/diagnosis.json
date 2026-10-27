@@ -1,0 +1,2049 @@
+{
+  "classification": "POST HOC descriptive analysis of fixed observed outcomes; outside the canonical independent audit scope",
+  "execution_commit": "e34d6f6ab2d8e6c5884e607ce8068ee090dc4299",
+  "prospective_freeze": {
+    "commit": "e34d6f6ab2d8e6c5884e607ce8068ee090dc4299",
+    "committed_at_unix": 1793132799,
+    "bound_blob_count": 116
+  },
+  "input_sha256": {
+    "results/source-allocation-development-2026-10-27/frozen-plan.json": "34867a89333e0a2b9e4f7e97c204823eb3bc13a4c4f1d418164c3a92c4039fc7",
+    "results/source-allocation-development-2026-10-27/run-start.json": "67fef7c226cb7d8d74dad3949225753f8e2af9cc29c61a44409e43dea398f84d",
+    "results/source-allocation-development-2026-10-27/replay.jsonl.gz": "f96178f0b8c0135c8ad180d5198f29a812695a3e9c403322b8b39fd06fca5588",
+    "results/source-allocation-development-2026-10-27/control-references.json": "99f65610b680aa3b15d740be55d7ddb5260979dcf2f67f38fc47adbabd71050e",
+    "results/source-allocation-development-2026-10-27/graph-fixtures.json": "6cb050b0f521d1bd1ee92ea005c73fe62de1a1525c8a226bcb656ef58f580643",
+    "results/source-allocation-development-2026-10-27/summary.json": "9006cb4fd2285ecf38ff86127bb29053d1f9dcba4dc41eef14f65b7b9c1bf1b6",
+    "results/window-development-2026-10-21/replay.jsonl.gz": "b4ae35799692e681e9e42a4dc7e5bfd71932766a78909cff231d35706baa34a8",
+    "results/source-allocation-development-2026-10-27/diagnosis.py.txt": "71c73b8f59cc8d1bc63af12a0794305a4e0942bf36a5a9ecd22e9ec89e16ed6e"
+  },
+  "frozen_source_sha256": {
+    "src/semantic_search/source_allocation.py": "214dfbc9c972cb08b90813ba8400f6f56e48466a14c9827c359993a69fec67b1",
+    "src/semantic_search/backend.py": "53ce5aff2d4f294150ce57fac76bec061f6d5d7475a30a7c683ce2ca4349c85d",
+    "scripts/replay_source_allocation.py": "2ff1c07b0a27b37470a27fe9203308f6cf57098ced236c38b9952e4c24530823",
+    "scripts/audit_source_allocation.py": "e112331276e1d69a093c46a5ee9678adb1542062a7a1ac804fe45e4d8e8986f2"
+  },
+  "method": "Read only original JSON traces and frozen graph inventory; verify original record references and source Git blobs. No producer, planner, backend, model, index, retrieval or numerical runtime is imported or executed.",
+  "counts": {
+    "source_graph": {
+      "rows": 365,
+      "clause_activated": 329,
+      "planner_accepted": 58,
+      "guard_accepted": 50,
+      "final_compact_changed_vs_coverage": 47,
+      "complete_gain_rows_vs_coverage": 6,
+      "complete_loss_rows_vs_coverage": 0,
+      "group_gain_occurrences_vs_coverage": 7,
+      "group_loss_occurrences_vs_coverage": 1
+    },
+    "source_graph_all": {
+      "rows": 365,
+      "clause_activated": 329,
+      "planner_accepted": 58,
+      "guard_accepted": 5,
+      "final_compact_changed_vs_coverage": 2,
+      "complete_gain_rows_vs_coverage": 0,
+      "complete_loss_rows_vs_coverage": 0,
+      "group_gain_occurrences_vs_coverage": 0,
+      "group_loss_occurrences_vs_coverage": 0
+    }
+  },
+  "distinct_complete_gains_vs_coverage": [
+    "express/express_configured_query_parser",
+    "express/express_trusted_forwarded_protocol"
+  ],
+  "changed_group_cases": [
+    {
+      "subset": "language_observed",
+      "dataset": "express",
+      "query_id": "express_configured_query_parser",
+      "condition": "hybrid",
+      "ledger_line": 49,
+      "record_sha256": "bb7e6339906b2318ab9cfd74debbb77e2c2ec923c7dc5364443e2a7c8429b65b",
+      "query": "Where is the configured simple, extended, custom, or disabled query parser compiled and then invoked on the raw URL query, with disabled parsing returning an empty object?",
+      "control_references": {
+        "legacy": {
+          "line_number": 121,
+          "record_sha256": "91445d47bc97ec6a6c8fff457f6984d8cc02ad1cf0ebe69c435f7489d531010f",
+          "response_sha256": "88822c0bf5cd69d568938529fdf2cc61e9d8c2ec8d3876c1543e81c11af4a04e",
+          "compact_sha256": "44b8ef46d28dc37c57ba991f32c7e6a26b39ec5536c5ecc5a5230c1341caab12"
+        },
+        "coverage_control": {
+          "line_number": 122,
+          "record_sha256": "00e2f5ad7ef79d50daeb1db23c517e73c96dd755b76585ab8d48c27e4e47eee5",
+          "response_sha256": "e6311c273eb1744f75b4d62f24e0d3606bee873c3e294d262b72aeedeeb72872",
+          "compact_sha256": "44b8ef46d28dc37c57ba991f32c7e6a26b39ec5536c5ecc5a5230c1341caab12"
+        }
+      },
+      "baseline_eligible_ids": [
+        "lib/request.js:query:230-241",
+        "lib/utils.js:exports.compileQueryParser:162-184",
+        "lib/utils.js:parseExtendedQueryString:267-271",
+        "lib/application.js:<module>.compileQueryParser:22-22",
+        "lib/express.js:<module>:78-78",
+        "lib/application.js:app.defaultConfiguration:90-141",
+        "lib/application.js:app.disabled:439-441",
+        "lib/response.js:<module>.encodeUrl:18-18"
+      ],
+      "proposed_eligible_ids": [
+        "lib/request.js:query:230-241",
+        "lib/utils.js:exports.compileQueryParser:162-184",
+        "lib/utils.js:parseExtendedQueryString:267-271",
+        "lib/application.js:<module>.compileQueryParser:22-22",
+        "lib/express.js:<module>:78-78",
+        "lib/application.js:app.set:351-383",
+        "lib/application.js:app.defaultConfiguration:90-141",
+        "lib/application.js:app.disabled:439-441"
+      ],
+      "added_ids": [
+        "lib/application.js:app.set:351-383"
+      ],
+      "evicted_ids": [
+        "lib/response.js:<module>.encodeUrl:18-18"
+      ],
+      "added_graph_witnesses": [
+        {
+          "anchor_id": "lib/utils.js:exports.compileQueryParser:162-184",
+          "anchor_key": [
+            "lib/utils.js",
+            "exports.compileQueryParser",
+            162,
+            184,
+            3241
+          ],
+          "direction": "caller",
+          "neighbor_key": [
+            "lib/application.js",
+            "app.set",
+            351,
+            383,
+            8153
+          ],
+          "source_key": [
+            "lib/application.js",
+            "app.set",
+            351,
+            383,
+            8153
+          ],
+          "target_key": [
+            "lib/utils.js",
+            "exports.compileQueryParser",
+            162,
+            184,
+            3241
+          ]
+        }
+      ],
+      "guard_protected_ids": [
+        "lib/request.js:query:230-241",
+        "lib/utils.js:exports.compileQueryParser:162-184",
+        "lib/utils.js:parseExtendedQueryString:267-271",
+        "lib/application.js:<module>.compileQueryParser:22-22",
+        "lib/express.js:<module>:78-78"
+      ],
+      "guard_accepted": true,
+      "baseline_evidence_ranks": [
+        null,
+        2,
+        1
+      ],
+      "candidate_evidence_ranks": [
+        6,
+        2,
+        1
+      ],
+      "complete_gain": true,
+      "complete_loss": false,
+      "baseline_characters": 2450,
+      "baseline_tokens": 1443,
+      "candidate_characters": 3146,
+      "candidate_tokens": 1641,
+      "candidate_truncated_ids": [],
+      "backfill": {
+        "coalesced_ids": [],
+        "appended_ids": [],
+        "trials": 0,
+        "trial_limit": 8,
+        "trial_limit_reached": false,
+        "skipped": [],
+        "coverage_before": true,
+        "coverage_after": true,
+        "fallback_reason": null
+      },
+      "group_changes": [
+        {
+          "change": "group_gains",
+          "group": 1,
+          "targets": [
+            {
+              "path": "lib/application.js",
+              "symbol": "app.set",
+              "evidence_lines": [
+                360,
+                370
+              ],
+              "definition_lines": [
+                351,
+                383
+              ],
+              "declaration_anchor": "app.set = function set(",
+              "evidence_sha256": "efe63283caf4a428422fdb9b91ca3a1321b1e7e5a3d94693454e2d7e5fb9d649",
+              "source_file_sha256": "6d7e08355025786982d17042fc0355b6a5e9339545dc27e2782b3aaa28a7bc04"
+            }
+          ],
+          "raw_covering_windows": [
+            {
+              "raw_rank": 9,
+              "id": "lib/application.js:app.set:351-383",
+              "path": "lib/application.js",
+              "symbol": "app.set"
+            }
+          ],
+          "baseline_eligible_covering_ids": [],
+          "proposal_eligible_covering_ids": [
+            "lib/application.js:app.set:351-383"
+          ],
+          "classification": "retrieved_but_not_previously_eligible",
+          "baseline_delivered_rank": null,
+          "candidate_delivered_rank": 6,
+          "baseline_excerpt_ids": [],
+          "candidate_excerpt_ids": [
+            "lib/application.js:app.set:351-383"
+          ]
+        }
+      ],
+      "all_source_guard_control": {
+        "ledger_line": 50,
+        "record_sha256": "50cae9881fba9ecabde11bdd50c1aecd233f40f29de0a6003cc2cd2f423f35e6",
+        "guard": {
+          "schema": "source_graph_guard_v1",
+          "mode": "source_graph_all",
+          "protected_ids": [
+            "lib/request.js:query:230-241",
+            "lib/utils.js:exports.compileQueryParser:162-184",
+            "lib/utils.js:parseExtendedQueryString:267-271",
+            "lib/application.js:<module>.compileQueryParser:22-22",
+            "lib/express.js:<module>:78-78",
+            "lib/application.js:app.defaultConfiguration:90-141",
+            "lib/application.js:app.disabled:439-441",
+            "lib/response.js:<module>.encodeUrl:18-18"
+          ],
+          "protected_rows": [
+            {
+              "id": "lib/request.js:query:230-241",
+              "path": "lib/request.js",
+              "start_line": 230,
+              "end_line": 241,
+              "source_hash": "3642f58119dbccc4a8598151e8e2bcfacb210c5b8946393f1bccad0be1fcdd63",
+              "content_hash": "3642f58119dbccc4a8598151e8e2bcfacb210c5b8946393f1bccad0be1fcdd63",
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "id": "lib/utils.js:exports.compileQueryParser:162-184",
+              "path": "lib/utils.js",
+              "start_line": 162,
+              "end_line": 184,
+              "source_hash": "0454ccde7b17dc61ff75945d6f096d7e5487f3e6219b38c12b45bda8d13603b2",
+              "content_hash": "0454ccde7b17dc61ff75945d6f096d7e5487f3e6219b38c12b45bda8d13603b2",
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "id": "lib/utils.js:parseExtendedQueryString:267-271",
+              "path": "lib/utils.js",
+              "start_line": 267,
+              "end_line": 271,
+              "source_hash": "df340ec6d139e2700984d33e049ae2659271d5bdb42d721e7ad38a6b6fbc3857",
+              "content_hash": "df340ec6d139e2700984d33e049ae2659271d5bdb42d721e7ad38a6b6fbc3857",
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "id": "lib/application.js:<module>.compileQueryParser:22-22",
+              "path": "lib/application.js",
+              "start_line": 22,
+              "end_line": 22,
+              "source_hash": "f19fdd0c9e813732ffd09298c2139051bad5e2eb3c31077ff6d1642c85d4c806",
+              "content_hash": "f19fdd0c9e813732ffd09298c2139051bad5e2eb3c31077ff6d1642c85d4c806",
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "id": "lib/express.js:<module>:78-78",
+              "path": "lib/express.js",
+              "start_line": 78,
+              "end_line": 78,
+              "source_hash": "507dc959b2a9991bc4c64a0c2475aedd5e2c1f161ac38c386cc3ab240186077e",
+              "content_hash": "507dc959b2a9991bc4c64a0c2475aedd5e2c1f161ac38c386cc3ab240186077e",
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "id": "lib/application.js:app.defaultConfiguration:90-141",
+              "path": "lib/application.js",
+              "start_line": 90,
+              "end_line": 141,
+              "source_hash": "826bbd17de87db6939981f3e015291afe46f2b6ea90198e772d03539fb53711d",
+              "content_hash": "826bbd17de87db6939981f3e015291afe46f2b6ea90198e772d03539fb53711d",
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "id": "lib/application.js:app.disabled:439-441",
+              "path": "lib/application.js",
+              "start_line": 439,
+              "end_line": 441,
+              "source_hash": "3f35637cf650037238dc2742b55b7dfb61ab9871263f50eb50d382054976bdd5",
+              "content_hash": "3f35637cf650037238dc2742b55b7dfb61ab9871263f50eb50d382054976bdd5",
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "id": "lib/response.js:<module>.encodeUrl:18-18",
+              "path": "lib/response.js",
+              "start_line": 18,
+              "end_line": 18,
+              "source_hash": "d9d5cf054075c409e8f0e81c1cbe722478e9c41a0f3c1f38fa0b1490e9ac508b",
+              "content_hash": "d9d5cf054075c409e8f0e81c1cbe722478e9c41a0f3c1f38fa0b1490e9ac508b",
+              "origin": "retrieval",
+              "related_to": null
+            }
+          ],
+          "source_preserved": false,
+          "accepted": false,
+          "fallback_reason": "protected_source_not_preserved"
+        },
+        "final_equals_control": true
+      }
+    },
+    {
+      "subset": "language_observed",
+      "dataset": "express",
+      "query_id": "express_configured_query_parser",
+      "condition": "dense",
+      "ledger_line": 53,
+      "record_sha256": "fbca9b8877ddb2d6eae7e25f506f2fc7811b3bef6fc6a2f5cd98cd2fe6d4b21c",
+      "query": "Where is the configured simple, extended, custom, or disabled query parser compiled and then invoked on the raw URL query, with disabled parsing returning an empty object?",
+      "control_references": {
+        "legacy": {
+          "line_number": 131,
+          "record_sha256": "4fd6b2672277f05fdc18bfb0e5ad172d32ff533d9a2e9d287df44d76b0808a59",
+          "response_sha256": "e678e7149a49510fe7e33eec6ae72bbb855eabb7873228ce2080c3755c71d82b",
+          "compact_sha256": "6774bb962ab92a59f71bcace70a5e6275268e3bd49e5afc0a9db860bcb9ad8fe"
+        },
+        "coverage_control": {
+          "line_number": 132,
+          "record_sha256": "5a6fa8d31e42a31f70893109ec2c740dfaac581480b7d7a3a983199e6d41006d",
+          "response_sha256": "a30d64ebc5376b26defd62a2938be08c96fb86ae3904f488d2a251ea17ae0396",
+          "compact_sha256": "6774bb962ab92a59f71bcace70a5e6275268e3bd49e5afc0a9db860bcb9ad8fe"
+        }
+      },
+      "baseline_eligible_ids": [
+        "lib/request.js:query:230-241",
+        "lib/utils.js:exports.compileQueryParser:162-184",
+        "lib/application.js:<module>.compileQueryParser:22-22",
+        "lib/utils.js:parseExtendedQueryString:267-271",
+        "lib/utils.js:<module>.querystring:21-21",
+        "lib/request.js:<module>.parse:22-22",
+        "lib/express.js:<module>:81-81",
+        "lib/request.js:<module>.parseRange:21-21"
+      ],
+      "proposed_eligible_ids": [
+        "lib/request.js:query:230-241",
+        "lib/utils.js:exports.compileQueryParser:162-184",
+        "lib/application.js:<module>.compileQueryParser:22-22",
+        "lib/utils.js:parseExtendedQueryString:267-271",
+        "lib/utils.js:<module>.querystring:21-21",
+        "lib/application.js:app.set:351-383",
+        "lib/request.js:<module>.parse:22-22",
+        "lib/express.js:<module>:81-81"
+      ],
+      "added_ids": [
+        "lib/application.js:app.set:351-383"
+      ],
+      "evicted_ids": [
+        "lib/request.js:<module>.parseRange:21-21"
+      ],
+      "added_graph_witnesses": [
+        {
+          "anchor_id": "lib/utils.js:exports.compileQueryParser:162-184",
+          "anchor_key": [
+            "lib/utils.js",
+            "exports.compileQueryParser",
+            162,
+            184,
+            3241
+          ],
+          "direction": "caller",
+          "neighbor_key": [
+            "lib/application.js",
+            "app.set",
+            351,
+            383,
+            8153
+          ],
+          "source_key": [
+            "lib/application.js",
+            "app.set",
+            351,
+            383,
+            8153
+          ],
+          "target_key": [
+            "lib/utils.js",
+            "exports.compileQueryParser",
+            162,
+            184,
+            3241
+          ]
+        }
+      ],
+      "guard_protected_ids": [
+        "lib/request.js:query:230-241",
+        "lib/utils.js:exports.compileQueryParser:162-184",
+        "lib/application.js:<module>.compileQueryParser:22-22",
+        "lib/utils.js:parseExtendedQueryString:267-271",
+        "lib/utils.js:<module>.querystring:21-21"
+      ],
+      "guard_accepted": true,
+      "baseline_evidence_ranks": [
+        null,
+        2,
+        1
+      ],
+      "candidate_evidence_ranks": [
+        6,
+        2,
+        1
+      ],
+      "complete_gain": true,
+      "complete_loss": false,
+      "baseline_characters": 1026,
+      "baseline_tokens": 1055,
+      "candidate_characters": 1718,
+      "candidate_tokens": 1261,
+      "candidate_truncated_ids": [],
+      "backfill": {
+        "coalesced_ids": [],
+        "appended_ids": [],
+        "trials": 0,
+        "trial_limit": 8,
+        "trial_limit_reached": false,
+        "skipped": [],
+        "coverage_before": true,
+        "coverage_after": true,
+        "fallback_reason": null
+      },
+      "group_changes": [
+        {
+          "change": "group_gains",
+          "group": 1,
+          "targets": [
+            {
+              "path": "lib/application.js",
+              "symbol": "app.set",
+              "evidence_lines": [
+                360,
+                370
+              ],
+              "definition_lines": [
+                351,
+                383
+              ],
+              "declaration_anchor": "app.set = function set(",
+              "evidence_sha256": "efe63283caf4a428422fdb9b91ca3a1321b1e7e5a3d94693454e2d7e5fb9d649",
+              "source_file_sha256": "6d7e08355025786982d17042fc0355b6a5e9339545dc27e2782b3aaa28a7bc04"
+            }
+          ],
+          "raw_covering_windows": [
+            {
+              "raw_rank": 24,
+              "id": "lib/application.js:app.set:351-383",
+              "path": "lib/application.js",
+              "symbol": "app.set"
+            }
+          ],
+          "baseline_eligible_covering_ids": [],
+          "proposal_eligible_covering_ids": [
+            "lib/application.js:app.set:351-383"
+          ],
+          "classification": "retrieved_but_not_previously_eligible",
+          "baseline_delivered_rank": null,
+          "candidate_delivered_rank": 6,
+          "baseline_excerpt_ids": [],
+          "candidate_excerpt_ids": [
+            "lib/application.js:app.set:351-383"
+          ]
+        }
+      ],
+      "all_source_guard_control": {
+        "ledger_line": 54,
+        "record_sha256": "022f797109be91ff6fb53b936b277c73169467149a8976ee11c31ef884965aee",
+        "guard": {
+          "schema": "source_graph_guard_v1",
+          "mode": "source_graph_all",
+          "protected_ids": [
+            "lib/request.js:query:230-241",
+            "lib/utils.js:exports.compileQueryParser:162-184",
+            "lib/application.js:<module>.compileQueryParser:22-22",
+            "lib/utils.js:parseExtendedQueryString:267-271",
+            "lib/utils.js:<module>.querystring:21-21",
+            "lib/request.js:<module>.parse:22-22",
+            "lib/express.js:<module>:81-81",
+            "lib/request.js:<module>.parseRange:21-21"
+          ],
+          "protected_rows": [
+            {
+              "id": "lib/request.js:query:230-241",
+              "path": "lib/request.js",
+              "start_line": 230,
+              "end_line": 241,
+              "source_hash": "3642f58119dbccc4a8598151e8e2bcfacb210c5b8946393f1bccad0be1fcdd63",
+              "content_hash": "3642f58119dbccc4a8598151e8e2bcfacb210c5b8946393f1bccad0be1fcdd63",
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "id": "lib/utils.js:exports.compileQueryParser:162-184",
+              "path": "lib/utils.js",
+              "start_line": 162,
+              "end_line": 184,
+              "source_hash": "0454ccde7b17dc61ff75945d6f096d7e5487f3e6219b38c12b45bda8d13603b2",
+              "content_hash": "0454ccde7b17dc61ff75945d6f096d7e5487f3e6219b38c12b45bda8d13603b2",
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "id": "lib/application.js:<module>.compileQueryParser:22-22",
+              "path": "lib/application.js",
+              "start_line": 22,
+              "end_line": 22,
+              "source_hash": "f19fdd0c9e813732ffd09298c2139051bad5e2eb3c31077ff6d1642c85d4c806",
+              "content_hash": "f19fdd0c9e813732ffd09298c2139051bad5e2eb3c31077ff6d1642c85d4c806",
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "id": "lib/utils.js:parseExtendedQueryString:267-271",
+              "path": "lib/utils.js",
+              "start_line": 267,
+              "end_line": 271,
+              "source_hash": "df340ec6d139e2700984d33e049ae2659271d5bdb42d721e7ad38a6b6fbc3857",
+              "content_hash": "df340ec6d139e2700984d33e049ae2659271d5bdb42d721e7ad38a6b6fbc3857",
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "id": "lib/utils.js:<module>.querystring:21-21",
+              "path": "lib/utils.js",
+              "start_line": 21,
+              "end_line": 21,
+              "source_hash": "d1b418967482f9c7376ec7825321dc5395d6aa1bbf08f0e141113e37902bdb74",
+              "content_hash": "d1b418967482f9c7376ec7825321dc5395d6aa1bbf08f0e141113e37902bdb74",
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "id": "lib/request.js:<module>.parse:22-22",
+              "path": "lib/request.js",
+              "start_line": 22,
+              "end_line": 22,
+              "source_hash": "d0c7faf050c431a5f2006ac3aaf3df9e40bce5193be9d622833bd02b22335d29",
+              "content_hash": "d0c7faf050c431a5f2006ac3aaf3df9e40bce5193be9d622833bd02b22335d29",
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "id": "lib/express.js:<module>:81-81",
+              "path": "lib/express.js",
+              "start_line": 81,
+              "end_line": 81,
+              "source_hash": "dbf2d43766b4fadd243bcde23796529092966fb465786bd5a75f99611cba8051",
+              "content_hash": "dbf2d43766b4fadd243bcde23796529092966fb465786bd5a75f99611cba8051",
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "id": "lib/request.js:<module>.parseRange:21-21",
+              "path": "lib/request.js",
+              "start_line": 21,
+              "end_line": 21,
+              "source_hash": "6f0dfe7ff91d14fe67dfdd45eff9b9eb2667320297e9f505103059e961cf842e",
+              "content_hash": "6f0dfe7ff91d14fe67dfdd45eff9b9eb2667320297e9f505103059e961cf842e",
+              "origin": "retrieval",
+              "related_to": null
+            }
+          ],
+          "source_preserved": false,
+          "accepted": false,
+          "fallback_reason": "protected_source_not_preserved"
+        },
+        "final_equals_control": true
+      }
+    },
+    {
+      "subset": "language_observed",
+      "dataset": "express",
+      "query_id": "express_trusted_forwarded_protocol",
+      "condition": "dense",
+      "ledger_line": 57,
+      "record_sha256": "87b51bcabe94be7f87eace0085c55079c9349772c44c2531d178e1263532ec2d",
+      "query": "Where is a proxy-trust policy compiled from a boolean, hop count, address list, or custom function, then used to decide whether the forwarded protocol header may override the socket protocol?",
+      "control_references": {
+        "legacy": {
+          "line_number": 141,
+          "record_sha256": "141f4c88eda81ee596e6b4ec07be56f641ea415987b3c0fe034ee666ce71298f",
+          "response_sha256": "c3b27e7789552ed0281018e9bf95dc614494d21b16c2a163800d9a7ac33e0644",
+          "compact_sha256": "e538f27316098c1b1d4f079b5593bb06b3178bf9358a6868689887bd8c846032"
+        },
+        "coverage_control": {
+          "line_number": 142,
+          "record_sha256": "154e35963922d6f518b799d22328a3adeb33a1acf5726cbcf247e23399c6e9ac",
+          "response_sha256": "e62263852ce5f728428500d496c1f0f454a67be2001e2d8eb9d81a4a35879909",
+          "compact_sha256": "e538f27316098c1b1d4f079b5593bb06b3178bf9358a6868689887bd8c846032"
+        }
+      },
+      "baseline_eligible_ids": [
+        "lib/utils.js:exports.compileTrust:194-214",
+        "lib/request.js:protocol:297-315",
+        "lib/request.js:ip:340-343",
+        "lib/request.js:ips:357-366",
+        "lib/request.js:host:418-431",
+        "lib/application.js:<module>.trustProxyDefaultSymbol:47-47",
+        "lib/application.js:app.defaultConfiguration.onmount:109-122",
+        "lib/request.js:secure:326-328"
+      ],
+      "proposed_eligible_ids": [
+        "lib/utils.js:exports.compileTrust:194-214",
+        "lib/request.js:protocol:297-315",
+        "lib/request.js:ip:340-343",
+        "lib/request.js:ips:357-366",
+        "lib/request.js:host:418-431",
+        "lib/application.js:app.set:351-383",
+        "lib/application.js:<module>.trustProxyDefaultSymbol:47-47",
+        "lib/application.js:app.defaultConfiguration.onmount:109-122"
+      ],
+      "added_ids": [
+        "lib/application.js:app.set:351-383"
+      ],
+      "evicted_ids": [
+        "lib/request.js:secure:326-328"
+      ],
+      "added_graph_witnesses": [
+        {
+          "anchor_id": "lib/utils.js:exports.compileTrust:194-214",
+          "anchor_key": [
+            "lib/utils.js",
+            "exports.compileTrust",
+            194,
+            214,
+            3820
+          ],
+          "direction": "caller",
+          "neighbor_key": [
+            "lib/application.js",
+            "app.set",
+            351,
+            383,
+            8153
+          ],
+          "source_key": [
+            "lib/application.js",
+            "app.set",
+            351,
+            383,
+            8153
+          ],
+          "target_key": [
+            "lib/utils.js",
+            "exports.compileTrust",
+            194,
+            214,
+            3820
+          ]
+        }
+      ],
+      "guard_protected_ids": [
+        "lib/utils.js:exports.compileTrust:194-214",
+        "lib/request.js:protocol:297-315",
+        "lib/request.js:ip:340-343",
+        "lib/request.js:ips:357-366",
+        "lib/request.js:host:418-431"
+      ],
+      "guard_accepted": true,
+      "baseline_evidence_ranks": [
+        null,
+        1,
+        2
+      ],
+      "candidate_evidence_ranks": [
+        6,
+        1,
+        2
+      ],
+      "complete_gain": true,
+      "complete_loss": false,
+      "baseline_characters": 2518,
+      "baseline_tokens": 1487,
+      "candidate_characters": 3165,
+      "candidate_tokens": 1687,
+      "candidate_truncated_ids": [],
+      "backfill": {
+        "coalesced_ids": [],
+        "appended_ids": [],
+        "trials": 0,
+        "trial_limit": 8,
+        "trial_limit_reached": false,
+        "skipped": [],
+        "coverage_before": true,
+        "coverage_after": true,
+        "fallback_reason": null
+      },
+      "group_changes": [
+        {
+          "change": "group_gains",
+          "group": 1,
+          "targets": [
+            {
+              "path": "lib/application.js",
+              "symbol": "app.set",
+              "evidence_lines": [
+                371,
+                379
+              ],
+              "definition_lines": [
+                351,
+                383
+              ],
+              "declaration_anchor": "app.set = function set(",
+              "evidence_sha256": "2b979c3bf787072a49f9a4e336f9fc59b11d4752293e77a87f703b51fc58df8a",
+              "source_file_sha256": "6d7e08355025786982d17042fc0355b6a5e9339545dc27e2782b3aaa28a7bc04"
+            }
+          ],
+          "raw_covering_windows": [
+            {
+              "raw_rank": 14,
+              "id": "lib/application.js:app.set:351-383",
+              "path": "lib/application.js",
+              "symbol": "app.set"
+            }
+          ],
+          "baseline_eligible_covering_ids": [],
+          "proposal_eligible_covering_ids": [
+            "lib/application.js:app.set:351-383"
+          ],
+          "classification": "retrieved_but_not_previously_eligible",
+          "baseline_delivered_rank": null,
+          "candidate_delivered_rank": 6,
+          "baseline_excerpt_ids": [],
+          "candidate_excerpt_ids": [
+            "lib/application.js:app.set:351-383"
+          ]
+        }
+      ],
+      "all_source_guard_control": {
+        "ledger_line": 58,
+        "record_sha256": "dea7414716c030589984a13eb1b2f50de34943ee8098828529309b808ad3b24c",
+        "guard": {
+          "schema": "source_graph_guard_v1",
+          "mode": "source_graph_all",
+          "protected_ids": [
+            "lib/utils.js:exports.compileTrust:194-214",
+            "lib/request.js:protocol:297-315",
+            "lib/request.js:ip:340-343",
+            "lib/request.js:ips:357-366",
+            "lib/request.js:host:418-431",
+            "lib/application.js:<module>.trustProxyDefaultSymbol:47-47",
+            "lib/application.js:app.defaultConfiguration.onmount:109-122",
+            "lib/request.js:secure:326-328"
+          ],
+          "protected_rows": [
+            {
+              "id": "lib/utils.js:exports.compileTrust:194-214",
+              "path": "lib/utils.js",
+              "start_line": 194,
+              "end_line": 214,
+              "source_hash": "8598f1ad372ed7697b3ee0c924eef284154d56371b400ad8190a8771b415cf0b",
+              "content_hash": "8598f1ad372ed7697b3ee0c924eef284154d56371b400ad8190a8771b415cf0b",
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "id": "lib/request.js:protocol:297-315",
+              "path": "lib/request.js",
+              "start_line": 297,
+              "end_line": 315,
+              "source_hash": "10d68b19e36cf2d7a504eb26281c5bc30eb9d11080faabcec4e641cd88627650",
+              "content_hash": "10d68b19e36cf2d7a504eb26281c5bc30eb9d11080faabcec4e641cd88627650",
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "id": "lib/request.js:ip:340-343",
+              "path": "lib/request.js",
+              "start_line": 340,
+              "end_line": 343,
+              "source_hash": "358de2ca296b251bac7b6c6f7c82b7b41c0ca16817eca91117b7f68b789b8f17",
+              "content_hash": "358de2ca296b251bac7b6c6f7c82b7b41c0ca16817eca91117b7f68b789b8f17",
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "id": "lib/request.js:ips:357-366",
+              "path": "lib/request.js",
+              "start_line": 357,
+              "end_line": 366,
+              "source_hash": "26c174a2254b0e592fc9a3f80e6a24aa1bd0f2111d252a9878ff37ac79c3e2f0",
+              "content_hash": "26c174a2254b0e592fc9a3f80e6a24aa1bd0f2111d252a9878ff37ac79c3e2f0",
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "id": "lib/request.js:host:418-431",
+              "path": "lib/request.js",
+              "start_line": 418,
+              "end_line": 431,
+              "source_hash": "ae79d2e8096bc8d8d412a597231e6f0322592347a58ab5eac7f0a68774e57af6",
+              "content_hash": "ae79d2e8096bc8d8d412a597231e6f0322592347a58ab5eac7f0a68774e57af6",
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "id": "lib/application.js:<module>.trustProxyDefaultSymbol:47-47",
+              "path": "lib/application.js",
+              "start_line": 47,
+              "end_line": 47,
+              "source_hash": "33371f49d9463d26fb3013ef0ab33ed30895563afc89a444ac78543fab81a795",
+              "content_hash": "33371f49d9463d26fb3013ef0ab33ed30895563afc89a444ac78543fab81a795",
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "id": "lib/application.js:app.defaultConfiguration.onmount:109-122",
+              "path": "lib/application.js",
+              "start_line": 109,
+              "end_line": 122,
+              "source_hash": "3bc2d628da66053a9a9623da8df9668549fc1298f3e45c883e039ec962e4ef50",
+              "content_hash": "3bc2d628da66053a9a9623da8df9668549fc1298f3e45c883e039ec962e4ef50",
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "id": "lib/request.js:secure:326-328",
+              "path": "lib/request.js",
+              "start_line": 326,
+              "end_line": 328,
+              "source_hash": "2530fad40148de8461a8995eb5bcef534be2f8564ec091a95273461663f404bc",
+              "content_hash": "2530fad40148de8461a8995eb5bcef534be2f8564ec091a95273461663f404bc",
+              "origin": "retrieval",
+              "related_to": null
+            }
+          ],
+          "source_preserved": false,
+          "accepted": false,
+          "fallback_reason": "protected_source_not_preserved"
+        },
+        "final_equals_control": true
+      }
+    },
+    {
+      "subset": "native_express_observed",
+      "dataset": "express",
+      "query_id": "express_configured_query_parser",
+      "condition": "hybrid",
+      "ledger_line": 213,
+      "record_sha256": "0b7e521a4f277806b731a0b3dd0437729734ebe9d3611c134f295ef54115e3a9",
+      "query": "Where is the configured simple, extended, custom, or disabled query parser compiled and then invoked on the raw URL query, with disabled parsing returning an empty object?",
+      "control_references": {
+        "legacy": {
+          "line_number": 531,
+          "record_sha256": "e1a27377567a57a45cf5b625268b81663cb42d5f77daee2cc46effa06a0e3d29",
+          "response_sha256": "0b6c3ace13cffaead49f61dbeb15d562171f9a5c0b1718e96fc53d5d0cf1bf88",
+          "compact_sha256": "44b8ef46d28dc37c57ba991f32c7e6a26b39ec5536c5ecc5a5230c1341caab12"
+        },
+        "coverage_control": {
+          "line_number": 532,
+          "record_sha256": "22916b0f44f30f0e0bff1b926045ecf2e0ec08c14233f1aad9739beba1b5f028",
+          "response_sha256": "7cb6babd597b6ddf41b60d9c8ff3c37ebfd8cc905a932ad542568b2ff890871c",
+          "compact_sha256": "44b8ef46d28dc37c57ba991f32c7e6a26b39ec5536c5ecc5a5230c1341caab12"
+        }
+      },
+      "baseline_eligible_ids": [
+        "lib/request.js:query:230-241",
+        "lib/utils.js:exports.compileQueryParser:162-184",
+        "lib/utils.js:parseExtendedQueryString:267-271",
+        "lib/application.js:<module>.compileQueryParser:22-22",
+        "lib/express.js:<module>:78-78",
+        "lib/application.js:app.defaultConfiguration:90-141",
+        "lib/application.js:app.disabled:439-441",
+        "lib/response.js:<module>.encodeUrl:18-18"
+      ],
+      "proposed_eligible_ids": [
+        "lib/request.js:query:230-241",
+        "lib/utils.js:exports.compileQueryParser:162-184",
+        "lib/utils.js:parseExtendedQueryString:267-271",
+        "lib/application.js:<module>.compileQueryParser:22-22",
+        "lib/express.js:<module>:78-78",
+        "lib/application.js:app.set:351-383",
+        "lib/application.js:app.defaultConfiguration:90-141",
+        "lib/application.js:app.disabled:439-441"
+      ],
+      "added_ids": [
+        "lib/application.js:app.set:351-383"
+      ],
+      "evicted_ids": [
+        "lib/response.js:<module>.encodeUrl:18-18"
+      ],
+      "added_graph_witnesses": [
+        {
+          "anchor_id": "lib/utils.js:exports.compileQueryParser:162-184",
+          "anchor_key": [
+            "lib/utils.js",
+            "exports.compileQueryParser",
+            162,
+            184,
+            3241
+          ],
+          "direction": "caller",
+          "neighbor_key": [
+            "lib/application.js",
+            "app.set",
+            351,
+            383,
+            8153
+          ],
+          "source_key": [
+            "lib/application.js",
+            "app.set",
+            351,
+            383,
+            8153
+          ],
+          "target_key": [
+            "lib/utils.js",
+            "exports.compileQueryParser",
+            162,
+            184,
+            3241
+          ]
+        }
+      ],
+      "guard_protected_ids": [
+        "lib/request.js:query:230-241",
+        "lib/utils.js:exports.compileQueryParser:162-184",
+        "lib/utils.js:parseExtendedQueryString:267-271",
+        "lib/application.js:<module>.compileQueryParser:22-22",
+        "lib/express.js:<module>:78-78"
+      ],
+      "guard_accepted": true,
+      "baseline_evidence_ranks": [
+        null,
+        2,
+        1
+      ],
+      "candidate_evidence_ranks": [
+        6,
+        2,
+        1
+      ],
+      "complete_gain": true,
+      "complete_loss": false,
+      "baseline_characters": 2450,
+      "baseline_tokens": 1443,
+      "candidate_characters": 3146,
+      "candidate_tokens": 1641,
+      "candidate_truncated_ids": [],
+      "backfill": {
+        "coalesced_ids": [],
+        "appended_ids": [],
+        "trials": 0,
+        "trial_limit": 8,
+        "trial_limit_reached": false,
+        "skipped": [],
+        "coverage_before": true,
+        "coverage_after": true,
+        "fallback_reason": null
+      },
+      "group_changes": [
+        {
+          "change": "group_gains",
+          "group": 1,
+          "targets": [
+            {
+              "path": "lib/application.js",
+              "symbol": "app.set",
+              "evidence_lines": [
+                360,
+                370
+              ],
+              "definition_lines": [
+                351,
+                383
+              ],
+              "declaration_anchor": "app.set = function set(",
+              "evidence_sha256": "efe63283caf4a428422fdb9b91ca3a1321b1e7e5a3d94693454e2d7e5fb9d649",
+              "source_file_sha256": "6d7e08355025786982d17042fc0355b6a5e9339545dc27e2782b3aaa28a7bc04"
+            }
+          ],
+          "raw_covering_windows": [
+            {
+              "raw_rank": 9,
+              "id": "lib/application.js:app.set:351-383",
+              "path": "lib/application.js",
+              "symbol": "app.set"
+            }
+          ],
+          "baseline_eligible_covering_ids": [],
+          "proposal_eligible_covering_ids": [
+            "lib/application.js:app.set:351-383"
+          ],
+          "classification": "retrieved_but_not_previously_eligible",
+          "baseline_delivered_rank": null,
+          "candidate_delivered_rank": 6,
+          "baseline_excerpt_ids": [],
+          "candidate_excerpt_ids": [
+            "lib/application.js:app.set:351-383"
+          ]
+        }
+      ],
+      "all_source_guard_control": {
+        "ledger_line": 214,
+        "record_sha256": "d66141207dd246492cae3a22d25ff068007cf0f2b245ce4e90e459ae508e0609",
+        "guard": {
+          "schema": "source_graph_guard_v1",
+          "mode": "source_graph_all",
+          "protected_ids": [
+            "lib/request.js:query:230-241",
+            "lib/utils.js:exports.compileQueryParser:162-184",
+            "lib/utils.js:parseExtendedQueryString:267-271",
+            "lib/application.js:<module>.compileQueryParser:22-22",
+            "lib/express.js:<module>:78-78",
+            "lib/application.js:app.defaultConfiguration:90-141",
+            "lib/application.js:app.disabled:439-441",
+            "lib/response.js:<module>.encodeUrl:18-18"
+          ],
+          "protected_rows": [
+            {
+              "id": "lib/request.js:query:230-241",
+              "path": "lib/request.js",
+              "start_line": 230,
+              "end_line": 241,
+              "source_hash": "3642f58119dbccc4a8598151e8e2bcfacb210c5b8946393f1bccad0be1fcdd63",
+              "content_hash": "3642f58119dbccc4a8598151e8e2bcfacb210c5b8946393f1bccad0be1fcdd63",
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "id": "lib/utils.js:exports.compileQueryParser:162-184",
+              "path": "lib/utils.js",
+              "start_line": 162,
+              "end_line": 184,
+              "source_hash": "0454ccde7b17dc61ff75945d6f096d7e5487f3e6219b38c12b45bda8d13603b2",
+              "content_hash": "0454ccde7b17dc61ff75945d6f096d7e5487f3e6219b38c12b45bda8d13603b2",
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "id": "lib/utils.js:parseExtendedQueryString:267-271",
+              "path": "lib/utils.js",
+              "start_line": 267,
+              "end_line": 271,
+              "source_hash": "df340ec6d139e2700984d33e049ae2659271d5bdb42d721e7ad38a6b6fbc3857",
+              "content_hash": "df340ec6d139e2700984d33e049ae2659271d5bdb42d721e7ad38a6b6fbc3857",
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "id": "lib/application.js:<module>.compileQueryParser:22-22",
+              "path": "lib/application.js",
+              "start_line": 22,
+              "end_line": 22,
+              "source_hash": "f19fdd0c9e813732ffd09298c2139051bad5e2eb3c31077ff6d1642c85d4c806",
+              "content_hash": "f19fdd0c9e813732ffd09298c2139051bad5e2eb3c31077ff6d1642c85d4c806",
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "id": "lib/express.js:<module>:78-78",
+              "path": "lib/express.js",
+              "start_line": 78,
+              "end_line": 78,
+              "source_hash": "507dc959b2a9991bc4c64a0c2475aedd5e2c1f161ac38c386cc3ab240186077e",
+              "content_hash": "507dc959b2a9991bc4c64a0c2475aedd5e2c1f161ac38c386cc3ab240186077e",
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "id": "lib/application.js:app.defaultConfiguration:90-141",
+              "path": "lib/application.js",
+              "start_line": 90,
+              "end_line": 141,
+              "source_hash": "826bbd17de87db6939981f3e015291afe46f2b6ea90198e772d03539fb53711d",
+              "content_hash": "826bbd17de87db6939981f3e015291afe46f2b6ea90198e772d03539fb53711d",
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "id": "lib/application.js:app.disabled:439-441",
+              "path": "lib/application.js",
+              "start_line": 439,
+              "end_line": 441,
+              "source_hash": "3f35637cf650037238dc2742b55b7dfb61ab9871263f50eb50d382054976bdd5",
+              "content_hash": "3f35637cf650037238dc2742b55b7dfb61ab9871263f50eb50d382054976bdd5",
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "id": "lib/response.js:<module>.encodeUrl:18-18",
+              "path": "lib/response.js",
+              "start_line": 18,
+              "end_line": 18,
+              "source_hash": "d9d5cf054075c409e8f0e81c1cbe722478e9c41a0f3c1f38fa0b1490e9ac508b",
+              "content_hash": "d9d5cf054075c409e8f0e81c1cbe722478e9c41a0f3c1f38fa0b1490e9ac508b",
+              "origin": "retrieval",
+              "related_to": null
+            }
+          ],
+          "source_preserved": false,
+          "accepted": false,
+          "fallback_reason": "protected_source_not_preserved"
+        },
+        "final_equals_control": true
+      }
+    },
+    {
+      "subset": "native_express_observed",
+      "dataset": "express",
+      "query_id": "express_configured_query_parser",
+      "condition": "dense",
+      "ledger_line": 215,
+      "record_sha256": "7e3fe303f219ff2f4b6162dae86dbddc6114fd4287908de8f548822ac11fd88b",
+      "query": "Where is the configured simple, extended, custom, or disabled query parser compiled and then invoked on the raw URL query, with disabled parsing returning an empty object?",
+      "control_references": {
+        "legacy": {
+          "line_number": 536,
+          "record_sha256": "ae03cec7fce1f0360201846bb276c274c241296d8188edb260a4378f488f103d",
+          "response_sha256": "3815699d09cbaa960ebdfe9338c2ca44257f74fe85b24b0a61ffee0369078e9e",
+          "compact_sha256": "6774bb962ab92a59f71bcace70a5e6275268e3bd49e5afc0a9db860bcb9ad8fe"
+        },
+        "coverage_control": {
+          "line_number": 537,
+          "record_sha256": "e3a1475ce721b4efead2b2d7164a00f0a5d3162c37d3671ed63633403d5b4244",
+          "response_sha256": "2025dd70b71d3f8d64e9e79e3ee2307c3c6524c2b0508ab557b4793abb978adb",
+          "compact_sha256": "6774bb962ab92a59f71bcace70a5e6275268e3bd49e5afc0a9db860bcb9ad8fe"
+        }
+      },
+      "baseline_eligible_ids": [
+        "lib/request.js:query:230-241",
+        "lib/utils.js:exports.compileQueryParser:162-184",
+        "lib/application.js:<module>.compileQueryParser:22-22",
+        "lib/utils.js:parseExtendedQueryString:267-271",
+        "lib/utils.js:<module>.querystring:21-21",
+        "lib/request.js:<module>.parse:22-22",
+        "lib/express.js:<module>:81-81",
+        "lib/request.js:<module>.parseRange:21-21"
+      ],
+      "proposed_eligible_ids": [
+        "lib/request.js:query:230-241",
+        "lib/utils.js:exports.compileQueryParser:162-184",
+        "lib/application.js:<module>.compileQueryParser:22-22",
+        "lib/utils.js:parseExtendedQueryString:267-271",
+        "lib/utils.js:<module>.querystring:21-21",
+        "lib/application.js:app.set:351-383",
+        "lib/request.js:<module>.parse:22-22",
+        "lib/express.js:<module>:81-81"
+      ],
+      "added_ids": [
+        "lib/application.js:app.set:351-383"
+      ],
+      "evicted_ids": [
+        "lib/request.js:<module>.parseRange:21-21"
+      ],
+      "added_graph_witnesses": [
+        {
+          "anchor_id": "lib/utils.js:exports.compileQueryParser:162-184",
+          "anchor_key": [
+            "lib/utils.js",
+            "exports.compileQueryParser",
+            162,
+            184,
+            3241
+          ],
+          "direction": "caller",
+          "neighbor_key": [
+            "lib/application.js",
+            "app.set",
+            351,
+            383,
+            8153
+          ],
+          "source_key": [
+            "lib/application.js",
+            "app.set",
+            351,
+            383,
+            8153
+          ],
+          "target_key": [
+            "lib/utils.js",
+            "exports.compileQueryParser",
+            162,
+            184,
+            3241
+          ]
+        }
+      ],
+      "guard_protected_ids": [
+        "lib/request.js:query:230-241",
+        "lib/utils.js:exports.compileQueryParser:162-184",
+        "lib/application.js:<module>.compileQueryParser:22-22",
+        "lib/utils.js:parseExtendedQueryString:267-271",
+        "lib/utils.js:<module>.querystring:21-21"
+      ],
+      "guard_accepted": true,
+      "baseline_evidence_ranks": [
+        null,
+        2,
+        1
+      ],
+      "candidate_evidence_ranks": [
+        6,
+        2,
+        1
+      ],
+      "complete_gain": true,
+      "complete_loss": false,
+      "baseline_characters": 1026,
+      "baseline_tokens": 1055,
+      "candidate_characters": 1718,
+      "candidate_tokens": 1261,
+      "candidate_truncated_ids": [],
+      "backfill": {
+        "coalesced_ids": [],
+        "appended_ids": [],
+        "trials": 0,
+        "trial_limit": 8,
+        "trial_limit_reached": false,
+        "skipped": [],
+        "coverage_before": true,
+        "coverage_after": true,
+        "fallback_reason": null
+      },
+      "group_changes": [
+        {
+          "change": "group_gains",
+          "group": 1,
+          "targets": [
+            {
+              "path": "lib/application.js",
+              "symbol": "app.set",
+              "evidence_lines": [
+                360,
+                370
+              ],
+              "definition_lines": [
+                351,
+                383
+              ],
+              "declaration_anchor": "app.set = function set(",
+              "evidence_sha256": "efe63283caf4a428422fdb9b91ca3a1321b1e7e5a3d94693454e2d7e5fb9d649",
+              "source_file_sha256": "6d7e08355025786982d17042fc0355b6a5e9339545dc27e2782b3aaa28a7bc04"
+            }
+          ],
+          "raw_covering_windows": [
+            {
+              "raw_rank": 24,
+              "id": "lib/application.js:app.set:351-383",
+              "path": "lib/application.js",
+              "symbol": "app.set"
+            }
+          ],
+          "baseline_eligible_covering_ids": [],
+          "proposal_eligible_covering_ids": [
+            "lib/application.js:app.set:351-383"
+          ],
+          "classification": "retrieved_but_not_previously_eligible",
+          "baseline_delivered_rank": null,
+          "candidate_delivered_rank": 6,
+          "baseline_excerpt_ids": [],
+          "candidate_excerpt_ids": [
+            "lib/application.js:app.set:351-383"
+          ]
+        }
+      ],
+      "all_source_guard_control": {
+        "ledger_line": 216,
+        "record_sha256": "3606327f42b77dabbe2075e34542738797fe539aba89d6163d9901fab59e4e1e",
+        "guard": {
+          "schema": "source_graph_guard_v1",
+          "mode": "source_graph_all",
+          "protected_ids": [
+            "lib/request.js:query:230-241",
+            "lib/utils.js:exports.compileQueryParser:162-184",
+            "lib/application.js:<module>.compileQueryParser:22-22",
+            "lib/utils.js:parseExtendedQueryString:267-271",
+            "lib/utils.js:<module>.querystring:21-21",
+            "lib/request.js:<module>.parse:22-22",
+            "lib/express.js:<module>:81-81",
+            "lib/request.js:<module>.parseRange:21-21"
+          ],
+          "protected_rows": [
+            {
+              "id": "lib/request.js:query:230-241",
+              "path": "lib/request.js",
+              "start_line": 230,
+              "end_line": 241,
+              "source_hash": "3642f58119dbccc4a8598151e8e2bcfacb210c5b8946393f1bccad0be1fcdd63",
+              "content_hash": "3642f58119dbccc4a8598151e8e2bcfacb210c5b8946393f1bccad0be1fcdd63",
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "id": "lib/utils.js:exports.compileQueryParser:162-184",
+              "path": "lib/utils.js",
+              "start_line": 162,
+              "end_line": 184,
+              "source_hash": "0454ccde7b17dc61ff75945d6f096d7e5487f3e6219b38c12b45bda8d13603b2",
+              "content_hash": "0454ccde7b17dc61ff75945d6f096d7e5487f3e6219b38c12b45bda8d13603b2",
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "id": "lib/application.js:<module>.compileQueryParser:22-22",
+              "path": "lib/application.js",
+              "start_line": 22,
+              "end_line": 22,
+              "source_hash": "f19fdd0c9e813732ffd09298c2139051bad5e2eb3c31077ff6d1642c85d4c806",
+              "content_hash": "f19fdd0c9e813732ffd09298c2139051bad5e2eb3c31077ff6d1642c85d4c806",
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "id": "lib/utils.js:parseExtendedQueryString:267-271",
+              "path": "lib/utils.js",
+              "start_line": 267,
+              "end_line": 271,
+              "source_hash": "df340ec6d139e2700984d33e049ae2659271d5bdb42d721e7ad38a6b6fbc3857",
+              "content_hash": "df340ec6d139e2700984d33e049ae2659271d5bdb42d721e7ad38a6b6fbc3857",
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "id": "lib/utils.js:<module>.querystring:21-21",
+              "path": "lib/utils.js",
+              "start_line": 21,
+              "end_line": 21,
+              "source_hash": "d1b418967482f9c7376ec7825321dc5395d6aa1bbf08f0e141113e37902bdb74",
+              "content_hash": "d1b418967482f9c7376ec7825321dc5395d6aa1bbf08f0e141113e37902bdb74",
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "id": "lib/request.js:<module>.parse:22-22",
+              "path": "lib/request.js",
+              "start_line": 22,
+              "end_line": 22,
+              "source_hash": "d0c7faf050c431a5f2006ac3aaf3df9e40bce5193be9d622833bd02b22335d29",
+              "content_hash": "d0c7faf050c431a5f2006ac3aaf3df9e40bce5193be9d622833bd02b22335d29",
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "id": "lib/express.js:<module>:81-81",
+              "path": "lib/express.js",
+              "start_line": 81,
+              "end_line": 81,
+              "source_hash": "dbf2d43766b4fadd243bcde23796529092966fb465786bd5a75f99611cba8051",
+              "content_hash": "dbf2d43766b4fadd243bcde23796529092966fb465786bd5a75f99611cba8051",
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "id": "lib/request.js:<module>.parseRange:21-21",
+              "path": "lib/request.js",
+              "start_line": 21,
+              "end_line": 21,
+              "source_hash": "6f0dfe7ff91d14fe67dfdd45eff9b9eb2667320297e9f505103059e961cf842e",
+              "content_hash": "6f0dfe7ff91d14fe67dfdd45eff9b9eb2667320297e9f505103059e961cf842e",
+              "origin": "retrieval",
+              "related_to": null
+            }
+          ],
+          "source_preserved": false,
+          "accepted": false,
+          "fallback_reason": "protected_source_not_preserved"
+        },
+        "final_equals_control": true
+      }
+    },
+    {
+      "subset": "native_express_observed",
+      "dataset": "express",
+      "query_id": "express_trusted_forwarded_protocol",
+      "condition": "dense",
+      "ledger_line": 217,
+      "record_sha256": "1a25db391d47fe4872142eb621d3f168ac80ebf34681faae6949d21de0ed6f88",
+      "query": "Where is a proxy-trust policy compiled from a boolean, hop count, address list, or custom function, then used to decide whether the forwarded protocol header may override the socket protocol?",
+      "control_references": {
+        "legacy": {
+          "line_number": 541,
+          "record_sha256": "5c043e8bdcf02e4039ab3795a3ee6f11e9d1bcac580f61d51bfcaeb5fa46cc45",
+          "response_sha256": "cbceefb82024c7dc106d631bbbafd152a690821d0d5f1909dfbefd4fe980cdb3",
+          "compact_sha256": "e538f27316098c1b1d4f079b5593bb06b3178bf9358a6868689887bd8c846032"
+        },
+        "coverage_control": {
+          "line_number": 542,
+          "record_sha256": "f053607a28e2b57fa24908dcf0c8c6b85b49ee643267208a3c8657186f9d662e",
+          "response_sha256": "c37950e52fc07efc724ca4a77bb95c08d5f4cc1130ec2d361c665d2a0d4014d0",
+          "compact_sha256": "e538f27316098c1b1d4f079b5593bb06b3178bf9358a6868689887bd8c846032"
+        }
+      },
+      "baseline_eligible_ids": [
+        "lib/utils.js:exports.compileTrust:194-214",
+        "lib/request.js:protocol:297-315",
+        "lib/request.js:ip:340-343",
+        "lib/request.js:ips:357-366",
+        "lib/request.js:host:418-431",
+        "lib/application.js:<module>.trustProxyDefaultSymbol:47-47",
+        "lib/application.js:app.defaultConfiguration.onmount:109-122",
+        "lib/request.js:secure:326-328"
+      ],
+      "proposed_eligible_ids": [
+        "lib/utils.js:exports.compileTrust:194-214",
+        "lib/request.js:protocol:297-315",
+        "lib/request.js:ip:340-343",
+        "lib/request.js:ips:357-366",
+        "lib/request.js:host:418-431",
+        "lib/application.js:app.set:351-383",
+        "lib/application.js:<module>.trustProxyDefaultSymbol:47-47",
+        "lib/application.js:app.defaultConfiguration.onmount:109-122"
+      ],
+      "added_ids": [
+        "lib/application.js:app.set:351-383"
+      ],
+      "evicted_ids": [
+        "lib/request.js:secure:326-328"
+      ],
+      "added_graph_witnesses": [
+        {
+          "anchor_id": "lib/utils.js:exports.compileTrust:194-214",
+          "anchor_key": [
+            "lib/utils.js",
+            "exports.compileTrust",
+            194,
+            214,
+            3820
+          ],
+          "direction": "caller",
+          "neighbor_key": [
+            "lib/application.js",
+            "app.set",
+            351,
+            383,
+            8153
+          ],
+          "source_key": [
+            "lib/application.js",
+            "app.set",
+            351,
+            383,
+            8153
+          ],
+          "target_key": [
+            "lib/utils.js",
+            "exports.compileTrust",
+            194,
+            214,
+            3820
+          ]
+        }
+      ],
+      "guard_protected_ids": [
+        "lib/utils.js:exports.compileTrust:194-214",
+        "lib/request.js:protocol:297-315",
+        "lib/request.js:ip:340-343",
+        "lib/request.js:ips:357-366",
+        "lib/request.js:host:418-431"
+      ],
+      "guard_accepted": true,
+      "baseline_evidence_ranks": [
+        null,
+        1,
+        2
+      ],
+      "candidate_evidence_ranks": [
+        6,
+        1,
+        2
+      ],
+      "complete_gain": true,
+      "complete_loss": false,
+      "baseline_characters": 2518,
+      "baseline_tokens": 1487,
+      "candidate_characters": 3165,
+      "candidate_tokens": 1687,
+      "candidate_truncated_ids": [],
+      "backfill": {
+        "coalesced_ids": [],
+        "appended_ids": [],
+        "trials": 0,
+        "trial_limit": 8,
+        "trial_limit_reached": false,
+        "skipped": [],
+        "coverage_before": true,
+        "coverage_after": true,
+        "fallback_reason": null
+      },
+      "group_changes": [
+        {
+          "change": "group_gains",
+          "group": 1,
+          "targets": [
+            {
+              "path": "lib/application.js",
+              "symbol": "app.set",
+              "evidence_lines": [
+                371,
+                379
+              ],
+              "definition_lines": [
+                351,
+                383
+              ],
+              "declaration_anchor": "app.set = function set(",
+              "evidence_sha256": "2b979c3bf787072a49f9a4e336f9fc59b11d4752293e77a87f703b51fc58df8a",
+              "source_file_sha256": "6d7e08355025786982d17042fc0355b6a5e9339545dc27e2782b3aaa28a7bc04"
+            }
+          ],
+          "raw_covering_windows": [
+            {
+              "raw_rank": 14,
+              "id": "lib/application.js:app.set:351-383",
+              "path": "lib/application.js",
+              "symbol": "app.set"
+            }
+          ],
+          "baseline_eligible_covering_ids": [],
+          "proposal_eligible_covering_ids": [
+            "lib/application.js:app.set:351-383"
+          ],
+          "classification": "retrieved_but_not_previously_eligible",
+          "baseline_delivered_rank": null,
+          "candidate_delivered_rank": 6,
+          "baseline_excerpt_ids": [],
+          "candidate_excerpt_ids": [
+            "lib/application.js:app.set:351-383"
+          ]
+        }
+      ],
+      "all_source_guard_control": {
+        "ledger_line": 218,
+        "record_sha256": "662cfe46cb21c633674cd8ef69aeda34e69bb037d68abcd5ec91aae41de39778",
+        "guard": {
+          "schema": "source_graph_guard_v1",
+          "mode": "source_graph_all",
+          "protected_ids": [
+            "lib/utils.js:exports.compileTrust:194-214",
+            "lib/request.js:protocol:297-315",
+            "lib/request.js:ip:340-343",
+            "lib/request.js:ips:357-366",
+            "lib/request.js:host:418-431",
+            "lib/application.js:<module>.trustProxyDefaultSymbol:47-47",
+            "lib/application.js:app.defaultConfiguration.onmount:109-122",
+            "lib/request.js:secure:326-328"
+          ],
+          "protected_rows": [
+            {
+              "id": "lib/utils.js:exports.compileTrust:194-214",
+              "path": "lib/utils.js",
+              "start_line": 194,
+              "end_line": 214,
+              "source_hash": "8598f1ad372ed7697b3ee0c924eef284154d56371b400ad8190a8771b415cf0b",
+              "content_hash": "8598f1ad372ed7697b3ee0c924eef284154d56371b400ad8190a8771b415cf0b",
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "id": "lib/request.js:protocol:297-315",
+              "path": "lib/request.js",
+              "start_line": 297,
+              "end_line": 315,
+              "source_hash": "10d68b19e36cf2d7a504eb26281c5bc30eb9d11080faabcec4e641cd88627650",
+              "content_hash": "10d68b19e36cf2d7a504eb26281c5bc30eb9d11080faabcec4e641cd88627650",
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "id": "lib/request.js:ip:340-343",
+              "path": "lib/request.js",
+              "start_line": 340,
+              "end_line": 343,
+              "source_hash": "358de2ca296b251bac7b6c6f7c82b7b41c0ca16817eca91117b7f68b789b8f17",
+              "content_hash": "358de2ca296b251bac7b6c6f7c82b7b41c0ca16817eca91117b7f68b789b8f17",
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "id": "lib/request.js:ips:357-366",
+              "path": "lib/request.js",
+              "start_line": 357,
+              "end_line": 366,
+              "source_hash": "26c174a2254b0e592fc9a3f80e6a24aa1bd0f2111d252a9878ff37ac79c3e2f0",
+              "content_hash": "26c174a2254b0e592fc9a3f80e6a24aa1bd0f2111d252a9878ff37ac79c3e2f0",
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "id": "lib/request.js:host:418-431",
+              "path": "lib/request.js",
+              "start_line": 418,
+              "end_line": 431,
+              "source_hash": "ae79d2e8096bc8d8d412a597231e6f0322592347a58ab5eac7f0a68774e57af6",
+              "content_hash": "ae79d2e8096bc8d8d412a597231e6f0322592347a58ab5eac7f0a68774e57af6",
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "id": "lib/application.js:<module>.trustProxyDefaultSymbol:47-47",
+              "path": "lib/application.js",
+              "start_line": 47,
+              "end_line": 47,
+              "source_hash": "33371f49d9463d26fb3013ef0ab33ed30895563afc89a444ac78543fab81a795",
+              "content_hash": "33371f49d9463d26fb3013ef0ab33ed30895563afc89a444ac78543fab81a795",
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "id": "lib/application.js:app.defaultConfiguration.onmount:109-122",
+              "path": "lib/application.js",
+              "start_line": 109,
+              "end_line": 122,
+              "source_hash": "3bc2d628da66053a9a9623da8df9668549fc1298f3e45c883e039ec962e4ef50",
+              "content_hash": "3bc2d628da66053a9a9623da8df9668549fc1298f3e45c883e039ec962e4ef50",
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "id": "lib/request.js:secure:326-328",
+              "path": "lib/request.js",
+              "start_line": 326,
+              "end_line": 328,
+              "source_hash": "2530fad40148de8461a8995eb5bcef534be2f8564ec091a95273461663f404bc",
+              "content_hash": "2530fad40148de8461a8995eb5bcef534be2f8564ec091a95273461663f404bc",
+              "origin": "retrieval",
+              "related_to": null
+            }
+          ],
+          "source_preserved": false,
+          "accepted": false,
+          "fallback_reason": "protected_source_not_preserved"
+        },
+        "final_equals_control": true
+      }
+    },
+    {
+      "subset": "qwen_httpx_observed",
+      "dataset": "httpx",
+      "query_id": "httpx_json_request_encoding_and_headers",
+      "condition": "hybrid_k24_b1",
+      "ledger_line": 645,
+      "record_sha256": "9f7638773c31b082c9cc5df868b60ae79b1db8bfd1cd863314fd40f6a1c7b62c",
+      "query": "Build a JSON request body with compact UTF-8 serialization and its byte length, reject non-finite numbers, and preserve content headers explicitly supplied by the caller.",
+      "control_references": {
+        "legacy": {
+          "line_number": 1611,
+          "record_sha256": "533ebf4a1d1ac471c6d29899a18e9aa2fcd22c3a47aa98c2c8a9390f0aa600f9",
+          "response_sha256": "ef1f249b81462772f91b064684ece5ddb9ee09c6aa340494145b8e2ac32e2d55",
+          "compact_sha256": "5e71004083b68299ee719d6239dd447cfc996448c5c4e536aab28e0cd8dfe98e"
+        },
+        "coverage_control": {
+          "line_number": 1612,
+          "record_sha256": "4501af339df20ce97cff3a906fb8c04edb2334b5ea19e3bb33f8b22e58429eb1",
+          "response_sha256": "e2b509946e4c2841a4c6be57cfd8a097edd9b06bdef3d0f14415bf30f41b6bf4",
+          "compact_sha256": "5e71004083b68299ee719d6239dd447cfc996448c5c4e536aab28e0cd8dfe98e"
+        }
+      },
+      "baseline_eligible_ids": [
+        "httpx/_content.py:encode_json:176-183",
+        "httpx/_content.py:encode_text:160-165",
+        "httpx/_content.py:encode_content:107-133",
+        "httpx/_content.py:encode_urlencoded_data:136-149",
+        "httpx/_content.py:encode_html:168-173",
+        "httpx/_utils.py:peek_filelike_length:95-117",
+        "httpx/_utils.py:primitive_value_to_str:15-27",
+        "httpx/_models.py:Request._prepare:441-460"
+      ],
+      "proposed_eligible_ids": [
+        "httpx/_content.py:encode_json:176-183",
+        "httpx/_content.py:encode_text:160-165",
+        "httpx/_content.py:encode_content:107-133",
+        "httpx/_content.py:encode_urlencoded_data:136-149",
+        "httpx/_content.py:encode_html:168-173",
+        "httpx/_utils.py:peek_filelike_length:95-117",
+        "httpx/_utils.py:primitive_value_to_str:15-27",
+        "httpx/_content.py:encode_request:186-218"
+      ],
+      "added_ids": [
+        "httpx/_content.py:encode_request:186-218"
+      ],
+      "evicted_ids": [
+        "httpx/_models.py:Request._prepare:441-460"
+      ],
+      "added_graph_witnesses": [
+        {
+          "anchor_id": "httpx/_content.py:encode_json:176-183",
+          "anchor_key": [
+            "httpx/_content.py",
+            "encode_json",
+            176,
+            183
+          ],
+          "direction": "caller",
+          "neighbor_key": [
+            "httpx/_content.py",
+            "encode_request",
+            186,
+            218
+          ],
+          "source_key": [
+            "httpx/_content.py",
+            "encode_request",
+            186,
+            218
+          ],
+          "target_key": [
+            "httpx/_content.py",
+            "encode_json",
+            176,
+            183
+          ]
+        },
+        {
+          "anchor_id": "httpx/_content.py:encode_content:107-133",
+          "anchor_key": [
+            "httpx/_content.py",
+            "encode_content",
+            107,
+            133
+          ],
+          "direction": "caller",
+          "neighbor_key": [
+            "httpx/_content.py",
+            "encode_request",
+            186,
+            218
+          ],
+          "source_key": [
+            "httpx/_content.py",
+            "encode_request",
+            186,
+            218
+          ],
+          "target_key": [
+            "httpx/_content.py",
+            "encode_content",
+            107,
+            133
+          ]
+        },
+        {
+          "anchor_id": "httpx/_content.py:encode_urlencoded_data:136-149",
+          "anchor_key": [
+            "httpx/_content.py",
+            "encode_urlencoded_data",
+            136,
+            149
+          ],
+          "direction": "caller",
+          "neighbor_key": [
+            "httpx/_content.py",
+            "encode_request",
+            186,
+            218
+          ],
+          "source_key": [
+            "httpx/_content.py",
+            "encode_request",
+            186,
+            218
+          ],
+          "target_key": [
+            "httpx/_content.py",
+            "encode_urlencoded_data",
+            136,
+            149
+          ]
+        }
+      ],
+      "guard_protected_ids": [
+        "httpx/_content.py:encode_json:176-183",
+        "httpx/_content.py:encode_text:160-165",
+        "httpx/_content.py:encode_content:107-133",
+        "httpx/_content.py:encode_urlencoded_data:136-149",
+        "httpx/_content.py:encode_html:168-173",
+        "httpx/_utils.py:peek_filelike_length:95-117",
+        "httpx/_utils.py:primitive_value_to_str:15-27"
+      ],
+      "guard_accepted": true,
+      "baseline_evidence_ranks": [
+        null,
+        null,
+        1,
+        8
+      ],
+      "candidate_evidence_ranks": [
+        null,
+        8,
+        1,
+        null
+      ],
+      "complete_gain": false,
+      "complete_loss": false,
+      "baseline_characters": 5007,
+      "baseline_tokens": 2087,
+      "candidate_characters": 5461,
+      "candidate_tokens": 2223,
+      "candidate_truncated_ids": [],
+      "backfill": {
+        "coalesced_ids": [],
+        "appended_ids": [],
+        "trials": 0,
+        "trial_limit": 8,
+        "trial_limit_reached": false,
+        "skipped": [],
+        "coverage_before": true,
+        "coverage_after": true,
+        "fallback_reason": null
+      },
+      "group_changes": [
+        {
+          "change": "group_gains",
+          "group": 2,
+          "targets": [
+            {
+              "declaration_anchor": "def encode_request(",
+              "definition_lines": [
+                186,
+                218
+              ],
+              "evidence_lines": [
+                186,
+                218
+              ],
+              "evidence_sha256": "6651ed432577431e4bd1617f2c8eab330b2ff249e4ee500e02694fadbf74d8ff",
+              "path": "httpx/_content.py",
+              "source_file_sha256": "2c61b3ac94d1dcebcde0c6f519554d2d7917247fbaa0a97002db4ef69e70ff28",
+              "symbol": "encode_request"
+            }
+          ],
+          "raw_covering_windows": [
+            {
+              "raw_rank": 8,
+              "id": "httpx/_content.py:encode_request:186-218",
+              "path": "httpx/_content.py",
+              "symbol": "encode_request"
+            }
+          ],
+          "baseline_eligible_covering_ids": [],
+          "proposal_eligible_covering_ids": [
+            "httpx/_content.py:encode_request:186-218"
+          ],
+          "classification": "retrieved_but_not_previously_eligible",
+          "baseline_delivered_rank": null,
+          "candidate_delivered_rank": 8,
+          "baseline_excerpt_ids": [],
+          "candidate_excerpt_ids": [
+            "httpx/_content.py:encode_request:186-218"
+          ]
+        },
+        {
+          "change": "group_losses",
+          "group": 4,
+          "targets": [
+            {
+              "declaration_anchor": "def _prepare(self, default_headers: dict[str, str]) -> None:",
+              "definition_lines": [
+                441,
+                460
+              ],
+              "evidence_lines": [
+                441,
+                460
+              ],
+              "evidence_sha256": "2512f2c35f01fe341f99e1c6f88e680bd82ae89b7e9a812b129829724921bb2c",
+              "path": "httpx/_models.py",
+              "source_file_sha256": "e3ffc6bb2bf580bc6e6428708a6f247d036220e709f5a72b785392babbd97e6b",
+              "symbol": "Request._prepare"
+            }
+          ],
+          "raw_covering_windows": [
+            {
+              "raw_rank": 6,
+              "id": "httpx/_models.py:Request._prepare:441-460",
+              "path": "httpx/_models.py",
+              "symbol": "Request._prepare"
+            }
+          ],
+          "baseline_eligible_covering_ids": [
+            "httpx/_models.py:Request._prepare:441-460"
+          ],
+          "proposal_eligible_covering_ids": [],
+          "classification": "removed_before_packing",
+          "baseline_delivered_rank": 8,
+          "candidate_delivered_rank": null,
+          "baseline_excerpt_ids": [
+            "httpx/_models.py:Request._prepare:441-460"
+          ],
+          "candidate_excerpt_ids": []
+        }
+      ],
+      "all_source_guard_control": {
+        "ledger_line": 646,
+        "record_sha256": "67d46d8a0f8c4cb0c7f04d5ee5eac7ecfef88f56689503c1f6c9b36c67da9b25",
+        "guard": {
+          "schema": "source_graph_guard_v1",
+          "mode": "source_graph_all",
+          "protected_ids": [
+            "httpx/_content.py:encode_json:176-183",
+            "httpx/_content.py:encode_text:160-165",
+            "httpx/_content.py:encode_content:107-133",
+            "httpx/_content.py:encode_urlencoded_data:136-149",
+            "httpx/_content.py:encode_html:168-173",
+            "httpx/_utils.py:peek_filelike_length:95-117",
+            "httpx/_utils.py:primitive_value_to_str:15-27",
+            "httpx/_models.py:Request._prepare:441-460"
+          ],
+          "protected_rows": [
+            {
+              "id": "httpx/_content.py:encode_json:176-183",
+              "path": "httpx/_content.py",
+              "start_line": 176,
+              "end_line": 183,
+              "source_hash": "30372895d631a8b5200f61f3cad175aa09b48db43be3b717291d7ef9f93f658e",
+              "content_hash": "30372895d631a8b5200f61f3cad175aa09b48db43be3b717291d7ef9f93f658e",
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "id": "httpx/_content.py:encode_text:160-165",
+              "path": "httpx/_content.py",
+              "start_line": 160,
+              "end_line": 165,
+              "source_hash": "33cb9c4d599751626ff73ea91432019a05aa0b97d676d90dbbf1b362d2032f2c",
+              "content_hash": "33cb9c4d599751626ff73ea91432019a05aa0b97d676d90dbbf1b362d2032f2c",
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "id": "httpx/_content.py:encode_content:107-133",
+              "path": "httpx/_content.py",
+              "start_line": 107,
+              "end_line": 133,
+              "source_hash": "0442068de8032cbe7cc657444105a1e69cf96921880421808ca87e19212d5b17",
+              "content_hash": "0442068de8032cbe7cc657444105a1e69cf96921880421808ca87e19212d5b17",
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "id": "httpx/_content.py:encode_urlencoded_data:136-149",
+              "path": "httpx/_content.py",
+              "start_line": 136,
+              "end_line": 149,
+              "source_hash": "cf65b36debda98d7df59185c9f3001d77b02050611f7d1fc3250b37adb6e3291",
+              "content_hash": "cf65b36debda98d7df59185c9f3001d77b02050611f7d1fc3250b37adb6e3291",
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "id": "httpx/_content.py:encode_html:168-173",
+              "path": "httpx/_content.py",
+              "start_line": 168,
+              "end_line": 173,
+              "source_hash": "71bac2c99774ab5b98018ec87b137746c0bdde729f6fd3ef5925cd6f417bca5c",
+              "content_hash": "71bac2c99774ab5b98018ec87b137746c0bdde729f6fd3ef5925cd6f417bca5c",
+              "origin": "retrieval",
+              "related_to": null
+            },
+            {
+              "id": "httpx/_utils.py:peek_filelike_length:95-117",
+              "path": "httpx/_utils.py",
+              "start_line": 95,
+              "end_line": 117,
+              "source_hash": "d2d3268efea0ab2c1598a5b84a609dcb9d262c8b22f48cd93969d15fe16f60b2",
+              "content_hash": "d2d3268efea0ab2c1598a5b84a609dcb9d262c8b22f48cd93969d15fe16f60b2",
+              "origin": "dependency",
+              "related_to": "httpx/_content.py:encode_content:107-133"
+            },
+            {
+              "id": "httpx/_utils.py:primitive_value_to_str:15-27",
+              "path": "httpx/_utils.py",
+              "start_line": 15,
+              "end_line": 27,
+              "source_hash": "7af18a35c4edea30512007a137cb66289aa69da550b0de91c752969f28f6757d",
+              "content_hash": "7af18a35c4edea30512007a137cb66289aa69da550b0de91c752969f28f6757d",
+              "origin": "dependency",
+              "related_to": "httpx/_content.py:encode_urlencoded_data:136-149"
+            },
+            {
+              "id": "httpx/_models.py:Request._prepare:441-460",
+              "path": "httpx/_models.py",
+              "start_line": 441,
+              "end_line": 460,
+              "source_hash": "2512f2c35f01fe341f99e1c6f88e680bd82ae89b7e9a812b129829724921bb2c",
+              "content_hash": "2512f2c35f01fe341f99e1c6f88e680bd82ae89b7e9a812b129829724921bb2c",
+              "origin": "retrieval",
+              "related_to": null
+            }
+          ],
+          "source_preserved": false,
+          "accepted": false,
+          "fallback_reason": "protected_source_not_preserved"
+        },
+        "final_equals_control": true
+      }
+    }
+  ],
+  "httpx_constructor_static_edges": [
+    {
+      "caller": [
+        "httpx/_models.py",
+        "Request.__init__"
+      ],
+      "targets": [
+        [
+          "httpx/_content.py",
+          "encode_request"
+        ],
+        [
+          "httpx/_multipart.py",
+          "get_multipart_boundary_from_content_type"
+        ],
+        [
+          "httpx/_models.py",
+          "Request._prepare"
+        ],
+        [
+          "httpx/_models.py",
+          "Request.read"
+        ]
+      ]
+    }
+  ],
+  "interpretation": {
+    "express": "The app.set caller is already retrieved, then omitted by the old eligible allocation. Explicit calls to compileQueryParser or compileTrust justify its admission. Six complete-case gains share two dataset/query units across repeated studies/modes.",
+    "httpx": "Request._prepare is already retrieved at raw rank six and previously delivered completely. Two retained static dependencies occupy slots six/seven, leaving it as the sole exchangeable eighth result. Promoting encode_request (raw rank eight) evicts it before packing. All seven protected rows remain intact; the omitted header-preservation implementation is outside the top-five anchors' one-hop protection.",
+    "flow_scope": "Frozen Request.__init__ edges connect both encode_request and Request._prepare. Their constructor-level relationship is beyond the current top-five one-hop rule. This is a post hoc explanation, not an evaluated broader graph rule.",
+    "partial_query": "HTTPX lacks the Request.__init__ evidence group before and after. Adding encode_request while dropping Request._prepare swaps one required group for another without changing complete-query counts. Individual group gates correctly reject it.",
+    "budgets": "None of the seven changed-group cases clips a result or performs backfill. The HTTPX final response uses 5461/12000 source characters and2223/4096 compact tokens. Its regression is slot eviction rather than a character/token packing error.",
+    "all_source_control": "Protecting every actual reference row blocks these exchanges and all measured complete-query gains. Both candidate arms remain unqualified; no production default or fresh run follows."
+  },
+  "calls": {
+    "model": 0,
+    "index": 0,
+    "retrieval": 0,
+    "new_candidate_execution": 0,
+    "network": 0
+  },
+  "limits": "Derived counts are descriptive and outside canonical audit scope. All365 rows are observed development evidence sharing187 dataset/query units. No fresh source, labels or outcomes are read. No generalization, native latency, coding correctness or provider token claim is made."
+}

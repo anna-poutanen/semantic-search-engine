@@ -1,0 +1,116 @@
+{
+  "created_at_utc": "2026-10-27T20:34:18.143106+00:00",
+  "local_date": "2026-10-27",
+  "timezone": "America/Toronto",
+  "recorded_from_commit": "e34d6f6ab2d8e6c5884e607ce8068ee090dc4299",
+  "core_tests": {
+    "passed": 3178,
+    "skipped": 10
+  },
+  "editor_tests": {
+    "passed": 118,
+    "profile_storage_helpers_passed": 61
+  },
+  "new_synthetic_and_integration_tests": {
+    "planner_and_guard": 58,
+    "backend_mcp_scores_overlay_cancel": 18,
+    "replay": 35,
+    "independent_auditor": 50
+  },
+  "cpu_cli": {
+    "checks_passed": true,
+    "processes": 5,
+    "model_import_attempts": 0,
+    "socket_connection_attempts": 0,
+    "scope": "Worktree source entrypoint with existing pinned environment; no package installation or new release qualification"
+  },
+  "development": {
+    "observed_case_rows": 365,
+    "distinct_dataset_query_units": 187,
+    "new_candidate_rows": 730,
+    "referenced_control_rows": 730,
+    "referenced_negative_rows": 730,
+    "exact_legacy_controls": 365,
+    "exact_prior_coverage_controls": 337,
+    "control_only_independent_ordinary_packs": 365,
+    "control_only_independent_coalesced_responses": 365,
+    "independent_audit_passed": true,
+    "audit_sha256": "2362851983bbc4a87669fd3a2953a78d7df590c56eda183537263a65f45da76b",
+    "first_audit_attempt_passed": true,
+    "qualification": {
+      "source_graph": {
+        "qualified": false,
+        "against_controls": {
+          "legacy": {
+            "lost_groups": 1,
+            "lost_complete_rows": 0,
+            "lost_single_file_first_hits": 0
+          },
+          "coverage_control": {
+            "lost_groups": 1,
+            "lost_complete_rows": 0,
+            "lost_single_file_first_hits": 0
+          }
+        },
+        "additional_distinct_complete_queries_vs_coverage_control": [
+          "express/express_configured_query_parser",
+          "express/express_trusted_forwarded_protocol"
+        ],
+        "gained_additional_distinct_complete_queries": 2,
+        "requires_fresh_native_validation": true,
+        "automatic_default_change": false
+      },
+      "source_graph_all": {
+        "qualified": false,
+        "against_controls": {
+          "legacy": {
+            "lost_groups": 0,
+            "lost_complete_rows": 0,
+            "lost_single_file_first_hits": 0
+          },
+          "coverage_control": {
+            "lost_groups": 0,
+            "lost_complete_rows": 0,
+            "lost_single_file_first_hits": 0
+          }
+        },
+        "additional_distinct_complete_queries_vs_coverage_control": [],
+        "gained_additional_distinct_complete_queries": 0,
+        "requires_fresh_native_validation": true,
+        "automatic_default_change": false
+      }
+    }
+  },
+  "native_and_fresh": {
+    "executed": false,
+    "reason": "Both fixed candidates fail the frozen gate. Structural protection gains two distinct complete Express queries but loses an HTTPX evidence group; all-source protection adds none. TanStack Query remains unobserved."
+  },
+  "production_defaults_changed": false,
+  "release_assets_changed": false,
+  "unrelated_local_files_unchanged_before_main_update": 269,
+  "test_setup_notes": [
+    "Initial new backend fixture incorrectly asserted content_hash was a whole-file hash; eight new assertions failed while 74 adjacent existing tests passed. Corrected the test to the original snippet-window hash and retained the initial failure log; no selector rule changed.",
+    "After initial broad testing passed 3177 tests, one replay interruption test and streaming failure preservation were added before freeze. The final frozen-source broad suite passed 3178 tests."
+  ],
+  "derived_posthoc_scope": "Activity verification and source diagnosis explain fixed observed outcomes; they are separately hash-bound and outside the canonical quality audit. No new variants were evaluated.",
+  "logs_sha256": {
+    "activity-root-check.json": "fe48ca1c13c647e28fc04d356d5956c605d8e5f5b6a0e739f9ee8edb5ab5cb47",
+    "activity-verification.json": "8f27f839e9d50e96e1bb5700d810d5c04f6c7fcd1e84d2aa60fa7af255a46b21",
+    "backend-tests.log": "dac2b1b544f3e57ca0615432f633914ba2f7f4edb3e505a61287aa4077b06094",
+    "cli-entrypoint.py.txt": "b66009db45310395a91c426d0c69b8980961ef2e8651fe8b5b06942db6a2de4a",
+    "core-tests.log": "8a84e4fb23ccb662440a78159f0468968df383acdfb6eb1980a2f78a934f8368",
+    "cpu-cli.json": "63a8f8257a9e57d057c4c9244ae3b2789bb4e36840f062db2e16f6b6783bb504",
+    "development-run.log": "a7f89d3e6baae0f9345d1de284ef0d79d1a433c81cf1a8e370692d5acab247db",
+    "editor-helpers.log": "691182b0726de39aa37995c6bc34bcbbb3c92999bc87b16766dfb9e7e8b69c02",
+    "editor-tests.log": "254e597f4c1919971264e5853c73327fd3bb0be1bee51724dd02402ac7e76829",
+    "freeze.log": "2a82be8f8fb21da605a656e586bdeb154d4bd03be7d5cbbd28f2cfea48faab39",
+    "independent-audit.log": "3016f9e9330849d2fc8052335b87359eb119e8d3d94cc7c2af9492e2c594fc22",
+    "initial-integration-tests.log.gz": "a2d1d8dd07a26e8ba1b5d0a22b44e4cb3d7c7811cabf3e2d210c64b94eb5fd0a"
+  },
+  "derived_diagnosis_sha256": {
+    "diagnosis.py.txt": "71c73b8f59cc8d1bc63af12a0794305a4e0942bf36a5a9ecd22e9ec89e16ed6e",
+    "diagnosis.md": "2b61abd53ba2755c67c3614ee8f48b4f4d726612a5352d327148c99aab19ccbb",
+    "diagnosis.json": "d3cbf142d5941e549372f06b4572f133c79cda77ac39534a171f94add7bc65ff"
+  },
+  "initial_failure_log_uncompressed_sha256": "2aa269ef5f8bffefacd269004efc7506531bad9c64c97d8aa89a63e908732b37"
+}

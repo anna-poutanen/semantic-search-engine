@@ -53,8 +53,15 @@ This follows the agreed plan in **Choose a project for YC roles** on October 12,
    and three distinct query units, respectively, but lose four and twelve full
    group occurrences against coverage control. Every one of the 730 new outcomes
    and 730 immutable control references passes independent audit; neither rule
-   qualifies for fresh inference or promotion. The next quality target is
-   source-aware complementary selection with evidence protection after packing.
+   qualifies for fresh inference or promotion. The
+   [source-aware follow-up](source-aware-allocation.md) adds verified graph-neighbor
+   selection and protection of actual delivered source after packing. It newly
+   completes two Express query units but evicts one HTTPX header-preparation group;
+   the stricter all-source guard adds no complete behavior. Both fail the frozen
+   gate. Its independent auditor reconstructs maximal character/token packing,
+   containment/backfill, graph decisions and protected source. The next quality
+   target is complementary flow coverage through shared orchestrators beyond
+   the original anchor neighborhood, with a new freeze and unchanged loss gates.
    Another coding comparison remains gated on retrieval improvement. All source-only
    labels, raw traces, rejected controls, failure receipts and independent audits
    are preserved.

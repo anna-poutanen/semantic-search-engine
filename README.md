@@ -126,6 +126,13 @@ both rules fail the promotion gate. All 730 new outcomes and their 730 control
 references pass independent audit; 3,017 core tests pass. Defaults and release
 assets stay unchanged, and the fresh codebase remains unqueried.
 
+The [source-aware allocation follow-up](docs/source-aware-allocation.md) uses
+verified caller/callee relationships and protects actual source after packing.
+It newly completes two observed Express behaviors, but evicts one required
+HTTPX header-preparation group. Protecting all prior source avoids that loss
+without adding complete behaviors. Both rules fail the frozen quality gate;
+the results, source diagnosis and validation are retained, and defaults stay unchanged.
+
 For optional H2O reranking, install its pinned runtime and weights with
 `python3 scripts/setup_mac.py`, start `.venv/bin/python scripts/serve_mac.py` in
 another terminal, then pass `--rerank`:
