@@ -460,6 +460,7 @@ class SearchBackend:
                     include_dependencies=include_dependencies, references=self._references,
                     definition_keys=self._definition_keys,
                     ambiguous_symbols=self._ambiguous_definitions)
+                selection_plan = getattr(eligible, "source_plan", None)
                 def result_row(snippet, score, source, origin="retrieval", related_to=None):
                     truncated = source != snippet.text
                     row = {"id": snippet.id, "path": snippet.path, "symbol": snippet.symbol,
@@ -549,7 +550,8 @@ class SearchBackend:
                     max_results=max_results, source_budget=source_budget,
                     token_budget=token_budget, cancel_check=check,
                     ranked_candidates=(result_row(snippet, score, snippet.text) for snippet, score in pairs),
-                    definition_keys=self._definition_keys, reference_factory=reference_factory)
+                    definition_keys=self._definition_keys, reference_factory=reference_factory,
+                    **({"selection_plan": selection_plan} if selection_plan is not None else {}))
                 check()
                 self._confirm_snapshot(self._manifest)
                 response["timings"]["packaging_s"] = time.perf_counter() - phase
