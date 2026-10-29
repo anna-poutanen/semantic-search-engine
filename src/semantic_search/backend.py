@@ -19,7 +19,8 @@ from semantic_search.retrieval import HybridRetriever, MultifileRetriever
 from semantic_search.cancellation import CancellationRegistry, SearchCancelled
 from semantic_search.context import apply_token_budget, indexed_scope
 from semantic_search.source import physical_lines
-from semantic_search.selection import select_context, postprocess_context, _ambiguous_symbols
+from semantic_search.selection import definition_context as select_context, _ambiguous_symbols
+from semantic_search.context_backfill import coalesce_context as postprocess_context
 from semantic_search.languages import decode_source, extractor_fingerprint, validate_exclusions, validate_source
 
 

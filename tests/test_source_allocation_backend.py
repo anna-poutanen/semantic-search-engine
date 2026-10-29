@@ -72,6 +72,8 @@ def test_actual_backend_plans_and_guards_once_with_one_embedding_and_exact_mcp_s
     from semantic_search.mcp_server import SearchArguments, _validate_context
 
     repo, backend, embedder = repository
+    original_selector = backend_module.select_context
+    original_postprocessor = backend_module.postprocess_context
     settings = dict(retrieval="dense", candidates=50, include_dependencies=True, **limits)
     with patch.multiple(backend_module, select_context=selection.definition_context,
                         postprocess_context=coalesce_context):
@@ -104,8 +106,8 @@ def test_actual_backend_plans_and_guards_once_with_one_embedding_and_exact_mcp_s
         assert ("implementation_9" in symbols) == (mode == "source_graph")
         if mode == "source_graph_all":
             assert context.compact_result(control) == envelope
-    assert backend_module.select_context is selection.ranked_context
-    assert backend_module.postprocess_context is selection.unchanged_context
+    assert backend_module.select_context is original_selector
+    assert backend_module.postprocess_context is original_postprocessor
 
 
 @pytest.mark.parametrize("mode", ["source_graph", "source_graph_all"])

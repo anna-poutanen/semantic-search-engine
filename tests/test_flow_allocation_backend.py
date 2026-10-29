@@ -80,6 +80,8 @@ def test_actual_flow_plan_and_guard_use_one_query_forward_and_preserve_literal_m
     from semantic_search.mcp_server import SearchArguments, _validate_context
 
     repo, backend, embedder, kind = repository
+    original_selector = backend_module.select_context
+    original_postprocessor = backend_module.postprocess_context
     settings = dict(candidates=50, include_dependencies=True, **limits)
     with patch.multiple(backend_module, select_context=selection.definition_context,
                         postprocess_context=coalesce_context):
@@ -118,8 +120,8 @@ def test_actual_flow_plan_and_guard_use_one_query_forward_and_preserve_literal_m
         else:
             assert "implementation_9" in names and "implementation_10" not in names
             assert "implementation_8" in names and "implementation_7" not in names
-    assert backend_module.select_context is selection.ranked_context
-    assert backend_module.postprocess_context is selection.unchanged_context
+    assert backend_module.select_context is original_selector
+    assert backend_module.postprocess_context is original_postprocessor
 
 
 def test_cancel_before_planning_keeps_cache_reusable(repository):
