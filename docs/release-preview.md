@@ -74,12 +74,12 @@ The backend remains a separately started local process; the extension installs
 no model or Python environment.
 
 Download the verified VSIX from the
-[GitHub release](https://github.com/anna-poutanen/semantic-search-engine/releases/tag/v0.1.4),
+[GitHub release](https://github.com/anna-poutanen/semantic-search-engine/releases/tag/v0.1.5),
 then use **Extensions: Install from VSIX**. Connect it to the separately started
 service indexing the same trusted local workspace folder. The release includes
 SHA-256 checksums for its assets. The earlier 53,874-byte preview 2 package and
 its recorded digest remain historical acceptance evidence.
-The current package is version `0.1.4` and includes the MIT license. The small Mac
+The current package is version `0.1.5` and includes the MIT license. The small Mac
 ZIP also includes a guided launcher; start with [the getting-started guide](getting-started.md).
 Version 0.1.2 added larger configurable own-repository budgets, a separate indexing
 timeout, actual indexing progress, offline diagnostics, bundled local feedback,
@@ -99,6 +99,17 @@ Version 0.1.4 adds [resumable indexing](resumable-indexing.md). Rerunning the sa
 own-repository command with the same source scope and cache reuses completed
 embedding batches. An in-flight batch may repeat, and the active index changes
 only after a complete validated refresh.
+
+Version 0.1.5 packages the existing definition-aware, source-preserving coverage
+policy as the default. It distinguishes separate definitions sharing a display
+name, removes contained duplicate excerpts and fills spare capacity without
+trimming previously delivered source. Model weights, dense retrieval, optional
+rerankers and context limits remain unchanged. This is an explicitly post hoc
+product decision: the small TanStack Query sample completes 2/8 dense multi-file
+behaviors versus 1/8, with no observed group loss. The more complex shared-flow
+selector failed its quality/latency gate and stays experimental. See
+[the measured decision](shared-flow-allocation.md) and
+[the release qualification plan](release-0.1.5-plan.md).
 
 Separate native acceptance checks observed actual false Workspace Trust,
 multi-folder selection/removal and offline failure handling. These exercised

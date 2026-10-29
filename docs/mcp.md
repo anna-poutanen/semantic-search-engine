@@ -111,7 +111,7 @@ study does not establish a universal winner. Select it per call or explicitly
 start the adapter with `--default-retrieval hybrid`; the service needs no reranker.
 
 The source-only `multifile` mode is a research experiment that failed that fresh
-gate (2/8). It is not recommended for normal setup and is not in the v0.1.4
+gate (2/8). It is not recommended for normal setup and was not in the v0.1.4
 download. See [the algorithm, regressions and validation](multifile-retrieval.md).
 
 Example call arguments:

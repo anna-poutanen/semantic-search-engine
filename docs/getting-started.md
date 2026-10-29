@@ -6,8 +6,8 @@ Macs and Git-tracked Python, JavaScript and TypeScript source.
 
 ## Download and start
 
-1. Download **semantic-search-mac-0.1.4.zip** from the
-   [v0.1.4 release](https://github.com/anna-poutanen/semantic-search-engine/releases/tag/v0.1.4).
+1. Download **semantic-search-mac-0.1.5.zip** from the
+   [v0.1.5 release](https://github.com/anna-poutanen/semantic-search-engine/releases/tag/v0.1.5).
    Unzip it into a writable folder. Keep the whole folder together.
 2. Open Terminal, type `cd `, drag the extracted folder into Terminal, and press
    Return. Then run:
@@ -252,7 +252,7 @@ The batch policy introduced in v0.1.2 groups up to four documents and at most 8,
 (the longest document's token length multiplied by the document count). Each
 document still has an 8,192-token input limit, separate from the search response
 budget. Caches from before that policy have different embedding metadata and
-rebuild once; cached model downloads remain reusable. Version 0.1.4 keeps
+rebuild once; cached model downloads remain reusable. Versions 0.1.4 and 0.1.5 keep
 v0.1.3's schema and embedding metadata, so compatible v0.1.3 vectors are reused
 without a rebuild. Custom match policies calibrated before the batch-policy
 change also require recalibration; the default launcher uses no match policy.
@@ -300,3 +300,18 @@ Windows/Linux dense-runtime installer, Marketplace release, or evidence from
 external beta users yet. The public repository includes the full benchmark
 history, architecture and measured limitations; the small ZIP omits those large
 research artifacts.
+
+## What changes in v0.1.5
+
+The default search now distinguishes separate implementations that share a
+display name and uses spare context capacity for additional literal source.
+Previously delivered evidence is preserved while redundant contained excerpts
+are removed. Dense retrieval, reranking off, eight excerpts, 12,000 source
+characters and the 4,096-token compact response cap remain the defaults.
+
+On one small authored TanStack Query sample, this existing coverage policy
+completes 2/8 dense multi-file behaviors versus 1/8 for the previous policy.
+Other multi-file misses remain; this does not establish general coding-agent
+correctness, token savings or an absence guarantee. The separate shared-flow
+selector failed its gate and remains experimental. See
+[the measured coverage decision](https://github.com/anna-poutanen/semantic-search-engine/blob/main/docs/shared-flow-allocation.md).

@@ -133,8 +133,9 @@ dependency context. The token cap is not a coding model's paid-token counter.
 For compound multi-file questions, the existing `retrieval: "hybrid"` setting
 completed 5/8 cases on fresh Jinja versus dense's 3/8 under the same eight-result,
 4,096-token caps. This small study is descriptive; dense stays the default.
-The source-only `multifile` experiment failed that fresh gate (2/8), is not
-recommended for normal setup, and is absent from the v0.1.4 VSIX.
+The `multifile` experiment failed that fresh gate (2/8), is research-only and
+is not recommended for normal setup. It is exposed as an explicit research
+option in v0.1.5; dense remains the default.
 See [the full multi-file study](../../docs/multifile-retrieval.md).
 
 With `rerank` off, retrieval stays fast. Turning it on uses `rerankProvider`:
@@ -163,7 +164,7 @@ npm test
 npm run package
 ```
 
-The VSIX is `semantic-search-local-0.1.4.vsix`; install it manually through
+The VSIX is `semantic-search-local-0.1.5.vsix`; install it manually through
 **Extensions: Install from VSIX** after the acceptance smoke. No Marketplace
 publication is performed. The package includes the project MIT license and third-party notices. There are no extension runtime npm
 dependencies. Dev packages and all transitive integrity hashes are locked.

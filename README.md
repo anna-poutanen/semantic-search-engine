@@ -20,8 +20,8 @@ and [MCP setup](docs/mcp.md).
 
 ## Download and try it
 
-Download **semantic-search-mac-0.1.4.zip** from the
-[MIT-licensed Mac release](https://github.com/anna-poutanen/semantic-search-engine/releases/tag/v0.1.4),
+Download **semantic-search-mac-0.1.5.zip** from the
+[MIT-licensed Mac release](https://github.com/anna-poutanen/semantic-search-engine/releases/tag/v0.1.5),
 unzip it, open Terminal in that folder, and run:
 
 ```bash
@@ -141,7 +141,11 @@ experimental. A separate, explicitly post hoc product decision makes the existin
 sample it completes **2/8 dense multi-file tasks versus 1/8**, loses no covered
 groups, and has a **246 ms median versus 240 ms**. All 252 native searches pass
 independent integrity checks; remaining multi-file misses are documented.
-The v0.1.4 download assets retain their released behavior.
+Version **0.1.5** packages this tested coverage policy in the Mac download.
+It preserves the existing model, retrieval modes and context limits. The
+[release qualification plan](docs/release-0.1.5-plan.md) separates fresh setup and
+index-resume checks from retrieval-quality evidence; the shared-flow selector
+remains experimental. Earlier v0.1.4 assets retain their original behavior.
 
 For optional H2O reranking, install its pinned runtime and weights with
 `python3 scripts/setup_mac.py`, start `.venv/bin/python scripts/serve_mac.py` in

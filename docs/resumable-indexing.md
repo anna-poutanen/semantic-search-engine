@@ -11,7 +11,7 @@ when progress output is disabled.
 
 ## Restart an interrupted index
 
-From the extracted v0.1.4 app folder, rerun the same own-repository command:
+From the extracted v0.1.5 app folder, rerun the same own-repository command:
 
 ```sh
 bash "Get Started.command" --repo /absolute/path/to/your/repo --source-root src
