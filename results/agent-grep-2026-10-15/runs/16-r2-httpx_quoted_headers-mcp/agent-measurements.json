@@ -1,0 +1,394 @@
+{
+  "agent_cleanup": {
+    "capture_cleanup_end": {
+      "monotonic_s": 250665.176010958,
+      "perf_counter_ns": 250665176009750,
+      "utc": "2026-10-16T12:37:53.068749+00:00",
+      "wall_time_ns": 1792154273068749000
+    },
+    "capture_cleanup_s": 2.2374995751306415e-05,
+    "capture_cleanup_start": {
+      "monotonic_s": 250665.175988583,
+      "perf_counter_ns": 250665175981000,
+      "utc": "2026-10-16T12:37:53.068720+00:00",
+      "wall_time_ns": 1792154273068720000
+    },
+    "errors": [],
+    "exit_code": 0,
+    "finished_cleanup": {
+      "monotonic_s": 250665.176006833,
+      "perf_counter_ns": 250665176005333,
+      "utc": "2026-10-16T12:37:53.068745+00:00",
+      "wall_time_ns": 1792154273068745000
+    },
+    "forced_kill": false,
+    "kill_grace_s": 5.0,
+    "owned_group": 93478,
+    "owned_group_stopped": true,
+    "permission_retries": [],
+    "pid": 93478,
+    "started_cleanup": {
+      "monotonic_s": 250665.175992666,
+      "perf_counter_ns": 250665175991083,
+      "utc": "2026-10-16T12:37:53.068731+00:00",
+      "wall_time_ns": 1792154273068731000
+    },
+    "term_grace_s": 5.0,
+    "term_sent": false
+  },
+  "agent_elapsed_s": 91.7881613750069,
+  "agent_end": {
+    "monotonic_s": 250665.174981291,
+    "perf_counter_ns": 250665174969208,
+    "utc": "2026-10-16T12:37:53.067708+00:00",
+    "wall_time_ns": 1792154273067708000
+  },
+  "agent_exit_code": 0,
+  "agent_process": {
+    "command_sha256": "f240199ca213665acdb50079d6617b60c65054a8fa935d92a87623fc32b85349",
+    "launched": true,
+    "launched_at": {
+      "monotonic_s": 250573.390509416,
+      "perf_counter_ns": 250573390474791,
+      "utc": "2026-10-16T12:36:21.280460+00:00",
+      "wall_time_ns": 1792154181280460000
+    },
+    "owned_group": 93478,
+    "pid": 93478,
+    "start_new_session": true
+  },
+  "agent_start": {
+    "monotonic_s": 250573.386819916,
+    "perf_counter_ns": 250573386811791,
+    "utc": "2026-10-16T12:36:21.276798+00:00",
+    "wall_time_ns": 1792154181276798000
+  },
+  "capture_errors": [],
+  "cleanup_clean": true,
+  "cleanup_qualified": true,
+  "command_calls": 15,
+  "completed": true,
+  "completed_turn_events": 1,
+  "errors": [],
+  "failed": false,
+  "interrupted": false,
+  "interruption_signal": null,
+  "interruption_type": null,
+  "invalid_event_lines": [],
+  "lifecycle_qualified": true,
+  "mcp_calls": 1,
+  "mcp_items": [
+    {
+      "arguments": {
+        "max_results": 5,
+        "query": "Headers.get_list split_commas implementation for splitting repeated header values on commas",
+        "token_budget": 2000
+      },
+      "error": null,
+      "id": "item_3",
+      "result": {
+        "content": [
+          {
+            "text": "{\"query\":\"Headers.get_list split_commas implementation for splitting repeated header values on commas\",\"match_status\":\"candidates\",\"results\":[{\"path\":\"httpx/_models.py\",\"symbol\":\"Headers.get_list\",\"start_line\":252,\"end_line\":272,\"source\":\"    def get_list(self, key: str, split_commas: bool = False) -> list[str]:\\n        \\\"\\\"\\\"\\n        Return a list of all header values for a given key.\\n        If `split_commas=True` is passed, then any comma separated header\\n        values are split into multiple return strings.\\n        \\\"\\\"\\\"\\n        get_header_key = key.lower().encode(self.encoding)\\n\\n        values = [\\n            item_value.decode(self.encoding)\\n            for _, item_key, item_value in self._list\\n            if item_key.lower() == get_header_key\\n        ]\\n\\n        if not split_commas:\\n            return values\\n\\n        split_values = []\\n        for value in values:\\n            split_values.extend([item.strip() for item in value.split(\\\",\\\")])\\n        return split_values\\n\",\"source_hash\":\"c8a896e7cff95231c3871cd977c2f35c799c574615df84393b0c2aec25ae8c10\",\"truncated\":false,\"origin\":\"retrieval\",\"related_to\":null},{\"path\":\"httpx/_models.py\",\"symbol\":\"Headers.__getitem__\",\"start_line\":284,\"end_line\":302,\"source\":\"    def __getitem__(self, key: str) -> str:\\n        \\\"\\\"\\\"\\n        Return a single header value.\\n\\n        If there are multiple headers with the same key, then we concatenate\\n        them with commas. See: https://tools.ietf.org/html/rfc7230#section-3.2.2\\n        \\\"\\\"\\\"\\n        normalized_key = key.lower().encode(self.encoding)\\n\\n        items = [\\n            header_value.decode(self.encoding)\\n            for _, header_key, header_value in self._list\\n            if header_key == normalized_key\\n        ]\\n\\n        if items:\\n            return \\\", \\\".join(items)\\n\\n        raise KeyError(key)\\n\",\"source_hash\":\"7c220df74e99968a848c1bf3b88f363f98a351dc779857f61f8482d90dbf686d\",\"truncated\":false,\"origin\":\"retrieval\",\"related_to\":null},{\"path\":\"httpx/_models.py\",\"symbol\":\"Headers.items\",\"start_line\":216,\"end_line\":229,\"source\":\"    def items(self) -> typing.ItemsView[str, str]:\\n        \\\"\\\"\\\"\\n        Return `(key, value)` items of headers. Concatenate headers\\n        into a single comma separated value when a key occurs multiple times.\\n        \\\"\\\"\\\"\\n        values_dict: dict[str, str] = {}\\n        for _, key, value in self._list:\\n            str_key = key.decode(self.encoding)\\n            str_value = value.decode(self.encoding)\\n            if str_key in values_dict:\\n                values_dict[str_key] += f\\\", {str_value}\\\"\\n            else:\\n                values_dict[str_key] = str_value\\n        return values_dict.items()\\n\",\"source_hash\":\"b8308a0eeaa3c71c50299db32d91d410893241af0c03d721cf2b677bcc84b0e0\",\"truncated\":false,\"origin\":\"retrieval\",\"related_to\":null},{\"path\":\"httpx/_models.py\",\"symbol\":\"Headers.get\",\"start_line\":242,\"end_line\":250,\"source\":\"    def get(self, key: str, default: typing.Any = None) -> typing.Any:\\n        \\\"\\\"\\\"\\n        Return a header value. If multiple occurrences of the header occur\\n        then concatenate them together with commas.\\n        \\\"\\\"\\\"\\n        try:\\n            return self[key]\\n        except KeyError:\\n            return default\\n\",\"source_hash\":\"1cf47d6e3bba1f9f3050089b1062ac98a31928dc1e06ee6bc5790663d7b05b67\",\"truncated\":false,\"origin\":\"retrieval\",\"related_to\":null},{\"path\":\"httpx/_models.py\",\"symbol\":\"Headers.multi_items\",\"start_line\":231,\"end_line\":240,\"source\":\"    def multi_items(self) -> list[tuple[str, str]]:\\n        \\\"\\\"\\\"\\n        Return a list of `(key, value)` pairs of headers. Allow multiple\\n        occurrences of the same key without concatenating into a single\\n        comma separated value.\\n        \\\"\\\"\\\"\\n        return [\\n            (key.decode(self.encoding), value.decode(self.encoding))\\n            for _, key, value in self._list\\n        ]\\n\",\"source_hash\":\"75eabdb50accd2e5ebcedce73cf9433abae124a3e9b38d7dcd2f8ebb8f3382b6\",\"truncated\":false,\"origin\":\"retrieval\",\"related_to\":null}],\"budget_exhausted\":false,\"token_usage\":{\"encoding\":\"cl100k_base\",\"tokens\":1159,\"budget\":2000,\"truncated\":false},\"scope\":{\"source_root\":\"httpx\",\"membership\":\"saved implementations; Git-tracked files only in Git projects\",\"source_exclusions\":[],\"exclusions_omitted\":0}}",
+            "type": "text"
+          }
+        ],
+        "structured_content": null
+      },
+      "server": "semantic_search",
+      "status": "completed",
+      "tool": "search_code",
+      "type": "mcp_tool_call"
+    }
+  ],
+  "output_drain_complete": true,
+  "per_model_call_usage": null,
+  "per_model_call_usage_reason": "Not emitted by exec --json",
+  "reported_turns": 1,
+  "timed_out": false,
+  "tool_intervals": [
+    {
+      "end": {
+        "monotonic_s": 250579.99834325,
+        "perf_counter_ns": 250579998338166,
+        "utc": "2026-10-16T12:36:27.888522+00:00",
+        "wall_time_ns": 1792154187888522000
+      },
+      "item_id": "item_1",
+      "observed_duration_s": 0.0004769589868374169,
+      "start": {
+        "monotonic_s": 250579.997866291,
+        "perf_counter_ns": 250579997853708,
+        "utc": "2026-10-16T12:36:27.888038+00:00",
+        "wall_time_ns": 1792154187888038000
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 250580.04195425,
+        "perf_counter_ns": 250580041948041,
+        "utc": "2026-10-16T12:36:27.932134+00:00",
+        "wall_time_ns": 1792154187932134000
+      },
+      "item_id": "item_2",
+      "observed_duration_s": 0.0004829589743167162,
+      "start": {
+        "monotonic_s": 250580.041471291,
+        "perf_counter_ns": 250580041456000,
+        "utc": "2026-10-16T12:36:27.931641+00:00",
+        "wall_time_ns": 1792154187931641000
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 250585.806014375,
+        "perf_counter_ns": 250585806007541,
+        "utc": "2026-10-16T12:36:33.696366+00:00",
+        "wall_time_ns": 1792154193696366000
+      },
+      "item_id": "item_4",
+      "observed_duration_s": 0.0006097500154282898,
+      "start": {
+        "monotonic_s": 250585.805404625,
+        "perf_counter_ns": 250585805384541,
+        "utc": "2026-10-16T12:36:33.695743+00:00",
+        "wall_time_ns": 1792154193695743000
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 250585.809274791,
+        "perf_counter_ns": 250585809269875,
+        "utc": "2026-10-16T12:36:33.699629+00:00",
+        "wall_time_ns": 1792154193699629000
+      },
+      "item_id": "item_5",
+      "observed_duration_s": 0.0004046250251121819,
+      "start": {
+        "monotonic_s": 250585.808870166,
+        "perf_counter_ns": 250585808862958,
+        "utc": "2026-10-16T12:36:33.699221+00:00",
+        "wall_time_ns": 1792154193699221000
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 250585.979493416,
+        "perf_counter_ns": 250585979482250,
+        "utc": "2026-10-16T12:36:33.869845+00:00",
+        "wall_time_ns": 1792154193869845000
+      },
+      "item_id": "item_3",
+      "observed_duration_s": 0.23793475001002662,
+      "start": {
+        "monotonic_s": 250585.741558666,
+        "perf_counter_ns": 250585741486125,
+        "utc": "2026-10-16T12:36:33.631841+00:00",
+        "wall_time_ns": 1792154193631841000
+      },
+      "type": "mcp_tool_call"
+    },
+    {
+      "end": {
+        "monotonic_s": 250591.331712,
+        "perf_counter_ns": 250591331709083,
+        "utc": "2026-10-16T12:36:39.222233+00:00",
+        "wall_time_ns": 1792154199222233000
+      },
+      "item_id": "item_8",
+      "observed_duration_s": 0.000441250012954697,
+      "start": {
+        "monotonic_s": 250591.33127075,
+        "perf_counter_ns": 250591331266625,
+        "utc": "2026-10-16T12:36:39.221791+00:00",
+        "wall_time_ns": 1792154199221791000
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 250591.332169875,
+        "perf_counter_ns": 250591332166583,
+        "utc": "2026-10-16T12:36:39.222691+00:00",
+        "wall_time_ns": 1792154199222691000
+      },
+      "item_id": "item_6",
+      "observed_duration_s": 0.0021619170147459954,
+      "start": {
+        "monotonic_s": 250591.330007958,
+        "perf_counter_ns": 250591329989041,
+        "utc": "2026-10-16T12:36:39.220513+00:00",
+        "wall_time_ns": 1792154199220513000
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 250591.33267525,
+        "perf_counter_ns": 250591332672625,
+        "utc": "2026-10-16T12:36:39.223197+00:00",
+        "wall_time_ns": 1792154199223197000
+      },
+      "item_id": "item_7",
+      "observed_duration_s": 0.0019555000180844218,
+      "start": {
+        "monotonic_s": 250591.33071975,
+        "perf_counter_ns": 250591330713791,
+        "utc": "2026-10-16T12:36:39.221238+00:00",
+        "wall_time_ns": 1792154199221238000
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 250591.338355541,
+        "perf_counter_ns": 250591338351625,
+        "utc": "2026-10-16T12:36:39.228876+00:00",
+        "wall_time_ns": 1792154199228876000
+      },
+      "item_id": "item_9",
+      "observed_duration_s": 0.0005470410105772316,
+      "start": {
+        "monotonic_s": 250591.3378085,
+        "perf_counter_ns": 250591337802083,
+        "utc": "2026-10-16T12:36:39.228326+00:00",
+        "wall_time_ns": 1792154199228326000
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 250622.801830333,
+        "perf_counter_ns": 250622801822166,
+        "utc": "2026-10-16T12:37:10.693291+00:00",
+        "wall_time_ns": 1792154230693291000
+      },
+      "item_id": "item_10",
+      "observed_duration_s": 0.0014148329792078584,
+      "start": {
+        "monotonic_s": 250622.8004155,
+        "perf_counter_ns": 250622800364583,
+        "utc": "2026-10-16T12:37:10.691831+00:00",
+        "wall_time_ns": 1792154230691831000
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 250628.140522291,
+        "perf_counter_ns": 250628140506208,
+        "utc": "2026-10-16T12:37:16.032134+00:00",
+        "wall_time_ns": 1792154236032134000
+      },
+      "item_id": "item_13",
+      "observed_duration_s": 0.2945610000169836,
+      "start": {
+        "monotonic_s": 250627.845961291,
+        "perf_counter_ns": 250627845932750,
+        "utc": "2026-10-16T12:37:15.737552+00:00",
+        "wall_time_ns": 1792154235737552000
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 250650.444354583,
+        "perf_counter_ns": 250650444335458,
+        "utc": "2026-10-16T12:37:38.336632+00:00",
+        "wall_time_ns": 1792154258336632000
+      },
+      "item_id": "item_15",
+      "observed_duration_s": 0.33040875001461245,
+      "start": {
+        "monotonic_s": 250650.113945833,
+        "perf_counter_ns": 250650113933750,
+        "utc": "2026-10-16T12:37:38.006221+00:00",
+        "wall_time_ns": 1792154258006221000
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 250660.472254166,
+        "perf_counter_ns": 250660472242333,
+        "utc": "2026-10-16T12:37:48.364841+00:00",
+        "wall_time_ns": 1792154268364841000
+      },
+      "item_id": "item_17",
+      "observed_duration_s": 0.0012492499954532832,
+      "start": {
+        "monotonic_s": 250660.471004916,
+        "perf_counter_ns": 250660470981333,
+        "utc": "2026-10-16T12:37:48.363579+00:00",
+        "wall_time_ns": 1792154268363579000
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 250660.477318916,
+        "perf_counter_ns": 250660477314208,
+        "utc": "2026-10-16T12:37:48.369913+00:00",
+        "wall_time_ns": 1792154268369913000
+      },
+      "item_id": "item_19",
+      "observed_duration_s": 0.0006071249954402447,
+      "start": {
+        "monotonic_s": 250660.476711791,
+        "perf_counter_ns": 250660476703750,
+        "utc": "2026-10-16T12:37:48.369302+00:00",
+        "wall_time_ns": 1792154268369302000
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 250660.477846083,
+        "perf_counter_ns": 250660477842291,
+        "utc": "2026-10-16T12:37:48.370441+00:00",
+        "wall_time_ns": 1792154268370441000
+      },
+      "item_id": "item_18",
+      "observed_duration_s": 0.0019359579891897738,
+      "start": {
+        "monotonic_s": 250660.475910125,
+        "perf_counter_ns": 250660475859083,
+        "utc": "2026-10-16T12:37:48.368457+00:00",
+        "wall_time_ns": 1792154268368457000
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 250660.478830958,
+        "perf_counter_ns": 250660478827708,
+        "utc": "2026-10-16T12:37:48.371426+00:00",
+        "wall_time_ns": 1792154268371426000
+      },
+      "item_id": "item_20",
+      "observed_duration_s": 0.0004836249863728881,
+      "start": {
+        "monotonic_s": 250660.478347333,
+        "perf_counter_ns": 250660478344125,
+        "utc": "2026-10-16T12:37:48.370943+00:00",
+        "wall_time_ns": 1792154268370943000
+      },
+      "type": "command_execution"
+    }
+  ],
+  "usage": {
+    "cache_write_input_tokens": 0,
+    "cached_input_tokens": 105728,
+    "input_tokens": 149145,
+    "output_tokens": 3968,
+    "reasoning_output_tokens": 1164,
+    "total_tokens": 153113,
+    "uncached_input_tokens": 43417
+  },
+  "usage_errors": [],
+  "usage_scope": "Reported completed-turn usage; interrupted-turn and per-request usage unknown"
+}

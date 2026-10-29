@@ -1,0 +1,25 @@
+diff --git a/httpx/_models.py b/httpx/_models.py
+index 67d74bf..d1762fc 100644
+--- a/httpx/_models.py
++++ b/httpx/_models.py
+@@ -268,7 +268,19 @@ class Headers(typing.MutableMapping[str, str]):
+ 
+         split_values = []
+         for value in values:
+-            split_values.extend([item.strip() for item in value.split(",")])
++            quoted = escaped = False
++            start = 0
++            for index, char in enumerate(value):
++                if quoted and escaped:
++                    escaped = False
++                elif quoted and char == "\\":
++                    escaped = True
++                elif char == '"':
++                    quoted = not quoted
++                elif char == "," and not quoted:
++                    split_values.append(value[start:index].strip())
++                    start = index + 1
++            split_values.append(value[start:].strip())
+         return split_values
+ 
+     def update(self, headers: HeaderTypes | None = None) -> None:  # type: ignore

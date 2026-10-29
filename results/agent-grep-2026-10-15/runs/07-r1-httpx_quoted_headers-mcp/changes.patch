@@ -1,0 +1,132 @@
+diff --git a/httpx/_models.py b/httpx/_models.py
+index 67d74bf..a3afa61 100644
+--- a/httpx/_models.py
++++ b/httpx/_models.py
+@@ -253,7 +253,8 @@ class Headers(typing.MutableMapping[str, str]):
+         """
+         Return a list of all header values for a given key.
+         If `split_commas=True` is passed, then any comma separated header
+-        values are split into multiple return strings.
++        values are split into multiple return strings, excluding commas
++        within double-quoted strings.
+         """
+         get_header_key = key.lower().encode(self.encoding)
+ 
+@@ -268,7 +269,20 @@ class Headers(typing.MutableMapping[str, str]):
+ 
+         split_values = []
+         for value in values:
+-            split_values.extend([item.strip() for item in value.split(",")])
++            start = 0
++            in_quotes = False
++            escaped = False
++            for idx, char in enumerate(value):
++                if escaped:
++                    escaped = False
++                elif in_quotes and char == "\\":
++                    escaped = True
++                elif char == '"':
++                    in_quotes = not in_quotes
++                elif char == "," and not in_quotes:
++                    split_values.append(value[start:idx].strip())
++                    start = idx + 1
++            split_values.append(value[start:].strip())
+         return split_values
+ 
+     def update(self, headers: HeaderTypes | None = None) -> None:  # type: ignore
+diff --git a/tests/models/test_headers_get_list.py b/tests/models/test_headers_get_list.py
+new file mode 100644
+index 0000000..da96cab
+--- /dev/null
++++ b/tests/models/test_headers_get_list.py
+@@ -0,0 +1,90 @@
++import pytest
++
++import httpx
++
++
++@pytest.mark.parametrize(
++    "value, expected",
++    [
++        ('"a,b", c', ['"a,b"', "c"]),
++        ('a, "b,c"', ["a", '"b,c"']),
++        ('"a,b", "c,d"', ['"a,b"', '"c,d"']),
++        (
++            'text/plain; title="a,b", application/json',
++            ['text/plain; title="a,b"', "application/json"],
++        ),
++        (
++            'text/plain; title="a,b"; note="c,d", text/html',
++            ['text/plain; title="a,b"; note="c,d"', "text/html"],
++        ),
++        ('a"b,c"d, e', ['a"b,c"d', "e"]),
++        ('"a,b""c,d", e', ['"a,b""c,d"', "e"]),
++        (' \t" a,\tb " \t, c  d\t ', ['" a,\tb "', "c  d"]),
++        (r'"a\",b", c', [r'"a\",b"', "c"]),
++        (r'"a\\", b', [r'"a\\"', "b"]),
++        (r'"a\\\",b", c', [r'"a\\\",b"', "c"]),
++        (r'"a\\\\", b', [r'"a\\\\"', "b"]),
++        (r'"a\,b", c', [r'"a\,b"', "c"]),
++        (r'"a\zb,c", d', [r'"a\zb,c"', "d"]),
++        (r'a\,b, c', ["a\\", "b", "c"]),
++        (r'prefix\"a,b", c', [r'prefix\"a,b"', "c"]),
++        ("'a,b', c", ["'a", "b'", "c"]),
++        ('"it\'s a,b", c', ['"it\'s a,b"', "c"]),
++        ("'a\"b,c\"d', e", ["'a\"b,c\"d'", "e"]),
++        ("", [""]),
++        (" \t ", [""]),
++        (",", ["", ""]),
++        (",,", ["", "", ""]),
++        (", a, , b, ", ["", "a", "", "b", ""]),
++        (' , "", "a,b", ', ["", '""', '"a,b"', ""]),
++        ('"a,b, c', ['"a,b, c']),
++        ('a, "b,c, d', ["a", '"b,c, d']),
++        (r'a, "b\",c, d', ["a", r'"b\",c, d']),
++        ('a, "b,c\\', ["a", '"b,c\\']),
++        ("a, b, c", ["a", "b", "c"]),
++    ],
++)
++def test_get_list_split_commas(value, expected):
++    headers = httpx.Headers({"X-List": value})
++    raw_headers = headers.raw
++
++    assert headers.get_list("x-list", split_commas=True) == expected
++    assert headers.get_list("X-LIST") == [value]
++    assert headers.get_list("X-LIST", split_commas=False) == [value]
++    assert headers.raw == raw_headers
++
++
++@pytest.mark.parametrize("key", ["x-list", "X-List", "X-LIST"])
++@pytest.mark.parametrize(
++    "first_value, expected_first",
++    [
++        (b'"a,b', ['"a,b']),
++        (b'"a,b\\', ['"a,b\\']),
++        (b'a, "b,c', ["a", '"b,c']),
++    ],
++)
++def test_get_list_split_commas_repeated_headers(key, first_value, expected_first):
++    raw_headers = [
++        (b"X-List", first_value),
++        (b"Other", b'"unmatched,'),
++        (b"x-list", b' c, "d,e", '),
++        (b"X-LIST", b""),
++        (b"X-List", b'f, "g,h"'),
++    ]
++    headers = httpx.Headers(raw_headers)
++    expected = expected_first + ["c", '"d,e"', "", "", "f", '"g,h"']
++
++    assert headers.get_list(key, split_commas=True) == expected
++    original_values = [
++        value.decode("ascii") for name, value in raw_headers if name != b"Other"
++    ]
++    assert headers.get_list(key) == original_values
++    assert headers.get_list(key, split_commas=False) == original_values
++    assert headers.raw == raw_headers
++
++
++def test_get_list_split_commas_missing_header():
++    headers = httpx.Headers({"Other": '"a,b", c'})
++
++    assert headers.get_list("missing", split_commas=True) == []
++    assert headers.get_list("missing") == []

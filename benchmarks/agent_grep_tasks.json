@@ -1,0 +1,301 @@
+{
+  "classification": "Four new source-authored maintenance tasks; observed repositories",
+  "selection": "Selected from public API behavior before any retrieval query or coding-agent output",
+  "tasks": [
+    {
+      "compatibility_commands": [
+        {
+          "args": [
+            "-m",
+            "pytest",
+            "-q",
+            "-o",
+            "addopts=",
+            "--tb=short",
+            "tests/test_hooks.py",
+            "tests/test_structures.py",
+            "tests/test_utils.py",
+            "tests/test_requests.py::TestRequests::test_response_is_iterable",
+            "tests/test_requests.py::TestRequests::test_response_decode_unicode",
+            "tests/test_requests.py::TestRequests::test_response_chunk_size_type",
+            "tests/test_requests.py::TestRequests::test_HTTP_302_ALLOW_REDIRECT_GET",
+            "tests/test_requests.py::TestRequests::test_HTTP_307_ALLOW_REDIRECT_POST",
+            "tests/test_requests.py::TestRequests::test_response_context_manager"
+          ],
+          "expected_summary": {
+            "deselected": 0,
+            "errors": 0,
+            "failed": 0,
+            "passed": 249,
+            "skipped": 13,
+            "xfailed": 0,
+            "xpassed": 0
+          },
+          "timeout_s": 180
+        }
+      ],
+      "control_artifact_sha256": {
+        ".cache/agent-grep-2026-10-15/controls-v2/requests_default_timeout/baseline.json": "090b31a2623c735a427358a0dd18804c17c8fc59b2d226400c54cf1c0449a90a",
+        ".cache/agent-grep-2026-10-15/controls-v2/requests_default_timeout/reference-compatibility.json": "7916d82520ff1391dae8528e22735722196728f2d0385179b97d7a9d6bdd21a5",
+        ".cache/agent-grep-2026-10-15/controls-v2/requests_default_timeout/reference.json": "f3c1ca54fc05e56e75d414c5cd8cfbb5f31c7565bb04e2cd7223f5dcf176185d",
+        ".cache/agent-grep-2026-10-15/controls-v2/requests_default_timeout/reference.patch": "39a86a2ef9827984210d107a5a723844e306354176a8d4c26a36896fac979ea2",
+        ".cache/agent-grep-2026-10-15/controls-v2/requests_default_timeout/upstream-compatibility.json": "861f88961488aeeea9e12afce5f8cfdf29391e8720c156f46adf044efc2a3d83"
+      },
+      "corpus": ".cache/corpora/requests",
+      "corpus_id": "requests",
+      "id": "requests_default_timeout",
+      "preparation_patch": null,
+      "preparation_patch_sha256": null,
+      "prompt": "Add a session-wide default timeout to Requests. Session(timeout=None) must expose a mutable Session.timeout attribute, defaulting to the current unlimited behavior. A request that omits timeout inherits the current session value; an explicit timeout=None disables that default for the request. Other explicit timeout values override the default without mutating it. Apply this consistently to Session.request, all Session HTTP-method helpers, and direct Session.send of a PreparedRequest. Every hop in a redirect chain must receive the effective timeout selected for the initial request. Preserve timeout across pickling. Keep existing module-level request helpers and ordinary timeout/adapter behavior compatible. Add regression tests.",
+      "reference_patch": ".cache/agent-grep-2026-10-15/controls-v2/requests_default_timeout/reference.patch",
+      "reference_patch_sha256": "39a86a2ef9827984210d107a5a723844e306354176a8d4c26a36896fac979ea2",
+      "repo_url": "https://github.com/psf/requests",
+      "revision": "611c6162cbc4ac2020a2f91c7cfa4f3abf9bbb60",
+      "seed_validation": {
+        "base": {
+          "errors": 10,
+          "failures": 1,
+          "passed": false,
+          "skipped": 0,
+          "tests_run": 10
+        },
+        "reference": {
+          "errors": 0,
+          "failures": 0,
+          "passed": true,
+          "skipped": 0,
+          "tests_run": 10
+        }
+      },
+      "source_root": "src/requests",
+      "verification": {
+        "args": [
+          "--repo",
+          "{workspace}",
+          "--task",
+          "requests_default_timeout"
+        ],
+        "script": "benchmarks/agent_grep_checks.py",
+        "sha256": "caa2045c890d067edf47ba1a831477d67490f324c01fd4321638494c007b1b62",
+        "timeout_s": 90
+      }
+    },
+    {
+      "compatibility_commands": [
+        {
+          "args": [
+            "-m",
+            "pytest",
+            "-q",
+            "-o",
+            "addopts=",
+            "--tb=short",
+            "tests/test_types.py",
+            "tests/test_normalization.py",
+            "tests/test_shell_completion.py",
+            "tests/test_info_dict.py"
+          ],
+          "expected_summary": {
+            "deselected": 0,
+            "errors": 0,
+            "failed": 0,
+            "passed": 103,
+            "skipped": 1,
+            "xfailed": 0,
+            "xpassed": 0
+          },
+          "timeout_s": 180
+        }
+      ],
+      "control_artifact_sha256": {
+        ".cache/agent-grep-2026-10-15/controls-v2/click_choice_aliases/baseline.json": "6010cb03075ef28693be69d3956c0a59d125c10ee4eead521183604b52dcb30f",
+        ".cache/agent-grep-2026-10-15/controls-v2/click_choice_aliases/reference-compatibility.json": "afd850867b1b444edc7386c044d2dbb617ae8ab2f97858d683caf5b2367ca50d",
+        ".cache/agent-grep-2026-10-15/controls-v2/click_choice_aliases/reference.json": "324435843f7de78a7fe16173265a54845e9c47c15ff288c7717821724e69a3c7",
+        ".cache/agent-grep-2026-10-15/controls-v2/click_choice_aliases/reference.patch": "02dbf61153cfee6221afe37f4b05215260c7235e792ddf97920d3ca42050e674",
+        ".cache/agent-grep-2026-10-15/controls-v2/click_choice_aliases/upstream-compatibility.json": "038b7eb299ed198e880aa659d7cae0925f7c8dd13810855b87f0b975c027a68e"
+      },
+      "corpus": ".cache/corpora/click",
+      "corpus_id": "click",
+      "id": "click_choice_aliases",
+      "preparation_patch": null,
+      "preparation_patch_sha256": null,
+      "prompt": "Add optional aliases to click.Choice through a new aliases=None constructor parameter. aliases is a mapping from string alias names to exact string members of the original choices; copy the mapping so caller mutation cannot change the type. Reject non-mappings, non-string keys or values, and targets outside the original choices with ValueError at construction. Accept aliases during conversion and return the original canonical choice object. Apply Context.token_normalize_func followed by case folding when case_sensitive=False to both user input and aliases, just as for canonical choices. If normalized aliases collide with another alias or canonical name mapping to a different canonical choice, raise BadParameter during conversion rather than silently choosing one; collisions mapping to the same target are allowed. Preserve behavior without aliases. Help, invalid-input choice lists, and shell completion must continue to show canonical choices only. Add regression tests.",
+      "reference_patch": ".cache/agent-grep-2026-10-15/controls-v2/click_choice_aliases/reference.patch",
+      "reference_patch_sha256": "02dbf61153cfee6221afe37f4b05215260c7235e792ddf97920d3ca42050e674",
+      "repo_url": "https://github.com/pallets/click",
+      "revision": "934813e4d421071a1b3db3973c02fe2721359a6e",
+      "seed_validation": {
+        "base": {
+          "errors": 14,
+          "failures": 0,
+          "passed": false,
+          "skipped": 0,
+          "tests_run": 11
+        },
+        "reference": {
+          "errors": 0,
+          "failures": 0,
+          "passed": true,
+          "skipped": 0,
+          "tests_run": 11
+        }
+      },
+      "source_root": "src/click",
+      "verification": {
+        "args": [
+          "--repo",
+          "{workspace}",
+          "--task",
+          "click_choice_aliases"
+        ],
+        "script": "benchmarks/agent_grep_checks.py",
+        "sha256": "caa2045c890d067edf47ba1a831477d67490f324c01fd4321638494c007b1b62",
+        "timeout_s": 90
+      }
+    },
+    {
+      "compatibility_commands": [
+        {
+          "args": [
+            "-m",
+            "pytest",
+            "-q",
+            "-o",
+            "addopts=",
+            "--tb=short",
+            "tests/test_background.py",
+            "tests/test_responses.py",
+            "tests/test_testclient.py"
+          ],
+          "expected_summary": {
+            "deselected": 0,
+            "errors": 0,
+            "failed": 0,
+            "passed": 166,
+            "skipped": 0,
+            "xfailed": 0,
+            "xpassed": 0
+          },
+          "timeout_s": 180
+        }
+      ],
+      "control_artifact_sha256": {
+        ".cache/agent-grep-2026-10-15/controls-v2/starlette_background_continuation/baseline.json": "a209d4ed48841f9afe325b37ce2c29982a818c0c68339eff7b79280fd5f25524",
+        ".cache/agent-grep-2026-10-15/controls-v2/starlette_background_continuation/reference-compatibility.json": "5e80fac08499b65e0c2c07851b129263c419eb5650aa55333a5191b561764fe6",
+        ".cache/agent-grep-2026-10-15/controls-v2/starlette_background_continuation/reference.json": "a5ab2fc72efd709dfb83c1f58d2e39baddfd786ced620d8c566c364f7b756af9",
+        ".cache/agent-grep-2026-10-15/controls-v2/starlette_background_continuation/reference.patch": "2b4e0003c4ecb1f118d660e8524173d7bee1ad0125768c90fa3191b56bd6ad80",
+        ".cache/agent-grep-2026-10-15/controls-v2/starlette_background_continuation/upstream-compatibility.json": "97fce48f81fd64c38415370de53865bcbc3cc35f68e9361f7e0114db75515c46"
+      },
+      "corpus": ".cache/corpora/starlette",
+      "corpus_id": "starlette",
+      "id": "starlette_background_continuation",
+      "preparation_patch": null,
+      "preparation_patch_sha256": null,
+      "prompt": "Add an opt-in continue_on_error keyword-only boolean to BackgroundTasks, defaulting to False. Reject non-booleans with ValueError at construction. The default must retain stop-on-first-error behavior. With continue_on_error=True, execute every registered task sequentially in registration order despite ordinary Exception failures, then re-raise the first exception object with its original callback traceback retained. Preserve synchronous threadpool dispatch, async callbacks, initial task sequences, add_task positional/keyword arguments, and response integration. BaseException failures, including cancellation, must propagate immediately and stop later tasks, even if an earlier ordinary exception was recorded. Successful and empty task lists still return None. Cover both asyncio and Trio and add regression tests.",
+      "reference_patch": ".cache/agent-grep-2026-10-15/controls-v2/starlette_background_continuation/reference.patch",
+      "reference_patch_sha256": "2b4e0003c4ecb1f118d660e8524173d7bee1ad0125768c90fa3191b56bd6ad80",
+      "repo_url": "https://github.com/encode/starlette",
+      "revision": "4d72fd87ea1c358691a19468168f7217d8ca6a87",
+      "seed_validation": {
+        "base": {
+          "errors": 15,
+          "failures": 0,
+          "passed": false,
+          "skipped": 0,
+          "tests_run": 7
+        },
+        "reference": {
+          "errors": 0,
+          "failures": 0,
+          "passed": true,
+          "skipped": 0,
+          "tests_run": 7
+        }
+      },
+      "source_root": "starlette",
+      "verification": {
+        "args": [
+          "--repo",
+          "{workspace}",
+          "--task",
+          "starlette_background_continuation"
+        ],
+        "script": "benchmarks/agent_grep_checks.py",
+        "sha256": "caa2045c890d067edf47ba1a831477d67490f324c01fd4321638494c007b1b62",
+        "timeout_s": 90
+      }
+    },
+    {
+      "compatibility_commands": [
+        {
+          "args": [
+            "-m",
+            "pytest",
+            "-q",
+            "-o",
+            "addopts=",
+            "--tb=short",
+            "tests/models/test_headers.py",
+            "tests/client/test_headers.py"
+          ],
+          "expected_summary": {
+            "deselected": 0,
+            "errors": 0,
+            "failed": 0,
+            "passed": 44,
+            "skipped": 0,
+            "xfailed": 0,
+            "xpassed": 0
+          },
+          "timeout_s": 180
+        }
+      ],
+      "control_artifact_sha256": {
+        ".cache/agent-grep-2026-10-15/controls-v2/httpx_quoted_headers/baseline.json": "fe29f98c903d4583dd2f18f0801df0c9e999b15f04f5532858443cf683bab9d2",
+        ".cache/agent-grep-2026-10-15/controls-v2/httpx_quoted_headers/reference-compatibility.json": "e0097f98a48bf4806083d1dd6388a4f9e9db6773e049f9905ffa36d20c794447",
+        ".cache/agent-grep-2026-10-15/controls-v2/httpx_quoted_headers/reference.json": "3218b29f7ce655561389e5723970fc5b7f58f7f3a6ea47df8286a4690ccebf5d",
+        ".cache/agent-grep-2026-10-15/controls-v2/httpx_quoted_headers/reference.patch": "148ce81a342f521d16570788faa5f460880a6dcbc26a60bb3539adb14e92f849",
+        ".cache/agent-grep-2026-10-15/controls-v2/httpx_quoted_headers/upstream-compatibility.json": "fba40c5cab442878521a4a5b245ca679f41a5fff8d48ec54475e7d76348c5fb3"
+      },
+      "corpus": ".cache/corpora/httpx",
+      "corpus_id": "httpx",
+      "id": "httpx_quoted_headers",
+      "preparation_patch": null,
+      "preparation_patch_sha256": null,
+      "prompt": "Fix HTTPX Headers.get_list(key, split_commas=True) so commas inside double-quoted strings do not split a header value, including quoted parameter values such as text/plain; title=\"a,b\". Inside double quotes a backslash escapes the following character, so escaped quotes do not end the quoted section and an escaped backslash does not escape the quote after it. Outside double quotes a backslash has no escaping role; single quotes are ordinary characters. Preserve original quote and backslash spelling and whitespace inside each member while stripping surrounding member whitespace. Preserve empty members, including leading/trailing commas and an empty header. An unmatched opening double quote keeps the rest of that physical header value as one member; reset parser state between repeated header occurrences. Preserve repeated header order, case-insensitive lookup, the default split_commas=False behavior and raw stored headers without mutation. Add regression tests.",
+      "reference_patch": ".cache/agent-grep-2026-10-15/controls-v2/httpx_quoted_headers/reference.patch",
+      "reference_patch_sha256": "148ce81a342f521d16570788faa5f460880a6dcbc26a60bb3539adb14e92f849",
+      "repo_url": "https://github.com/encode/httpx",
+      "revision": "26d48e0634e6ee9cdc0533996db289ce4b430177",
+      "seed_validation": {
+        "base": {
+          "errors": 0,
+          "failures": 6,
+          "passed": false,
+          "skipped": 0,
+          "tests_run": 10
+        },
+        "reference": {
+          "errors": 0,
+          "failures": 0,
+          "passed": true,
+          "skipped": 0,
+          "tests_run": 10
+        }
+      },
+      "source_root": "httpx",
+      "verification": {
+        "args": [
+          "--repo",
+          "{workspace}",
+          "--task",
+          "httpx_quoted_headers"
+        ],
+        "script": "benchmarks/agent_grep_checks.py",
+        "sha256": "caa2045c890d067edf47ba1a831477d67490f324c01fd4321638494c007b1b62",
+        "timeout_s": 90
+      }
+    }
+  ],
+  "version": 1
+}

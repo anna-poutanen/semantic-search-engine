@@ -1,0 +1,309 @@
+{
+  "agent_cleanup": {
+    "capture_cleanup_end": {
+      "monotonic_s": 248559.390933666,
+      "perf_counter_ns": 248559390925208,
+      "utc": "2026-10-16T04:23:56.934367+00:00",
+      "wall_time_ns": 1792124636934367000
+    },
+    "capture_cleanup_s": 4.266601172275841e-05,
+    "capture_cleanup_start": {
+      "monotonic_s": 248559.390891,
+      "perf_counter_ns": 248559390882791,
+      "utc": "2026-10-16T04:23:56.934324+00:00",
+      "wall_time_ns": 1792124636934324000
+    },
+    "errors": [],
+    "exit_code": 0,
+    "finished_cleanup": {
+      "monotonic_s": 248559.390922833,
+      "perf_counter_ns": 248559390918875,
+      "utc": "2026-10-16T04:23:56.934360+00:00",
+      "wall_time_ns": 1792124636934360000
+    },
+    "forced_kill": false,
+    "kill_grace_s": 5.0,
+    "owned_group": 87670,
+    "owned_group_stopped": true,
+    "permission_retries": [],
+    "pid": 87670,
+    "started_cleanup": {
+      "monotonic_s": 248559.390896916,
+      "perf_counter_ns": 248559390893333,
+      "utc": "2026-10-16T04:23:56.934335+00:00",
+      "wall_time_ns": 1792124636934335000
+    },
+    "term_grace_s": 5.0,
+    "term_sent": false
+  },
+  "agent_elapsed_s": 112.51804024999728,
+  "agent_end": {
+    "monotonic_s": 248559.388676375,
+    "perf_counter_ns": 248559388663000,
+    "utc": "2026-10-16T04:23:56.932104+00:00",
+    "wall_time_ns": 1792124636932104000
+  },
+  "agent_exit_code": 0,
+  "agent_process": {
+    "command_sha256": "88c796151a43901b55ec60b498fbf01cecb435adb318b40a5e31a7cc9b0e311e",
+    "launched": true,
+    "launched_at": {
+      "monotonic_s": 248446.874014541,
+      "perf_counter_ns": 248446873988125,
+      "utc": "2026-10-16T04:22:04.424180+00:00",
+      "wall_time_ns": 1792124524424180000
+    },
+    "owned_group": 87670,
+    "pid": 87670,
+    "start_new_session": true
+  },
+  "agent_start": {
+    "monotonic_s": 248446.870636125,
+    "perf_counter_ns": 248446870628541,
+    "utc": "2026-10-16T04:22:04.420821+00:00",
+    "wall_time_ns": 1792124524420821000
+  },
+  "capture_errors": [],
+  "cleanup_clean": true,
+  "cleanup_qualified": true,
+  "command_calls": 10,
+  "completed": true,
+  "completed_turn_events": 1,
+  "errors": [],
+  "failed": false,
+  "interrupted": false,
+  "interruption_signal": null,
+  "interruption_type": null,
+  "invalid_event_lines": [],
+  "lifecycle_qualified": true,
+  "mcp_calls": 1,
+  "mcp_items": [
+    {
+      "arguments": {
+        "max_results": 5,
+        "query": "HTTPX Headers get_list split_commas splitting comma separated header values",
+        "token_budget": 2000
+      },
+      "error": null,
+      "id": "item_2",
+      "result": {
+        "content": [
+          {
+            "text": "{\"query\":\"HTTPX Headers get_list split_commas splitting comma separated header values\",\"match_status\":\"candidates\",\"results\":[{\"path\":\"httpx/_models.py\",\"symbol\":\"Headers.get_list\",\"start_line\":252,\"end_line\":272,\"source\":\"    def get_list(self, key: str, split_commas: bool = False) -> list[str]:\\n        \\\"\\\"\\\"\\n        Return a list of all header values for a given key.\\n        If `split_commas=True` is passed, then any comma separated header\\n        values are split into multiple return strings.\\n        \\\"\\\"\\\"\\n        get_header_key = key.lower().encode(self.encoding)\\n\\n        values = [\\n            item_value.decode(self.encoding)\\n            for _, item_key, item_value in self._list\\n            if item_key.lower() == get_header_key\\n        ]\\n\\n        if not split_commas:\\n            return values\\n\\n        split_values = []\\n        for value in values:\\n            split_values.extend([item.strip() for item in value.split(\\\",\\\")])\\n        return split_values\\n\",\"source_hash\":\"c8a896e7cff95231c3871cd977c2f35c799c574615df84393b0c2aec25ae8c10\",\"truncated\":false,\"origin\":\"retrieval\",\"related_to\":null},{\"path\":\"httpx/_models.py\",\"symbol\":\"Headers.__getitem__\",\"start_line\":284,\"end_line\":302,\"source\":\"    def __getitem__(self, key: str) -> str:\\n        \\\"\\\"\\\"\\n        Return a single header value.\\n\\n        If there are multiple headers with the same key, then we concatenate\\n        them with commas. See: https://tools.ietf.org/html/rfc7230#section-3.2.2\\n        \\\"\\\"\\\"\\n        normalized_key = key.lower().encode(self.encoding)\\n\\n        items = [\\n            header_value.decode(self.encoding)\\n            for _, header_key, header_value in self._list\\n            if header_key == normalized_key\\n        ]\\n\\n        if items:\\n            return \\\", \\\".join(items)\\n\\n        raise KeyError(key)\\n\",\"source_hash\":\"7c220df74e99968a848c1bf3b88f363f98a351dc779857f61f8482d90dbf686d\",\"truncated\":false,\"origin\":\"retrieval\",\"related_to\":null},{\"path\":\"httpx/_models.py\",\"symbol\":\"Headers.items\",\"start_line\":216,\"end_line\":229,\"source\":\"    def items(self) -> typing.ItemsView[str, str]:\\n        \\\"\\\"\\\"\\n        Return `(key, value)` items of headers. Concatenate headers\\n        into a single comma separated value when a key occurs multiple times.\\n        \\\"\\\"\\\"\\n        values_dict: dict[str, str] = {}\\n        for _, key, value in self._list:\\n            str_key = key.decode(self.encoding)\\n            str_value = value.decode(self.encoding)\\n            if str_key in values_dict:\\n                values_dict[str_key] += f\\\", {str_value}\\\"\\n            else:\\n                values_dict[str_key] = str_value\\n        return values_dict.items()\\n\",\"source_hash\":\"b8308a0eeaa3c71c50299db32d91d410893241af0c03d721cf2b677bcc84b0e0\",\"truncated\":false,\"origin\":\"retrieval\",\"related_to\":null},{\"path\":\"httpx/_models.py\",\"symbol\":\"Headers.multi_items\",\"start_line\":231,\"end_line\":240,\"source\":\"    def multi_items(self) -> list[tuple[str, str]]:\\n        \\\"\\\"\\\"\\n        Return a list of `(key, value)` pairs of headers. Allow multiple\\n        occurrences of the same key without concatenating into a single\\n        comma separated value.\\n        \\\"\\\"\\\"\\n        return [\\n            (key.decode(self.encoding), value.decode(self.encoding))\\n            for _, key, value in self._list\\n        ]\\n\",\"source_hash\":\"75eabdb50accd2e5ebcedce73cf9433abae124a3e9b38d7dcd2f8ebb8f3382b6\",\"truncated\":false,\"origin\":\"retrieval\",\"related_to\":null},{\"path\":\"httpx/_models.py\",\"symbol\":\"Headers.get\",\"start_line\":242,\"end_line\":250,\"source\":\"    def get(self, key: str, default: typing.Any = None) -> typing.Any:\\n        \\\"\\\"\\\"\\n        Return a header value. If multiple occurrences of the header occur\\n        then concatenate them together with commas.\\n        \\\"\\\"\\\"\\n        try:\\n            return self[key]\\n        except KeyError:\\n            return default\\n\",\"source_hash\":\"1cf47d6e3bba1f9f3050089b1062ac98a31928dc1e06ee6bc5790663d7b05b67\",\"truncated\":false,\"origin\":\"retrieval\",\"related_to\":null}],\"budget_exhausted\":false,\"token_usage\":{\"encoding\":\"cl100k_base\",\"tokens\":1158,\"budget\":2000,\"truncated\":false},\"scope\":{\"source_root\":\"httpx\",\"membership\":\"saved implementations; Git-tracked files only in Git projects\",\"source_exclusions\":[],\"exclusions_omitted\":0}}",
+            "type": "text"
+          }
+        ],
+        "structured_content": null
+      },
+      "server": "semantic_search",
+      "status": "completed",
+      "tool": "search_code",
+      "type": "mcp_tool_call"
+    }
+  ],
+  "output_drain_complete": true,
+  "per_model_call_usage": null,
+  "per_model_call_usage_reason": "Not emitted by exec --json",
+  "reported_turns": 1,
+  "timed_out": false,
+  "tool_intervals": [
+    {
+      "end": {
+        "monotonic_s": 248453.124982875,
+        "perf_counter_ns": 248453124978208,
+        "utc": "2026-10-16T04:22:10.674795+00:00",
+        "wall_time_ns": 1792124530674795000
+      },
+      "item_id": "item_1",
+      "observed_duration_s": 0.0005002499965485185,
+      "start": {
+        "monotonic_s": 248453.124482625,
+        "perf_counter_ns": 248453124453083,
+        "utc": "2026-10-16T04:22:10.674270+00:00",
+        "wall_time_ns": 1792124530674270000
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 248456.771679208,
+        "perf_counter_ns": 248456771673416,
+        "utc": "2026-10-16T04:22:14.321272+00:00",
+        "wall_time_ns": 1792124534321272000
+      },
+      "item_id": "item_3",
+      "observed_duration_s": 0.0005198750004637986,
+      "start": {
+        "monotonic_s": 248456.771159333,
+        "perf_counter_ns": 248456771147541,
+        "utc": "2026-10-16T04:22:14.320746+00:00",
+        "wall_time_ns": 1792124534320746000
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 248456.948848125,
+        "perf_counter_ns": 248456948834375,
+        "utc": "2026-10-16T04:22:14.498422+00:00",
+        "wall_time_ns": 1792124534498422000
+      },
+      "item_id": "item_2",
+      "observed_duration_s": 0.26023670900030993,
+      "start": {
+        "monotonic_s": 248456.688611416,
+        "perf_counter_ns": 248456688538708,
+        "utc": "2026-10-16T04:22:14.238141+00:00",
+        "wall_time_ns": 1792124534238141000
+      },
+      "type": "mcp_tool_call"
+    },
+    {
+      "end": {
+        "monotonic_s": 248471.79027725,
+        "perf_counter_ns": 248471790270333,
+        "utc": "2026-10-16T04:22:29.338967+00:00",
+        "wall_time_ns": 1792124549338967000
+      },
+      "item_id": "item_4",
+      "observed_duration_s": 0.000642083992715925,
+      "start": {
+        "monotonic_s": 248471.789635166,
+        "perf_counter_ns": 248471789614083,
+        "utc": "2026-10-16T04:22:29.338311+00:00",
+        "wall_time_ns": 1792124549338311000
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 248471.803336666,
+        "perf_counter_ns": 248471803332083,
+        "utc": "2026-10-16T04:22:29.352028+00:00",
+        "wall_time_ns": 1792124549352028000
+      },
+      "item_id": "item_5",
+      "observed_duration_s": 0.0005249159876257181,
+      "start": {
+        "monotonic_s": 248471.80281175,
+        "perf_counter_ns": 248471802803625,
+        "utc": "2026-10-16T04:22:29.351500+00:00",
+        "wall_time_ns": 1792124549351500000
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 248506.605615416,
+        "perf_counter_ns": 248506605599083,
+        "utc": "2026-10-16T04:23:04.152207+00:00",
+        "wall_time_ns": 1792124584152207000
+      },
+      "item_id": "item_8",
+      "observed_duration_s": 0.23487591597950086,
+      "start": {
+        "monotonic_s": 248506.3707395,
+        "perf_counter_ns": 248506370727208,
+        "utc": "2026-10-16T04:23:03.917349+00:00",
+        "wall_time_ns": 1792124583917349000
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 248524.517394541,
+        "perf_counter_ns": 248524517375708,
+        "utc": "2026-10-16T04:23:22.062908+00:00",
+        "wall_time_ns": 1792124602062908000
+      },
+      "item_id": "item_10",
+      "observed_duration_s": 0.24246216600295156,
+      "start": {
+        "monotonic_s": 248524.274932375,
+        "perf_counter_ns": 248524274916041,
+        "utc": "2026-10-16T04:23:21.820464+00:00",
+        "wall_time_ns": 1792124601820464000
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 248533.974677125,
+        "perf_counter_ns": 248533974671166,
+        "utc": "2026-10-16T04:23:31.519637+00:00",
+        "wall_time_ns": 1792124611519637000
+      },
+      "item_id": "item_12",
+      "observed_duration_s": 0.0007225839945022017,
+      "start": {
+        "monotonic_s": 248533.973954541,
+        "perf_counter_ns": 248533973941250,
+        "utc": "2026-10-16T04:23:31.518907+00:00",
+        "wall_time_ns": 1792124611518907000
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 248534.276719458,
+        "perf_counter_ns": 248534276690291,
+        "utc": "2026-10-16T04:23:31.821638+00:00",
+        "wall_time_ns": 1792124611821638000
+      },
+      "item_id": "item_13",
+      "observed_duration_s": 0.23708087499835528,
+      "start": {
+        "monotonic_s": 248534.039638583,
+        "perf_counter_ns": 248534039627083,
+        "utc": "2026-10-16T04:23:31.584589+00:00",
+        "wall_time_ns": 1792124611584589000
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 248549.442756458,
+        "perf_counter_ns": 248549442751166,
+        "utc": "2026-10-16T04:23:46.986789+00:00",
+        "wall_time_ns": 1792124626986789000
+      },
+      "item_id": "item_15",
+      "observed_duration_s": 0.0005841250240337104,
+      "start": {
+        "monotonic_s": 248549.442172333,
+        "perf_counter_ns": 248549442154541,
+        "utc": "2026-10-16T04:23:46.986192+00:00",
+        "wall_time_ns": 1792124626986192000
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 248549.749120791,
+        "perf_counter_ns": 248549749101583,
+        "utc": "2026-10-16T04:23:47.293121+00:00",
+        "wall_time_ns": 1792124627293121000
+      },
+      "item_id": "item_16",
+      "observed_duration_s": 0.2421062079956755,
+      "start": {
+        "monotonic_s": 248549.507014583,
+        "perf_counter_ns": 248549507006625,
+        "utc": "2026-10-16T04:23:47.051041+00:00",
+        "wall_time_ns": 1792124627051041000
+      },
+      "type": "command_execution"
+    }
+  ],
+  "usage": {
+    "cache_write_input_tokens": 0,
+    "cached_input_tokens": 131584,
+    "input_tokens": 161722,
+    "output_tokens": 5714,
+    "reasoning_output_tokens": 2170,
+    "total_tokens": 167436,
+    "uncached_input_tokens": 30138
+  },
+  "usage_errors": [],
+  "usage_scope": "Reported completed-turn usage; interrupted-turn and per-request usage unknown"
+}

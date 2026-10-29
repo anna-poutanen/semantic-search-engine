@@ -1,0 +1,142 @@
+{
+  "agent_elapsed_s": 16.18954195798142,
+  "agent_end": {
+    "monotonic_s": 245647.364628583,
+    "utc": "2026-10-15T16:16:21.811446+00:00"
+  },
+  "agent_exit_code": 0,
+  "agent_start": {
+    "monotonic_s": 245631.175086625,
+    "utc": "2026-10-15T16:16:05.622197+00:00"
+  },
+  "artifact_sha256": {
+    "published": {
+      "command.json": "3a20c3f192e8468118eb32c309749a55719287d05dceb069d37d77a86c4f7cbc",
+      "event-timestamps.json": "e8a853f0d33cac78f971d00a1da9968de455ceef5daf65051f33ba3bb4955f13",
+      "events.jsonl": "6ca552f17bdfd9d5b043173db49926c8b907b253ab43bacf16f3d03a81888a92",
+      "final.txt": "984b2416e0b1f6d2fd6e3891537c33827e8d9d2fc026002acf4197d54201d879",
+      "http-receipts.jsonl": "46d2c20f1ae67e127a058f28762f1410972ebb062863cd90068afbb3e1bb3945",
+      "stderr.txt": "a41565240fb978669d9dc6416869c7a2e3ac31d79da4a62227e84f782c0e48d5"
+    },
+    "raw": {
+      "command.json": "92bfd9a1d07959c5092b404e3dcd168eee233c54166e797c7edb3cf8a61de853",
+      "events.jsonl": "a8de86a16239c8d7a77f9105f978d7ff0210d41729f4b3885488efa6e923f941",
+      "final.txt": "984b2416e0b1f6d2fd6e3891537c33827e8d9d2fc026002acf4197d54201d879",
+      "http-receipts.jsonl": "aebc4df8e4863bc593fa16c2424e03c00d35590a7f8fc818aeeb3e5ad494c5b9",
+      "observed-events.json": "8795dc69c5f3736bef1971df432df1f5eeb108cc08baf5c3eaec7df3b2d96c0c",
+      "stderr.txt": "a41565240fb978669d9dc6416869c7a2e3ac31d79da4a62227e84f782c0e48d5"
+    }
+  },
+  "classification": "Separate hosted transport diagnostic; never pooled with sixteen workflow trials",
+  "command_calls": 1,
+  "common_runtime_sha256": "2f03c47f1372a1a3024a5b606b5ffbb7c813650c07ba15fbf2c4bbde3dbdf5b0",
+  "completed": true,
+  "completed_correct": true,
+  "errors": [],
+  "failed": false,
+  "final_file_hashes": {
+    "loopback_smoke.py": "47bebd26bc3ff7bc3e534c4e3a1c64e529282c6596f43875ef914b006977e4e0",
+    "src/probe.py": "068909ed28decb7a9b0b8cddd5807bdbcc6e9e54527f30acaa3ec9c17f26a7ae"
+  },
+  "forbidden_local_model_calls": 0,
+  "initial_file_hashes": {
+    "loopback_smoke.py": "47bebd26bc3ff7bc3e534c4e3a1c64e529282c6596f43875ef914b006977e4e0",
+    "src/probe.py": "068909ed28decb7a9b0b8cddd5807bdbcc6e9e54527f30acaa3ec9c17f26a7ae"
+  },
+  "invalid_event_lines": [],
+  "local_model_inference": false,
+  "loopback_script": "import socket\nimport threading\n\nwith socket.socket() as server:\n    server.bind((\"127.0.0.1\", 0))\n    server.listen(1)\n    def reply():\n        with server.accept()[0] as connection:\n            connection.sendall(b\"LOOPBACK_OK\")\n    worker = threading.Thread(target=reply)\n    worker.start()\n    with socket.create_connection(server.getsockname(), timeout=5) as client:\n        assert client.recv(32) == b\"LOOPBACK_OK\"\n    worker.join(5)\n    assert not worker.is_alive()\nprint(\"LOOPBACK_OK\")\n",
+  "loopback_script_sha256": "47bebd26bc3ff7bc3e534c4e3a1c64e529282c6596f43875ef914b006977e4e0",
+  "matched_calls": [
+    {
+      "compact_text_sha256": "f99bd7e393c2250dd957e7d7d81303e53941a59a09c3d5eff77d0e06f756a993",
+      "item_id": "item_1",
+      "receipt_number": 1
+    }
+  ],
+  "matched_loopback_commands": [
+    {
+      "exit_code": 0,
+      "item_id": "item_2",
+      "normalized_argv": [
+        "<PROJECT>/.venv/bin/python",
+        "loopback_smoke.py"
+      ],
+      "stdout": "LOOPBACK_OK"
+    }
+  ],
+  "mcp_calls": 1,
+  "mcp_items": [
+    {
+      "arguments": {
+        "include_dependencies": false,
+        "max_results": 1,
+        "query": "workflow probe",
+        "retrieval": "bm25",
+        "token_budget": 512
+      },
+      "error": null,
+      "id": "item_1",
+      "result": {
+        "content": [
+          {
+            "text": "{\"query\":\"workflow probe\",\"match_status\":\"candidates\",\"results\":[{\"path\":\"src/probe.py\",\"symbol\":\"workflow_probe\",\"start_line\":1,\"end_line\":2,\"source\":\"def workflow_probe():\\n    return \\\"MULTIFILE_PROBE_OK\\\"\\n\",\"source_hash\":\"068909ed28decb7a9b0b8cddd5807bdbcc6e9e54527f30acaa3ec9c17f26a7ae\",\"truncated\":false,\"origin\":\"retrieval\",\"related_to\":null}],\"budget_exhausted\":false,\"token_usage\":{\"encoding\":\"cl100k_base\",\"tokens\":179,\"budget\":512,\"truncated\":false},\"scope\":{\"source_root\":\"src\",\"membership\":\"saved implementations; Git-tracked files only in Git projects\",\"source_exclusions\":[],\"exclusions_omitted\":0}}",
+            "type": "text"
+          }
+        ],
+        "structured_content": null
+      },
+      "server": "semantic_search",
+      "status": "completed",
+      "tool": "search_code",
+      "type": "mcp_tool_call"
+    }
+  ],
+  "observed_command_items": 1,
+  "observed_file_change_items": 0,
+  "per_model_call_usage": null,
+  "per_model_call_usage_reason": "Not emitted by exec --json",
+  "probe_source": "def workflow_probe():\n    return \"MULTIFILE_PROBE_OK\"\n",
+  "probe_source_sha256": "068909ed28decb7a9b0b8cddd5807bdbcc6e9e54527f30acaa3ec9c17f26a7ae",
+  "reported_turns": 1,
+  "successful_expected_http_receipts": 1,
+  "successful_expected_mcp_calls": 1,
+  "timed_out": false,
+  "tool_intervals": [
+    {
+      "end": {
+        "monotonic_s": 245640.287437,
+        "utc": "2026-10-15T16:16:14.734388+00:00"
+      },
+      "item_id": "item_1",
+      "observed_duration_s": 0.1710367089835927,
+      "start": {
+        "monotonic_s": 245640.116400291,
+        "utc": "2026-10-15T16:16:14.563334+00:00"
+      },
+      "type": "mcp_tool_call"
+    },
+    {
+      "end": {
+        "monotonic_s": 245642.554772791,
+        "utc": "2026-10-15T16:16:17.001695+00:00"
+      },
+      "item_id": "item_2",
+      "observed_duration_s": 2.029098686762154e-05,
+      "start": {
+        "monotonic_s": 245642.5547525,
+        "utc": "2026-10-15T16:16:17.001667+00:00"
+      },
+      "type": "command_execution"
+    }
+  ],
+  "usage": {
+    "cache_write_input_tokens": 0,
+    "cached_input_tokens": 27904,
+    "input_tokens": 39671,
+    "output_tokens": 239,
+    "reasoning_output_tokens": 0,
+    "total_tokens": 39910,
+    "uncached_input_tokens": 11767
+  }
+}

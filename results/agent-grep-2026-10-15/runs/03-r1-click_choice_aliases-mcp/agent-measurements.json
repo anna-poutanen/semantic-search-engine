@@ -1,0 +1,411 @@
+{
+  "agent_cleanup": {
+    "capture_cleanup_end": {
+      "monotonic_s": 246996.446916833,
+      "perf_counter_ns": 246996446913916,
+      "utc": "2026-10-15T16:38:50.870995+00:00",
+      "wall_time_ns": 1792082330870995000
+    },
+    "capture_cleanup_s": 5.479200626723468e-05,
+    "capture_cleanup_start": {
+      "monotonic_s": 246996.446862041,
+      "perf_counter_ns": 246996446832875,
+      "utc": "2026-10-15T16:38:50.870904+00:00",
+      "wall_time_ns": 1792082330870904000
+    },
+    "errors": [],
+    "exit_code": 0,
+    "finished_cleanup": {
+      "monotonic_s": 246996.446910166,
+      "perf_counter_ns": 246996446905708,
+      "utc": "2026-10-15T16:38:50.870987+00:00",
+      "wall_time_ns": 1792082330870987000
+    },
+    "forced_kill": false,
+    "kill_grace_s": 5.0,
+    "owned_group": 83173,
+    "owned_group_stopped": true,
+    "permission_retries": [],
+    "pid": 83173,
+    "started_cleanup": {
+      "monotonic_s": 246996.446870291,
+      "perf_counter_ns": 246996446864416,
+      "utc": "2026-10-15T16:38:50.870946+00:00",
+      "wall_time_ns": 1792082330870946000
+    },
+    "term_grace_s": 5.0,
+    "term_sent": false
+  },
+  "agent_elapsed_s": 272.23129579101806,
+  "agent_end": {
+    "monotonic_s": 246996.444192166,
+    "perf_counter_ns": 246996444086166,
+    "utc": "2026-10-15T16:38:50.868165+00:00",
+    "wall_time_ns": 1792082330868165000
+  },
+  "agent_exit_code": 0,
+  "agent_process": {
+    "command_sha256": "dbda4e989d60b6cfca378b1949ed9d3d1cf80283829c971ee2459af9cb6782b9",
+    "launched": true,
+    "launched_at": {
+      "monotonic_s": 246724.216738375,
+      "perf_counter_ns": 246724216722708,
+      "utc": "2026-10-15T16:34:18.645396+00:00",
+      "wall_time_ns": 1792082058645396000
+    },
+    "owned_group": 83173,
+    "pid": 83173,
+    "start_new_session": true
+  },
+  "agent_start": {
+    "monotonic_s": 246724.212896375,
+    "perf_counter_ns": 246724212888875,
+    "utc": "2026-10-15T16:34:18.641563+00:00",
+    "wall_time_ns": 1792082058641563000
+  },
+  "capture_errors": [],
+  "cleanup_clean": true,
+  "cleanup_qualified": true,
+  "command_calls": 16,
+  "completed": true,
+  "completed_turn_events": 1,
+  "errors": [],
+  "failed": false,
+  "interrupted": false,
+  "interruption_signal": null,
+  "interruption_type": null,
+  "invalid_event_lines": [],
+  "lifecycle_qualified": true,
+  "mcp_calls": 1,
+  "mcp_items": [
+    {
+      "arguments": {
+        "max_results": 5,
+        "query": "click Choice __init__ choices case_sensitive convert normalize_choice get_metavar shell_complete",
+        "token_budget": 2000
+      },
+      "error": null,
+      "id": "item_2",
+      "result": {
+        "content": [
+          {
+            "text": "{\"query\":\"click Choice __init__ choices case_sensitive convert normalize_choice get_metavar shell_complete\",\"match_status\":\"candidates\",\"results\":[{\"path\":\"src/click/types.py\",\"symbol\":\"Choice.shell_complete\",\"start_line\":310,\"end_line\":331,\"source\":\"    def shell_complete(\\n        self, ctx: \\\"Context\\\", param: \\\"Parameter\\\", incomplete: str\\n    ) -> t.List[\\\"CompletionItem\\\"]:\\n        \\\"\\\"\\\"Complete choices that start with the incomplete value.\\n\\n        :param ctx: Invocation context for this command.\\n        :param param: The parameter that is requesting completion.\\n        :param incomplete: Value being completed. May be empty.\\n\\n        .. versionadded:: 8.0\\n        \\\"\\\"\\\"\\n        from click.shell_completion import CompletionItem\\n\\n        str_choices = map(str, self.choices)\\n\\n        if self.case_sensitive:\\n            matched = (c for c in str_choices if c.startswith(incomplete))\\n        else:\\n            incomplete = incomplete.lower()\\n            matched = (c for c in str_choices if c.lower().startswith(incomplete))\\n\\n        return [CompletionItem(c) for c in matched]\\n\",\"source_hash\":\"b44fbdcec9d4f1cad3a5284efc7d1c0dd329c848ac900988cc9a9f5c9e7186f6\",\"truncated\":false,\"origin\":\"retrieval\",\"related_to\":null},{\"path\":\"src/click/types.py\",\"symbol\":\"Choice.__init__\",\"start_line\":246,\"end_line\":248,\"source\":\"    def __init__(self, choices: t.Sequence[str], case_sensitive: bool = True) -> None:\\n        self.choices = choices\\n        self.case_sensitive = case_sensitive\\n\",\"source_hash\":\"d3e6085351df877db0a369f95b012fd570e71b899d4a8ea67939f346d5bc4289\",\"truncated\":false,\"origin\":\"retrieval\",\"related_to\":null},{\"path\":\"src/click/types.py\",\"symbol\":\"Choice.convert\",\"start_line\":269,\"end_line\":305,\"source\":\"    def convert(\\n        self, value: t.Any, param: t.Optional[\\\"Parameter\\\"], ctx: t.Optional[\\\"Context\\\"]\\n    ) -> t.Any:\\n        # Match through normalization and case sensitivity\\n        # first do token_normalize_func, then lowercase\\n        # preserve original `value` to produce an accurate message in\\n        # `self.fail`\\n        normed_value = value\\n        normed_choices = {choice: choice for choice in self.choices}\\n\\n        if ctx is not None and ctx.token_normalize_func is not None:\\n            normed_value = ctx.token_normalize_func(value)\\n            normed_choices = {\\n                ctx.token_normalize_func(normed_choice): original\\n                for normed_choice, original in normed_choices.items()\\n            }\\n\\n        if not self.case_sensitive:\\n            normed_value = normed_value.casefold()\\n            normed_choices = {\\n                normed_choice.casefold(): original\\n                for normed_choice, original in normed_choices.items()\\n            }\\n\\n        if normed_value in normed_choices:\\n            return normed_choices[normed_value]\\n\\n        choices_str = \\\", \\\".join(map(repr, self.choices))\\n        self.fail(\\n            ngettext(\\n                \\\"{value!r} is not {choice}.\\\",\\n                \\\"{value!r} is not one of {choices}.\\\",\\n                len(self.choices),\\n            ).format(value=value, choice=choices_str, choices=choices_str),\\n            param,\\n            ctx,\\n        )\\n\",\"source_hash\":\"f65671f9ede04e68ba26fbb9804eb27a19b30eb2d2b8454d935b1a72f693c9a8\",\"truncated\":false,\"origin\":\"retrieval\",\"related_to\":null},{\"path\":\"src/click/types.py\",\"symbol\":\"Choice.get_metavar\",\"start_line\":256,\"end_line\":264,\"source\":\"    def get_metavar(self, param: \\\"Parameter\\\") -> str:\\n        choices_str = \\\"|\\\".join(self.choices)\\n\\n        # Use curly braces to indicate a required argument.\\n        if param.required and param.param_type_name == \\\"argument\\\":\\n            return f\\\"{{{choices_str}}}\\\"\\n\\n        # Use square braces to indicate an option or optional argument.\\n        return f\\\"[{choices_str}]\\\"\\n\",\"source_hash\":\"73e1a9623b9e0e3689e7bcf70ce923b5f10f36e6331f102af0f85ac3e53e92df\",\"truncated\":false,\"origin\":\"retrieval\",\"related_to\":null},{\"path\":\"src/click/core.py\",\"symbol\":\"MultiCommand.shell_complete\",\"start_line\":1770,\"end_line\":1787,\"source\":\"    def shell_complete(self, ctx: Context, incomplete: str) -> t.List[\\\"CompletionItem\\\"]:\\n        \\\"\\\"\\\"Return a list of completions for the incomplete value. Looks\\n        at the names of options, subcommands, and chained\\n        multi-commands.\\n\\n        :param ctx: Invocation context for this command.\\n        :param incomplete: Value being completed. May be empty.\\n\\n        .. versionadded:: 8.0\\n        \\\"\\\"\\\"\\n        from click.shell_completion import CompletionItem\\n\\n        results = [\\n            CompletionItem(name, help=command.get_short_help_str())\\n            for name, command in _complete_visible_commands(ctx, incomplete)\\n        ]\\n        results.extend(super().shell_complete(ctx, incomplete))\\n        return results\\n\",\"source_hash\":\"4ba239ed2fbc68f3f1ceeb47a68c036b35095ff382effd97684724d352ae0056\",\"truncated\":false,\"origin\":\"retrieval\",\"related_to\":null}],\"budget_exhausted\":false,\"token_usage\":{\"encoding\":\"cl100k_base\",\"tokens\":1367,\"budget\":2000,\"truncated\":false},\"scope\":{\"source_root\":\"src/click\",\"membership\":\"saved implementations; Git-tracked files only in Git projects\",\"source_exclusions\":[],\"exclusions_omitted\":0}}",
+            "type": "text"
+          }
+        ],
+        "structured_content": null
+      },
+      "server": "semantic_search",
+      "status": "completed",
+      "tool": "search_code",
+      "type": "mcp_tool_call"
+    }
+  ],
+  "output_drain_complete": true,
+  "per_model_call_usage": null,
+  "per_model_call_usage_reason": "Not emitted by exec --json",
+  "reported_turns": 1,
+  "timed_out": false,
+  "tool_intervals": [
+    {
+      "end": {
+        "monotonic_s": 246730.751577875,
+        "perf_counter_ns": 246730751571416,
+        "utc": "2026-10-15T16:34:25.180135+00:00",
+        "wall_time_ns": 1792082065180135000
+      },
+      "item_id": "item_1",
+      "observed_duration_s": 0.0005210840026848018,
+      "start": {
+        "monotonic_s": 246730.751056791,
+        "perf_counter_ns": 246730751029708,
+        "utc": "2026-10-15T16:34:25.179593+00:00",
+        "wall_time_ns": 1792082065179593000
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 246735.361538,
+        "perf_counter_ns": 246735361533208,
+        "utc": "2026-10-15T16:34:29.790019+00:00",
+        "wall_time_ns": 1792082069790019000
+      },
+      "item_id": "item_3",
+      "observed_duration_s": 0.0005032919871155173,
+      "start": {
+        "monotonic_s": 246735.361034708,
+        "perf_counter_ns": 246735361019333,
+        "utc": "2026-10-15T16:34:29.789505+00:00",
+        "wall_time_ns": 1792082069789505000
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 246735.526193541,
+        "perf_counter_ns": 246735526177208,
+        "utc": "2026-10-15T16:34:29.954660+00:00",
+        "wall_time_ns": 1792082069954660000
+      },
+      "item_id": "item_2",
+      "observed_duration_s": 0.2510789580119308,
+      "start": {
+        "monotonic_s": 246735.275114583,
+        "perf_counter_ns": 246735275017500,
+        "utc": "2026-10-15T16:34:29.703503+00:00",
+        "wall_time_ns": 1792082069703503000
+      },
+      "type": "mcp_tool_call"
+    },
+    {
+      "end": {
+        "monotonic_s": 246744.845506916,
+        "perf_counter_ns": 246744845502666,
+        "utc": "2026-10-15T16:34:39.273829+00:00",
+        "wall_time_ns": 1792082079273829000
+      },
+      "item_id": "item_4",
+      "observed_duration_s": 0.000621499988483265,
+      "start": {
+        "monotonic_s": 246744.844885416,
+        "perf_counter_ns": 246744844855500,
+        "utc": "2026-10-15T16:34:39.273181+00:00",
+        "wall_time_ns": 1792082079273181000
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 246744.866764458,
+        "perf_counter_ns": 246744866761500,
+        "utc": "2026-10-15T16:34:39.295087+00:00",
+        "wall_time_ns": 1792082079295087000
+      },
+      "item_id": "item_5",
+      "observed_duration_s": 0.00038916702033020556,
+      "start": {
+        "monotonic_s": 246744.866375291,
+        "perf_counter_ns": 246744866371708,
+        "utc": "2026-10-15T16:34:39.294697+00:00",
+        "wall_time_ns": 1792082079294697000
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 246784.174724416,
+        "perf_counter_ns": 246784174718333,
+        "utc": "2026-10-15T16:35:18.602381+00:00",
+        "wall_time_ns": 1792082118602381000
+      },
+      "item_id": "item_7",
+      "observed_duration_s": 0.000789457990322262,
+      "start": {
+        "monotonic_s": 246784.173934958,
+        "perf_counter_ns": 246784173900458,
+        "utc": "2026-10-15T16:35:18.601562+00:00",
+        "wall_time_ns": 1792082118601562000
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 246843.391058208,
+        "perf_counter_ns": 246843391028000,
+        "utc": "2026-10-15T16:36:17.817690+00:00",
+        "wall_time_ns": 1792082177817690000
+      },
+      "item_id": "item_9",
+      "observed_duration_s": 0.21529383302549832,
+      "start": {
+        "monotonic_s": 246843.175764375,
+        "perf_counter_ns": 246843175751791,
+        "utc": "2026-10-15T16:36:17.602419+00:00",
+        "wall_time_ns": 1792082177602419000
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 246873.716576708,
+        "perf_counter_ns": 246873716557541,
+        "utc": "2026-10-15T16:36:48.142709+00:00",
+        "wall_time_ns": 1792082208142709000
+      },
+      "item_id": "item_11",
+      "observed_duration_s": 0.30036604197812267,
+      "start": {
+        "monotonic_s": 246873.416210666,
+        "perf_counter_ns": 246873416189041,
+        "utc": "2026-10-15T16:36:47.842345+00:00",
+        "wall_time_ns": 1792082207842345000
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 246910.060779041,
+        "perf_counter_ns": 246910060772250,
+        "utc": "2026-10-15T16:37:24.486311+00:00",
+        "wall_time_ns": 1792082244486311000
+      },
+      "item_id": "item_13",
+      "observed_duration_s": 0.0011693749984260648,
+      "start": {
+        "monotonic_s": 246910.059609666,
+        "perf_counter_ns": 246910059581291,
+        "utc": "2026-10-15T16:37:24.485119+00:00",
+        "wall_time_ns": 1792082244485119000
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 246910.352374791,
+        "perf_counter_ns": 246910352351291,
+        "utc": "2026-10-15T16:37:24.777885+00:00",
+        "wall_time_ns": 1792082244777885000
+      },
+      "item_id": "item_14",
+      "observed_duration_s": 0.21364324999740347,
+      "start": {
+        "monotonic_s": 246910.138731541,
+        "perf_counter_ns": 246910138719583,
+        "utc": "2026-10-15T16:37:24.564256+00:00",
+        "wall_time_ns": 1792082244564256000
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 246917.57755025,
+        "perf_counter_ns": 246917577543791,
+        "utc": "2026-10-15T16:37:32.002955+00:00",
+        "wall_time_ns": 1792082252002955000
+      },
+      "item_id": "item_16",
+      "observed_duration_s": 0.0007345839985646307,
+      "start": {
+        "monotonic_s": 246917.576815666,
+        "perf_counter_ns": 246917576792625,
+        "utc": "2026-10-15T16:37:32.002204+00:00",
+        "wall_time_ns": 1792082252002204000
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 246917.579635333,
+        "perf_counter_ns": 246917579631958,
+        "utc": "2026-10-15T16:37:32.005044+00:00",
+        "wall_time_ns": 1792082252005044000
+      },
+      "item_id": "item_17",
+      "observed_duration_s": 0.00043758301762863994,
+      "start": {
+        "monotonic_s": 246917.57919775,
+        "perf_counter_ns": 246917579193791,
+        "utc": "2026-10-15T16:37:32.004606+00:00",
+        "wall_time_ns": 1792082252004606000
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 246917.993523583,
+        "perf_counter_ns": 246917993505291,
+        "utc": "2026-10-15T16:37:32.418910+00:00",
+        "wall_time_ns": 1792082252418910000
+      },
+      "item_id": "item_18",
+      "observed_duration_s": 0.32421724998857826,
+      "start": {
+        "monotonic_s": 246917.669306333,
+        "perf_counter_ns": 246917669299375,
+        "utc": "2026-10-15T16:37:32.094709+00:00",
+        "wall_time_ns": 1792082252094709000
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 246947.382369333,
+        "perf_counter_ns": 246947382362500,
+        "utc": "2026-10-15T16:38:01.807271+00:00",
+        "wall_time_ns": 1792082281807271000
+      },
+      "item_id": "item_19",
+      "observed_duration_s": 0.0009694170148577541,
+      "start": {
+        "monotonic_s": 246947.381399916,
+        "perf_counter_ns": 246947381371125,
+        "utc": "2026-10-15T16:38:01.806280+00:00",
+        "wall_time_ns": 1792082281806280000
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 246959.05482675,
+        "perf_counter_ns": 246959054821375,
+        "utc": "2026-10-15T16:38:13.479533+00:00",
+        "wall_time_ns": 1792082293479533000
+      },
+      "item_id": "item_21",
+      "observed_duration_s": 0.0007466250099241734,
+      "start": {
+        "monotonic_s": 246959.054080125,
+        "perf_counter_ns": 246959054064458,
+        "utc": "2026-10-15T16:38:13.478776+00:00",
+        "wall_time_ns": 1792082293478776000
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 246990.509383,
+        "perf_counter_ns": 246990509378083,
+        "utc": "2026-10-15T16:38:44.933559+00:00",
+        "wall_time_ns": 1792082324933559000
+      },
+      "item_id": "item_24",
+      "observed_duration_s": 0.0006881669978611171,
+      "start": {
+        "monotonic_s": 246990.508694833,
+        "perf_counter_ns": 246990508673833,
+        "utc": "2026-10-15T16:38:44.932855+00:00",
+        "wall_time_ns": 1792082324932855000
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 246991.013162791,
+        "perf_counter_ns": 246991013144458,
+        "utc": "2026-10-15T16:38:45.437317+00:00",
+        "wall_time_ns": 1792082325437317000
+      },
+      "item_id": "item_25",
+      "observed_duration_s": 0.4138447910081595,
+      "start": {
+        "monotonic_s": 246990.599318,
+        "perf_counter_ns": 246990599307291,
+        "utc": "2026-10-15T16:38:45.023487+00:00",
+        "wall_time_ns": 1792082325023487000
+      },
+      "type": "command_execution"
+    }
+  ],
+  "usage": {
+    "cache_write_input_tokens": 0,
+    "cached_input_tokens": 259968,
+    "input_tokens": 299471,
+    "output_tokens": 11934,
+    "reasoning_output_tokens": 5262,
+    "total_tokens": 311405,
+    "uncached_input_tokens": 39503
+  },
+  "usage_errors": [],
+  "usage_scope": "Reported completed-turn usage; interrupted-turn and per-request usage unknown"
+}

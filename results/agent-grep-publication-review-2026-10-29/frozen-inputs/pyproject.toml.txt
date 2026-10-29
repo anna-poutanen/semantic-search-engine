@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=77.0.3"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "semantic-search-engine"
+version = "0.1.2"
+description = "Local behavioral code search with Qwen embeddings and H2O reranking"
+license = "MIT"
+license-files = ["LICENSE", "THIRD_PARTY_NOTICES.md"]
+requires-python = ">=3.12"
+dependencies = ["numpy>=2,<3", "sqlite-vec==0.1.9", "tiktoken==0.14.0"]
+
+[project.optional-dependencies]
+mcp = ["mcp==2.3.0"]
+test = ["pytest==8.3.5"]
+languages = ["tree-sitter==0.26.0", "tree-sitter-javascript==0.25.0", "tree-sitter-typescript==0.23.2"]
+
+[project.scripts]
+semantic-search = "semantic_search.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

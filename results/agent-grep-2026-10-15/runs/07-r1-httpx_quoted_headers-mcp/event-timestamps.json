@@ -1,0 +1,685 @@
+[
+  {
+    "event": {
+      "thread_id": "01a142f2-181f-7680-9fea-26f27f9c8b6d",
+      "type": "thread.started"
+    },
+    "received": {
+      "monotonic_s": 248447.360530666,
+      "perf_counter_ns": 248447360518125,
+      "utc": "2026-10-16T04:22:04.910680+00:00",
+      "wall_time_ns": 1792124524910680000
+    }
+  },
+  {
+    "event": {
+      "type": "turn.started"
+    },
+    "received": {
+      "monotonic_s": 248447.361951416,
+      "perf_counter_ns": 248447361944208,
+      "utc": "2026-10-16T04:22:04.912107+00:00",
+      "wall_time_ns": 1792124524912107000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "id": "item_0",
+        "text": "I\u2019ll locate `Headers.get_list`, update the comma parser, and add regression tests for quoting, escaping, empty members, and repeated headers. Then I\u2019ll run the focused and existing header tests.",
+        "type": "agent_message"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 248451.735711541,
+      "perf_counter_ns": 248451735662750,
+      "utc": "2026-10-16T04:22:09.285562+00:00",
+      "wall_time_ns": 1792124529285562000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"pwd; rg --files -g AGENTS.md -g pyproject.toml -g pytest.ini -g setup.cfg -g 'test*header*' -g '*models*.py' -g 'conftest.py'\"",
+        "exit_code": null,
+        "id": "item_1",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 248453.124482625,
+      "perf_counter_ns": 248453124453083,
+      "utc": "2026-10-16T04:22:10.674270+00:00",
+      "wall_time_ns": 1792124530674270000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "<WORKSPACE>\nhttpx/_models.py\ntests/client/test_headers.py\ntests/models/test_headers.py\ntests/conftest.py\npyproject.toml\n",
+        "command": "/bin/zsh -lc \"pwd; rg --files -g AGENTS.md -g pyproject.toml -g pytest.ini -g setup.cfg -g 'test*header*' -g '*models*.py' -g 'conftest.py'\"",
+        "exit_code": 0,
+        "id": "item_1",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 248453.124982875,
+      "perf_counter_ns": 248453124978208,
+      "utc": "2026-10-16T04:22:10.674795+00:00",
+      "wall_time_ns": 1792124530674795000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "arguments": {
+          "max_results": 5,
+          "query": "HTTPX Headers get_list split_commas splitting comma separated header values",
+          "token_budget": 2000
+        },
+        "error": null,
+        "id": "item_2",
+        "result": null,
+        "server": "semantic_search",
+        "status": "in_progress",
+        "tool": "search_code",
+        "type": "mcp_tool_call"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 248456.688611416,
+      "perf_counter_ns": 248456688538708,
+      "utc": "2026-10-16T04:22:14.238141+00:00",
+      "wall_time_ns": 1792124534238141000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"git status --short; rg --files -g AGENTS.md -g '*pytest*' -g '*requirements*' -g 'tox.ini' -g '.python-version'; sed -n '1,260p' tests/models/test_headers.py; cat pyproject.toml\"",
+        "exit_code": null,
+        "id": "item_3",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 248456.771159333,
+      "perf_counter_ns": 248456771147541,
+      "utc": "2026-10-16T04:22:14.320746+00:00",
+      "wall_time_ns": 1792124534320746000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "requirements.txt\nimport pytest\n\nimport httpx\n\n\ndef test_headers():\n    h = httpx.Headers([(\"a\", \"123\"), (\"a\", \"456\"), (\"b\", \"789\")])\n    assert \"a\" in h\n    assert \"A\" in h\n    assert \"b\" in h\n    assert \"B\" in h\n    assert \"c\" not in h\n    assert h[\"a\"] == \"123, 456\"\n    assert h.get(\"a\") == \"123, 456\"\n    assert h.get(\"nope\", default=None) is None\n    assert h.get_list(\"a\") == [\"123\", \"456\"]\n\n    assert list(h.keys()) == [\"a\", \"b\"]\n    assert list(h.values()) == [\"123, 456\", \"789\"]\n    assert list(h.items()) == [(\"a\", \"123, 456\"), (\"b\", \"789\")]\n    assert h.multi_items() == [(\"a\", \"123\"), (\"a\", \"456\"), (\"b\", \"789\")]\n    assert list(h) == [\"a\", \"b\"]\n    assert dict(h) == {\"a\": \"123, 456\", \"b\": \"789\"}\n    assert repr(h) == \"Headers([('a', '123'), ('a', '456'), ('b', '789')])\"\n    assert h == [(\"a\", \"123\"), (\"b\", \"789\"), (\"a\", \"456\")]\n    assert h == [(\"a\", \"123\"), (\"A\", \"456\"), (\"b\", \"789\")]\n    assert h == {\"a\": \"123\", \"A\": \"456\", \"b\": \"789\"}\n    assert h != \"a: 123\\nA: 456\\nb: 789\"\n\n    h = httpx.Headers({\"a\": \"123\", \"b\": \"789\"})\n    assert h[\"A\"] == \"123\"\n    assert h[\"B\"] == \"789\"\n    assert h.raw == [(b\"a\", b\"123\"), (b\"b\", b\"789\")]\n    assert repr(h) == \"Headers({'a': '123', 'b': '789'})\"\n\n\ndef test_header_mutations():\n    h = httpx.Headers()\n    assert dict(h) == {}\n    h[\"a\"] = \"1\"\n    assert dict(h) == {\"a\": \"1\"}\n    h[\"a\"] = \"2\"\n    assert dict(h) == {\"a\": \"2\"}\n    h.setdefault(\"a\", \"3\")\n    assert dict(h) == {\"a\": \"2\"}\n    h.setdefault(\"b\", \"4\")\n    assert dict(h) == {\"a\": \"2\", \"b\": \"4\"}\n    del h[\"a\"]\n    assert dict(h) == {\"b\": \"4\"}\n    assert h.raw == [(b\"b\", b\"4\")]\n\n\ndef test_copy_headers_method():\n    headers = httpx.Headers({\"custom\": \"example\"})\n    headers_copy = headers.copy()\n    assert headers == headers_copy\n    assert headers is not headers_copy\n\n\ndef test_copy_headers_init():\n    headers = httpx.Headers({\"custom\": \"example\"})\n    headers_copy = httpx.Headers(headers)\n    assert headers == headers_copy\n\n\ndef test_headers_insert_retains_ordering():\n    headers = httpx.Headers({\"a\": \"a\", \"b\": \"b\", \"c\": \"c\"})\n    headers[\"b\"] = \"123\"\n    assert list(headers.values()) == [\"a\", \"123\", \"c\"]\n\n\ndef test_headers_insert_appends_if_new():\n    headers = httpx.Headers({\"a\": \"a\", \"b\": \"b\", \"c\": \"c\"})\n    headers[\"d\"] = \"123\"\n    assert list(headers.values()) == [\"a\", \"b\", \"c\", \"123\"]\n\n\ndef test_headers_insert_removes_all_existing():\n    headers = httpx.Headers([(\"a\", \"123\"), (\"a\", \"456\")])\n    headers[\"a\"] = \"789\"\n    assert dict(headers) == {\"a\": \"789\"}\n\n\ndef test_headers_delete_removes_all_existing():\n    headers = httpx.Headers([(\"a\", \"123\"), (\"a\", \"456\")])\n    del headers[\"a\"]\n    assert dict(headers) == {}\n\n\ndef test_headers_dict_repr():\n    \"\"\"\n    Headers should display with a dict repr by default.\n    \"\"\"\n    headers = httpx.Headers({\"custom\": \"example\"})\n    assert repr(headers) == \"Headers({'custom': 'example'})\"\n\n\ndef test_headers_encoding_in_repr():\n    \"\"\"\n    Headers should display an encoding in the repr if required.\n    \"\"\"\n    headers = httpx.Headers({b\"custom\": \"example \u2603\".encode(\"utf-8\")})\n    assert repr(headers) == \"Headers({'custom': 'example \u2603'}, encoding='utf-8')\"\n\n\ndef test_headers_list_repr():\n    \"\"\"\n    Headers should display with a list repr if they include multiple identical keys.\n    \"\"\"\n    headers = httpx.Headers([(\"custom\", \"example 1\"), (\"custom\", \"example 2\")])\n    assert (\n        repr(headers) == \"Headers([('custom', 'example 1'), ('custom', 'example 2')])\"\n    )\n\n\ndef test_headers_decode_ascii():\n    \"\"\"\n    Headers should decode as ascii by default.\n    \"\"\"\n    raw_headers = [(b\"Custom\", b\"Example\")]\n    headers = httpx.Headers(raw_headers)\n    assert dict(headers) == {\"custom\": \"Example\"}\n    assert headers.encoding == \"ascii\"\n\n\ndef test_headers_decode_utf_8():\n    \"\"\"\n    Headers containing non-ascii codepoints should default to decoding as utf-8.\n    \"\"\"\n    raw_headers = [(b\"Custom\", \"Code point: \u2603\".encode(\"utf-8\"))]\n    headers = httpx.Headers(raw_headers)\n    assert dict(headers) == {\"custom\": \"Code point: \u2603\"}\n    assert headers.encoding == \"utf-8\"\n\n\ndef test_headers_decode_iso_8859_1():\n    \"\"\"\n    Headers containing non-UTF-8 codepoints should default to decoding as iso-8859-1.\n    \"\"\"\n    raw_headers = [(b\"Custom\", \"Code point: \u00ff\".encode(\"iso-8859-1\"))]\n    headers = httpx.Headers(raw_headers)\n    assert dict(headers) == {\"custom\": \"Code point: \u00ff\"}\n    assert headers.encoding == \"iso-8859-1\"\n\n\ndef test_headers_decode_explicit_encoding():\n    \"\"\"\n    An explicit encoding may be set on headers in order to force a\n    particular decoding.\n    \"\"\"\n    raw_headers = [(b\"Custom\", \"Code point: \u2603\".encode(\"utf-8\"))]\n    headers = httpx.Headers(raw_headers)\n    headers.encoding = \"iso-8859-1\"\n    assert dict(headers) == {\"custom\": \"Code point: \u00e2\\x98\\x83\"}\n    assert headers.encoding == \"iso-8859-1\"\n\n\ndef test_multiple_headers():\n    \"\"\"\n    `Headers.get_list` should support both split_commas=False and split_commas=True.\n    \"\"\"\n    h = httpx.Headers([(\"set-cookie\", \"a, b\"), (\"set-cookie\", \"c\")])\n    assert h.get_list(\"Set-Cookie\") == [\"a, b\", \"c\"]\n\n    h = httpx.Headers([(\"vary\", \"a, b\"), (\"vary\", \"c\")])\n    assert h.get_list(\"Vary\", split_commas=True) == [\"a\", \"b\", \"c\"]\n\n\n@pytest.mark.parametrize(\"header\", [\"authorization\", \"proxy-authorization\"])\ndef test_sensitive_headers(header):\n    \"\"\"\n    Some headers should be obfuscated because they contain sensitive data.\n    \"\"\"\n    value = \"s3kr3t\"\n    h = httpx.Headers({header: value})\n    assert repr(h) == \"Headers({'%s': '[secure]'})\" % header\n\n\n@pytest.mark.parametrize(\n    \"headers, output\",\n    [\n        ([(\"content-type\", \"text/html\")], [(\"content-type\", \"text/html\")]),\n        ([(\"authorization\", \"s3kr3t\")], [(\"authorization\", \"[secure]\")]),\n        ([(\"proxy-authorization\", \"s3kr3t\")], [(\"proxy-authorization\", \"[secure]\")]),\n    ],\n)\ndef test_obfuscate_sensitive_headers(headers, output):\n    as_dict = {k: v for k, v in output}\n    headers_class = httpx.Headers({k: v for k, v in headers})\n    assert repr(headers_class) == f\"Headers({as_dict!r})\"\n\n\n@pytest.mark.parametrize(\n    \"value, expected\",\n    (\n        (\n            '<http:/.../front.jpeg>; rel=front; type=\"image/jpeg\"',\n            [{\"url\": \"http:/.../front.jpeg\", \"rel\": \"front\", \"type\": \"image/jpeg\"}],\n        ),\n        (\"<http:/.../front.jpeg>\", [{\"url\": \"http:/.../front.jpeg\"}]),\n        (\"<http:/.../front.jpeg>;\", [{\"url\": \"http:/.../front.jpeg\"}]),\n        (\n            '<http:/.../front.jpeg>; type=\"image/jpeg\",<http://.../back.jpeg>;',\n            [\n                {\"url\": \"http:/.../front.jpeg\", \"type\": \"image/jpeg\"},\n                {\"url\": \"http://.../back.jpeg\"},\n            ],\n        ),\n        (\"\", []),\n    ),\n)\ndef test_parse_header_links(value, expected):\n    all_links = httpx.Response(200, headers={\"link\": value}).links.values()\n    assert all(link in all_links for link in expected)\n\n\ndef test_parse_header_links_no_link():\n    all_links = httpx.Response(200).links\n    assert all_links == {}\n[build-system]\nrequires = [\"hatchling\", \"hatch-fancy-pypi-readme\"]\nbuild-backend = \"hatchling.build\"\n\n[project]\nname = \"httpx\"\ndescription = \"The next generation HTTP client.\"\nlicense = \"BSD-3-Clause\"\nrequires-python = \">=3.8\"\nauthors = [\n    { name = \"Tom Christie\", email = \"tom@tomchristie.com\" },\n]\nclassifiers = [\n    \"Development Status :: 4 - Beta\",\n    \"Environment :: Web Environment\",\n    \"Framework :: AsyncIO\",\n    \"Framework :: Trio\",\n    \"Intended Audience :: Developers\",\n    \"License :: OSI Approved :: BSD License\",\n    \"Operating System :: OS Independent\",\n    \"Programming Language :: Python :: 3\",\n    \"Programming Language :: Python :: 3 :: Only\",\n    \"Programming Language :: Python :: 3.8\",\n    \"Programming Language :: Python :: 3.9\",\n    \"Programming Language :: Python :: 3.10\",\n    \"Programming Language :: Python :: 3.11\",\n    \"Programming Language :: Python :: 3.12\",\n    \"Topic :: Internet :: WWW/HTTP\",\n]\ndependencies = [\n    \"certifi\",\n    \"httpcore==1.*\",\n    \"anyio\",\n    \"idna\",\n]\ndynamic = [\"readme\", \"version\"]\n\n[project.optional-dependencies]\nbrotli = [\n    \"brotli; platform_python_implementation == 'CPython'\",\n    \"brotlicffi; platform_python_implementation != 'CPython'\",\n]\ncli = [\n    \"click==8.*\",\n    \"pygments==2.*\",\n    \"rich>=10,<14\",\n]\nhttp2 = [\n    \"h2>=3,<5\",\n]\nsocks = [\n    \"socksio==1.*\",\n]\nzstd = [\n  \"zstandard>=0.18.0\",\n]\n\n[project.scripts]\nhttpx = \"httpx:main\"\n\n[project.urls]\nChangelog = \"https://github.com/encode/httpx/blob/master/CHANGELOG.md\"\nDocumentation = \"https://www.python-httpx.org\"\nHomepage = \"https://github.com/encode/httpx\"\nSource = \"https://github.com/encode/httpx\"\n\n[tool.hatch.version]\npath = \"httpx/__version__.py\"\n\n[tool.hatch.build.targets.sdist]\ninclude = [\n    \"/httpx\",\n    \"/CHANGELOG.md\",\n    \"/README.md\",\n    \"/tests\",\n]\n\n[tool.hatch.metadata.hooks.fancy-pypi-readme]\ncontent-type = \"text/markdown\"\n\n[[tool.hatch.metadata.hooks.fancy-pypi-readme.fragments]]\npath = \"README.md\"\n\n[[tool.hatch.metadata.hooks.fancy-pypi-readme.fragments]]\ntext = \"\\n## Release Information\\n\\n\"\n\n[[tool.hatch.metadata.hooks.fancy-pypi-readme.fragments]]\npath = \"CHANGELOG.md\"\npattern = \"\\n(###.+?\\n)## \"\n\n[[tool.hatch.metadata.hooks.fancy-pypi-readme.fragments]]\ntext = \"\\n---\\n\\n[Full changelog](https://github.com/encode/httpx/blob/master/CHANGELOG.md)\\n\"\n\n[[tool.hatch.metadata.hooks.fancy-pypi-readme.substitutions]]\npattern = 'src=\"(docs/img/.*?)\"'\nreplacement = 'src=\"https://raw.githubusercontent.com/encode/httpx/master/\\1\"'\n\n[tool.ruff.lint]\nselect = [\"E\", \"F\", \"I\", \"B\", \"PIE\"]\nignore = [\"B904\", \"B028\"]\n\n[tool.ruff.lint.isort]\ncombine-as-imports = true\n\n[tool.ruff.lint.per-file-ignores]\n\"__init__.py\" = [\"F403\", \"F405\"]\n\n[tool.mypy]\nignore_missing_imports = true\nstrict = true\n\n[[tool.mypy.overrides]]\nmodule = \"tests.*\"\ndisallow_untyped_defs = false\ncheck_untyped_defs = true\n\n[tool.pytest.ini_options]\naddopts = \"-rxXs\"\nfilterwarnings = [\n  \"error\",\n  \"ignore: You seem to already have a custom sys.excepthook handler installed. I'll skip installing Trio's custom handler, but this means MultiErrors will not show full tracebacks.:RuntimeWarning\",\n  # See: https://github.com/agronholm/anyio/issues/508\n  \"ignore: trio.MultiError is deprecated since Trio 0.22.0:trio.TrioDeprecationWarning\"\n]\nmarkers = [\n  \"copied_from(source, changes=None): mark test as copied from somewhere else, along with a description of changes made to accodomate e.g. our test setup\",\n  \"network: marks tests which require network connection. Used in 3rd-party build environments that have network disabled.\"\n]\n\n[tool.coverage.run]\nomit = [\"venv/*\"]\ninclude = [\"httpx/*\", \"tests/*\"]\n",
+        "command": "/bin/zsh -lc \"git status --short; rg --files -g AGENTS.md -g '*pytest*' -g '*requirements*' -g 'tox.ini' -g '.python-version'; sed -n '1,260p' tests/models/test_headers.py; cat pyproject.toml\"",
+        "exit_code": 0,
+        "id": "item_3",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 248456.771679208,
+      "perf_counter_ns": 248456771673416,
+      "utc": "2026-10-16T04:22:14.321272+00:00",
+      "wall_time_ns": 1792124534321272000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "arguments": {
+          "max_results": 5,
+          "query": "HTTPX Headers get_list split_commas splitting comma separated header values",
+          "token_budget": 2000
+        },
+        "error": null,
+        "id": "item_2",
+        "result": {
+          "content": [
+            {
+              "text": "{\"query\":\"HTTPX Headers get_list split_commas splitting comma separated header values\",\"match_status\":\"candidates\",\"results\":[{\"path\":\"httpx/_models.py\",\"symbol\":\"Headers.get_list\",\"start_line\":252,\"end_line\":272,\"source\":\"    def get_list(self, key: str, split_commas: bool = False) -> list[str]:\\n        \\\"\\\"\\\"\\n        Return a list of all header values for a given key.\\n        If `split_commas=True` is passed, then any comma separated header\\n        values are split into multiple return strings.\\n        \\\"\\\"\\\"\\n        get_header_key = key.lower().encode(self.encoding)\\n\\n        values = [\\n            item_value.decode(self.encoding)\\n            for _, item_key, item_value in self._list\\n            if item_key.lower() == get_header_key\\n        ]\\n\\n        if not split_commas:\\n            return values\\n\\n        split_values = []\\n        for value in values:\\n            split_values.extend([item.strip() for item in value.split(\\\",\\\")])\\n        return split_values\\n\",\"source_hash\":\"c8a896e7cff95231c3871cd977c2f35c799c574615df84393b0c2aec25ae8c10\",\"truncated\":false,\"origin\":\"retrieval\",\"related_to\":null},{\"path\":\"httpx/_models.py\",\"symbol\":\"Headers.__getitem__\",\"start_line\":284,\"end_line\":302,\"source\":\"    def __getitem__(self, key: str) -> str:\\n        \\\"\\\"\\\"\\n        Return a single header value.\\n\\n        If there are multiple headers with the same key, then we concatenate\\n        them with commas. See: https://tools.ietf.org/html/rfc7230#section-3.2.2\\n        \\\"\\\"\\\"\\n        normalized_key = key.lower().encode(self.encoding)\\n\\n        items = [\\n            header_value.decode(self.encoding)\\n            for _, header_key, header_value in self._list\\n            if header_key == normalized_key\\n        ]\\n\\n        if items:\\n            return \\\", \\\".join(items)\\n\\n        raise KeyError(key)\\n\",\"source_hash\":\"7c220df74e99968a848c1bf3b88f363f98a351dc779857f61f8482d90dbf686d\",\"truncated\":false,\"origin\":\"retrieval\",\"related_to\":null},{\"path\":\"httpx/_models.py\",\"symbol\":\"Headers.items\",\"start_line\":216,\"end_line\":229,\"source\":\"    def items(self) -> typing.ItemsView[str, str]:\\n        \\\"\\\"\\\"\\n        Return `(key, value)` items of headers. Concatenate headers\\n        into a single comma separated value when a key occurs multiple times.\\n        \\\"\\\"\\\"\\n        values_dict: dict[str, str] = {}\\n        for _, key, value in self._list:\\n            str_key = key.decode(self.encoding)\\n            str_value = value.decode(self.encoding)\\n            if str_key in values_dict:\\n                values_dict[str_key] += f\\\", {str_value}\\\"\\n            else:\\n                values_dict[str_key] = str_value\\n        return values_dict.items()\\n\",\"source_hash\":\"b8308a0eeaa3c71c50299db32d91d410893241af0c03d721cf2b677bcc84b0e0\",\"truncated\":false,\"origin\":\"retrieval\",\"related_to\":null},{\"path\":\"httpx/_models.py\",\"symbol\":\"Headers.multi_items\",\"start_line\":231,\"end_line\":240,\"source\":\"    def multi_items(self) -> list[tuple[str, str]]:\\n        \\\"\\\"\\\"\\n        Return a list of `(key, value)` pairs of headers. Allow multiple\\n        occurrences of the same key without concatenating into a single\\n        comma separated value.\\n        \\\"\\\"\\\"\\n        return [\\n            (key.decode(self.encoding), value.decode(self.encoding))\\n            for _, key, value in self._list\\n        ]\\n\",\"source_hash\":\"75eabdb50accd2e5ebcedce73cf9433abae124a3e9b38d7dcd2f8ebb8f3382b6\",\"truncated\":false,\"origin\":\"retrieval\",\"related_to\":null},{\"path\":\"httpx/_models.py\",\"symbol\":\"Headers.get\",\"start_line\":242,\"end_line\":250,\"source\":\"    def get(self, key: str, default: typing.Any = None) -> typing.Any:\\n        \\\"\\\"\\\"\\n        Return a header value. If multiple occurrences of the header occur\\n        then concatenate them together with commas.\\n        \\\"\\\"\\\"\\n        try:\\n            return self[key]\\n        except KeyError:\\n            return default\\n\",\"source_hash\":\"1cf47d6e3bba1f9f3050089b1062ac98a31928dc1e06ee6bc5790663d7b05b67\",\"truncated\":false,\"origin\":\"retrieval\",\"related_to\":null}],\"budget_exhausted\":false,\"token_usage\":{\"encoding\":\"cl100k_base\",\"tokens\":1158,\"budget\":2000,\"truncated\":false},\"scope\":{\"source_root\":\"httpx\",\"membership\":\"saved implementations; Git-tracked files only in Git projects\",\"source_exclusions\":[],\"exclusions_omitted\":0}}",
+              "type": "text"
+            }
+          ],
+          "structured_content": null
+        },
+        "server": "semantic_search",
+        "status": "completed",
+        "tool": "search_code",
+        "type": "mcp_tool_call"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 248456.948848125,
+      "perf_counter_ns": 248456948834375,
+      "utc": "2026-10-16T04:22:14.498422+00:00",
+      "wall_time_ns": 1792124534498422000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"sed -n '1,120p' httpx/_models.py; rg --files tests/models scripts\"",
+        "exit_code": null,
+        "id": "item_4",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 248471.789635166,
+      "perf_counter_ns": 248471789614083,
+      "utc": "2026-10-16T04:22:29.338311+00:00",
+      "wall_time_ns": 1792124549338311000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "from __future__ import annotations\n\nimport codecs\nimport datetime\nimport email.message\nimport json as jsonlib\nimport re\nimport typing\nimport urllib.request\nfrom collections.abc import Mapping\nfrom http.cookiejar import Cookie, CookieJar\n\nfrom ._content import ByteStream, UnattachedStream, encode_request, encode_response\nfrom ._decoders import (\n    SUPPORTED_DECODERS,\n    ByteChunker,\n    ContentDecoder,\n    IdentityDecoder,\n    LineDecoder,\n    MultiDecoder,\n    TextChunker,\n    TextDecoder,\n)\nfrom ._exceptions import (\n    CookieConflict,\n    HTTPStatusError,\n    RequestNotRead,\n    ResponseNotRead,\n    StreamClosed,\n    StreamConsumed,\n    request_context,\n)\nfrom ._multipart import get_multipart_boundary_from_content_type\nfrom ._status_codes import codes\nfrom ._types import (\n    AsyncByteStream,\n    CookieTypes,\n    HeaderTypes,\n    QueryParamTypes,\n    RequestContent,\n    RequestData,\n    RequestExtensions,\n    RequestFiles,\n    ResponseContent,\n    ResponseExtensions,\n    SyncByteStream,\n)\nfrom ._urls import URL\nfrom ._utils import to_bytes_or_str, to_str\n\n__all__ = [\"Cookies\", \"Headers\", \"Request\", \"Response\"]\n\nSENSITIVE_HEADERS = {\"authorization\", \"proxy-authorization\"}\n\n\ndef _is_known_encoding(encoding: str) -> bool:\n    \"\"\"\n    Return `True` if `encoding` is a known codec.\n    \"\"\"\n    try:\n        codecs.lookup(encoding)\n    except LookupError:\n        return False\n    return True\n\n\ndef _normalize_header_key(key: str | bytes, encoding: str | None = None) -> bytes:\n    \"\"\"\n    Coerce str/bytes into a strictly byte-wise HTTP header key.\n    \"\"\"\n    return key if isinstance(key, bytes) else key.encode(encoding or \"ascii\")\n\n\ndef _normalize_header_value(value: str | bytes, encoding: str | None = None) -> bytes:\n    \"\"\"\n    Coerce str/bytes into a strictly byte-wise HTTP header value.\n    \"\"\"\n    if isinstance(value, bytes):\n        return value\n    if not isinstance(value, str):\n        raise TypeError(f\"Header value must be str or bytes, not {type(value)}\")\n    return value.encode(encoding or \"ascii\")\n\n\ndef _parse_content_type_charset(content_type: str) -> str | None:\n    # We used to use `cgi.parse_header()` here, but `cgi` became a dead battery.\n    # See: https://peps.python.org/pep-0594/#cgi\n    msg = email.message.Message()\n    msg[\"content-type\"] = content_type\n    return msg.get_content_charset(failobj=None)\n\n\ndef _parse_header_links(value: str) -> list[dict[str, str]]:\n    \"\"\"\n    Returns a list of parsed link headers, for more info see:\n    https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Link\n    The generic syntax of those is:\n    Link: < uri-reference >; param1=value1; param2=\"value2\"\n    So for instance:\n    Link; '<http:/.../front.jpeg>; type=\"image/jpeg\",<http://.../back.jpeg>;'\n    would return\n        [\n            {\"url\": \"http:/.../front.jpeg\", \"type\": \"image/jpeg\"},\n            {\"url\": \"http://.../back.jpeg\"},\n        ]\n    :param value: HTTP Link entity-header field\n    :return: list of parsed link headers\n    \"\"\"\n    links: list[dict[str, str]] = []\n    replace_chars = \" '\\\"\"\n    value = value.strip(replace_chars)\n    if not value:\n        return links\n    for val in re.split(\", *<\", value):\n        try:\n            url, params = val.split(\";\", 1)\n        except ValueError:\n            url, params = val, \"\"\n        link = {\"url\": url.strip(\"<> '\\\"\")}\n        for param in params.split(\";\"):\nscripts/coverage\ntests/models/test_headers.py\nscripts/sync-version\nscripts/check\nscripts/build\nscripts/publish\nscripts/clean\nscripts/docs\nscripts/test\nscripts/install\nscripts/lint\ntests/models/__init__.py\ntests/models/test_whatwg.py\ntests/models/test_queryparams.py\ntests/models/test_cookies.py\ntests/models/test_responses.py\ntests/models/test_requests.py\ntests/models/test_url.py\ntests/models/whatwg.json\n",
+        "command": "/bin/zsh -lc \"sed -n '1,120p' httpx/_models.py; rg --files tests/models scripts\"",
+        "exit_code": 0,
+        "id": "item_4",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 248471.79027725,
+      "perf_counter_ns": 248471790270333,
+      "utc": "2026-10-16T04:22:29.338967+00:00",
+      "wall_time_ns": 1792124549338967000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"cat tests/conftest.py; sed -n '1,240p' tests/client/test_headers.py; rg -n 'get_list\\\\(.*split_commas|split_commas=True' httpx tests; rg --files --hidden -g AGENTS.md -g '\"'!.git'\"' -g '\"'!.cache'\"'\"",
+        "exit_code": null,
+        "id": "item_5",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 248471.80281175,
+      "perf_counter_ns": 248471802803625,
+      "utc": "2026-10-16T04:22:29.351500+00:00",
+      "wall_time_ns": 1792124549351500000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "import asyncio\nimport json\nimport os\nimport threading\nimport time\nimport typing\n\nimport pytest\nimport trustme\nfrom cryptography.hazmat.backends import default_backend\nfrom cryptography.hazmat.primitives.serialization import (\n    BestAvailableEncryption,\n    Encoding,\n    PrivateFormat,\n    load_pem_private_key,\n)\nfrom uvicorn.config import Config\nfrom uvicorn.server import Server\n\nimport httpx\nfrom tests.concurrency import sleep\n\nENVIRONMENT_VARIABLES = {\n    \"SSL_CERT_FILE\",\n    \"SSL_CERT_DIR\",\n    \"HTTP_PROXY\",\n    \"HTTPS_PROXY\",\n    \"ALL_PROXY\",\n    \"NO_PROXY\",\n    \"SSLKEYLOGFILE\",\n}\n\n\n@pytest.fixture(scope=\"function\", autouse=True)\ndef clean_environ():\n    \"\"\"Keeps os.environ clean for every test without having to mock os.environ\"\"\"\n    original_environ = os.environ.copy()\n    os.environ.clear()\n    os.environ.update(\n        {\n            k: v\n            for k, v in original_environ.items()\n            if k not in ENVIRONMENT_VARIABLES and k.lower() not in ENVIRONMENT_VARIABLES\n        }\n    )\n    yield\n    os.environ.clear()\n    os.environ.update(original_environ)\n\n\nMessage = typing.Dict[str, typing.Any]\nReceive = typing.Callable[[], typing.Awaitable[Message]]\nSend = typing.Callable[\n    [typing.Dict[str, typing.Any]], typing.Coroutine[None, None, None]\n]\nScope = typing.Dict[str, typing.Any]\n\n\nasync def app(scope: Scope, receive: Receive, send: Send) -> None:\n    assert scope[\"type\"] == \"http\"\n    if scope[\"path\"].startswith(\"/slow_response\"):\n        await slow_response(scope, receive, send)\n    elif scope[\"path\"].startswith(\"/status\"):\n        await status_code(scope, receive, send)\n    elif scope[\"path\"].startswith(\"/echo_body\"):\n        await echo_body(scope, receive, send)\n    elif scope[\"path\"].startswith(\"/echo_binary\"):\n        await echo_binary(scope, receive, send)\n    elif scope[\"path\"].startswith(\"/echo_headers\"):\n        await echo_headers(scope, receive, send)\n    elif scope[\"path\"].startswith(\"/redirect_301\"):\n        await redirect_301(scope, receive, send)\n    elif scope[\"path\"].startswith(\"/json\"):\n        await hello_world_json(scope, receive, send)\n    else:\n        await hello_world(scope, receive, send)\n\n\nasync def hello_world(scope: Scope, receive: Receive, send: Send) -> None:\n    await send(\n        {\n            \"type\": \"http.response.start\",\n            \"status\": 200,\n            \"headers\": [[b\"content-type\", b\"text/plain\"]],\n        }\n    )\n    await send({\"type\": \"http.response.body\", \"body\": b\"Hello, world!\"})\n\n\nasync def hello_world_json(scope: Scope, receive: Receive, send: Send) -> None:\n    await send(\n        {\n            \"type\": \"http.response.start\",\n            \"status\": 200,\n            \"headers\": [[b\"content-type\", b\"application/json\"]],\n        }\n    )\n    await send({\"type\": \"http.response.body\", \"body\": b'{\"Hello\": \"world!\"}'})\n\n\nasync def slow_response(scope: Scope, receive: Receive, send: Send) -> None:\n    await send(\n        {\n            \"type\": \"http.response.start\",\n            \"status\": 200,\n            \"headers\": [[b\"content-type\", b\"text/plain\"]],\n        }\n    )\n    await sleep(1.0)  # Allow triggering a read timeout.\n    await send({\"type\": \"http.response.body\", \"body\": b\"Hello, world!\"})\n\n\nasync def status_code(scope: Scope, receive: Receive, send: Send) -> None:\n    status_code = int(scope[\"path\"].replace(\"/status/\", \"\"))\n    await send(\n        {\n            \"type\": \"http.response.start\",\n            \"status\": status_code,\n            \"headers\": [[b\"content-type\", b\"text/plain\"]],\n        }\n    )\n    await send({\"type\": \"http.response.body\", \"body\": b\"Hello, world!\"})\n\n\nasync def echo_body(scope: Scope, receive: Receive, send: Send) -> None:\n    body = b\"\"\n    more_body = True\n\n    while more_body:\n        message = await receive()\n        body += message.get(\"body\", b\"\")\n        more_body = message.get(\"more_body\", False)\n\n    await send(\n        {\n            \"type\": \"http.response.start\",\n            \"status\": 200,\n            \"headers\": [[b\"content-type\", b\"text/plain\"]],\n        }\n    )\n    await send({\"type\": \"http.response.body\", \"body\": body})\n\n\nasync def echo_binary(scope: Scope, receive: Receive, send: Send) -> None:\n    body = b\"\"\n    more_body = True\n\n    while more_body:\n        message = await receive()\n        body += message.get(\"body\", b\"\")\n        more_body = message.get(\"more_body\", False)\n\n    await send(\n        {\n            \"type\": \"http.response.start\",\n            \"status\": 200,\n            \"headers\": [[b\"content-type\", b\"application/octet-stream\"]],\n        }\n    )\n    await send({\"type\": \"http.response.body\", \"body\": body})\n\n\nasync def echo_headers(scope: Scope, receive: Receive, send: Send) -> None:\n    body = {\n        name.capitalize().decode(): value.decode()\n        for name, value in scope.get(\"headers\", [])\n    }\n    await send(\n        {\n            \"type\": \"http.response.start\",\n            \"status\": 200,\n            \"headers\": [[b\"content-type\", b\"application/json\"]],\n        }\n    )\n    await send({\"type\": \"http.response.body\", \"body\": json.dumps(body).encode()})\n\n\nasync def redirect_301(scope: Scope, receive: Receive, send: Send) -> None:\n    await send(\n        {\"type\": \"http.response.start\", \"status\": 301, \"headers\": [[b\"location\", b\"/\"]]}\n    )\n    await send({\"type\": \"http.response.body\"})\n\n\n@pytest.fixture(scope=\"session\")\ndef cert_authority():\n    return trustme.CA()\n\n\n@pytest.fixture(scope=\"session\")\ndef localhost_cert(cert_authority):\n    return cert_authority.issue_cert(\"localhost\")\n\n\n@pytest.fixture(scope=\"session\")\ndef cert_pem_file(localhost_cert):\n    with localhost_cert.cert_chain_pems[0].tempfile() as tmp:\n        yield tmp\n\n\n@pytest.fixture(scope=\"session\")\ndef cert_private_key_file(localhost_cert):\n    with localhost_cert.private_key_pem.tempfile() as tmp:\n        yield tmp\n\n\n@pytest.fixture(scope=\"session\")\ndef cert_encrypted_private_key_file(localhost_cert):\n    # Deserialize the private key and then reserialize with a password\n    private_key = load_pem_private_key(\n        localhost_cert.private_key_pem.bytes(), password=None, backend=default_backend()\n    )\n    encrypted_private_key_pem = trustme.Blob(\n        private_key.private_bytes(\n            Encoding.PEM,\n            PrivateFormat.TraditionalOpenSSL,\n            BestAvailableEncryption(password=b\"password\"),\n        )\n    )\n    with encrypted_private_key_pem.tempfile() as tmp:\n        yield tmp\n\n\nclass TestServer(Server):\n    @property\n    def url(self) -> httpx.URL:\n        protocol = \"https\" if self.config.is_ssl else \"http\"\n        return httpx.URL(f\"{protocol}://{self.config.host}:{self.config.port}/\")\n\n    def install_signal_handlers(self) -> None:\n        # Disable the default installation of handlers for signals such as SIGTERM,\n        # because it can only be done in the main thread.\n        pass  # pragma: nocover\n\n    async def serve(self, sockets=None):\n        self.restart_requested = asyncio.Event()\n\n        loop = asyncio.get_event_loop()\n        tasks = {\n            loop.create_task(super().serve(sockets=sockets)),\n            loop.create_task(self.watch_restarts()),\n        }\n        await asyncio.wait(tasks)\n\n    async def restart(self) -> None:  # pragma: no cover\n        # This coroutine may be called from a different thread than the one the\n        # server is running on, and from an async environment that's not asyncio.\n        # For this reason, we use an event to coordinate with the server\n        # instead of calling shutdown()/startup() directly, and should not make\n        # any asyncio-specific operations.\n        self.started = False\n        self.restart_requested.set()\n        while not self.started:\n            await sleep(0.2)\n\n    async def watch_restarts(self) -> None:  # pragma: no cover\n        while True:\n            if self.should_exit:\n                return\n\n            try:\n                await asyncio.wait_for(self.restart_requested.wait(), timeout=0.1)\n            except asyncio.TimeoutError:\n                continue\n\n            self.restart_requested.clear()\n            await self.shutdown()\n            await self.startup()\n\n\ndef serve_in_thread(server: TestServer) -> typing.Iterator[TestServer]:\n    thread = threading.Thread(target=server.run)\n    thread.start()\n    try:\n        while not server.started:\n            time.sleep(1e-3)\n        yield server\n    finally:\n        server.should_exit = True\n        thread.join()\n\n\n@pytest.fixture(scope=\"session\")\ndef server() -> typing.Iterator[TestServer]:\n    config = Config(app=app, lifespan=\"off\", loop=\"asyncio\")\n    server = TestServer(config=config)\n    yield from serve_in_thread(server)\n#!/usr/bin/env python3\n\nimport pytest\n\nimport httpx\n\n\ndef echo_headers(request: httpx.Request) -> httpx.Response:\n    data = {\"headers\": dict(request.headers)}\n    return httpx.Response(200, json=data)\n\n\ndef echo_repeated_headers_multi_items(request: httpx.Request) -> httpx.Response:\n    data = {\"headers\": list(request.headers.multi_items())}\n    return httpx.Response(200, json=data)\n\n\ndef echo_repeated_headers_items(request: httpx.Request) -> httpx.Response:\n    data = {\"headers\": list(request.headers.items())}\n    return httpx.Response(200, json=data)\n\n\ndef test_client_header():\n    \"\"\"\n    Set a header in the Client.\n    \"\"\"\n    url = \"http://example.org/echo_headers\"\n    headers = {\"Example-Header\": \"example-value\"}\n\n    client = httpx.Client(transport=httpx.MockTransport(echo_headers), headers=headers)\n    response = client.get(url)\n\n    assert response.status_code == 200\n    assert response.json() == {\n        \"headers\": {\n            \"accept\": \"*/*\",\n            \"accept-encoding\": \"gzip, deflate, br, zstd\",\n            \"connection\": \"keep-alive\",\n            \"example-header\": \"example-value\",\n            \"host\": \"example.org\",\n            \"user-agent\": f\"python-httpx/{httpx.__version__}\",\n        }\n    }\n\n\ndef test_header_merge():\n    url = \"http://example.org/echo_headers\"\n    client_headers = {\"User-Agent\": \"python-myclient/0.2.1\"}\n    request_headers = {\"X-Auth-Token\": \"FooBarBazToken\"}\n    client = httpx.Client(\n        transport=httpx.MockTransport(echo_headers), headers=client_headers\n    )\n    response = client.get(url, headers=request_headers)\n\n    assert response.status_code == 200\n    assert response.json() == {\n        \"headers\": {\n            \"accept\": \"*/*\",\n            \"accept-encoding\": \"gzip, deflate, br, zstd\",\n            \"connection\": \"keep-alive\",\n            \"host\": \"example.org\",\n            \"user-agent\": \"python-myclient/0.2.1\",\n            \"x-auth-token\": \"FooBarBazToken\",\n        }\n    }\n\n\ndef test_header_merge_conflicting_headers():\n    url = \"http://example.org/echo_headers\"\n    client_headers = {\"X-Auth-Token\": \"FooBar\"}\n    request_headers = {\"X-Auth-Token\": \"BazToken\"}\n    client = httpx.Client(\n        transport=httpx.MockTransport(echo_headers), headers=client_headers\n    )\n    response = client.get(url, headers=request_headers)\n\n    assert response.status_code == 200\n    assert response.json() == {\n        \"headers\": {\n            \"accept\": \"*/*\",\n            \"accept-encoding\": \"gzip, deflate, br, zstd\",\n            \"connection\": \"keep-alive\",\n            \"host\": \"example.org\",\n            \"user-agent\": f\"python-httpx/{httpx.__version__}\",\n            \"x-auth-token\": \"BazToken\",\n        }\n    }\n\n\ndef test_header_update():\n    url = \"http://example.org/echo_headers\"\n    client = httpx.Client(transport=httpx.MockTransport(echo_headers))\n    first_response = client.get(url)\n    client.headers.update(\n        {\"User-Agent\": \"python-myclient/0.2.1\", \"Another-Header\": \"AThing\"}\n    )\n    second_response = client.get(url)\n\n    assert first_response.status_code == 200\n    assert first_response.json() == {\n        \"headers\": {\n            \"accept\": \"*/*\",\n            \"accept-encoding\": \"gzip, deflate, br, zstd\",\n            \"connection\": \"keep-alive\",\n            \"host\": \"example.org\",\n            \"user-agent\": f\"python-httpx/{httpx.__version__}\",\n        }\n    }\n\n    assert second_response.status_code == 200\n    assert second_response.json() == {\n        \"headers\": {\n            \"accept\": \"*/*\",\n            \"accept-encoding\": \"gzip, deflate, br, zstd\",\n            \"another-header\": \"AThing\",\n            \"connection\": \"keep-alive\",\n            \"host\": \"example.org\",\n            \"user-agent\": \"python-myclient/0.2.1\",\n        }\n    }\n\n\ndef test_header_repeated_items():\n    url = \"http://example.org/echo_headers\"\n    client = httpx.Client(transport=httpx.MockTransport(echo_repeated_headers_items))\n    response = client.get(url, headers=[(\"x-header\", \"1\"), (\"x-header\", \"2,3\")])\n\n    assert response.status_code == 200\n\n    echoed_headers = response.json()[\"headers\"]\n    # as per RFC 7230, the whitespace after a comma is insignificant\n    # so we split and strip here so that we can do a safe comparison\n    assert [\"x-header\", [\"1\", \"2\", \"3\"]] in [\n        [k, [subv.lstrip() for subv in v.split(\",\")]] for k, v in echoed_headers\n    ]\n\n\ndef test_header_repeated_multi_items():\n    url = \"http://example.org/echo_headers\"\n    client = httpx.Client(\n        transport=httpx.MockTransport(echo_repeated_headers_multi_items)\n    )\n    response = client.get(url, headers=[(\"x-header\", \"1\"), (\"x-header\", \"2,3\")])\n\n    assert response.status_code == 200\n\n    echoed_headers = response.json()[\"headers\"]\n    assert [\"x-header\", \"1\"] in echoed_headers\n    assert [\"x-header\", \"2,3\"] in echoed_headers\n\n\ndef test_remove_default_header():\n    \"\"\"\n    Remove a default header from the Client.\n    \"\"\"\n    url = \"http://example.org/echo_headers\"\n\n    client = httpx.Client(transport=httpx.MockTransport(echo_headers))\n    del client.headers[\"User-Agent\"]\n\n    response = client.get(url)\n\n    assert response.status_code == 200\n    assert response.json() == {\n        \"headers\": {\n            \"accept\": \"*/*\",\n            \"accept-encoding\": \"gzip, deflate, br, zstd\",\n            \"connection\": \"keep-alive\",\n            \"host\": \"example.org\",\n        }\n    }\n\n\ndef test_header_does_not_exist():\n    headers = httpx.Headers({\"foo\": \"bar\"})\n    with pytest.raises(KeyError):\n        del headers[\"baz\"]\n\n\ndef test_header_with_incorrect_value():\n    with pytest.raises(\n        TypeError,\n        match=f\"Header value must be str or bytes, not {type(None)}\",\n    ):\n        httpx.Headers({\"foo\": None})  # type: ignore\n\n\ndef test_host_with_auth_and_port_in_url():\n    \"\"\"\n    The Host header should only include the hostname, or hostname:port\n    (for non-default ports only). Any userinfo or default port should not\n    be present.\n    \"\"\"\n    url = \"http://username:password@example.org:80/echo_headers\"\n\n    client = httpx.Client(transport=httpx.MockTransport(echo_headers))\n    response = client.get(url)\n\n    assert response.status_code == 200\n    assert response.json() == {\n        \"headers\": {\n            \"accept\": \"*/*\",\n            \"accept-encoding\": \"gzip, deflate, br, zstd\",\n            \"connection\": \"keep-alive\",\n            \"host\": \"example.org\",\n            \"user-agent\": f\"python-httpx/{httpx.__version__}\",\n            \"authorization\": \"Basic dXNlcm5hbWU6cGFzc3dvcmQ=\",\n        }\n    }\n\n\ndef test_host_with_non_default_port_in_url():\n    \"\"\"\n    If the URL includes a non-default port, then it should be included in\n    the Host header.\n    \"\"\"\n    url = \"http://username:password@example.org:123/echo_headers\"\n\n    client = httpx.Client(transport=httpx.MockTransport(echo_headers))\n    response = client.get(url)\n\n    assert response.status_code == 200\n    assert response.json() == {\n        \"headers\": {\n            \"accept\": \"*/*\",\n            \"accept-encoding\": \"gzip, deflate, br, zstd\",\n            \"connection\": \"keep-alive\",\n            \"host\": \"example.org:123\",\n            \"user-agent\": f\"python-httpx/{httpx.__version__}\",\n            \"authorization\": \"Basic dXNlcm5hbWU6cGFzc3dvcmQ=\",\n        }\n    }\n\n\ndef test_request_auto_headers():\n    request = httpx.Request(\"GET\", \"https://www.example.org/\")\n    assert \"host\" in request.headers\n\n\ndef test_same_origin():\ntests/models/test_headers.py:160:    `Headers.get_list` should support both split_commas=False and split_commas=True.\ntests/models/test_headers.py:166:    assert h.get_list(\"Vary\", split_commas=True) == [\"a\", \"b\", \"c\"]\nhttpx/_models.py:252:    def get_list(self, key: str, split_commas: bool = False) -> list[str]:\nhttpx/_models.py:255:        If `split_commas=True` is passed, then any comma separated header\nhttpx/_models.py:706:            values = self.headers.get_list(\"content-encoding\", split_commas=True)\n",
+        "command": "/bin/zsh -lc \"cat tests/conftest.py; sed -n '1,240p' tests/client/test_headers.py; rg -n 'get_list\\\\(.*split_commas|split_commas=True' httpx tests; rg --files --hidden -g AGENTS.md -g '\"'!.git'\"' -g '\"'!.cache'\"'\"",
+        "exit_code": 1,
+        "id": "item_5",
+        "status": "failed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 248471.803336666,
+      "perf_counter_ns": 248471803332083,
+      "utc": "2026-10-16T04:22:29.352028+00:00",
+      "wall_time_ns": 1792124549352028000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "id": "item_6",
+        "text": "`get_list` currently uses `str.split(\",\")`. I\u2019ll replace that with a scan that tracks double quotes and escapes separately for each stored header value, preserving the original text. The regression tests will cover backslash parity, unmatched quotes, empty members, and stored headers remaining unchanged.",
+        "type": "agent_message"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 248485.322162166,
+      "perf_counter_ns": 248485322101666,
+      "utc": "2026-10-16T04:22:42.869985+00:00",
+      "wall_time_ns": 1792124562869985000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "changes": [
+          {
+            "kind": "add",
+            "path": "<WORKSPACE>/tests/models/test_headers_get_list.py"
+          }
+        ],
+        "id": "item_7",
+        "status": "in_progress",
+        "type": "file_change"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 248506.197366833,
+      "perf_counter_ns": 248506197342958,
+      "utc": "2026-10-16T04:23:03.743975+00:00",
+      "wall_time_ns": 1792124583743975000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "changes": [
+          {
+            "kind": "add",
+            "path": "<WORKSPACE>/tests/models/test_headers_get_list.py"
+          }
+        ],
+        "id": "item_7",
+        "status": "completed",
+        "type": "file_change"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 248506.217219125,
+      "perf_counter_ns": 248506217200666,
+      "utc": "2026-10-16T04:23:03.763832+00:00",
+      "wall_time_ns": 1792124583763832000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc '<PROJECT>/.cache/agent-grep-2026-10-15/runtime-env/bin/python -m pytest tests/models/test_headers_get_list.py -q --tb=short --maxfail=1'",
+        "exit_code": null,
+        "id": "item_8",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 248506.3707395,
+      "perf_counter_ns": 248506370727208,
+      "utc": "2026-10-16T04:23:03.917349+00:00",
+      "wall_time_ns": 1792124583917349000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "F\n=================================== FAILURES ===================================\n________________ test_get_list_split_commas[\"a,b\", c-expected0] ________________\ntests/models/test_headers_get_list.py:51: in test_get_list_split_commas\n    assert headers.get_list(\"x-list\", split_commas=True) == expected\nE   assert ['\"a', 'b\"', 'c'] == ['\"a,b\"', 'c']\nE     \nE     At index 0 diff: '\"a' != '\"a,b\"'\nE     Left contains one more item: 'c'\nE     Use -v to get more diff\n!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!\n1 failed in 0.03s\n",
+        "command": "/bin/zsh -lc '<PROJECT>/.cache/agent-grep-2026-10-15/runtime-env/bin/python -m pytest tests/models/test_headers_get_list.py -q --tb=short --maxfail=1'",
+        "exit_code": 1,
+        "id": "item_8",
+        "status": "failed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 248506.605615416,
+      "perf_counter_ns": 248506605599083,
+      "utc": "2026-10-16T04:23:04.152207+00:00",
+      "wall_time_ns": 1792124584152207000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "changes": [
+          {
+            "kind": "update",
+            "path": "<WORKSPACE>/httpx/_models.py"
+          },
+          {
+            "kind": "update",
+            "path": "<WORKSPACE>/tests/models/test_headers_get_list.py"
+          }
+        ],
+        "id": "item_9",
+        "status": "in_progress",
+        "type": "file_change"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 248524.052022083,
+      "perf_counter_ns": 248524051964750,
+      "utc": "2026-10-16T04:23:21.597525+00:00",
+      "wall_time_ns": 1792124601597525000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "changes": [
+          {
+            "kind": "update",
+            "path": "<WORKSPACE>/httpx/_models.py"
+          },
+          {
+            "kind": "update",
+            "path": "<WORKSPACE>/tests/models/test_headers_get_list.py"
+          }
+        ],
+        "id": "item_9",
+        "status": "completed",
+        "type": "file_change"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 248524.1217695,
+      "perf_counter_ns": 248524121753458,
+      "utc": "2026-10-16T04:23:21.667310+00:00",
+      "wall_time_ns": 1792124601667310000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc '<PROJECT>/.cache/agent-grep-2026-10-15/runtime-env/bin/python -m pytest tests/models/test_headers_get_list.py tests/models/test_headers.py tests/client/test_headers.py --tb=short -q'",
+        "exit_code": null,
+        "id": "item_10",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 248524.274932375,
+      "perf_counter_ns": 248524274916041,
+      "utc": "2026-10-16T04:23:21.820464+00:00",
+      "wall_time_ns": 1792124601820464000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "........................................................................ [ 85%]\n............                                                             [100%]\n84 passed in 0.10s\n",
+        "command": "/bin/zsh -lc '<PROJECT>/.cache/agent-grep-2026-10-15/runtime-env/bin/python -m pytest tests/models/test_headers_get_list.py tests/models/test_headers.py tests/client/test_headers.py --tb=short -q'",
+        "exit_code": 0,
+        "id": "item_10",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 248524.517394541,
+      "perf_counter_ns": 248524517375708,
+      "utc": "2026-10-16T04:23:22.062908+00:00",
+      "wall_time_ns": 1792124602062908000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "id": "item_11",
+        "text": "The new regression reproduced the bug before the fix. With the parser updated, all 84 regression and existing header tests pass. I\u2019ll now check response decoding, which also calls `get_list`, and review the diff.",
+        "type": "agent_message"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 248531.531144458,
+      "perf_counter_ns": 248531531119333,
+      "utc": "2026-10-16T04:23:29.076231+00:00",
+      "wall_time_ns": 1792124609076231000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"rg --files tests | rg 'decod|response'; cat scripts/check; git diff --check; git diff --stat; git diff -- httpx/_models.py; sed -n '1,150p' tests/models/test_headers_get_list.py\"",
+        "exit_code": null,
+        "id": "item_12",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 248533.973954541,
+      "perf_counter_ns": 248533973941250,
+      "utc": "2026-10-16T04:23:31.518907+00:00",
+      "wall_time_ns": 1792124611518907000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "tests/test_decoders.py\ntests/models/test_responses.py\n#!/bin/sh -e\n\nexport PREFIX=\"\"\nif [ -d 'venv' ] ; then\n    export PREFIX=\"venv/bin/\"\nfi\nexport SOURCE_FILES=\"httpx tests\"\n\nset -x\n\n./scripts/sync-version\n${PREFIX}ruff format $SOURCE_FILES --diff\n${PREFIX}mypy $SOURCE_FILES\n${PREFIX}ruff check $SOURCE_FILES\n httpx/_models.py | 18 ++++++++++++++++--\n 1 file changed, 16 insertions(+), 2 deletions(-)\ndiff --git a/httpx/_models.py b/httpx/_models.py\nindex 67d74bf..a3afa61 100644\n--- a/httpx/_models.py\n+++ b/httpx/_models.py\n@@ -253,7 +253,8 @@ class Headers(typing.MutableMapping[str, str]):\n         \"\"\"\n         Return a list of all header values for a given key.\n         If `split_commas=True` is passed, then any comma separated header\n-        values are split into multiple return strings.\n+        values are split into multiple return strings, excluding commas\n+        within double-quoted strings.\n         \"\"\"\n         get_header_key = key.lower().encode(self.encoding)\n \n@@ -268,7 +269,20 @@ class Headers(typing.MutableMapping[str, str]):\n \n         split_values = []\n         for value in values:\n-            split_values.extend([item.strip() for item in value.split(\",\")])\n+            start = 0\n+            in_quotes = False\n+            escaped = False\n+            for idx, char in enumerate(value):\n+                if escaped:\n+                    escaped = False\n+                elif in_quotes and char == \"\\\\\":\n+                    escaped = True\n+                elif char == '\"':\n+                    in_quotes = not in_quotes\n+                elif char == \",\" and not in_quotes:\n+                    split_values.append(value[start:idx].strip())\n+                    start = idx + 1\n+            split_values.append(value[start:].strip())\n         return split_values\n \n     def update(self, headers: HeaderTypes | None = None) -> None:  # type: ignore\nimport pytest\n\nimport httpx\n\n\n@pytest.mark.parametrize(\n    \"value, expected\",\n    [\n        ('\"a,b\", c', ['\"a,b\"', \"c\"]),\n        ('a, \"b,c\"', [\"a\", '\"b,c\"']),\n        ('\"a,b\", \"c,d\"', ['\"a,b\"', '\"c,d\"']),\n        (\n            'text/plain; title=\"a,b\", application/json',\n            ['text/plain; title=\"a,b\"', \"application/json\"],\n        ),\n        (\n            'text/plain; title=\"a,b\"; note=\"c,d\", text/html',\n            ['text/plain; title=\"a,b\"; note=\"c,d\"', \"text/html\"],\n        ),\n        ('a\"b,c\"d, e', ['a\"b,c\"d', \"e\"]),\n        ('\"a,b\"\"c,d\", e', ['\"a,b\"\"c,d\"', \"e\"]),\n        (' \\t\" a,\\tb \" \\t, c  d\\t ', ['\" a,\\tb \"', \"c  d\"]),\n        (r'\"a\\\",b\", c', [r'\"a\\\",b\"', \"c\"]),\n        (r'\"a\\\\\", b', [r'\"a\\\\\"', \"b\"]),\n        (r'\"a\\\\\\\",b\", c', [r'\"a\\\\\\\",b\"', \"c\"]),\n        (r'\"a\\\\\\\\\", b', [r'\"a\\\\\\\\\"', \"b\"]),\n        (r'\"a\\,b\", c', [r'\"a\\,b\"', \"c\"]),\n        (r'\"a\\zb,c\", d', [r'\"a\\zb,c\"', \"d\"]),\n        (r'a\\,b, c', [\"a\\\\\", \"b\", \"c\"]),\n        (r'prefix\\\"a,b\", c', [r'prefix\\\"a,b\"', \"c\"]),\n        (\"'a,b', c\", [\"'a\", \"b'\", \"c\"]),\n        ('\"it\\'s a,b\", c', ['\"it\\'s a,b\"', \"c\"]),\n        (\"'a\\\"b,c\\\"d', e\", [\"'a\\\"b,c\\\"d'\", \"e\"]),\n        (\"\", [\"\"]),\n        (\" \\t \", [\"\"]),\n        (\",\", [\"\", \"\"]),\n        (\",,\", [\"\", \"\", \"\"]),\n        (\", a, , b, \", [\"\", \"a\", \"\", \"b\", \"\"]),\n        (' , \"\", \"a,b\", ', [\"\", '\"\"', '\"a,b\"', \"\"]),\n        ('\"a,b, c', ['\"a,b, c']),\n        ('a, \"b,c, d', [\"a\", '\"b,c, d']),\n        (r'a, \"b\\\",c, d', [\"a\", r'\"b\\\",c, d']),\n        ('a, \"b,c\\\\', [\"a\", '\"b,c\\\\']),\n        (\"a, b, c\", [\"a\", \"b\", \"c\"]),\n    ],\n)\ndef test_get_list_split_commas(value, expected):\n    headers = httpx.Headers({\"X-List\": value})\n    raw_headers = headers.raw\n\n    assert headers.get_list(\"x-list\", split_commas=True) == expected\n    assert headers.get_list(\"X-LIST\") == [value]\n    assert headers.get_list(\"X-LIST\", split_commas=False) == [value]\n    assert headers.raw == raw_headers\n\n\n@pytest.mark.parametrize(\"key\", [\"x-list\", \"X-List\", \"X-LIST\"])\n@pytest.mark.parametrize(\n    \"first_value, expected_first\",\n    [\n        (b'\"a,b', ['\"a,b']),\n        (b'\"a,b\\\\', ['\"a,b\\\\']),\n        (b'a, \"b,c', [\"a\", '\"b,c']),\n    ],\n)\ndef test_get_list_split_commas_repeated_headers(key, first_value, expected_first):\n    raw_headers = [\n        (b\"X-List\", first_value),\n        (b\"Other\", b'\"unmatched,'),\n        (b\"x-list\", b' c, \"d,e\", '),\n        (b\"X-LIST\", b\"\"),\n        (b\"X-List\", b'f, \"g,h\"'),\n    ]\n    headers = httpx.Headers(raw_headers)\n    expected = expected_first + [\"c\", '\"d,e\"', \"\", \"\", \"f\", '\"g,h\"']\n\n    assert headers.get_list(key, split_commas=True) == expected\n    assert headers.get_list(key, split_commas=True) == expected\n    original_values = [\n        value.decode(\"ascii\") for name, value in raw_headers if name != b\"Other\"\n    ]\n    assert headers.get_list(key) == original_values\n    assert headers.get_list(key, split_commas=False) == original_values\n    assert headers.raw == raw_headers\n\n\ndef test_get_list_split_commas_missing_header():\n    headers = httpx.Headers({\"Other\": '\"a,b\", c'})\n\n    assert headers.get_list(\"missing\", split_commas=True) == []\n    assert headers.get_list(\"missing\") == []\n",
+        "command": "/bin/zsh -lc \"rg --files tests | rg 'decod|response'; cat scripts/check; git diff --check; git diff --stat; git diff -- httpx/_models.py; sed -n '1,150p' tests/models/test_headers_get_list.py\"",
+        "exit_code": 0,
+        "id": "item_12",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 248533.974677125,
+      "perf_counter_ns": 248533974671166,
+      "utc": "2026-10-16T04:23:31.519637+00:00",
+      "wall_time_ns": 1792124611519637000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc '<PROJECT>/.cache/agent-grep-2026-10-15/runtime-env/bin/python -m pytest tests/models/test_responses.py tests/test_decoders.py --tb=short -q'",
+        "exit_code": null,
+        "id": "item_13",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 248534.039638583,
+      "perf_counter_ns": 248534039627083,
+      "utc": "2026-10-16T04:23:31.584589+00:00",
+      "wall_time_ns": 1792124611584589000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "\n==================================== ERRORS ====================================\n_______________ ERROR collecting tests/models/test_responses.py ________________\nImportError while importing test module '<WORKSPACE>/tests/models/test_responses.py'.\nHint: make sure your test modules/packages have valid Python names.\nTraceback:\n<HOME>/.local/share/uv/python/cpython-3.12.15-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\ntests/models/test_responses.py:5: in <module>\n    import chardet\nE   ModuleNotFoundError: No module named 'chardet'\n___________________ ERROR collecting tests/test_decoders.py ____________________\nImportError while importing test module '<WORKSPACE>/tests/test_decoders.py'.\nHint: make sure your test modules/packages have valid Python names.\nTraceback:\n<HOME>/.local/share/uv/python/cpython-3.12.15-macos-aarch64-none/lib/python3.12/importlib/__init__.py:90: in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\ntests/test_decoders.py:7: in <module>\n    import chardet\nE   ModuleNotFoundError: No module named 'chardet'\n!!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!\n2 errors in 0.09s\n",
+        "command": "/bin/zsh -lc '<PROJECT>/.cache/agent-grep-2026-10-15/runtime-env/bin/python -m pytest tests/models/test_responses.py tests/test_decoders.py --tb=short -q'",
+        "exit_code": 2,
+        "id": "item_13",
+        "status": "failed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 248534.276719458,
+      "perf_counter_ns": 248534276690291,
+      "utc": "2026-10-16T04:23:31.821638+00:00",
+      "wall_time_ns": 1792124611821638000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "changes": [
+          {
+            "kind": "update",
+            "path": "<WORKSPACE>/tests/models/test_headers_get_list.py"
+          }
+        ],
+        "id": "item_14",
+        "status": "in_progress",
+        "type": "file_change"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 248549.311001458,
+      "perf_counter_ns": 248549310922666,
+      "utc": "2026-10-16T04:23:46.854966+00:00",
+      "wall_time_ns": 1792124626854966000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "changes": [
+          {
+            "kind": "update",
+            "path": "<WORKSPACE>/tests/models/test_headers_get_list.py"
+          }
+        ],
+        "id": "item_14",
+        "status": "completed",
+        "type": "file_change"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 248549.349120625,
+      "perf_counter_ns": 248549349085666,
+      "utc": "2026-10-16T04:23:46.893128+00:00",
+      "wall_time_ns": 1792124626893128000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc '<PROJECT>/.cache/agent-grep-2026-10-15/runtime-env/bin/python -m ruff check httpx/_models.py tests/models/test_headers_get_list.py; <PROJECT>/.cache/agent-grep-2026-10-15/runtime-env/bin/python -m ruff format --check httpx/_models.py tests/models/test_headers_get_list.py; git diff --check; git status --short'",
+        "exit_code": null,
+        "id": "item_15",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 248549.442172333,
+      "perf_counter_ns": 248549442154541,
+      "utc": "2026-10-16T04:23:46.986192+00:00",
+      "wall_time_ns": 1792124626986192000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "Traceback (most recent call last):\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"<PROJECT>/.venv/lib/python3.12/site-packages/ruff/__main__.py\", line 81, in <module>\n    ruff = find_ruff_bin()\n           ^^^^^^^^^^^^^^^\n  File \"<PROJECT>/.venv/lib/python3.12/site-packages/ruff/__main__.py\", line 77, in find_ruff_bin\n    raise FileNotFoundError(scripts_path)\nFileNotFoundError: <PROJECT>/.cache/agent-grep-2026-10-15/runtime-env/bin/ruff\nTraceback (most recent call last):\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"<PROJECT>/.venv/lib/python3.12/site-packages/ruff/__main__.py\", line 81, in <module>\n    ruff = find_ruff_bin()\n           ^^^^^^^^^^^^^^^\n  File \"<PROJECT>/.venv/lib/python3.12/site-packages/ruff/__main__.py\", line 77, in find_ruff_bin\n    raise FileNotFoundError(scripts_path)\nFileNotFoundError: <PROJECT>/.cache/agent-grep-2026-10-15/runtime-env/bin/ruff\n M httpx/_models.py\n?? tests/models/test_headers_get_list.py\n",
+        "command": "/bin/zsh -lc '<PROJECT>/.cache/agent-grep-2026-10-15/runtime-env/bin/python -m ruff check httpx/_models.py tests/models/test_headers_get_list.py; <PROJECT>/.cache/agent-grep-2026-10-15/runtime-env/bin/python -m ruff format --check httpx/_models.py tests/models/test_headers_get_list.py; git diff --check; git status --short'",
+        "exit_code": 0,
+        "id": "item_15",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 248549.442756458,
+      "perf_counter_ns": 248549442751166,
+      "utc": "2026-10-16T04:23:46.986789+00:00",
+      "wall_time_ns": 1792124626986789000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc '<PROJECT>/.cache/agent-grep-2026-10-15/runtime-env/bin/python -m pytest tests/models/test_headers_get_list.py tests/models/test_headers.py tests/client/test_headers.py --tb=short -q'",
+        "exit_code": null,
+        "id": "item_16",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 248549.507014583,
+      "perf_counter_ns": 248549507006625,
+      "utc": "2026-10-16T04:23:47.051041+00:00",
+      "wall_time_ns": 1792124627051041000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "........................................................................ [ 85%]\n............                                                             [100%]\n84 passed in 0.10s\n",
+        "command": "/bin/zsh -lc '<PROJECT>/.cache/agent-grep-2026-10-15/runtime-env/bin/python -m pytest tests/models/test_headers_get_list.py tests/models/test_headers.py tests/client/test_headers.py --tb=short -q'",
+        "exit_code": 0,
+        "id": "item_16",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 248549.749120791,
+      "perf_counter_ns": 248549749101583,
+      "utc": "2026-10-16T04:23:47.293121+00:00",
+      "wall_time_ns": 1792124627293121000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "id": "item_17",
+        "text": "Implemented quote-aware comma splitting with correct escaping, whitespace handling, empty members, and parser reset between repeated headers. Added 40 regression cases; existing tests remain unchanged.\n\nChecks: 84 tests passed; `git diff --check` passed. Response/decoder tests were blocked by missing `chardet`; Ruff checks were unavailable because its executable is missing.",
+        "type": "agent_message"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 248557.96953775,
+      "perf_counter_ns": 248557969481875,
+      "utc": "2026-10-16T04:23:55.513007+00:00",
+      "wall_time_ns": 1792124635513007000
+    }
+  },
+  {
+    "event": {
+      "type": "turn.completed",
+      "usage": {
+        "cache_write_input_tokens": 0,
+        "cached_input_tokens": 131584,
+        "input_tokens": 161722,
+        "output_tokens": 5714,
+        "reasoning_output_tokens": 2170
+      }
+    },
+    "received": {
+      "monotonic_s": 248558.081696166,
+      "perf_counter_ns": 248558081655208,
+      "utc": "2026-10-16T04:23:55.625173+00:00",
+      "wall_time_ns": 1792124635625173000
+    }
+  }
+]

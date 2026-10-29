@@ -1,0 +1,143 @@
+{
+  "classification": "Manual patch review by the primary evaluator; supplemental to frozen automated grades",
+  "reviewed_runs": [
+    {
+      "run_id": "01-r1-requests_default_timeout-baseline",
+      "scope": "Session default/explicit None, mutable configuration, prepared sends, redirect propagation, pickle state, and upstream-test integrity",
+      "findings": [],
+      "limits": "No exhaustive proof of correctness; reference and candidate share the documented public contract",
+      "retained_patch_sha256": "6159c99c9d686e591ece0378795420885b5a4b055aad102d3f7748e26e88fcb3"
+    },
+    {
+      "run_id": "02-r1-requests_default_timeout-mcp",
+      "scope": "Session default/explicit None, mutable configuration, prepared sends, redirect propagation, pickle state, and upstream-test integrity",
+      "findings": [],
+      "limits": "No exhaustive proof of correctness; reference and candidate share the documented public contract",
+      "retained_patch_sha256": "c544cffb77db5e72f4152458d729d9dadeebd3ddb957670503c67a240bb49b2a"
+    },
+    {
+      "run_id": "03-r1-click_choice_aliases-mcp",
+      "scope": "Constructor mapping validation/copy; original canonical identity; context normalization then casefold; alias/canonical ambiguity; canonical-only help/completion; original test integrity",
+      "findings": [
+        {
+          "priority": "P2",
+          "contract": "Preserve behavior without aliases",
+          "problem": "Fusing context normalization and case folding per choice changes existing canonical collision ordering.",
+          "example": {
+            "choices": [
+              "A_B",
+              "a_b",
+              "A-B"
+            ],
+            "normalizer": "replace underscore with hyphen",
+            "case_sensitive": false,
+            "input": "a_b",
+            "expected": "a_b",
+            "observed": "A-B"
+          },
+          "evidence": "supplemental-compatibility.json",
+          "grade_effect": "Supplemental scoped defect; original frozen grader outcome remains unchanged"
+        }
+      ],
+      "limits": "Manual public-contract review; no independent reviewer or exhaustive correctness proof",
+      "retained_patch_sha256": "af84c819abf54472f4646f731a4770177816e10089d4256efe6336baa727d83c"
+    },
+    {
+      "run_id": "04-r1-click_choice_aliases-baseline",
+      "scope": "Alias mapping copy/type validation; normalize-before-casefold; ambiguity across alias and every canonical member; original object returns; unchanged presentation/tests",
+      "findings": [],
+      "limits": "Manual public-contract review, not an exhaustive proof",
+      "retained_patch_sha256": "1829178c2b5cd5d622418a2e3fd6c5d2cb7628165e790196c2c8e3d9d2aa874f"
+    },
+    {
+      "run_id": "05-r1-starlette_background_continuation-baseline",
+      "scope": "Interrupted after repository inventory and repeated connection failures; no implementation patch",
+      "findings": [],
+      "not_evaluable": true,
+      "retained_patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "run_id": "06-r1-starlette_background_continuation-mcp",
+      "scope": "Boolean constructor validation; sequential sync/async execution; first exception identity and saved callback traceback; BaseException propagation; original test integrity",
+      "findings": [],
+      "limits": "Manual public-contract review, not exhaustive correctness proof",
+      "retained_patch_sha256": "25a2b917a2bbc9cc5f8893d29b32185c36ed459322881280e1e842643fa9eeeb"
+    },
+    {
+      "run_id": "07-r1-httpx_quoted_headers-mcp",
+      "scope": "Double-quote parser state; odd/even escapes inside quotes; literal outside backslashes; empty members; repeated-header state reset; unchanged raw/default behavior and original tests",
+      "findings": [],
+      "limits": "Manual public-contract review, not exhaustive correctness proof",
+      "retained_patch_sha256": "2069347f00c29d8a33bd4de1cadbad422c944f83b515c5ee8400574137c89c11"
+    },
+    {
+      "run_id": "08-r1-httpx_quoted_headers-baseline",
+      "scope": "Per-header quote/escape state machine, empty-member preservation, raw data immutability, default path and upstream test integrity",
+      "findings": [],
+      "limits": "Manual public-contract review, not exhaustive correctness proof",
+      "retained_patch_sha256": "d07cb1821e7c57b92769236060159b4a9ecd2e4fca2f850d19cd3ab35d5aa739"
+    },
+    {
+      "run_id": "09-r2-requests_default_timeout-mcp",
+      "scope": "Omitted-versus-explicit None sentinel, method/direct-send/redirect timeout propagation, mutable defaults, pickle compatibility and preserved original tests",
+      "findings": [],
+      "limits": "Manual public-contract review, not exhaustive correctness proof",
+      "retained_patch_sha256": "6ab4657a74d932e3f2ebf66409a0ac2fd681fb05d0efe78b5149de865ae4bdef"
+    },
+    {
+      "run_id": "10-r2-requests_default_timeout-baseline",
+      "scope": "Session constructor/default inheritance, explicit None, effective redirect kwargs, direct sends, mutable values, pickle restoration, no upstream test weakening",
+      "findings": [],
+      "limits": "Manual public-contract review, not exhaustive correctness proof",
+      "retained_patch_sha256": "36ba89bb4213869cb4d2f38bd40bd9ce47789dfa3d69201546708a7e6a8c8666"
+    },
+    {
+      "run_id": "11-r2-click_choice_aliases-baseline",
+      "scope": "Mapping validation/copy and original identity; explicit two-stage canonical normalization collision order; alias ambiguities and canonical-only presentation; supplemental probe passes",
+      "findings": [],
+      "limits": "Manual public-contract review, not exhaustive correctness proof",
+      "retained_patch_sha256": "a9a880a4b9fc5bae01d1f4e32645ea44d409d39a1a757448ce892fed2d6151e5"
+    },
+    {
+      "run_id": "12-r2-click_choice_aliases-mcp",
+      "scope": "Original canonical conversion code retained; aliases validated/copied and resolved to original objects; all canonical ambiguity checks; canonical-only help/completion; supplemental collision probe passes",
+      "findings": [],
+      "limits": "Manual public-contract review, not exhaustive correctness proof",
+      "retained_patch_sha256": "6ee7bdd7bc4b5eec139ce06c3747033a66ff7b49addb9f7cf30159a4ee1aa7b7"
+    },
+    {
+      "run_id": "13-r2-starlette_background_continuation-mcp",
+      "scope": "Clock-monitor interruption before implementation completed; retained patch and command evidence reviewed",
+      "changed_files": [],
+      "findings": [],
+      "not_evaluable": true,
+      "retained_patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "run_id": "14-r2-starlette_background_continuation-baseline",
+      "scope": "Keyword-only boolean; sequential sync/async callbacks; first exception object retains original callback traceback; immediate BaseException propagation; no original test changes",
+      "findings": [],
+      "limits": "Manual public-contract review, not exhaustive correctness proof",
+      "retained_patch_sha256": "6a40bac7a6b204e079cbbb5939dbeac3aea83178727280c0a11d9f332e21253d"
+    },
+    {
+      "run_id": "15-r2-httpx_quoted_headers-baseline",
+      "scope": "Per-occurrence quote/escape parser; empty-member and order preservation; unchanged raw/default behavior and original tests",
+      "findings": [],
+      "limits": "Manual public-contract review, not exhaustive correctness proof",
+      "retained_patch_sha256": "4dbe44a89a2516448c6ee7a16767838ea3f3c941d468855b79b5f416150ae140"
+    },
+    {
+      "run_id": "16-r2-httpx_quoted_headers-mcp",
+      "scope": "Quote-aware parser with escape handling only inside quotes; empty members and repeated-header state reset; original spelling/raw/default behavior; no original test modifications",
+      "findings": [],
+      "limits": "Manual public-contract review, not exhaustive correctness proof",
+      "retained_patch_sha256": "96388e4b6dd8699839bfcc7e63dadf5ebc1f380611d356c58b423f8ec1c4e8ef"
+    }
+  ],
+  "review_revision_note": "The earlier preliminary no-finding review is retained in patch-review-initial.json; a separate executable compatibility probe established the new scoped regression.",
+  "review_complete": true,
+  "known_contract_regression_runs": [
+    "03-r1-click_choice_aliases-mcp"
+  ]
+}

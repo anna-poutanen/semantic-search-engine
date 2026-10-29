@@ -1,0 +1,157 @@
+[
+  {
+    "event": {
+      "thread_id": "01a144b0-8b4f-7841-8a7a-81d0c33b34ca",
+      "type": "thread.started"
+    },
+    "received": {
+      "monotonic_s": 250175.636602291,
+      "utc": "2026-10-16T12:29:43.514634+00:00"
+    }
+  },
+  {
+    "event": {
+      "type": "turn.started"
+    },
+    "received": {
+      "monotonic_s": 250175.6380945,
+      "utc": "2026-10-16T12:29:43.516143+00:00"
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "id": "item_0",
+        "text": "I\u2019ll run the semantic-search probe once, then the exact smoke-test command, and check both results.",
+        "type": "agent_message"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 250179.736180166,
+      "utc": "2026-10-16T12:29:47.614316+00:00"
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "arguments": {
+          "include_dependencies": false,
+          "max_results": 1,
+          "query": "workflow probe",
+          "retrieval": "bm25",
+          "token_budget": 512
+        },
+        "error": null,
+        "id": "item_1",
+        "result": null,
+        "server": "semantic_search",
+        "status": "in_progress",
+        "tool": "search_code",
+        "type": "mcp_tool_call"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 250183.245200958,
+      "utc": "2026-10-16T12:29:51.123434+00:00"
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "arguments": {
+          "include_dependencies": false,
+          "max_results": 1,
+          "query": "workflow probe",
+          "retrieval": "bm25",
+          "token_budget": 512
+        },
+        "error": null,
+        "id": "item_1",
+        "result": {
+          "content": [
+            {
+              "text": "{\"query\":\"workflow probe\",\"match_status\":\"candidates\",\"results\":[{\"path\":\"src/probe.py\",\"symbol\":\"workflow_probe\",\"start_line\":1,\"end_line\":2,\"source\":\"def workflow_probe():\\n    return \\\"MULTIFILE_PROBE_OK\\\"\\n\",\"source_hash\":\"068909ed28decb7a9b0b8cddd5807bdbcc6e9e54527f30acaa3ec9c17f26a7ae\",\"truncated\":false,\"origin\":\"retrieval\",\"related_to\":null}],\"budget_exhausted\":false,\"token_usage\":{\"encoding\":\"cl100k_base\",\"tokens\":179,\"budget\":512,\"truncated\":false},\"scope\":{\"source_root\":\"src\",\"membership\":\"saved implementations; Git-tracked files only in Git projects\",\"source_exclusions\":[],\"exclusions_omitted\":0}}",
+              "type": "text"
+            }
+          ],
+          "structured_content": null
+        },
+        "server": "semantic_search",
+        "status": "completed",
+        "tool": "search_code",
+        "type": "mcp_tool_call"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 250183.401890541,
+      "utc": "2026-10-16T12:29:51.280166+00:00"
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc '<PROJECT>/.cache/agent-grep-2026-10-15/runtime-env/bin/python loopback_smoke.py'",
+        "exit_code": null,
+        "id": "item_2",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 250185.994277833,
+      "utc": "2026-10-16T12:29:53.872627+00:00"
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "LOOPBACK_OK\n",
+        "command": "/bin/zsh -lc '<PROJECT>/.cache/agent-grep-2026-10-15/runtime-env/bin/python loopback_smoke.py'",
+        "exit_code": 0,
+        "id": "item_2",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 250185.994315375,
+      "utc": "2026-10-16T12:29:53.872678+00:00"
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "id": "item_3",
+        "text": "Verified `workflow_probe` returns `MULTIFILE_PROBE_OK`, and the exact smoke-test command printed `LOOPBACK_OK`.",
+        "type": "agent_message"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 250188.484056375,
+      "utc": "2026-10-16T12:29:56.362450+00:00"
+    }
+  },
+  {
+    "event": {
+      "type": "turn.completed",
+      "usage": {
+        "cache_write_input_tokens": 0,
+        "cached_input_tokens": 28800,
+        "input_tokens": 39797,
+        "output_tokens": 282,
+        "reasoning_output_tokens": 0
+      }
+    },
+    "received": {
+      "monotonic_s": 250188.485147333,
+      "utc": "2026-10-16T12:29:56.363562+00:00"
+    }
+  }
+]
