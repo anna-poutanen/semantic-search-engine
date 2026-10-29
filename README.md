@@ -146,6 +146,16 @@ It preserves the existing model, retrieval modes and context limits. The
 [release qualification plan](docs/release-0.1.5-plan.md) separates fresh setup and
 index-resume checks from retrieval-quality evidence; the shared-flow selector
 remains experimental. Earlier v0.1.4 assets retain their original behavior.
+The [public download checks](results/release-0.1.5-2026-10-29/publication-findings.md)
+pass from a separate empty-cache extraction, including runtime/model setup,
+real HTTP/MCP searches and forced indexing interruption/resume.
+
+The next [joint window/definition experiment](docs/complementary-context-v2.md)
+adds one complete Jinja behavior but loses two required TanStack evidence groups.
+All 393 saved outcomes and 786 controls pass independent audit; the quality gate
+fails and the current default is retained. Aggregate completeness is unchanged,
+which would hide the individual regression. A new independently source-reviewed
+attrs corpus remains unqueried for a candidate that clears the development gate.
 
 For optional H2O reranking, install its pinned runtime and weights with
 `python3 scripts/setup_mac.py`, start `.venv/bin/python scripts/serve_mac.py` in

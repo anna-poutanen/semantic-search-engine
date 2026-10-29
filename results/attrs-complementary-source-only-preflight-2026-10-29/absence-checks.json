@@ -1,0 +1,70 @@
+{
+  "schema": "python_source_absence_checks_v1",
+  "queries": {
+    "attrs_json_schema_export": {
+      "literal_patterns": [
+        "json[_-]?schema",
+        "\\$schema",
+        "draft[-_/]0[467]"
+      ],
+      "forbidden_ast_nodes": [],
+      "reviewed_paths": [
+        "src/attr/__init__.py",
+        "src/attr/_cmp.py",
+        "src/attr/_compat.py",
+        "src/attr/_config.py",
+        "src/attr/_funcs.py",
+        "src/attr/_make.py",
+        "src/attr/_next_gen.py",
+        "src/attr/_version_info.py",
+        "src/attr/converters.py",
+        "src/attr/exceptions.py",
+        "src/attr/filters.py",
+        "src/attr/setters.py",
+        "src/attr/validators.py",
+        "src/attrs/__init__.py",
+        "src/attrs/converters.py",
+        "src/attrs/exceptions.py",
+        "src/attrs/filters.py",
+        "src/attrs/setters.py",
+        "src/attrs/validators.py"
+      ],
+      "review_notes": "All included Python bodies and metadata/type/introspection/instance serialization entry points were inspected. No built-in JSON Schema exporter exists; external integration libraries are outside src."
+    },
+    "attrs_await_async_validators": {
+      "literal_patterns": [
+        "\\basync\\s+def\\b",
+        "\\bawait\\b",
+        "\\basyncio\\b"
+      ],
+      "forbidden_ast_nodes": [
+        "AsyncFunctionDef",
+        "Await",
+        "AsyncFor",
+        "AsyncWith"
+      ],
+      "reviewed_paths": [
+        "src/attr/__init__.py",
+        "src/attr/_cmp.py",
+        "src/attr/_compat.py",
+        "src/attr/_config.py",
+        "src/attr/_funcs.py",
+        "src/attr/_make.py",
+        "src/attr/_next_gen.py",
+        "src/attr/_version_info.py",
+        "src/attr/converters.py",
+        "src/attr/exceptions.py",
+        "src/attr/filters.py",
+        "src/attr/setters.py",
+        "src/attr/validators.py",
+        "src/attrs/__init__.py",
+        "src/attrs/converters.py",
+        "src/attrs/exceptions.py",
+        "src/attrs/filters.py",
+        "src/attrs/setters.py",
+        "src/attrs/validators.py"
+      ],
+      "review_notes": "Synchronous validator calls and emitted initializer strings were read. They do not await callbacks; returning an awaitable is different from awaiting it."
+    }
+  }
+}

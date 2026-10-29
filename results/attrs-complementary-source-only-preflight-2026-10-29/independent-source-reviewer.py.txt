@@ -1,0 +1,198 @@
+"""Independent source-only cross-check; never execute upstream modules or search."""
+from __future__ import annotations
+import ast
+from datetime import datetime, timezone
+import hashlib
+import importlib.abc
+import json
+from pathlib import Path
+import re
+import socket
+import subprocess
+import sys
+
+ROOT = Path(__file__).resolve().parents[2]
+CORPUS = Path('/Users/annapoutanen/personal-projects/semantic-search-engine/.cache/corpora/attrs-complementary-holdout')
+OUT = Path(__file__).resolve().parent
+DATASET = ROOT / 'benchmarks/attrs_complementary_holdout_queries.json'
+PROTOCOL = ROOT / 'docs/attrs-complementary-holdout-source-review.md'
+EXPECTED_DATASET = '2170ca4c21fc3750233a76a905918a914e9f2e0ba50dda3c30064cdefa89923d'
+EXPECTED_PROTOCOL = '432e499c8985560b41a0a957c20283d2f52a5b4d86b3289713f828b62a98ad46'
+EXPECTED_AUTHOR = '932663eeba439471e804607a002965a425dee1987aae4b49dfad40129edbaa8c'
+
+def sha(raw):
+    return hashlib.sha256(raw).hexdigest()
+
+def record(path):
+    raw = path.read_bytes()
+    return {'bytes': len(raw), 'sha256': sha(raw)}
+
+def read(path):
+    return json.loads(path.read_bytes())
+
+def physical(text):
+    return [line for line in re.findall(r'[^\r\n]*(?:\r\n|\r|\n|$)', text) if line]
+
+def definitions(text):
+    found = []
+    def walk(node, scope=()):
+        for child in ast.iter_child_nodes(node):
+            nested = isinstance(child, (ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef))
+            name = scope + (child.name,) if nested else scope
+            if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                found.append(('.'.join(name), child))
+            walk(child, name)
+    walk(ast.parse(text))
+    return found
+
+def decorated(node):
+    return min([node.lineno, *(d.lineno for d in node.decorator_list)]), node.end_lineno
+
+class ReadOnlySourceImports(importlib.abc.MetaPathFinder):
+    def find_spec(self, fullname, path=None, target=None):
+        permitted = {'semantic_search', 'semantic_search.source', 'semantic_search.languages', 'semantic_search.corpus'}
+        if (fullname.startswith('semantic_search.') and fullname not in permitted
+                or any(fullname == name or fullname.startswith(name + '.') for name in
+                       ('numpy', 'mlx', 'mlx_embeddings', 'torch', 'transformers', 'jax', 'attr', 'attrs'))):
+            raise RuntimeError('Review forbids model/search/upstream execution imports')
+
+def no_network(event, args):
+    if event.startswith(('socket.connect', 'socket.getaddrinfo', 'socket.sendto')):
+        raise RuntimeError('Review forbids network')
+
+def main():
+    assert not (OUT / 'independent-source-review.json').exists()
+    sys.meta_path.insert(0, ReadOnlySourceImports())
+    sys.addaudithook(no_network)
+    d = read(DATASET); author = read(OUT / 'source-review.json')
+    assert sha(DATASET.read_bytes()) == EXPECTED_DATASET
+    assert sha(PROTOCOL.read_bytes()) == EXPECTED_PROTOCOL
+    assert sha((OUT / 'source-review.json').read_bytes()) == EXPECTED_AUTHOR
+    git = lambda *args: subprocess.check_output(['git', '-C', str(CORPUS), *args], text=True).strip()
+    assert git('rev-parse', 'HEAD') == d['revision'] and not git('status', '--porcelain')
+    assert git('rev-parse', d['release']) == d['annotated_tag_object']
+    assert git('rev-parse', d['release'] + '^{}') == d['revision']
+    tracked = [p for p in git('ls-files', '-z', '--', d['source_root']).split('\0') if p]
+    source_names = sorted(p for p in tracked if Path(p).suffix == '.py')
+    assert not d['source_exclusions'] and set(source_names) == set(d['source_files'])
+    assert {p: record(CORPUS / p) for p in source_names} == d['source_files']
+    assert {p: record(CORPUS / p) for p in tracked if p not in source_names} == d['unsupported_source_root_files']
+    assert len(source_names) == 19 and len(tracked) - len(source_names) == 12
+    sources = {p: (CORPUS / p).read_text() for p in source_names}
+    assert all(text.encode() == (CORPUS / p).read_bytes() for p, text in sources.items())
+    functions = {p: definitions(text) for p, text in sources.items()}
+    from semantic_search.corpus import extract_snippets
+    keys = {}
+    windows = extract_snippets(CORPUS, d['source_root'], 160, 40, sources=sources,
+                               source_exclusions=(), definition_keys=keys)
+    inventory = []
+    for row in windows:
+        text = ''.join(physical(sources[row.path])[row.start_line - 1:row.end_line])
+        assert row.text == text and row.content_hash == sha(text.encode())
+        matches = [n for name, n in functions[row.path]
+                   if name == row.symbol and decorated(n) == tuple(keys[row.id][2:])]
+        assert len(matches) == 1 and row.end_line - row.start_line + 1 <= 160
+        assert keys[row.id][0:2] == (row.path, row.symbol)
+        assert keys[row.id][2] <= row.start_line <= row.end_line <= keys[row.id][3]
+        inventory.append({name: getattr(row, name) for name in
+                          ('id', 'path', 'symbol', 'start_line', 'end_line', 'content_hash')})
+    assert inventory == author['window_inventory']
+    assert {name: list(value) for name, value in keys.items()} == author['definition_keys']
+    target_rows, groups = 0, 0
+    for query in d['queries']:
+        paths = set()
+        for group in query['target_groups']:
+            groups += 1
+            assert len({(t['path'], tuple(t['evidence_lines']), t['evidence_sha256']) for t in group}) == 1
+            for target in group:
+                target_rows += 1; name = target['path']; paths.add(name)
+                source = sources[name]; raw = source.encode(); lines = physical(source)
+                offsets = [0]
+                for line in lines:
+                    offsets.append(offsets[-1] + len(line.encode()))
+                low, high = target['evidence_lines']; start, end = target['definition_lines']
+                matched = [n for symbol, n in functions[name]
+                           if symbol == target['symbol'] and decorated(n) == (start, end)]
+                assert len(matched) == 1; node = matched[0]
+                assert start <= low <= high <= end
+                evidence = ''.join(lines[low - 1:high]).encode()
+                ast_start = offsets[node.lineno - 1] + node.col_offset
+                ast_end = offsets[node.end_lineno - 1] + node.end_col_offset
+                assert target['source_file_sha256'] == sha(raw)
+                assert target['evidence_sha256'] == sha(evidence)
+                assert target['evidence_byte_bounds'] == [offsets[low - 1], offsets[high]]
+                assert target['ast_definition_byte_bounds'] == [ast_start, ast_end]
+                assert target['ast_definition_sha256'] == sha(raw[ast_start:ast_end])
+                assert target['definition_source_byte_bounds'] == [offsets[start - 1], offsets[end]]
+                assert target['definition_source_sha256'] == sha(raw[offsets[start - 1]:offsets[end]])
+                eligible = [w.id for w in windows if list(keys[w.id]) == target['canonical_definition_key']
+                            and w.start_line <= low <= high <= w.end_line]
+                assert eligible and eligible == target['eligible_window_ids']
+        assert query['multi_file'] == (len(paths) > 1)
+    tests = d['upstream_test_definitions_read']
+    for ref, witness in tests.items():
+        path, name = ref.split('::', 1); text = (CORPUS / path).read_text()
+        assert record(CORPUS / path) == d['upstream_test_files_read'][path]
+        nodes = [node for symbol, node in definitions(text) if symbol == name]
+        assert len(nodes) == 1; node = nodes[0]
+        assert list(decorated(node)) == witness['definition_lines']
+        assert [node.lineno, node.end_lineno] == witness['body_lines']
+        assert sha(''.join(physical(text)[node.lineno - 1:node.end_lineno]).encode()) == witness['body_source_sha256']
+        assert witness['executed'] is False
+    assert target_rows == 40 and groups == 35 and len(windows) == 204 and len(set(keys.values())) == 202
+    absence = {}
+    for query_id, rules in read(OUT / 'absence-checks.json')['queries'].items():
+        assert set(rules['reviewed_paths']) == set(source_names)
+        assert not any(re.search(pattern, text, re.I) for pattern in rules['literal_patterns'] for text in sources.values())
+        forbidden = set(rules['forbidden_ast_nodes'])
+        assert not any(type(node).__name__ in forbidden for text in sources.values() for node in ast.walk(ast.parse(text)))
+        absence[query_id] = {'all_included_files_checked': 19, 'literal_and_ast_checks_passed': True}
+    assert (CORPUS / 'LICENSE').read_bytes() == (ROOT / d['license']['local_copy']).read_bytes()
+    assert sha((CORPUS / 'LICENSE').read_bytes()) == d['license']['sha256']
+    result = {
+        'classification': 'Independent source-only semantic and literal/AST/window review before outcomes',
+        'status': 'passed', 'created_at_utc': datetime.now(timezone.utc).isoformat(),
+        'dataset_sha256': EXPECTED_DATASET, 'protocol_sha256': EXPECTED_PROTOCOL,
+        'author_source_receipt_sha256': EXPECTED_AUTHOR, 'reviewer_source_sha256': sha(Path(__file__).read_bytes()),
+        'dataset_changed': False, 'blocking_findings': [], 'revision': d['revision'],
+        'counts': d['counts'], 'upstream_test_bodies_read_and_hash_checked': len(tests),
+        'calls': {'model': 0, 'index': 0, 'retrieval': 0, 'reranker': 0, 'selector_activation': 0, 'network': 0},
+        'upstream_repository_module_or_test_executed': False,
+        'shared_boundary': 'Only existing saved-source extractor; no producer checker, ranking, index, retrieval or policy modules imported.',
+        'semantic_review': {
+            'all_positive_groups_reviewed_against_executable_source_and_context': True,
+            'multi_file_flags_and_cross_file_necessity_reviewed': True,
+            'same_definition_separated_windows_are_distinct_real_requirements': True,
+            'OR_alternatives_cover_same_exact_bytes_and_distinct_qualified_spans': True,
+            'same_named_closure_branches_are_not_interchangeable': True,
+            'scoped_absences_confirmed_from_complete_membership_API_and_callback_paths': True,
+            'corroborating_tests_read_not_run_and_not_a_proof_of_all_combined_configurations': True,
+            'dictionary_key_case_boundary': 'The existing draft concerns the direct collection-key branch under legacy-default conversion; it is not a universal guarantee for arbitrarily nested collection keys or arbitrary serializer callbacks. Confirmed privately with author; unchanged labels retained.',
+            'other_conditions': [
+                'Validator disabling is global/not thread-safe and context exit enables rather than restoring an arbitrary old flag.',
+                'Frozen assignment has the source-listed BaseException bookkeeping exceptions; ordinary attributes are the case scope.',
+                'Self-aware factories use an explicit Factory default, not zero-argument factory convenience.',
+                'Initializer labels are actual generator source spans, with validation flags and conditional post-init preserved.',
+                'Partial comparison completion requires at least one but fewer than four order predicates plus equality.',
+                'Version conversion and boolean conversion use their documented accepted input shapes, not arbitrary parsing/coercion.'
+            ]},
+        'absence_checks': absence,
+        'authorship_and_blinding': {
+            'reviewer_had_no_selector_design_role': True,
+            'draft_sha256_before_detailed_designer_handoff': EXPECTED_DATASET,
+            'author_received_detailed_handoff_after_complete_draft': True,
+            'current_dataset_matches_that_draft_byte_for_byte': True,
+            'query_semantic_or_target_interval_changes_after_handoff': 0,
+            'source_or_gold_contents_sent_to_root_or_rule_designer': False,
+            'root_and_designer_receive_only_status_counts_hashes': True,
+            'limits': 'Locally recorded authorship disclosure; not external timestamp or model-pretraining isolation proof.'
+        },
+        'limits': 'Small authored source-only set; no runtime execution or retrieval outcomes. Commit final labels/protocol/review and a qualified native plan before any reserved retrieval.'
+    }
+    with (OUT / 'independent-source-review.json').open('x') as stream:
+        json.dump(result, stream, indent=2, sort_keys=True); stream.write('\n')
+    print(json.dumps({'status': 'passed', 'receipt_sha256': sha((OUT / 'independent-source-review.json').read_bytes()),
+                      'dataset_sha256': EXPECTED_DATASET, 'counts': d['counts']}))
+
+if __name__ == '__main__':
+    main()
