@@ -1,0 +1,73 @@
+{
+  "classification": "Post hoc product integration of the unchanged existing coverage control; separate from failed frozen shared-flow qualification",
+  "status": "passed_local_product_and_parity_checks",
+  "production_default": "definition_context + coalesce_context",
+  "product_commit": "edeca47d70dae05a25ba1e604c8e8a2954cd57d9",
+  "parity_checker_repair_and_execution_commit": "9fc914a23cb69a2123e99c43c2f17feeb13b3e34",
+  "product_change": "Only two backend imports change policy; original selection/coalescing function source and every frozen outcome/gate remain unchanged. Three test assertions check restoration of prior hook identities rather than a hardcoded legacy default.",
+  "local_suite": {
+    "passed": 3506,
+    "skipped": 10,
+    "seconds": 190.79,
+    "collected_at_commit": "edeca47d70dae05a25ba1e604c8e8a2954cd57d9",
+    "qualification": "This full suite collected the 35 original verifier tests before its metadata-only checker repair. All product runtime source is identical at the repair commit; eight additional checker regression cases are covered by the final43 verifier tests and subsequent final-head CI."
+  },
+  "final_focused": {
+    "passed": 84,
+    "seconds": 11.8,
+    "default_contracts": 41,
+    "verifier_tests": 43,
+    "commit": "9fc914a23cb69a2123e99c43c2f17feeb13b3e34"
+  },
+  "editor_and_host_helpers": {
+    "passed": 179,
+    "receipt": "../flow-validation-2026-10-29/validation.json",
+    "source_changed_since_run": false
+  },
+  "cpu_cli": {
+    "checks_passed": true,
+    "actual_processes": 5,
+    "model_import_attempts": 0,
+    "socket_connection_attempts": 0
+  },
+  "actual_model_parity": {
+    "summary": "../default-context-parity-2026-10-29-v2/summary.json",
+    "summary_sha256": "276726e70e4f2bf49136346d0187ceb87f460715ad51f54db4a6bc51cf57be3d",
+    "requests": 28,
+    "query_embeddings": 28,
+    "document_encodings": 0,
+    "full_non_operational_response_and_private_backfill_matches": 28,
+    "compact_payload_matches": 28,
+    "query_vector_hash_matches": 28,
+    "selector_patches": 0,
+    "comparative_latency_measured": false,
+    "independent_review": {
+      "path": "../default-context-parity-2026-10-29-v2/independent-review.json",
+      "sha256": "41dfb0feea4586ae820b69dc0615c9dc404faf6047654fa4a5e4bbab5861c80d",
+      "verified_responses": 28,
+      "literal_source_excerpts": 224,
+      "committed_source_bindings": 40,
+      "model_or_index_calls_in_review": 0
+    }
+  },
+  "retained_preflight_failure": {
+    "path": "../default-context-parity-2026-10-29/failure.json",
+    "actual_model_or_search_calls": 0,
+    "reason": "Checker used status.db_path instead of actual status.store.db_path; repaired and source-contract tests added before v2."
+  },
+  "interrupted_local_suite": {
+    "passed_before_interrupt": 1755,
+    "skipped_before_interrupt": 9,
+    "reason": "A synthetic-test environment-restoration fix landed after collection. Root deliberately interrupted to avoid mixing test revisions, then terminated only its owned pytest process after graceful interrupt stalled. A fresh full run passed. This is not a completed suite or product failure.",
+    "log": "interrupted-local-suite.log.gz"
+  },
+  "source_and_logs_sha256": {
+    "actual-parity.log": "0c34adfd6ebdb55c6197f05225cc70297565f7f98711a68e69fdc2a4597f49e3",
+    "focused-tests.log": "ac6671d38c6ebd25638fddc51717cac6bff1239f08d3d9bf47db394badd08986",
+    "interrupted-local-suite.log.gz": "74b005245d1a3acdb89baae4d36f4912ba6c9b6d67b25f1ab687a88a5baa6d41",
+    "cpu-cli-smoke.json": "bc9a50c4956e46c091dabfbf5972d712d9df82ef20d5e1427229f7e31fbcef04",
+    "core-tests.log": "330b17194715b2be572c41460341246495619d47494e12c27c25235abe11923d"
+  },
+  "final_ci": "Final-head core/editor checks are linked from PR #11; see that PR for the exact head/status after these documentation/results commits.",
+  "limits": "Small observed development/native samples. Shared_flow failed its unchanged incremental quality and latency gate. Promoting the fixed coverage control is an explicitly post-hoc engineering decision; parity adds no fresh generalization, comparative latency, coding correctness, billing or release/download claim."
+}

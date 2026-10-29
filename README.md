@@ -116,15 +116,15 @@ literal-source assembly rules within the same context budget. Across 365 saved
 cases (187 distinct queries), none adds a complete query over coverage control;
 an unguarded union loses one correct result, while both guarded variants preserve
 it. All 1,825 outcomes pass independent source/token audits. Production stays
-unchanged, and the new source-reviewed codebase remains untested pending a
-candidate that improves development quality.
+unchanged at that stage; the new source-reviewed codebase was reserved for a
+candidate that improved development quality.
 
 The [complementary-implementation allocation study](docs/complementary-allocation.md)
 now tests query-aspect selection within the same eight slots. It newly completes
 three observed behaviors, but also loses existing implementation evidence, so
 both rules fail the promotion gate. All 730 new outcomes and their 730 control
 references pass independent audit; 3,017 core tests pass. Defaults and release
-assets stay unchanged, and the fresh codebase remains unqueried.
+assets stayed unchanged, and the fresh codebase was kept unqueried for that study.
 
 The [source-aware allocation follow-up](docs/source-aware-allocation.md) uses
 verified caller/callee relationships and protects actual source after packing.
@@ -132,6 +132,16 @@ It newly completes two observed Express behaviors, but evicts one required
 HTTPX header-preparation group. Protecting all prior source avoids that loss
 without adding complete behaviors. Both rules fail the frozen quality gate;
 the results, source diagnosis and validation are retained, and defaults stay unchanged.
+
+The [shared-flow follow-up](docs/shared-flow-allocation.md) preserves those two
+Express gains without development regressions, but adds no evidence beyond
+coverage on fresh TanStack Query and exceeds its latency gate. It stays
+experimental. A separate, explicitly post hoc product decision makes the existing
+**definition-aware, source-preserving backfill policy the default**: on that small
+sample it completes **2/8 dense multi-file tasks versus 1/8**, loses no covered
+groups, and has a **246 ms median versus 240 ms**. All 252 native searches pass
+independent integrity checks; remaining multi-file misses are documented.
+The v0.1.4 download assets retain their released behavior.
 
 For optional H2O reranking, install its pinned runtime and weights with
 `python3 scripts/setup_mac.py`, start `.venv/bin/python scripts/serve_mac.py` in

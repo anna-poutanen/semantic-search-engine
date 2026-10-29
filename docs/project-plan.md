@@ -47,7 +47,8 @@ This follows the agreed plan in **Choose a project for YC roles** on October 12,
    None adds a required group or complete query over coverage control; unguarded
    union loses one complete Zod BM25 result, while both guarded variants avoid
    every observed loss. No candidate qualifies for fresh inference or promotion.
-   The independently source-reviewed TanStack Query corpus remains unobserved.
+   The independently source-reviewed TanStack Query corpus was kept unobserved
+   through those studies.
    The [allocation follow-up](complementary-allocation.md) tests two query-aspect
    selectors while protecting dependencies and owners. They newly complete one
    and three distinct query units, respectively, but lose four and twelve full
@@ -59,9 +60,21 @@ This follows the agreed plan in **Choose a project for YC roles** on October 12,
    completes two Express query units but evicts one HTTPX header-preparation group;
    the stricter all-source guard adds no complete behavior. Both fail the frozen
    gate. Its independent auditor reconstructs maximal character/token packing,
-   containment/backfill, graph decisions and protected source. The next quality
-   target is complementary flow coverage through shared orchestrators beyond
-   the original anchor neighborhood, with a new freeze and unchanged loss gates.
+   containment/backfill, graph decisions and protected source. The separately
+   frozen [shared-flow follow-up](shared-flow-allocation.md) preserves both Express
+   gains with no individual development losses, then fails fresh TanStack native
+   qualification: no incremental group or complete-query gain over coverage and
+   33.7% higher dense median. All 252 calls pass independent source/packing/score,
+   call-count and provenance audit; the failed gate is retained. A separate
+   post hoc engineering decision promotes the unchanged definition+backfill
+   coverage policy to the backend default after integration checks. It improves
+   TanStack dense completeness from 1/8 to 2/8 multi-file queries with zero observed
+   evidence loss and 2.2% median overhead; hybrid quality is unchanged. TanStack
+   is now observed development evidence. Most remaining omissions concern
+   selection from already retrieved windows/definitions, with separate window
+   deduplication, raw-candidate and character-prefix misses. The next quality
+   target is joint complementary-definition/window selection under existing caps,
+   confirmed on another independently authored repository with unchanged loss gates.
    Another coding comparison remains gated on retrieval improvement. All source-only
    labels, raw traces, rejected controls, failure receipts and independent audits
    are preserved.
@@ -170,6 +183,14 @@ now measured, but this target is not established. Local inference has no API tok
 returned excerpts, and follow-up reads still consume the agent's tokens.
 
 ## Next milestone
+
+Current retrieval work ships the previously measured coverage/backfill policy
+while retaining shared flow's failed fresh gate. The [latest study and post hoc
+diagnosis](shared-flow-allocation.md) explain why multi-file quality remains open:
+most missing implementations are in the retrieved pool but outside final context.
+A new selector should jointly choose complementary definitions and their windows
+inside current budgets, then pass another independent repository test. Current
+small-sample retrieval gains do not establish coding-workflow token savings.
 
 The [workflow investigation](../results/workflow-investigation-2026-10-13/findings.md)
 records repeated source reads, cache differences and runtime confounds without
