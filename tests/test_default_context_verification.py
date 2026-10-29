@@ -231,6 +231,27 @@ def test_current_product_and_verifier_source_must_be_committed(tmp_path, monkeyp
         verify.current_bindings()
 
 
+def test_actual_retained_native_summary_cache_path_shape_without_accessing_original_cache():
+    summary = verify.read(ROOT / "results/flow-native-holdout-2026-10-29/summary.json")
+    store = summary["setup"]["status"]["store"]
+    assert "db_path" not in summary["setup"]["status"]
+    assert verify.historical_cache_db(summary) == Path(store["db_path"])
+    # Reading this recorded string works on CI without the original Mac's DB.
+    assert store["schema_version"] == 2 and store["total_windows"] == 331
+
+
+@pytest.mark.parametrize("summary", [
+    {}, {"setup": {}}, {"setup": {"status": {"db_path": "wrong-flat-location"}}},
+    {"setup": {"status": {"store": None}}},
+    {"setup": {"status": {"store": {}}}},
+    {"setup": {"status": {"store": {"db_path": ""}}}},
+    {"setup": {"status": {"store": {"db_path": True}}}},
+])
+def test_missing_or_malformed_historical_store_has_clear_preflight_error(summary):
+    with pytest.raises(ValueError, match=r"setup\.status\.store\.db_path"):
+        verify.historical_cache_db(summary)
+
+
 def fake_run(tmp_path, monkeypatch, *, failure=None):
     # run() deliberately sets its tokenizer path. Register the original value
     # with pytest so this invented cache cannot leak into unrelated tests.
@@ -260,7 +281,7 @@ def fake_run(tmp_path, monkeypatch, *, failure=None):
     plan = {"binding": {"dataset_path": "dataset.json", "dataset_sha256": verify.file_sha(tmp_path / "dataset.json"),
         "revision": "corpus-revision", "source_sha256": {"a.py": verify.file_sha(corpus / "a.py")},
         "model_files_sha256": {"config.json": verify.file_sha(model / "config.json")}, "embedding": embedding}}
-    summary = {"setup": {"status": {"db_path": str(source_db)}}}
+    summary = {"setup": {"status": {"store": {"db_path": str(source_db)}}}}
     monkeypatch.setattr(verify, "current_bindings", lambda: {"backend.py": "new-default-source"})
     monkeypatch.setattr(verify, "historical_expected", lambda path: (plan, summary, rows, {"raw": "old-ledger-hash"}))
     def command(args, **kwargs):

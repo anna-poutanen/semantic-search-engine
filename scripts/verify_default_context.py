@@ -188,12 +188,22 @@ def check_response(expected, response, vector_hash, query_calls, document_calls)
     return view, text
 
 
+def historical_cache_db(summary):
+    message = "Historical native summary requires setup.status.store.db_path"
+    try:
+        value = summary["setup"]["status"]["store"]["db_path"]
+    except (KeyError, TypeError) as error:
+        raise ValueError(message) from error
+    require(type(value) is str and bool(value.strip()), message)
+    return Path(value)
+
+
 def run(args):
     require(not args.output.exists(), "Use a new parity output directory; never overwrite or resume")
     implementation = current_bindings()
     plan, summary, expected, historical = historical_expected(args.expected_study)
     binding = plan["binding"]
-    require(args.cache_db.resolve() == Path(summary["setup"]["status"]["db_path"]).resolve(), "Cache DB must be the actual native study's closed cache")
+    require(args.cache_db.resolve() == historical_cache_db(summary).resolve(), "Cache DB must be the actual native study's closed cache")
     data = read(ROOT / binding["dataset_path"])
     require(file_sha(ROOT / binding["dataset_path"]) == binding["dataset_sha256"], "Historical query dataset changed")
     require(subprocess.check_output(["git", "-C", str(args.corpus), "rev-parse", "HEAD"], text=True).strip() == binding["revision"]
