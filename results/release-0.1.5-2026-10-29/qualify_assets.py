@@ -12,6 +12,7 @@ import importlib.util
 import io
 import json
 from pathlib import Path
+import posixpath
 import re
 import subprocess
 import tempfile
@@ -30,6 +31,17 @@ def digest(data):
 
 def git_bytes(commit, name):
     return subprocess.check_output(['git', '-C', str(ROOT), 'show', f'{commit}:{name}'])
+
+
+def packaged_readme(source):
+    """Pinned VSCE 4.0.0 joins relative Markdown links to baseContentUrl."""
+    prefix = 'https://github.com/anna-poutanen/semantic-search-engine/blob/main/extensions/vscode'
+    def replace(match):
+        label, link = match.groups()
+        if re.match(r'^\w+://', link) or link.startswith(('#', 'mailto:')):
+            return match.group(0)
+        return label + '(' + prefix + '/' + posixpath.normpath(link).lstrip('/') + ')'
+    return re.sub(r'(\[[^\]\[]*\])\(([^)]+)\)', replace, source.decode()).encode()
 
 
 def main():
@@ -73,8 +85,8 @@ def main():
                 assert data == (ROOT / 'extensions/vscode' / relative).read_bytes(), relative
                 compiled[relative] = digest(data)
         assert compiled and all(name.endswith(('.js', '.js.map')) for name in compiled)
-        for relative, source_name in (('readme.md', 'extensions/vscode/README.md'),
-                                      ('LICENSE.txt', 'extensions/vscode/LICENSE'),
+        assert packaged['readme.md'] == packaged_readme(git_bytes(args.candidate_commit, 'extensions/vscode/README.md'))
+        for relative, source_name in (('LICENSE.txt', 'extensions/vscode/LICENSE'),
                                       ('THIRD_PARTY_NOTICES.md', 'extensions/vscode/THIRD_PARTY_NOTICES.md')):
             assert packaged[relative] == git_bytes(args.candidate_commit, source_name), relative
         ts_source = {}
@@ -113,6 +125,9 @@ def main():
                    name: {'bytes': len(data), 'sha256': digest(data)} for name, data in assets.items()},
                'safe_bundle': bundle, 'checksums': checksums, 'committed_payload_sha256': source,
                'typescript_source_sha256': ts_source, 'compiled_member_sha256': compiled,
+               'readme': {'source_sha256': digest(git_bytes(args.candidate_commit, 'extensions/vscode/README.md')),
+                          'packaged_sha256': digest(packaged['readme.md']),
+                          'deterministic_vsce_relative_link_rewrite_verified': True},
                'packaged_extension_members_verified_after_install': len(packaged),
                'isolated_ordinary_cli_install': True, 'owned_profile_removed_after_check': True,
                'code_version': code_version, 'commands': commands,
