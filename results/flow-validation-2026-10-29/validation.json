@@ -1,0 +1,60 @@
+{
+  "status": "passed_runtime_and_integrity_checks",
+  "quality_promotion_passed": false,
+  "production_defaults_changed": false,
+  "tested_commit": "0d2f3817ae76bc29cfe3b4383dc079180fae42b2",
+  "python_suite": {
+    "passed": 3430,
+    "skipped": 10,
+    "seconds": 218.7,
+    "command": "PYTHONPATH=src TIKTOKEN_CACHE_DIR=.cache/tokenizers .venv/bin/python -m pytest -q"
+  },
+  "node": {
+    "editor_passed": 118,
+    "host_and_profile_passed": 61,
+    "commands": [
+      "npm ci --ignore-scripts",
+      "npm test",
+      "node --test ../../tests/test_ordinary_vscode_profile.cjs ../../tests/test_host_shared_storage.cjs"
+    ],
+    "setup_note": "The isolated checkout initially lacked TypeScript dependencies. Installed its exact existing package-lock with npm ci --ignore-scripts, then compilation and all tests passed. No source, lockfile or runtime upgrade."
+  },
+  "cli": {
+    "checks_passed": true,
+    "processes": 5,
+    "model_import_attempts": 0,
+    "socket_connection_attempts": 0
+  },
+  "development_audit": {
+    "path": "../flow-development-2026-10-29/independent-audit.json",
+    "sha256": "42acbd1d5d745b33e1be013c5daf093c2482efc53e2e0edd7b95b4a7aaa7cb71"
+  },
+  "native_audit": {
+    "path": "../flow-native-holdout-2026-10-29/independent-audit.json",
+    "sha256": "592539790c10fb3085b937955cfffcb879e7b5d050961b2cc429c158a729d70d"
+  },
+  "native_actual_calls": {
+    "measured": 252,
+    "warmups": 6,
+    "query_embeddings": 258,
+    "measured_document_embedding_calls": 0
+  },
+  "native_environment_note": "Mac was open on battery (83% at pre-run check); owned caffeinate -i held idle sleep off. Local heavy tests completed before native execution. All 252 measured rows completed without exception; setup and six explicit warmups excluded from resident-search times. Battery/machine-specific timings are not transport or coding latency.",
+  "housekeeping": {
+    "pull_request": "https://github.com/anna-poutanen/semantic-search-engine/pull/10",
+    "merge_commit": "21bc70e47eeb7a6ed1a3e39181d988aa58569fe4",
+    "historical_non_readme_files_preserved_unchanged": 268,
+    "original_files_retained_in_private_backup": 269,
+    "main_updated_clean": true,
+    "all_manifest_bound_recovered_inputs_tracked": 87,
+    "historical_provenance_limit": "Local hashes/timestamps cannot establish a prospective Git freeze or external creation time for the October15 agent/grep study."
+  },
+  "logs_sha256": {
+    "core-tests.log": "1a409509264c411fd09d56b2acc3e75566df292775ec931f9cdc885b8bce05c5",
+    "editor-tests.log": "3cf7a135140fa30961d01c61f2f64714dcb12f05a57e82bf50f6a99c6a8a1d3d",
+    "host-tests.log": "b3aa844ce0a829dcbf558c10326f3792c34d6963ae14dca35e73942e3410a5d5",
+    "cpu-cli-smoke.json": "7b107d34dff02cd593a9c88be23412f8daeda5b07d2cbff6695a9ff3192b7157",
+    "native-run.log": "95410440dd2da0bc2099e6add1b77a05faaf598700481a52e03f7841e6b5ea4d"
+  },
+  "limits": "Integrity/audit success is separate from quality qualification. Shared_flow failed its frozen fresh quality/latency gate and was not promoted; no release, external coding comparison, billed-token claim or download-flow claim."
+}

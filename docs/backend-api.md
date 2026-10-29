@@ -2,6 +2,18 @@
 
 The implemented backend keeps Qwen embeddings resident and queries a durable SQLite active source snapshot. SQLite FTS5 provides keyword retrieval; pinned `sqlite-vec==0.1.9` computes exact cosine top-k through an exhaustive SQL scan of normalized float32 vectors. This is not an ANN index. Dense search is the fast CLI/API default. Optional H2O uses a separately started local service; optional Qwen reranking uses an isolated worker owned by this backend. The [MCP adapter](mcp.md) forwards to the same search service.
 
+Search uses canonical definition identity and source-preserving backfill by
+default. Separate implementations sharing a symbol label remain distinct;
+exactly contained source can free a slot for another ranked implementation.
+The requested excerpt, character and compact-token budgets still apply.
+The [evaluation and limits](shared-flow-allocation.md) distinguish this existing
+coverage policy from the unpromoted shared-flow experiment.
+
+For dependency excerpts, `related_to` identifies the original caller source
+window; `retrieval_score` retains the score inherited from that caller. The caller's source may be fully
+contained in a larger returned excerpt instead of occupying a separate slot.
+The excerpt's own path and physical lines remain its navigation location.
+
 ## Start and query
 
 Run these setup commands from the project directory on an Apple Silicon Mac if the environment and checkpoints have not already been installed:

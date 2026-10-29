@@ -60,6 +60,8 @@ def test_real_backend_uses_one_embedding_and_returns_literal_client_valid_source
     from semantic_search.mcp_server import SearchArguments, _validate_context
 
     repo, backend, embedder = repository
+    original_selector = backend_module.select_context
+    original_postprocessor = backend_module.postprocess_context
     settings = dict(retrieval="dense", candidates=50, include_dependencies=True, **limits)
     with patch.object(backend_module, "select_context", selection.definition_context), \
             patch.object(backend_module, "postprocess_context", coalesce_context):
@@ -90,8 +92,8 @@ def test_real_backend_uses_one_embedding_and_returns_literal_client_valid_source
     assert json.loads(text) == envelope and "allocation" not in envelope
     if limits["max_results"] == 8:
         assert any(row["symbol"] == "delta_epsilon_zeta" for row in result["results"])
-    assert backend_module.select_context is selection.ranked_context
-    assert backend_module.postprocess_context is selection.unchanged_context
+    assert backend_module.select_context is original_selector
+    assert backend_module.postprocess_context is original_postprocessor
 
 
 @pytest.mark.parametrize("mode", list(allocation.MODES))
