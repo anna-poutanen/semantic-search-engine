@@ -1,0 +1,52 @@
+Semantic Search v0.1.5 improves the source excerpts selected by the default local search.
+
+Download **semantic-search-mac-0.1.5.zip**, unzip it, open Terminal in that folder
+and run `bash "Get Started.command"`. The MIT-licensed download includes the
+guided Mac launcher, source preflight, offline diagnostics, local feedback,
+MCP configuration support and **Semantic Search.vsix**. Setup installs its local
+runtime and Qwen embedding weights separately. Use **SHA256SUMS.txt** to verify
+the ZIP and standalone VSIX.
+
+The default now distinguishes separate definitions that share a displayed name,
+removes contained duplicate excerpts and fills spare capacity with additional
+literal source while preserving previously delivered evidence. Dense retrieval,
+reranking off, eight excerpts, 12,000 source characters and the 4,096-token
+compact response cap stay unchanged. Compatible existing document vectors remain
+reusable; resumable indexing from v0.1.4 is retained.
+
+This packages the already tested coverage policy selected by an explicitly
+post hoc engineering decision. On one small authored TanStack Query sample,
+dense multi-file completeness is 2/8 versus 1/8 for the previous policy, with no
+observed required-group loss. Multi-file misses remain. The more complex
+shared-flow selector failed its incremental quality/latency gate and remains
+experimental; no new selection experiment is promoted here.
+
+This release adds no generation or H2O model change and establishes no general
+coding correctness, paid-token savings, arbitrary-codebase relevance or independent
+Mac beta result. Optional rerankers still add latency and require separate setup.
+The GitHub release is regular; the extension manifest continues to mark the early
+product as a preview. Marketplace publication is not part of this release.
+
+[Getting started](https://github.com/anna-poutanen/semantic-search-engine/blob/main/docs/getting-started.md)
+· [Measured coverage decision](https://github.com/anna-poutanen/semantic-search-engine/blob/main/docs/shared-flow-allocation.md)
+· [Release qualification plan](https://github.com/anna-poutanen/semantic-search-engine/blob/main/docs/release-0.1.5-plan.md)
+
+The exact ZIP/VSIX passed committed-source and installed-package binding, a
+fresh-folder managed Python/package/model download and six real HTTP/MCP toy
+searches on the development Mac. An actual own-repository interruption retained
+28 completed documents while preserving the prior 20-window active index;
+restart embedded exactly the remaining 330 documents, then a cache-only restart
+reused all 358 windows. Generated MCP configuration reuse, terminal searches,
+diagnostics, local scripted feedback and clean shutdown passed. The current
+Python suite passed 3,514 tests with 10 skipped, plus 179 editor/helper checks.
+
+These are one-Mac release integration checks, separate from the prior retrieval
+study. [Qualification receipts](https://github.com/anna-poutanen/semantic-search-engine/blob/main/results/release-0.1.5-2026-10-29/prepublication-summary.json)
+retain the exact assets, source commits and limits. Anonymous post-publication
+verification now confirms all three exact assets, regular/latest status and the
+merged tag target. A separate initially cache-free public ZIP extraction also
+passes the full managed setup, six HTTP/MCP toy queries and interrupted-index
+resume/cache-only restart, with no retries.
+
+[Public download findings](https://github.com/anna-poutanen/semantic-search-engine/blob/main/results/release-0.1.5-2026-10-29/publication-findings.md)
+retain the separate receipts and one-Mac limits.
