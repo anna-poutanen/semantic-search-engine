@@ -78,3 +78,13 @@ selected checks and the missing prospective Git proof limit interpretation.
 The practical conclusion is that this additional study still does not establish
 a coding-quality or general efficiency advantage. It does not justify changing
 retrieval defaults or restarting the coding comparison without a stronger reason.
+
+## Publication checkout verification
+
+The first Linux CI checkout exposed twenty recovered evaluator-control files
+that were present locally but omitted from Git by the nested `.cache` ignore
+rule. The repair explicitly adds only these hash-bound evidence files and checks
+Git tracking of every input-manifest path. The failed CI log and separate repair
+checks remain in the review directory; all historical outcomes and source bytes
+are unchanged. This closes a publication completeness gap, without changing the
+study interpretation or claiming new coding-agent evidence.

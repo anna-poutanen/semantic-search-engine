@@ -1,0 +1,53 @@
+diff --git a/src/requests/sessions.py b/src/requests/sessions.py
+index d11355b..d8dca36 100644
+--- a/src/requests/sessions.py
++++ b/src/requests/sessions.py
+@@ -392,6 +392,9 @@ class SessionRedirectMixin:
+         prepared_request.method = method
+ 
+ 
++_DEFAULT_TIMEOUT = object()
++
++
+ class Session(SessionRedirectMixin):
+     """A Requests session.
+ 
+@@ -437,9 +440,11 @@ class Session(SessionRedirectMixin):
+         "stream",
+         "trust_env",
+         "max_redirects",
++        "timeout",
+     ]
+ 
+-    def __init__(self) -> None:
++    def __init__(self, timeout: _t.TimeoutType = None) -> None:
++        self.timeout = timeout
+         #: A case-insensitive dictionary of headers to be sent on each
+         #: :class:`Request <Request>` sent from this
+         #: :class:`Session <Session>`.
+@@ -564,7 +569,7 @@ class Session(SessionRedirectMixin):
+         cookies: RequestsCookieJar | CookieJar | dict[str, str] | None = None,
+         files: _t.FilesType = None,
+         auth: _t.AuthType = None,
+-        timeout: _t.TimeoutType = None,
++        timeout: _t.TimeoutType = _DEFAULT_TIMEOUT,
+         allow_redirects: bool = True,
+         proxies: dict[str, str] | None = None,
+         hooks: _t.HooksInputType | None = None,
+@@ -644,7 +649,7 @@ class Session(SessionRedirectMixin):
+ 
+         # Send the request.
+         send_kwargs = {
+-            "timeout": timeout,
++            "timeout": self.timeout if timeout is _DEFAULT_TIMEOUT else timeout,
+             "allow_redirects": allow_redirects,
+         }
+         send_kwargs.update(settings)
+@@ -756,6 +761,7 @@ class Session(SessionRedirectMixin):
+         """
+         # Set defaults that the hooks can utilize to ensure they always have
+         # the correct parameters to reproduce the previous request.
++        kwargs.setdefault("timeout", self.timeout)
+         kwargs.setdefault("stream", self.stream)
+         kwargs.setdefault("verify", self.verify)
+         kwargs.setdefault("cert", self.cert)

@@ -6,6 +6,8 @@ import io
 import json
 from pathlib import Path
 import tarfile
+import shutil
+import subprocess
 
 import pytest
 
@@ -153,3 +155,25 @@ def test_duplicate_structured_payload_is_rejected(tmp_path):
     call['result']['structured_content'] = receipt['response']
     with pytest.raises(ValueError, match='single-copy'):
         audit.source_checks(tmp_path, [receipt], [call])
+
+
+def test_all_manifest_bound_inputs_are_tracked_in_git_checkout():
+    # Disk-only audits miss files omitted by ignore rules during publication.
+    # Keep this repository integration check separate from pure data fixtures.
+    if shutil.which('git') is None:
+        pytest.skip('Git is unavailable; byte-level fixture checks remain usable')
+    probe = subprocess.run(['git', '-C', str(ROOT), 'rev-parse', '--show-toplevel'],
+                           capture_output=True, text=True)
+    if probe.returncode != 0 or Path(probe.stdout.strip()).resolve() != ROOT.resolve():
+        pytest.skip('Source distribution without its own Git checkout')
+    review = ROOT / 'results/agent-grep-publication-review-2026-10-29'
+    manifest = json.loads((review / 'input-manifest.json').read_text())
+    inputs = [*manifest['frozen_inputs'].values(), *manifest['earlier_preflight']]
+    paths = []
+    for item in inputs:
+        file = audit.bounded(review, item['path'])
+        paths.append(str(file.relative_to(ROOT)))
+    tracked = subprocess.run(['git', '-C', str(ROOT), 'ls-files', '-z', '--', *paths],
+                             capture_output=True, check=True).stdout.decode().split('\0')
+    missing = sorted(set(paths) - set(tracked))
+    assert not missing, f'Manifest-bound evidence omitted from Git: {missing}'
