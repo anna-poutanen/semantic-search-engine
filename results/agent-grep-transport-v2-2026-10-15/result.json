@@ -1,0 +1,142 @@
+{
+  "agent_elapsed_s": 13.111514750024071,
+  "agent_end": {
+    "monotonic_s": 246109.112223291,
+    "utc": "2026-10-15T16:24:03.551255+00:00"
+  },
+  "agent_exit_code": 0,
+  "agent_start": {
+    "monotonic_s": 246096.000708541,
+    "utc": "2026-10-15T16:23:50.439977+00:00"
+  },
+  "artifact_sha256": {
+    "published": {
+      "command.json": "b1002605f5cd9fb1cd74c0cdea9b7ea033f07d11574cf276763ce8ab1750404c",
+      "event-timestamps.json": "1b15d11028dac185641e2c2ef0042c92ad946df9b928d5f5a726aea72bfb4017",
+      "events.jsonl": "5f8e34830033fdeaca4fd4f35559c231c25425dccb4e23a6c2c4e14220480dc1",
+      "final.txt": "984b2416e0b1f6d2fd6e3891537c33827e8d9d2fc026002acf4197d54201d879",
+      "http-receipts.jsonl": "b9b1f54b8e05c393150c0c1b55fcd508403aae727f2c7ce4965cb4f4b69b0387",
+      "stderr.txt": "1a4d841ca79a06d06cb8be6f96457f50b2c0b7d704263116197ad80263dab034"
+    },
+    "raw": {
+      "command.json": "2d9763a0d894bebff8b3b0652ee86c973926bab59abe634c4c991f24d39dc030",
+      "events.jsonl": "87ab5d1bd66efbefab8c719e5c79cc770bf2c95293ca2d32fc784a05765590e2",
+      "final.txt": "984b2416e0b1f6d2fd6e3891537c33827e8d9d2fc026002acf4197d54201d879",
+      "http-receipts.jsonl": "a9513db77db1b95110559f75e32111a24e5c2a3ab0fba0ecbae68909a681c8bd",
+      "observed-events.json": "633e5f7583e3ec15271ce63f38be1d7719ba5188bd08c9af4e5ea84bc75a3fd4",
+      "stderr.txt": "1a4d841ca79a06d06cb8be6f96457f50b2c0b7d704263116197ad80263dab034"
+    }
+  },
+  "classification": "Separate hosted transport diagnostic; never pooled with sixteen workflow trials",
+  "command_calls": 1,
+  "common_runtime_sha256": "633c26e8c94eff2b175f601a9cd47aad704ee8e38ac621030ff7b030a886f87c",
+  "completed": true,
+  "completed_correct": true,
+  "errors": [],
+  "failed": false,
+  "final_file_hashes": {
+    "loopback_smoke.py": "47bebd26bc3ff7bc3e534c4e3a1c64e529282c6596f43875ef914b006977e4e0",
+    "src/probe.py": "068909ed28decb7a9b0b8cddd5807bdbcc6e9e54527f30acaa3ec9c17f26a7ae"
+  },
+  "forbidden_local_model_calls": 0,
+  "initial_file_hashes": {
+    "loopback_smoke.py": "47bebd26bc3ff7bc3e534c4e3a1c64e529282c6596f43875ef914b006977e4e0",
+    "src/probe.py": "068909ed28decb7a9b0b8cddd5807bdbcc6e9e54527f30acaa3ec9c17f26a7ae"
+  },
+  "invalid_event_lines": [],
+  "local_model_inference": false,
+  "loopback_script": "import socket\nimport threading\n\nwith socket.socket() as server:\n    server.bind((\"127.0.0.1\", 0))\n    server.listen(1)\n    def reply():\n        with server.accept()[0] as connection:\n            connection.sendall(b\"LOOPBACK_OK\")\n    worker = threading.Thread(target=reply)\n    worker.start()\n    with socket.create_connection(server.getsockname(), timeout=5) as client:\n        assert client.recv(32) == b\"LOOPBACK_OK\"\n    worker.join(5)\n    assert not worker.is_alive()\nprint(\"LOOPBACK_OK\")\n",
+  "loopback_script_sha256": "47bebd26bc3ff7bc3e534c4e3a1c64e529282c6596f43875ef914b006977e4e0",
+  "matched_calls": [
+    {
+      "compact_text_sha256": "f99bd7e393c2250dd957e7d7d81303e53941a59a09c3d5eff77d0e06f756a993",
+      "item_id": "item_1",
+      "receipt_number": 1
+    }
+  ],
+  "matched_loopback_commands": [
+    {
+      "exit_code": 0,
+      "item_id": "item_2",
+      "normalized_argv": [
+        "<PROJECT>/.cache/agent-grep-2026-10-15/runtime-env/bin/python",
+        "loopback_smoke.py"
+      ],
+      "stdout": "LOOPBACK_OK"
+    }
+  ],
+  "mcp_calls": 1,
+  "mcp_items": [
+    {
+      "arguments": {
+        "include_dependencies": false,
+        "max_results": 1,
+        "query": "workflow probe",
+        "retrieval": "bm25",
+        "token_budget": 512
+      },
+      "error": null,
+      "id": "item_1",
+      "result": {
+        "content": [
+          {
+            "text": "{\"query\":\"workflow probe\",\"match_status\":\"candidates\",\"results\":[{\"path\":\"src/probe.py\",\"symbol\":\"workflow_probe\",\"start_line\":1,\"end_line\":2,\"source\":\"def workflow_probe():\\n    return \\\"MULTIFILE_PROBE_OK\\\"\\n\",\"source_hash\":\"068909ed28decb7a9b0b8cddd5807bdbcc6e9e54527f30acaa3ec9c17f26a7ae\",\"truncated\":false,\"origin\":\"retrieval\",\"related_to\":null}],\"budget_exhausted\":false,\"token_usage\":{\"encoding\":\"cl100k_base\",\"tokens\":179,\"budget\":512,\"truncated\":false},\"scope\":{\"source_root\":\"src\",\"membership\":\"saved implementations; Git-tracked files only in Git projects\",\"source_exclusions\":[],\"exclusions_omitted\":0}}",
+            "type": "text"
+          }
+        ],
+        "structured_content": null
+      },
+      "server": "semantic_search",
+      "status": "completed",
+      "tool": "search_code",
+      "type": "mcp_tool_call"
+    }
+  ],
+  "observed_command_items": 1,
+  "observed_file_change_items": 0,
+  "per_model_call_usage": null,
+  "per_model_call_usage_reason": "Not emitted by exec --json",
+  "probe_source": "def workflow_probe():\n    return \"MULTIFILE_PROBE_OK\"\n",
+  "probe_source_sha256": "068909ed28decb7a9b0b8cddd5807bdbcc6e9e54527f30acaa3ec9c17f26a7ae",
+  "reported_turns": 1,
+  "successful_expected_http_receipts": 1,
+  "successful_expected_mcp_calls": 1,
+  "timed_out": false,
+  "tool_intervals": [
+    {
+      "end": {
+        "monotonic_s": 246103.423538,
+        "utc": "2026-10-15T16:23:57.862676+00:00"
+      },
+      "item_id": "item_1",
+      "observed_duration_s": 0.1634839590115007,
+      "start": {
+        "monotonic_s": 246103.260054041,
+        "utc": "2026-10-15T16:23:57.699181+00:00"
+      },
+      "type": "mcp_tool_call"
+    },
+    {
+      "end": {
+        "monotonic_s": 246105.62346225,
+        "utc": "2026-10-15T16:24:00.062571+00:00"
+      },
+      "item_id": "item_2",
+      "observed_duration_s": 2.3917004000395536e-05,
+      "start": {
+        "monotonic_s": 246105.623438333,
+        "utc": "2026-10-15T16:24:00.062541+00:00"
+      },
+      "type": "command_execution"
+    }
+  ],
+  "usage": {
+    "cache_write_input_tokens": 0,
+    "cached_input_tokens": 18816,
+    "input_tokens": 39704,
+    "output_tokens": 224,
+    "reasoning_output_tokens": 0,
+    "total_tokens": 39928,
+    "uncached_input_tokens": 20888
+  }
+}

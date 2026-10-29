@@ -1,0 +1,765 @@
+[
+  {
+    "event": {
+      "thread_id": "01a144b4-74bd-7f13-82dc-5a221690ff38",
+      "type": "thread.started"
+    },
+    "received": {
+      "monotonic_s": 250431.657555791,
+      "perf_counter_ns": 250431657541750,
+      "utc": "2026-10-16T12:33:59.543275+00:00",
+      "wall_time_ns": 1792154039543275000
+    }
+  },
+  {
+    "event": {
+      "type": "turn.started"
+    },
+    "received": {
+      "monotonic_s": 250431.65877025,
+      "perf_counter_ns": 250431658763375,
+      "utc": "2026-10-16T12:33:59.544498+00:00",
+      "wall_time_ns": 1792154039544498000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "id": "item_0",
+        "text": "I\u2019ll locate `Headers.get_list` and the existing tests, add quote-aware comma splitting, then run focused regressions and the relevant header tests.",
+        "type": "agent_message"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 250437.050232041,
+      "perf_counter_ns": 250437050153541,
+      "utc": "2026-10-16T12:34:04.936048+00:00",
+      "wall_time_ns": 1792154044936048000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"pwd; rg --files -g 'AGENTS.md' -g 'pyproject.toml' -g '*models*' -g '*headers*' -g 'pytest.ini' -g 'setup.cfg' -g 'conftest.py'; git status --short\"",
+        "exit_code": null,
+        "id": "item_1",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 250438.801939041,
+      "perf_counter_ns": 250438801925375,
+      "utc": "2026-10-16T12:34:06.687874+00:00",
+      "wall_time_ns": 1792154046687874000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "<WORKSPACE>\nhttpx/_models.py\ntests/client/test_headers.py\ntests/models/test_headers.py\ntests/conftest.py\npyproject.toml\n",
+        "command": "/bin/zsh -lc \"pwd; rg --files -g 'AGENTS.md' -g 'pyproject.toml' -g '*models*' -g '*headers*' -g 'pytest.ini' -g 'setup.cfg' -g 'conftest.py'; git status --short\"",
+        "exit_code": 0,
+        "id": "item_1",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 250438.802349791,
+      "perf_counter_ns": 250438802346083,
+      "utc": "2026-10-16T12:34:06.688295+00:00",
+      "wall_time_ns": 1792154046688295000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc 'cat tests/models/test_headers.py'",
+        "exit_code": null,
+        "id": "item_2",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 250444.146031041,
+      "perf_counter_ns": 250444146009666,
+      "utc": "2026-10-16T12:34:12.032118+00:00",
+      "wall_time_ns": 1792154052032118000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc 'cat pyproject.toml'",
+        "exit_code": null,
+        "id": "item_3",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 250444.1466425,
+      "perf_counter_ns": 250444146636500,
+      "utc": "2026-10-16T12:34:12.032745+00:00",
+      "wall_time_ns": 1792154052032745000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "[build-system]\nrequires = [\"hatchling\", \"hatch-fancy-pypi-readme\"]\nbuild-backend = \"hatchling.build\"\n\n[project]\nname = \"httpx\"\ndescription = \"The next generation HTTP client.\"\nlicense = \"BSD-3-Clause\"\nrequires-python = \">=3.8\"\nauthors = [\n    { name = \"Tom Christie\", email = \"tom@tomchristie.com\" },\n]\nclassifiers = [\n    \"Development Status :: 4 - Beta\",\n    \"Environment :: Web Environment\",\n    \"Framework :: AsyncIO\",\n    \"Framework :: Trio\",\n    \"Intended Audience :: Developers\",\n    \"License :: OSI Approved :: BSD License\",\n    \"Operating System :: OS Independent\",\n    \"Programming Language :: Python :: 3\",\n    \"Programming Language :: Python :: 3 :: Only\",\n    \"Programming Language :: Python :: 3.8\",\n    \"Programming Language :: Python :: 3.9\",\n    \"Programming Language :: Python :: 3.10\",\n    \"Programming Language :: Python :: 3.11\",\n    \"Programming Language :: Python :: 3.12\",\n    \"Topic :: Internet :: WWW/HTTP\",\n]\ndependencies = [\n    \"certifi\",\n    \"httpcore==1.*\",\n    \"anyio\",\n    \"idna\",\n]\ndynamic = [\"readme\", \"version\"]\n\n[project.optional-dependencies]\nbrotli = [\n    \"brotli; platform_python_implementation == 'CPython'\",\n    \"brotlicffi; platform_python_implementation != 'CPython'\",\n]\ncli = [\n    \"click==8.*\",\n    \"pygments==2.*\",\n    \"rich>=10,<14\",\n]\nhttp2 = [\n    \"h2>=3,<5\",\n]\nsocks = [\n    \"socksio==1.*\",\n]\nzstd = [\n  \"zstandard>=0.18.0\",\n]\n\n[project.scripts]\nhttpx = \"httpx:main\"\n\n[project.urls]\nChangelog = \"https://github.com/encode/httpx/blob/master/CHANGELOG.md\"\nDocumentation = \"https://www.python-httpx.org\"\nHomepage = \"https://github.com/encode/httpx\"\nSource = \"https://github.com/encode/httpx\"\n\n[tool.hatch.version]\npath = \"httpx/__version__.py\"\n\n[tool.hatch.build.targets.sdist]\ninclude = [\n    \"/httpx\",\n    \"/CHANGELOG.md\",\n    \"/README.md\",\n    \"/tests\",\n]\n\n[tool.hatch.metadata.hooks.fancy-pypi-readme]\ncontent-type = \"text/markdown\"\n\n[[tool.hatch.metadata.hooks.fancy-pypi-readme.fragments]]\npath = \"README.md\"\n\n[[tool.hatch.metadata.hooks.fancy-pypi-readme.fragments]]\ntext = \"\\n## Release Information\\n\\n\"\n\n[[tool.hatch.metadata.hooks.fancy-pypi-readme.fragments]]\npath = \"CHANGELOG.md\"\npattern = \"\\n(###.+?\\n)## \"\n\n[[tool.hatch.metadata.hooks.fancy-pypi-readme.fragments]]\ntext = \"\\n---\\n\\n[Full changelog](https://github.com/encode/httpx/blob/master/CHANGELOG.md)\\n\"\n\n[[tool.hatch.metadata.hooks.fancy-pypi-readme.substitutions]]\npattern = 'src=\"(docs/img/.*?)\"'\nreplacement = 'src=\"https://raw.githubusercontent.com/encode/httpx/master/\\1\"'\n\n[tool.ruff.lint]\nselect = [\"E\", \"F\", \"I\", \"B\", \"PIE\"]\nignore = [\"B904\", \"B028\"]\n\n[tool.ruff.lint.isort]\ncombine-as-imports = true\n\n[tool.ruff.lint.per-file-ignores]\n\"__init__.py\" = [\"F403\", \"F405\"]\n\n[tool.mypy]\nignore_missing_imports = true\nstrict = true\n\n[[tool.mypy.overrides]]\nmodule = \"tests.*\"\ndisallow_untyped_defs = false\ncheck_untyped_defs = true\n\n[tool.pytest.ini_options]\naddopts = \"-rxXs\"\nfilterwarnings = [\n  \"error\",\n  \"ignore: You seem to already have a custom sys.excepthook handler installed. I'll skip installing Trio's custom handler, but this means MultiErrors will not show full tracebacks.:RuntimeWarning\",\n  # See: https://github.com/agronholm/anyio/issues/508\n  \"ignore: trio.MultiError is deprecated since Trio 0.22.0:trio.TrioDeprecationWarning\"\n]\nmarkers = [\n  \"copied_from(source, changes=None): mark test as copied from somewhere else, along with a description of changes made to accodomate e.g. our test setup\",\n  \"network: marks tests which require network connection. Used in 3rd-party build environments that have network disabled.\"\n]\n\n[tool.coverage.run]\nomit = [\"venv/*\"]\ninclude = [\"httpx/*\", \"tests/*\"]\n",
+        "command": "/bin/zsh -lc 'cat pyproject.toml'",
+        "exit_code": 0,
+        "id": "item_3",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 250444.147021916,
+      "perf_counter_ns": 250444147015791,
+      "utc": "2026-10-16T12:34:12.033125+00:00",
+      "wall_time_ns": 1792154052033125000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "import pytest\n\nimport httpx\n\n\ndef test_headers():\n    h = httpx.Headers([(\"a\", \"123\"), (\"a\", \"456\"), (\"b\", \"789\")])\n    assert \"a\" in h\n    assert \"A\" in h\n    assert \"b\" in h\n    assert \"B\" in h\n    assert \"c\" not in h\n    assert h[\"a\"] == \"123, 456\"\n    assert h.get(\"a\") == \"123, 456\"\n    assert h.get(\"nope\", default=None) is None\n    assert h.get_list(\"a\") == [\"123\", \"456\"]\n\n    assert list(h.keys()) == [\"a\", \"b\"]\n    assert list(h.values()) == [\"123, 456\", \"789\"]\n    assert list(h.items()) == [(\"a\", \"123, 456\"), (\"b\", \"789\")]\n    assert h.multi_items() == [(\"a\", \"123\"), (\"a\", \"456\"), (\"b\", \"789\")]\n    assert list(h) == [\"a\", \"b\"]\n    assert dict(h) == {\"a\": \"123, 456\", \"b\": \"789\"}\n    assert repr(h) == \"Headers([('a', '123'), ('a', '456'), ('b', '789')])\"\n    assert h == [(\"a\", \"123\"), (\"b\", \"789\"), (\"a\", \"456\")]\n    assert h == [(\"a\", \"123\"), (\"A\", \"456\"), (\"b\", \"789\")]\n    assert h == {\"a\": \"123\", \"A\": \"456\", \"b\": \"789\"}\n    assert h != \"a: 123\\nA: 456\\nb: 789\"\n\n    h = httpx.Headers({\"a\": \"123\", \"b\": \"789\"})\n    assert h[\"A\"] == \"123\"\n    assert h[\"B\"] == \"789\"\n    assert h.raw == [(b\"a\", b\"123\"), (b\"b\", b\"789\")]\n    assert repr(h) == \"Headers({'a': '123', 'b': '789'})\"\n\n\ndef test_header_mutations():\n    h = httpx.Headers()\n    assert dict(h) == {}\n    h[\"a\"] = \"1\"\n    assert dict(h) == {\"a\": \"1\"}\n    h[\"a\"] = \"2\"\n    assert dict(h) == {\"a\": \"2\"}\n    h.setdefault(\"a\", \"3\")\n    assert dict(h) == {\"a\": \"2\"}\n    h.setdefault(\"b\", \"4\")\n    assert dict(h) == {\"a\": \"2\", \"b\": \"4\"}\n    del h[\"a\"]\n    assert dict(h) == {\"b\": \"4\"}\n    assert h.raw == [(b\"b\", b\"4\")]\n\n\ndef test_copy_headers_method():\n    headers = httpx.Headers({\"custom\": \"example\"})\n    headers_copy = headers.copy()\n    assert headers == headers_copy\n    assert headers is not headers_copy\n\n\ndef test_copy_headers_init():\n    headers = httpx.Headers({\"custom\": \"example\"})\n    headers_copy = httpx.Headers(headers)\n    assert headers == headers_copy\n\n\ndef test_headers_insert_retains_ordering():\n    headers = httpx.Headers({\"a\": \"a\", \"b\": \"b\", \"c\": \"c\"})\n    headers[\"b\"] = \"123\"\n    assert list(headers.values()) == [\"a\", \"123\", \"c\"]\n\n\ndef test_headers_insert_appends_if_new():\n    headers = httpx.Headers({\"a\": \"a\", \"b\": \"b\", \"c\": \"c\"})\n    headers[\"d\"] = \"123\"\n    assert list(headers.values()) == [\"a\", \"b\", \"c\", \"123\"]\n\n\ndef test_headers_insert_removes_all_existing():\n    headers = httpx.Headers([(\"a\", \"123\"), (\"a\", \"456\")])\n    headers[\"a\"] = \"789\"\n    assert dict(headers) == {\"a\": \"789\"}\n\n\ndef test_headers_delete_removes_all_existing():\n    headers = httpx.Headers([(\"a\", \"123\"), (\"a\", \"456\")])\n    del headers[\"a\"]\n    assert dict(headers) == {}\n\n\ndef test_headers_dict_repr():\n    \"\"\"\n    Headers should display with a dict repr by default.\n    \"\"\"\n    headers = httpx.Headers({\"custom\": \"example\"})\n    assert repr(headers) == \"Headers({'custom': 'example'})\"\n\n\ndef test_headers_encoding_in_repr():\n    \"\"\"\n    Headers should display an encoding in the repr if required.\n    \"\"\"\n    headers = httpx.Headers({b\"custom\": \"example \u2603\".encode(\"utf-8\")})\n    assert repr(headers) == \"Headers({'custom': 'example \u2603'}, encoding='utf-8')\"\n\n\ndef test_headers_list_repr():\n    \"\"\"\n    Headers should display with a list repr if they include multiple identical keys.\n    \"\"\"\n    headers = httpx.Headers([(\"custom\", \"example 1\"), (\"custom\", \"example 2\")])\n    assert (\n        repr(headers) == \"Headers([('custom', 'example 1'), ('custom', 'example 2')])\"\n    )\n\n\ndef test_headers_decode_ascii():\n    \"\"\"\n    Headers should decode as ascii by default.\n    \"\"\"\n    raw_headers = [(b\"Custom\", b\"Example\")]\n    headers = httpx.Headers(raw_headers)\n    assert dict(headers) == {\"custom\": \"Example\"}\n    assert headers.encoding == \"ascii\"\n\n\ndef test_headers_decode_utf_8():\n    \"\"\"\n    Headers containing non-ascii codepoints should default to decoding as utf-8.\n    \"\"\"\n    raw_headers = [(b\"Custom\", \"Code point: \u2603\".encode(\"utf-8\"))]\n    headers = httpx.Headers(raw_headers)\n    assert dict(headers) == {\"custom\": \"Code point: \u2603\"}\n    assert headers.encoding == \"utf-8\"\n\n\ndef test_headers_decode_iso_8859_1():\n    \"\"\"\n    Headers containing non-UTF-8 codepoints should default to decoding as iso-8859-1.\n    \"\"\"\n    raw_headers = [(b\"Custom\", \"Code point: \u00ff\".encode(\"iso-8859-1\"))]\n    headers = httpx.Headers(raw_headers)\n    assert dict(headers) == {\"custom\": \"Code point: \u00ff\"}\n    assert headers.encoding == \"iso-8859-1\"\n\n\ndef test_headers_decode_explicit_encoding():\n    \"\"\"\n    An explicit encoding may be set on headers in order to force a\n    particular decoding.\n    \"\"\"\n    raw_headers = [(b\"Custom\", \"Code point: \u2603\".encode(\"utf-8\"))]\n    headers = httpx.Headers(raw_headers)\n    headers.encoding = \"iso-8859-1\"\n    assert dict(headers) == {\"custom\": \"Code point: \u00e2\\x98\\x83\"}\n    assert headers.encoding == \"iso-8859-1\"\n\n\ndef test_multiple_headers():\n    \"\"\"\n    `Headers.get_list` should support both split_commas=False and split_commas=True.\n    \"\"\"\n    h = httpx.Headers([(\"set-cookie\", \"a, b\"), (\"set-cookie\", \"c\")])\n    assert h.get_list(\"Set-Cookie\") == [\"a, b\", \"c\"]\n\n    h = httpx.Headers([(\"vary\", \"a, b\"), (\"vary\", \"c\")])\n    assert h.get_list(\"Vary\", split_commas=True) == [\"a\", \"b\", \"c\"]\n\n\n@pytest.mark.parametrize(\"header\", [\"authorization\", \"proxy-authorization\"])\ndef test_sensitive_headers(header):\n    \"\"\"\n    Some headers should be obfuscated because they contain sensitive data.\n    \"\"\"\n    value = \"s3kr3t\"\n    h = httpx.Headers({header: value})\n    assert repr(h) == \"Headers({'%s': '[secure]'})\" % header\n\n\n@pytest.mark.parametrize(\n    \"headers, output\",\n    [\n        ([(\"content-type\", \"text/html\")], [(\"content-type\", \"text/html\")]),\n        ([(\"authorization\", \"s3kr3t\")], [(\"authorization\", \"[secure]\")]),\n        ([(\"proxy-authorization\", \"s3kr3t\")], [(\"proxy-authorization\", \"[secure]\")]),\n    ],\n)\ndef test_obfuscate_sensitive_headers(headers, output):\n    as_dict = {k: v for k, v in output}\n    headers_class = httpx.Headers({k: v for k, v in headers})\n    assert repr(headers_class) == f\"Headers({as_dict!r})\"\n\n\n@pytest.mark.parametrize(\n    \"value, expected\",\n    (\n        (\n            '<http:/.../front.jpeg>; rel=front; type=\"image/jpeg\"',\n            [{\"url\": \"http:/.../front.jpeg\", \"rel\": \"front\", \"type\": \"image/jpeg\"}],\n        ),\n        (\"<http:/.../front.jpeg>\", [{\"url\": \"http:/.../front.jpeg\"}]),\n        (\"<http:/.../front.jpeg>;\", [{\"url\": \"http:/.../front.jpeg\"}]),\n        (\n            '<http:/.../front.jpeg>; type=\"image/jpeg\",<http://.../back.jpeg>;',\n            [\n                {\"url\": \"http:/.../front.jpeg\", \"type\": \"image/jpeg\"},\n                {\"url\": \"http://.../back.jpeg\"},\n            ],\n        ),\n        (\"\", []),\n    ),\n)\ndef test_parse_header_links(value, expected):\n    all_links = httpx.Response(200, headers={\"link\": value}).links.values()\n    assert all(link in all_links for link in expected)\n\n\ndef test_parse_header_links_no_link():\n    all_links = httpx.Response(200).links\n    assert all_links == {}\n",
+        "command": "/bin/zsh -lc 'cat tests/models/test_headers.py'",
+        "exit_code": 0,
+        "id": "item_2",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 250444.147412625,
+      "perf_counter_ns": 250444147405708,
+      "utc": "2026-10-16T12:34:12.033515+00:00",
+      "wall_time_ns": 1792154052033515000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"rg --files --hidden -g AGENTS.md -g '\"'!.git/**'\"' -g '\"'!.cache/**'\"'\"",
+        "exit_code": null,
+        "id": "item_4",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 250444.14786125,
+      "perf_counter_ns": 250444147857458,
+      "utc": "2026-10-16T12:34:12.033966+00:00",
+      "wall_time_ns": 1792154052033966000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"rg --files --hidden -g AGENTS.md -g '\"'!.git/**'\"' -g '\"'!.cache/**'\"'\"",
+        "exit_code": 1,
+        "id": "item_4",
+        "status": "failed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 250444.148178583,
+      "perf_counter_ns": 250444148175583,
+      "utc": "2026-10-16T12:34:12.034285+00:00",
+      "wall_time_ns": 1792154052034285000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"rg -n 'def get_list|class Headers|split_commas' httpx tests\"",
+        "exit_code": null,
+        "id": "item_5",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 250444.153109833,
+      "perf_counter_ns": 250444153101791,
+      "utc": "2026-10-16T12:34:12.039211+00:00",
+      "wall_time_ns": 1792154052039211000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "tests/models/test_headers.py:160:    `Headers.get_list` should support both split_commas=False and split_commas=True.\ntests/models/test_headers.py:166:    assert h.get_list(\"Vary\", split_commas=True) == [\"a\", \"b\", \"c\"]\nhttpx/_urls.py:526:    def get_list(self, key: str) -> list[str]:\nhttpx/_models.py:139:class Headers(typing.MutableMapping[str, str]):\nhttpx/_models.py:252:    def get_list(self, key: str, split_commas: bool = False) -> list[str]:\nhttpx/_models.py:255:        If `split_commas=True` is passed, then any comma separated header\nhttpx/_models.py:266:        if not split_commas:\nhttpx/_models.py:706:            values = self.headers.get_list(\"content-encoding\", split_commas=True)\n",
+        "command": "/bin/zsh -lc \"rg -n 'def get_list|class Headers|split_commas' httpx tests\"",
+        "exit_code": 0,
+        "id": "item_5",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 250444.153614583,
+      "perf_counter_ns": 250444153607416,
+      "utc": "2026-10-16T12:34:12.039716+00:00",
+      "wall_time_ns": 1792154052039716000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc 'cat tests/conftest.py tests/client/test_headers.py'",
+        "exit_code": null,
+        "id": "item_6",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 250449.622490958,
+      "perf_counter_ns": 250449622472125,
+      "utc": "2026-10-16T12:34:17.508745+00:00",
+      "wall_time_ns": 1792154057508745000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"sed -n '1,300p' httpx/_models.py\"",
+        "exit_code": null,
+        "id": "item_7",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 250449.624044125,
+      "perf_counter_ns": 250449624036458,
+      "utc": "2026-10-16T12:34:17.510310+00:00",
+      "wall_time_ns": 1792154057510310000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "from __future__ import annotations\n\nimport codecs\nimport datetime\nimport email.message\nimport json as jsonlib\nimport re\nimport typing\nimport urllib.request\nfrom collections.abc import Mapping\nfrom http.cookiejar import Cookie, CookieJar\n\nfrom ._content import ByteStream, UnattachedStream, encode_request, encode_response\nfrom ._decoders import (\n    SUPPORTED_DECODERS,\n    ByteChunker,\n    ContentDecoder,\n    IdentityDecoder,\n    LineDecoder,\n    MultiDecoder,\n    TextChunker,\n    TextDecoder,\n)\nfrom ._exceptions import (\n    CookieConflict,\n    HTTPStatusError,\n    RequestNotRead,\n    ResponseNotRead,\n    StreamClosed,\n    StreamConsumed,\n    request_context,\n)\nfrom ._multipart import get_multipart_boundary_from_content_type\nfrom ._status_codes import codes\nfrom ._types import (\n    AsyncByteStream,\n    CookieTypes,\n    HeaderTypes,\n    QueryParamTypes,\n    RequestContent,\n    RequestData,\n    RequestExtensions,\n    RequestFiles,\n    ResponseContent,\n    ResponseExtensions,\n    SyncByteStream,\n)\nfrom ._urls import URL\nfrom ._utils import to_bytes_or_str, to_str\n\n__all__ = [\"Cookies\", \"Headers\", \"Request\", \"Response\"]\n\nSENSITIVE_HEADERS = {\"authorization\", \"proxy-authorization\"}\n\n\ndef _is_known_encoding(encoding: str) -> bool:\n    \"\"\"\n    Return `True` if `encoding` is a known codec.\n    \"\"\"\n    try:\n        codecs.lookup(encoding)\n    except LookupError:\n        return False\n    return True\n\n\ndef _normalize_header_key(key: str | bytes, encoding: str | None = None) -> bytes:\n    \"\"\"\n    Coerce str/bytes into a strictly byte-wise HTTP header key.\n    \"\"\"\n    return key if isinstance(key, bytes) else key.encode(encoding or \"ascii\")\n\n\ndef _normalize_header_value(value: str | bytes, encoding: str | None = None) -> bytes:\n    \"\"\"\n    Coerce str/bytes into a strictly byte-wise HTTP header value.\n    \"\"\"\n    if isinstance(value, bytes):\n        return value\n    if not isinstance(value, str):\n        raise TypeError(f\"Header value must be str or bytes, not {type(value)}\")\n    return value.encode(encoding or \"ascii\")\n\n\ndef _parse_content_type_charset(content_type: str) -> str | None:\n    # We used to use `cgi.parse_header()` here, but `cgi` became a dead battery.\n    # See: https://peps.python.org/pep-0594/#cgi\n    msg = email.message.Message()\n    msg[\"content-type\"] = content_type\n    return msg.get_content_charset(failobj=None)\n\n\ndef _parse_header_links(value: str) -> list[dict[str, str]]:\n    \"\"\"\n    Returns a list of parsed link headers, for more info see:\n    https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Link\n    The generic syntax of those is:\n    Link: < uri-reference >; param1=value1; param2=\"value2\"\n    So for instance:\n    Link; '<http:/.../front.jpeg>; type=\"image/jpeg\",<http://.../back.jpeg>;'\n    would return\n        [\n            {\"url\": \"http:/.../front.jpeg\", \"type\": \"image/jpeg\"},\n            {\"url\": \"http://.../back.jpeg\"},\n        ]\n    :param value: HTTP Link entity-header field\n    :return: list of parsed link headers\n    \"\"\"\n    links: list[dict[str, str]] = []\n    replace_chars = \" '\\\"\"\n    value = value.strip(replace_chars)\n    if not value:\n        return links\n    for val in re.split(\", *<\", value):\n        try:\n            url, params = val.split(\";\", 1)\n        except ValueError:\n            url, params = val, \"\"\n        link = {\"url\": url.strip(\"<> '\\\"\")}\n        for param in params.split(\";\"):\n            try:\n                key, value = param.split(\"=\")\n            except ValueError:\n                break\n            link[key.strip(replace_chars)] = value.strip(replace_chars)\n        links.append(link)\n    return links\n\n\ndef _obfuscate_sensitive_headers(\n    items: typing.Iterable[tuple[typing.AnyStr, typing.AnyStr]],\n) -> typing.Iterator[tuple[typing.AnyStr, typing.AnyStr]]:\n    for k, v in items:\n        if to_str(k.lower()) in SENSITIVE_HEADERS:\n            v = to_bytes_or_str(\"[secure]\", match_type_of=v)\n        yield k, v\n\n\nclass Headers(typing.MutableMapping[str, str]):\n    \"\"\"\n    HTTP headers, as a case-insensitive multi-dict.\n    \"\"\"\n\n    def __init__(\n        self,\n        headers: HeaderTypes | None = None,\n        encoding: str | None = None,\n    ) -> None:\n        self._list = []  # type: typing.List[typing.Tuple[bytes, bytes, bytes]]\n\n        if isinstance(headers, Headers):\n            self._list = list(headers._list)\n        elif isinstance(headers, Mapping):\n            for k, v in headers.items():\n                bytes_key = _normalize_header_key(k, encoding)\n                bytes_value = _normalize_header_value(v, encoding)\n                self._list.append((bytes_key, bytes_key.lower(), bytes_value))\n        elif headers is not None:\n            for k, v in headers:\n                bytes_key = _normalize_header_key(k, encoding)\n                bytes_value = _normalize_header_value(v, encoding)\n                self._list.append((bytes_key, bytes_key.lower(), bytes_value))\n\n        self._encoding = encoding\n\n    @property\n    def encoding(self) -> str:\n        \"\"\"\n        Header encoding is mandated as ascii, but we allow fallbacks to utf-8\n        or iso-8859-1.\n        \"\"\"\n        if self._encoding is None:\n            for encoding in [\"ascii\", \"utf-8\"]:\n                for key, value in self.raw:\n                    try:\n                        key.decode(encoding)\n                        value.decode(encoding)\n                    except UnicodeDecodeError:\n                        break\n                else:\n                    # The else block runs if 'break' did not occur, meaning\n                    # all values fitted the encoding.\n                    self._encoding = encoding\n                    break\n            else:\n                # The ISO-8859-1 encoding covers all 256 code points in a byte,\n                # so will never raise decode errors.\n                self._encoding = \"iso-8859-1\"\n        return self._encoding\n\n    @encoding.setter\n    def encoding(self, value: str) -> None:\n        self._encoding = value\n\n    @property\n    def raw(self) -> list[tuple[bytes, bytes]]:\n        \"\"\"\n        Returns a list of the raw header items, as byte pairs.\n        \"\"\"\n        return [(raw_key, value) for raw_key, _, value in self._list]\n\n    def keys(self) -> typing.KeysView[str]:\n        return {key.decode(self.encoding): None for _, key, value in self._list}.keys()\n\n    def values(self) -> typing.ValuesView[str]:\n        values_dict: dict[str, str] = {}\n        for _, key, value in self._list:\n            str_key = key.decode(self.encoding)\n            str_value = value.decode(self.encoding)\n            if str_key in values_dict:\n                values_dict[str_key] += f\", {str_value}\"\n            else:\n                values_dict[str_key] = str_value\n        return values_dict.values()\n\n    def items(self) -> typing.ItemsView[str, str]:\n        \"\"\"\n        Return `(key, value)` items of headers. Concatenate headers\n        into a single comma separated value when a key occurs multiple times.\n        \"\"\"\n        values_dict: dict[str, str] = {}\n        for _, key, value in self._list:\n            str_key = key.decode(self.encoding)\n            str_value = value.decode(self.encoding)\n            if str_key in values_dict:\n                values_dict[str_key] += f\", {str_value}\"\n            else:\n                values_dict[str_key] = str_value\n        return values_dict.items()\n\n    def multi_items(self) -> list[tuple[str, str]]:\n        \"\"\"\n        Return a list of `(key, value)` pairs of headers. Allow multiple\n        occurrences of the same key without concatenating into a single\n        comma separated value.\n        \"\"\"\n        return [\n            (key.decode(self.encoding), value.decode(self.encoding))\n            for _, key, value in self._list\n        ]\n\n    def get(self, key: str, default: typing.Any = None) -> typing.Any:\n        \"\"\"\n        Return a header value. If multiple occurrences of the header occur\n        then concatenate them together with commas.\n        \"\"\"\n        try:\n            return self[key]\n        except KeyError:\n            return default\n\n    def get_list(self, key: str, split_commas: bool = False) -> list[str]:\n        \"\"\"\n        Return a list of all header values for a given key.\n        If `split_commas=True` is passed, then any comma separated header\n        values are split into multiple return strings.\n        \"\"\"\n        get_header_key = key.lower().encode(self.encoding)\n\n        values = [\n            item_value.decode(self.encoding)\n            for _, item_key, item_value in self._list\n            if item_key.lower() == get_header_key\n        ]\n\n        if not split_commas:\n            return values\n\n        split_values = []\n        for value in values:\n            split_values.extend([item.strip() for item in value.split(\",\")])\n        return split_values\n\n    def update(self, headers: HeaderTypes | None = None) -> None:  # type: ignore\n        headers = Headers(headers)\n        for key in headers.keys():\n            if key in self:\n                self.pop(key)\n        self._list.extend(headers._list)\n\n    def copy(self) -> Headers:\n        return Headers(self, encoding=self.encoding)\n\n    def __getitem__(self, key: str) -> str:\n        \"\"\"\n        Return a single header value.\n\n        If there are multiple headers with the same key, then we concatenate\n        them with commas. See: https://tools.ietf.org/html/rfc7230#section-3.2.2\n        \"\"\"\n        normalized_key = key.lower().encode(self.encoding)\n\n        items = [\n            header_value.decode(self.encoding)\n            for _, header_key, header_value in self._list\n            if header_key == normalized_key\n        ]\n\n        if items:\n            return \", \".join(items)\n",
+        "command": "/bin/zsh -lc \"sed -n '1,300p' httpx/_models.py\"",
+        "exit_code": 0,
+        "id": "item_7",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 250449.624517208,
+      "perf_counter_ns": 250449624512750,
+      "utc": "2026-10-16T12:34:17.510786+00:00",
+      "wall_time_ns": 1792154057510786000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "import asyncio\nimport json\nimport os\nimport threading\nimport time\nimport typing\n\nimport pytest\nimport trustme\nfrom cryptography.hazmat.backends import default_backend\nfrom cryptography.hazmat.primitives.serialization import (\n    BestAvailableEncryption,\n    Encoding,\n    PrivateFormat,\n    load_pem_private_key,\n)\nfrom uvicorn.config import Config\nfrom uvicorn.server import Server\n\nimport httpx\nfrom tests.concurrency import sleep\n\nENVIRONMENT_VARIABLES = {\n    \"SSL_CERT_FILE\",\n    \"SSL_CERT_DIR\",\n    \"HTTP_PROXY\",\n    \"HTTPS_PROXY\",\n    \"ALL_PROXY\",\n    \"NO_PROXY\",\n    \"SSLKEYLOGFILE\",\n}\n\n\n@pytest.fixture(scope=\"function\", autouse=True)\ndef clean_environ():\n    \"\"\"Keeps os.environ clean for every test without having to mock os.environ\"\"\"\n    original_environ = os.environ.copy()\n    os.environ.clear()\n    os.environ.update(\n        {\n            k: v\n            for k, v in original_environ.items()\n            if k not in ENVIRONMENT_VARIABLES and k.lower() not in ENVIRONMENT_VARIABLES\n        }\n    )\n    yield\n    os.environ.clear()\n    os.environ.update(original_environ)\n\n\nMessage = typing.Dict[str, typing.Any]\nReceive = typing.Callable[[], typing.Awaitable[Message]]\nSend = typing.Callable[\n    [typing.Dict[str, typing.Any]], typing.Coroutine[None, None, None]\n]\nScope = typing.Dict[str, typing.Any]\n\n\nasync def app(scope: Scope, receive: Receive, send: Send) -> None:\n    assert scope[\"type\"] == \"http\"\n    if scope[\"path\"].startswith(\"/slow_response\"):\n        await slow_response(scope, receive, send)\n    elif scope[\"path\"].startswith(\"/status\"):\n        await status_code(scope, receive, send)\n    elif scope[\"path\"].startswith(\"/echo_body\"):\n        await echo_body(scope, receive, send)\n    elif scope[\"path\"].startswith(\"/echo_binary\"):\n        await echo_binary(scope, receive, send)\n    elif scope[\"path\"].startswith(\"/echo_headers\"):\n        await echo_headers(scope, receive, send)\n    elif scope[\"path\"].startswith(\"/redirect_301\"):\n        await redirect_301(scope, receive, send)\n    elif scope[\"path\"].startswith(\"/json\"):\n        await hello_world_json(scope, receive, send)\n    else:\n        await hello_world(scope, receive, send)\n\n\nasync def hello_world(scope: Scope, receive: Receive, send: Send) -> None:\n    await send(\n        {\n            \"type\": \"http.response.start\",\n            \"status\": 200,\n            \"headers\": [[b\"content-type\", b\"text/plain\"]],\n        }\n    )\n    await send({\"type\": \"http.response.body\", \"body\": b\"Hello, world!\"})\n\n\nasync def hello_world_json(scope: Scope, receive: Receive, send: Send) -> None:\n    await send(\n        {\n            \"type\": \"http.response.start\",\n            \"status\": 200,\n            \"headers\": [[b\"content-type\", b\"application/json\"]],\n        }\n    )\n    await send({\"type\": \"http.response.body\", \"body\": b'{\"Hello\": \"world!\"}'})\n\n\nasync def slow_response(scope: Scope, receive: Receive, send: Send) -> None:\n    await send(\n        {\n            \"type\": \"http.response.start\",\n            \"status\": 200,\n            \"headers\": [[b\"content-type\", b\"text/plain\"]],\n        }\n    )\n    await sleep(1.0)  # Allow triggering a read timeout.\n    await send({\"type\": \"http.response.body\", \"body\": b\"Hello, world!\"})\n\n\nasync def status_code(scope: Scope, receive: Receive, send: Send) -> None:\n    status_code = int(scope[\"path\"].replace(\"/status/\", \"\"))\n    await send(\n        {\n            \"type\": \"http.response.start\",\n            \"status\": status_code,\n            \"headers\": [[b\"content-type\", b\"text/plain\"]],\n        }\n    )\n    await send({\"type\": \"http.response.body\", \"body\": b\"Hello, world!\"})\n\n\nasync def echo_body(scope: Scope, receive: Receive, send: Send) -> None:\n    body = b\"\"\n    more_body = True\n\n    while more_body:\n        message = await receive()\n        body += message.get(\"body\", b\"\")\n        more_body = message.get(\"more_body\", False)\n\n    await send(\n        {\n            \"type\": \"http.response.start\",\n            \"status\": 200,\n            \"headers\": [[b\"content-type\", b\"text/plain\"]],\n        }\n    )\n    await send({\"type\": \"http.response.body\", \"body\": body})\n\n\nasync def echo_binary(scope: Scope, receive: Receive, send: Send) -> None:\n    body = b\"\"\n    more_body = True\n\n    while more_body:\n        message = await receive()\n        body += message.get(\"body\", b\"\")\n        more_body = message.get(\"more_body\", False)\n\n    await send(\n        {\n            \"type\": \"http.response.start\",\n            \"status\": 200,\n            \"headers\": [[b\"content-type\", b\"application/octet-stream\"]],\n        }\n    )\n    await send({\"type\": \"http.response.body\", \"body\": body})\n\n\nasync def echo_headers(scope: Scope, receive: Receive, send: Send) -> None:\n    body = {\n        name.capitalize().decode(): value.decode()\n        for name, value in scope.get(\"headers\", [])\n    }\n    await send(\n        {\n            \"type\": \"http.response.start\",\n            \"status\": 200,\n            \"headers\": [[b\"content-type\", b\"application/json\"]],\n        }\n    )\n    await send({\"type\": \"http.response.body\", \"body\": json.dumps(body).encode()})\n\n\nasync def redirect_301(scope: Scope, receive: Receive, send: Send) -> None:\n    await send(\n        {\"type\": \"http.response.start\", \"status\": 301, \"headers\": [[b\"location\", b\"/\"]]}\n    )\n    await send({\"type\": \"http.response.body\"})\n\n\n@pytest.fixture(scope=\"session\")\ndef cert_authority():\n    return trustme.CA()\n\n\n@pytest.fixture(scope=\"session\")\ndef localhost_cert(cert_authority):\n    return cert_authority.issue_cert(\"localhost\")\n\n\n@pytest.fixture(scope=\"session\")\ndef cert_pem_file(localhost_cert):\n    with localhost_cert.cert_chain_pems[0].tempfile() as tmp:\n        yield tmp\n\n\n@pytest.fixture(scope=\"session\")\ndef cert_private_key_file(localhost_cert):\n    with localhost_cert.private_key_pem.tempfile() as tmp:\n        yield tmp\n\n\n@pytest.fixture(scope=\"session\")\ndef cert_encrypted_private_key_file(localhost_cert):\n    # Deserialize the private key and then reserialize with a password\n    private_key = load_pem_private_key(\n        localhost_cert.private_key_pem.bytes(), password=None, backend=default_backend()\n    )\n    encrypted_private_key_pem = trustme.Blob(\n        private_key.private_bytes(\n            Encoding.PEM,\n            PrivateFormat.TraditionalOpenSSL,\n            BestAvailableEncryption(password=b\"password\"),\n        )\n    )\n    with encrypted_private_key_pem.tempfile() as tmp:\n        yield tmp\n\n\nclass TestServer(Server):\n    @property\n    def url(self) -> httpx.URL:\n        protocol = \"https\" if self.config.is_ssl else \"http\"\n        return httpx.URL(f\"{protocol}://{self.config.host}:{self.config.port}/\")\n\n    def install_signal_handlers(self) -> None:\n        # Disable the default installation of handlers for signals such as SIGTERM,\n        # because it can only be done in the main thread.\n        pass  # pragma: nocover\n\n    async def serve(self, sockets=None):\n        self.restart_requested = asyncio.Event()\n\n        loop = asyncio.get_event_loop()\n        tasks = {\n            loop.create_task(super().serve(sockets=sockets)),\n            loop.create_task(self.watch_restarts()),\n        }\n        await asyncio.wait(tasks)\n\n    async def restart(self) -> None:  # pragma: no cover\n        # This coroutine may be called from a different thread than the one the\n        # server is running on, and from an async environment that's not asyncio.\n        # For this reason, we use an event to coordinate with the server\n        # instead of calling shutdown()/startup() directly, and should not make\n        # any asyncio-specific operations.\n        self.started = False\n        self.restart_requested.set()\n        while not self.started:\n            await sleep(0.2)\n\n    async def watch_restarts(self) -> None:  # pragma: no cover\n        while True:\n            if self.should_exit:\n                return\n\n            try:\n                await asyncio.wait_for(self.restart_requested.wait(), timeout=0.1)\n            except asyncio.TimeoutError:\n                continue\n\n            self.restart_requested.clear()\n            await self.shutdown()\n            await self.startup()\n\n\ndef serve_in_thread(server: TestServer) -> typing.Iterator[TestServer]:\n    thread = threading.Thread(target=server.run)\n    thread.start()\n    try:\n        while not server.started:\n            time.sleep(1e-3)\n        yield server\n    finally:\n        server.should_exit = True\n        thread.join()\n\n\n@pytest.fixture(scope=\"session\")\ndef server() -> typing.Iterator[TestServer]:\n    config = Config(app=app, lifespan=\"off\", loop=\"asyncio\")\n    server = TestServer(config=config)\n    yield from serve_in_thread(server)\n#!/usr/bin/env python3\n\nimport pytest\n\nimport httpx\n\n\ndef echo_headers(request: httpx.Request) -> httpx.Response:\n    data = {\"headers\": dict(request.headers)}\n    return httpx.Response(200, json=data)\n\n\ndef echo_repeated_headers_multi_items(request: httpx.Request) -> httpx.Response:\n    data = {\"headers\": list(request.headers.multi_items())}\n    return httpx.Response(200, json=data)\n\n\ndef echo_repeated_headers_items(request: httpx.Request) -> httpx.Response:\n    data = {\"headers\": list(request.headers.items())}\n    return httpx.Response(200, json=data)\n\n\ndef test_client_header():\n    \"\"\"\n    Set a header in the Client.\n    \"\"\"\n    url = \"http://example.org/echo_headers\"\n    headers = {\"Example-Header\": \"example-value\"}\n\n    client = httpx.Client(transport=httpx.MockTransport(echo_headers), headers=headers)\n    response = client.get(url)\n\n    assert response.status_code == 200\n    assert response.json() == {\n        \"headers\": {\n            \"accept\": \"*/*\",\n            \"accept-encoding\": \"gzip, deflate, br, zstd\",\n            \"connection\": \"keep-alive\",\n            \"example-header\": \"example-value\",\n            \"host\": \"example.org\",\n            \"user-agent\": f\"python-httpx/{httpx.__version__}\",\n        }\n    }\n\n\ndef test_header_merge():\n    url = \"http://example.org/echo_headers\"\n    client_headers = {\"User-Agent\": \"python-myclient/0.2.1\"}\n    request_headers = {\"X-Auth-Token\": \"FooBarBazToken\"}\n    client = httpx.Client(\n        transport=httpx.MockTransport(echo_headers), headers=client_headers\n    )\n    response = client.get(url, headers=request_headers)\n\n    assert response.status_code == 200\n    assert response.json() == {\n        \"headers\": {\n            \"accept\": \"*/*\",\n            \"accept-encoding\": \"gzip, deflate, br, zstd\",\n            \"connection\": \"keep-alive\",\n            \"host\": \"example.org\",\n            \"user-agent\": \"python-myclient/0.2.1\",\n            \"x-auth-token\": \"FooBarBazToken\",\n        }\n    }\n\n\ndef test_header_merge_conflicting_headers():\n    url = \"http://example.org/echo_headers\"\n    client_headers = {\"X-Auth-Token\": \"FooBar\"}\n    request_headers = {\"X-Auth-Token\": \"BazToken\"}\n    client = httpx.Client(\n        transport=httpx.MockTransport(echo_headers), headers=client_headers\n    )\n    response = client.get(url, headers=request_headers)\n\n    assert response.status_code == 200\n    assert response.json() == {\n        \"headers\": {\n            \"accept\": \"*/*\",\n            \"accept-encoding\": \"gzip, deflate, br, zstd\",\n            \"connection\": \"keep-alive\",\n            \"host\": \"example.org\",\n            \"user-agent\": f\"python-httpx/{httpx.__version__}\",\n            \"x-auth-token\": \"BazToken\",\n        }\n    }\n\n\ndef test_header_update():\n    url = \"http://example.org/echo_headers\"\n    client = httpx.Client(transport=httpx.MockTransport(echo_headers))\n    first_response = client.get(url)\n    client.headers.update(\n        {\"User-Agent\": \"python-myclient/0.2.1\", \"Another-Header\": \"AThing\"}\n    )\n    second_response = client.get(url)\n\n    assert first_response.status_code == 200\n    assert first_response.json() == {\n        \"headers\": {\n            \"accept\": \"*/*\",\n            \"accept-encoding\": \"gzip, deflate, br, zstd\",\n            \"connection\": \"keep-alive\",\n            \"host\": \"example.org\",\n            \"user-agent\": f\"python-httpx/{httpx.__version__}\",\n        }\n    }\n\n    assert second_response.status_code == 200\n    assert second_response.json() == {\n        \"headers\": {\n            \"accept\": \"*/*\",\n            \"accept-encoding\": \"gzip, deflate, br, zstd\",\n            \"another-header\": \"AThing\",\n            \"connection\": \"keep-alive\",\n            \"host\": \"example.org\",\n            \"user-agent\": \"python-myclient/0.2.1\",\n        }\n    }\n\n\ndef test_header_repeated_items():\n    url = \"http://example.org/echo_headers\"\n    client = httpx.Client(transport=httpx.MockTransport(echo_repeated_headers_items))\n    response = client.get(url, headers=[(\"x-header\", \"1\"), (\"x-header\", \"2,3\")])\n\n    assert response.status_code == 200\n\n    echoed_headers = response.json()[\"headers\"]\n    # as per RFC 7230, the whitespace after a comma is insignificant\n    # so we split and strip here so that we can do a safe comparison\n    assert [\"x-header\", [\"1\", \"2\", \"3\"]] in [\n        [k, [subv.lstrip() for subv in v.split(\",\")]] for k, v in echoed_headers\n    ]\n\n\ndef test_header_repeated_multi_items():\n    url = \"http://example.org/echo_headers\"\n    client = httpx.Client(\n        transport=httpx.MockTransport(echo_repeated_headers_multi_items)\n    )\n    response = client.get(url, headers=[(\"x-header\", \"1\"), (\"x-header\", \"2,3\")])\n\n    assert response.status_code == 200\n\n    echoed_headers = response.json()[\"headers\"]\n    assert [\"x-header\", \"1\"] in echoed_headers\n    assert [\"x-header\", \"2,3\"] in echoed_headers\n\n\ndef test_remove_default_header():\n    \"\"\"\n    Remove a default header from the Client.\n    \"\"\"\n    url = \"http://example.org/echo_headers\"\n\n    client = httpx.Client(transport=httpx.MockTransport(echo_headers))\n    del client.headers[\"User-Agent\"]\n\n    response = client.get(url)\n\n    assert response.status_code == 200\n    assert response.json() == {\n        \"headers\": {\n            \"accept\": \"*/*\",\n            \"accept-encoding\": \"gzip, deflate, br, zstd\",\n            \"connection\": \"keep-alive\",\n            \"host\": \"example.org\",\n        }\n    }\n\n\ndef test_header_does_not_exist():\n    headers = httpx.Headers({\"foo\": \"bar\"})\n    with pytest.raises(KeyError):\n        del headers[\"baz\"]\n\n\ndef test_header_with_incorrect_value():\n    with pytest.raises(\n        TypeError,\n        match=f\"Header value must be str or bytes, not {type(None)}\",\n    ):\n        httpx.Headers({\"foo\": None})  # type: ignore\n\n\ndef test_host_with_auth_and_port_in_url():\n    \"\"\"\n    The Host header should only include the hostname, or hostname:port\n    (for non-default ports only). Any userinfo or default port should not\n    be present.\n    \"\"\"\n    url = \"http://username:password@example.org:80/echo_headers\"\n\n    client = httpx.Client(transport=httpx.MockTransport(echo_headers))\n    response = client.get(url)\n\n    assert response.status_code == 200\n    assert response.json() == {\n        \"headers\": {\n            \"accept\": \"*/*\",\n            \"accept-encoding\": \"gzip, deflate, br, zstd\",\n            \"connection\": \"keep-alive\",\n            \"host\": \"example.org\",\n            \"user-agent\": f\"python-httpx/{httpx.__version__}\",\n            \"authorization\": \"Basic dXNlcm5hbWU6cGFzc3dvcmQ=\",\n        }\n    }\n\n\ndef test_host_with_non_default_port_in_url():\n    \"\"\"\n    If the URL includes a non-default port, then it should be included in\n    the Host header.\n    \"\"\"\n    url = \"http://username:password@example.org:123/echo_headers\"\n\n    client = httpx.Client(transport=httpx.MockTransport(echo_headers))\n    response = client.get(url)\n\n    assert response.status_code == 200\n    assert response.json() == {\n        \"headers\": {\n            \"accept\": \"*/*\",\n            \"accept-encoding\": \"gzip, deflate, br, zstd\",\n            \"connection\": \"keep-alive\",\n            \"host\": \"example.org:123\",\n            \"user-agent\": f\"python-httpx/{httpx.__version__}\",\n            \"authorization\": \"Basic dXNlcm5hbWU6cGFzc3dvcmQ=\",\n        }\n    }\n\n\ndef test_request_auto_headers():\n    request = httpx.Request(\"GET\", \"https://www.example.org/\")\n    assert \"host\" in request.headers\n\n\ndef test_same_origin():\n    origin = httpx.URL(\"https://example.com\")\n    request = httpx.Request(\"GET\", \"HTTPS://EXAMPLE.COM:443\")\n\n    client = httpx.Client()\n    headers = client._redirect_headers(request, origin, \"GET\")\n\n    assert headers[\"Host\"] == request.url.netloc.decode(\"ascii\")\n\n\ndef test_not_same_origin():\n    origin = httpx.URL(\"https://example.com\")\n    request = httpx.Request(\"GET\", \"HTTP://EXAMPLE.COM:80\")\n\n    client = httpx.Client()\n    headers = client._redirect_headers(request, origin, \"GET\")\n\n    assert headers[\"Host\"] == origin.netloc.decode(\"ascii\")\n\n\ndef test_is_https_redirect():\n    url = httpx.URL(\"https://example.com\")\n    request = httpx.Request(\n        \"GET\", \"http://example.com\", headers={\"Authorization\": \"empty\"}\n    )\n\n    client = httpx.Client()\n    headers = client._redirect_headers(request, url, \"GET\")\n\n    assert \"Authorization\" in headers\n\n\ndef test_is_not_https_redirect():\n    url = httpx.URL(\"https://www.example.com\")\n    request = httpx.Request(\n        \"GET\", \"http://example.com\", headers={\"Authorization\": \"empty\"}\n    )\n\n    client = httpx.Client()\n    headers = client._redirect_headers(request, url, \"GET\")\n\n    assert \"Authorization\" not in headers\n\n\ndef test_is_not_https_redirect_if_not_default_ports():\n    url = httpx.URL(\"https://example.com:1337\")\n    request = httpx.Request(\n        \"GET\", \"http://example.com:9999\", headers={\"Authorization\": \"empty\"}\n    )\n\n    client = httpx.Client()\n    headers = client._redirect_headers(request, url, \"GET\")\n\n    assert \"Authorization\" not in headers\n",
+        "command": "/bin/zsh -lc 'cat tests/conftest.py tests/client/test_headers.py'",
+        "exit_code": 0,
+        "id": "item_6",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 250449.62517275,
+      "perf_counter_ns": 250449625164083,
+      "utc": "2026-10-16T12:34:17.511437+00:00",
+      "wall_time_ns": 1792154057511437000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"rg --files -g '*requirements*' -g '*test*' -g '*lint*' -g 'Makefile' -g '.github/workflows/**' -g 'scripts/**' -g '\"'!tests/**'\"'\"",
+        "exit_code": null,
+        "id": "item_8",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 250449.628668333,
+      "perf_counter_ns": 250449628661416,
+      "utc": "2026-10-16T12:34:17.514935+00:00",
+      "wall_time_ns": 1792154057514935000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "scripts/coverage\nscripts/sync-version\nscripts/check\nscripts/build\nscripts/publish\nscripts/clean\nscripts/docs\nscripts/test\nscripts/install\nscripts/lint\ndocs/img/gh-actions-fail-test.png\nrequirements.txt\n",
+        "command": "/bin/zsh -lc \"rg --files -g '*requirements*' -g '*test*' -g '*lint*' -g 'Makefile' -g '.github/workflows/**' -g 'scripts/**' -g '\"'!tests/**'\"'\"",
+        "exit_code": 0,
+        "id": "item_8",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 250449.629262333,
+      "perf_counter_ns": 250449629257708,
+      "utc": "2026-10-16T12:34:17.515531+00:00",
+      "wall_time_ns": 1792154057515531000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "id": "item_9",
+        "text": "`get_list` currently uses `str.split(\",\")`. I\u2019ll replace it with a scan that tracks quotes and escapes separately for each header occurrence, using string slices to preserve the original spelling. The regression tests will cover quoted parameters, escape handling, empty members, and state resets between repeated headers.",
+        "type": "agent_message"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 250477.341777458,
+      "perf_counter_ns": 250477341702000,
+      "utc": "2026-10-16T12:34:45.228805+00:00",
+      "wall_time_ns": 1792154085228805000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "changes": [
+          {
+            "kind": "add",
+            "path": "<WORKSPACE>/tests/models/test_headers_get_list.py"
+          }
+        ],
+        "id": "item_10",
+        "status": "in_progress",
+        "type": "file_change"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 250504.168389458,
+      "perf_counter_ns": 250504168338166,
+      "utc": "2026-10-16T12:35:12.056245+00:00",
+      "wall_time_ns": 1792154112056245000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "changes": [
+          {
+            "kind": "add",
+            "path": "<WORKSPACE>/tests/models/test_headers_get_list.py"
+          }
+        ],
+        "id": "item_10",
+        "status": "completed",
+        "type": "file_change"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 250504.220380666,
+      "perf_counter_ns": 250504220348333,
+      "utc": "2026-10-16T12:35:12.108257+00:00",
+      "wall_time_ns": 1792154112108257000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"sed -n '1,200p' tests/models/test_headers_get_list.py\"",
+        "exit_code": null,
+        "id": "item_11",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 250508.480523166,
+      "perf_counter_ns": 250508480507916,
+      "utc": "2026-10-16T12:35:16.368546+00:00",
+      "wall_time_ns": 1792154116368546000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "import pytest\n\nimport httpx\n\n\n@pytest.mark.parametrize(\n    \"value, expected\",\n    [\n        pytest.param(\"a, b,c\", [\"a\", \"b\", \"c\"], id=\"unquoted\"),\n        pytest.param('\"a,b\"', ['\"a,b\"'], id=\"quoted\"),\n        pytest.param('a, \"b,c\", d', [\"a\", '\"b,c\"', \"d\"], id=\"mixed\"),\n        pytest.param(\n            'text/plain; title=\"a,b\", text/html',\n            ['text/plain; title=\"a,b\"', \"text/html\"],\n            id=\"quoted-parameter\",\n        ),\n        pytest.param(\n            'text/plain; title=\"a,b\"; note=\"c,d\", text/html',\n            ['text/plain; title=\"a,b\"; note=\"c,d\"', \"text/html\"],\n            id=\"multiple-quoted-parameters\",\n        ),\n        pytest.param(\n            'ab\"c,d\"ef\"g,h\", next',\n            ['ab\"c,d\"ef\"g,h\"', \"next\"],\n            id=\"embedded-quotes\",\n        ),\n        pytest.param(\n            ' \\t \" a,\\t b \" \\t, \\t text/plain;  title=\" c, d \" \\t',\n            ['\" a,\\t b \"', 'text/plain;  title=\" c, d \"'],\n            id=\"whitespace\",\n        ),\n        pytest.param(r'\"a\\\",b\", c', [r'\"a\\\",b\"', \"c\"], id=\"escaped-quote\"),\n        pytest.param(\n            r'text/plain; title=\"a\\\",b\", text/html',\n            [r'text/plain; title=\"a\\\",b\"', \"text/html\"],\n            id=\"escaped-quote-in-parameter\",\n        ),\n        pytest.param(\n            r'\"a\\\\\", b, \"c,d\"',\n            [r'\"a\\\\\"', \"b\", '\"c,d\"'],\n            id=\"escaped-backslash-before-quote\",\n        ),\n        pytest.param(\n            r'\"a\\\\\\\",b\", c',\n            [r'\"a\\\\\\\",b\"', \"c\"],\n            id=\"escaped-backslash-and-quote\",\n        ),\n        pytest.param(r'\"a\\,b\", c', [r'\"a\\,b\"', \"c\"], id=\"escaped-comma\"),\n        pytest.param(\n            r'\"a\\qb,c\", d',\n            [r'\"a\\qb,c\"', \"d\"],\n            id=\"escaped-ordinary-character\",\n        ),\n        pytest.param(r'a\\,b', [\"a\\\\\", \"b\"], id=\"unquoted-backslash-comma\"),\n        pytest.param(\n            r'a\\\"b,c\", d',\n            [r'a\\\"b,c\"', \"d\"],\n            id=\"unquoted-backslash-quote\",\n        ),\n        pytest.param(\"'a,b', c\", [\"'a\", \"b'\", \"c\"], id=\"single-quotes\"),\n        pytest.param(\n            '\"a\\'b,c\", d', ['\"a\\'b,c\"', \"d\"], id=\"single-quote-in-double-quotes\"\n        ),\n        pytest.param(\"\", [\"\"], id=\"empty-header\"),\n        pytest.param(\" \\t \", [\"\"], id=\"whitespace-header\"),\n        pytest.param(\n            ', a,, \"b,c\", ', [\"\", \"a\", \"\", '\"b,c\"', \"\"], id=\"empty-members\"\n        ),\n        pytest.param(\n            ',, \"\", ,', [\"\", \"\", '\"\"', \"\", \"\"], id=\"quoted-and-unquoted-empty\"\n        ),\n        pytest.param('a, \"b,c, d', [\"a\", '\"b,c, d'], id=\"unmatched-quote\"),\n        pytest.param(\n            'a, text/plain; title=\"b,c, d',\n            [\"a\", 'text/plain; title=\"b,c, d'],\n            id=\"unmatched-parameter-quote\",\n        ),\n        pytest.param(\n            'a, \"b,c' + \"\\\\\",\n            [\"a\", '\"b,c' + \"\\\\\"],\n            id=\"unmatched-quote-trailing-backslash\",\n        ),\n        pytest.param(\n            r'a, \"b\\\",c, d', [\"a\", r'\"b\\\",c, d'], id=\"unmatched-escaped-quote\"\n        ),\n    ],\n)\ndef test_get_list_split_commas(value, expected):\n    headers = httpx.Headers({\"X-List\": value})\n\n    assert headers.get_list(\"x-list\", split_commas=True) == expected\n\n\n@pytest.mark.parametrize(\"key\", [\"x-list\", \"X-List\", \"X-LIST\"])\n@pytest.mark.parametrize(\"suffix\", [\"\", \"\\\\\"])\ndef test_get_list_repeated_headers(key, suffix):\n    first_value = 'one, \"unterminated,two' + suffix\n    second_value = ' , two; title=\"c,d\",three, '\n    raw_headers = [\n        (b\"X-List\", first_value.encode(\"ascii\")),\n        (b\"Other\", b'\"ignored, value'),\n        (b\"x-LIST\", second_value.encode(\"ascii\")),\n        (b\"X-list\", b\"\"),\n    ]\n    headers = httpx.Headers(raw_headers)\n\n    assert headers.get_list(key) == [first_value, second_value, \"\"]\n    assert headers.get_list(key, split_commas=True) == [\n        \"one\",\n        '\"unterminated,two' + suffix,\n        \"\",\n        'two; title=\"c,d\"',\n        \"three\",\n        \"\",\n        \"\",\n    ]\n    assert headers.get_list(key, split_commas=False) == [first_value, second_value, \"\"]\n    assert headers.raw == raw_headers\n\n\n@pytest.mark.parametrize(\"split_commas\", [False, True])\ndef test_get_list_missing_header(split_commas):\n    headers = httpx.Headers({\"Other\": '\"a,b\"'})\n\n    assert headers.get_list(\"missing\", split_commas=split_commas) == []\n",
+        "command": "/bin/zsh -lc \"sed -n '1,200p' tests/models/test_headers_get_list.py\"",
+        "exit_code": 0,
+        "id": "item_11",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 250508.481024708,
+      "perf_counter_ns": 250508481020250,
+      "utc": "2026-10-16T12:35:16.369059+00:00",
+      "wall_time_ns": 1792154116369059000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc '<PROJECT>/.cache/agent-grep-2026-10-15/runtime-env/bin/python -m pytest tests/models/test_headers_get_list.py -q --tb=short'",
+        "exit_code": null,
+        "id": "item_12",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 250508.578936166,
+      "perf_counter_ns": 250508578924500,
+      "utc": "2026-10-16T12:35:16.466966+00:00",
+      "wall_time_ns": 1792154116466966000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": ".FFFFFFFFFFFF.F.F..F.FFFFFFFFFF..                                        [100%]\n=================================== FAILURES ===================================\n______________________ test_get_list_split_commas[quoted] ______________________\ntests/models/test_headers_get_list.py:91: in test_get_list_split_commas\n    assert headers.get_list(\"x-list\", split_commas=True) == expected\nE   assert ['\"a', 'b\"'] == ['\"a,b\"']\nE     \nE     At index 0 diff: '\"a' != '\"a,b\"'\nE     Left contains one more item: 'b\"'\nE     Use -v to get more diff\n______________________ test_get_list_split_commas[mixed] _______________________\ntests/models/test_headers_get_list.py:91: in test_get_list_split_commas\n    assert headers.get_list(\"x-list\", split_commas=True) == expected\nE   assert ['a', '\"b', 'c\"', 'd'] == ['a', '\"b,c\"', 'd']\nE     \nE     At index 1 diff: '\"b' != '\"b,c\"'\nE     Left contains one more item: 'd'\nE     Use -v to get more diff\n_________________ test_get_list_split_commas[quoted-parameter] _________________\ntests/models/test_headers_get_list.py:91: in test_get_list_split_commas\n    assert headers.get_list(\"x-list\", split_commas=True) == expected\nE   assert ['text/plain;..., 'text/html'] == ['text/plain;..., 'text/html']\nE     \nE     At index 0 diff: 'text/plain; title=\"a' != 'text/plain; title=\"a,b\"'\nE     Left contains one more item: 'text/html'\nE     Use -v to get more diff\n____________ test_get_list_split_commas[multiple-quoted-parameters] ____________\ntests/models/test_headers_get_list.py:91: in test_get_list_split_commas\n    assert headers.get_list(\"x-list\", split_commas=True) == expected\nE   assert ['text/plain;..., 'text/html'] == ['text/plain;..., 'text/html']\nE     \nE     At index 0 diff: 'text/plain; title=\"a' != 'text/plain; title=\"a,b\"; note=\"c,d\"'\nE     Left contains 2 more items, first extra item: 'd\"'\nE     Use -v to get more diff\n_________________ test_get_list_split_commas[embedded-quotes] __________________\ntests/models/test_headers_get_list.py:91: in test_get_list_split_commas\n    assert headers.get_list(\"x-list\", split_commas=True) == expected\nE   assert ['ab\"c', 'd\"e... 'h\"', 'next'] == ['ab\"c,d\"ef\"g,h\"', 'next']\nE     \nE     At index 0 diff: 'ab\"c' != 'ab\"c,d\"ef\"g,h\"'\nE     Left contains 2 more items, first extra item: 'h\"'\nE     Use -v to get more diff\n____________________ test_get_list_split_commas[whitespace] ____________________\ntests/models/test_headers_get_list.py:91: in test_get_list_split_commas\n    assert headers.get_list(\"x-list\", split_commas=True) == expected\nE   assert ['\" a', 'b \"'...e=\" c', 'd \"'] == ['\" a,\\t b \"'...tle=\" c, d \"']\nE     \nE     At index 0 diff: '\" a' != '\" a,\\t b \"'\nE     Left contains 2 more items, first extra item: 'text/plain;  title=\" c'\nE     Use -v to get more diff\n__________________ test_get_list_split_commas[escaped-quote] ___________________\ntests/models/test_headers_get_list.py:91: in test_get_list_split_commas\n    assert headers.get_list(\"x-list\", split_commas=True) == expected\nE   assert ['\"a\\\\\"', 'b\"', 'c'] == ['\"a\\\\\",b\"', 'c']\nE     \nE     At index 0 diff: '\"a\\\\\"' != '\"a\\\\\",b\"'\nE     Left contains one more item: 'c'\nE     Use -v to get more diff\n____________ test_get_list_split_commas[escaped-quote-in-parameter] ____________\ntests/models/test_headers_get_list.py:91: in test_get_list_split_commas\n    assert headers.get_list(\"x-list\", split_commas=True) == expected\nE   assert ['text/plain;..., 'text/html'] == ['text/plain;..., 'text/html']\nE     \nE     At index 0 diff: 'text/plain; title=\"a\\\\\"' != 'text/plain; title=\"a\\\\\",b\"'\nE     Left contains one more item: 'text/html'\nE     Use -v to get more diff\n__________ test_get_list_split_commas[escaped-backslash-before-quote] __________\ntests/models/test_headers_get_list.py:91: in test_get_list_split_commas\n    assert headers.get_list(\"x-list\", split_commas=True) == expected\nE   assert ['\"a\\\\\\\\\"', 'b', '\"c', 'd\"'] == ['\"a\\\\\\\\\"', 'b', '\"c,d\"']\nE     \nE     At index 2 diff: '\"c' != '\"c,d\"'\nE     Left contains one more item: 'd\"'\nE     Use -v to get more diff\n___________ test_get_list_split_commas[escaped-backslash-and-quote] ____________\ntests/models/test_headers_get_list.py:91: in test_get_list_split_commas\n    assert headers.get_list(\"x-list\", split_commas=True) == expected\nE   assert ['\"a\\\\\\\\\\\\\"', 'b\"', 'c'] == ['\"a\\\\\\\\\\\\\",b\"', 'c']\nE     \nE     At index 0 diff: '\"a\\\\\\\\\\\\\"' != '\"a\\\\\\\\\\\\\",b\"'\nE     Left contains one more item: 'c'\nE     Use -v to get more diff\n__________________ test_get_list_split_commas[escaped-comma] ___________________\ntests/models/test_headers_get_list.py:91: in test_get_list_split_commas\n    assert headers.get_list(\"x-list\", split_commas=True) == expected\nE   assert ['\"a\\\\', 'b\"', 'c'] == ['\"a\\\\,b\"', 'c']\nE     \nE     At index 0 diff: '\"a\\\\' != '\"a\\\\,b\"'\nE     Left contains one more item: 'c'\nE     Use -v to get more diff\n____________ test_get_list_split_commas[escaped-ordinary-character] ____________\ntests/models/test_headers_get_list.py:91: in test_get_list_split_commas\n    assert headers.get_list(\"x-list\", split_commas=True) == expected\nE   assert ['\"a\\\\qb', 'c\"', 'd'] == ['\"a\\\\qb,c\"', 'd']\nE     \nE     At index 0 diff: '\"a\\\\qb' != '\"a\\\\qb,c\"'\nE     Left contains one more item: 'd'\nE     Use -v to get more diff\n_____________ test_get_list_split_commas[unquoted-backslash-quote] _____________\ntests/models/test_headers_get_list.py:91: in test_get_list_split_commas\n    assert headers.get_list(\"x-list\", split_commas=True) == expected\nE   assert ['a\\\\\"b', 'c\"', 'd'] == ['a\\\\\"b,c\"', 'd']\nE     \nE     At index 0 diff: 'a\\\\\"b' != 'a\\\\\"b,c\"'\nE     Left contains one more item: 'd'\nE     Use -v to get more diff\n__________ test_get_list_split_commas[single-quote-in-double-quotes] ___________\ntests/models/test_headers_get_list.py:91: in test_get_list_split_commas\n    assert headers.get_list(\"x-list\", split_commas=True) == expected\nE   assert ['\"a\\'b', 'c\"', 'd'] == ['\"a\\'b,c\"', 'd']\nE     \nE     At index 0 diff: '\"a\\'b' != '\"a\\'b,c\"'\nE     Left contains one more item: 'd'\nE     Use -v to get more diff\n__________________ test_get_list_split_commas[empty-members] ___________________\ntests/models/test_headers_get_list.py:91: in test_get_list_split_commas\n    assert headers.get_list(\"x-list\", split_commas=True) == expected\nE   assert ['', 'a', '', '\"b', 'c\"', ''] == ['', 'a', '', '\"b,c\"', '']\nE     \nE     At index 3 diff: '\"b' != '\"b,c\"'\nE     Left contains one more item: ''\nE     Use -v to get more diff\n_________________ test_get_list_split_commas[unmatched-quote] __________________\ntests/models/test_headers_get_list.py:91: in test_get_list_split_commas\n    assert headers.get_list(\"x-list\", split_commas=True) == expected\nE   assert ['a', '\"b', 'c', 'd'] == ['a', '\"b,c, d']\nE     \nE     At index 1 diff: '\"b' != '\"b,c, d'\nE     Left contains 2 more items, first extra item: 'c'\nE     Use -v to get more diff\n____________ test_get_list_split_commas[unmatched-parameter-quote] _____________\ntests/models/test_headers_get_list.py:91: in test_get_list_split_commas\n    assert headers.get_list(\"x-list\", split_commas=True) == expected\nE   assert ['a', 'text/p...\"b', 'c', 'd'] == ['a', 'text/p...itle=\"b,c, d']\nE     \nE     At index 1 diff: 'text/plain; title=\"b' != 'text/plain; title=\"b,c, d'\nE     Left contains 2 more items, first extra item: 'c'\nE     Use -v to get more diff\n________ test_get_list_split_commas[unmatched-quote-trailing-backslash] ________\ntests/models/test_headers_get_list.py:91: in test_get_list_split_commas\n    assert headers.get_list(\"x-list\", split_commas=True) == expected\nE   assert ['a', '\"b', 'c\\\\'] == ['a', '\"b,c\\\\']\nE     \nE     At index 1 diff: '\"b' != '\"b,c\\\\'\nE     Left contains one more item: 'c\\\\'\nE     Use -v to get more diff\n_____________ test_get_list_split_commas[unmatched-escaped-quote] ______________\ntests/models/test_headers_get_list.py:91: in test_get_list_split_commas\n    assert headers.get_list(\"x-list\", split_commas=True) == expected\nE   assert ['a', '\"b\\\\\"', 'c', 'd'] == ['a', '\"b\\\\\",c, d']\nE     \nE     At index 1 diff: '\"b\\\\\"' != '\"b\\\\\",c, d'\nE     Left contains 2 more items, first extra item: 'c'\nE     Use -v to get more diff\n___________________ test_get_list_repeated_headers[-x-list] ____________________\ntests/models/test_headers_get_list.py:108: in test_get_list_repeated_headers\n    assert headers.get_list(key, split_commas=True) == [\nE   assert ['one', '\"unt...c', 'd\"', ...] == ['one', '\"unt...ree', '', ...]\nE     \nE     At index 1 diff: '\"unterminated' != '\"unterminated,two'\nE     Left contains 2 more items, first extra item: ''\nE     Use -v to get more diff\n___________________ test_get_list_repeated_headers[-X-List] ____________________\ntests/models/test_headers_get_list.py:108: in test_get_list_repeated_headers\n    assert headers.get_list(key, split_commas=True) == [\nE   assert ['one', '\"unt...c', 'd\"', ...] == ['one', '\"unt...ree', '', ...]\nE     \nE     At index 1 diff: '\"unterminated' != '\"unterminated,two'\nE     Left contains 2 more items, first extra item: ''\nE     Use -v to get more diff\n___________________ test_get_list_repeated_headers[-X-LIST] ____________________\ntests/models/test_headers_get_list.py:108: in test_get_list_repeated_headers\n    assert headers.get_list(key, split_commas=True) == [\nE   assert ['one', '\"unt...c', 'd\"', ...] == ['one', '\"unt...ree', '', ...]\nE     \nE     At index 1 diff: '\"unterminated' != '\"unterminated,two'\nE     Left contains 2 more items, first extra item: ''\nE     Use -v to get more diff\n__________________ test_get_list_repeated_headers[\\\\-x-list] ___________________\ntests/models/test_headers_get_list.py:108: in test_get_list_repeated_headers\n    assert headers.get_list(key, split_commas=True) == [\nE   assert ['one', '\"unt...c', 'd\"', ...] == ['one', '\"unt...ree', '', ...]\nE     \nE     At index 1 diff: '\"unterminated' != '\"unterminated,two\\\\'\nE     Left contains 2 more items, first extra item: ''\nE     Use -v to get more diff\n__________________ test_get_list_repeated_headers[\\\\-X-List] ___________________\ntests/models/test_headers_get_list.py:108: in test_get_list_repeated_headers\n    assert headers.get_list(key, split_commas=True) == [\nE   assert ['one', '\"unt...c', 'd\"', ...] == ['one', '\"unt...ree', '', ...]\nE     \nE     At index 1 diff: '\"unterminated' != '\"unterminated,two\\\\'\nE     Left contains 2 more items, first extra item: ''\nE     Use -v to get more diff\n__________________ test_get_list_repeated_headers[\\\\-X-LIST] ___________________\ntests/models/test_headers_get_list.py:108: in test_get_list_repeated_headers\n    assert headers.get_list(key, split_commas=True) == [\nE   assert ['one', '\"unt...c', 'd\"', ...] == ['one', '\"unt...ree', '', ...]\nE     \nE     At index 1 diff: '\"unterminated' != '\"unterminated,two\\\\'\nE     Left contains 2 more items, first extra item: ''\nE     Use -v to get more diff\n25 failed, 8 passed in 0.07s\n",
+        "command": "/bin/zsh -lc '<PROJECT>/.cache/agent-grep-2026-10-15/runtime-env/bin/python -m pytest tests/models/test_headers_get_list.py -q --tb=short'",
+        "exit_code": 1,
+        "id": "item_12",
+        "status": "failed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 250509.015475958,
+      "perf_counter_ns": 250509015459750,
+      "utc": "2026-10-16T12:35:16.903514+00:00",
+      "wall_time_ns": 1792154116903514000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "changes": [
+          {
+            "kind": "update",
+            "path": "<WORKSPACE>/httpx/_models.py"
+          }
+        ],
+        "id": "item_13",
+        "status": "in_progress",
+        "type": "file_change"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 250517.173226333,
+      "perf_counter_ns": 250517173195041,
+      "utc": "2026-10-16T12:35:25.061493+00:00",
+      "wall_time_ns": 1792154125061493000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "changes": [
+          {
+            "kind": "update",
+            "path": "<WORKSPACE>/httpx/_models.py"
+          }
+        ],
+        "id": "item_13",
+        "status": "completed",
+        "type": "file_change"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 250517.216309375,
+      "perf_counter_ns": 250517216280791,
+      "utc": "2026-10-16T12:35:25.104581+00:00",
+      "wall_time_ns": 1792154125104581000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc '<PROJECT>/.cache/agent-grep-2026-10-15/runtime-env/bin/python -m pytest tests/models/test_headers_get_list.py tests/models/test_headers.py tests/client/test_headers.py -q --tb=short'",
+        "exit_code": null,
+        "id": "item_14",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 250517.371251958,
+      "perf_counter_ns": 250517371241041,
+      "utc": "2026-10-16T12:35:25.259547+00:00",
+      "wall_time_ns": 1792154125259547000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "........................................................................ [ 93%]\n.....                                                                    [100%]\n77 passed in 0.11s\n",
+        "command": "/bin/zsh -lc '<PROJECT>/.cache/agent-grep-2026-10-15/runtime-env/bin/python -m pytest tests/models/test_headers_get_list.py tests/models/test_headers.py tests/client/test_headers.py -q --tb=short'",
+        "exit_code": 0,
+        "id": "item_14",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 250517.734363875,
+      "perf_counter_ns": 250517734346333,
+      "utc": "2026-10-16T12:35:25.622662+00:00",
+      "wall_time_ns": 1792154125622662000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "id": "item_15",
+        "text": "All 77 tests passed, including the 33 new regression cases and the existing model and client header tests. The regressions reproduced 25 failures before the fix. I\u2019m checking the final diff for formatting and unintended changes.",
+        "type": "agent_message"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 250538.981194666,
+      "perf_counter_ns": 250538981147291,
+      "utc": "2026-10-16T12:35:46.870099+00:00",
+      "wall_time_ns": 1792154146870099000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -c 'git diff --no-index -- /dev/null tests/models/test_headers_get_list.py'",
+        "exit_code": null,
+        "id": "item_16",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 250540.977046458,
+      "perf_counter_ns": 250540977029958,
+      "utc": "2026-10-16T12:35:48.866043+00:00",
+      "wall_time_ns": 1792154148866043000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "diff --git a/tests/models/test_headers_get_list.py b/tests/models/test_headers_get_list.py\nnew file mode 100644\nindex 0000000..09017d0\n--- /dev/null\n+++ b/tests/models/test_headers_get_list.py\n@@ -0,0 +1,125 @@\n+import pytest\n+\n+import httpx\n+\n+\n+@pytest.mark.parametrize(\n+    \"value, expected\",\n+    [\n+        pytest.param(\"a, b,c\", [\"a\", \"b\", \"c\"], id=\"unquoted\"),\n+        pytest.param('\"a,b\"', ['\"a,b\"'], id=\"quoted\"),\n+        pytest.param('a, \"b,c\", d', [\"a\", '\"b,c\"', \"d\"], id=\"mixed\"),\n+        pytest.param(\n+            'text/plain; title=\"a,b\", text/html',\n+            ['text/plain; title=\"a,b\"', \"text/html\"],\n+            id=\"quoted-parameter\",\n+        ),\n+        pytest.param(\n+            'text/plain; title=\"a,b\"; note=\"c,d\", text/html',\n+            ['text/plain; title=\"a,b\"; note=\"c,d\"', \"text/html\"],\n+            id=\"multiple-quoted-parameters\",\n+        ),\n+        pytest.param(\n+            'ab\"c,d\"ef\"g,h\", next',\n+            ['ab\"c,d\"ef\"g,h\"', \"next\"],\n+            id=\"embedded-quotes\",\n+        ),\n+        pytest.param(\n+            ' \\t \" a,\\t b \" \\t, \\t text/plain;  title=\" c, d \" \\t',\n+            ['\" a,\\t b \"', 'text/plain;  title=\" c, d \"'],\n+            id=\"whitespace\",\n+        ),\n+        pytest.param(r'\"a\\\",b\", c', [r'\"a\\\",b\"', \"c\"], id=\"escaped-quote\"),\n+        pytest.param(\n+            r'text/plain; title=\"a\\\",b\", text/html',\n+            [r'text/plain; title=\"a\\\",b\"', \"text/html\"],\n+            id=\"escaped-quote-in-parameter\",\n+        ),\n+        pytest.param(\n+            r'\"a\\\\\", b, \"c,d\"',\n+            [r'\"a\\\\\"', \"b\", '\"c,d\"'],\n+            id=\"escaped-backslash-before-quote\",\n+        ),\n+        pytest.param(\n+            r'\"a\\\\\\\",b\", c',\n+            [r'\"a\\\\\\\",b\"', \"c\"],\n+            id=\"escaped-backslash-and-quote\",\n+        ),\n+        pytest.param(r'\"a\\,b\", c', [r'\"a\\,b\"', \"c\"], id=\"escaped-comma\"),\n+        pytest.param(\n+            r'\"a\\qb,c\", d',\n+            [r'\"a\\qb,c\"', \"d\"],\n+            id=\"escaped-ordinary-character\",\n+        ),\n+        pytest.param(r'a\\,b', [\"a\\\\\", \"b\"], id=\"unquoted-backslash-comma\"),\n+        pytest.param(\n+            r'a\\\"b,c\", d',\n+            [r'a\\\"b,c\"', \"d\"],\n+            id=\"unquoted-backslash-quote\",\n+        ),\n+        pytest.param(\"'a,b', c\", [\"'a\", \"b'\", \"c\"], id=\"single-quotes\"),\n+        pytest.param(\n+            '\"a\\'b,c\", d', ['\"a\\'b,c\"', \"d\"], id=\"single-quote-in-double-quotes\"\n+        ),\n+        pytest.param(\"\", [\"\"], id=\"empty-header\"),\n+        pytest.param(\" \\t \", [\"\"], id=\"whitespace-header\"),\n+        pytest.param(\n+            ', a,, \"b,c\", ', [\"\", \"a\", \"\", '\"b,c\"', \"\"], id=\"empty-members\"\n+        ),\n+        pytest.param(\n+            ',, \"\", ,', [\"\", \"\", '\"\"', \"\", \"\"], id=\"quoted-and-unquoted-empty\"\n+        ),\n+        pytest.param('a, \"b,c, d', [\"a\", '\"b,c, d'], id=\"unmatched-quote\"),\n+        pytest.param(\n+            'a, text/plain; title=\"b,c, d',\n+            [\"a\", 'text/plain; title=\"b,c, d'],\n+            id=\"unmatched-parameter-quote\",\n+        ),\n+        pytest.param(\n+            'a, \"b,c' + \"\\\\\",\n+            [\"a\", '\"b,c' + \"\\\\\"],\n+            id=\"unmatched-quote-trailing-backslash\",\n+        ),\n+        pytest.param(\n+            r'a, \"b\\\",c, d', [\"a\", r'\"b\\\",c, d'], id=\"unmatched-escaped-quote\"\n+        ),\n+    ],\n+)\n+def test_get_list_split_commas(value, expected):\n+    headers = httpx.Headers({\"X-List\": value})\n+\n+    assert headers.get_list(\"x-list\", split_commas=True) == expected\n+\n+\n+@pytest.mark.parametrize(\"key\", [\"x-list\", \"X-List\", \"X-LIST\"])\n+@pytest.mark.parametrize(\"suffix\", [\"\", \"\\\\\"])\n+def test_get_list_repeated_headers(key, suffix):\n+    first_value = 'one, \"unterminated,two' + suffix\n+    second_value = ' , two; title=\"c,d\",three, '\n+    raw_headers = [\n+        (b\"X-List\", first_value.encode(\"ascii\")),\n+        (b\"Other\", b'\"ignored, value'),\n+        (b\"x-LIST\", second_value.encode(\"ascii\")),\n+        (b\"X-list\", b\"\"),\n+    ]\n+    headers = httpx.Headers(raw_headers)\n+\n+    assert headers.get_list(key) == [first_value, second_value, \"\"]\n+    assert headers.get_list(key, split_commas=True) == [\n+        \"one\",\n+        '\"unterminated,two' + suffix,\n+        \"\",\n+        'two; title=\"c,d\"',\n+        \"three\",\n+        \"\",\n+        \"\",\n+    ]\n+    assert headers.get_list(key, split_commas=False) == [first_value, second_value, \"\"]\n+    assert headers.raw == raw_headers\n+\n+\n+@pytest.mark.parametrize(\"split_commas\", [False, True])\n+def test_get_list_missing_header(split_commas):\n+    headers = httpx.Headers({\"Other\": '\"a,b\"'})\n+\n+    assert headers.get_list(\"missing\", split_commas=split_commas) == []\n",
+        "command": "/bin/zsh -c 'git diff --no-index -- /dev/null tests/models/test_headers_get_list.py'",
+        "exit_code": 1,
+        "id": "item_16",
+        "status": "failed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 250540.977739416,
+      "perf_counter_ns": 250540977731125,
+      "utc": "2026-10-16T12:35:48.866745+00:00",
+      "wall_time_ns": 1792154148866745000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -c 'git diff -- httpx/_models.py'",
+        "exit_code": null,
+        "id": "item_17",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 250540.978414583,
+      "perf_counter_ns": 250540978406541,
+      "utc": "2026-10-16T12:35:48.867420+00:00",
+      "wall_time_ns": 1792154148867420000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -c 'git diff --check'",
+        "exit_code": null,
+        "id": "item_18",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 250540.978991708,
+      "perf_counter_ns": 250540978983916,
+      "utc": "2026-10-16T12:35:48.867998+00:00",
+      "wall_time_ns": 1792154148867998000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "diff --git a/httpx/_models.py b/httpx/_models.py\nindex 67d74bf..9303cb8 100644\n--- a/httpx/_models.py\n+++ b/httpx/_models.py\n@@ -253,7 +253,8 @@ class Headers(typing.MutableMapping[str, str]):\n         \"\"\"\n         Return a list of all header values for a given key.\n         If `split_commas=True` is passed, then any comma separated header\n-        values are split into multiple return strings.\n+        values are split into multiple return strings. Commas within double-quoted\n+        strings are ignored.\n         \"\"\"\n         get_header_key = key.lower().encode(self.encoding)\n \n@@ -268,7 +269,23 @@ class Headers(typing.MutableMapping[str, str]):\n \n         split_values = []\n         for value in values:\n-            split_values.extend([item.strip() for item in value.split(\",\")])\n+            start = 0\n+            in_quotes = False\n+            escaped = False\n+            for index, char in enumerate(value):\n+                if in_quotes:\n+                    if escaped:\n+                        escaped = False\n+                    elif char == \"\\\\\":\n+                        escaped = True\n+                    elif char == '\"':\n+                        in_quotes = False\n+                elif char == '\"':\n+                    in_quotes = True\n+                elif char == \",\":\n+                    split_values.append(value[start:index].strip())\n+                    start = index + 1\n+            split_values.append(value[start:].strip())\n         return split_values\n \n     def update(self, headers: HeaderTypes | None = None) -> None:  # type: ignore\n",
+        "command": "/bin/zsh -c 'git diff -- httpx/_models.py'",
+        "exit_code": 0,
+        "id": "item_17",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 250540.979514708,
+      "perf_counter_ns": 250540979509375,
+      "utc": "2026-10-16T12:35:48.868523+00:00",
+      "wall_time_ns": 1792154148868523000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -c 'git diff --check'",
+        "exit_code": 0,
+        "id": "item_18",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 250540.980152875,
+      "perf_counter_ns": 250540980147583,
+      "utc": "2026-10-16T12:35:48.869161+00:00",
+      "wall_time_ns": 1792154148869161000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -c 'git status --short'",
+        "exit_code": null,
+        "id": "item_19",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 250540.980881041,
+      "perf_counter_ns": 250540980875750,
+      "utc": "2026-10-16T12:35:48.869890+00:00",
+      "wall_time_ns": 1792154148869890000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": " M httpx/_models.py\n?? tests/models/test_headers_get_list.py\n",
+        "command": "/bin/zsh -c 'git status --short'",
+        "exit_code": 0,
+        "id": "item_19",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 250540.981549541,
+      "perf_counter_ns": 250540981545500,
+      "utc": "2026-10-16T12:35:48.870559+00:00",
+      "wall_time_ns": 1792154148870559000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "id": "item_20",
+        "text": "Implemented quote-aware comma splitting with correct backslash handling, empty-member preservation, and parser resets between repeated headers. Original spelling, header order, default behavior, and raw storage are preserved.\n\nAdded 33 regression cases in a new test file; existing tests remain unchanged.\n\nChecks: **77 tests passed** across new regressions and existing header tests. `git diff --check` passed.",
+        "type": "agent_message"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 250548.502524541,
+      "perf_counter_ns": 250548502463250,
+      "utc": "2026-10-16T12:35:56.391701+00:00",
+      "wall_time_ns": 1792154156391701000
+    }
+  },
+  {
+    "event": {
+      "type": "turn.completed",
+      "usage": {
+        "cache_write_input_tokens": 0,
+        "cached_input_tokens": 120448,
+        "input_tokens": 162436,
+        "output_tokens": 5319,
+        "reasoning_output_tokens": 2271
+      }
+    },
+    "received": {
+      "monotonic_s": 250548.542792541,
+      "perf_counter_ns": 250548542763333,
+      "utc": "2026-10-16T12:35:56.432002+00:00",
+      "wall_time_ns": 1792154156432002000
+    }
+  }
+]

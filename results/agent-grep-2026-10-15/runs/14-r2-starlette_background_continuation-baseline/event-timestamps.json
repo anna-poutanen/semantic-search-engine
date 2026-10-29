@@ -1,0 +1,867 @@
+[
+  {
+    "event": {
+      "thread_id": "01a144b1-4dbf-7e52-ab79-5e3e635b014c",
+      "type": "thread.started"
+    },
+    "received": {
+      "monotonic_s": 250225.070517375,
+      "perf_counter_ns": 250225070502208,
+      "utc": "2026-10-16T12:30:32.950038+00:00",
+      "wall_time_ns": 1792153832950038000
+    }
+  },
+  {
+    "event": {
+      "type": "turn.started"
+    },
+    "received": {
+      "monotonic_s": 250225.071823958,
+      "perf_counter_ns": 250225071818833,
+      "utc": "2026-10-16T12:30:32.951356+00:00",
+      "wall_time_ns": 1792153832951356000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "id": "item_0",
+        "text": "I\u2019ll locate the background task code and test setup, add the option, then run new regressions and relevant existing tests on asyncio and Trio.",
+        "type": "agent_message"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 250229.56466,
+      "perf_counter_ns": 250229564620750,
+      "utc": "2026-10-16T12:30:37.444291+00:00",
+      "wall_time_ns": 1792153837444291000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"pwd && rg --files -g 'AGENTS.md' -g 'pyproject.toml' -g '*background*' -g 'conftest.py' -g 'tox.ini' -g 'setup.cfg' -g 'pytest.ini' -g 'SKILL.md' -g 'requirements*.txt' -g 'README*' -g 'setup.py'\"",
+        "exit_code": null,
+        "id": "item_1",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 250231.36338675,
+      "perf_counter_ns": 250231363376666,
+      "utc": "2026-10-16T12:30:39.243102+00:00",
+      "wall_time_ns": 1792153839243102000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "<WORKSPACE>\nscripts/README.md\nREADME.md\ndocs/background.md\ntests/test_background.py\ntests/conftest.py\npyproject.toml\nstarlette/background.py\nrequirements.txt\n",
+        "command": "/bin/zsh -lc \"pwd && rg --files -g 'AGENTS.md' -g 'pyproject.toml' -g '*background*' -g 'conftest.py' -g 'tox.ini' -g 'setup.cfg' -g 'pytest.ini' -g 'SKILL.md' -g 'requirements*.txt' -g 'README*' -g 'setup.py'\"",
+        "exit_code": 0,
+        "id": "item_1",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 250231.363843166,
+      "perf_counter_ns": 250231363839541,
+      "utc": "2026-10-16T12:30:39.243565+00:00",
+      "wall_time_ns": 1792153839243565000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"sed -n '1,240p' starlette/background.py && sed -n '1,260p' tests/test_background.py && sed -n '1,240p' tests/conftest.py && sed -n '1,240p' pyproject.toml && cat requirements.txt && sed -n '1,220p' docs/background.md\"",
+        "exit_code": null,
+        "id": "item_2",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 250235.930619958,
+      "perf_counter_ns": 250235930604583,
+      "utc": "2026-10-16T12:30:43.810467+00:00",
+      "wall_time_ns": 1792153843810467000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "from __future__ import annotations\n\nimport sys\nimport typing\n\nif sys.version_info >= (3, 10):  # pragma: no cover\n    from typing import ParamSpec\nelse:  # pragma: no cover\n    from typing_extensions import ParamSpec\n\nfrom starlette._utils import is_async_callable\nfrom starlette.concurrency import run_in_threadpool\n\nP = ParamSpec(\"P\")\n\n\nclass BackgroundTask:\n    def __init__(self, func: typing.Callable[P, typing.Any], *args: P.args, **kwargs: P.kwargs) -> None:\n        self.func = func\n        self.args = args\n        self.kwargs = kwargs\n        self.is_async = is_async_callable(func)\n\n    async def __call__(self) -> None:\n        if self.is_async:\n            await self.func(*self.args, **self.kwargs)\n        else:\n            await run_in_threadpool(self.func, *self.args, **self.kwargs)\n\n\nclass BackgroundTasks(BackgroundTask):\n    def __init__(self, tasks: typing.Sequence[BackgroundTask] | None = None):\n        self.tasks = list(tasks) if tasks else []\n\n    def add_task(self, func: typing.Callable[P, typing.Any], *args: P.args, **kwargs: P.kwargs) -> None:\n        task = BackgroundTask(func, *args, **kwargs)\n        self.tasks.append(task)\n\n    async def __call__(self) -> None:\n        for task in self.tasks:\n            await task()\nimport pytest\n\nfrom starlette.background import BackgroundTask, BackgroundTasks\nfrom starlette.responses import Response\nfrom starlette.types import Receive, Scope, Send\nfrom tests.types import TestClientFactory\n\n\ndef test_async_task(test_client_factory: TestClientFactory) -> None:\n    TASK_COMPLETE = False\n\n    async def async_task() -> None:\n        nonlocal TASK_COMPLETE\n        TASK_COMPLETE = True\n\n    task = BackgroundTask(async_task)\n\n    async def app(scope: Scope, receive: Receive, send: Send) -> None:\n        response = Response(\"task initiated\", media_type=\"text/plain\", background=task)\n        await response(scope, receive, send)\n\n    client = test_client_factory(app)\n    response = client.get(\"/\")\n    assert response.text == \"task initiated\"\n    assert TASK_COMPLETE\n\n\ndef test_sync_task(test_client_factory: TestClientFactory) -> None:\n    TASK_COMPLETE = False\n\n    def sync_task() -> None:\n        nonlocal TASK_COMPLETE\n        TASK_COMPLETE = True\n\n    task = BackgroundTask(sync_task)\n\n    async def app(scope: Scope, receive: Receive, send: Send) -> None:\n        response = Response(\"task initiated\", media_type=\"text/plain\", background=task)\n        await response(scope, receive, send)\n\n    client = test_client_factory(app)\n    response = client.get(\"/\")\n    assert response.text == \"task initiated\"\n    assert TASK_COMPLETE\n\n\ndef test_multiple_tasks(test_client_factory: TestClientFactory) -> None:\n    TASK_COUNTER = 0\n\n    def increment(amount: int) -> None:\n        nonlocal TASK_COUNTER\n        TASK_COUNTER += amount\n\n    async def app(scope: Scope, receive: Receive, send: Send) -> None:\n        tasks = BackgroundTasks()\n        tasks.add_task(increment, amount=1)\n        tasks.add_task(increment, amount=2)\n        tasks.add_task(increment, amount=3)\n        response = Response(\"tasks initiated\", media_type=\"text/plain\", background=tasks)\n        await response(scope, receive, send)\n\n    client = test_client_factory(app)\n    response = client.get(\"/\")\n    assert response.text == \"tasks initiated\"\n    assert TASK_COUNTER == 1 + 2 + 3\n\n\ndef test_multi_tasks_failure_avoids_next_execution(\n    test_client_factory: TestClientFactory,\n) -> None:\n    TASK_COUNTER = 0\n\n    def increment() -> None:\n        nonlocal TASK_COUNTER\n        TASK_COUNTER += 1\n        if TASK_COUNTER == 1:  # pragma: no branch\n            raise Exception(\"task failed\")\n\n    async def app(scope: Scope, receive: Receive, send: Send) -> None:\n        tasks = BackgroundTasks()\n        tasks.add_task(increment)\n        tasks.add_task(increment)\n        response = Response(\"tasks initiated\", media_type=\"text/plain\", background=tasks)\n        await response(scope, receive, send)\n\n    client = test_client_factory(app)\n    with pytest.raises(Exception):\n        client.get(\"/\")\n    assert TASK_COUNTER == 1\nfrom __future__ import annotations\n\nimport functools\nfrom typing import Any, Literal\n\nimport pytest\n\nfrom starlette.testclient import TestClient\nfrom tests.types import TestClientFactory\n\n\n@pytest.fixture\ndef test_client_factory(\n    anyio_backend_name: Literal[\"asyncio\", \"trio\"],\n    anyio_backend_options: dict[str, Any],\n) -> TestClientFactory:\n    # anyio_backend_name defined by:\n    # https://anyio.readthedocs.io/en/stable/testing.html#specifying-the-backends-to-run-on\n    return functools.partial(\n        TestClient,\n        backend=anyio_backend_name,\n        backend_options=anyio_backend_options,\n    )\n[build-system]\nrequires = [\"hatchling\"]\nbuild-backend = \"hatchling.build\"\n\n[project]\nname = \"starlette\"\ndynamic = [\"version\"]\ndescription = \"The little ASGI library that shines.\"\nreadme = \"README.md\"\nlicense = \"BSD-3-Clause\"\nrequires-python = \">=3.9\"\nauthors = [{ name = \"Tom Christie\", email = \"tom@tomchristie.com\" }]\nclassifiers = [\n    \"Development Status :: 3 - Alpha\",\n    \"Environment :: Web Environment\",\n    \"Framework :: AnyIO\",\n    \"Intended Audience :: Developers\",\n    \"License :: OSI Approved :: BSD License\",\n    \"Operating System :: OS Independent\",\n    \"Programming Language :: Python :: 3\",\n    \"Programming Language :: Python :: 3.9\",\n    \"Programming Language :: Python :: 3.10\",\n    \"Programming Language :: Python :: 3.11\",\n    \"Programming Language :: Python :: 3.12\",\n    \"Programming Language :: Python :: 3.13\",\n    \"Topic :: Internet :: WWW/HTTP\",\n]\ndependencies = [\n    \"anyio>=3.6.2,<5\",\n    \"typing_extensions>=3.10.0; python_version < '3.10'\",\n]\n\n[project.optional-dependencies]\nfull = [\n    \"itsdangerous\",\n    \"jinja2\",\n    \"python-multipart>=0.0.18\",\n    \"pyyaml\",\n    \"httpx>=0.27.0,<0.29.0\",\n]\n\n[project.urls]\nHomepage = \"https://github.com/encode/starlette\"\nDocumentation = \"https://www.starlette.io/\"\nChangelog = \"https://www.starlette.io/release-notes/\"\nFunding = \"https://github.com/sponsors/encode\"\nSource = \"https://github.com/encode/starlette\"\n\n[tool.hatch.version]\npath = \"starlette/__init__.py\"\n\n[tool.ruff]\nline-length = 120\n\n[tool.ruff.lint]\nselect = [\n    \"E\",      # https://docs.astral.sh/ruff/rules/#error-e\n    \"F\",      # https://docs.astral.sh/ruff/rules/#pyflakes-f\n    \"I\",      # https://docs.astral.sh/ruff/rules/#isort-i\n    \"FA\",     # https://docs.astral.sh/ruff/rules/#flake8-future-annotations-fa\n    \"UP\",     # https://docs.astral.sh/ruff/rules/#pyupgrade-up\n    \"RUF100\", # https://docs.astral.sh/ruff/rules/#ruff-specific-rules-ruf\n]\nignore = [\"UP031\"] # https://docs.astral.sh/ruff/rules/printf-string-formatting/\n\n[tool.ruff.lint.isort]\ncombine-as-imports = true\n\n[tool.mypy]\nstrict = true\n\n[[tool.mypy.overrides]]\nmodule = \"starlette.testclient.*\"\nimplicit_optional = true\n\n[tool.pytest.ini_options]\naddopts = \"-rXs --strict-config --strict-markers\"\nxfail_strict = true\nfilterwarnings = [\n    # Turn warnings that aren't filtered into exceptions\n    \"error\",\n    \"ignore: run_until_first_complete is deprecated and will be removed in a future version.:DeprecationWarning\",\n    \"ignore: starlette.middleware.wsgi is deprecated and will be removed in a future release.*:DeprecationWarning\",\n    \"ignore: Async generator 'starlette.requests.Request.stream' was garbage collected before it had been exhausted.*:ResourceWarning\",\n    \"ignore: Use 'content=<...>' to upload raw bytes/text content.:DeprecationWarning\",\n]\n\n[tool.coverage.run]\nsource_pkgs = [\"starlette\", \"tests\"]\n\n[tool.coverage.report]\nexclude_lines = [\n    \"pragma: no cover\",\n    \"if typing.TYPE_CHECKING:\",\n    \"@typing.overload\",\n    \"raise NotImplementedError\",\n]\n# Optionals\n-e .[full]\n\n# Testing\ncoverage==7.6.10\nimportlib-metadata==8.5.0\nmypy==1.14.1\nruff==0.8.5\ntyping_extensions==4.12.2\ntypes-contextvars==2.4.7.3\ntypes-PyYAML==6.0.12.20241230\ntypes-dataclasses==0.6.6\npytest==8.3.4\ntrio==0.28.0\n\n# Documentation\nblack==24.10.0\nmkdocs==1.6.1\nmkdocs-material==9.5.49\nmkdocstrings-python==1.13.0\n\n# Packaging\nbuild==1.2.2.post1\ntwine==6.0.1\n\nStarlette includes a `BackgroundTask` class for in-process background tasks.\n\nA background task should be attached to a response, and will run only once\nthe response has been sent.\n\n### Background Task\n\nUsed to add a single background task to a response.\n\nSignature: `BackgroundTask(func, *args, **kwargs)`\n\n```python\nfrom starlette.applications import Starlette\nfrom starlette.responses import JSONResponse\nfrom starlette.routing import Route\nfrom starlette.background import BackgroundTask\n\n\n...\n\nasync def signup(request):\n    data = await request.json()\n    username = data['username']\n    email = data['email']\n    task = BackgroundTask(send_welcome_email, to_address=email)\n    message = {'status': 'Signup successful'}\n    return JSONResponse(message, background=task)\n\nasync def send_welcome_email(to_address):\n    ...\n\n\nroutes = [\n    ...\n    Route('/user/signup', endpoint=signup, methods=['POST'])\n]\n\napp = Starlette(routes=routes)\n```\n\n### BackgroundTasks\n\nUsed to add multiple background tasks to a response.\n\nSignature: `BackgroundTasks(tasks=[])`\n\n```python\nfrom starlette.applications import Starlette\nfrom starlette.responses import JSONResponse\nfrom starlette.background import BackgroundTasks\n\nasync def signup(request):\n    data = await request.json()\n    username = data['username']\n    email = data['email']\n    tasks = BackgroundTasks()\n    tasks.add_task(send_welcome_email, to_address=email)\n    tasks.add_task(send_admin_notification, username=username)\n    message = {'status': 'Signup successful'}\n    return JSONResponse(message, background=tasks)\n\nasync def send_welcome_email(to_address):\n    ...\n\nasync def send_admin_notification(username):\n    ...\n\nroutes = [\n    Route('/user/signup', endpoint=signup, methods=['POST'])\n]\n\napp = Starlette(routes=routes)\n```\n\n!!! important\n    The tasks are executed in order. In case one of the tasks raises\n    an exception, the following tasks will not get the opportunity to be executed.\n",
+        "command": "/bin/zsh -lc \"sed -n '1,240p' starlette/background.py && sed -n '1,260p' tests/test_background.py && sed -n '1,240p' tests/conftest.py && sed -n '1,240p' pyproject.toml && cat requirements.txt && sed -n '1,220p' docs/background.md\"",
+        "exit_code": 0,
+        "id": "item_2",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 250235.931115541,
+      "perf_counter_ns": 250235931110125,
+      "utc": "2026-10-16T12:30:43.810973+00:00",
+      "wall_time_ns": 1792153843810973000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"git status --short && rg --files --hidden -g AGENTS.md -g '\"'!'\"\\\\.git/**' -g '\"'!'\"\\\\.cache/**' && rg -n 'class Background|BackgroundTask|background\\\\(' starlette/background.py starlette/responses.py tests/test_background.py tests/conftest.py docs/background.md pyproject.toml requirements.txt\"",
+        "exit_code": null,
+        "id": "item_3",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 250235.932892,
+      "perf_counter_ns": 250235932884375,
+      "utc": "2026-10-16T12:30:43.812747+00:00",
+      "wall_time_ns": 1792153843812747000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"git status --short && rg --files --hidden -g AGENTS.md -g '\"'!'\"\\\\.git/**' -g '\"'!'\"\\\\.cache/**' && rg -n 'class Background|BackgroundTask|background\\\\(' starlette/background.py starlette/responses.py tests/test_background.py tests/conftest.py docs/background.md pyproject.toml requirements.txt\"",
+        "exit_code": 1,
+        "id": "item_3",
+        "status": "failed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 250235.933396208,
+      "perf_counter_ns": 250235933391750,
+      "utc": "2026-10-16T12:30:43.813254+00:00",
+      "wall_time_ns": 1792153843813254000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"<PROJECT>/.cache/agent-grep-2026-10-15/runtime-env/bin/python -c 'import importlib.util, sys; print(sys.version); print({name: importlib.util.find_spec(name) is not None for name in (\\\"pytest\\\", \\\"anyio\\\", \\\"trio\\\", \\\"httpx\\\", \\\"ruff\\\", \\\"mypy\\\", \\\"coverage\\\")})' && sed -n '1,210p' starlette/responses.py && sed -n '1,150p' starlette/concurrency.py && sed -n '1,230p' tests/test_exceptions.py\"",
+        "exit_code": null,
+        "id": "item_4",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 250254.808181208,
+      "perf_counter_ns": 250254808162791,
+      "utc": "2026-10-16T12:31:02.688591+00:00",
+      "wall_time_ns": 1792153862688591000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "3.12.15 (main, Oct  9 2026, 15:10:57) [Clang 22.1.3 ]\n{'pytest': True, 'anyio': True, 'trio': True, 'httpx': True, 'ruff': True, 'mypy': False, 'coverage': False}\nfrom __future__ import annotations\n\nimport hashlib\nimport http.cookies\nimport json\nimport os\nimport re\nimport stat\nimport typing\nimport warnings\nfrom datetime import datetime\nfrom email.utils import format_datetime, formatdate\nfrom functools import partial\nfrom mimetypes import guess_type\nfrom secrets import token_hex\nfrom urllib.parse import quote\n\nimport anyio\nimport anyio.to_thread\n\nfrom starlette.background import BackgroundTask\nfrom starlette.concurrency import iterate_in_threadpool\nfrom starlette.datastructures import URL, Headers, MutableHeaders\nfrom starlette.requests import ClientDisconnect\nfrom starlette.types import Receive, Scope, Send\n\n\nclass Response:\n    media_type = None\n    charset = \"utf-8\"\n\n    def __init__(\n        self,\n        content: typing.Any = None,\n        status_code: int = 200,\n        headers: typing.Mapping[str, str] | None = None,\n        media_type: str | None = None,\n        background: BackgroundTask | None = None,\n    ) -> None:\n        self.status_code = status_code\n        if media_type is not None:\n            self.media_type = media_type\n        self.background = background\n        self.body = self.render(content)\n        self.init_headers(headers)\n\n    def render(self, content: typing.Any) -> bytes | memoryview:\n        if content is None:\n            return b\"\"\n        if isinstance(content, (bytes, memoryview)):\n            return content\n        return content.encode(self.charset)  # type: ignore\n\n    def init_headers(self, headers: typing.Mapping[str, str] | None = None) -> None:\n        if headers is None:\n            raw_headers: list[tuple[bytes, bytes]] = []\n            populate_content_length = True\n            populate_content_type = True\n        else:\n            raw_headers = [(k.lower().encode(\"latin-1\"), v.encode(\"latin-1\")) for k, v in headers.items()]\n            keys = [h[0] for h in raw_headers]\n            populate_content_length = b\"content-length\" not in keys\n            populate_content_type = b\"content-type\" not in keys\n\n        body = getattr(self, \"body\", None)\n        if (\n            body is not None\n            and populate_content_length\n            and not (self.status_code < 200 or self.status_code in (204, 304))\n        ):\n            content_length = str(len(body))\n            raw_headers.append((b\"content-length\", content_length.encode(\"latin-1\")))\n\n        content_type = self.media_type\n        if content_type is not None and populate_content_type:\n            if content_type.startswith(\"text/\") and \"charset=\" not in content_type.lower():\n                content_type += \"; charset=\" + self.charset\n            raw_headers.append((b\"content-type\", content_type.encode(\"latin-1\")))\n\n        self.raw_headers = raw_headers\n\n    @property\n    def headers(self) -> MutableHeaders:\n        if not hasattr(self, \"_headers\"):\n            self._headers = MutableHeaders(raw=self.raw_headers)\n        return self._headers\n\n    def set_cookie(\n        self,\n        key: str,\n        value: str = \"\",\n        max_age: int | None = None,\n        expires: datetime | str | int | None = None,\n        path: str | None = \"/\",\n        domain: str | None = None,\n        secure: bool = False,\n        httponly: bool = False,\n        samesite: typing.Literal[\"lax\", \"strict\", \"none\"] | None = \"lax\",\n    ) -> None:\n        cookie: http.cookies.BaseCookie[str] = http.cookies.SimpleCookie()\n        cookie[key] = value\n        if max_age is not None:\n            cookie[key][\"max-age\"] = max_age\n        if expires is not None:\n            if isinstance(expires, datetime):\n                cookie[key][\"expires\"] = format_datetime(expires, usegmt=True)\n            else:\n                cookie[key][\"expires\"] = expires\n        if path is not None:\n            cookie[key][\"path\"] = path\n        if domain is not None:\n            cookie[key][\"domain\"] = domain\n        if secure:\n            cookie[key][\"secure\"] = True\n        if httponly:\n            cookie[key][\"httponly\"] = True\n        if samesite is not None:\n            assert samesite.lower() in [\n                \"strict\",\n                \"lax\",\n                \"none\",\n            ], \"samesite must be either 'strict', 'lax' or 'none'\"\n            cookie[key][\"samesite\"] = samesite\n        cookie_val = cookie.output(header=\"\").strip()\n        self.raw_headers.append((b\"set-cookie\", cookie_val.encode(\"latin-1\")))\n\n    def delete_cookie(\n        self,\n        key: str,\n        path: str = \"/\",\n        domain: str | None = None,\n        secure: bool = False,\n        httponly: bool = False,\n        samesite: typing.Literal[\"lax\", \"strict\", \"none\"] | None = \"lax\",\n    ) -> None:\n        self.set_cookie(\n            key,\n            max_age=0,\n            expires=0,\n            path=path,\n            domain=domain,\n            secure=secure,\n            httponly=httponly,\n            samesite=samesite,\n        )\n\n    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:\n        prefix = \"websocket.\" if scope[\"type\"] == \"websocket\" else \"\"\n        await send(\n            {\n                \"type\": prefix + \"http.response.start\",\n                \"status\": self.status_code,\n                \"headers\": self.raw_headers,\n            }\n        )\n        await send({\"type\": prefix + \"http.response.body\", \"body\": self.body})\n\n        if self.background is not None:\n            await self.background()\n\n\nclass HTMLResponse(Response):\n    media_type = \"text/html\"\n\n\nclass PlainTextResponse(Response):\n    media_type = \"text/plain\"\n\n\nclass JSONResponse(Response):\n    media_type = \"application/json\"\n\n    def __init__(\n        self,\n        content: typing.Any,\n        status_code: int = 200,\n        headers: typing.Mapping[str, str] | None = None,\n        media_type: str | None = None,\n        background: BackgroundTask | None = None,\n    ) -> None:\n        super().__init__(content, status_code, headers, media_type, background)\n\n    def render(self, content: typing.Any) -> bytes:\n        return json.dumps(\n            content,\n            ensure_ascii=False,\n            allow_nan=False,\n            indent=None,\n            separators=(\",\", \":\"),\n        ).encode(\"utf-8\")\n\n\nclass RedirectResponse(Response):\n    def __init__(\n        self,\n        url: str | URL,\n        status_code: int = 307,\n        headers: typing.Mapping[str, str] | None = None,\n        background: BackgroundTask | None = None,\n    ) -> None:\n        super().__init__(content=b\"\", status_code=status_code, headers=headers, background=background)\n        self.headers[\"location\"] = quote(str(url), safe=\":/%#?=@[]!$&'()*+,;\")\n\n\nContent = typing.Union[str, bytes, memoryview]\nSyncContentStream = typing.Iterable[Content]\nAsyncContentStream = typing.AsyncIterable[Content]\nContentStream = typing.Union[AsyncContentStream, SyncContentStream]\n\n\nfrom __future__ import annotations\n\nimport functools\nimport sys\nimport typing\nimport warnings\n\nimport anyio.to_thread\n\nif sys.version_info >= (3, 10):  # pragma: no cover\n    from typing import ParamSpec\nelse:  # pragma: no cover\n    from typing_extensions import ParamSpec\n\nP = ParamSpec(\"P\")\nT = typing.TypeVar(\"T\")\n\n\nasync def run_until_first_complete(*args: tuple[typing.Callable, dict]) -> None:  # type: ignore[type-arg]\n    warnings.warn(\n        \"run_until_first_complete is deprecated and will be removed in a future version.\",\n        DeprecationWarning,\n    )\n\n    async with anyio.create_task_group() as task_group:\n\n        async def run(func: typing.Callable[[], typing.Coroutine]) -> None:  # type: ignore[type-arg]\n            await func()\n            task_group.cancel_scope.cancel()\n\n        for func, kwargs in args:\n            task_group.start_soon(run, functools.partial(func, **kwargs))\n\n\nasync def run_in_threadpool(func: typing.Callable[P, T], *args: P.args, **kwargs: P.kwargs) -> T:\n    func = functools.partial(func, *args, **kwargs)\n    return await anyio.to_thread.run_sync(func)\n\n\nclass _StopIteration(Exception):\n    pass\n\n\ndef _next(iterator: typing.Iterator[T]) -> T:\n    # We can't raise `StopIteration` from within the threadpool iterator\n    # and catch it outside that context, so we coerce them into a different\n    # exception type.\n    try:\n        return next(iterator)\n    except StopIteration:\n        raise _StopIteration\n\n\nasync def iterate_in_threadpool(\n    iterator: typing.Iterable[T],\n) -> typing.AsyncIterator[T]:\n    as_iterator = iter(iterator)\n    while True:\n        try:\n            yield await anyio.to_thread.run_sync(_next, as_iterator)\n        except _StopIteration:\n            break\nfrom collections.abc import Generator\n\nimport pytest\n\nfrom starlette.exceptions import HTTPException, WebSocketException\nfrom starlette.middleware.exceptions import ExceptionMiddleware\nfrom starlette.requests import Request\nfrom starlette.responses import JSONResponse, PlainTextResponse\nfrom starlette.routing import Route, Router, WebSocketRoute\nfrom starlette.testclient import TestClient\nfrom starlette.types import Receive, Scope, Send\nfrom tests.types import TestClientFactory\n\n\ndef raise_runtime_error(request: Request) -> None:\n    raise RuntimeError(\"Yikes\")\n\n\ndef not_acceptable(request: Request) -> None:\n    raise HTTPException(status_code=406)\n\n\ndef no_content(request: Request) -> None:\n    raise HTTPException(status_code=204)\n\n\ndef not_modified(request: Request) -> None:\n    raise HTTPException(status_code=304)\n\n\ndef with_headers(request: Request) -> None:\n    raise HTTPException(status_code=200, headers={\"x-potato\": \"always\"})\n\n\nclass BadBodyException(HTTPException):\n    pass\n\n\nasync def read_body_and_raise_exc(request: Request) -> None:\n    await request.body()\n    raise BadBodyException(422)\n\n\nasync def handler_that_reads_body(request: Request, exc: BadBodyException) -> JSONResponse:\n    body = await request.body()\n    return JSONResponse(status_code=422, content={\"body\": body.decode()})\n\n\nclass HandledExcAfterResponse:\n    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:\n        response = PlainTextResponse(\"OK\", status_code=200)\n        await response(scope, receive, send)\n        raise HTTPException(status_code=406)\n\n\nrouter = Router(\n    routes=[\n        Route(\"/runtime_error\", endpoint=raise_runtime_error),\n        Route(\"/not_acceptable\", endpoint=not_acceptable),\n        Route(\"/no_content\", endpoint=no_content),\n        Route(\"/not_modified\", endpoint=not_modified),\n        Route(\"/with_headers\", endpoint=with_headers),\n        Route(\"/handled_exc_after_response\", endpoint=HandledExcAfterResponse()),\n        WebSocketRoute(\"/runtime_error\", endpoint=raise_runtime_error),\n        Route(\"/consume_body_in_endpoint_and_handler\", endpoint=read_body_and_raise_exc, methods=[\"POST\"]),\n    ]\n)\n\n\napp = ExceptionMiddleware(\n    router,\n    handlers={BadBodyException: handler_that_reads_body},  # type: ignore[dict-item]\n)\n\n\n@pytest.fixture\ndef client(test_client_factory: TestClientFactory) -> Generator[TestClient, None, None]:\n    with test_client_factory(app) as client:\n        yield client\n\n\ndef test_not_acceptable(client: TestClient) -> None:\n    response = client.get(\"/not_acceptable\")\n    assert response.status_code == 406\n    assert response.text == \"Not Acceptable\"\n\n\ndef test_no_content(client: TestClient) -> None:\n    response = client.get(\"/no_content\")\n    assert response.status_code == 204\n    assert \"content-length\" not in response.headers\n\n\ndef test_not_modified(client: TestClient) -> None:\n    response = client.get(\"/not_modified\")\n    assert response.status_code == 304\n    assert response.text == \"\"\n\n\ndef test_with_headers(client: TestClient) -> None:\n    response = client.get(\"/with_headers\")\n    assert response.status_code == 200\n    assert response.headers[\"x-potato\"] == \"always\"\n\n\ndef test_websockets_should_raise(client: TestClient) -> None:\n    with pytest.raises(RuntimeError):\n        with client.websocket_connect(\"/runtime_error\"):\n            pass  # pragma: no cover\n\n\ndef test_handled_exc_after_response(test_client_factory: TestClientFactory, client: TestClient) -> None:\n    # A 406 HttpException is raised *after* the response has already been sent.\n    # The exception middleware should raise a RuntimeError.\n    with pytest.raises(RuntimeError, match=\"Caught handled exception, but response already started.\"):\n        client.get(\"/handled_exc_after_response\")\n\n    # If `raise_server_exceptions=False` then the test client will still allow\n    # us to see the response as it will have been seen by the client.\n    allow_200_client = test_client_factory(app, raise_server_exceptions=False)\n    response = allow_200_client.get(\"/handled_exc_after_response\")\n    assert response.status_code == 200\n    assert response.text == \"OK\"\n\n\ndef test_force_500_response(test_client_factory: TestClientFactory) -> None:\n    # use a sentinel variable to make sure we actually\n    # make it into the endpoint and don't get a 500\n    # from an incorrect ASGI app signature or something\n    called = False\n\n    async def app(scope: Scope, receive: Receive, send: Send) -> None:\n        nonlocal called\n        called = True\n        raise RuntimeError()\n\n    force_500_client = test_client_factory(app, raise_server_exceptions=False)\n    response = force_500_client.get(\"/\")\n    assert called\n    assert response.status_code == 500\n    assert response.text == \"\"\n\n\ndef test_http_str() -> None:\n    assert str(HTTPException(status_code=404)) == \"404: Not Found\"\n    assert str(HTTPException(404, \"Not Found: foo\")) == \"404: Not Found: foo\"\n    assert str(HTTPException(404, headers={\"key\": \"value\"})) == \"404: Not Found\"\n\n\ndef test_http_repr() -> None:\n    assert repr(HTTPException(404)) == (\"HTTPException(status_code=404, detail='Not Found')\")\n    assert repr(HTTPException(404, detail=\"Not Found: foo\")) == (\n        \"HTTPException(status_code=404, detail='Not Found: foo')\"\n    )\n\n    class CustomHTTPException(HTTPException):\n        pass\n\n    assert repr(CustomHTTPException(500, detail=\"Something custom\")) == (\n        \"CustomHTTPException(status_code=500, detail='Something custom')\"\n    )\n\n\ndef test_websocket_str() -> None:\n    assert str(WebSocketException(1008)) == \"1008: \"\n    assert str(WebSocketException(1008, \"Policy Violation\")) == \"1008: Policy Violation\"\n\n\ndef test_websocket_repr() -> None:\n    assert repr(WebSocketException(1008, reason=\"Policy Violation\")) == (\n        \"WebSocketException(code=1008, reason='Policy Violation')\"\n    )\n\n    class CustomWebSocketException(WebSocketException):\n        pass\n\n    assert (\n        repr(CustomWebSocketException(1013, reason=\"Something custom\"))\n        == \"CustomWebSocketException(code=1013, reason='Something custom')\"\n    )\n\n\ndef test_request_in_app_and_handler_is_the_same_object(client: TestClient) -> None:\n    response = client.post(\"/consume_body_in_endpoint_and_handler\", content=b\"Hello!\")\n    assert response.status_code == 422\n    assert response.json() == {\"body\": \"Hello!\"}\n",
+        "command": "/bin/zsh -lc \"<PROJECT>/.cache/agent-grep-2026-10-15/runtime-env/bin/python -c 'import importlib.util, sys; print(sys.version); print({name: importlib.util.find_spec(name) is not None for name in (\\\"pytest\\\", \\\"anyio\\\", \\\"trio\\\", \\\"httpx\\\", \\\"ruff\\\", \\\"mypy\\\", \\\"coverage\\\")})' && sed -n '1,210p' starlette/responses.py && sed -n '1,150p' starlette/concurrency.py && sed -n '1,230p' tests/test_exceptions.py\"",
+        "exit_code": 0,
+        "id": "item_4",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 250254.80877075,
+      "perf_counter_ns": 250254808765583,
+      "utc": "2026-10-16T12:31:02.689195+00:00",
+      "wall_time_ns": 1792153862689195000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"rg --files --hidden -g AGENTS.md -g '\"'!'\"\\\\.git/**' -g '\"'!'\"\\\\.cache/**'; rg -n 'BackgroundTasks|background=|get_cancelled_exc_class|cancel_scope|threading.get_ident|threading.current_thread|__traceback__' tests/test_responses.py tests/test_exceptions.py tests/test_concurrency.py tests/test_testclient.py tests/test__utils.py starlette/responses.py starlette/concurrency.py tests/types.py; sed -n '1,240p' tests/test_concurrency.py; sed -n '1,200p' tests/types.py; sed -n '1,200p' scripts/test; sed -n '1,180p' scripts/lint\"",
+        "exit_code": null,
+        "id": "item_5",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 250254.821794083,
+      "perf_counter_ns": 250254821772333,
+      "utc": "2026-10-16T12:31:02.702193+00:00",
+      "wall_time_ns": 1792153862702193000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "tests/test_responses.py:116:        response = StreamingResponse(generator, media_type=\"text/plain\", background=cleanup_task)\ntests/test_responses.py:232:        response = FileResponse(path=path, filename=\"example.png\", background=cleanup_task)\ntests/test_responses.py:569:    with anyio.move_on_after(1) as cancel_scope:\ntests/test_responses.py:571:    assert not cancel_scope.cancel_called, \"Content streaming should stop itself.\"\ntests/test_responses.py:599:    with anyio.move_on_after(1) as cancel_scope:\ntests/test_responses.py:602:    assert not cancel_scope.cancel_called, \"Content streaming should stop itself.\"\ntests/test_testclient.py:267:            except anyio.get_cancelled_exc_class():\nstarlette/concurrency.py:29:            task_group.cancel_scope.cancel()\nstarlette/responses.py:201:        super().__init__(content=b\"\", status_code=status_code, headers=headers, background=background)\nstarlette/responses.py:265:                    task_group.cancel_scope.cancel()\nfrom collections.abc import Iterator\nfrom contextvars import ContextVar\n\nimport anyio\nimport pytest\n\nfrom starlette.applications import Starlette\nfrom starlette.concurrency import iterate_in_threadpool, run_until_first_complete\nfrom starlette.requests import Request\nfrom starlette.responses import Response\nfrom starlette.routing import Route\nfrom tests.types import TestClientFactory\n\n\n@pytest.mark.anyio\nasync def test_run_until_first_complete() -> None:\n    task1_finished = anyio.Event()\n    task2_finished = anyio.Event()\n\n    async def task1() -> None:\n        task1_finished.set()\n\n    async def task2() -> None:\n        await task1_finished.wait()\n        await anyio.sleep(0)  # pragma: no cover\n        task2_finished.set()  # pragma: no cover\n\n    await run_until_first_complete((task1, {}), (task2, {}))\n    assert task1_finished.is_set()\n    assert not task2_finished.is_set()\n\n\ndef test_accessing_context_from_threaded_sync_endpoint(\n    test_client_factory: TestClientFactory,\n) -> None:\n    ctxvar: ContextVar[bytes] = ContextVar(\"ctxvar\")\n    ctxvar.set(b\"data\")\n\n    def endpoint(request: Request) -> Response:\n        return Response(ctxvar.get())\n\n    app = Starlette(routes=[Route(\"/\", endpoint)])\n    client = test_client_factory(app)\n\n    resp = client.get(\"/\")\n    assert resp.content == b\"data\"\n\n\n@pytest.mark.anyio\nasync def test_iterate_in_threadpool() -> None:\n    class CustomIterable:\n        def __iter__(self) -> Iterator[int]:\n            yield from range(3)\n\n    assert [v async for v in iterate_in_threadpool(CustomIterable())] == [0, 1, 2]\nfrom __future__ import annotations\n\nfrom typing import TYPE_CHECKING, Protocol\n\nimport httpx\n\nfrom starlette.testclient import TestClient\nfrom starlette.types import ASGIApp\n\nif TYPE_CHECKING:\n\n    class TestClientFactory(Protocol):  # pragma: no cover\n        def __call__(\n            self,\n            app: ASGIApp,\n            base_url: str = \"http://testserver\",\n            raise_server_exceptions: bool = True,\n            root_path: str = \"\",\n            cookies: httpx._types.CookieTypes | None = None,\n            headers: dict[str, str] | None = None,\n            follow_redirects: bool = True,\n            client: tuple[str, int] = (\"testclient\", 50000),\n        ) -> TestClient: ...\nelse:  # pragma: no cover\n\n    class TestClientFactory:\n        __test__ = False\n#!/bin/sh\n\nexport PREFIX=\"\"\nif [ -d 'venv' ] ; then\n    export PREFIX=\"venv/bin/\"\nfi\n\nset -ex\n\nif [ -z $GITHUB_ACTIONS ]; then\n    scripts/check\nfi\n\n# TODO: Remove this custom logic, and add `branch = true` to the `[coverage.run]` when we drop support for Python 3.9.\n# See https://github.com/encode/starlette/issues/2452.\nbranch_option=$(python -c 'import sys; print(\"--branch\" if sys.version_info >= (3, 10) else \"\")')\n${PREFIX}coverage run $branch_option -m pytest $@\n\nif [ -z $GITHUB_ACTIONS ]; then\n    scripts/coverage\nfi\n#!/bin/sh -e\n\nexport PREFIX=\"\"\nif [ -d 'venv' ] ; then\n    export PREFIX=\"venv/bin/\"\nfi\nexport SOURCE_FILES=\"starlette tests\"\n\nset -x\n\n${PREFIX}ruff format $SOURCE_FILES\n${PREFIX}ruff check --fix $SOURCE_FILES\n",
+        "command": "/bin/zsh -lc \"rg --files --hidden -g AGENTS.md -g '\"'!'\"\\\\.git/**' -g '\"'!'\"\\\\.cache/**'; rg -n 'BackgroundTasks|background=|get_cancelled_exc_class|cancel_scope|threading.get_ident|threading.current_thread|__traceback__' tests/test_responses.py tests/test_exceptions.py tests/test_concurrency.py tests/test_testclient.py tests/test__utils.py starlette/responses.py starlette/concurrency.py tests/types.py; sed -n '1,240p' tests/test_concurrency.py; sed -n '1,200p' tests/types.py; sed -n '1,200p' scripts/test; sed -n '1,180p' scripts/lint\"",
+        "exit_code": 0,
+        "id": "item_5",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 250254.822633458,
+      "perf_counter_ns": 250254822625166,
+      "utc": "2026-10-16T12:31:02.703054+00:00",
+      "wall_time_ns": 1792153862703054000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "id": "item_6",
+        "text": "The task loop can catch only `Exception` to continue after ordinary failures while letting cancellation and other `BaseException` failures stop it immediately. I\u2019m adding tests for exception identity and traceback, execution order, threadpool dispatch, and response integration.",
+        "type": "agent_message"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 250298.253750083,
+      "perf_counter_ns": 250298253713583,
+      "utc": "2026-10-16T12:31:46.135444+00:00",
+      "wall_time_ns": 1792153906135444000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "changes": [
+          {
+            "kind": "add",
+            "path": "<WORKSPACE>/tests/test_background_continue_on_error.py"
+          }
+        ],
+        "id": "item_7",
+        "status": "in_progress",
+        "type": "file_change"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 250335.069781833,
+      "perf_counter_ns": 250335069723500,
+      "utc": "2026-10-16T12:32:22.952557+00:00",
+      "wall_time_ns": 1792153942952557000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "changes": [
+          {
+            "kind": "add",
+            "path": "<WORKSPACE>/tests/test_background_continue_on_error.py"
+          }
+        ],
+        "id": "item_7",
+        "status": "completed",
+        "type": "file_change"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 250335.121635333,
+      "perf_counter_ns": 250335121601375,
+      "utc": "2026-10-16T12:32:23.004438+00:00",
+      "wall_time_ns": 1792153943004438000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"<PROJECT>/.cache/agent-grep-2026-10-15/runtime-env/bin/python -m pytest -q tests/test_background_continue_on_error.py -k 'continue_runs_all_tasks or requires_boolean' --tb=short\"",
+        "exit_code": null,
+        "id": "item_8",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 250335.27709475,
+      "perf_counter_ns": 250335277080625,
+      "utc": "2026-10-16T12:32:23.159923+00:00",
+      "wall_time_ns": 1792153943159923000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "FFFFFFFFFFFFFFF                                                          [100%]\n=================================== FAILURES ===================================\n________________ test_continue_on_error_requires_boolean[None] _________________\ntests/test_background_continue_on_error.py:18: in test_continue_on_error_requires_boolean\n    BackgroundTasks(continue_on_error=value)  # type: ignore[arg-type]\nE   TypeError: BackgroundTasks.__init__() got an unexpected keyword argument 'continue_on_error'\n__________________ test_continue_on_error_requires_boolean[0] __________________\ntests/test_background_continue_on_error.py:18: in test_continue_on_error_requires_boolean\n    BackgroundTasks(continue_on_error=value)  # type: ignore[arg-type]\nE   TypeError: BackgroundTasks.__init__() got an unexpected keyword argument 'continue_on_error'\n__________________ test_continue_on_error_requires_boolean[1] __________________\ntests/test_background_continue_on_error.py:18: in test_continue_on_error_requires_boolean\n    BackgroundTasks(continue_on_error=value)  # type: ignore[arg-type]\nE   TypeError: BackgroundTasks.__init__() got an unexpected keyword argument 'continue_on_error'\n_________________ test_continue_on_error_requires_boolean[0.0] _________________\ntests/test_background_continue_on_error.py:18: in test_continue_on_error_requires_boolean\n    BackgroundTasks(continue_on_error=value)  # type: ignore[arg-type]\nE   TypeError: BackgroundTasks.__init__() got an unexpected keyword argument 'continue_on_error'\n_________________ test_continue_on_error_requires_boolean[1.0] _________________\ntests/test_background_continue_on_error.py:18: in test_continue_on_error_requires_boolean\n    BackgroundTasks(continue_on_error=value)  # type: ignore[arg-type]\nE   TypeError: BackgroundTasks.__init__() got an unexpected keyword argument 'continue_on_error'\n__________________ test_continue_on_error_requires_boolean[] ___________________\ntests/test_background_continue_on_error.py:18: in test_continue_on_error_requires_boolean\n    BackgroundTasks(continue_on_error=value)  # type: ignore[arg-type]\nE   TypeError: BackgroundTasks.__init__() got an unexpected keyword argument 'continue_on_error'\n________________ test_continue_on_error_requires_boolean[false] ________________\ntests/test_background_continue_on_error.py:18: in test_continue_on_error_requires_boolean\n    BackgroundTasks(continue_on_error=value)  # type: ignore[arg-type]\nE   TypeError: BackgroundTasks.__init__() got an unexpected keyword argument 'continue_on_error'\n________________ test_continue_on_error_requires_boolean[true] _________________\ntests/test_background_continue_on_error.py:18: in test_continue_on_error_requires_boolean\n    BackgroundTasks(continue_on_error=value)  # type: ignore[arg-type]\nE   TypeError: BackgroundTasks.__init__() got an unexpected keyword argument 'continue_on_error'\n_______________ test_continue_on_error_requires_boolean[value8] ________________\ntests/test_background_continue_on_error.py:18: in test_continue_on_error_requires_boolean\n    BackgroundTasks(continue_on_error=value)  # type: ignore[arg-type]\nE   TypeError: BackgroundTasks.__init__() got an unexpected keyword argument 'continue_on_error'\n_______________ test_continue_on_error_requires_boolean[value9] ________________\ntests/test_background_continue_on_error.py:18: in test_continue_on_error_requires_boolean\n    BackgroundTasks(continue_on_error=value)  # type: ignore[arg-type]\nE   TypeError: BackgroundTasks.__init__() got an unexpected keyword argument 'continue_on_error'\n_______________ test_continue_on_error_requires_boolean[value10] _______________\ntests/test_background_continue_on_error.py:18: in test_continue_on_error_requires_boolean\n    BackgroundTasks(continue_on_error=value)  # type: ignore[arg-type]\nE   TypeError: BackgroundTasks.__init__() got an unexpected keyword argument 'continue_on_error'\n_____ test_continue_runs_all_tasks_and_reraises_first_error[asyncio-False] _____\ntests/test_background_continue_on_error.py:105: in test_continue_runs_all_tasks_and_reraises_first_error\n    tasks = BackgroundTasks(\nE   TypeError: BackgroundTasks.__init__() got an unexpected keyword argument 'continue_on_error'\n_____ test_continue_runs_all_tasks_and_reraises_first_error[asyncio-True] ______\ntests/test_background_continue_on_error.py:105: in test_continue_runs_all_tasks_and_reraises_first_error\n    tasks = BackgroundTasks(\nE   TypeError: BackgroundTasks.__init__() got an unexpected keyword argument 'continue_on_error'\n______ test_continue_runs_all_tasks_and_reraises_first_error[trio-False] _______\ntests/test_background_continue_on_error.py:105: in test_continue_runs_all_tasks_and_reraises_first_error\n    tasks = BackgroundTasks(\nE   TypeError: BackgroundTasks.__init__() got an unexpected keyword argument 'continue_on_error'\n_______ test_continue_runs_all_tasks_and_reraises_first_error[trio-True] _______\ntests/test_background_continue_on_error.py:105: in test_continue_runs_all_tasks_and_reraises_first_error\n    tasks = BackgroundTasks(\nE   TypeError: BackgroundTasks.__init__() got an unexpected keyword argument 'continue_on_error'\n15 failed, 49 deselected in 0.05s\n",
+        "command": "/bin/zsh -lc \"<PROJECT>/.cache/agent-grep-2026-10-15/runtime-env/bin/python -m pytest -q tests/test_background_continue_on_error.py -k 'continue_runs_all_tasks or requires_boolean' --tb=short\"",
+        "exit_code": 1,
+        "id": "item_8",
+        "status": "failed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 250335.595639333,
+      "perf_counter_ns": 250335595622875,
+      "utc": "2026-10-16T12:32:23.478475+00:00",
+      "wall_time_ns": 1792153943478475000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "changes": [
+          {
+            "kind": "update",
+            "path": "<WORKSPACE>/docs/background.md"
+          },
+          {
+            "kind": "update",
+            "path": "<WORKSPACE>/starlette/background.py"
+          }
+        ],
+        "id": "item_9",
+        "status": "in_progress",
+        "type": "file_change"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 250347.611281875,
+      "perf_counter_ns": 250347611246916,
+      "utc": "2026-10-16T12:32:35.494458+00:00",
+      "wall_time_ns": 1792153955494458000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "changes": [
+          {
+            "kind": "update",
+            "path": "<WORKSPACE>/docs/background.md"
+          },
+          {
+            "kind": "update",
+            "path": "<WORKSPACE>/starlette/background.py"
+          }
+        ],
+        "id": "item_9",
+        "status": "completed",
+        "type": "file_change"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 250347.66791525,
+      "perf_counter_ns": 250347667899833,
+      "utc": "2026-10-16T12:32:35.551114+00:00",
+      "wall_time_ns": 1792153955551114000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc '<PROJECT>/.cache/agent-grep-2026-10-15/runtime-env/bin/python -m pytest -q tests/test_background_continue_on_error.py tests/test_background.py --tb=short'",
+        "exit_code": null,
+        "id": "item_10",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 250347.821967166,
+      "perf_counter_ns": 250347821955500,
+      "utc": "2026-10-16T12:32:35.705175+00:00",
+      "wall_time_ns": 1792153955705175000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "....................................FF........................FF........ [100%]\n=================================== FAILURES ===================================\n________ test_response_runs_all_tasks_after_sending_body[asyncio-False] ________\ntests/test_background_continue_on_error.py:209: in test_response_runs_all_tasks_after_sending_body\n    with test_client_factory(app, raise_server_exceptions=raise_server_exceptions) as client:\nstarlette/testclient.py:673: in __enter__\n    portal.call(self.wait_startup)\n../../../../../.venv/lib/python3.12/site-packages/anyio/from_thread.py:340: in call\n    return cast(T_Retval, self.start_task_soon(func, *args).result())\n<HOME>/.local/share/uv/python/cpython-3.12.15-macos-aarch64-none/lib/python3.12/concurrent/futures/_base.py:456: in result\n    return self.__get_result()\n<HOME>/.local/share/uv/python/cpython-3.12.15-macos-aarch64-none/lib/python3.12/concurrent/futures/_base.py:401: in __get_result\n    raise self._exception\n../../../../../.venv/lib/python3.12/site-packages/anyio/from_thread.py:265: in _call_func\n    retval = await retval_or_awaitable\nstarlette/testclient.py:703: in wait_startup\n    assert message[\"type\"] in (\nE   AssertionError\n________ test_response_runs_all_tasks_after_sending_body[asyncio-True] _________\ntests/test_background_continue_on_error.py:209: in test_response_runs_all_tasks_after_sending_body\n    with test_client_factory(app, raise_server_exceptions=raise_server_exceptions) as client:\nstarlette/testclient.py:673: in __enter__\n    portal.call(self.wait_startup)\n../../../../../.venv/lib/python3.12/site-packages/anyio/from_thread.py:340: in call\n    return cast(T_Retval, self.start_task_soon(func, *args).result())\n<HOME>/.local/share/uv/python/cpython-3.12.15-macos-aarch64-none/lib/python3.12/concurrent/futures/_base.py:456: in result\n    return self.__get_result()\n<HOME>/.local/share/uv/python/cpython-3.12.15-macos-aarch64-none/lib/python3.12/concurrent/futures/_base.py:401: in __get_result\n    raise self._exception\n../../../../../.venv/lib/python3.12/site-packages/anyio/from_thread.py:265: in _call_func\n    retval = await retval_or_awaitable\nstarlette/testclient.py:703: in wait_startup\n    assert message[\"type\"] in (\nE   AssertionError\n_________ test_response_runs_all_tasks_after_sending_body[trio-False] __________\ntests/test_background_continue_on_error.py:209: in test_response_runs_all_tasks_after_sending_body\n    with test_client_factory(app, raise_server_exceptions=raise_server_exceptions) as client:\nstarlette/testclient.py:673: in __enter__\n    portal.call(self.wait_startup)\n../../../../../.venv/lib/python3.12/site-packages/anyio/from_thread.py:340: in call\n    return cast(T_Retval, self.start_task_soon(func, *args).result())\n<HOME>/.local/share/uv/python/cpython-3.12.15-macos-aarch64-none/lib/python3.12/concurrent/futures/_base.py:456: in result\n    return self.__get_result()\n<HOME>/.local/share/uv/python/cpython-3.12.15-macos-aarch64-none/lib/python3.12/concurrent/futures/_base.py:401: in __get_result\n    raise self._exception\n../../../../../.venv/lib/python3.12/site-packages/anyio/from_thread.py:265: in _call_func\n    retval = await retval_or_awaitable\nstarlette/testclient.py:703: in wait_startup\n    assert message[\"type\"] in (\nE   AssertionError\n__________ test_response_runs_all_tasks_after_sending_body[trio-True] __________\ntests/test_background_continue_on_error.py:209: in test_response_runs_all_tasks_after_sending_body\n    with test_client_factory(app, raise_server_exceptions=raise_server_exceptions) as client:\nstarlette/testclient.py:673: in __enter__\n    portal.call(self.wait_startup)\n../../../../../.venv/lib/python3.12/site-packages/anyio/from_thread.py:340: in call\n    return cast(T_Retval, self.start_task_soon(func, *args).result())\n<HOME>/.local/share/uv/python/cpython-3.12.15-macos-aarch64-none/lib/python3.12/concurrent/futures/_base.py:456: in result\n    return self.__get_result()\n<HOME>/.local/share/uv/python/cpython-3.12.15-macos-aarch64-none/lib/python3.12/concurrent/futures/_base.py:401: in __get_result\n    raise self._exception\n../../../../../.venv/lib/python3.12/site-packages/anyio/from_thread.py:265: in _call_func\n    retval = await retval_or_awaitable\nstarlette/testclient.py:703: in wait_startup\n    assert message[\"type\"] in (\nE   AssertionError\n4 failed, 68 passed in 0.12s\n",
+        "command": "/bin/zsh -lc '<PROJECT>/.cache/agent-grep-2026-10-15/runtime-env/bin/python -m pytest -q tests/test_background_continue_on_error.py tests/test_background.py --tb=short'",
+        "exit_code": 1,
+        "id": "item_10",
+        "status": "failed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 250348.043303791,
+      "perf_counter_ns": 250348043285791,
+      "utc": "2026-10-16T12:32:35.926511+00:00",
+      "wall_time_ns": 1792153955926511000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "changes": [
+          {
+            "kind": "update",
+            "path": "<WORKSPACE>/tests/test_background_continue_on_error.py"
+          }
+        ],
+        "id": "item_11",
+        "status": "in_progress",
+        "type": "file_change"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 250365.633742,
+      "perf_counter_ns": 250365633711500,
+      "utc": "2026-10-16T12:32:53.517464+00:00",
+      "wall_time_ns": 1792153973517464000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "changes": [
+          {
+            "kind": "update",
+            "path": "<WORKSPACE>/tests/test_background_continue_on_error.py"
+          }
+        ],
+        "id": "item_11",
+        "status": "completed",
+        "type": "file_change"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 250365.673664083,
+      "perf_counter_ns": 250365673637791,
+      "utc": "2026-10-16T12:32:53.557391+00:00",
+      "wall_time_ns": 1792153973557391000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc '<PROJECT>/.cache/agent-grep-2026-10-15/runtime-env/bin/python -m ruff check starlette/background.py tests/test_background_continue_on_error.py && <PROJECT>/.cache/agent-grep-2026-10-15/runtime-env/bin/python -m ruff format --check starlette/background.py tests/test_background_continue_on_error.py && git diff --check && git diff --stat && git status --short'",
+        "exit_code": null,
+        "id": "item_12",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 250365.738602541,
+      "perf_counter_ns": 250365738588666,
+      "utc": "2026-10-16T12:32:53.622345+00:00",
+      "wall_time_ns": 1792153973622345000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "Traceback (most recent call last):\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"<PROJECT>/.venv/lib/python3.12/site-packages/ruff/__main__.py\", line 81, in <module>\n    ruff = find_ruff_bin()\n           ^^^^^^^^^^^^^^^\n  File \"<PROJECT>/.venv/lib/python3.12/site-packages/ruff/__main__.py\", line 77, in find_ruff_bin\n    raise FileNotFoundError(scripts_path)\nFileNotFoundError: <PROJECT>/.cache/agent-grep-2026-10-15/runtime-env/bin/ruff\n",
+        "command": "/bin/zsh -lc '<PROJECT>/.cache/agent-grep-2026-10-15/runtime-env/bin/python -m ruff check starlette/background.py tests/test_background_continue_on_error.py && <PROJECT>/.cache/agent-grep-2026-10-15/runtime-env/bin/python -m ruff format --check starlette/background.py tests/test_background_continue_on_error.py && git diff --check && git diff --stat && git status --short'",
+        "exit_code": 1,
+        "id": "item_12",
+        "status": "failed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 250365.739281916,
+      "perf_counter_ns": 250365739275083,
+      "utc": "2026-10-16T12:32:53.623032+00:00",
+      "wall_time_ns": 1792153973623032000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc '<PROJECT>/.cache/agent-grep-2026-10-15/runtime-env/bin/python -m pytest -q tests/test_background_continue_on_error.py tests/test_background.py tests/test_concurrency.py tests/test_responses.py tests/test_exceptions.py --tb=short'",
+        "exit_code": null,
+        "id": "item_13",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 250365.828252916,
+      "perf_counter_ns": 250365828242625,
+      "utc": "2026-10-16T12:32:53.712002+00:00",
+      "wall_time_ns": 1792153973712002000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "........................................................................ [ 34%]\n........................................................................ [ 68%]\n.................................................................        [100%]\n209 passed in 0.26s\n",
+        "command": "/bin/zsh -lc '<PROJECT>/.cache/agent-grep-2026-10-15/runtime-env/bin/python -m pytest -q tests/test_background_continue_on_error.py tests/test_background.py tests/test_concurrency.py tests/test_responses.py tests/test_exceptions.py --tb=short'",
+        "exit_code": 0,
+        "id": "item_13",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 250366.203789041,
+      "perf_counter_ns": 250366203773958,
+      "utc": "2026-10-16T12:32:54.087544+00:00",
+      "wall_time_ns": 1792153974087544000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "id": "item_14",
+        "text": "All 209 new and relevant existing tests pass across asyncio and Trio, including cancellation after an earlier failure. I corrected a response test setup issue. The Ruff wrapper can\u2019t find its executable; I\u2019m finishing the diff and whitespace review.",
+        "type": "agent_message"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 250384.895918083,
+      "perf_counter_ns": 250384895862958,
+      "utc": "2026-10-16T12:33:12.780192+00:00",
+      "wall_time_ns": 1792153992780192000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc 'ruff check starlette/background.py tests/test_background_continue_on_error.py'",
+        "exit_code": null,
+        "id": "item_15",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 250386.858108416,
+      "perf_counter_ns": 250386858091958,
+      "utc": "2026-10-16T12:33:14.742482+00:00",
+      "wall_time_ns": 1792153994742482000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "zsh:1: command not found: ruff\n",
+        "command": "/bin/zsh -lc 'ruff check starlette/background.py tests/test_background_continue_on_error.py'",
+        "exit_code": 127,
+        "id": "item_15",
+        "status": "failed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 250386.858875166,
+      "perf_counter_ns": 250386858867833,
+      "utc": "2026-10-16T12:33:14.743258+00:00",
+      "wall_time_ns": 1792153994743258000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc 'git diff --check && git diff --stat && git status --short && git diff -- starlette/background.py docs/background.md && git diff --no-index -- /dev/null tests/test_background_continue_on_error.py'",
+        "exit_code": null,
+        "id": "item_16",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 250386.904944083,
+      "perf_counter_ns": 250386904926916,
+      "utc": "2026-10-16T12:33:14.789318+00:00",
+      "wall_time_ns": 1792153994789318000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": " docs/background.md      | 12 ++++++++++--\n starlette/background.py | 19 +++++++++++++++++--\n 2 files changed, 27 insertions(+), 4 deletions(-)\n M docs/background.md\n M starlette/background.py\n?? tests/test_background_continue_on_error.py\ndiff --git a/docs/background.md b/docs/background.md\nindex a6bfd8c..c83e25f 100644\n--- a/docs/background.md\n+++ b/docs/background.md\n@@ -43,7 +43,7 @@ app = Starlette(routes=routes)\n \n Used to add multiple background tasks to a response.\n \n-Signature: `BackgroundTasks(tasks=[])`\n+Signature: `BackgroundTasks(tasks=None, *, continue_on_error=False)`\n \n ```python\n from starlette.applications import Starlette\n@@ -75,4 +75,12 @@ app = Starlette(routes=routes)\n \n !!! important\n     The tasks are executed in order. In case one of the tasks raises\n-    an exception, the following tasks will not get the opportunity to be executed.\n+    an exception, the following tasks will not get the opportunity to be executed\n+    by default.\n+\n+Set `continue_on_error=True` to execute all tasks sequentially even when a task\n+raises an `Exception`. After all tasks have run, the first exception is re-raised\n+with its original callback traceback. Cancellation and other `BaseException`\n+failures always propagate immediately and stop the remaining tasks, even if an\n+earlier task raised an ordinary exception. The `continue_on_error` option is\n+keyword-only and must be a boolean; other values raise `ValueError` at construction.\ndiff --git a/starlette/background.py b/starlette/background.py\nindex 0430fc0..059449f 100644\n--- a/starlette/background.py\n+++ b/starlette/background.py\n@@ -29,13 +29,28 @@ class BackgroundTask:\n \n \n class BackgroundTasks(BackgroundTask):\n-    def __init__(self, tasks: typing.Sequence[BackgroundTask] | None = None):\n+    def __init__(\n+        self, tasks: typing.Sequence[BackgroundTask] | None = None, *, continue_on_error: bool = False\n+    ) -> None:\n+        if not isinstance(continue_on_error, bool):\n+            raise ValueError(\"continue_on_error must be a boolean\")\n         self.tasks = list(tasks) if tasks else []\n+        self.continue_on_error = continue_on_error\n \n     def add_task(self, func: typing.Callable[P, typing.Any], *args: P.args, **kwargs: P.kwargs) -> None:\n         task = BackgroundTask(func, *args, **kwargs)\n         self.tasks.append(task)\n \n     async def __call__(self) -> None:\n+        first_exception: Exception | None = None\n         for task in self.tasks:\n-            await task()\n+            try:\n+                await task()\n+            except Exception as exc:\n+                if not self.continue_on_error:\n+                    raise\n+                if first_exception is None:\n+                    first_exception = exc\n+\n+        if first_exception is not None:\n+            raise first_exception\ndiff --git a/tests/test_background_continue_on_error.py b/tests/test_background_continue_on_error.py\nnew file mode 100644\nindex 0000000..f476bdc\n--- /dev/null\n+++ b/tests/test_background_continue_on_error.py\n@@ -0,0 +1,219 @@\n+from __future__ import annotations\n+\n+import threading\n+import traceback\n+\n+import anyio\n+import pytest\n+\n+from starlette.background import BackgroundTask, BackgroundTasks\n+from starlette.responses import Response\n+from starlette.types import Message, Receive, Scope, Send\n+from tests.types import TestClientFactory\n+\n+\n+@pytest.mark.parametrize(\"value\", [None, 0, 1, 0.0, 1.0, \"\", \"false\", \"true\", [], {}, object()])\n+def test_continue_on_error_requires_boolean(value: object) -> None:\n+    with pytest.raises(ValueError, match=\"continue_on_error\"):\n+        BackgroundTasks(continue_on_error=value)  # type: ignore[arg-type]\n+\n+\n+def test_continue_on_error_is_keyword_only() -> None:\n+    with pytest.raises(TypeError):\n+        BackgroundTasks([], True)  # type: ignore[call-arg]\n+\n+\n+@pytest.mark.anyio\n+@pytest.mark.parametrize(\"options\", [{}, {\"continue_on_error\": False}])\n+@pytest.mark.parametrize(\"is_async\", [False, True])\n+async def test_default_and_false_stop_at_first_error(options: dict[str, bool], is_async: bool) -> None:\n+    calls: list[str] = []\n+    error = ValueError(\"first failure\")\n+\n+    def fail() -> None:\n+        calls.append(\"failure\")\n+        raise error\n+\n+    async def async_fail() -> None:\n+        fail()\n+\n+    tasks = BackgroundTasks(**options)\n+    tasks.add_task(async_fail if is_async else fail)\n+    tasks.add_task(calls.append, \"later\")\n+\n+    with pytest.raises(ValueError) as exc_info:\n+        await tasks()\n+\n+    assert exc_info.value is error\n+    assert calls == [\"failure\"]\n+\n+\n+@pytest.mark.anyio\n+@pytest.mark.parametrize(\"continue_on_error\", [False, True])\n+@pytest.mark.parametrize(\"has_tasks\", [False, True])\n+async def test_success_and_empty_return_none(continue_on_error: bool, has_tasks: bool) -> None:\n+    calls: list[str] = []\n+    event_loop_thread = threading.get_ident()\n+\n+    def sync_task(value: str, *, suffix: str) -> None:\n+        assert threading.get_ident() != event_loop_thread\n+        calls.append(value + suffix)\n+\n+    async def async_task(value: str, *, suffix: str) -> None:\n+        assert threading.get_ident() == event_loop_thread\n+        calls.append(\"async start\")\n+        await anyio.sleep(0)\n+        calls.append(value + suffix)\n+\n+    initial = [BackgroundTask(sync_task, \"sync\", suffix=\" complete\")] if has_tasks else []\n+    tasks = BackgroundTasks(initial, continue_on_error=continue_on_error)\n+    if has_tasks:\n+        tasks.add_task(async_task, \"async\", suffix=\" complete\")\n+        tasks.add_task(sync_task, \"last\", suffix=\" complete\")\n+\n+    assert await tasks() is None\n+    assert calls == ([\"sync complete\", \"async start\", \"async complete\", \"last complete\"] if has_tasks else [])\n+    assert len(initial) == int(has_tasks)\n+\n+\n+@pytest.mark.anyio\n+@pytest.mark.parametrize(\"first_is_async\", [False, True])\n+async def test_continue_runs_all_tasks_and_reraises_first_error(first_is_async: bool) -> None:\n+    calls: list[str] = []\n+    first_error = ValueError(\"first failure\")\n+    second_error = RuntimeError(\"second failure\")\n+    event_loop_thread = threading.get_ident()\n+\n+    def sync_fail(name: str, *, error: Exception) -> None:\n+        assert threading.get_ident() != event_loop_thread\n+        calls.append(name)\n+        raise error\n+\n+    async def async_fail(name: str, *, error: Exception) -> None:\n+        assert threading.get_ident() == event_loop_thread\n+        calls.append(name)\n+        await anyio.sleep(0)\n+        raise error\n+\n+    async def succeed(name: str) -> None:\n+        calls.append(name + \" start\")\n+        await anyio.sleep(0)\n+        calls.append(name + \" end\")\n+\n+    first_callback = async_fail if first_is_async else sync_fail\n+    second_callback = sync_fail if first_is_async else async_fail\n+    tasks = BackgroundTasks(\n+        [BackgroundTask(first_callback, \"first\", error=first_error)], continue_on_error=True\n+    )\n+    tasks.add_task(succeed, \"middle\")\n+    tasks.add_task(second_callback, \"second\", error=second_error)\n+    tasks.add_task(succeed, \"last\")\n+\n+    with pytest.raises(ValueError) as exc_info:\n+        await tasks()\n+\n+    assert calls == [\"first\", \"middle start\", \"middle end\", \"second\", \"last start\", \"last end\"]\n+    assert exc_info.value is first_error\n+    assert traceback.extract_tb(exc_info.value.__traceback__)[-1].name == first_callback.__name__\n+\n+\n+@pytest.mark.anyio\n+@pytest.mark.parametrize(\"earlier_error\", [False, True])\n+@pytest.mark.parametrize(\"is_async\", [False, True])\n+@pytest.mark.parametrize(\"error_type\", [BaseException, KeyboardInterrupt, SystemExit])\n+async def test_base_exception_stops_immediately(\n+    earlier_error: bool, is_async: bool, error_type: type[BaseException]\n+) -> None:\n+    calls: list[str] = []\n+    fatal_error = error_type(\"stop\")\n+\n+    def fail() -> None:\n+        calls.append(\"ordinary failure\")\n+        raise ValueError(\"earlier failure\")\n+\n+    def abort() -> None:\n+        calls.append(\"fatal failure\")\n+        raise fatal_error\n+\n+    async def async_abort() -> None:\n+        abort()\n+\n+    tasks = BackgroundTasks(continue_on_error=True)\n+    if earlier_error:\n+        tasks.add_task(fail)\n+    tasks.add_task(async_abort if is_async else abort)\n+    tasks.add_task(calls.append, \"later\")\n+\n+    with pytest.raises(error_type) as exc_info:\n+        await tasks()\n+\n+    assert exc_info.value is fatal_error\n+    assert calls == ([\"ordinary failure\", \"fatal failure\"] if earlier_error else [\"fatal failure\"])\n+\n+\n+@pytest.mark.anyio\n+@pytest.mark.parametrize(\"earlier_error\", [False, True])\n+async def test_cancellation_stops_immediately(earlier_error: bool) -> None:\n+    calls: list[str] = []\n+    cancellation: BaseException | None = None\n+\n+    async def fail() -> None:\n+        calls.append(\"ordinary failure\")\n+        raise ValueError(\"earlier failure\")\n+\n+    async def cancel() -> None:\n+        nonlocal cancellation\n+        calls.append(\"cancelled\")\n+        cancel_scope.cancel()\n+        try:\n+            await anyio.sleep(0)\n+        except anyio.get_cancelled_exc_class() as exc:\n+            cancellation = exc\n+            raise\n+\n+    tasks = BackgroundTasks(continue_on_error=True)\n+    if earlier_error:\n+        tasks.add_task(fail)\n+    tasks.add_task(cancel)\n+    tasks.add_task(calls.append, \"later\")\n+\n+    with anyio.CancelScope() as cancel_scope:\n+        with pytest.raises(anyio.get_cancelled_exc_class()) as exc_info:\n+            await tasks()\n+        assert exc_info.value is cancellation\n+\n+    assert calls == ([\"ordinary failure\", \"cancelled\"] if earlier_error else [\"cancelled\"])\n+\n+\n+@pytest.mark.parametrize(\"raise_server_exceptions\", [False, True])\n+def test_response_runs_all_tasks_after_sending_body(\n+    test_client_factory: TestClientFactory, raise_server_exceptions: bool\n+) -> None:\n+    calls: list[str] = []\n+    error = ValueError(\"background failure\")\n+\n+    async def fail() -> None:\n+        calls.append(\"failure\")\n+        raise error\n+\n+    async def app(scope: Scope, receive: Receive, send: Send) -> None:\n+        async def record_send(message: Message) -> None:\n+            calls.append(message[\"type\"])\n+            await send(message)\n+\n+        tasks = BackgroundTasks(continue_on_error=True)\n+        tasks.add_task(fail)\n+        tasks.add_task(calls.append, \"later\")\n+        await Response(\"sent\", background=tasks)(scope, receive, record_send)\n+\n+    client = test_client_factory(app, raise_server_exceptions=raise_server_exceptions)\n+    if raise_server_exceptions:\n+        with pytest.raises(ValueError) as exc_info:\n+            client.get(\"/\")\n+        assert exc_info.value is error\n+    else:\n+        response = client.get(\"/\")\n+        assert response.status_code == 200\n+        assert response.text == \"sent\"\n+\n+    assert calls == [\"http.response.start\", \"http.response.body\", \"failure\", \"later\"]\n",
+        "command": "/bin/zsh -lc 'git diff --check && git diff --stat && git status --short && git diff -- starlette/background.py docs/background.md && git diff --no-index -- /dev/null tests/test_background_continue_on_error.py'",
+        "exit_code": 1,
+        "id": "item_16",
+        "status": "failed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 250386.905702791,
+      "perf_counter_ns": 250386905695041,
+      "utc": "2026-10-16T12:33:14.790087+00:00",
+      "wall_time_ns": 1792153994790087000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "changes": [
+          {
+            "kind": "update",
+            "path": "<WORKSPACE>/tests/test_background_continue_on_error.py"
+          }
+        ],
+        "id": "item_17",
+        "status": "in_progress",
+        "type": "file_change"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 250412.227009875,
+      "perf_counter_ns": 250412226956125,
+      "utc": "2026-10-16T12:33:40.112105+00:00",
+      "wall_time_ns": 1792154020112105000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "changes": [
+          {
+            "kind": "update",
+            "path": "<WORKSPACE>/tests/test_background_continue_on_error.py"
+          }
+        ],
+        "id": "item_17",
+        "status": "completed",
+        "type": "file_change"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 250412.284003333,
+      "perf_counter_ns": 250412283969000,
+      "utc": "2026-10-16T12:33:40.169121+00:00",
+      "wall_time_ns": 1792154020169121000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"git diff --check && <PROJECT>/.cache/agent-grep-2026-10-15/runtime-env/bin/python -c 'from pathlib import Path; paths = (Path(\\\"starlette/background.py\\\"), Path(\\\"tests/test_background_continue_on_error.py\\\")); violations = [(str(p), i, len(line)) for p in paths for i, line in enumerate(p.read_text().splitlines(), 1) if len(line) > 120 or line.rstrip() \"'!= line]; print(\"Line length and whitespace violations:\", violations); assert not violations'\"' && git status --short\"",
+        "exit_code": null,
+        "id": "item_18",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 250412.368076375,
+      "perf_counter_ns": 250412368062083,
+      "utc": "2026-10-16T12:33:40.253217+00:00",
+      "wall_time_ns": 1792154020253217000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\nAssertionError\nLine length and whitespace violations: [('tests/test_background_continue_on_error.py', 122, 126)]\n",
+        "command": "/bin/zsh -lc \"git diff --check && <PROJECT>/.cache/agent-grep-2026-10-15/runtime-env/bin/python -c 'from pathlib import Path; paths = (Path(\\\"starlette/background.py\\\"), Path(\\\"tests/test_background_continue_on_error.py\\\")); violations = [(str(p), i, len(line)) for p in paths for i, line in enumerate(p.read_text().splitlines(), 1) if len(line) > 120 or line.rstrip() \"'!= line]; print(\"Line length and whitespace violations:\", violations); assert not violations'\"' && git status --short\"",
+        "exit_code": 1,
+        "id": "item_18",
+        "status": "failed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 250412.368629291,
+      "perf_counter_ns": 250412368624458,
+      "utc": "2026-10-16T12:33:40.253780+00:00",
+      "wall_time_ns": 1792154020253780000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc '<PROJECT>/.cache/agent-grep-2026-10-15/runtime-env/bin/python -m pytest -q tests/test_background_continue_on_error.py tests/test_background.py tests/test_concurrency.py tests/test_responses.py tests/test_exceptions.py --tb=short'",
+        "exit_code": null,
+        "id": "item_19",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 250412.439984458,
+      "perf_counter_ns": 250412439977166,
+      "utc": "2026-10-16T12:33:40.325135+00:00",
+      "wall_time_ns": 1792154020325135000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "........................................................................ [ 34%]\n........................................................................ [ 68%]\n.................................................................        [100%]\n209 passed in 0.26s\n",
+        "command": "/bin/zsh -lc '<PROJECT>/.cache/agent-grep-2026-10-15/runtime-env/bin/python -m pytest -q tests/test_background_continue_on_error.py tests/test_background.py tests/test_concurrency.py tests/test_responses.py tests/test_exceptions.py --tb=short'",
+        "exit_code": 0,
+        "id": "item_19",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 250413.098801041,
+      "perf_counter_ns": 250413098785833,
+      "utc": "2026-10-16T12:33:40.983963+00:00",
+      "wall_time_ns": 1792154020983963000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "changes": [
+          {
+            "kind": "update",
+            "path": "<WORKSPACE>/tests/test_background_continue_on_error.py"
+          }
+        ],
+        "id": "item_20",
+        "status": "in_progress",
+        "type": "file_change"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 250419.585442375,
+      "perf_counter_ns": 250419585401583,
+      "utc": "2026-10-16T12:33:47.470772+00:00",
+      "wall_time_ns": 1792154027470772000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "changes": [
+          {
+            "kind": "update",
+            "path": "<WORKSPACE>/tests/test_background_continue_on_error.py"
+          }
+        ],
+        "id": "item_20",
+        "status": "completed",
+        "type": "file_change"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 250419.623435958,
+      "perf_counter_ns": 250419623404458,
+      "utc": "2026-10-16T12:33:47.508776+00:00",
+      "wall_time_ns": 1792154027508776000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"git diff --check && <PROJECT>/.cache/agent-grep-2026-10-15/runtime-env/bin/python -c 'from pathlib import Path; paths = (Path(\\\"starlette/background.py\\\"), Path(\\\"tests/test_background_continue_on_error.py\\\")); violations = [(str(p), i, len(line)) for p in paths for i, line in enumerate(p.read_text().splitlines(), 1) if len(line) > 120 or line.rstrip() \"'!= line]; print(\"Line length and whitespace violations:\", violations); assert not violations'\"' && git status --short\"",
+        "exit_code": null,
+        "id": "item_21",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 250419.697351958,
+      "perf_counter_ns": 250419697339166,
+      "utc": "2026-10-16T12:33:47.582714+00:00",
+      "wall_time_ns": 1792154027582714000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "Line length and whitespace violations: []\n M docs/background.md\n M starlette/background.py\n?? tests/test_background_continue_on_error.py\n",
+        "command": "/bin/zsh -lc \"git diff --check && <PROJECT>/.cache/agent-grep-2026-10-15/runtime-env/bin/python -c 'from pathlib import Path; paths = (Path(\\\"starlette/background.py\\\"), Path(\\\"tests/test_background_continue_on_error.py\\\")); violations = [(str(p), i, len(line)) for p in paths for i, line in enumerate(p.read_text().splitlines(), 1) if len(line) > 120 or line.rstrip() \"'!= line]; print(\"Line length and whitespace violations:\", violations); assert not violations'\"' && git status --short\"",
+        "exit_code": 0,
+        "id": "item_21",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 250419.697924458,
+      "perf_counter_ns": 250419697920041,
+      "utc": "2026-10-16T12:33:47.583295+00:00",
+      "wall_time_ns": 1792154027583295000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "id": "item_22",
+        "text": "Implemented keyword-only `continue_on_error=False` with boolean validation, sequential continuation, and re-raising of the first exception with its callback traceback retained. Cancellation and other `BaseException` failures stop execution immediately.\n\nAdded documentation and 64 regression cases. All 209 new and relevant existing tests pass across asyncio and Trio. Whitespace checks pass; Ruff could not run because its executable is missing.",
+        "type": "agent_message"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 250428.452392,
+      "perf_counter_ns": 250428452361166,
+      "utc": "2026-10-16T12:33:56.337998+00:00",
+      "wall_time_ns": 1792154036337998000
+    }
+  },
+  {
+    "event": {
+      "type": "turn.completed",
+      "usage": {
+        "cache_write_input_tokens": 0,
+        "cached_input_tokens": 188032,
+        "input_tokens": 225497,
+        "output_tokens": 9530,
+        "reasoning_output_tokens": 4001
+      }
+    },
+    "received": {
+      "monotonic_s": 250428.592764958,
+      "perf_counter_ns": 250428592717500,
+      "utc": "2026-10-16T12:33:56.478357+00:00",
+      "wall_time_ns": 1792154036478357000
+    }
+  }
+]

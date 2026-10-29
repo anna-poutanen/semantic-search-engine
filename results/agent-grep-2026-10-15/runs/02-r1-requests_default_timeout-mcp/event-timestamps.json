@@ -1,0 +1,1025 @@
+[
+  {
+    "event": {
+      "thread_id": "01a14065-9794-7050-b851-77a5465a3332",
+      "type": "thread.started"
+    },
+    "received": {
+      "monotonic_s": 246428.133725541,
+      "perf_counter_ns": 246428133706458,
+      "utc": "2026-10-15T16:29:22.567376+00:00",
+      "wall_time_ns": 1792081762567376000
+    }
+  },
+  {
+    "event": {
+      "type": "turn.started"
+    },
+    "received": {
+      "monotonic_s": 246428.13519075,
+      "perf_counter_ns": 246428135183916,
+      "utc": "2026-10-15T16:29:22.568853+00:00",
+      "wall_time_ns": 1792081762568853000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "id": "item_0",
+        "text": "I\u2019ll locate how sessions pass timeouts to adapters, add the session default, and test request overrides, redirects, direct sends, and pickling.",
+        "type": "agent_message"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 246432.958447708,
+      "perf_counter_ns": 246432958420375,
+      "utc": "2026-10-15T16:29:27.392008+00:00",
+      "wall_time_ns": 1792081767392008000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"pwd; rg --files -g 'AGENTS.md' -g 'pyproject.toml' -g 'pytest.ini' -g 'setup.cfg' -g '*session*' -g 'conftest.py' -g 'test_requests.py' -g 'tox.ini'\"",
+        "exit_code": null,
+        "id": "item_1",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 246434.986434416,
+      "perf_counter_ns": 246434986408833,
+      "utc": "2026-10-15T16:29:29.419962+00:00",
+      "wall_time_ns": 1792081769419962000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "<WORKSPACE>\nsrc/requests/sessions.py\ntox.ini\ntests/test_requests.py\npyproject.toml\ntests/conftest.py\n",
+        "command": "/bin/zsh -lc \"pwd; rg --files -g 'AGENTS.md' -g 'pyproject.toml' -g 'pytest.ini' -g 'setup.cfg' -g '*session*' -g 'conftest.py' -g 'test_requests.py' -g 'tox.ini'\"",
+        "exit_code": 0,
+        "id": "item_1",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 246434.986897833,
+      "perf_counter_ns": 246434986893875,
+      "utc": "2026-10-15T16:29:29.420448+00:00",
+      "wall_time_ns": 1792081769420448000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "arguments": {
+          "max_results": 5,
+          "query": "Session __init__ request send timeout argument redirects __attrs__ pickling",
+          "token_budget": 2000
+        },
+        "error": null,
+        "id": "item_2",
+        "result": null,
+        "server": "semantic_search",
+        "status": "in_progress",
+        "tool": "search_code",
+        "type": "mcp_tool_call"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 246439.061824708,
+      "perf_counter_ns": 246439061732875,
+      "utc": "2026-10-15T16:29:33.495216+00:00",
+      "wall_time_ns": 1792081773495216000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"git status --short; rg --files -g 'AGENTS.md' -g '*test*.py' -g 'conftest.py' -g 'pyproject.toml' -g 'setup.cfg' -g '.coveragerc' -g 'requirements*' -g 'Makefile' -g 'README*'; rg -n 'timeout|pickle|redirect|Session|httpbin' tests/conftest.py pyproject.toml tox.ini\"",
+        "exit_code": null,
+        "id": "item_3",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 246439.150154958,
+      "perf_counter_ns": 246439150137958,
+      "utc": "2026-10-15T16:29:33.583621+00:00",
+      "wall_time_ns": 1792081773583621000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "requirements-dev.txt\nREADME.md\ndocs/Makefile\ndocs/requirements.txt\n.coveragerc\ntests/test_lowlevel.py\ntests/test_help.py\ntests/test_adapters.py\ntests/test_requests.py\ntests/certs/expired/README.md\ntests/certs/expired/server/Makefile\ntests/certs/expired/ca/Makefile\ntests/certs/expired/Makefile\ntests/certs/README.md\ntests/certs/mtls/client/Makefile\ntests/certs/mtls/README.md\ntests/certs/mtls/Makefile\ntests/certs/valid/server/Makefile\ntests/test_hooks.py\ntests/test_testserver.py\ntests/test_packages.py\ntests/test_structures.py\ntests/conftest.py\ntests/test_utils.py\npyproject.toml\nMakefile\npyproject.toml:61:    \"pytest-httpbin==2.1.0\",\npyproject.toml:62:    \"httpbin~=0.10.0\",\ntests/conftest.py:17:    httpbin_url = value.url.rstrip(\"/\") + \"/\"\ntests/conftest.py:20:        return urljoin(httpbin_url, \"/\".join(suffix))\ntests/conftest.py:35:def httpbin(httpbin):\ntests/conftest.py:36:    return prepare_url(httpbin)\ntests/conftest.py:40:def httpbin_secure(httpbin_secure):\ntests/conftest.py:41:    return prepare_url(httpbin_secure)\n",
+        "command": "/bin/zsh -lc \"git status --short; rg --files -g 'AGENTS.md' -g '*test*.py' -g 'conftest.py' -g 'pyproject.toml' -g 'setup.cfg' -g '.coveragerc' -g 'requirements*' -g 'Makefile' -g 'README*'; rg -n 'timeout|pickle|redirect|Session|httpbin' tests/conftest.py pyproject.toml tox.ini\"",
+        "exit_code": 0,
+        "id": "item_3",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 246439.150697416,
+      "perf_counter_ns": 246439150692416,
+      "utc": "2026-10-15T16:29:33.584176+00:00",
+      "wall_time_ns": 1792081773584176000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "arguments": {
+          "max_results": 5,
+          "query": "Session __init__ request send timeout argument redirects __attrs__ pickling",
+          "token_budget": 2000
+        },
+        "error": null,
+        "id": "item_2",
+        "result": {
+          "content": [
+            {
+              "text": "{\"query\":\"Session __init__ request send timeout argument redirects __attrs__ pickling\",\"match_status\":\"candidates\",\"results\":[{\"path\":\"src/requests/sessions.py\",\"symbol\":\"Session.__init__\",\"start_line\":442,\"end_line\":503,\"source\":\"    def __init__(self) -> None:\\n        #: A case-insensitive dictionary of headers to be sent on each\\n        #: :class:`Request <Request>` sent from this\\n        #: :class:`Session <Session>`.\\n        self.headers = default_headers()\\n\\n        #: Default Authentication tuple or object to attach to\\n        #: :class:`Request <Request>`.\\n        self.auth = None\\n\\n        #: Dictionary mapping protocol or protocol and host to the URL of the proxy\\n        #: (e.g. {'http': 'foo.bar:3128', 'http://host.name': 'foo.bar:4012'}) to\\n        #: be used on each :class:`Request <Request>`.\\n        self.proxies = {}\\n\\n        #: Event-handling hooks.\\n        self.hooks = default_hooks()\\n\\n        #: Dictionary of querystring data to attach to each\\n        #: :class:`Request <Request>`. The dictionary values may be lists for\\n        #: representing multivalued query parameters.\\n        self.params = {}\\n\\n        #: Stream response content default.\\n        self.stream = False\\n\\n        #: SSL Verification default.\\n        #: Defaults to `True`, requiring requests to verify the TLS certificate at the\\n        #: remote end.\\n        #: If verify is set to `False`, requests will accept any TLS certificate\\n        #: presented by the server, and will ignore hostname mismatches and/or\\n        #: expired certificates, which will make your application vulnerable to\\n        #: man-in-the-middle (MitM) attacks.\\n        #: Only set this to `False` for testing.\\n        #: If verify is set to a string, it must be the path to a CA bundle file\\n        #: that will be used to verify the TLS certificate.\\n        self.verify = True\\n\\n        #: SSL client certificate default, if String, path to ssl client\\n        #: cert file (.pem). If Tuple, ('cert', 'key') pair.\\n        self.cert = None\\n\\n        #: Maximum number of redirects allowed. If the request exceeds this\\n        #: limit, a :class:`TooManyRedirects` exception is raised.\\n        #: This defaults to requests.models.DEFAULT_REDIRECT_LIMIT, which is\\n        #: 30.\\n        self.max_redirects = DEFAULT_REDIRECT_LIMIT\\n\\n        #: Trust environment settings for proxy configuration, default\\n        #: authentication and similar.\\n        self.trust_env = True\\n\\n        #: A CookieJar containing all currently outstanding cookies set on this\\n        #: session. By default it is a\\n        #: :class:`RequestsCookieJar <requests.cookies.RequestsCookieJar>`, but\\n        #: may be any other ``cookielib.CookieJar`` compatible object.\\n        self.cookies = cookiejar_from_dict({})\\n\\n        # Default connection adapters.\\n        self.adapters = OrderedDict()\\n        self.mount(\\\"https://\\\", HTTPAdapter())\\n        self.mount(\\\"http://\\\", HTTPAdapter())\\n\",\"source_hash\":\"2a9d61e574e2749a12c2fab0016be5acda8a20d62ca051a071f8104c29c74d34\",\"truncated\":false,\"origin\":\"retrieval\",\"related_to\":null},{\"path\":\"src/requests/sessions.py\",\"symbol\":\"Session.__setstate__\",\"start_line\":903,\"end_line\":905,\"source\":\"    def __setstate__(self, state: dict[str, Any]) -> None:\\n        for attr, value in state.items():\\n            setattr(self, attr, value)\\n\",\"source_hash\":\"f0e0169418a634c17723ac7b2a5a4db67a4d24e8945234be4e79d77aa589f863\",\"truncated\":false,\"origin\":\"retrieval\",\"related_to\":null},{\"path\":\"src/requests/sessions.py\",\"symbol\":\"Session.__getstate__\",\"start_line\":899,\"end_line\":901,\"source\":\"    def __getstate__(self) -> dict[str, Any]:\\n        state = {attr: getattr(self, attr, None) for attr in self.__attrs__}\\n        return state\\n\",\"source_hash\":\"d744c2093b324849b68a303f31a6a384520553d1e319dc220187641e96f145bf\",\"truncated\":false,\"origin\":\"retrieval\",\"related_to\":null},{\"path\":\"src/requests/sessions.py\",\"symbol\":\"Session.send\",\"start_line\":752,\"end_line\":829,\"source\":\"    def send(self, request: PreparedRequest, **kwargs: Any) -> Response:\\n        \\\"\\\"\\\"Send a given PreparedRequest.\\n\\n        :rtype: requests.Response\\n        \\\"\\\"\\\"\\n        # Set defaults that the hooks can utilize to ensure they always have\\n        # the correct parameters to reproduce the previous request.\\n        kwargs.setdefault(\\\"stream\\\", self.stream)\\n        kwargs.setdefault(\\\"verify\\\", self.verify)\\n        kwargs.setdefault(\\\"cert\\\", self.cert)\\n        if \\\"proxies\\\" not in kwargs:\\n            kwargs[\\\"proxies\\\"] = resolve_proxies(request, self.proxies, self.trust_env)\\n\\n        # It's possible that users might accidentally send a Request object.\\n        # Guard against that specific failure case.\\n        if isinstance(request, Request):\\n            raise ValueError(\\\"You can only send PreparedRequests.\\\")\\n\\n        assert _is_prepared(request)\\n\\n        # Set up variables needed for resolve_redirects and dispatching of hooks\\n        allow_redirects = kwargs.pop(\\\"allow_redirects\\\", True)\\n        stream = kwargs.get(\\\"stream\\\")\\n        hooks = request.hooks\\n\\n        # Get the appropriate adapter to use\\n        adapter = self.get_adapter(url=request.url)\\n\\n        # Start time (approximately) of the request\\n        start = preferred_clock()\\n\\n        # Send the request\\n        r = adapter.send(request, **kwargs)\\n\\n        # Total elapsed time of the request (approximately)\\n        elapsed = preferred_clock() - start\\n        r.elapsed = timedelta(seconds=elapsed)\\n\\n        # Response manipulation hooks\\n        r = dispatch_hook(\\\"response\\\", hooks, r, **kwargs)\\n\\n        # Persist cookies\\n        if r.history:\\n            # If the hooks create history then we want those cookies too\\n            for resp in r.history:\\n                extract_cookies_to_jar(self.cookies, resp.request, resp.raw)\\n\\n        extract_cookies_to_jar(self.cookies, request, r.raw)\\n\\n        # Resolve redirects if allowed.\\n        if allow_redirects:\\n            # Redirect resolving generator.\\n            gen = self.resolve_redirects(r, request, **kwargs)\\n            history = [resp for resp in gen]\\n        else:\\n            history = []\\n\\n        # Shuffle things around if there's history.\\n        if history:\\n            # Insert the first (original) request at the start\\n            history.insert(0, r)\\n            # Get the last request made\\n            r = history.pop()\\n            r.history = history\\n\\n        # If redirects aren't being followed, store the response on the Request for Response.next().\\n        if not allow_redirects:\\n            try:\\n                r._next = next(  # type: ignore[assignment]  # yield_requests=True returns PreparedRequest\\n                    self.resolve_redirects(r, request, yield_requests=True, **kwargs)\\n                )\\n            except StopIteration:\\n                pass\\n\\n        if not stream:\\n            r.content\\n\\n        return r\\n\",\"source_hash\":\"11793248454d9e3d93c552d93aa039c175b1201337f709decaf381b0fe80ea52\",\"truncated\":false,\"origin\":\"retrieval\",\"related_to\":null},{\"path\":\"src/requests/sessions.py\",\"symbol\":\"Session.options\",\"start_line\":673,\"end_line\":682,\"source\":\"    def options(self, url: _t.UriType, **kwargs: Unpack[_t.RequestKwargs]) -> Response:\\n        r\\\"\\\"\\\"Sends a OPTIONS request. Returns :class:`Response` object.\\n\\n        :param url: URL for the new :class:`Request` object.\\n        :param \\\\*\\\\*kwargs: Optional arguments that ``request`` takes.\\n        :rtype: requests.Response\\n        \\\"\\\"\\\"\\n\\n        kwargs.setdefault(\\\"allow_redirects\\\", True)\\n        return self.request(\\\"OPTIONS\\\", url, **kwargs)\\n\",\"source_hash\":\"66de5da7a873ede9f99f10788b2d9ea6b80a2df56742b66073fec483c64d2b1c\",\"truncated\":false,\"origin\":\"retrieval\",\"related_to\":null}],\"budget_exhausted\":false,\"token_usage\":{\"encoding\":\"cl100k_base\",\"tokens\":1988,\"budget\":2000,\"truncated\":false},\"scope\":{\"source_root\":\"src/requests\",\"membership\":\"saved implementations; Git-tracked files only in Git projects\",\"source_exclusions\":[],\"exclusions_omitted\":0}}",
+              "type": "text"
+            }
+          ],
+          "structured_content": null
+        },
+        "server": "semantic_search",
+        "status": "completed",
+        "tool": "search_code",
+        "type": "mcp_tool_call"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 246439.302344833,
+      "perf_counter_ns": 246439302319583,
+      "utc": "2026-10-15T16:29:33.735800+00:00",
+      "wall_time_ns": 1792081773735800000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "arguments": {
+          "max_results": 5,
+          "query": "Session.request timeout parameter send_kwargs timeout passing SessionRedirectMixin.resolve_redirects timeout forwarding",
+          "token_budget": 2000
+        },
+        "error": null,
+        "id": "item_4",
+        "result": null,
+        "server": "semantic_search",
+        "status": "in_progress",
+        "tool": "search_code",
+        "type": "mcp_tool_call"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 246444.415850375,
+      "perf_counter_ns": 246444415760875,
+      "utc": "2026-10-15T16:29:38.849154+00:00",
+      "wall_time_ns": 1792081778849154000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"rg -n '\"'^class Session|__attrs__|timeout|''^    def (request|session|resolve_redirects)|''^def session'\"' src/requests/sessions.py src/requests/_types.py src/requests/api.py tests/test_requests.py tests/test_adapters.py tests/test_lowlevel.py; sed -n '1,180p' pyproject.toml; sed -n '1,160p' tests/conftest.py; sed -n '1,180p' tests/test_adapters.py; sed -n '1,170p' tests/test_lowlevel.py; sed -n '1,100p' src/requests/sessions.py; sed -n '405,444p' src/requests/sessions.py\"",
+        "exit_code": null,
+        "id": "item_5",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 246444.502297916,
+      "perf_counter_ns": 246444502280041,
+      "utc": "2026-10-15T16:29:38.935673+00:00",
+      "wall_time_ns": 1792081778935673000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "src/requests/api.py:44:    :param timeout: (optional) How many seconds to wait for the server to send data\nsrc/requests/api.py:45:        before giving up, as a float, or a :ref:`(connect timeout, read\nsrc/requests/api.py:46:        timeout) <timeouts>` tuple.\nsrc/requests/api.py:47:    :type timeout: float or tuple\nsrc/requests/_types.py:162:        timeout: TimeoutType\nsrc/requests/sessions.py:127:class SessionRedirectMixin:\nsrc/requests/sessions.py:186:    def resolve_redirects(\nsrc/requests/sessions.py:191:        timeout: _t.TimeoutType = None,\nsrc/requests/sessions.py:295:                    timeout=timeout,\nsrc/requests/sessions.py:395:class Session(SessionRedirectMixin):\nsrc/requests/sessions.py:427:    __attrs__: list[str] = [\nsrc/requests/sessions.py:557:    def request(\nsrc/requests/sessions.py:567:        timeout: _t.TimeoutType = None,\nsrc/requests/sessions.py:595:        :param timeout: (optional) How many seconds to wait for the server to send\nsrc/requests/sessions.py:596:            data before giving up, as a float, or a :ref:`(connect timeout,\nsrc/requests/sessions.py:597:            read timeout) <timeouts>` tuple.\nsrc/requests/sessions.py:598:        :type timeout: float or tuple\nsrc/requests/sessions.py:647:            \"timeout\": timeout,\nsrc/requests/sessions.py:900:        state = {attr: getattr(self, attr, None) for attr in self.__attrs__}\nsrc/requests/sessions.py:908:def session() -> Session:\ntests/test_lowlevel.py:14:    request_content = consume_socket_content(sock, timeout=0.5)\ntests/test_lowlevel.py:43:        request_content = consume_socket_content(sock, timeout=0.5)\ntests/test_lowlevel.py:105:        request_content = consume_socket_content(sock, timeout=0.5)\ntests/test_lowlevel.py:154:        request_content = consume_socket_content(sock, timeout=0.5)\ntests/test_lowlevel.py:159:        request_content = consume_socket_content(sock, timeout=0.5)\ntests/test_lowlevel.py:165:        request_content = consume_socket_content(sock, timeout=0.5)\ntests/test_lowlevel.py:170:        request_content = consume_socket_content(sock, timeout=0.5)\ntests/test_lowlevel.py:210:        request_content = consume_socket_content(sock, timeout=0.5)\ntests/test_lowlevel.py:216:        request_content = consume_socket_content(sock, timeout=0.5)\ntests/test_lowlevel.py:221:        request_content = consume_socket_content(sock, timeout=0.5)\ntests/test_lowlevel.py:253:        request_content = consume_socket_content(sock, timeout=0.5)\ntests/test_lowlevel.py:258:        request_content = consume_socket_content(sock, timeout=0.5)\ntests/test_lowlevel.py:314:        consume_socket_content(sock, timeout=0.5)\ntests/test_lowlevel.py:324:        redirect_request.append(consume_socket_content(sock, timeout=0.5))\ntests/test_lowlevel.py:371:        consume_socket_content(sock, timeout=0.5)\ntests/test_lowlevel.py:377:        consume_socket_content(sock, timeout=0.5)\ntests/test_lowlevel.py:383:        consume_socket_content(sock, timeout=0.5)\ntests/test_lowlevel.py:410:        consume_socket_content(sock, timeout=0.5)\ntests/test_requests.py:62:# Requests to this URL should always fail with a connection timeout (nothing\ntests/test_requests.py:66:# This is to avoid waiting the timeout of using TARPIT\ntests/test_requests.py:595:            requests.get(url, timeout=1)\ntests/test_requests.py:2537:    def test_stream_timeout(self, httpbin):\ntests/test_requests.py:2539:            requests.get(httpbin(\"delay/10\"), timeout=2.0)\ntests/test_requests.py:2544:        \"timeout, error_text\",\ntests/test_requests.py:2550:    def test_invalid_timeout(self, httpbin, timeout, error_text):\ntests/test_requests.py:2552:            requests.get(httpbin(\"get\"), timeout=timeout)\ntests/test_requests.py:2555:    @pytest.mark.parametrize(\"timeout\", (None, Urllib3Timeout(connect=None, read=None)))\ntests/test_requests.py:2556:    def test_none_timeout(self, httpbin, timeout):\ntests/test_requests.py:2557:        \"\"\"Check that you can set None as a valid timeout value.\ntests/test_requests.py:2560:        timeout to None actually lets the request block past the system default\ntests/test_requests.py:2561:        timeout. However, this would make the test suite unbearably slow.\ntests/test_requests.py:2562:        Instead we verify that setting the timeout to None does not prevent the\ntests/test_requests.py:2565:        r = requests.get(httpbin(\"get\"), timeout=timeout)\ntests/test_requests.py:2569:        \"timeout\", ((None, 0.1), Urllib3Timeout(connect=None, read=0.1))\ntests/test_requests.py:2571:    def test_read_timeout(self, httpbin, timeout):\ntests/test_requests.py:2573:            requests.get(httpbin(\"delay/10\"), timeout=timeout)\ntests/test_requests.py:2579:        \"timeout\", ((0.1, None), Urllib3Timeout(connect=0.1, read=None))\ntests/test_requests.py:2581:    def test_connect_timeout(self, timeout):\ntests/test_requests.py:2583:            requests.get(TARPIT, timeout=timeout)\ntests/test_requests.py:2590:        \"timeout\", ((0.1, 0.1), Urllib3Timeout(connect=0.1, read=0.1))\ntests/test_requests.py:2592:    def test_total_timeout_connect(self, timeout):\ntests/test_requests.py:2594:            requests.get(TARPIT, timeout=timeout)\ntests/test_requests.py:2660:        \"timeout\": None,\ntests/test_requests.py:2930:            consume_socket_content(sock, timeout=0.5)\ntests/test_requests.py:2963:            consume_socket_content(sock, timeout=0.5)\ntests/test_requests.py:2996:            consume_socket_content(sock, timeout=0.5)\ntests/test_requests.py:3030:            consume_socket_content(sock, timeout=0.5)\n[build-system]\nrequires = [\"setuptools>=61.0\"]\nbuild-backend = \"setuptools.build_meta\"\n\n[project]\nname = \"requests\"\ndescription = \"Python HTTP for Humans.\"\nreadme = \"README.md\"\nlicense = {text = \"Apache-2.0\"}\nauthors = [\n    { name = \"Kenneth Reitz\", email = \"me@kennethreitz.org\" },\n]\nmaintainers = [\n    {name = \"Ian Stapleton Cordasco\", email=\"graffatcolmingov@gmail.com\"},\n    {name = \"Nate Prewitt\", email=\"nate.prewitt@gmail.com\"}\n]\nrequires-python = \">=3.10\"\ndependencies = [\n    \"charset_normalizer>=2,<4\",\n    \"idna>=2.5,<4\",\n    \"urllib3>=1.26,<3\",\n    \"certifi>=2023.5.7\"\n]\ndynamic = [\"version\"]\n\nclassifiers = [\n    \"Development Status :: 5 - Production/Stable\",\n    \"Environment :: Web Environment\",\n    \"Intended Audience :: Developers\",\n    \"License :: OSI Approved :: Apache Software License\",\n    \"Natural Language :: English\",\n    \"Operating System :: OS Independent\",\n    \"Programming Language :: Python\",\n    \"Programming Language :: Python :: 3\",\n    \"Programming Language :: Python :: 3.10\",\n    \"Programming Language :: Python :: 3.11\",\n    \"Programming Language :: Python :: 3.12\",\n    \"Programming Language :: Python :: 3.13\",\n    \"Programming Language :: Python :: 3.14\",\n    \"Programming Language :: Python :: 3.15\",\n    \"Programming Language :: Python :: 3 :: Only\",\n    \"Programming Language :: Python :: Implementation :: CPython\",\n    \"Programming Language :: Python :: Implementation :: PyPy\",\n    \"Programming Language :: Python :: Free Threading :: 2 - Beta\",\n    \"Topic :: Internet :: WWW/HTTP\",\n    \"Topic :: Software Development :: Libraries\"\n]\n\n[project.urls]\nDocumentation = \"https://requests.readthedocs.io\"\nSource = \"https://github.com/psf/requests\"\n\n[project.optional-dependencies]\nsecurity = []\nsocks = [\"PySocks>=1.5.6, !=1.5.7\"]\nuse_chardet_on_py3 = [\"chardet>=3.0.2,<8\"]\n\n[dependency-groups]\ntest = [\n    \"requests[socks]\",\n    \"pytest-httpbin==2.1.0\",\n    \"httpbin~=0.10.0\",\n    \"pytest-cov\",\n    \"pytest-mock\",\n    \"pytest-xdist\",\n    \"pytest>=3\",\n    \"trustme\",\n]\ntypecheck = [\n    \"pyright\",\n    \"typing_extensions\",\n    \"chardet\",\n    \"cryptography\",\n    \"PyOpenSSL\",\n]\n\n[tool.setuptools]\nlicense-files = [\"LICENSE\", \"NOTICE\"]\n\n[tool.setuptools.dynamic]\nversion = {attr = \"requests.__version__.__version__\"}\n\n[tool.setuptools.packages.find]\nwhere = [\"src\"]\n\n[tool.ruff]\ntarget-version = \"py310\"\nsrc = [\"src/requests\", \"tests\"]\nexclude = [\"docs/\", \"ext/\"]\n\n[tool.ruff.lint]\nselect = [\n    \"E\",      # pycodestyle errors\n    \"W\",      # pycodestyle warnings\n    \"F\",      # pyflakes\n    \"I\",      # isort\n    \"UP\",     # pyupgrade\n    \"T10\",    # flake8-debugger (replaces debug-statements hook)\n]\nignore = [\"E203\", \"E501\", \"UP031\"]\nper-file-ignores = {\"src/requests/__init__.py\" = [\"E402\", \"F401\"], \"src/requests/compat.py\" = [\"E402\", \"F401\"], \"tests/compat.py\" = [\"F401\"]}\n\n[tool.ruff.lint.isort]\nknown-first-party = [\"requests\"]\n\n[tool.ruff.format]\n# Use black-compatible formatting\nquote-style = \"double\"\nindent-style = \"space\"\n\n[tool.pytest.ini_options]\naddopts = \"--doctest-modules\"\ndoctest_optionflags = \"NORMALIZE_WHITESPACE ELLIPSIS\"\nminversion = \"6.2\"\ntestpaths = [\"tests\"]\n\n\n[tool.pyright]\ninclude = [\"src/requests\"]\ntypeCheckingMode = \"strict\"\n# linting rules unrelated to type checking\nreportPrivateUsage = false\nreportPrivateImportUsage = false\nreportUnnecessaryIsInstance = false\nreportUnusedImport = false  # duplicate of Ruff's F401 rule\ntry:\n    from http.server import HTTPServer, SimpleHTTPRequestHandler\nexcept ImportError:\n    from BaseHTTPServer import HTTPServer\n    from SimpleHTTPServer import SimpleHTTPRequestHandler\n\nimport ssl\nimport threading\n\nimport pytest\n\nfrom requests.compat import urljoin\n\n\ndef prepare_url(value):\n    # Issue #1483: Make sure the URL always has a trailing slash\n    httpbin_url = value.url.rstrip(\"/\") + \"/\"\n\n    def inner(*suffix):\n        return urljoin(httpbin_url, \"/\".join(suffix))\n\n    return inner\n\n\n@pytest.fixture(autouse=True)\ndef clean_proxy_environ(monkeypatch):\n    \"\"\"Remove proxy related environment variables for every test.\"\"\"\n    proxy_vars = (\"http_proxy\", \"https_proxy\", \"no_proxy\", \"ftp_proxy\", \"all_proxy\")\n    for var in proxy_vars:\n        monkeypatch.delenv(var, raising=False)\n        monkeypatch.delenv(var.upper(), raising=False)\n\n\n@pytest.fixture\ndef httpbin(httpbin):\n    return prepare_url(httpbin)\n\n\n@pytest.fixture\ndef httpbin_secure(httpbin_secure):\n    return prepare_url(httpbin_secure)\n\n\n@pytest.fixture\ndef nosan_server(tmp_path_factory):\n    # delay importing until the fixture in order to make it possible\n    # to deselect the test via command-line when trustme is not available\n    import trustme\n\n    tmpdir = tmp_path_factory.mktemp(\"certs\")\n    ca = trustme.CA()\n    # only commonName, no subjectAltName\n    server_cert = ca.issue_cert(common_name=\"localhost\")\n    ca_bundle = str(tmpdir / \"ca.pem\")\n    ca.cert_pem.write_to_path(ca_bundle)\n\n    context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)\n    server_cert.configure_cert(context)\n    server = HTTPServer((\"localhost\", 0), SimpleHTTPRequestHandler)\n    server.socket = context.wrap_socket(server.socket, server_side=True)\n    server_thread = threading.Thread(target=server.serve_forever)\n    server_thread.start()\n\n    yield \"localhost\", server.server_address[1], ca_bundle\n\n    server.shutdown()\n    server_thread.join()\nimport requests.adapters\n\n\ndef test_request_url_handles_leading_path_separators():\n    \"\"\"See also https://github.com/psf/requests/issues/6643.\"\"\"\n    a = requests.adapters.HTTPAdapter()\n    p = requests.Request(method=\"GET\", url=\"http://127.0.0.1:10000//v:h\").prepare()\n    assert \"//v:h\" == a.request_url(p, {})\nimport threading\n\nimport pytest\n\nimport requests\nfrom requests.compat import JSONDecodeError\nfrom tests.testserver.server import Server, consume_socket_content\n\nfrom .utils import override_environ\n\n\ndef echo_response_handler(sock):\n    \"\"\"Simple handler that will take request and echo it back to requester.\"\"\"\n    request_content = consume_socket_content(sock, timeout=0.5)\n\n    text_200 = (\n        b\"HTTP/1.1 200 OK\\r\\n\"\n        b\"Content-Length: %d\\r\\n\\r\\n\"\n        b\"%s\"\n    ) % (len(request_content), request_content)\n    sock.send(text_200)\n\n\ndef test_chunked_upload():\n    \"\"\"can safely send generators\"\"\"\n    close_server = threading.Event()\n    server = Server.basic_response_server(wait_to_close_event=close_server)\n    data = iter([b\"a\", b\"b\", b\"c\"])\n\n    with server as (host, port):\n        url = f\"http://{host}:{port}/\"\n        r = requests.post(url, data=data, stream=True)\n        close_server.set()  # release server block\n\n    assert r.status_code == 200\n    assert r.request.headers[\"Transfer-Encoding\"] == \"chunked\"\n\n\ndef test_chunked_encoding_error():\n    \"\"\"get a ChunkedEncodingError if the server returns a bad response\"\"\"\n\n    def incomplete_chunked_response_handler(sock):\n        request_content = consume_socket_content(sock, timeout=0.5)\n\n        # The server never ends the request and doesn't provide any valid chunks\n        sock.send(\n            b\"HTTP/1.1 200 OK\\r\\n\"\n            b\"Transfer-Encoding: chunked\\r\\n\"\n        )\n\n        return request_content\n\n    close_server = threading.Event()\n    server = Server(incomplete_chunked_response_handler)\n\n    with server as (host, port):\n        url = f\"http://{host}:{port}/\"\n        with pytest.raises(requests.exceptions.ChunkedEncodingError):\n            requests.get(url)\n        close_server.set()  # release server block\n\n\ndef test_chunked_upload_uses_only_specified_host_header():\n    \"\"\"Ensure we use only the specified Host header for chunked requests.\"\"\"\n    close_server = threading.Event()\n    server = Server(echo_response_handler, wait_to_close_event=close_server)\n\n    data = iter([b\"a\", b\"b\", b\"c\"])\n    custom_host = \"sample-host\"\n\n    with server as (host, port):\n        url = f\"http://{host}:{port}/\"\n        r = requests.post(url, data=data, headers={\"Host\": custom_host}, stream=True)\n        close_server.set()  # release server block\n\n    expected_header = b\"Host: %s\\r\\n\" % custom_host.encode(\"utf-8\")\n    assert expected_header in r.content\n    assert r.content.count(b\"Host: \") == 1\n\n\ndef test_chunked_upload_doesnt_skip_host_header():\n    \"\"\"Ensure we don't omit all Host headers with chunked requests.\"\"\"\n    close_server = threading.Event()\n    server = Server(echo_response_handler, wait_to_close_event=close_server)\n\n    data = iter([b\"a\", b\"b\", b\"c\"])\n\n    with server as (host, port):\n        expected_host = f\"{host}:{port}\"\n        url = f\"http://{host}:{port}/\"\n        r = requests.post(url, data=data, stream=True)\n        close_server.set()  # release server block\n\n    expected_header = b\"Host: %s\\r\\n\" % expected_host.encode(\"utf-8\")\n    assert expected_header in r.content\n    assert r.content.count(b\"Host: \") == 1\n\n\ndef test_conflicting_content_lengths():\n    \"\"\"Ensure we correctly throw an InvalidHeader error if multiple\n    conflicting Content-Length headers are returned.\n    \"\"\"\n\n    def multiple_content_length_response_handler(sock):\n        request_content = consume_socket_content(sock, timeout=0.5)\n        response = (\n            b\"HTTP/1.1 200 OK\\r\\n\"\n            b\"Content-Type: text/plain\\r\\n\"\n            b\"Content-Length: 16\\r\\n\"\n            b\"Content-Length: 32\\r\\n\\r\\n\"\n            b\"-- Bad Actor -- Original Content\\r\\n\"\n        )\n        sock.send(response)\n\n        return request_content\n\n    close_server = threading.Event()\n    server = Server(multiple_content_length_response_handler)\n\n    with server as (host, port):\n        url = f\"http://{host}:{port}/\"\n        with pytest.raises(requests.exceptions.InvalidHeader):\n            requests.get(url)\n        close_server.set()\n\n\ndef test_digestauth_401_count_reset_on_redirect():\n    \"\"\"Ensure we correctly reset num_401_calls after a successful digest auth,\n    followed by a 302 redirect to another digest auth prompt.\n\n    See https://github.com/psf/requests/issues/1979.\n    \"\"\"\n    text_401 = (b'HTTP/1.1 401 UNAUTHORIZED\\r\\n'\n                b'Content-Length: 0\\r\\n'\n                b'WWW-Authenticate: Digest nonce=\"6bf5d6e4da1ce66918800195d6b9130d\"'\n                b', opaque=\"372825293d1c26955496c80ed6426e9e\", '\n                b'realm=\"me@kennethreitz.com\", qop=auth\\r\\n\\r\\n')\n\n    text_302 = (b'HTTP/1.1 302 FOUND\\r\\n'\n                b'Content-Length: 0\\r\\n'\n                b'Location: /\\r\\n\\r\\n')\n\n    text_200 = (b'HTTP/1.1 200 OK\\r\\n'\n                b'Content-Length: 0\\r\\n\\r\\n')\n\n    expected_digest = (b'Authorization: Digest username=\"user\", '\n                       b'realm=\"me@kennethreitz.com\", '\n                       b'nonce=\"6bf5d6e4da1ce66918800195d6b9130d\", uri=\"/\"')\n\n    auth = requests.auth.HTTPDigestAuth('user', 'pass')\n\n    def digest_response_handler(sock):\n        # Respond to initial GET with a challenge.\n        request_content = consume_socket_content(sock, timeout=0.5)\n        assert request_content.startswith(b\"GET / HTTP/1.1\")\n        sock.send(text_401)\n\n        # Verify we receive an Authorization header in response, then redirect.\n        request_content = consume_socket_content(sock, timeout=0.5)\n        assert expected_digest in request_content\n        sock.send(text_302)\n\n        # Verify Authorization isn't sent to the redirected host,\n        # then send another challenge.\n        request_content = consume_socket_content(sock, timeout=0.5)\n        assert b'Authorization:' not in request_content\n        sock.send(text_401)\n\n        # Verify Authorization is sent correctly again, and return 200 OK.\n        request_content = consume_socket_content(sock, timeout=0.5)\n\"\"\"\nrequests.sessions\n~~~~~~~~~~~~~~~~~\n\nThis module provides a Session object to manage and persist settings across\nrequests (cookies, auth, proxies).\n\"\"\"\n\nfrom __future__ import annotations\n\nimport os\nimport sys\nimport time\nfrom collections import OrderedDict\nfrom collections.abc import Generator, Mapping, MutableMapping\nfrom datetime import timedelta\nfrom typing import TYPE_CHECKING, Any, cast\n\nfrom ._internal_utils import to_native_string\nfrom ._types import is_prepared as _is_prepared\nfrom .adapters import HTTPAdapter\nfrom .auth import _basic_auth_str\nfrom .compat import cookielib, urljoin, urlparse\nfrom .cookies import (\n    RequestsCookieJar,\n    cookiejar_from_dict,\n    extract_cookies_to_jar,\n    merge_cookies,\n)\nfrom .exceptions import (\n    ChunkedEncodingError,\n    ContentDecodingError,\n    InvalidSchema,\n    TooManyRedirects,\n)\nfrom .hooks import default_hooks, dispatch_hook\n\n# formerly defined here, reexposed here for backward compatibility\nfrom .models import (  # noqa: F401\n    DEFAULT_REDIRECT_LIMIT,\n    REDIRECT_STATI,\n    PreparedRequest,\n    Request,\n    Response,\n)\nfrom .status_codes import codes\nfrom .structures import CaseInsensitiveDict\nfrom .utils import (  # noqa: F401\n    DEFAULT_PORTS,\n    default_headers,\n    get_auth_from_url,\n    get_environ_proxies,\n    get_netrc_auth,\n    requote_uri,\n    resolve_proxies,\n    rewind_body,\n    should_bypass_proxies,  # re-export for external consumers\n    to_key_val_list,\n)\n\nif TYPE_CHECKING:\n    from http.cookiejar import CookieJar\n\n    from typing_extensions import Self, Unpack\n\n    from . import _types as _t\n    from .adapters import BaseAdapter\n\n# Preferred clock, based on which one is more accurate on a given system.\nif sys.platform == \"win32\":\n    preferred_clock = time.perf_counter\nelse:\n    preferred_clock = time.time\n\n\ndef merge_setting(\n    request_setting: Any, session_setting: Any, dict_class: type = OrderedDict\n) -> Any:\n    \"\"\"Determines appropriate setting for a given request, taking into account\n    the explicit setting on that request, and the setting in the session. If a\n    setting is a dictionary, they will be merged together using `dict_class`\n    \"\"\"\n\n    if session_setting is None:\n        return request_setting\n\n    if request_setting is None:\n        return session_setting\n\n    # Bypass if not a dictionary (e.g. verify)\n    if not (\n        isinstance(session_setting, Mapping) and isinstance(request_setting, Mapping)\n    ):\n        return request_setting\n\n    merged_setting = dict_class(to_key_val_list(session_setting))  # type: ignore[arg-type]  # isinstance narrows Any to Mapping[Unknown]\n    merged_setting.update(to_key_val_list(request_setting))  # type: ignore[arg-type]\n\n    # Remove keys that are set to None. Extract keys first to avoid altering\n    # the dictionary during iteration.\n      <Response [200]>\n\n    Or as a context manager::\n\n      >>> with requests.Session() as s:\n      ...     s.get('https://httpbin.org/get')\n      <Response [200]>\n    \"\"\"\n\n    headers: CaseInsensitiveDict[str]\n    auth: _t.AuthType\n    proxies: dict[str, str]\n    hooks: dict[str, list[_t.HookType]]\n    params: MutableMapping[str, Any]\n    stream: bool\n    verify: _t.VerifyType\n    cert: _t.CertType\n    max_redirects: int\n    trust_env: bool\n    cookies: RequestsCookieJar\n    adapters: MutableMapping[str, BaseAdapter]\n\n    __attrs__: list[str] = [\n        \"headers\",\n        \"cookies\",\n        \"auth\",\n        \"proxies\",\n        \"hooks\",\n        \"params\",\n        \"verify\",\n        \"cert\",\n        \"adapters\",\n        \"stream\",\n        \"trust_env\",\n        \"max_redirects\",\n    ]\n\n    def __init__(self) -> None:\n        #: A case-insensitive dictionary of headers to be sent on each\n        #: :class:`Request <Request>` sent from this\n",
+        "command": "/bin/zsh -lc \"rg -n '\"'^class Session|__attrs__|timeout|''^    def (request|session|resolve_redirects)|''^def session'\"' src/requests/sessions.py src/requests/_types.py src/requests/api.py tests/test_requests.py tests/test_adapters.py tests/test_lowlevel.py; sed -n '1,180p' pyproject.toml; sed -n '1,160p' tests/conftest.py; sed -n '1,180p' tests/test_adapters.py; sed -n '1,170p' tests/test_lowlevel.py; sed -n '1,100p' src/requests/sessions.py; sed -n '405,444p' src/requests/sessions.py\"",
+        "exit_code": 0,
+        "id": "item_5",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 246444.502930666,
+      "perf_counter_ns": 246444502926208,
+      "utc": "2026-10-15T16:29:38.936320+00:00",
+      "wall_time_ns": 1792081778936320000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "arguments": {
+          "max_results": 5,
+          "query": "Session.request timeout parameter send_kwargs timeout passing SessionRedirectMixin.resolve_redirects timeout forwarding",
+          "token_budget": 2000
+        },
+        "error": null,
+        "id": "item_4",
+        "result": {
+          "content": [
+            {
+              "text": "{\"query\":\"Session.request timeout parameter send_kwargs timeout passing SessionRedirectMixin.resolve_redirects timeout forwarding\",\"match_status\":\"candidates\",\"results\":[{\"path\":\"src/requests/sessions.py\",\"symbol\":\"SessionRedirectMixin.resolve_redirects\",\"start_line\":186,\"end_line\":307,\"source\":\"    def resolve_redirects(\\n        self,\\n        resp: Response,\\n        req: PreparedRequest,\\n        stream: bool = False,\\n        timeout: _t.TimeoutType = None,\\n        verify: _t.VerifyType = True,\\n        cert: _t.CertType = None,\\n        proxies: dict[str, str] | None = None,\\n        yield_requests: bool = False,\\n        **adapter_kwargs: Any,\\n    ) -> Generator[Response, None, None]:\\n        \\\"\\\"\\\"Receives a Response. Returns a generator of Responses or Requests.\\\"\\\"\\\"\\n\\n        hist: list[Response] = []  # keep track of history\\n\\n        url = self.get_redirect_target(resp)\\n        previous_fragment = urlparse(req.url).fragment\\n        while url:\\n            prepared_request = req.copy()\\n\\n            # Update history and keep track of redirects.\\n            resp.history = hist[:]\\n            hist.append(resp)\\n\\n            try:\\n                resp.content  # Consume socket so it can be released\\n            except (ChunkedEncodingError, ContentDecodingError, RuntimeError):\\n                resp.raw.read(decode_content=False)\\n\\n            if len(resp.history) >= self.max_redirects:\\n                raise TooManyRedirects(\\n                    f\\\"Exceeded {self.max_redirects} redirects.\\\", response=resp\\n                )\\n\\n            # Release the connection back into the pool.\\n            resp.close()\\n\\n            # Handle redirection without scheme (see: RFC 1808 Section 4)\\n            if url.startswith(\\\"//\\\"):\\n                parsed_rurl = urlparse(resp.url)\\n                url = \\\":\\\".join([to_native_string(parsed_rurl.scheme), url])\\n\\n            # Normalize url case and attach previous fragment if needed (RFC 7231 7.1.2)\\n            parsed = urlparse(url)\\n            if parsed.fragment == \\\"\\\" and previous_fragment:\\n                parsed = parsed._replace(fragment=previous_fragment)\\n            elif parsed.fragment:\\n                previous_fragment = parsed.fragment\\n            url = parsed.geturl()\\n\\n            # Facilitate relative 'location' headers, as allowed by RFC 7231.\\n            # (e.g. '/path/to/resource' instead of 'http://domain.tld/path/to/resource')\\n            # Compliant with RFC3986, we percent encode the url.\\n            if not parsed.netloc:\\n                url = urljoin(resp.url, requote_uri(url))\\n            else:\\n                url = requote_uri(url)\\n\\n            prepared_request.url = to_native_string(url)\\n\\n            self.rebuild_method(prepared_request, resp)\\n\\n            # https://github.com/psf/requests/issues/1084\\n            if resp.status_code not in (\\n                codes.temporary_redirect,\\n                codes.permanent_redirect,\\n            ):\\n                # https://github.com/psf/requests/issues/3490\\n                purged_headers = (\\\"Content-Length\\\", \\\"Content-Type\\\", \\\"Transfer-Encoding\\\")\\n                for header in purged_headers:\\n                    prepared_request.headers.pop(header, None)\\n                prepared_request.body = None\\n\\n            headers = prepared_request.headers\\n            headers.pop(\\\"Cookie\\\", None)\\n\\n            # Extract any cookies sent on the response to the cookiejar\\n            # in the new request. Because we've mutated our copied prepared\\n            # request, use the old one that we haven't yet touched.\\n            cookie_jar = cast(\\\"CookieJar\\\", prepared_request._cookies)\\n            extract_cookies_to_jar(cookie_jar, req, resp.raw)\\n            merge_cookies(cookie_jar, self.cookies)\\n            prepared_request.prepare_cookies(cookie_jar)\\n\\n            # Rebuild auth and proxy information.\\n            proxies = self.rebuild_proxies(prepared_request, proxies)\\n            self.rebuild_auth(prepared_request, resp)\\n\\n            # A failed tell() sets `_body_position` to `object()`. This non-None\\n            # value ensures `rewindable` will be True, allowing us to raise an\\n            # UnrewindableBodyError, instead of hanging the connection.\\n            rewindable = prepared_request._body_position is not None and (\\n                \\\"Content-Length\\\" in headers or \\\"Transfer-Encoding\\\" in headers\\n            )\\n\\n            # Attempt to rewind consumed file-like object.\\n            if rewindable:\\n                rewind_body(prepared_request)\\n\\n            # Override the original request.\\n            req = prepared_request\\n\\n            if yield_requests:\\n                yield req  # type: ignore[misc]  # Internal use only, returns PreparedRequest\\n            else:\\n                resp = self.send(\\n                    req,\\n                    stream=stream,\\n                    timeout=timeout,\\n                    verify=verify,\\n                    cert=cert,\\n                    proxies=proxies,\\n                    allow_redirects=False,\\n                    **adapter_kwargs,\\n                )\\n\\n                extract_cookies_to_jar(self.cookies, prepared_request, resp.raw)\\n\\n                # extract redirect url, if any, for the next loop\\n                url = self.get_redirect_target(resp)\\n                yield resp\\n\",\"source_hash\":\"06c83609199b1c75ab7ba83c0eab6ff186a8f70f377319d54484bbe04c14b28f\",\"truncated\":false,\"origin\":\"retrieval\",\"related_to\":null},{\"path\":\"src/requests/sessions.py\",\"symbol\":\"Session.send\",\"start_line\":752,\"end_line\":826,\"source\":\"    def send(self, request: PreparedRequest, **kwargs: Any) -> Response:\\n        \\\"\\\"\\\"Send a given PreparedRequest.\\n\\n        :rtype: requests.Response\\n        \\\"\\\"\\\"\\n        # Set defaults that the hooks can utilize to ensure they always have\\n        # the correct parameters to reproduce the previous request.\\n        kwargs.setdefault(\\\"stream\\\", self.stream)\\n        kwargs.setdefault(\\\"verify\\\", self.verify)\\n        kwargs.setdefault(\\\"cert\\\", self.cert)\\n        if \\\"proxies\\\" not in kwargs:\\n            kwargs[\\\"proxies\\\"] = resolve_proxies(request, self.proxies, self.trust_env)\\n\\n        # It's possible that users might accidentally send a Request object.\\n        # Guard against that specific failure case.\\n        if isinstance(request, Request):\\n            raise ValueError(\\\"You can only send PreparedRequests.\\\")\\n\\n        assert _is_prepared(request)\\n\\n        # Set up variables needed for resolve_redirects and dispatching of hooks\\n        allow_redirects = kwargs.pop(\\\"allow_redirects\\\", True)\\n        stream = kwargs.get(\\\"stream\\\")\\n        hooks = request.hooks\\n\\n        # Get the appropriate adapter to use\\n        adapter = self.get_adapter(url=request.url)\\n\\n        # Start time (approximately) of the request\\n        start = preferred_clock()\\n\\n        # Send the request\\n        r = adapter.send(request, **kwargs)\\n\\n        # Total elapsed time of the request (approximately)\\n        elapsed = preferred_clock() - start\\n        r.elapsed = timedelta(seconds=elapsed)\\n\\n        # Response manipulation hooks\\n        r = dispatch_hook(\\\"response\\\", hooks, r, **kwargs)\\n\\n        # Persist cookies\\n        if r.history:\\n            # If the hooks create history then we want those cookies too\\n            for resp in r.history:\\n                extract_cookies_to_jar(self.cookies, resp.request, resp.raw)\\n\\n        extract_cookies_to_jar(self.cookies, request, r.raw)\\n\\n        # Resolve redirects if allowed.\\n        if allow_redirects:\\n            # Redirect resolving generator.\\n            gen = self.resolve_redirects(r, request, **kwargs)\\n            history = [resp for resp in gen]\\n        else:\\n            history = []\\n\\n        # Shuffle things around if there's history.\\n        if history:\\n            # Insert the first (original) request at the start\\n            history.insert(0, r)\\n            # Get the last request made\\n            r = history.pop()\\n            r.history = history\\n\\n        # If redirects aren't being followed, store the response on the Request for Response.next().\\n        if not allow_redirects:\\n            try:\\n                r._next = next(  # type: ignore[assignment]  # yield_requests=True returns PreparedRequest\\n                    self.resolve_redirects(r, request, yield_requests=True, **kwargs)\\n                )\\n            except StopIteration:\\n                pass\\n\\n        if not stream:\\n\",\"source_hash\":\"df7a56291387cdb77c204613ec058f288ad21355ae83ab2e81570bc902184054\",\"truncated\":true,\"origin\":\"retrieval\",\"related_to\":null}],\"budget_exhausted\":true,\"token_usage\":{\"encoding\":\"cl100k_base\",\"tokens\":1997,\"budget\":2000,\"truncated\":true},\"scope\":{\"source_root\":\"src/requests\",\"membership\":\"saved implementations; Git-tracked files only in Git projects\",\"source_exclusions\":[],\"exclusions_omitted\":0}}",
+              "type": "text"
+            }
+          ],
+          "structured_content": null
+        },
+        "server": "semantic_search",
+        "status": "completed",
+        "tool": "search_code",
+        "type": "mcp_tool_call"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 246444.767814916,
+      "perf_counter_ns": 246444767808291,
+      "utc": "2026-10-15T16:29:39.201197+00:00",
+      "wall_time_ns": 1792081779201197000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"sed -n '557,659p' src/requests/sessions.py; sed -n '1,120p' src/requests/_types.py; sed -n '125,178p' src/requests/_types.py; sed -n '1,110p' src/requests/api.py; sed -n '1,160p' pyproject.toml\"",
+        "exit_code": null,
+        "id": "item_6",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 246451.305572041,
+      "perf_counter_ns": 246451305537750,
+      "utc": "2026-10-15T16:29:45.738816+00:00",
+      "wall_time_ns": 1792081785738816000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "    def request(\n        self,\n        method: str,\n        url: _t.UriType,\n        params: _t.ParamsType = None,\n        data: _t.DataType = None,\n        headers: _t.HeadersType = None,\n        cookies: RequestsCookieJar | CookieJar | dict[str, str] | None = None,\n        files: _t.FilesType = None,\n        auth: _t.AuthType = None,\n        timeout: _t.TimeoutType = None,\n        allow_redirects: bool = True,\n        proxies: dict[str, str] | None = None,\n        hooks: _t.HooksInputType | None = None,\n        stream: bool | None = None,\n        verify: _t.VerifyType | None = None,\n        cert: _t.CertType = None,\n        json: _t.JsonType = None,\n    ) -> Response:\n        \"\"\"Constructs a :class:`Request <Request>`, prepares it and sends it.\n        Returns :class:`Response <Response>` object.\n\n        :param method: method for the new :class:`Request` object.\n        :param url: URL for the new :class:`Request` object.\n        :param params: (optional) Dictionary or bytes to be sent in the query\n            string for the :class:`Request`.\n        :param data: (optional) Dictionary, list of tuples, bytes, or file-like\n            object to send in the body of the :class:`Request`.\n        :param json: (optional) json to send in the body of the\n            :class:`Request`.\n        :param headers: (optional) Dictionary of HTTP Headers to send with the\n            :class:`Request`.\n        :param cookies: (optional) Dict or CookieJar object to send with the\n            :class:`Request`.\n        :param files: (optional) Dictionary of ``'filename': file-like-objects``\n            for multipart encoding upload.\n        :param auth: (optional) Auth tuple or callable to enable\n            Basic/Digest/Custom HTTP Auth.\n        :param timeout: (optional) How many seconds to wait for the server to send\n            data before giving up, as a float, or a :ref:`(connect timeout,\n            read timeout) <timeouts>` tuple.\n        :type timeout: float or tuple\n        :param allow_redirects: (optional) Set to True by default.\n        :type allow_redirects: bool\n        :param proxies: (optional) Dictionary mapping protocol or protocol and\n            hostname to the URL of the proxy.\n        :param hooks: (optional) Dictionary mapping hook name to one event or\n            list of events, event must be callable.\n        :param stream: (optional) whether to immediately download the response\n            content. Defaults to ``False``.\n        :param verify: (optional) Either a boolean, in which case it controls whether we verify\n            the server's TLS certificate, or a string, in which case it must be a path\n            to a CA bundle to use. Defaults to ``True``. When set to\n            ``False``, requests will accept any TLS certificate presented by\n            the server, and will ignore hostname mismatches and/or expired\n            certificates, which will make your application vulnerable to\n            man-in-the-middle (MitM) attacks. Setting verify to ``False``\n            may be useful during local development or testing.\n        :param cert: (optional) if String, path to ssl client cert file (.pem).\n            If Tuple, ('cert', 'key') pair.\n        :rtype: requests.Response\n        \"\"\"\n        if isinstance(url, bytes):\n            url = url.decode(\"utf-8\")\n\n        # Create the Request.\n        req = Request(\n            method=method.upper(),\n            url=url,\n            headers=headers,\n            files=files,\n            data=data or {},\n            json=json,\n            params=params or {},\n            auth=auth,\n            cookies=cookies,\n            hooks=hooks,\n        )\n        prep = self.prepare_request(req)\n\n        assert _is_prepared(prep)\n\n        proxies = proxies or {}\n\n        settings = self.merge_environment_settings(\n            prep.url, proxies, stream, verify, cert\n        )\n\n        # Send the request.\n        send_kwargs = {\n            \"timeout\": timeout,\n            \"allow_redirects\": allow_redirects,\n        }\n        send_kwargs.update(settings)\n        resp = self.send(prep, **send_kwargs)\n\n        return resp\n\n    def get(\n        self,\n        url: _t.UriType,\n        params: _t.ParamsType = None,\n        **kwargs: Unpack[_t.GetKwargs],\n\"\"\"\nrequests._types\n~~~~~~~~~~~~~~~\n\nThis module contains type aliases used internally by the Requests library.\nThese types are not part of the public API and must not be relied upon\nby external code.\n\"\"\"\n\nfrom __future__ import annotations\n\nfrom collections.abc import Callable, Iterable, Mapping, MutableMapping, Sequence\nfrom typing import (\n    TYPE_CHECKING,\n    Any,\n    Protocol,\n    TypeAlias,\n    TypeVar,\n    runtime_checkable,\n)\n\n_T_co = TypeVar(\"_T_co\", covariant=True)\n_KT_co = TypeVar(\"_KT_co\", covariant=True)\n_VT_co = TypeVar(\"_VT_co\", covariant=True)\n\n\n@runtime_checkable\nclass SupportsRead(Protocol[_T_co]):\n    def read(self, length: int = ..., /) -> _T_co: ...\n\n\ndef has_read(obj: Any) -> TypeIs[SupportsRead[str | bytes]]:\n    \"\"\"Check if obj supports read, including __getattr__ based proxies.\"\"\"\n    return isinstance(obj, SupportsRead) or hasattr(obj, \"read\")\n\n\n@runtime_checkable\nclass SupportsItems(Protocol[_KT_co, _VT_co]):\n    def items(self) -> Iterable[tuple[_KT_co, _VT_co]]: ...\n\n\n# These are needed at runtime for default_hooks() return type\nHookType: TypeAlias = Callable[[\"Response\"], Any]\nHooksInputType: TypeAlias = Mapping[str, Iterable[HookType] | HookType]\n\n\ndef is_prepared(request: PreparedRequest) -> TypeIs[_ValidatedRequest]:\n    \"\"\"Verify a PreparedRequest has been fully prepared.\"\"\"\n    if TYPE_CHECKING:\n        return request.url is not None and request.method is not None\n    # noop at runtime to avoid AssertionError\n    return True\n\n\nif TYPE_CHECKING:\n    from http.cookiejar import CookieJar\n    from typing import TypeAlias, TypedDict\n\n    from typing_extensions import (\n        Buffer,  # TODO: move to collections.abc when Python >= 3.12\n        TypeIs,  # TODO: move to typing when Python >= 3.13\n    )\n\n    from .auth import AuthBase\n    from .cookies import RequestsCookieJar\n    from .models import PreparedRequest, Response\n    from .structures import CaseInsensitiveDict\n\n    class _ValidatedRequest(PreparedRequest):\n        \"\"\"Subtype asserting a PreparedRequest has been fully prepared before calling.\n\n        The override suppression is required because mutable attribute types are\n        invariant (Liskov), but we only narrow after preparation is complete. This\n        is the explicit contract for Requests but Python's typing doesn't have a\n        better way to represent the requirement.\n        \"\"\"\n\n        url: str  # type: ignore[reportIncompatibleVariableOverride]\n        method: str  # type: ignore[reportIncompatibleVariableOverride]\n\n    # Type aliases for core API concepts (ordered by request() signature)\n    UriType: TypeAlias = str | bytes\n\n    _ParamsMappingKeyType: TypeAlias = str | bytes | int | float\n    _ParamsMappingValueType: TypeAlias = (\n        str | bytes | int | float | Iterable[str | bytes | int | float] | None\n    )\n    ParamsType: TypeAlias = (\n        SupportsItems[_ParamsMappingKeyType, _ParamsMappingValueType]\n        | tuple[tuple[_ParamsMappingKeyType, _ParamsMappingValueType], ...]\n        | Iterable[tuple[_ParamsMappingKeyType, _ParamsMappingValueType]]\n        | str\n        | bytes\n        | None\n    )\n\n    KVDataType: TypeAlias = Iterable[tuple[Any, Any]] | SupportsItems[Any, Any]\n\n    RawDataType: TypeAlias = KVDataType | str | bytes\n    StreamDataType: TypeAlias = SupportsRead[str | bytes]\n    EncodableDataType: TypeAlias = RawDataType | StreamDataType\n\n    DataType: TypeAlias = (\n        KVDataType\n        | Iterable[bytes | str]\n        | str\n        | bytes\n        | Buffer\n        | SupportsRead[str | bytes]\n        | None\n    )\n\n    BodyType: TypeAlias = (\n        bytes | str | Iterable[bytes | str] | SupportsRead[bytes | str] | None\n    )\n\n    HeadersType: TypeAlias = Mapping[str, str | bytes] | None\n\n    CookiesType: TypeAlias = RequestsCookieJar | Mapping[str, str]\n\n    _FileSpecWithContentType: TypeAlias = tuple[_FileName, _FileContent, str]\n    _FileSpecWithHeaders: TypeAlias = tuple[\n        _FileName, _FileContent, str, CaseInsensitiveDict[str] | Mapping[str, str]\n    ]\n    _FileSpec: TypeAlias = (\n        _FileContent | _FileSpecBasic | _FileSpecWithContentType | _FileSpecWithHeaders\n    )\n    FilesType: TypeAlias = (\n        Mapping[str, _FileSpec] | Iterable[tuple[str, _FileSpec]] | None\n    )\n\n    AuthType: TypeAlias = (\n        tuple[str, str] | AuthBase | Callable[[PreparedRequest], PreparedRequest] | None\n    )\n\n    TimeoutType: TypeAlias = float | tuple[float | None, float | None] | None\n    ProxiesType: TypeAlias = MutableMapping[str, str]\n    HooksType: TypeAlias = dict[str, list[HookType]] | None\n    VerifyType: TypeAlias = bool | str\n    CertType: TypeAlias = str | tuple[str, str] | None\n    JsonType: TypeAlias = (\n        None\n        | bool\n        | int\n        | float\n        | str\n        | Sequence[\"JsonType\"]\n        | Mapping[str, \"JsonType\"]\n    )\n\n    # TypedDicts for Unpack kwargs (PEP 692)\n\n    class BaseRequestKwargs(TypedDict, total=False):\n        headers: HeadersType\n        cookies: RequestsCookieJar | CookieJar | dict[str, str] | None\n        files: FilesType\n        auth: AuthType\n        timeout: TimeoutType\n        allow_redirects: bool\n        proxies: dict[str, str] | None\n        hooks: HooksInputType | None\n        stream: bool | None\n        verify: VerifyType | None\n        cert: CertType\n\n    class RequestKwargs(BaseRequestKwargs, total=False):\n        \"\"\"kwargs for request(), options(), head(), delete().\"\"\"\n\n        params: ParamsType\n        data: DataType\n        json: JsonType\n\n    class GetKwargs(BaseRequestKwargs, total=False):\n        data: DataType\n\"\"\"\nrequests.api\n~~~~~~~~~~~~\n\nThis module implements the Requests API.\n\n:copyright: (c) 2012 by Kenneth Reitz.\n:license: Apache2, see LICENSE for more details.\n\"\"\"\n\nfrom __future__ import annotations\n\nfrom typing import TYPE_CHECKING\n\nfrom . import sessions\nfrom .models import Response\n\nif TYPE_CHECKING:\n    from typing_extensions import Unpack\n\n    from . import _types as _t\n\n\ndef request(\n    method: str, url: _t.UriType, **kwargs: Unpack[_t.RequestKwargs]\n) -> Response:\n    \"\"\"Constructs and sends a :class:`Request <Request>`.\n\n    :param method: method for the new :class:`Request` object: ``GET``, ``OPTIONS``, ``HEAD``, ``POST``, ``PUT``, ``PATCH``, or ``DELETE``.\n    :param url: URL for the new :class:`Request` object.\n    :param params: (optional) Dictionary, list of tuples or bytes to send\n        in the query string for the :class:`Request`.\n    :param data: (optional) Dictionary, list of tuples, bytes, or file-like\n        object to send in the body of the :class:`Request`.\n    :param json: (optional) A JSON serializable Python object to send in the body of the :class:`Request`.\n    :param headers: (optional) Dictionary of HTTP Headers to send with the :class:`Request`.\n    :param cookies: (optional) Dict or CookieJar object to send with the :class:`Request`.\n    :param files: (optional) Dictionary of ``'name': file-like-objects`` (or ``{'name': file-tuple}``) for multipart encoding upload.\n        ``file-tuple`` can be a 2-tuple ``('filename', fileobj)``, 3-tuple ``('filename', fileobj, 'content_type')``\n        or a 4-tuple ``('filename', fileobj, 'content_type', custom_headers)``, where ``'content_type'`` is a string\n        defining the content type of the given file and ``custom_headers`` a dict-like object containing additional headers\n        to add for the file.\n    :param auth: (optional) Auth tuple to enable Basic/Digest/Custom HTTP Auth.\n    :param timeout: (optional) How many seconds to wait for the server to send data\n        before giving up, as a float, or a :ref:`(connect timeout, read\n        timeout) <timeouts>` tuple.\n    :type timeout: float or tuple\n    :param allow_redirects: (optional) Boolean. Enable/disable GET/OPTIONS/POST/PUT/PATCH/DELETE/HEAD redirection. Defaults to ``True``.\n    :type allow_redirects: bool\n    :param proxies: (optional) Dictionary mapping protocol to the URL of the proxy.\n    :param verify: (optional) Either a boolean, in which case it controls whether we verify\n            the server's TLS certificate, or a string, in which case it must be a path\n            to a CA bundle to use. Defaults to ``True``.\n    :param stream: (optional) if ``False``, the response content will be immediately downloaded.\n    :param cert: (optional) if String, path to ssl client cert file (.pem). If Tuple, ('cert', 'key') pair.\n    :return: :class:`Response <Response>` object\n    :rtype: requests.Response\n\n    Usage::\n\n      >>> import requests\n      >>> req = requests.request('GET', 'https://httpbin.org/get')\n      >>> req\n      <Response [200]>\n    \"\"\"\n\n    # By using the 'with' statement we are sure the session is closed, thus we\n    # avoid leaving sockets open which can trigger a ResourceWarning in some\n    # cases, and look like a memory leak in others.\n    with sessions.Session() as session:\n        return session.request(method=method, url=url, **kwargs)\n\n\ndef get(\n    url: _t.UriType, params: _t.ParamsType = None, **kwargs: Unpack[_t.GetKwargs]\n) -> Response:\n    r\"\"\"Sends a GET request.\n\n    :param url: URL for the new :class:`Request` object.\n    :param params: (optional) Dictionary, list of tuples or bytes to send\n        in the query string for the :class:`Request`.\n    :param \\*\\*kwargs: Optional arguments that ``request`` takes.\n    :return: :class:`Response <Response>` object\n    :rtype: requests.Response\n    \"\"\"\n\n    return request(\"get\", url, params=params, **kwargs)\n\n\ndef options(url: _t.UriType, **kwargs: Unpack[_t.RequestKwargs]) -> Response:\n    r\"\"\"Sends an OPTIONS request.\n\n    :param url: URL for the new :class:`Request` object.\n    :param \\*\\*kwargs: Optional arguments that ``request`` takes.\n    :return: :class:`Response <Response>` object\n    :rtype: requests.Response\n    \"\"\"\n\n    return request(\"options\", url, **kwargs)\n\n\ndef head(url: _t.UriType, **kwargs: Unpack[_t.RequestKwargs]) -> Response:\n    r\"\"\"Sends a HEAD request.\n\n    :param url: URL for the new :class:`Request` object.\n    :param \\*\\*kwargs: Optional arguments that ``request`` takes. If\n        `allow_redirects` is not provided, it will be set to `False` (as\n        opposed to the default :meth:`request` behavior).\n    :return: :class:`Response <Response>` object\n    :rtype: requests.Response\n[build-system]\nrequires = [\"setuptools>=61.0\"]\nbuild-backend = \"setuptools.build_meta\"\n\n[project]\nname = \"requests\"\ndescription = \"Python HTTP for Humans.\"\nreadme = \"README.md\"\nlicense = {text = \"Apache-2.0\"}\nauthors = [\n    { name = \"Kenneth Reitz\", email = \"me@kennethreitz.org\" },\n]\nmaintainers = [\n    {name = \"Ian Stapleton Cordasco\", email=\"graffatcolmingov@gmail.com\"},\n    {name = \"Nate Prewitt\", email=\"nate.prewitt@gmail.com\"}\n]\nrequires-python = \">=3.10\"\ndependencies = [\n    \"charset_normalizer>=2,<4\",\n    \"idna>=2.5,<4\",\n    \"urllib3>=1.26,<3\",\n    \"certifi>=2023.5.7\"\n]\ndynamic = [\"version\"]\n\nclassifiers = [\n    \"Development Status :: 5 - Production/Stable\",\n    \"Environment :: Web Environment\",\n    \"Intended Audience :: Developers\",\n    \"License :: OSI Approved :: Apache Software License\",\n    \"Natural Language :: English\",\n    \"Operating System :: OS Independent\",\n    \"Programming Language :: Python\",\n    \"Programming Language :: Python :: 3\",\n    \"Programming Language :: Python :: 3.10\",\n    \"Programming Language :: Python :: 3.11\",\n    \"Programming Language :: Python :: 3.12\",\n    \"Programming Language :: Python :: 3.13\",\n    \"Programming Language :: Python :: 3.14\",\n    \"Programming Language :: Python :: 3.15\",\n    \"Programming Language :: Python :: 3 :: Only\",\n    \"Programming Language :: Python :: Implementation :: CPython\",\n    \"Programming Language :: Python :: Implementation :: PyPy\",\n    \"Programming Language :: Python :: Free Threading :: 2 - Beta\",\n    \"Topic :: Internet :: WWW/HTTP\",\n    \"Topic :: Software Development :: Libraries\"\n]\n\n[project.urls]\nDocumentation = \"https://requests.readthedocs.io\"\nSource = \"https://github.com/psf/requests\"\n\n[project.optional-dependencies]\nsecurity = []\nsocks = [\"PySocks>=1.5.6, !=1.5.7\"]\nuse_chardet_on_py3 = [\"chardet>=3.0.2,<8\"]\n\n[dependency-groups]\ntest = [\n    \"requests[socks]\",\n    \"pytest-httpbin==2.1.0\",\n    \"httpbin~=0.10.0\",\n    \"pytest-cov\",\n    \"pytest-mock\",\n    \"pytest-xdist\",\n    \"pytest>=3\",\n    \"trustme\",\n]\ntypecheck = [\n    \"pyright\",\n    \"typing_extensions\",\n    \"chardet\",\n    \"cryptography\",\n    \"PyOpenSSL\",\n]\n\n[tool.setuptools]\nlicense-files = [\"LICENSE\", \"NOTICE\"]\n\n[tool.setuptools.dynamic]\nversion = {attr = \"requests.__version__.__version__\"}\n\n[tool.setuptools.packages.find]\nwhere = [\"src\"]\n\n[tool.ruff]\ntarget-version = \"py310\"\nsrc = [\"src/requests\", \"tests\"]\nexclude = [\"docs/\", \"ext/\"]\n\n[tool.ruff.lint]\nselect = [\n    \"E\",      # pycodestyle errors\n    \"W\",      # pycodestyle warnings\n    \"F\",      # pyflakes\n    \"I\",      # isort\n    \"UP\",     # pyupgrade\n    \"T10\",    # flake8-debugger (replaces debug-statements hook)\n]\nignore = [\"E203\", \"E501\", \"UP031\"]\nper-file-ignores = {\"src/requests/__init__.py\" = [\"E402\", \"F401\"], \"src/requests/compat.py\" = [\"E402\", \"F401\"], \"tests/compat.py\" = [\"F401\"]}\n\n[tool.ruff.lint.isort]\nknown-first-party = [\"requests\"]\n\n[tool.ruff.format]\n# Use black-compatible formatting\nquote-style = \"double\"\nindent-style = \"space\"\n\n[tool.pytest.ini_options]\naddopts = \"--doctest-modules\"\ndoctest_optionflags = \"NORMALIZE_WHITESPACE ELLIPSIS\"\nminversion = \"6.2\"\ntestpaths = [\"tests\"]\n\n\n[tool.pyright]\ninclude = [\"src/requests\"]\ntypeCheckingMode = \"strict\"\n# linting rules unrelated to type checking\nreportPrivateUsage = false\nreportPrivateImportUsage = false\nreportUnnecessaryIsInstance = false\nreportUnusedImport = false  # duplicate of Ruff's F401 rule\n",
+        "command": "/bin/zsh -lc \"sed -n '557,659p' src/requests/sessions.py; sed -n '1,120p' src/requests/_types.py; sed -n '125,178p' src/requests/_types.py; sed -n '1,110p' src/requests/api.py; sed -n '1,160p' pyproject.toml\"",
+        "exit_code": 0,
+        "id": "item_6",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 246451.3062575,
+      "perf_counter_ns": 246451306250083,
+      "utc": "2026-10-15T16:29:45.739528+00:00",
+      "wall_time_ns": 1792081785739528000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"rg --files --hidden -g 'AGENTS.md' -g '\"'!'\"\\\\.git' -g '\"'!'\"\\\\.cache'; cat tests/conftest.py; cat tests/test_adapters.py; sed -n '1,90p' tests/test_requests.py; sed -n '2520,2625p' tests/test_requests.py; rg -n 'pickle|adapter|Session.send|send\\\\(|class Test' tests/test_requests.py; sed -n '1,100p' tox.ini\"",
+        "exit_code": null,
+        "id": "item_7",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 246451.319640875,
+      "perf_counter_ns": 246451319634041,
+      "utc": "2026-10-15T16:29:45.752912+00:00",
+      "wall_time_ns": 1792081785752912000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "try:\n    from http.server import HTTPServer, SimpleHTTPRequestHandler\nexcept ImportError:\n    from BaseHTTPServer import HTTPServer\n    from SimpleHTTPServer import SimpleHTTPRequestHandler\n\nimport ssl\nimport threading\n\nimport pytest\n\nfrom requests.compat import urljoin\n\n\ndef prepare_url(value):\n    # Issue #1483: Make sure the URL always has a trailing slash\n    httpbin_url = value.url.rstrip(\"/\") + \"/\"\n\n    def inner(*suffix):\n        return urljoin(httpbin_url, \"/\".join(suffix))\n\n    return inner\n\n\n@pytest.fixture(autouse=True)\ndef clean_proxy_environ(monkeypatch):\n    \"\"\"Remove proxy related environment variables for every test.\"\"\"\n    proxy_vars = (\"http_proxy\", \"https_proxy\", \"no_proxy\", \"ftp_proxy\", \"all_proxy\")\n    for var in proxy_vars:\n        monkeypatch.delenv(var, raising=False)\n        monkeypatch.delenv(var.upper(), raising=False)\n\n\n@pytest.fixture\ndef httpbin(httpbin):\n    return prepare_url(httpbin)\n\n\n@pytest.fixture\ndef httpbin_secure(httpbin_secure):\n    return prepare_url(httpbin_secure)\n\n\n@pytest.fixture\ndef nosan_server(tmp_path_factory):\n    # delay importing until the fixture in order to make it possible\n    # to deselect the test via command-line when trustme is not available\n    import trustme\n\n    tmpdir = tmp_path_factory.mktemp(\"certs\")\n    ca = trustme.CA()\n    # only commonName, no subjectAltName\n    server_cert = ca.issue_cert(common_name=\"localhost\")\n    ca_bundle = str(tmpdir / \"ca.pem\")\n    ca.cert_pem.write_to_path(ca_bundle)\n\n    context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)\n    server_cert.configure_cert(context)\n    server = HTTPServer((\"localhost\", 0), SimpleHTTPRequestHandler)\n    server.socket = context.wrap_socket(server.socket, server_side=True)\n    server_thread = threading.Thread(target=server.serve_forever)\n    server_thread.start()\n\n    yield \"localhost\", server.server_address[1], ca_bundle\n\n    server.shutdown()\n    server_thread.join()\nimport requests.adapters\n\n\ndef test_request_url_handles_leading_path_separators():\n    \"\"\"See also https://github.com/psf/requests/issues/6643.\"\"\"\n    a = requests.adapters.HTTPAdapter()\n    p = requests.Request(method=\"GET\", url=\"http://127.0.0.1:10000//v:h\").prepare()\n    assert \"//v:h\" == a.request_url(p, {})\n\"\"\"Tests for Requests.\"\"\"\n\nimport collections\nimport contextlib\nimport io\nimport json\nimport os\nimport pickle\nimport re\nimport tempfile\nimport threading\nimport warnings\nfrom unittest import mock\n\nimport pytest\nimport urllib3\nfrom urllib3.util import Timeout as Urllib3Timeout\n\nimport requests\nfrom requests.adapters import HTTPAdapter\nfrom requests.auth import HTTPDigestAuth, _basic_auth_str\nfrom requests.compat import (\n    JSONDecodeError,\n    Morsel,\n    MutableMapping,\n    builtin_str,\n    cookielib,\n    getproxies,\n    is_urllib3_1,\n    urlparse,\n)\nfrom requests.cookies import cookiejar_from_dict, morsel_to_cookie\nfrom requests.exceptions import (\n    ChunkedEncodingError,\n    ConnectionError,\n    ConnectTimeout,\n    ContentDecodingError,\n    InvalidHeader,\n    InvalidProxyURL,\n    InvalidSchema,\n    InvalidURL,\n    MissingSchema,\n    ProxyError,\n    ReadTimeout,\n    RequestException,\n    RetryError,\n    Timeout,\n    TooManyRedirects,\n    UnrewindableBodyError,\n)\nfrom requests.exceptions import SSLError as RequestsSSLError\nfrom requests.hooks import default_hooks\nfrom requests.models import PreparedRequest, urlencode\nfrom requests.sessions import SessionRedirectMixin\nfrom requests.structures import CaseInsensitiveDict\n\nfrom . import SNIMissingWarning\nfrom .compat import StringIO\nfrom .testserver.server import TLSServer, consume_socket_content\nfrom .utils import override_environ\n\n# Requests to this URL should always fail with a connection timeout (nothing\n# listening on that port)\nTARPIT = \"http://10.255.255.1\"\n\n# This is to avoid waiting the timeout of using TARPIT\nINVALID_PROXY = \"http://localhost:1\"\n\ntry:\n    from ssl import SSLContext\n\n    del SSLContext\n    HAS_MODERN_SSL = True\nexcept ImportError:\n    HAS_MODERN_SSL = False\n\ntry:\n    requests.pyopenssl\n    HAS_PYOPENSSL = True\nexcept AttributeError:\n    HAS_PYOPENSSL = False\n\n\nclass TestRequests:\n    digest_auth_algo = (\"MD5\", \"SHA-256\", \"SHA-512\")\n\n    def test_entry_points(self):\n        requests.session\n        requests.session().get\n        requests.session().head\n        \"\"\"Test case where a valid max age in seconds is passed.\"\"\"\n\n        morsel = Morsel()\n        morsel[\"max-age\"] = 60\n        cookie = morsel_to_cookie(morsel)\n        assert isinstance(cookie.expires, int)\n\n    def test_max_age_invalid_str(self):\n        \"\"\"Test case where a invalid max age is passed.\"\"\"\n\n        morsel = Morsel()\n        morsel[\"max-age\"] = \"woops\"\n        with pytest.raises(TypeError):\n            morsel_to_cookie(morsel)\n\n\nclass TestTimeout:\n    def test_stream_timeout(self, httpbin):\n        try:\n            requests.get(httpbin(\"delay/10\"), timeout=2.0)\n        except requests.exceptions.Timeout as e:\n            assert \"Read timed out\" in e.args[0].args[0]\n\n    @pytest.mark.parametrize(\n        \"timeout, error_text\",\n        (\n            ((3, 4, 5), \"(connect, read)\"),\n            (\"foo\", \"must be an int, float or None\"),\n        ),\n    )\n    def test_invalid_timeout(self, httpbin, timeout, error_text):\n        with pytest.raises(ValueError) as e:\n            requests.get(httpbin(\"get\"), timeout=timeout)\n        assert error_text in str(e)\n\n    @pytest.mark.parametrize(\"timeout\", (None, Urllib3Timeout(connect=None, read=None)))\n    def test_none_timeout(self, httpbin, timeout):\n        \"\"\"Check that you can set None as a valid timeout value.\n\n        To actually test this behavior, we'd want to check that setting the\n        timeout to None actually lets the request block past the system default\n        timeout. However, this would make the test suite unbearably slow.\n        Instead we verify that setting the timeout to None does not prevent the\n        request from succeeding.\n        \"\"\"\n        r = requests.get(httpbin(\"get\"), timeout=timeout)\n        assert r.status_code == 200\n\n    @pytest.mark.parametrize(\n        \"timeout\", ((None, 0.1), Urllib3Timeout(connect=None, read=0.1))\n    )\n    def test_read_timeout(self, httpbin, timeout):\n        try:\n            requests.get(httpbin(\"delay/10\"), timeout=timeout)\n            pytest.fail(\"The recv() request should time out.\")\n        except ReadTimeout:\n            pass\n\n    @pytest.mark.parametrize(\n        \"timeout\", ((0.1, None), Urllib3Timeout(connect=0.1, read=None))\n    )\n    def test_connect_timeout(self, timeout):\n        try:\n            requests.get(TARPIT, timeout=timeout)\n            pytest.fail(\"The connect() request should time out.\")\n        except ConnectTimeout as e:\n            assert isinstance(e, ConnectionError)\n            assert isinstance(e, Timeout)\n\n    @pytest.mark.parametrize(\n        \"timeout\", ((0.1, 0.1), Urllib3Timeout(connect=0.1, read=0.1))\n    )\n    def test_total_timeout_connect(self, timeout):\n        try:\n            requests.get(TARPIT, timeout=timeout)\n            pytest.fail(\"The connect() request should time out.\")\n        except ConnectTimeout:\n            pass\n\n    def test_encoded_methods(self, httpbin):\n        \"\"\"See: https://github.com/psf/requests/issues/2316\"\"\"\n        r = requests.request(b\"GET\", httpbin(\"get\"))\n        assert r.ok\n\n\nSendCall = collections.namedtuple(\"SendCall\", (\"args\", \"kwargs\"))\n\n\nclass RedirectSession(SessionRedirectMixin):\n    def __init__(self, order_of_redirects):\n        self.redirects = order_of_redirects\n        self.calls = []\n        self.max_redirects = 30\n        self.cookies = {}\n        self.trust_env = False\n\n    def send(self, *args, **kwargs):\n        self.calls.append(SendCall(args, kwargs))\n        return self.build_response()\n\n    def build_response(self):\n        request = self.calls[-1].args[0]\n        r = requests.Response()\n        r.url = request.url\n\n        try:\n8:import pickle\n20:from requests.adapters import HTTPAdapter\n84:class TestRequests:\n202:        r = s.send(r.prepare())\n210:        r = s.send(r.prepare())\n325:        resp = ses.send(prep)\n465:        resp = s.send(prep_req)\n622:                session.send(request.prepare())\n630:                session.send(prepared)\n639:                session.send(request.prepare())\n842:        class TestStream:\n1167:        resp = s.send(prep)\n1175:            s.send(req)\n1198:        s.send(prep)\n1235:        resp = s.send(prep)\n1252:        resp = s.send(prep)\n1546:    def test_request_and_response_are_pickleable(self, httpbin):\n1549:        # verify we can pickle the original request\n1550:        assert pickle.loads(pickle.dumps(r.request))\n1552:        # verify we can pickle the response and that we have access to\n1554:        pr = pickle.loads(pickle.dumps(r))\n1558:    def test_prepared_request_is_pickleable(self, httpbin):\n1561:        # Verify PreparedRequest can be pickled and unpickled\n1562:        r = pickle.loads(pickle.dumps(p))\n1567:        # Verify unpickled PreparedRequest sends properly\n1569:        resp = s.send(r)\n1572:    def test_prepared_request_with_file_is_pickleable(self, httpbin):\n1577:        # Verify PreparedRequest can be pickled and unpickled\n1578:        r = pickle.loads(pickle.dumps(p))\n1583:        # Verify unpickled PreparedRequest sends properly\n1585:        resp = s.send(r)\n1588:    def test_prepared_request_with_hook_is_pickleable(self, httpbin):\n1592:        # Verify PreparedRequest can be pickled\n1593:        r = pickle.loads(pickle.dumps(p))\n1599:        # Verify unpickled PreparedRequest sends properly\n1601:        resp = s.send(r)\n1607:            requests.Session().send(r)\n1623:        s = pickle.loads(pickle.dumps(s))\n1626:        r = s.send(r.prepare())\n1647:    def test_transport_adapter_ordering(self):\n1650:        assert order == list(s.adapters)\n1663:        assert order == list(s.adapters)\n1678:        assert order == list(s.adapters)\n1680:        s2.adapters = {\"http://\": HTTPAdapter()}\n1682:        assert \"http://\" in s2.adapters\n1683:        assert \"https://\" in s2.adapters\n1685:    def test_session_get_adapter_prefix_matching(self):\n1694:        prefix_adapter = HTTPAdapter()\n1695:        more_specific_prefix_adapter = HTTPAdapter()\n1696:        s.mount(prefix, prefix_adapter)\n1697:        s.mount(more_specific_prefix, more_specific_prefix_adapter)\n1699:        assert s.get_adapter(url_matching_only_prefix) is prefix_adapter\n1701:            s.get_adapter(url_matching_more_specific_prefix)\n1702:            is more_specific_prefix_adapter\n1704:        assert s.get_adapter(url_not_matching_prefix) not in (\n1705:            prefix_adapter,\n1706:            more_specific_prefix_adapter,\n1709:    def test_session_get_adapter_prefix_matching_mixed_case(self):\n1714:        my_adapter = HTTPAdapter()\n1715:        s.mount(mixed_case_prefix, my_adapter)\n1717:        assert s.get_adapter(url_matching_prefix) is my_adapter\n1719:    def test_session_get_adapter_prefix_matching_is_case_insensitive(self):\n1726:        my_adapter = HTTPAdapter()\n1727:        s.mount(mixed_case_prefix, my_adapter)\n1729:        assert s.get_adapter(url_matching_prefix_with_different_case) is my_adapter\n1731:    def test_session_get_adapter_prefix_with_trailing_slash(self):\n1738:        adapter = HTTPAdapter()\n1739:        s.mount(prefix, adapter)\n1741:        assert s.get_adapter(url_matching_prefix) is adapter\n1742:        assert s.get_adapter(url_not_matching_prefix) is not adapter\n1744:    def test_session_get_adapter_prefix_without_trailing_slash(self):\n1751:        adapter = HTTPAdapter()\n1752:        s.mount(prefix, adapter)\n1754:        assert s.get_adapter(url_matching_prefix) is adapter\n1755:        assert s.get_adapter(url_extended_hostname) is adapter\n2117:    def _patch_adapter_gzipped_redirect(self, session, url):\n2118:        adapter = session.get_adapter(url=url)\n2119:        org_build_response = adapter.build_response\n2129:        adapter.build_response = build_response\n2134:        self._patch_adapter_gzipped_redirect(s, url)\n2215:        with mock.patch.dict(session.adapters[\"http://\"].proxy_manager, proxies):\n2221:        adapter = HTTPAdapter()\n2222:        headers = adapter.proxy_headers(\"http://user:pass@httpbin.org\")\n2226:        adapter = HTTPAdapter()\n2227:        headers = adapter.proxy_headers(\"http://user:@httpbin.org\")\n2331:class TestCaseInsensitiveDict:\n2482:class TestMorselToCookieExpires:\n2516:class TestMorselToCookieMaxAge:\n2536:class TestTimeout:\n2616:    def send(self, *args, **kwargs):\n2652:    r0 = session.send(prep)\n2760:class TestPreparingURLs:\n2931:            sock.send(\n2957:        assert 2 == len(s.adapters[\"https://\"].poolmanager.pools)\n2964:            sock.send(\n2990:        assert 2 == len(s.adapters[\"https://\"].poolmanager.pools)\n2997:            sock.send(\n3022:        assert 2 == len(s.adapters[\"https://\"].poolmanager.pools)\n3031:            sock.send(\n3093:    deserialized_error = pickle.loads(pickle.dumps(json_decode_error))\n[tox]\nenvlist = py{310,311,312,313,314}-{default, use_chardet_on_py3}\n\n[testenv]\ndeps = -rrequirements-dev.txt\nextras =\n    security\n    socks\ncommands =\n    pytest {posargs:tests}\n\n[testenv:default]\n\n[testenv:use_chardet_on_py3]\nextras =\n    security\n    socks\n    use_chardet_on_py3\n",
+        "command": "/bin/zsh -lc \"rg --files --hidden -g 'AGENTS.md' -g '\"'!'\"\\\\.git' -g '\"'!'\"\\\\.cache'; cat tests/conftest.py; cat tests/test_adapters.py; sed -n '1,90p' tests/test_requests.py; sed -n '2520,2625p' tests/test_requests.py; rg -n 'pickle|adapter|Session.send|send\\\\(|class Test' tests/test_requests.py; sed -n '1,100p' tox.ini\"",
+        "exit_code": 0,
+        "id": "item_7",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 246451.320249958,
+      "perf_counter_ns": 246451320243708,
+      "utc": "2026-10-15T16:29:45.753522+00:00",
+      "wall_time_ns": 1792081785753522000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "id": "item_8",
+        "text": "Timeouts flow through `Session.request` and `Session.send`, and redirects already forward the value selected there. I\u2019ll distinguish an omitted timeout from explicit `None`, then pass the resolved value through the existing redirect path so a session change mid-request won\u2019t affect later hops.",
+        "type": "agent_message"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 246455.963385375,
+      "perf_counter_ns": 246455963247583,
+      "utc": "2026-10-15T16:29:50.396446+00:00",
+      "wall_time_ns": 1792081790396446000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"cat tests/conftest.py; sed -n '1,100p' tests/test_adapters.py; sed -n '2525,2615p' tests/test_requests.py; rg -n 'pickle|def test_.*(send|redirect|session)|class Test|TARPIT|INVALID' tests/test_requests.py; rg -n 'sentinel|_DEFAULT|object\\\\(\\\\)|Enum' src/requests/sessions.py src/requests/_internal_utils.py tests/test_hooks.py; rg --files tests | head -50\"",
+        "exit_code": null,
+        "id": "item_9",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 246458.335295291,
+      "perf_counter_ns": 246458335266541,
+      "utc": "2026-10-15T16:29:52.768426+00:00",
+      "wall_time_ns": 1792081792768426000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "try:\n    from http.server import HTTPServer, SimpleHTTPRequestHandler\nexcept ImportError:\n    from BaseHTTPServer import HTTPServer\n    from SimpleHTTPServer import SimpleHTTPRequestHandler\n\nimport ssl\nimport threading\n\nimport pytest\n\nfrom requests.compat import urljoin\n\n\ndef prepare_url(value):\n    # Issue #1483: Make sure the URL always has a trailing slash\n    httpbin_url = value.url.rstrip(\"/\") + \"/\"\n\n    def inner(*suffix):\n        return urljoin(httpbin_url, \"/\".join(suffix))\n\n    return inner\n\n\n@pytest.fixture(autouse=True)\ndef clean_proxy_environ(monkeypatch):\n    \"\"\"Remove proxy related environment variables for every test.\"\"\"\n    proxy_vars = (\"http_proxy\", \"https_proxy\", \"no_proxy\", \"ftp_proxy\", \"all_proxy\")\n    for var in proxy_vars:\n        monkeypatch.delenv(var, raising=False)\n        monkeypatch.delenv(var.upper(), raising=False)\n\n\n@pytest.fixture\ndef httpbin(httpbin):\n    return prepare_url(httpbin)\n\n\n@pytest.fixture\ndef httpbin_secure(httpbin_secure):\n    return prepare_url(httpbin_secure)\n\n\n@pytest.fixture\ndef nosan_server(tmp_path_factory):\n    # delay importing until the fixture in order to make it possible\n    # to deselect the test via command-line when trustme is not available\n    import trustme\n\n    tmpdir = tmp_path_factory.mktemp(\"certs\")\n    ca = trustme.CA()\n    # only commonName, no subjectAltName\n    server_cert = ca.issue_cert(common_name=\"localhost\")\n    ca_bundle = str(tmpdir / \"ca.pem\")\n    ca.cert_pem.write_to_path(ca_bundle)\n\n    context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)\n    server_cert.configure_cert(context)\n    server = HTTPServer((\"localhost\", 0), SimpleHTTPRequestHandler)\n    server.socket = context.wrap_socket(server.socket, server_side=True)\n    server_thread = threading.Thread(target=server.serve_forever)\n    server_thread.start()\n\n    yield \"localhost\", server.server_address[1], ca_bundle\n\n    server.shutdown()\n    server_thread.join()\nimport requests.adapters\n\n\ndef test_request_url_handles_leading_path_separators():\n    \"\"\"See also https://github.com/psf/requests/issues/6643.\"\"\"\n    a = requests.adapters.HTTPAdapter()\n    p = requests.Request(method=\"GET\", url=\"http://127.0.0.1:10000//v:h\").prepare()\n    assert \"//v:h\" == a.request_url(p, {})\n        assert isinstance(cookie.expires, int)\n\n    def test_max_age_invalid_str(self):\n        \"\"\"Test case where a invalid max age is passed.\"\"\"\n\n        morsel = Morsel()\n        morsel[\"max-age\"] = \"woops\"\n        with pytest.raises(TypeError):\n            morsel_to_cookie(morsel)\n\n\nclass TestTimeout:\n    def test_stream_timeout(self, httpbin):\n        try:\n            requests.get(httpbin(\"delay/10\"), timeout=2.0)\n        except requests.exceptions.Timeout as e:\n            assert \"Read timed out\" in e.args[0].args[0]\n\n    @pytest.mark.parametrize(\n        \"timeout, error_text\",\n        (\n            ((3, 4, 5), \"(connect, read)\"),\n            (\"foo\", \"must be an int, float or None\"),\n        ),\n    )\n    def test_invalid_timeout(self, httpbin, timeout, error_text):\n        with pytest.raises(ValueError) as e:\n            requests.get(httpbin(\"get\"), timeout=timeout)\n        assert error_text in str(e)\n\n    @pytest.mark.parametrize(\"timeout\", (None, Urllib3Timeout(connect=None, read=None)))\n    def test_none_timeout(self, httpbin, timeout):\n        \"\"\"Check that you can set None as a valid timeout value.\n\n        To actually test this behavior, we'd want to check that setting the\n        timeout to None actually lets the request block past the system default\n        timeout. However, this would make the test suite unbearably slow.\n        Instead we verify that setting the timeout to None does not prevent the\n        request from succeeding.\n        \"\"\"\n        r = requests.get(httpbin(\"get\"), timeout=timeout)\n        assert r.status_code == 200\n\n    @pytest.mark.parametrize(\n        \"timeout\", ((None, 0.1), Urllib3Timeout(connect=None, read=0.1))\n    )\n    def test_read_timeout(self, httpbin, timeout):\n        try:\n            requests.get(httpbin(\"delay/10\"), timeout=timeout)\n            pytest.fail(\"The recv() request should time out.\")\n        except ReadTimeout:\n            pass\n\n    @pytest.mark.parametrize(\n        \"timeout\", ((0.1, None), Urllib3Timeout(connect=0.1, read=None))\n    )\n    def test_connect_timeout(self, timeout):\n        try:\n            requests.get(TARPIT, timeout=timeout)\n            pytest.fail(\"The connect() request should time out.\")\n        except ConnectTimeout as e:\n            assert isinstance(e, ConnectionError)\n            assert isinstance(e, Timeout)\n\n    @pytest.mark.parametrize(\n        \"timeout\", ((0.1, 0.1), Urllib3Timeout(connect=0.1, read=0.1))\n    )\n    def test_total_timeout_connect(self, timeout):\n        try:\n            requests.get(TARPIT, timeout=timeout)\n            pytest.fail(\"The connect() request should time out.\")\n        except ConnectTimeout:\n            pass\n\n    def test_encoded_methods(self, httpbin):\n        \"\"\"See: https://github.com/psf/requests/issues/2316\"\"\"\n        r = requests.request(b\"GET\", httpbin(\"get\"))\n        assert r.ok\n\n\nSendCall = collections.namedtuple(\"SendCall\", (\"args\", \"kwargs\"))\n\n\nclass RedirectSession(SessionRedirectMixin):\n    def __init__(self, order_of_redirects):\n        self.redirects = order_of_redirects\n        self.calls = []\n        self.max_redirects = 30\n        self.cookies = {}\n        self.trust_env = False\n\n8:import pickle\n64:TARPIT = \"http://10.255.255.1\"\n66:# This is to avoid waiting the timeout of using TARPIT\n67:INVALID_PROXY = \"http://localhost:1\"\n84:class TestRequests:\n220:    def test_redirect_history_no_self_reference(self, httpbin):\n320:    def test_header_and_body_removal_on_redirect(self, httpbin):\n337:    def test_transfer_enc_removal_on_redirect(self, httpbin):\n360:    def test_fragment_maintained_on_redirect(self, httpbin):\n390:    def test_cookie_sent_on_redirect(self, httpbin):\n417:    def test_request_cookie_overrides_session_cookie(self, httpbin):\n450:    def test_cookielib_cookiejar_on_redirect(self, httpbin):\n496:    def test_headers_on_session_with_None_are_not_sent(self, httpbin):\n617:    def test_respect_proxy_env_on_send_self_prepared_request(self, httpbin):\n618:        with override_environ(http_proxy=INVALID_PROXY):\n624:    def test_respect_proxy_env_on_send_session_prepared_request(self, httpbin):\n625:        with override_environ(http_proxy=INVALID_PROXY):\n632:    def test_respect_proxy_env_on_send_with_redirects(self, httpbin):\n633:        with override_environ(http_proxy=INVALID_PROXY):\n642:        with override_environ(http_proxy=INVALID_PROXY):\n648:        with override_environ(http_proxy=INVALID_PROXY):\n842:        class TestStream:\n966:    def test_pyopenssl_redirect(self, httpbin_secure, httpbin_ca_bundle):\n970:        INVALID_PATH = \"/garbage\"\n972:            requests.get(httpbin_secure(), verify=INVALID_PATH)\n975:            == f\"Could not find a suitable TLS CA certificate bundle, invalid path: {INVALID_PATH}\"\n979:        INVALID_PATH = \"/garbage\"\n981:            requests.get(httpbin_secure(), cert=INVALID_PATH)\n984:            == f\"Could not find the TLS certificate file, invalid path: {INVALID_PATH}\"\n988:            requests.get(httpbin_secure(), cert=(\".\", INVALID_PATH))\n990:            f\"Could not find the TLS key file, invalid path: {INVALID_PATH}\"\n1200:    def test_session_hooks_are_used_with_no_request_hooks(self, httpbin):\n1211:    def test_session_hooks_are_overridden_by_request_hooks(self, httpbin):\n1239:    def test_prepared_from_session(self, httpbin):\n1546:    def test_request_and_response_are_pickleable(self, httpbin):\n1549:        # verify we can pickle the original request\n1550:        assert pickle.loads(pickle.dumps(r.request))\n1552:        # verify we can pickle the response and that we have access to\n1554:        pr = pickle.loads(pickle.dumps(r))\n1558:    def test_prepared_request_is_pickleable(self, httpbin):\n1561:        # Verify PreparedRequest can be pickled and unpickled\n1562:        r = pickle.loads(pickle.dumps(p))\n1567:        # Verify unpickled PreparedRequest sends properly\n1572:    def test_prepared_request_with_file_is_pickleable(self, httpbin):\n1577:        # Verify PreparedRequest can be pickled and unpickled\n1578:        r = pickle.loads(pickle.dumps(p))\n1583:        # Verify unpickled PreparedRequest sends properly\n1588:    def test_prepared_request_with_hook_is_pickleable(self, httpbin):\n1592:        # Verify PreparedRequest can be pickled\n1593:        r = pickle.loads(pickle.dumps(p))\n1599:        # Verify unpickled PreparedRequest sends properly\n1604:    def test_cannot_send_unprepared_requests(self, httpbin):\n1619:    def test_session_pickling(self, httpbin):\n1623:        s = pickle.loads(pickle.dumps(s))\n1640:    def test_uppercase_scheme_redirect(self, httpbin):\n1685:    def test_session_get_adapter_prefix_matching(self):\n1709:    def test_session_get_adapter_prefix_matching_mixed_case(self):\n1719:    def test_session_get_adapter_prefix_matching_is_case_insensitive(self):\n1731:    def test_session_get_adapter_prefix_with_trailing_slash(self):\n1744:    def test_session_get_adapter_prefix_without_trailing_slash(self):\n1887:    def test_can_send_objects_with_files(self, httpbin, files):\n1894:    def test_can_send_file_object_with_non_string_filename(self, httpbin):\n1933:    def test_auth_is_retained_for_redirect_on_host(self, httpbin):\n1988:    def test_manual_redirect_with_partial_body_read(self, httpbin):\n2102:    def test_getattr_proxy_stream_follows_redirect(self, httpbin):\n2131:    def test_redirect_with_wrong_gzipped_header(self, httpbin):\n2191:    def test_unconsumed_session_response_closes_connection(self, httpbin):\n2209:    def test_session_close_proxy_clear(self):\n2286:    def test_custom_redirect_mixin(self, httpbin):\n2331:class TestCaseInsensitiveDict:\n2482:class TestMorselToCookieExpires:\n2516:class TestMorselToCookieMaxAge:\n2536:class TestTimeout:\n2583:            requests.get(TARPIT, timeout=timeout)\n2594:            requests.get(TARPIT, timeout=timeout)\n2760:class TestPreparingURLs:\n2820:    def test_redirecting_to_bad_url(self, httpbin, url, exception):\n3093:    deserialized_error = pickle.loads(pickle.dumps(json_decode_error))\nsrc/requests/sessions.py:275:            # A failed tell() sets `_body_position` to `object()`. This non-None\ntests/test_lowlevel.py\ntests/test_help.py\ntests/test_adapters.py\ntests/utils.py\ntests/test_requests.py\ntests/certs/expired/README.md\ntests/certs/expired/server/cert.cnf\ntests/certs/expired/server/server.csr\ntests/certs/expired/server/server.pem\ntests/certs/expired/server/Makefile\ntests/certs/expired/server/server.key\ntests/certs/expired/ca/ca.srl\ntests/certs/expired/ca/ca.crt\ntests/certs/expired/ca/Makefile\ntests/certs/expired/ca/ca-private.key\ntests/certs/expired/ca/ca.cnf\ntests/certs/expired/Makefile\ntests/certs/README.md\ntests/certs/mtls/client/client.key\ntests/certs/mtls/client/cert.cnf\ntests/certs/mtls/client/client.csr\ntests/certs/mtls/client/client.pem\ntests/certs/mtls/client/Makefile\ntests/certs/mtls/README.md\ntests/certs/mtls/Makefile\ntests/certs/valid/server/cert.cnf\ntests/certs/valid/server/server.csr\ntests/certs/valid/server/server.pem\ntests/certs/valid/server/Makefile\ntests/certs/valid/server/server.key\ntests/test_hooks.py\ntests/__init__.py\ntests/compat.py\ntests/test_testserver.py\ntests/testserver/__init__.py\ntests/testserver/server.py\ntests/test_packages.py\ntests/test_structures.py\ntests/conftest.py\ntests/test_utils.py\n",
+        "command": "/bin/zsh -lc \"cat tests/conftest.py; sed -n '1,100p' tests/test_adapters.py; sed -n '2525,2615p' tests/test_requests.py; rg -n 'pickle|def test_.*(send|redirect|session)|class Test|TARPIT|INVALID' tests/test_requests.py; rg -n 'sentinel|_DEFAULT|object\\\\(\\\\)|Enum' src/requests/sessions.py src/requests/_internal_utils.py tests/test_hooks.py; rg --files tests | head -50\"",
+        "exit_code": 0,
+        "id": "item_9",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 246458.336079958,
+      "perf_counter_ns": 246458336074458,
+      "utc": "2026-10-15T16:29:52.769234+00:00",
+      "wall_time_ns": 1792081792769234000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"rg -n 'class .*Enum|Enum\\\\)|sentinel|UNSET|DEFAULT = object|object =|object\\\\(\\\\)' src/requests | head -70; sed -n '1,120p' tests/test_hooks.py; sed -n '1600,1640p' tests/test_requests.py; sed -n '1,80p' tests/test_requests.py; rg -n 'timeout|sessions|Session' docs/user/advanced.rst docs/api.rst docs/user/quickstart.rst\"",
+        "exit_code": null,
+        "id": "item_10",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 246476.420255166,
+      "perf_counter_ns": 246476420203458,
+      "utc": "2026-10-15T16:30:10.853057+00:00",
+      "wall_time_ns": 1792081810853057000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "src/requests/models.py:620:                    self._body_position = object()\nsrc/requests/sessions.py:275:            # A failed tell() sets `_body_position` to `object()`. This non-None\nimport pytest\n\nfrom requests import hooks\n\n\ndef hook(value):\n    return value[1:]\n\n\n@pytest.mark.parametrize(\n    \"hooks_list, result\",\n    (\n        (hook, \"ata\"),\n        ([hook, lambda x: None, hook], \"ta\"),\n    ),\n)\ndef test_hooks(hooks_list, result):\n    assert hooks.dispatch_hook(\"response\", {\"response\": hooks_list}, \"Data\") == result\n\n\ndef test_default_hooks():\n    assert hooks.default_hooks() == {\"response\": []}\n        s = requests.Session()\n        resp = s.send(r)\n        assert resp.status_code == 200\n\n    def test_cannot_send_unprepared_requests(self, httpbin):\n        r = requests.Request(url=httpbin())\n        with pytest.raises(ValueError):\n            requests.Session().send(r)\n\n    def test_http_error(self):\n        error = requests.exceptions.HTTPError()\n        assert not error.response\n        response = requests.Response()\n        error = requests.exceptions.HTTPError(response=response)\n        assert error.response == response\n        error = requests.exceptions.HTTPError(\"message\", response=response)\n        assert str(error) == \"message\"\n        assert error.response == response\n\n    def test_session_pickling(self, httpbin):\n        r = requests.Request(\"GET\", httpbin(\"get\"))\n        s = requests.Session()\n\n        s = pickle.loads(pickle.dumps(s))\n        s.proxies = getproxies()\n\n        r = s.send(r.prepare())\n        assert r.status_code == 200\n\n    def test_fixes_1329(self, httpbin):\n        \"\"\"Ensure that header updates are done case-insensitively.\"\"\"\n        s = requests.Session()\n        s.headers.update({\"ACCEPT\": \"BOGUS\"})\n        s.headers.update({\"accept\": \"application/json\"})\n        r = s.get(httpbin(\"get\"))\n        headers = r.request.headers\n        assert headers[\"accept\"] == \"application/json\"\n        assert headers[\"Accept\"] == \"application/json\"\n        assert headers[\"ACCEPT\"] == \"application/json\"\n\n    def test_uppercase_scheme_redirect(self, httpbin):\n\"\"\"Tests for Requests.\"\"\"\n\nimport collections\nimport contextlib\nimport io\nimport json\nimport os\nimport pickle\nimport re\nimport tempfile\nimport threading\nimport warnings\nfrom unittest import mock\n\nimport pytest\nimport urllib3\nfrom urllib3.util import Timeout as Urllib3Timeout\n\nimport requests\nfrom requests.adapters import HTTPAdapter\nfrom requests.auth import HTTPDigestAuth, _basic_auth_str\nfrom requests.compat import (\n    JSONDecodeError,\n    Morsel,\n    MutableMapping,\n    builtin_str,\n    cookielib,\n    getproxies,\n    is_urllib3_1,\n    urlparse,\n)\nfrom requests.cookies import cookiejar_from_dict, morsel_to_cookie\nfrom requests.exceptions import (\n    ChunkedEncodingError,\n    ConnectionError,\n    ConnectTimeout,\n    ContentDecodingError,\n    InvalidHeader,\n    InvalidProxyURL,\n    InvalidSchema,\n    InvalidURL,\n    MissingSchema,\n    ProxyError,\n    ReadTimeout,\n    RequestException,\n    RetryError,\n    Timeout,\n    TooManyRedirects,\n    UnrewindableBodyError,\n)\nfrom requests.exceptions import SSLError as RequestsSSLError\nfrom requests.hooks import default_hooks\nfrom requests.models import PreparedRequest, urlencode\nfrom requests.sessions import SessionRedirectMixin\nfrom requests.structures import CaseInsensitiveDict\n\nfrom . import SNIMissingWarning\nfrom .compat import StringIO\nfrom .testserver.server import TLSServer, consume_socket_content\nfrom .utils import override_environ\n\n# Requests to this URL should always fail with a connection timeout (nothing\n# listening on that port)\nTARPIT = \"http://10.255.255.1\"\n\n# This is to avoid waiting the timeout of using TARPIT\nINVALID_PROXY = \"http://localhost:1\"\n\ntry:\n    from ssl import SSLContext\n\n    del SSLContext\n    HAS_MODERN_SSL = True\nexcept ImportError:\n    HAS_MODERN_SSL = False\n\ntry:\n    requests.pyopenssl\n    HAS_PYOPENSSL = True\nexcept AttributeError:\ndocs/api.rst:41:Request Sessions\ndocs/api.rst:46:.. autoclass:: Session\ndocs/api.rst:134:* The ``Session`` API has changed. Sessions objects no longer take parameters.\ndocs/api.rst:135:  ``Session`` is also now capitalized, but it can still be\ndocs/api.rst:140:      s = requests.Session()    # formerly, session took parameters\ndocs/api.rst:165:  these options are now configured on a ``Session`` such as keep-alive and\ndocs/user/quickstart.rst:533:seconds with the ``timeout`` parameter. Nearly all production code should use\ndocs/user/quickstart.rst:537:    >>> requests.get('https://github.com/', timeout=0.001)\ndocs/user/quickstart.rst:540:    requests.exceptions.Timeout: HTTPConnectionPool(host='github.com', port=80): Request timed out. (timeout=0.001)\ndocs/user/quickstart.rst:545:    ``timeout`` is not a time limit on the entire response download;\ndocs/user/quickstart.rst:547:    response for ``timeout`` seconds (more precisely, if no bytes have been\ndocs/user/quickstart.rst:548:    received on the underlying socket for ``timeout`` seconds). If no timeout is specified explicitly, requests do\ndocs/user/advanced.rst:10:Session Objects\ndocs/user/advanced.rst:13:The Session object allows you to persist certain parameters across\ndocs/user/advanced.rst:15:Session instance, and will use ``urllib3``'s `connection pooling`_. So if\ndocs/user/advanced.rst:20:A Session object has all the methods of the main Requests API.\ndocs/user/advanced.rst:24:    s = requests.Session()\ndocs/user/advanced.rst:33:Sessions can also be used to provide default data to the request methods. This\ndocs/user/advanced.rst:34:is done by providing data to the properties on a Session object::\ndocs/user/advanced.rst:36:    s = requests.Session()\ndocs/user/advanced.rst:52:    s = requests.Session()\ndocs/user/advanced.rst:65::attr:`Session.cookies <requests.Session.cookies>`.\ndocs/user/advanced.rst:67:Sessions can also be used as context managers::\ndocs/user/advanced.rst:69:    with requests.Session() as s:\ndocs/user/advanced.rst:83:See the :ref:`Session API Docs <sessionapi>` to learn more.\ndocs/user/advanced.rst:125:from an API call or a Session call, the ``request`` attribute is actually the\ndocs/user/advanced.rst:130:    from requests import Request, Session\ndocs/user/advanced.rst:132:    s = Session()\ndocs/user/advanced.rst:148:        timeout=timeout\ndocs/user/advanced.rst:156:``Session.*``.\ndocs/user/advanced.rst:159::class:`Session <requests.Session>` object. In particular,\ndocs/user/advanced.rst:160::class:`Session <requests.Session>`-level state such as cookies will\ndocs/user/advanced.rst:165::meth:`Session.prepare_request() <requests.Session.prepare_request>`, like this::\ndocs/user/advanced.rst:167:    from requests import Request, Session\ndocs/user/advanced.rst:169:    s = Session()\ndocs/user/advanced.rst:185:        timeout=timeout\ndocs/user/advanced.rst:196:    from requests import Request, Session\ndocs/user/advanced.rst:198:    s = Session()\ndocs/user/advanced.rst:232:    s = requests.Session()\ndocs/user/advanced.rst:266:    s = requests.Session()\ndocs/user/advanced.rst:474:You can also add hooks to a ``Session`` instance.  Any hooks you add will then\ndocs/user/advanced.rst:477:   >>> s = requests.Session()\ndocs/user/advanced.rst:483:A ``Session`` can have multiple hooks, which will be called in the order\ndocs/user/advanced.rst:594::class:`Session <requests.Session>`::\ndocs/user/advanced.rst:602:    session = requests.Session()\ndocs/user/advanced.rst:978:a Requests :class:`Session <requests.Session>` is initialized, one of these is\ndocs/user/advanced.rst:979:attached to the :class:`Session <requests.Session>` object for HTTP, and one\ndocs/user/advanced.rst:984:mounted to a Session object, along with an indication of which web services\ndocs/user/advanced.rst:989:    >>> s = requests.Session()\ndocs/user/advanced.rst:1037:backoff, within a Requests :class:`Session <requests.Session>` using the\ndocs/user/advanced.rst:1041:    from requests import Session\ndocs/user/advanced.rst:1044:    s = Session()\ndocs/user/advanced.rst:1082:If this is problematic, users should consider setting the default headers on a :class:`Session <requests.Session>` object, by setting :attr:`Session.headers <requests.Session.headers>` to a custom ``OrderedDict``. That ordering will always be preferred.\ndocs/user/advanced.rst:1084:.. _timeouts:\ndocs/user/advanced.rst:1089:Most requests to external servers should have a timeout attached, in case the\ndocs/user/advanced.rst:1091:out unless a timeout value is set explicitly. Without a timeout, your code may\ndocs/user/advanced.rst:1094:The **connect** timeout is the number of seconds Requests will wait for your\ndocs/user/advanced.rst:1096:`connect()`_) call on the socket. It's a good practice to set connect timeouts\ndocs/user/advanced.rst:1101:**read** timeout is the number of seconds the client will wait for the server\ndocs/user/advanced.rst:1106:If you specify a single value for the timeout, like this::\ndocs/user/advanced.rst:1108:    r = requests.get('https://github.com', timeout=5)\ndocs/user/advanced.rst:1110:The timeout value will be applied to both the ``connect`` and the ``read``\ndocs/user/advanced.rst:1111:timeouts. Specify a tuple if you would like to set the values separately::\ndocs/user/advanced.rst:1113:    r = requests.get('https://github.com', timeout=(3.05, 27))\ndocs/user/advanced.rst:1116:a response, by passing None as a timeout value and then retrieving a cup of\ndocs/user/advanced.rst:1121:    r = requests.get('https://github.com', timeout=None)\ndocs/user/advanced.rst:1123:.. note:: The connect timeout applies to each connection attempt to an IP address.\ndocs/user/advanced.rst:1126:          This may lead to an effective total connection timeout *multiple* times longer\ndocs/user/advanced.rst:1128:          addresses will have its perceived timeout *doubled*, so take that into account\ndocs/user/advanced.rst:1129:          when setting the connection timeout.\ndocs/user/advanced.rst:1130:.. note:: Neither the connect nor read timeouts are `wall clock`_. This means\n",
+        "command": "/bin/zsh -lc \"rg -n 'class .*Enum|Enum\\\\)|sentinel|UNSET|DEFAULT = object|object =|object\\\\(\\\\)' src/requests | head -70; sed -n '1,120p' tests/test_hooks.py; sed -n '1600,1640p' tests/test_requests.py; sed -n '1,80p' tests/test_requests.py; rg -n 'timeout|sessions|Session' docs/user/advanced.rst docs/api.rst docs/user/quickstart.rst\"",
+        "exit_code": 0,
+        "id": "item_10",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 246476.421048541,
+      "perf_counter_ns": 246476421043125,
+      "utc": "2026-10-15T16:30:10.853898+00:00",
+      "wall_time_ns": 1792081810853898000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc 'PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src <PROJECT>/.cache/agent-grep-2026-10-15/runtime-env/bin/python -m pytest --version'",
+        "exit_code": null,
+        "id": "item_11",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 246476.498388333,
+      "perf_counter_ns": 246476498356625,
+      "utc": "2026-10-15T16:30:10.931209+00:00",
+      "wall_time_ns": 1792081810931209000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "pytest 8.3.5\n",
+        "command": "/bin/zsh -lc 'PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src <PROJECT>/.cache/agent-grep-2026-10-15/runtime-env/bin/python -m pytest --version'",
+        "exit_code": 0,
+        "id": "item_11",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 246476.721601166,
+      "perf_counter_ns": 246476721578833,
+      "utc": "2026-10-15T16:30:11.154428+00:00",
+      "wall_time_ns": 1792081811154428000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "changes": [
+          {
+            "kind": "add",
+            "path": "<WORKSPACE>/tests/test_session_timeout.py"
+          }
+        ],
+        "id": "item_12",
+        "status": "in_progress",
+        "type": "file_change"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 246561.8955595,
+      "perf_counter_ns": 246561895467958,
+      "utc": "2026-10-15T16:31:36.326879+00:00",
+      "wall_time_ns": 1792081896326879000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "changes": [
+          {
+            "kind": "add",
+            "path": "<WORKSPACE>/tests/test_session_timeout.py"
+          }
+        ],
+        "id": "item_12",
+        "status": "completed",
+        "type": "file_change"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 246561.935411875,
+      "perf_counter_ns": 246561935385375,
+      "utc": "2026-10-15T16:31:36.366796+00:00",
+      "wall_time_ns": 1792081896366796000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc 'PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src NETRC=\"$PWD/.test-netrc-does-not-exist\" <PROJECT>/.cache/agent-grep-2026-10-15/runtime-env/bin/python -m pytest tests/test_session_timeout.py -k '\"'constructor_timeout or redirects_keep_initial_timeout' -q --tb=short\"",
+        "exit_code": null,
+        "id": "item_13",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 246567.349718083,
+      "perf_counter_ns": 246567349695541,
+      "utc": "2026-10-15T16:31:41.781016+00:00",
+      "wall_time_ns": 1792081901781016000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "FFFFFFF....                                                              [100%]\n=================================== FAILURES ===================================\n____________________ test_constructor_timeout[kwargs0-None] ____________________\ntests/test_session_timeout.py:64: in test_constructor_timeout\n    assert session.timeout == expected\nE   AttributeError: 'Session' object has no attribute 'timeout'\n____________________ test_constructor_timeout[kwargs1-None] ____________________\ntests/test_session_timeout.py:63: in test_constructor_timeout\n    with requests.Session(**kwargs) as session:\nE   TypeError: Session.__init__() got an unexpected keyword argument 'timeout'\n____________________ test_constructor_timeout[kwargs2-2.5] _____________________\ntests/test_session_timeout.py:63: in test_constructor_timeout\n    with requests.Session(**kwargs) as session:\nE   TypeError: Session.__init__() got an unexpected keyword argument 'timeout'\n_________________ test_constructor_timeout[kwargs3-expected3] __________________\ntests/test_session_timeout.py:63: in test_constructor_timeout\n    with requests.Session(**kwargs) as session:\nE   TypeError: Session.__init__() got an unexpected keyword argument 'timeout'\n_____________________ test_positional_constructor_timeout ______________________\ntests/test_session_timeout.py:74: in test_positional_constructor_timeout\n    with requests.Session(2.5) as session:\nE   TypeError: Session.__init__() takes 1 positional argument but 2 were given\n________ test_redirects_keep_initial_timeout[kwargs0-expected0-request] ________\ntests/test_session_timeout.py:131: in test_redirects_keep_initial_timeout\n    assert adapter.timeouts == [expected] * 3\nE   assert [None, None, None] == [(1, 2), (1, 2), (1, 2)]\nE     \nE     At index 0 diff: None != (1, 2)\nE     Use -v to get more diff\n_________ test_redirects_keep_initial_timeout[kwargs0-expected0-send] __________\ntests/test_session_timeout.py:125: in test_redirects_keep_initial_timeout\n    response = session.send(prepared, **kwargs)\nsrc/requests/sessions.py:784: in send\n    r = adapter.send(request, **kwargs)\ntests/test_session_timeout.py:23: in send\n    self.timeouts.append(kwargs[\"timeout\"])\nE   KeyError: 'timeout'\n=========================== short test summary info ============================\nFAILED tests/test_session_timeout.py::test_constructor_timeout[kwargs0-None]\nFAILED tests/test_session_timeout.py::test_constructor_timeout[kwargs1-None]\nFAILED tests/test_session_timeout.py::test_constructor_timeout[kwargs2-2.5]\nFAILED tests/test_session_timeout.py::test_constructor_timeout[kwargs3-expected3]\nFAILED tests/test_session_timeout.py::test_positional_constructor_timeout - T...\nFAILED tests/test_session_timeout.py::test_redirects_keep_initial_timeout[kwargs0-expected0-request]\nFAILED tests/test_session_timeout.py::test_redirects_keep_initial_timeout[kwargs0-expected0-send]\n7 failed, 4 passed, 87 deselected in 0.05s\n",
+        "command": "/bin/zsh -lc 'PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src NETRC=\"$PWD/.test-netrc-does-not-exist\" <PROJECT>/.cache/agent-grep-2026-10-15/runtime-env/bin/python -m pytest tests/test_session_timeout.py -k '\"'constructor_timeout or redirects_keep_initial_timeout' -q --tb=short\"",
+        "exit_code": 1,
+        "id": "item_13",
+        "status": "failed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 246567.597215041,
+      "perf_counter_ns": 246567597198375,
+      "utc": "2026-10-15T16:31:42.028514+00:00",
+      "wall_time_ns": 1792081902028514000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"sed -n '395,415p' src/requests/sessions.py; sed -n '1084,1124p' docs/user/advanced.rst\"",
+        "exit_code": null,
+        "id": "item_14",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 246572.013502541,
+      "perf_counter_ns": 246572013464125,
+      "utc": "2026-10-15T16:31:46.444705+00:00",
+      "wall_time_ns": 1792081906444705000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "class Session(SessionRedirectMixin):\n    \"\"\"A Requests session.\n\n    Provides cookie persistence, connection-pooling, and configuration.\n\n    Basic Usage::\n\n      >>> import requests\n      >>> s = requests.Session()\n      >>> s.get('https://httpbin.org/get')\n      <Response [200]>\n\n    Or as a context manager::\n\n      >>> with requests.Session() as s:\n      ...     s.get('https://httpbin.org/get')\n      <Response [200]>\n    \"\"\"\n\n    headers: CaseInsensitiveDict[str]\n    auth: _t.AuthType\n.. _timeouts:\n\nTimeouts\n--------\n\nMost requests to external servers should have a timeout attached, in case the\nserver is not responding in a timely manner. By default, requests do not time\nout unless a timeout value is set explicitly. Without a timeout, your code may\nhang for minutes or more.\n\nThe **connect** timeout is the number of seconds Requests will wait for your\nclient to establish a connection to a remote machine (corresponding to the\n`connect()`_) call on the socket. It's a good practice to set connect timeouts\nto slightly larger than a multiple of 3, which is the default `TCP packet\nretransmission window <https://datatracker.ietf.org/doc/html/rfc2988>`_.\n\nOnce your client has connected to the server and sent the HTTP request, the\n**read** timeout is the number of seconds the client will wait for the server\nto send a response. (Specifically, it's the number of seconds that the client\nwill wait *between* bytes sent from the server. In 99.9% of cases, this is the\ntime before the server sends the first byte).\n\nIf you specify a single value for the timeout, like this::\n\n    r = requests.get('https://github.com', timeout=5)\n\nThe timeout value will be applied to both the ``connect`` and the ``read``\ntimeouts. Specify a tuple if you would like to set the values separately::\n\n    r = requests.get('https://github.com', timeout=(3.05, 27))\n\nIf the remote server is very slow, you can tell Requests to wait forever for\na response, by passing None as a timeout value and then retrieving a cup of\ncoffee.\n\n::\n\n    r = requests.get('https://github.com', timeout=None)\n\n.. note:: The connect timeout applies to each connection attempt to an IP address.\n          If multiple addresses exist for a domain name, the underlying ``urllib3`` will\n",
+        "command": "/bin/zsh -lc \"sed -n '395,415p' src/requests/sessions.py; sed -n '1084,1124p' docs/user/advanced.rst\"",
+        "exit_code": 0,
+        "id": "item_14",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 246572.014649708,
+      "perf_counter_ns": 246572014636458,
+      "utc": "2026-10-15T16:31:46.445878+00:00",
+      "wall_time_ns": 1792081906445878000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "changes": [
+          {
+            "kind": "update",
+            "path": "<WORKSPACE>/docs/user/advanced.rst"
+          },
+          {
+            "kind": "update",
+            "path": "<WORKSPACE>/src/requests/sessions.py"
+          }
+        ],
+        "id": "item_15",
+        "status": "in_progress",
+        "type": "file_change"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 246590.716320583,
+      "perf_counter_ns": 246590716237875,
+      "utc": "2026-10-15T16:32:05.147163+00:00",
+      "wall_time_ns": 1792081925147163000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "changes": [
+          {
+            "kind": "update",
+            "path": "<WORKSPACE>/docs/user/advanced.rst"
+          },
+          {
+            "kind": "update",
+            "path": "<WORKSPACE>/src/requests/sessions.py"
+          }
+        ],
+        "id": "item_15",
+        "status": "completed",
+        "type": "file_change"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 246590.774794,
+      "perf_counter_ns": 246590774775208,
+      "utc": "2026-10-15T16:32:05.205700+00:00",
+      "wall_time_ns": 1792081925205700000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "id": "item_16",
+        "text": "The initial regression run confirmed the missing behavior: the constructor rejects `timeout`, sessions lack the attribute, and omitted timeouts don\u2019t reach redirects correctly. The implementation now resolves the default before sending. The tests also cover explicit `None`, timeout objects, all session helpers, and older pickle state.",
+        "type": "agent_message"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 246595.6828685,
+      "perf_counter_ns": 246595682780625,
+      "utc": "2026-10-15T16:32:10.113622+00:00",
+      "wall_time_ns": 1792081930113622000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"git diff --check; git diff --stat; rg -n 'timeout:|_DEFAULT_TIMEOUT|self.timeout|setdefault\\\\(\\\"timeout\\\"' src/requests/sessions.py; PYTHONDONTWRITEBYTECODE=1 <PROJECT>/.cache/agent-grep-2026-10-15/runtime-env/bin/python -m ruff --version\"",
+        "exit_code": null,
+        "id": "item_17",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 246598.615398208,
+      "perf_counter_ns": 246598615371416,
+      "utc": "2026-10-15T16:32:13.046164+00:00",
+      "wall_time_ns": 1792081933046164000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": " docs/user/advanced.rst   | 14 ++++++++++++++\n src/requests/sessions.py | 33 ++++++++++++++++++++++++++++-----\n 2 files changed, 42 insertions(+), 5 deletions(-)\n80:_DEFAULT_TIMEOUT = _DefaultTimeout()\n198:        timeout: _t.TimeoutType = None,\n407:    :param timeout: Default timeout for requests that omit ``timeout``. Defaults\n430:    timeout: _t.TimeoutType\n454:    def __init__(self, timeout: _t.TimeoutType = None) -> None:\n482:        self.timeout = timeout\n583:        timeout: _t.TimeoutType | _DefaultTimeout = _DEFAULT_TIMEOUT,\n611:        :param timeout: (optional) How many seconds to wait for the server to send\n615:        :type timeout: float or tuple or None\n664:            \"timeout\": self.timeout if timeout is _DEFAULT_TIMEOUT else timeout,\n780:        kwargs.setdefault(\"timeout\", self.timeout)\n926:        self.timeout = None\nTraceback (most recent call last):\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"<PROJECT>/.venv/lib/python3.12/site-packages/ruff/__main__.py\", line 81, in <module>\n    ruff = find_ruff_bin()\n           ^^^^^^^^^^^^^^^\n  File \"<PROJECT>/.venv/lib/python3.12/site-packages/ruff/__main__.py\", line 77, in find_ruff_bin\n    raise FileNotFoundError(scripts_path)\nFileNotFoundError: <PROJECT>/.cache/agent-grep-2026-10-15/runtime-env/bin/ruff\n",
+        "command": "/bin/zsh -lc \"git diff --check; git diff --stat; rg -n 'timeout:|_DEFAULT_TIMEOUT|self.timeout|setdefault\\\\(\\\"timeout\\\"' src/requests/sessions.py; PYTHONDONTWRITEBYTECODE=1 <PROJECT>/.cache/agent-grep-2026-10-15/runtime-env/bin/python -m ruff --version\"",
+        "exit_code": 1,
+        "id": "item_17",
+        "status": "failed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 246598.616394,
+      "perf_counter_ns": 246598616387958,
+      "utc": "2026-10-15T16:32:13.047181+00:00",
+      "wall_time_ns": 1792081933047181000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc 'PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src NETRC=\"$PWD/.test-netrc-does-not-exist\" <PROJECT>/.cache/agent-grep-2026-10-15/runtime-env/bin/python -m pytest tests/test_session_timeout.py -q --tb=short'",
+        "exit_code": null,
+        "id": "item_18",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 246598.66426075,
+      "perf_counter_ns": 246598664241375,
+      "utc": "2026-10-15T16:32:13.095033+00:00",
+      "wall_time_ns": 1792081933095033000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "........................................................................ [ 73%]\n..........................                                               [100%]\n98 passed in 1.80s\n",
+        "command": "/bin/zsh -lc 'PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src NETRC=\"$PWD/.test-netrc-does-not-exist\" <PROJECT>/.cache/agent-grep-2026-10-15/runtime-env/bin/python -m pytest tests/test_session_timeout.py -q --tb=short'",
+        "exit_code": 0,
+        "id": "item_18",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 246600.627833,
+      "perf_counter_ns": 246600627804333,
+      "utc": "2026-10-15T16:32:15.058563+00:00",
+      "wall_time_ns": 1792081935058563000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"sed -n '200,235p' tests/test_requests.py; sed -n '610,660p' tests/test_requests.py; sed -n '1540,1610p' tests/test_requests.py; sed -n '1930,2020p' tests/test_requests.py; sed -n '2180,2230p' tests/test_requests.py; sed -n '2610,2760p' tests/test_requests.py; git diff -- src/requests/sessions.py docs/user/advanced.rst\"",
+        "exit_code": null,
+        "id": "item_19",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 246615.126361375,
+      "perf_counter_ns": 246615126332875,
+      "utc": "2026-10-15T16:32:29.556847+00:00",
+      "wall_time_ns": 1792081949556847000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "        url = scheme + parts.netloc + parts.path\n        r = requests.Request(\"GET\", url)\n        r = s.send(r.prepare())\n        assert r.status_code == 200, f\"failed for scheme {scheme}\"\n\n    def test_HTTP_200_OK_GET_ALTERNATIVE(self, httpbin):\n        r = requests.Request(\"GET\", httpbin(\"get\"))\n        s = requests.Session()\n        s.proxies = getproxies()\n\n        r = s.send(r.prepare())\n\n        assert r.status_code == 200\n\n    def test_HTTP_302_ALLOW_REDIRECT_GET(self, httpbin):\n        r = requests.get(httpbin(\"redirect\", \"1\"))\n        assert r.status_code == 200\n        assert r.history[0].status_code == 302\n        assert r.history[0].is_redirect\n\n    def test_redirect_history_no_self_reference(self, httpbin):\n        r = requests.get(httpbin(\"redirect\", \"3\"))\n        assert r.status_code == 200\n        assert len(r.history) == 3\n        for i, resp in enumerate(r.history):\n            assert resp not in resp.history\n            assert resp.history == r.history[:i]\n\n    def test_HTTP_307_ALLOW_REDIRECT_POST(self, httpbin):\n        r = requests.post(\n            httpbin(\"redirect-to\"),\n            data=\"test\",\n            params={\"url\": \"post\", \"status_code\": 307},\n        )\n        assert r.status_code == 200\n        assert r.history[0].status_code == 307\n\n        with pytest.raises(InvalidProxyURL):\n            requests.get(httpbin_secure(), proxies={\"https\": \"https://\"})\n\n        with pytest.raises(InvalidProxyURL):\n            requests.get(httpbin(), proxies={\"http\": \"http:///example.com:8080\"})\n\n    def test_respect_proxy_env_on_send_self_prepared_request(self, httpbin):\n        with override_environ(http_proxy=INVALID_PROXY):\n            with pytest.raises(ProxyError):\n                session = requests.Session()\n                request = requests.Request(\"GET\", httpbin())\n                session.send(request.prepare())\n\n    def test_respect_proxy_env_on_send_session_prepared_request(self, httpbin):\n        with override_environ(http_proxy=INVALID_PROXY):\n            with pytest.raises(ProxyError):\n                session = requests.Session()\n                request = requests.Request(\"GET\", httpbin())\n                prepared = session.prepare_request(request)\n                session.send(prepared)\n\n    def test_respect_proxy_env_on_send_with_redirects(self, httpbin):\n        with override_environ(http_proxy=INVALID_PROXY):\n            with pytest.raises(ProxyError):\n                session = requests.Session()\n                url = httpbin(\"redirect/1\")\n                print(url)\n                request = requests.Request(\"GET\", url)\n                session.send(request.prepare())\n\n    def test_respect_proxy_env_on_get(self, httpbin):\n        with override_environ(http_proxy=INVALID_PROXY):\n            with pytest.raises(ProxyError):\n                session = requests.Session()\n                session.get(httpbin())\n\n    def test_respect_proxy_env_on_request(self, httpbin):\n        with override_environ(http_proxy=INVALID_PROXY):\n            with pytest.raises(ProxyError):\n                session = requests.Session()\n                session.request(method=\"GET\", url=httpbin())\n\n    def test_proxy_authorization_preserved_on_request(self, httpbin):\n        proxy_auth_value = \"Bearer XXX\"\n        session = requests.Session()\n        session.headers.update({\"Proxy-Authorization\": proxy_auth_value})\n        resp = session.request(method=\"GET\", url=httpbin(\"get\"))\n        sent_headers = resp.json().get(\"headers\", {})\n\n        assert sent_headers.get(\"Proxy-Authorization\") == proxy_auth_value\n        # so we'll manually create the instance with args\n        r.raw.stream.side_effect = exception(*args)\n\n        with pytest.raises(expected):\n            next(r.iter_content(1024))\n\n    def test_request_and_response_are_pickleable(self, httpbin):\n        r = requests.get(httpbin(\"get\"))\n\n        # verify we can pickle the original request\n        assert pickle.loads(pickle.dumps(r.request))\n\n        # verify we can pickle the response and that we have access to\n        # the original request.\n        pr = pickle.loads(pickle.dumps(r))\n        assert r.request.url == pr.request.url\n        assert r.request.headers == pr.request.headers\n\n    def test_prepared_request_is_pickleable(self, httpbin):\n        p = requests.Request(\"GET\", httpbin(\"get\")).prepare()\n\n        # Verify PreparedRequest can be pickled and unpickled\n        r = pickle.loads(pickle.dumps(p))\n        assert r.url == p.url\n        assert r.headers == p.headers\n        assert r.body == p.body\n\n        # Verify unpickled PreparedRequest sends properly\n        s = requests.Session()\n        resp = s.send(r)\n        assert resp.status_code == 200\n\n    def test_prepared_request_with_file_is_pickleable(self, httpbin):\n        with open(__file__, \"rb\") as f:\n            r = requests.Request(\"POST\", httpbin(\"post\"), files={\"file\": f})\n            p = r.prepare()\n\n        # Verify PreparedRequest can be pickled and unpickled\n        r = pickle.loads(pickle.dumps(p))\n        assert r.url == p.url\n        assert r.headers == p.headers\n        assert r.body == p.body\n\n        # Verify unpickled PreparedRequest sends properly\n        s = requests.Session()\n        resp = s.send(r)\n        assert resp.status_code == 200\n\n    def test_prepared_request_with_hook_is_pickleable(self, httpbin):\n        r = requests.Request(\"GET\", httpbin(\"get\"), hooks=default_hooks())\n        p = r.prepare()\n\n        # Verify PreparedRequest can be pickled\n        r = pickle.loads(pickle.dumps(p))\n        assert r.url == p.url\n        assert r.headers == p.headers\n        assert r.body == p.body\n        assert r.hooks == p.hooks\n\n        # Verify unpickled PreparedRequest sends properly\n        s = requests.Session()\n        resp = s.send(r)\n        assert resp.status_code == 200\n\n    def test_cannot_send_unprepared_requests(self, httpbin):\n        r = requests.Request(url=httpbin())\n        with pytest.raises(ValueError):\n            requests.Session().send(r)\n\n    def test_http_error(self):\n        error = requests.exceptions.HTTPError()\n        assert r.history[0].request.headers[\"Authorization\"]\n        assert \"Authorization\" not in r.request.headers\n\n    def test_auth_is_retained_for_redirect_on_host(self, httpbin):\n        r = requests.get(httpbin(\"redirect/1\"), auth=(\"user\", \"pass\"))\n        h1 = r.history[0].request.headers[\"Authorization\"]\n        h2 = r.request.headers[\"Authorization\"]\n\n        assert h1 == h2\n\n    def test_should_strip_auth_host_change(self):\n        s = requests.Session()\n        assert s.should_strip_auth(\n            \"http://example.com/foo\", \"http://another.example.com/\"\n        )\n\n    def test_should_strip_auth_http_downgrade(self):\n        s = requests.Session()\n        assert s.should_strip_auth(\"https://example.com/foo\", \"http://example.com/bar\")\n\n    def test_should_strip_auth_https_upgrade(self):\n        s = requests.Session()\n        assert not s.should_strip_auth(\n            \"http://example.com/foo\", \"https://example.com/bar\"\n        )\n        assert not s.should_strip_auth(\n            \"http://example.com:80/foo\", \"https://example.com/bar\"\n        )\n        assert not s.should_strip_auth(\n            \"http://example.com/foo\", \"https://example.com:443/bar\"\n        )\n        # Non-standard ports should trigger stripping\n        assert s.should_strip_auth(\n            \"http://example.com:8080/foo\", \"https://example.com/bar\"\n        )\n        assert s.should_strip_auth(\n            \"http://example.com/foo\", \"https://example.com:8443/bar\"\n        )\n\n    def test_should_strip_auth_port_change(self):\n        s = requests.Session()\n        assert s.should_strip_auth(\n            \"http://example.com:1234/foo\", \"https://example.com:4321/bar\"\n        )\n\n    @pytest.mark.parametrize(\n        \"old_uri, new_uri\",\n        (\n            (\"https://example.com:443/foo\", \"https://example.com/bar\"),\n            (\"http://example.com:80/foo\", \"http://example.com/bar\"),\n            (\"https://example.com/foo\", \"https://example.com:443/bar\"),\n            (\"http://example.com/foo\", \"http://example.com:80/bar\"),\n        ),\n    )\n    def test_should_strip_auth_default_port(self, old_uri, new_uri):\n        s = requests.Session()\n        assert not s.should_strip_auth(old_uri, new_uri)\n\n    def test_manual_redirect_with_partial_body_read(self, httpbin):\n        s = requests.Session()\n        r1 = s.get(httpbin(\"redirect/2\"), allow_redirects=False, stream=True)\n        assert r1.is_redirect\n        rg = s.resolve_redirects(r1, r1.request, stream=True)\n\n        # read only the first eight bytes of the response body,\n        # then follow the redirect\n        r1.iter_content(8)\n        r2 = next(rg)\n        assert r2.is_redirect\n\n        # read all of the response via iter_content,\n        # then follow the redirect\n        for _ in r2.iter_content():\n            pass\n        r3 = next(rg)\n        assert not r3.is_redirect\n\n    def test_prepare_body_position_non_stream(self):\n        data = b\"the data\"\n        prep = requests.Request(\"GET\", \"http://example.com\", data=data).prepare()\n        assert prep._body_position is None\n\n    def test_rewind_body(self):\n        data = io.BytesIO(b\"the data\")\n        prep = requests.Request(\"GET\", \"http://example.com\", data=data).prepare()\n        assert prep._body_position == 0\n        assert prep.body.read() == b\"the data\"\n\n        # the data has all been read\n        assert prep.body.read() == b\"\"\n\n\n        it = r.iter_lines()\n        next(it)\n        assert len(list(it)) == 3\n\n    def test_response_context_manager(self, httpbin):\n        with requests.get(httpbin(\"stream/4\"), stream=True) as response:\n            assert isinstance(response, requests.Response)\n\n        assert response.raw.closed\n\n    def test_unconsumed_session_response_closes_connection(self, httpbin):\n        s = requests.session()\n\n        with contextlib.closing(s.get(httpbin(\"stream/4\"), stream=True)) as response:\n            pass\n\n        assert response._content_consumed is False\n        assert response.raw.closed\n\n    @pytest.mark.xfail\n    def test_response_iter_lines_reentrant(self, httpbin):\n        \"\"\"Response.iter_lines() is not reentrant safe\"\"\"\n        r = requests.get(httpbin(\"stream/4\"), stream=True)\n        assert r.status_code == 200\n\n        next(r.iter_lines())\n        assert len(list(r.iter_lines())) == 3\n\n    def test_session_close_proxy_clear(self):\n        proxies = {\n            \"one\": mock.Mock(),\n            \"two\": mock.Mock(),\n        }\n        session = requests.Session()\n        with mock.patch.dict(session.adapters[\"http://\"].proxy_manager, proxies):\n            session.close()\n            proxies[\"one\"].clear.assert_called_once_with()\n            proxies[\"two\"].clear.assert_called_once_with()\n\n    def test_proxy_auth(self):\n        adapter = HTTPAdapter()\n        headers = adapter.proxy_headers(\"http://user:pass@httpbin.org\")\n        assert headers == {\"Proxy-Authorization\": \"Basic dXNlcjpwYXNz\"}\n\n    def test_proxy_auth_empty_pass(self):\n        adapter = HTTPAdapter()\n        headers = adapter.proxy_headers(\"http://user:@httpbin.org\")\n        assert headers == {\"Proxy-Authorization\": \"Basic dXNlcjo=\"}\n\n    def test_response_json_when_content_is_None(self, httpbin):\n        self.redirects = order_of_redirects\n        self.calls = []\n        self.max_redirects = 30\n        self.cookies = {}\n        self.trust_env = False\n\n    def send(self, *args, **kwargs):\n        self.calls.append(SendCall(args, kwargs))\n        return self.build_response()\n\n    def build_response(self):\n        request = self.calls[-1].args[0]\n        r = requests.Response()\n        r.url = request.url\n\n        try:\n            r.status_code = int(self.redirects.pop(0))\n        except IndexError:\n            r.status_code = 200\n\n        r.headers = CaseInsensitiveDict({\"Location\": \"/\"})\n        r.raw = self._build_raw()\n        r.request = request\n        return r\n\n    def _build_raw(self):\n        string = StringIO.StringIO(\"\")\n        setattr(string, \"release_conn\", lambda *args: args)\n        return string\n\n\ndef test_json_encodes_as_bytes():\n    # urllib3 expects bodies as bytes-like objects\n    body = {\"key\": \"value\"}\n    p = PreparedRequest()\n    p.prepare(method=\"GET\", url=\"https://www.example.com/\", json=body)\n    assert isinstance(p.body, bytes)\n\n\ndef test_requests_are_updated_each_time(httpbin):\n    session = RedirectSession([303, 307])\n    prep = requests.Request(\"POST\", httpbin(\"post\")).prepare()\n    r0 = session.send(prep)\n    assert r0.request.method == \"POST\"\n    assert session.calls[-1] == SendCall((r0.request,), {})\n    redirect_generator = session.resolve_redirects(r0, prep)\n    default_keyword_args = {\n        \"stream\": False,\n        \"verify\": True,\n        \"cert\": None,\n        \"timeout\": None,\n        \"allow_redirects\": False,\n        \"proxies\": {},\n    }\n    for response in redirect_generator:\n        assert response.request.method == \"GET\"\n        send_call = SendCall((response.request,), default_keyword_args)\n        assert session.calls[-1] == send_call\n\n\n@pytest.mark.parametrize(\n    \"var,url,proxy\",\n    [\n        (\"http_proxy\", \"http://example.com\", \"socks5://proxy.com:9876\"),\n        (\"https_proxy\", \"https://example.com\", \"socks5://proxy.com:9876\"),\n        (\"all_proxy\", \"http://example.com\", \"socks5://proxy.com:9876\"),\n        (\"all_proxy\", \"https://example.com\", \"socks5://proxy.com:9876\"),\n    ],\n)\ndef test_proxy_env_vars_override_default(var, url, proxy):\n    session = requests.Session()\n    prep = PreparedRequest()\n    prep.prepare(method=\"GET\", url=url)\n\n    kwargs = {var: proxy}\n    scheme = urlparse(url).scheme\n    with override_environ(**kwargs):\n        proxies = session.rebuild_proxies(prep, {})\n        assert scheme in proxies\n        assert proxies[scheme] == proxy\n\n\n@pytest.mark.parametrize(\n    \"data\",\n    (\n        ((\"a\", \"b\"), (\"c\", \"d\")),\n        ((\"c\", \"d\"), (\"a\", \"b\")),\n        ((\"a\", \"b\"), (\"c\", \"d\"), (\"e\", \"f\")),\n    ),\n)\ndef test_data_argument_accepts_tuples(data):\n    \"\"\"Ensure that the data argument will accept tuples of strings\n    and properly encode them.\n    \"\"\"\n    p = PreparedRequest()\n    p.prepare(\n        method=\"GET\", url=\"http://www.example.com\", data=data, hooks=default_hooks()\n    )\n    assert p.body == urlencode(data)\n\n\n@pytest.mark.parametrize(\n    \"kwargs\",\n    (\n        None,\n        {\n            \"method\": \"GET\",\n            \"url\": \"http://www.example.com\",\n            \"data\": \"foo=bar\",\n            \"hooks\": default_hooks(),\n        },\n        {\n            \"method\": \"GET\",\n            \"url\": \"http://www.example.com\",\n            \"data\": \"foo=bar\",\n            \"hooks\": default_hooks(),\n            \"cookies\": {\"foo\": \"bar\"},\n        },\n        {\"method\": \"GET\", \"url\": \"http://www.example.com/\u00fcni\u00e7\u00f8\u2202\u00e9\"},\n    ),\n)\ndef test_prepared_copy(kwargs):\n    p = PreparedRequest()\n    if kwargs:\n        p.prepare(**kwargs)\n    copy = p.copy()\n    for attr in (\"method\", \"url\", \"headers\", \"_cookies\", \"body\", \"hooks\"):\n        assert getattr(p, attr) == getattr(copy, attr)\n\n\ndef test_urllib3_retries(httpbin):\n    from urllib3.util import Retry\n\n    s = requests.Session()\n    s.mount(\"http://\", HTTPAdapter(max_retries=Retry(total=2, status_forcelist=[500])))\n\n    with pytest.raises(RetryError):\n        s.get(httpbin(\"status/500\"))\n\n\ndef test_urllib3_pool_connection_closed(httpbin):\n    s = requests.Session()\n    s.mount(\"http://\", HTTPAdapter(pool_connections=0, pool_maxsize=0))\n\n    try:\n        s.get(httpbin(\"status/200\"))\n    except ConnectionError as e:\n        assert \"Pool is closed.\" in str(e)\n\n\nclass TestPreparingURLs:\ndiff --git a/docs/user/advanced.rst b/docs/user/advanced.rst\nindex f5209a5..b61627c 100644\n--- a/docs/user/advanced.rst\n+++ b/docs/user/advanced.rst\n@@ -1120,6 +1120,20 @@ coffee.\n \n     r = requests.get('https://github.com', timeout=None)\n \n+A session can supply a default timeout for all its requests::\n+\n+    with requests.Session(timeout=(3.05, 27)) as session:\n+        r = session.get('https://github.com')\n+        r = session.get('https://github.com', timeout=5)\n+        r = session.get('https://github.com', timeout=None)\n+        session.timeout = 10\n+\n+Omitting ``timeout`` uses the current value of ``session.timeout``, which\n+defaults to ``None``. An explicit timeout overrides that default for one\n+request, and an explicit ``None`` disables it. This also applies when sending\n+a prepared request with ``Session.send``. Redirects retain the timeout selected\n+for the initial request, even if the session default changes during the chain.\n+\n .. note:: The connect timeout applies to each connection attempt to an IP address.\n           If multiple addresses exist for a domain name, the underlying ``urllib3`` will\n           try each address sequentially until one successfully connects.\ndiff --git a/src/requests/sessions.py b/src/requests/sessions.py\nindex d11355b..c202c7e 100644\n--- a/src/requests/sessions.py\n+++ b/src/requests/sessions.py\n@@ -73,6 +73,13 @@ else:\n     preferred_clock = time.time\n \n \n+class _DefaultTimeout:\n+    \"\"\"Distinguish an omitted timeout from an explicit None.\"\"\"\n+\n+\n+_DEFAULT_TIMEOUT = _DefaultTimeout()\n+\n+\n def merge_setting(\n     request_setting: Any, session_setting: Any, dict_class: type = OrderedDict\n ) -> Any:\n@@ -397,6 +404,9 @@ class Session(SessionRedirectMixin):\n \n     Provides cookie persistence, connection-pooling, and configuration.\n \n+    :param timeout: Default timeout for requests that omit ``timeout``. Defaults\n+        to ``None`` (no timeout). Can be changed through :attr:`timeout`.\n+\n     Basic Usage::\n \n       >>> import requests\n@@ -417,6 +427,7 @@ class Session(SessionRedirectMixin):\n     hooks: dict[str, list[_t.HookType]]\n     params: MutableMapping[str, Any]\n     stream: bool\n+    timeout: _t.TimeoutType\n     verify: _t.VerifyType\n     cert: _t.CertType\n     max_redirects: int\n@@ -435,11 +446,12 @@ class Session(SessionRedirectMixin):\n         \"cert\",\n         \"adapters\",\n         \"stream\",\n+        \"timeout\",\n         \"trust_env\",\n         \"max_redirects\",\n     ]\n \n-    def __init__(self) -> None:\n+    def __init__(self, timeout: _t.TimeoutType = None) -> None:\n         #: A case-insensitive dictionary of headers to be sent on each\n         #: :class:`Request <Request>` sent from this\n         #: :class:`Session <Session>`.\n@@ -465,6 +477,10 @@ class Session(SessionRedirectMixin):\n         #: Stream response content default.\n         self.stream = False\n \n+        #: Default timeout for requests that omit ``timeout``. ``None`` means\n+        #: no timeout. An explicit request timeout overrides this value.\n+        self.timeout = timeout\n+\n         #: SSL Verification default.\n         #: Defaults to `True`, requiring requests to verify the TLS certificate at the\n         #: remote end.\n@@ -564,7 +580,7 @@ class Session(SessionRedirectMixin):\n         cookies: RequestsCookieJar | CookieJar | dict[str, str] | None = None,\n         files: _t.FilesType = None,\n         auth: _t.AuthType = None,\n-        timeout: _t.TimeoutType = None,\n+        timeout: _t.TimeoutType | _DefaultTimeout = _DEFAULT_TIMEOUT,\n         allow_redirects: bool = True,\n         proxies: dict[str, str] | None = None,\n         hooks: _t.HooksInputType | None = None,\n@@ -594,8 +610,9 @@ class Session(SessionRedirectMixin):\n             Basic/Digest/Custom HTTP Auth.\n         :param timeout: (optional) How many seconds to wait for the server to send\n             data before giving up, as a float, or a :ref:`(connect timeout,\n-            read timeout) <timeouts>` tuple.\n-        :type timeout: float or tuple\n+            read timeout) <timeouts>` tuple. If omitted, uses :attr:`timeout`.\n+            Pass ``None`` to disable the session default for this request.\n+        :type timeout: float or tuple or None\n         :param allow_redirects: (optional) Set to True by default.\n         :type allow_redirects: bool\n         :param proxies: (optional) Dictionary mapping protocol or protocol and\n@@ -644,7 +661,7 @@ class Session(SessionRedirectMixin):\n \n         # Send the request.\n         send_kwargs = {\n-            \"timeout\": timeout,\n+            \"timeout\": self.timeout if timeout is _DEFAULT_TIMEOUT else timeout,\n             \"allow_redirects\": allow_redirects,\n         }\n         send_kwargs.update(settings)\n@@ -752,11 +769,15 @@ class Session(SessionRedirectMixin):\n     def send(self, request: PreparedRequest, **kwargs: Any) -> Response:\n         \"\"\"Send a given PreparedRequest.\n \n+        If ``timeout`` is omitted, uses :attr:`timeout`. An explicit ``None``\n+        disables the session default for this request.\n+\n         :rtype: requests.Response\n         \"\"\"\n         # Set defaults that the hooks can utilize to ensure they always have\n         # the correct parameters to reproduce the previous request.\n         kwargs.setdefault(\"stream\", self.stream)\n+        kwargs.setdefault(\"timeout\", self.timeout)\n         kwargs.setdefault(\"verify\", self.verify)\n         kwargs.setdefault(\"cert\", self.cert)\n         if \"proxies\" not in kwargs:\n@@ -901,6 +922,8 @@ class Session(SessionRedirectMixin):\n         return state\n \n     def __setstate__(self, state: dict[str, Any]) -> None:\n+        # Older session pickles do not contain a timeout default.\n+        self.timeout = None\n         for attr, value in state.items():\n             setattr(self, attr, value)\n \n",
+        "command": "/bin/zsh -lc \"sed -n '200,235p' tests/test_requests.py; sed -n '610,660p' tests/test_requests.py; sed -n '1540,1610p' tests/test_requests.py; sed -n '1930,2020p' tests/test_requests.py; sed -n '2180,2230p' tests/test_requests.py; sed -n '2610,2760p' tests/test_requests.py; git diff -- src/requests/sessions.py docs/user/advanced.rst\"",
+        "exit_code": 0,
+        "id": "item_19",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 246615.127268291,
+      "perf_counter_ns": 246615127262000,
+      "utc": "2026-10-15T16:32:29.557776+00:00",
+      "wall_time_ns": 1792081949557776000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "changes": [
+          {
+            "kind": "update",
+            "path": "<WORKSPACE>/tests/test_session_timeout.py"
+          }
+        ],
+        "id": "item_20",
+        "status": "in_progress",
+        "type": "file_change"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 246634.77956975,
+      "perf_counter_ns": 246634779510833,
+      "utc": "2026-10-15T16:32:49.209692+00:00",
+      "wall_time_ns": 1792081969209692000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "changes": [
+          {
+            "kind": "update",
+            "path": "<WORKSPACE>/tests/test_session_timeout.py"
+          }
+        ],
+        "id": "item_20",
+        "status": "completed",
+        "type": "file_change"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 246634.818129583,
+      "perf_counter_ns": 246634818095416,
+      "utc": "2026-10-15T16:32:49.248276+00:00",
+      "wall_time_ns": 1792081969248276000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc 'PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src NETRC=\"$PWD/.test-netrc-does-not-exist\" <PROJECT>/.cache/agent-grep-2026-10-15/runtime-env/bin/python -m pytest tests/test_adapters.py tests/test_hooks.py tests/test_requests.py::TestTimeout tests/test_requests.py::TestRequests::test_HTTP_200_OK_GET_ALTERNATIVE tests/test_requests.py::TestRequests::test_HTTP_302_ALLOW_REDIRECT_GET tests/test_requests.py::TestRequests::test_HTTP_307_ALLOW_REDIRECT_POST tests/test_requests.py::TestRequests::test_redirect_history_no_self_reference tests/test_requests.py::TestRequests::test_request_and_response_are_pickleable tests/test_requests.py::TestRequests::test_prepared_request_is_pickleable tests/test_requests.py::TestRequests::test_prepared_request_with_file_is_pickleable tests/test_requests.py::TestRequests::test_prepared_request_with_hook_is_pickleable tests/test_requests.py::TestRequests::test_cannot_send_unprepared_requests tests/test_requests.py::TestRequests::test_session_pickling tests/test_requests.py::TestRequests::test_respect_proxy_env_on_send_self_prepared_request tests/test_requests.py::TestRequests::test_respect_proxy_env_on_send_session_prepared_request tests/test_requests.py::TestRequests::test_respect_proxy_env_on_send_with_redirects tests/test_requests.py::TestRequests::test_session_hooks_are_used_with_no_request_hooks tests/test_requests.py::TestRequests::test_session_hooks_are_overridden_by_request_hooks tests/test_requests.py::TestRequests::test_auth_is_retained_for_redirect_on_host tests/test_requests.py::TestRequests::test_manual_redirect_with_partial_body_read -k '\"'not connect_timeout and not total_timeout_connect' -q --tb=short\"",
+        "exit_code": null,
+        "id": "item_21",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 246634.972831083,
+      "perf_counter_ns": 246634972819458,
+      "utc": "2026-10-15T16:32:49.402999+00:00",
+      "wall_time_ns": 1792081969402999000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc \"git diff --check; git status --short; sed -n '55,80p' tests/test_session_timeout.py; sed -n '138,160p' tests/test_session_timeout.py; rg -n 'pytest_plugins|def test_redirect' tests/test_requests.py tests/__init__.py\"",
+        "exit_code": null,
+        "id": "item_22",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 246655.980705416,
+      "perf_counter_ns": 246655980670750,
+      "utc": "2026-10-15T16:33:10.410495+00:00",
+      "wall_time_ns": 1792081990410495000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": " M docs/user/advanced.rst\n M src/requests/sessions.py\n?? tests/test_session_timeout.py\n\n\n@pytest.mark.parametrize(\n    \"kwargs, expected\",\n    (\n        ({}, None),\n        ({\"timeout\": None}, None),\n        ({\"timeout\": 2.5}, 2.5),\n        ({\"timeout\": (1, None)}, (1, None)),\n    ),\n)\ndef test_constructor_timeout(kwargs, expected):\n    with requests.Session(**kwargs) as session:\n        assert session.timeout == expected\n        session.trust_env = False\n        adapter = RecordingAdapter()\n        session.mount(\"http://\", adapter)\n        session.get(URL)\n        session.send(requests.Request(\"GET\", URL).prepare())\n        assert adapter.timeouts == [expected, expected]\n\n\ndef test_positional_constructor_timeout():\n    with requests.Session(2.5) as session:\n        assert session.timeout == 2.5\n\n    assert hook_timeouts == [expected] * 3\n    assert session.timeout == 99\n\n\n@pytest.mark.parametrize(\"entry_point\", (\"request\", *HTTP_METHODS))\n@pytest.mark.parametrize(\n    \"kwargs, expected\",\n    (({}, None), ({\"timeout\": None}, None), ({\"timeout\": (1, 2)}, (1, 2))),\n)\ndef test_module_helpers_keep_timeout_behavior(\n    monkeypatch, entry_point, kwargs, expected\n):\n    adapter = RecordingAdapter()\n    monkeypatch.setattr(HTTPAdapter, \"send\", adapter.send)\n    monkeypatch.setattr(\"requests.sessions.get_netrc_auth\", lambda url: None)\n    if entry_point == \"request\":\n        response = requests.request(\"GET\", URL, **kwargs)\n    else:\n        response = getattr(requests, entry_point)(URL, **kwargs)\n    assert response.status_code == 200\n    assert adapter.timeouts == [expected]\n\n\ntests/test_requests.py:220:    def test_redirect_history_no_self_reference(self, httpbin):\ntests/test_requests.py:2131:    def test_redirect_with_wrong_gzipped_header(self, httpbin):\ntests/test_requests.py:2820:    def test_redirecting_to_bad_url(self, httpbin, url, exception):\n",
+        "command": "/bin/zsh -lc \"git diff --check; git status --short; sed -n '55,80p' tests/test_session_timeout.py; sed -n '138,160p' tests/test_session_timeout.py; rg -n 'pytest_plugins|def test_redirect' tests/test_requests.py tests/__init__.py\"",
+        "exit_code": 0,
+        "id": "item_22",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 246655.981650458,
+      "perf_counter_ns": 246655981640750,
+      "utc": "2026-10-15T16:33:10.411466+00:00",
+      "wall_time_ns": 1792081990411466000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": ".............................                                            [100%]\n29 passed, 4 deselected in 30.69s\n",
+        "command": "/bin/zsh -lc 'PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src NETRC=\"$PWD/.test-netrc-does-not-exist\" <PROJECT>/.cache/agent-grep-2026-10-15/runtime-env/bin/python -m pytest tests/test_adapters.py tests/test_hooks.py tests/test_requests.py::TestTimeout tests/test_requests.py::TestRequests::test_HTTP_200_OK_GET_ALTERNATIVE tests/test_requests.py::TestRequests::test_HTTP_302_ALLOW_REDIRECT_GET tests/test_requests.py::TestRequests::test_HTTP_307_ALLOW_REDIRECT_POST tests/test_requests.py::TestRequests::test_redirect_history_no_self_reference tests/test_requests.py::TestRequests::test_request_and_response_are_pickleable tests/test_requests.py::TestRequests::test_prepared_request_is_pickleable tests/test_requests.py::TestRequests::test_prepared_request_with_file_is_pickleable tests/test_requests.py::TestRequests::test_prepared_request_with_hook_is_pickleable tests/test_requests.py::TestRequests::test_cannot_send_unprepared_requests tests/test_requests.py::TestRequests::test_session_pickling tests/test_requests.py::TestRequests::test_respect_proxy_env_on_send_self_prepared_request tests/test_requests.py::TestRequests::test_respect_proxy_env_on_send_session_prepared_request tests/test_requests.py::TestRequests::test_respect_proxy_env_on_send_with_redirects tests/test_requests.py::TestRequests::test_session_hooks_are_used_with_no_request_hooks tests/test_requests.py::TestRequests::test_session_hooks_are_overridden_by_request_hooks tests/test_requests.py::TestRequests::test_auth_is_retained_for_redirect_on_host tests/test_requests.py::TestRequests::test_manual_redirect_with_partial_body_read -k '\"'not connect_timeout and not total_timeout_connect' -q --tb=short\"",
+        "exit_code": 0,
+        "id": "item_21",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 246665.7988825,
+      "perf_counter_ns": 246665798838833,
+      "utc": "2026-10-15T16:33:20.228498+00:00",
+      "wall_time_ns": 1792082000228498000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "id": "item_23",
+        "text": "All 98 new regression cases pass, including loopback checks that the default raises a read timeout and explicit overrides take effect. I\u2019m finishing the existing timeout, redirect, prepared-request, hook, and pickle checks. Ruff could not run because its executable is missing from the provided environment.",
+        "type": "agent_message"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 246672.274733458,
+      "perf_counter_ns": 246672274637958,
+      "utc": "2026-10-15T16:33:26.704186+00:00",
+      "wall_time_ns": 1792082006704186000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc 'PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src NETRC=\"$PWD/.test-netrc-does-not-exist\" <PROJECT>/.cache/agent-grep-2026-10-15/runtime-env/bin/python -m pytest tests/test_session_timeout.py -q --tb=short'",
+        "exit_code": null,
+        "id": "item_24",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 246674.174835333,
+      "perf_counter_ns": 246674174811333,
+      "utc": "2026-10-15T16:33:28.604329+00:00",
+      "wall_time_ns": 1792082008604329000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "........................................................................ [ 73%]\n..........................                                               [100%]\n98 passed in 1.80s\n",
+        "command": "/bin/zsh -lc 'PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src NETRC=\"$PWD/.test-netrc-does-not-exist\" <PROJECT>/.cache/agent-grep-2026-10-15/runtime-env/bin/python -m pytest tests/test_session_timeout.py -q --tb=short'",
+        "exit_code": 0,
+        "id": "item_24",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 246676.237262666,
+      "perf_counter_ns": 246676237228500,
+      "utc": "2026-10-15T16:33:30.666712+00:00",
+      "wall_time_ns": 1792082010666712000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": "",
+        "command": "/bin/zsh -lc 'git diff --check; git status --short'",
+        "exit_code": null,
+        "id": "item_25",
+        "status": "in_progress",
+        "type": "command_execution"
+      },
+      "type": "item.started"
+    },
+    "received": {
+      "monotonic_s": 246690.0941885,
+      "perf_counter_ns": 246690094161791,
+      "utc": "2026-10-15T16:33:44.523411+00:00",
+      "wall_time_ns": 1792082024523411000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "aggregated_output": " M docs/user/advanced.rst\n M src/requests/sessions.py\n?? tests/test_session_timeout.py\n",
+        "command": "/bin/zsh -lc 'git diff --check; git status --short'",
+        "exit_code": 0,
+        "id": "item_25",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 246690.095269541,
+      "perf_counter_ns": 246690095260625,
+      "utc": "2026-10-15T16:33:44.524510+00:00",
+      "wall_time_ns": 1792082024524510000
+    }
+  },
+  {
+    "event": {
+      "item": {
+        "id": "item_26",
+        "text": "Implemented mutable `Session(timeout=None)` defaults across requests, method helpers, and direct sends. Explicit overrides, redirect consistency, and pickling are covered. Added documentation and a new regression test file.\n\nChecks: 98 regression tests and 29 existing tests passed; four external-network cases excluded. `git diff --check` passed. Ruff unavailable because its executable is missing.",
+        "type": "agent_message"
+      },
+      "type": "item.completed"
+    },
+    "received": {
+      "monotonic_s": 246693.985839333,
+      "perf_counter_ns": 246693985754333,
+      "utc": "2026-10-15T16:33:48.414937+00:00",
+      "wall_time_ns": 1792082028414937000
+    }
+  },
+  {
+    "event": {
+      "type": "turn.completed",
+      "usage": {
+        "cache_write_input_tokens": 0,
+        "cached_input_tokens": 514304,
+        "input_tokens": 558240,
+        "output_tokens": 12514,
+        "reasoning_output_tokens": 6276
+      }
+    },
+    "received": {
+      "monotonic_s": 246694.201390541,
+      "perf_counter_ns": 246694201330416,
+      "utc": "2026-10-15T16:33:48.630508+00:00",
+      "wall_time_ns": 1792082028630508000
+    }
+  }
+]

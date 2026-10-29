@@ -1,0 +1,33 @@
+diff --git a/starlette/background.py b/starlette/background.py
+index 0430fc0..21b5ba8 100644
+--- a/starlette/background.py
++++ b/starlette/background.py
+@@ -29,7 +29,10 @@ class BackgroundTask:
+ 
+ 
+ class BackgroundTasks(BackgroundTask):
+-    def __init__(self, tasks: typing.Sequence[BackgroundTask] | None = None):
++    def __init__(self, tasks: typing.Sequence[BackgroundTask] | None = None, *, continue_on_error: bool = False):
++        if type(continue_on_error) is not bool:
++            raise ValueError("continue_on_error must be a boolean")
++        self.continue_on_error = continue_on_error
+         self.tasks = list(tasks) if tasks else []
+ 
+     def add_task(self, func: typing.Callable[P, typing.Any], *args: P.args, **kwargs: P.kwargs) -> None:
+@@ -37,5 +40,15 @@ class BackgroundTasks(BackgroundTask):
+         self.tasks.append(task)
+ 
+     async def __call__(self) -> None:
++        first_error = None
++        first_traceback = None
+         for task in self.tasks:
+-            await task()
++            try:
++                await task()
++            except Exception as error:
++                if not self.continue_on_error:
++                    raise
++                if first_error is None:
++                    first_error, first_traceback = error, error.__traceback__
++        if first_error is not None:
++            raise first_error.with_traceback(first_traceback)

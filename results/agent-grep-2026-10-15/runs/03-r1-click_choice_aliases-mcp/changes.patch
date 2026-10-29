@@ -1,0 +1,366 @@
+diff --git a/src/click/types.py b/src/click/types.py
+index a70fd58..a0cb50e 100644
+--- a/src/click/types.py
++++ b/src/click/types.py
+@@ -2,6 +2,7 @@ import os
+ import stat
+ import sys
+ import typing as t
++from collections.abc import Mapping
+ from datetime import datetime
+ from gettext import gettext as _
+ from gettext import ngettext
+@@ -239,13 +240,41 @@ class Choice(ParamType):
+ 
+     :param case_sensitive: Set to false to make choices case
+         insensitive. Defaults to true.
++    :param aliases: Optional mapping of string aliases to exact strings in
++        ``choices``. The mapping is copied. Aliases use the same normalization
++        as choices and return the original choice. Conflicting aliases raise
++        :exc:`BadParameter` during conversion. Help and completion only show
++        the original choices.
+     """
+ 
+     name = "choice"
+ 
+-    def __init__(self, choices: t.Sequence[str], case_sensitive: bool = True) -> None:
++    def __init__(
++        self,
++        choices: t.Sequence[str],
++        case_sensitive: bool = True,
++        aliases: t.Optional[t.Mapping[str, str]] = None,
++    ) -> None:
+         self.choices = choices
+         self.case_sensitive = case_sensitive
++        self.aliases: t.Dict[str, str] = {}
++
++        if aliases is not None:
++            if not isinstance(aliases, Mapping):
++                raise ValueError("aliases must be a mapping of strings to choices.")
++
++            for alias, target in aliases.items():
++                if (
++                    not isinstance(alias, str)
++                    or not isinstance(target, str)
++                    or target not in self.choices
++                ):
++                    raise ValueError(
++                        "Alias names and targets must be strings, and targets must"
++                        " be members of choices."
++                    )
++
++                self.aliases[alias] = target
+ 
+     def to_info_dict(self) -> t.Dict[str, t.Any]:
+         info_dict = super().to_info_dict()
+@@ -269,26 +298,61 @@ class Choice(ParamType):
+     def convert(
+         self, value: t.Any, param: t.Optional["Parameter"], ctx: t.Optional["Context"]
+     ) -> t.Any:
+-        # Match through normalization and case sensitivity
+-        # first do token_normalize_func, then lowercase
+-        # preserve original `value` to produce an accurate message in
+-        # `self.fail`
+-        normed_value = value
+-        normed_choices = {choice: choice for choice in self.choices}
+-
+-        if ctx is not None and ctx.token_normalize_func is not None:
+-            normed_value = ctx.token_normalize_func(value)
+-            normed_choices = {
+-                ctx.token_normalize_func(normed_choice): original
+-                for normed_choice, original in normed_choices.items()
+-            }
+-
+-        if not self.case_sensitive:
+-            normed_value = normed_value.casefold()
+-            normed_choices = {
+-                normed_choice.casefold(): original
+-                for normed_choice, original in normed_choices.items()
+-            }
++        def normalize(choice: str) -> str:
++            if ctx is not None and ctx.token_normalize_func is not None:
++                choice = ctx.token_normalize_func(choice)
++
++            if not self.case_sensitive:
++                choice = choice.casefold()
++
++            return choice
++
++        # Preserve the input for invalid-value messages and resolve alias targets
++        # to the original choice objects before normalizing their names.
++        normed_value = normalize(value)
++        original_choices = {choice: choice for choice in self.choices}
++        normed_aliases: t.Dict[str, str] = {}
++
++        for alias, target in self.aliases.items():
++            normed_alias = normalize(alias)
++            target = original_choices[target]
++
++            if (
++                normed_alias in normed_aliases
++                and normed_aliases[normed_alias] != target
++            ):
++                self.fail(
++                    _("Alias {alias!r} is ambiguous after normalization.").format(
++                        alias=normed_alias
++                    ),
++                    param,
++                    ctx,
++                )
++
++            normed_aliases[normed_alias] = target
++
++        normed_choices = {}
++
++        for choice in self.choices:
++            normed_choice = normalize(choice)
++
++            # Check every canonical name, including names that normalize to the
++            # same key, so none can silently hide an alias conflict.
++            if (
++                normed_choice in normed_aliases
++                and normed_aliases[normed_choice] != choice
++            ):
++                self.fail(
++                    _("Alias {alias!r} is ambiguous after normalization.").format(
++                        alias=normed_choice
++                    ),
++                    param,
++                    ctx,
++                )
++
++            normed_choices[normed_choice] = choice
++
++        normed_choices.update(normed_aliases)
+ 
+         if normed_value in normed_choices:
+             return normed_choices[normed_value]
+diff --git a/tests/test_choice_aliases.py b/tests/test_choice_aliases.py
+new file mode 100644
+index 0000000..04ff763
+--- /dev/null
++++ b/tests/test_choice_aliases.py
+@@ -0,0 +1,223 @@
++from collections import UserDict
++from types import MappingProxyType
++
++import pytest
++
++import click
++from click.shell_completion import ShellComplete
++
++
++@pytest.mark.parametrize("mapping", [dict, UserDict, MappingProxyType])
++def test_alias_returns_original_choice(mapping):
++    canonical = "".join(["Original", "Choice"])
++    target = canonical.encode().decode()
++    assert target == canonical and target is not canonical
++    choice = click.Choice([canonical, "Other"], aliases=mapping({"short": target}))
++
++    assert choice.convert("short", None, None) is canonical
++    assert choice.convert(target, None, None) is canonical
++
++
++def test_alias_mapping_is_copied():
++    aliases = {"short": "Alpha"}
++    choice = click.Choice(["Alpha", "Beta"], aliases=aliases)
++    aliases["short"] = "Beta"
++    aliases["new"] = "Alpha"
++    aliases.clear()
++
++    assert choice.convert("short", None, None) == "Alpha"
++    with pytest.raises(click.BadParameter):
++        choice.convert("new", None, None)
++
++
++@pytest.mark.parametrize(
++    "aliases", [False, 0, "", "short", [], [("short", "Alpha")], set()]
++)
++def test_aliases_must_be_a_mapping(aliases):
++    with pytest.raises(ValueError):
++        click.Choice(["Alpha"], aliases=aliases)
++
++
++@pytest.mark.parametrize(
++    "aliases",
++    [
++        {1: "Alpha"},
++        {None: "Alpha"},
++        {b"short": "Alpha"},
++        {"short": 1},
++        {"short": None},
++        {"short": b"Alpha"},
++        {"short": ["Alpha"]},
++        {"short": "Missing"},
++        {"short": "alpha"},
++        {"short": "other", "other": "Alpha"},
++    ],
++)
++def test_alias_names_and_targets_are_validated(aliases):
++    with pytest.raises(ValueError):
++        click.Choice(["Alpha"], case_sensitive=False, aliases=aliases)
++
++
++def test_alias_target_must_be_an_original_string_choice():
++    with pytest.raises(ValueError):
++        click.Choice([1], aliases={"one": "1"})
++
++
++@pytest.mark.parametrize(
++    ("case_sensitive", "normalize", "alias", "value"),
++    [
++        (True, None, "short", "short"),
++        (False, None, "Straße", "STRASSE"),
++        (True, str.strip, " short ", "short "),
++        (
++            False,
++            lambda value: value.replace("Q", "prefix").replace("-", ""),
++            "Q-ALIAS",
++            "PREFIX-ALIAS",
++        ),
++    ],
++)
++def test_alias_normalization(case_sensitive, normalize, alias, value):
++    canonical = " Q-Choice "
++    choice = click.Choice(
++        [canonical], case_sensitive=case_sensitive, aliases={alias: canonical}
++    )
++    ctx = click.Context(click.Command("cli"), token_normalize_func=normalize)
++
++    assert choice.convert(value, None, ctx) is canonical
++    assert choice.convert(canonical, None, ctx) is canonical
++
++
++def test_alias_is_case_sensitive_by_default():
++    choice = click.Choice(["Alpha"], aliases={"short": "Alpha"})
++
++    with pytest.raises(click.BadParameter):
++        choice.convert("SHORT", None, None)
++
++
++@pytest.mark.parametrize("value", ["short", "Alpha", "unknown"])
++@pytest.mark.parametrize(
++    ("choices", "aliases", "case_sensitive", "normalize"),
++    [
++        (["Alpha", "Beta"], {"short": "Alpha", "SHORT": "Beta"}, False, None),
++        (["Alpha", "Beta"], {"Alpha": "Beta"}, True, None),
++        (["Alpha", "Beta"], {"ALPHA": "Beta"}, False, None),
++        (["Straße", "Beta"], {"STRASSE": "Beta"}, False, None),
++        (["Alpha", "Beta"], {"short": "Alpha", " short ": "Beta"}, True, str.strip),
++        (["Alpha", "Beta"], {" Alpha ": "Beta"}, True, str.strip),
++        (["Alpha", "ALPHA"], {"alpha": "ALPHA"}, False, None),
++        (
++            ["Alpha", "Beta"],
++            {"Q-ALIAS": "Alpha", "prefix-alias": "Beta"},
++            False,
++            lambda value: value.replace("Q", "prefix").replace("-", ""),
++        ),
++    ],
++)
++def test_conflicting_aliases_fail_during_conversion(
++    choices, aliases, case_sensitive, normalize, value
++):
++    choice = click.Choice(choices, case_sensitive=case_sensitive, aliases=aliases)
++    param = click.Option(["--choice"], type=choice)
++    ctx = click.Context(click.Command("cli"), token_normalize_func=normalize)
++
++    with pytest.raises(click.BadParameter, match="ambiguous") as exc_info:
++        choice.convert(value, param, ctx)
++
++    assert exc_info.value.param is param
++    assert exc_info.value.ctx is ctx
++
++
++@pytest.mark.parametrize("case_sensitive", [True, False])
++def test_collisions_with_same_target_are_allowed(case_sensitive):
++    choice = click.Choice(
++        ["Alpha", "Beta"],
++        case_sensitive=case_sensitive,
++        aliases={
++            "Alpha": "Alpha",
++            " Alpha ": "Alpha",
++            "short": "Alpha",
++            " short ": "Alpha",
++        },
++    )
++    ctx = click.Context(click.Command("cli"), token_normalize_func=str.strip)
++
++    for value in ["Alpha", " Alpha ", "short", " short "]:
++        assert choice.convert(value, None, ctx) is choice.choices[0]
++
++
++def test_casefolded_collisions_with_same_target_are_allowed():
++    choice = click.Choice(
++        ["Straße"],
++        case_sensitive=False,
++        aliases={"STRASSE": "Straße", "strasse": "Straße"},
++    )
++
++    assert choice.convert("Strasse", None, None) is choice.choices[0]
++
++
++def test_collisions_depend_on_conversion_context():
++    choice = click.Choice(["Alpha", "Beta"], aliases={"ALPHA": "Beta"})
++    ctx = click.Context(click.Command("cli"), token_normalize_func=str.casefold)
++
++    assert choice.convert("ALPHA", None, None) == "Beta"
++    with pytest.raises(click.BadParameter, match="ambiguous"):
++        choice.convert("ALPHA", None, ctx)
++    assert choice.convert("ALPHA", None, None) == "Beta"
++
++
++@pytest.mark.parametrize("aliases", [None, {}, {"other": "Beta"}])
++def test_canonical_collisions_keep_existing_behavior(aliases):
++    choice = click.Choice(
++        ["Alpha", "ALPHA", "Beta"], case_sensitive=False, aliases=aliases
++    )
++
++    assert choice.convert("alpha", None, None) is choice.choices[1]
++
++
++@pytest.mark.parametrize("parameter", [click.Option, click.Argument])
++def test_alias_cli_and_canonical_displays(runner, parameter):
++    choice = click.Choice(["Alpha", "Beta"], aliases={"shortcut": "Alpha"})
++    is_option = parameter is click.Option
++    param = parameter(
++        ["--choice" if is_option else "choice"], type=choice, required=True
++    )
++    cli = click.Command(
++        "cli", params=[param], callback=lambda choice: click.echo(choice)
++    )
++    prefix = ["--choice"] if is_option else []
++
++    result = runner.invoke(cli, prefix + ["shortcut"])
++    assert result.exit_code == 0
++    assert result.output == "Alpha\n"
++
++    result = runner.invoke(cli, ["--help"])
++    assert result.exit_code == 0
++    assert ("[Alpha|Beta]" if is_option else "{Alpha|Beta}") in result.output
++    assert "shortcut" not in result.output
++
++    result = runner.invoke(cli, prefix + ["unknown"])
++    assert result.exit_code == 2
++    assert "'unknown' is not one of 'Alpha', 'Beta'." in result.output
++    assert "shortcut" not in result.output
++
++    result = runner.invoke(cli)
++    assert result.exit_code == 2
++    assert "Choose from:\n\tAlpha,\n\tBeta" in result.output
++    assert "shortcut" not in result.output
++
++    complete = ShellComplete(cli, {}, "cli", "_CLI_COMPLETE")
++    assert [item.value for item in complete.get_completions(prefix, "")] == [
++        "Alpha",
++        "Beta",
++    ]
++    assert complete.get_completions(prefix, "short") == []
++
++
++def test_single_choice_invalid_message():
++    choice = click.Choice(["Alpha"], aliases={"short": "Alpha"})
++
++    with pytest.raises(click.BadParameter) as exc_info:
++        choice.convert("unknown", None, None)
++
++    assert exc_info.value.message == "'unknown' is not 'Alpha'."

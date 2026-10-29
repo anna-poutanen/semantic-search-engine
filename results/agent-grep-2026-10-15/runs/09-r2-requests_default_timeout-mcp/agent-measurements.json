@@ -1,0 +1,557 @@
+{
+  "agent_cleanup": {
+    "capture_cleanup_end": {
+      "monotonic_s": 248940.645188083,
+      "perf_counter_ns": 248940645185666,
+      "utc": "2026-10-16T04:30:18.165752+00:00",
+      "wall_time_ns": 1792125018165752000
+    },
+    "capture_cleanup_s": 4.4541986426338553e-05,
+    "capture_cleanup_start": {
+      "monotonic_s": 248940.645143541,
+      "perf_counter_ns": 248940645118375,
+      "utc": "2026-10-16T04:30:18.165685+00:00",
+      "wall_time_ns": 1792125018165685000
+    },
+    "errors": [],
+    "exit_code": 0,
+    "finished_cleanup": {
+      "monotonic_s": 248940.645182041,
+      "perf_counter_ns": 248940645178625,
+      "utc": "2026-10-16T04:30:18.165745+00:00",
+      "wall_time_ns": 1792125018165745000
+    },
+    "forced_kill": false,
+    "kill_grace_s": 5.0,
+    "owned_group": 88462,
+    "owned_group_stopped": true,
+    "permission_retries": [],
+    "pid": 88462,
+    "started_cleanup": {
+      "monotonic_s": 248940.645151125,
+      "perf_counter_ns": 248940645146375,
+      "utc": "2026-10-16T04:30:18.165713+00:00",
+      "wall_time_ns": 1792125018165713000
+    },
+    "term_grace_s": 5.0,
+    "term_sent": false
+  },
+  "agent_elapsed_s": 255.25293824999244,
+  "agent_end": {
+    "monotonic_s": 248940.642400541,
+    "perf_counter_ns": 248940642339250,
+    "utc": "2026-10-16T04:30:18.162905+00:00",
+    "wall_time_ns": 1792125018162905000
+  },
+  "agent_exit_code": 0,
+  "agent_process": {
+    "command_sha256": "53ffedacb56d532d69d687015c8b4fcac5772962e4a3d10c051d41c8ad044253",
+    "launched": true,
+    "launched_at": {
+      "monotonic_s": 248685.393375625,
+      "perf_counter_ns": 248685393328583,
+      "utc": "2026-10-16T04:26:02.929210+00:00",
+      "wall_time_ns": 1792124762929210000
+    },
+    "owned_group": 88462,
+    "pid": 88462,
+    "start_new_session": true
+  },
+  "agent_start": {
+    "monotonic_s": 248685.389462291,
+    "perf_counter_ns": 248685389454458,
+    "utc": "2026-10-16T04:26:02.925336+00:00",
+    "wall_time_ns": 1792124762925336000
+  },
+  "capture_errors": [],
+  "cleanup_clean": true,
+  "cleanup_qualified": true,
+  "command_calls": 20,
+  "completed": true,
+  "completed_turn_events": 1,
+  "errors": [],
+  "failed": false,
+  "interrupted": false,
+  "interruption_signal": null,
+  "interruption_type": null,
+  "invalid_event_lines": [],
+  "lifecycle_qualified": true,
+  "mcp_calls": 3,
+  "mcp_items": [
+    {
+      "arguments": {
+        "max_results": 5,
+        "query": "Session initialization request send timeout defaults resolve_redirects pickling __getstate__ __setstate__",
+        "token_budget": 2000
+      },
+      "error": null,
+      "id": "item_2",
+      "result": {
+        "content": [
+          {
+            "text": "{\"query\":\"Session initialization request send timeout defaults resolve_redirects pickling __getstate__ __setstate__\",\"match_status\":\"candidates\",\"results\":[{\"path\":\"src/requests/sessions.py\",\"symbol\":\"Session.__setstate__\",\"start_line\":903,\"end_line\":905,\"source\":\"    def __setstate__(self, state: dict[str, Any]) -> None:\\n        for attr, value in state.items():\\n            setattr(self, attr, value)\\n\",\"source_hash\":\"f0e0169418a634c17723ac7b2a5a4db67a4d24e8945234be4e79d77aa589f863\",\"truncated\":false,\"origin\":\"retrieval\",\"related_to\":null},{\"path\":\"src/requests/sessions.py\",\"symbol\":\"Session.__getstate__\",\"start_line\":899,\"end_line\":901,\"source\":\"    def __getstate__(self) -> dict[str, Any]:\\n        state = {attr: getattr(self, attr, None) for attr in self.__attrs__}\\n        return state\\n\",\"source_hash\":\"d744c2093b324849b68a303f31a6a384520553d1e319dc220187641e96f145bf\",\"truncated\":false,\"origin\":\"retrieval\",\"related_to\":null},{\"path\":\"src/requests/cookies.py\",\"symbol\":\"RequestsCookieJar.__getstate__\",\"start_line\":454,\"end_line\":459,\"source\":\"    def __getstate__(self) -> dict[str, Any]:\\n        \\\"\\\"\\\"Unlike a normal CookieJar, this class is pickleable.\\\"\\\"\\\"\\n        state = self.__dict__.copy()\\n        # remove the unpickleable RLock object\\n        state.pop(\\\"_cookies_lock\\\")\\n        return state\\n\",\"source_hash\":\"3e34da70a9ceb581b496fe2949e9c1b42bffb239b39a31f916b73950df8b86cc\",\"truncated\":false,\"origin\":\"retrieval\",\"related_to\":null},{\"path\":\"src/requests/sessions.py\",\"symbol\":\"Session.__init__\",\"start_line\":442,\"end_line\":503,\"source\":\"    def __init__(self) -> None:\\n        #: A case-insensitive dictionary of headers to be sent on each\\n        #: :class:`Request <Request>` sent from this\\n        #: :class:`Session <Session>`.\\n        self.headers = default_headers()\\n\\n        #: Default Authentication tuple or object to attach to\\n        #: :class:`Request <Request>`.\\n        self.auth = None\\n\\n        #: Dictionary mapping protocol or protocol and host to the URL of the proxy\\n        #: (e.g. {'http': 'foo.bar:3128', 'http://host.name': 'foo.bar:4012'}) to\\n        #: be used on each :class:`Request <Request>`.\\n        self.proxies = {}\\n\\n        #: Event-handling hooks.\\n        self.hooks = default_hooks()\\n\\n        #: Dictionary of querystring data to attach to each\\n        #: :class:`Request <Request>`. The dictionary values may be lists for\\n        #: representing multivalued query parameters.\\n        self.params = {}\\n\\n        #: Stream response content default.\\n        self.stream = False\\n\\n        #: SSL Verification default.\\n        #: Defaults to `True`, requiring requests to verify the TLS certificate at the\\n        #: remote end.\\n        #: If verify is set to `False`, requests will accept any TLS certificate\\n        #: presented by the server, and will ignore hostname mismatches and/or\\n        #: expired certificates, which will make your application vulnerable to\\n        #: man-in-the-middle (MitM) attacks.\\n        #: Only set this to `False` for testing.\\n        #: If verify is set to a string, it must be the path to a CA bundle file\\n        #: that will be used to verify the TLS certificate.\\n        self.verify = True\\n\\n        #: SSL client certificate default, if String, path to ssl client\\n        #: cert file (.pem). If Tuple, ('cert', 'key') pair.\\n        self.cert = None\\n\\n        #: Maximum number of redirects allowed. If the request exceeds this\\n        #: limit, a :class:`TooManyRedirects` exception is raised.\\n        #: This defaults to requests.models.DEFAULT_REDIRECT_LIMIT, which is\\n        #: 30.\\n        self.max_redirects = DEFAULT_REDIRECT_LIMIT\\n\\n        #: Trust environment settings for proxy configuration, default\\n        #: authentication and similar.\\n        self.trust_env = True\\n\\n        #: A CookieJar containing all currently outstanding cookies set on this\\n        #: session. By default it is a\\n        #: :class:`RequestsCookieJar <requests.cookies.RequestsCookieJar>`, but\\n        #: may be any other ``cookielib.CookieJar`` compatible object.\\n        self.cookies = cookiejar_from_dict({})\\n\\n        # Default connection adapters.\\n        self.adapters = OrderedDict()\\n        self.mount(\\\"https://\\\", HTTPAdapter())\\n        self.mount(\\\"http://\\\", HTTPAdapter())\\n\",\"source_hash\":\"2a9d61e574e2749a12c2fab0016be5acda8a20d62ca051a071f8104c29c74d34\",\"truncated\":false,\"origin\":\"retrieval\",\"related_to\":null},{\"path\":\"src/requests/sessions.py\",\"symbol\":\"Session.send\",\"start_line\":752,\"end_line\":829,\"source\":\"    def send(self, request: PreparedRequest, **kwargs: Any) -> Response:\\n        \\\"\\\"\\\"Send a given PreparedRequest.\\n\\n        :rtype: requests.Response\\n        \\\"\\\"\\\"\\n        # Set defaults that the hooks can utilize to ensure they always have\\n        # the correct parameters to reproduce the previous request.\\n        kwargs.setdefault(\\\"stream\\\", self.stream)\\n        kwargs.setdefault(\\\"verify\\\", self.verify)\\n        kwargs.setdefault(\\\"cert\\\", self.cert)\\n        if \\\"proxies\\\" not in kwargs:\\n            kwargs[\\\"proxies\\\"] = resolve_proxies(request, self.proxies, self.trust_env)\\n\\n        # It's possible that users might accidentally send a Request object.\\n        # Guard against that specific failure case.\\n        if isinstance(request, Request):\\n            raise ValueError(\\\"You can only send PreparedRequests.\\\")\\n\\n        assert _is_prepared(request)\\n\\n        # Set up variables needed for resolve_redirects and dispatching of hooks\\n        allow_redirects = kwargs.pop(\\\"allow_redirects\\\", True)\\n        stream = kwargs.get(\\\"stream\\\")\\n        hooks = request.hooks\\n\\n        # Get the appropriate adapter to use\\n        adapter = self.get_adapter(url=request.url)\\n\\n        # Start time (approximately) of the request\\n        start = preferred_clock()\\n\\n        # Send the request\\n        r = adapter.send(request, **kwargs)\\n\\n        # Total elapsed time of the request (approximately)\\n        elapsed = preferred_clock() - start\\n        r.elapsed = timedelta(seconds=elapsed)\\n\\n        # Response manipulation hooks\\n        r = dispatch_hook(\\\"response\\\", hooks, r, **kwargs)\\n\\n        # Persist cookies\\n        if r.history:\\n            # If the hooks create history then we want those cookies too\\n            for resp in r.history:\\n                extract_cookies_to_jar(self.cookies, resp.request, resp.raw)\\n\\n        extract_cookies_to_jar(self.cookies, request, r.raw)\\n\\n        # Resolve redirects if allowed.\\n        if allow_redirects:\\n            # Redirect resolving generator.\\n            gen = self.resolve_redirects(r, request, **kwargs)\\n            history = [resp for resp in gen]\\n        else:\\n            history = []\\n\\n        # Shuffle things around if there's history.\\n        if history:\\n            # Insert the first (original) request at the start\\n            history.insert(0, r)\\n            # Get the last request made\\n            r = history.pop()\\n            r.history = history\\n\\n        # If redirects aren't being followed, store the response on the Request for Response.next().\\n        if not allow_redirects:\\n            try:\\n                r._next = next(  # type: ignore[assignment]  # yield_requests=True returns PreparedRequest\\n                    self.resolve_redirects(r, request, yield_requests=True, **kwargs)\\n                )\\n            except StopIteration:\\n                pass\\n\\n        if not stream:\\n            r.content\\n\\n        return r\\n\",\"source_hash\":\"11793248454d9e3d93c552d93aa039c175b1201337f709decaf381b0fe80ea52\",\"truncated\":false,\"origin\":\"retrieval\",\"related_to\":null}],\"budget_exhausted\":false,\"token_usage\":{\"encoding\":\"cl100k_base\",\"tokens\":1946,\"budget\":2000,\"truncated\":false},\"scope\":{\"source_root\":\"src/requests\",\"membership\":\"saved implementations; Git-tracked files only in Git projects\",\"source_exclusions\":[],\"exclusions_omitted\":0}}",
+            "type": "text"
+          }
+        ],
+        "structured_content": null
+      },
+      "server": "semantic_search",
+      "status": "completed",
+      "tool": "search_code",
+      "type": "mcp_tool_call"
+    },
+    {
+      "arguments": {
+        "max_results": 5,
+        "query": "Session.request timeout parameter prepare request send_kwargs and SessionRedirectMixin.resolve_redirects forwards timeout to send",
+        "token_budget": 2000
+      },
+      "error": null,
+      "id": "item_4",
+      "result": {
+        "content": [
+          {
+            "text": "{\"query\":\"Session.request timeout parameter prepare request send_kwargs and SessionRedirectMixin.resolve_redirects forwards timeout to send\",\"match_status\":\"candidates\",\"results\":[{\"path\":\"src/requests/sessions.py\",\"symbol\":\"Session.send\",\"start_line\":752,\"end_line\":829,\"source\":\"    def send(self, request: PreparedRequest, **kwargs: Any) -> Response:\\n        \\\"\\\"\\\"Send a given PreparedRequest.\\n\\n        :rtype: requests.Response\\n        \\\"\\\"\\\"\\n        # Set defaults that the hooks can utilize to ensure they always have\\n        # the correct parameters to reproduce the previous request.\\n        kwargs.setdefault(\\\"stream\\\", self.stream)\\n        kwargs.setdefault(\\\"verify\\\", self.verify)\\n        kwargs.setdefault(\\\"cert\\\", self.cert)\\n        if \\\"proxies\\\" not in kwargs:\\n            kwargs[\\\"proxies\\\"] = resolve_proxies(request, self.proxies, self.trust_env)\\n\\n        # It's possible that users might accidentally send a Request object.\\n        # Guard against that specific failure case.\\n        if isinstance(request, Request):\\n            raise ValueError(\\\"You can only send PreparedRequests.\\\")\\n\\n        assert _is_prepared(request)\\n\\n        # Set up variables needed for resolve_redirects and dispatching of hooks\\n        allow_redirects = kwargs.pop(\\\"allow_redirects\\\", True)\\n        stream = kwargs.get(\\\"stream\\\")\\n        hooks = request.hooks\\n\\n        # Get the appropriate adapter to use\\n        adapter = self.get_adapter(url=request.url)\\n\\n        # Start time (approximately) of the request\\n        start = preferred_clock()\\n\\n        # Send the request\\n        r = adapter.send(request, **kwargs)\\n\\n        # Total elapsed time of the request (approximately)\\n        elapsed = preferred_clock() - start\\n        r.elapsed = timedelta(seconds=elapsed)\\n\\n        # Response manipulation hooks\\n        r = dispatch_hook(\\\"response\\\", hooks, r, **kwargs)\\n\\n        # Persist cookies\\n        if r.history:\\n            # If the hooks create history then we want those cookies too\\n            for resp in r.history:\\n                extract_cookies_to_jar(self.cookies, resp.request, resp.raw)\\n\\n        extract_cookies_to_jar(self.cookies, request, r.raw)\\n\\n        # Resolve redirects if allowed.\\n        if allow_redirects:\\n            # Redirect resolving generator.\\n            gen = self.resolve_redirects(r, request, **kwargs)\\n            history = [resp for resp in gen]\\n        else:\\n            history = []\\n\\n        # Shuffle things around if there's history.\\n        if history:\\n            # Insert the first (original) request at the start\\n            history.insert(0, r)\\n            # Get the last request made\\n            r = history.pop()\\n            r.history = history\\n\\n        # If redirects aren't being followed, store the response on the Request for Response.next().\\n        if not allow_redirects:\\n            try:\\n                r._next = next(  # type: ignore[assignment]  # yield_requests=True returns PreparedRequest\\n                    self.resolve_redirects(r, request, yield_requests=True, **kwargs)\\n                )\\n            except StopIteration:\\n                pass\\n\\n        if not stream:\\n            r.content\\n\\n        return r\\n\",\"source_hash\":\"11793248454d9e3d93c552d93aa039c175b1201337f709decaf381b0fe80ea52\",\"truncated\":false,\"origin\":\"retrieval\",\"related_to\":null},{\"path\":\"src/requests/sessions.py\",\"symbol\":\"SessionRedirectMixin.resolve_redirects\",\"start_line\":186,\"end_line\":304,\"source\":\"    def resolve_redirects(\\n        self,\\n        resp: Response,\\n        req: PreparedRequest,\\n        stream: bool = False,\\n        timeout: _t.TimeoutType = None,\\n        verify: _t.VerifyType = True,\\n        cert: _t.CertType = None,\\n        proxies: dict[str, str] | None = None,\\n        yield_requests: bool = False,\\n        **adapter_kwargs: Any,\\n    ) -> Generator[Response, None, None]:\\n        \\\"\\\"\\\"Receives a Response. Returns a generator of Responses or Requests.\\\"\\\"\\\"\\n\\n        hist: list[Response] = []  # keep track of history\\n\\n        url = self.get_redirect_target(resp)\\n        previous_fragment = urlparse(req.url).fragment\\n        while url:\\n            prepared_request = req.copy()\\n\\n            # Update history and keep track of redirects.\\n            resp.history = hist[:]\\n            hist.append(resp)\\n\\n            try:\\n                resp.content  # Consume socket so it can be released\\n            except (ChunkedEncodingError, ContentDecodingError, RuntimeError):\\n                resp.raw.read(decode_content=False)\\n\\n            if len(resp.history) >= self.max_redirects:\\n                raise TooManyRedirects(\\n                    f\\\"Exceeded {self.max_redirects} redirects.\\\", response=resp\\n                )\\n\\n            # Release the connection back into the pool.\\n            resp.close()\\n\\n            # Handle redirection without scheme (see: RFC 1808 Section 4)\\n            if url.startswith(\\\"//\\\"):\\n                parsed_rurl = urlparse(resp.url)\\n                url = \\\":\\\".join([to_native_string(parsed_rurl.scheme), url])\\n\\n            # Normalize url case and attach previous fragment if needed (RFC 7231 7.1.2)\\n            parsed = urlparse(url)\\n            if parsed.fragment == \\\"\\\" and previous_fragment:\\n                parsed = parsed._replace(fragment=previous_fragment)\\n            elif parsed.fragment:\\n                previous_fragment = parsed.fragment\\n            url = parsed.geturl()\\n\\n            # Facilitate relative 'location' headers, as allowed by RFC 7231.\\n            # (e.g. '/path/to/resource' instead of 'http://domain.tld/path/to/resource')\\n            # Compliant with RFC3986, we percent encode the url.\\n            if not parsed.netloc:\\n                url = urljoin(resp.url, requote_uri(url))\\n            else:\\n                url = requote_uri(url)\\n\\n            prepared_request.url = to_native_string(url)\\n\\n            self.rebuild_method(prepared_request, resp)\\n\\n            # https://github.com/psf/requests/issues/1084\\n            if resp.status_code not in (\\n                codes.temporary_redirect,\\n                codes.permanent_redirect,\\n            ):\\n                # https://github.com/psf/requests/issues/3490\\n                purged_headers = (\\\"Content-Length\\\", \\\"Content-Type\\\", \\\"Transfer-Encoding\\\")\\n                for header in purged_headers:\\n                    prepared_request.headers.pop(header, None)\\n                prepared_request.body = None\\n\\n            headers = prepared_request.headers\\n            headers.pop(\\\"Cookie\\\", None)\\n\\n            # Extract any cookies sent on the response to the cookiejar\\n            # in the new request. Because we've mutated our copied prepared\\n            # request, use the old one that we haven't yet touched.\\n            cookie_jar = cast(\\\"CookieJar\\\", prepared_request._cookies)\\n            extract_cookies_to_jar(cookie_jar, req, resp.raw)\\n            merge_cookies(cookie_jar, self.cookies)\\n            prepared_request.prepare_cookies(cookie_jar)\\n\\n            # Rebuild auth and proxy information.\\n            proxies = self.rebuild_proxies(prepared_request, proxies)\\n            self.rebuild_auth(prepared_request, resp)\\n\\n            # A failed tell() sets `_body_position` to `object()`. This non-None\\n            # value ensures `rewindable` will be True, allowing us to raise an\\n            # UnrewindableBodyError, instead of hanging the connection.\\n            rewindable = prepared_request._body_position is not None and (\\n                \\\"Content-Length\\\" in headers or \\\"Transfer-Encoding\\\" in headers\\n            )\\n\\n            # Attempt to rewind consumed file-like object.\\n            if rewindable:\\n                rewind_body(prepared_request)\\n\\n            # Override the original request.\\n            req = prepared_request\\n\\n            if yield_requests:\\n                yield req  # type: ignore[misc]  # Internal use only, returns PreparedRequest\\n            else:\\n                resp = self.send(\\n                    req,\\n                    stream=stream,\\n                    timeout=timeout,\\n                    verify=verify,\\n                    cert=cert,\\n                    proxies=proxies,\\n                    allow_redirects=False,\\n                    **adapter_kwargs,\\n                )\\n\\n                extract_cookies_to_jar(self.cookies, prepared_request, resp.raw)\\n\\n\",\"source_hash\":\"93db674ad5284d882ada74e1c70a4036e19201ad5ef515e34987dcd4434d1ccd\",\"truncated\":true,\"origin\":\"retrieval\",\"related_to\":null}],\"budget_exhausted\":true,\"token_usage\":{\"encoding\":\"cl100k_base\",\"tokens\":1982,\"budget\":2000,\"truncated\":true},\"scope\":{\"source_root\":\"src/requests\",\"membership\":\"saved implementations; Git-tracked files only in Git projects\",\"source_exclusions\":[],\"exclusions_omitted\":0}}",
+            "type": "text"
+          }
+        ],
+        "structured_content": null
+      },
+      "server": "semantic_search",
+      "status": "completed",
+      "tool": "search_code",
+      "type": "mcp_tool_call"
+    },
+    {
+      "arguments": {
+        "max_results": 5,
+        "query": "HTTPAdapter.send timeout tuple float TimeoutSauce ValueError connection urlopen",
+        "token_budget": 2000
+      },
+      "error": null,
+      "id": "item_15",
+      "result": {
+        "content": [
+          {
+            "text": "{\"query\":\"HTTPAdapter.send timeout tuple float TimeoutSauce ValueError connection urlopen\",\"match_status\":\"candidates\",\"results\":[{\"path\":\"src/requests/adapters.py\",\"symbol\":\"HTTPAdapter.send\",\"start_line\":634,\"end_line\":748,\"source\":\"    def send(\\n        self,\\n        request: PreparedRequest,\\n        stream: bool = False,\\n        timeout: _t.TimeoutType = None,\\n        verify: _t.VerifyType = True,\\n        cert: _t.CertType = None,\\n        proxies: dict[str, str] | None = None,\\n    ) -> Response:\\n        \\\"\\\"\\\"Sends PreparedRequest object. Returns Response object.\\n\\n        :param request: The :class:`PreparedRequest <PreparedRequest>` being sent.\\n        :param stream: (optional) Whether to stream the request content.\\n        :param timeout: (optional) How long to wait for the server to send\\n            data before giving up, as a float, or a :ref:`(connect timeout,\\n            read timeout) <timeouts>` tuple.\\n        :type timeout: float or tuple or urllib3 Timeout object\\n        :param verify: (optional) Either a boolean, in which case it controls whether\\n            we verify the server's TLS certificate, or a string, in which case it\\n            must be a path to a CA bundle to use\\n        :param cert: (optional) Any user-provided SSL certificate to be trusted.\\n        :param proxies: (optional) The proxies dictionary to apply to the request.\\n        :rtype: requests.Response\\n        \\\"\\\"\\\"\\n\\n        assert _is_prepared(request)\\n\\n        try:\\n            conn = self.get_connection_with_tls_context(\\n                request, verify, proxies=proxies, cert=cert\\n            )\\n        except LocationValueError as e:\\n            raise InvalidURL(e, request=request)\\n\\n        self.cert_verify(conn, request.url, verify, cert)\\n        url = self.request_url(request, proxies)\\n        self.add_headers(\\n            request,\\n            stream=stream,\\n            timeout=timeout,\\n            verify=verify,\\n            cert=cert,\\n            proxies=proxies,\\n        )\\n\\n        chunked = not (request.body is None or \\\"Content-Length\\\" in request.headers)\\n\\n        if isinstance(timeout, tuple):\\n            try:\\n                connect, read = timeout\\n                resolved_timeout = TimeoutSauce(connect=connect, read=read)\\n            except ValueError:\\n                raise ValueError(\\n                    f\\\"Invalid timeout {timeout}. Pass a (connect, read) timeout tuple, \\\"\\n                    f\\\"or a single float to set both timeouts to the same value.\\\"\\n                )\\n        elif isinstance(timeout, TimeoutSauce):\\n            resolved_timeout = timeout\\n        else:\\n            resolved_timeout = TimeoutSauce(connect=timeout, read=timeout)\\n\\n        try:\\n            resp = conn.urlopen(\\n                method=request.method,\\n                url=url,\\n                body=request.body,  # type: ignore[arg-type]  # urllib3 stubs don't accept Iterable[bytes | str]\\n                headers=request.headers,  # type: ignore[arg-type]  # urllib3#3072\\n                redirect=False,\\n                assert_same_host=False,\\n                preload_content=False,\\n                decode_content=False,\\n                retries=self.max_retries,\\n                timeout=resolved_timeout,\\n                chunked=chunked,\\n            )\\n\\n        except (ProtocolError, OSError) as err:\\n            raise ConnectionError(err, request=request)\\n\\n        except MaxRetryError as e:\\n            if isinstance(e.reason, ConnectTimeoutError):\\n                # TODO: Remove this in 3.0.0: see #2811\\n                if not isinstance(e.reason, NewConnectionError):\\n                    raise ConnectTimeout(e, request=request)\\n\\n            if isinstance(e.reason, ResponseError):\\n                raise RetryError(e, request=request)\\n\\n            if isinstance(e.reason, _ProxyError):\\n                raise ProxyError(e, request=request)\\n\\n            if isinstance(e.reason, _SSLError):\\n                # This branch is for urllib3 v1.22 and later.\\n                raise SSLError(e, request=request)\\n\\n            raise ConnectionError(e, request=request)\\n\\n        except ClosedPoolError as e:\\n            raise ConnectionError(e, request=request)\\n\\n        except _ProxyError as e:\\n            raise ProxyError(e)\\n\\n        except (_SSLError, _HTTPError) as e:\\n            if isinstance(e, _SSLError):\\n                # This branch is for urllib3 versions earlier than v1.22\\n                raise SSLError(e, request=request)\\n            elif isinstance(e, ReadTimeoutError):\\n                raise ReadTimeout(e, request=request)\\n            elif isinstance(e, _InvalidHeader):\\n                raise InvalidHeader(e, request=request)\\n            else:\\n                raise\\n\\n        return self.build_response(request, resp)\\n\",\"source_hash\":\"a8b4a1d8c114e29db6aa4658e71ac1f744bfff3f07d2e3181548065ccb79bbbe\",\"truncated\":false,\"origin\":\"retrieval\",\"related_to\":null},{\"path\":\"src/requests/sessions.py\",\"symbol\":\"Session.request\",\"start_line\":557,\"end_line\":611,\"source\":\"    def request(\\n        self,\\n        method: str,\\n        url: _t.UriType,\\n        params: _t.ParamsType = None,\\n        data: _t.DataType = None,\\n        headers: _t.HeadersType = None,\\n        cookies: RequestsCookieJar | CookieJar | dict[str, str] | None = None,\\n        files: _t.FilesType = None,\\n        auth: _t.AuthType = None,\\n        timeout: _t.TimeoutType = None,\\n        allow_redirects: bool = True,\\n        proxies: dict[str, str] | None = None,\\n        hooks: _t.HooksInputType | None = None,\\n        stream: bool | None = None,\\n        verify: _t.VerifyType | None = None,\\n        cert: _t.CertType = None,\\n        json: _t.JsonType = None,\\n    ) -> Response:\\n        \\\"\\\"\\\"Constructs a :class:`Request <Request>`, prepares it and sends it.\\n        Returns :class:`Response <Response>` object.\\n\\n        :param method: method for the new :class:`Request` object.\\n        :param url: URL for the new :class:`Request` object.\\n        :param params: (optional) Dictionary or bytes to be sent in the query\\n            string for the :class:`Request`.\\n        :param data: (optional) Dictionary, list of tuples, bytes, or file-like\\n            object to send in the body of the :class:`Request`.\\n        :param json: (optional) json to send in the body of the\\n            :class:`Request`.\\n        :param headers: (optional) Dictionary of HTTP Headers to send with the\\n            :class:`Request`.\\n        :param cookies: (optional) Dict or CookieJar object to send with the\\n            :class:`Request`.\\n        :param files: (optional) Dictionary of ``'filename': file-like-objects``\\n            for multipart encoding upload.\\n        :param auth: (optional) Auth tuple or callable to enable\\n            Basic/Digest/Custom HTTP Auth.\\n        :param timeout: (optional) How many seconds to wait for the server to send\\n            data before giving up, as a float, or a :ref:`(connect timeout,\\n            read timeout) <timeouts>` tuple.\\n        :type timeout: float or tuple\\n        :param allow_redirects: (optional) Set to True by default.\\n        :type allow_redirects: bool\\n        :param proxies: (optional) Dictionary mapping protocol or protocol and\\n            hostname to the URL of the proxy.\\n        :param hooks: (optional) Dictionary mapping hook name to one event or\\n            list of events, event must be callable.\\n        :param stream: (optional) whether to immediately download the response\\n            content. Defaults to ``False``.\\n        :param verify: (optional) Either a boolean, in which case it controls whether we verify\\n            the server's TLS certificate, or a string, in which case it must be a path\\n            to a CA bundle to use. Defaults to ``True``. When set to\\n            ``False``, requests will accept any TLS certificate presented by\\n            the server, and will ignore hostname mismatches and/or expired\\n\",\"source_hash\":\"1af69a05734833bcf1b21803afd7824f5763ac7030307ff805a9467ddb1afac6\",\"truncated\":true,\"origin\":\"retrieval\",\"related_to\":null}],\"budget_exhausted\":true,\"token_usage\":{\"encoding\":\"cl100k_base\",\"tokens\":1991,\"budget\":2000,\"truncated\":true},\"scope\":{\"source_root\":\"src/requests\",\"membership\":\"saved implementations; Git-tracked files only in Git projects\",\"source_exclusions\":[],\"exclusions_omitted\":0}}",
+            "type": "text"
+          }
+        ],
+        "structured_content": null
+      },
+      "server": "semantic_search",
+      "status": "completed",
+      "tool": "search_code",
+      "type": "mcp_tool_call"
+    }
+  ],
+  "output_drain_complete": true,
+  "per_model_call_usage": null,
+  "per_model_call_usage_reason": "Not emitted by exec --json",
+  "reported_turns": 1,
+  "timed_out": false,
+  "tool_intervals": [
+    {
+      "end": {
+        "monotonic_s": 248690.745125208,
+        "perf_counter_ns": 248690745119625,
+        "utc": "2026-10-16T04:26:08.280680+00:00",
+        "wall_time_ns": 1792124768280680000
+      },
+      "item_id": "item_1",
+      "observed_duration_s": 0.00045900000259280205,
+      "start": {
+        "monotonic_s": 248690.744666208,
+        "perf_counter_ns": 248690744642083,
+        "utc": "2026-10-16T04:26:08.280202+00:00",
+        "wall_time_ns": 1792124768280202000
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 248694.30238875,
+        "perf_counter_ns": 248694302371166,
+        "utc": "2026-10-16T04:26:11.837718+00:00",
+        "wall_time_ns": 1792124771837718000
+      },
+      "item_id": "item_3",
+      "observed_duration_s": 0.0009617499890737236,
+      "start": {
+        "monotonic_s": 248694.301427,
+        "perf_counter_ns": 248694301404416,
+        "utc": "2026-10-16T04:26:11.836751+00:00",
+        "wall_time_ns": 1792124771836751000
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 248694.467223333,
+        "perf_counter_ns": 248694467209250,
+        "utc": "2026-10-16T04:26:12.002546+00:00",
+        "wall_time_ns": 1792124772002546000
+      },
+      "item_id": "item_2",
+      "observed_duration_s": 0.24192920798668638,
+      "start": {
+        "monotonic_s": 248694.225294125,
+        "perf_counter_ns": 248694225254208,
+        "utc": "2026-10-16T04:26:11.760604+00:00",
+        "wall_time_ns": 1792124771760604000
+      },
+      "type": "mcp_tool_call"
+    },
+    {
+      "end": {
+        "monotonic_s": 248700.546243541,
+        "perf_counter_ns": 248700546237708,
+        "utc": "2026-10-16T04:26:18.081210+00:00",
+        "wall_time_ns": 1792124778081210000
+      },
+      "item_id": "item_5",
+      "observed_duration_s": 0.0014817079936619848,
+      "start": {
+        "monotonic_s": 248700.544761833,
+        "perf_counter_ns": 248700544738208,
+        "utc": "2026-10-16T04:26:18.079710+00:00",
+        "wall_time_ns": 1792124778079710000
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 248700.546729958,
+        "perf_counter_ns": 248700546723500,
+        "utc": "2026-10-16T04:26:18.081696+00:00",
+        "wall_time_ns": 1792124778081696000
+      },
+      "item_id": "item_6",
+      "observed_duration_s": 0.000968583015492186,
+      "start": {
+        "monotonic_s": 248700.545761375,
+        "perf_counter_ns": 248700545754458,
+        "utc": "2026-10-16T04:26:18.080727+00:00",
+        "wall_time_ns": 1792124778080727000
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 248700.872678833,
+        "perf_counter_ns": 248700872672208,
+        "utc": "2026-10-16T04:26:18.407625+00:00",
+        "wall_time_ns": 1792124778407625000
+      },
+      "item_id": "item_4",
+      "observed_duration_s": 0.3970036669925321,
+      "start": {
+        "monotonic_s": 248700.475675166,
+        "perf_counter_ns": 248700475599916,
+        "utc": "2026-10-16T04:26:18.010575+00:00",
+        "wall_time_ns": 1792124778010575000
+      },
+      "type": "mcp_tool_call"
+    },
+    {
+      "end": {
+        "monotonic_s": 248706.275236666,
+        "perf_counter_ns": 248706275231333,
+        "utc": "2026-10-16T04:26:23.809860+00:00",
+        "wall_time_ns": 1792124783809860000
+      },
+      "item_id": "item_7",
+      "observed_duration_s": 0.0007897499890532345,
+      "start": {
+        "monotonic_s": 248706.274446916,
+        "perf_counter_ns": 248706274431625,
+        "utc": "2026-10-16T04:26:23.809060+00:00",
+        "wall_time_ns": 1792124783809060000
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 248706.283213708,
+        "perf_counter_ns": 248706283207750,
+        "utc": "2026-10-16T04:26:23.817836+00:00",
+        "wall_time_ns": 1792124783817836000
+      },
+      "item_id": "item_8",
+      "observed_duration_s": 0.0006425830069929361,
+      "start": {
+        "monotonic_s": 248706.282571125,
+        "perf_counter_ns": 248706282567333,
+        "utc": "2026-10-16T04:26:23.817195+00:00",
+        "wall_time_ns": 1792124783817195000
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 248706.289665458,
+        "perf_counter_ns": 248706289662125,
+        "utc": "2026-10-16T04:26:23.824290+00:00",
+        "wall_time_ns": 1792124783824290000
+      },
+      "item_id": "item_9",
+      "observed_duration_s": 0.0005397500062827021,
+      "start": {
+        "monotonic_s": 248706.289125708,
+        "perf_counter_ns": 248706289119875,
+        "utc": "2026-10-16T04:26:23.823747+00:00",
+        "wall_time_ns": 1792124783823747000
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 248712.62093825,
+        "perf_counter_ns": 248712620929333,
+        "utc": "2026-10-16T04:26:30.155177+00:00",
+        "wall_time_ns": 1792124790155177000
+      },
+      "item_id": "item_11",
+      "observed_duration_s": 0.0008377089980058372,
+      "start": {
+        "monotonic_s": 248712.620100541,
+        "perf_counter_ns": 248712620080708,
+        "utc": "2026-10-16T04:26:30.154328+00:00",
+        "wall_time_ns": 1792124790154328000
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 248712.624394333,
+        "perf_counter_ns": 248712624390416,
+        "utc": "2026-10-16T04:26:30.158638+00:00",
+        "wall_time_ns": 1792124790158638000
+      },
+      "item_id": "item_12",
+      "observed_duration_s": 0.000592917000176385,
+      "start": {
+        "monotonic_s": 248712.623801416,
+        "perf_counter_ns": 248712623795541,
+        "utc": "2026-10-16T04:26:30.158043+00:00",
+        "wall_time_ns": 1792124790158043000
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 248740.175534083,
+        "perf_counter_ns": 248740175529875,
+        "utc": "2026-10-16T04:26:57.708124+00:00",
+        "wall_time_ns": 1792124817708124000
+      },
+      "item_id": "item_13",
+      "observed_duration_s": 0.0006762500270269811,
+      "start": {
+        "monotonic_s": 248740.174857833,
+        "perf_counter_ns": 248740174840375,
+        "utc": "2026-10-16T04:26:57.707435+00:00",
+        "wall_time_ns": 1792124817707435000
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 248740.285647083,
+        "perf_counter_ns": 248740285640000,
+        "utc": "2026-10-16T04:26:57.818228+00:00",
+        "wall_time_ns": 1792124817818228000
+      },
+      "item_id": "item_14",
+      "observed_duration_s": 0.0009423749870620668,
+      "start": {
+        "monotonic_s": 248740.284704708,
+        "perf_counter_ns": 248740284681250,
+        "utc": "2026-10-16T04:26:57.817269+00:00",
+        "wall_time_ns": 1792124817817269000
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 248766.367610208,
+        "perf_counter_ns": 248766367603500,
+        "utc": "2026-10-16T04:27:23.898626+00:00",
+        "wall_time_ns": 1792124843898626000
+      },
+      "item_id": "item_15",
+      "observed_duration_s": 0.3676128749793861,
+      "start": {
+        "monotonic_s": 248765.999997333,
+        "perf_counter_ns": 248765999952916,
+        "utc": "2026-10-16T04:27:23.530996+00:00",
+        "wall_time_ns": 1792124843530996000
+      },
+      "type": "mcp_tool_call"
+    },
+    {
+      "end": {
+        "monotonic_s": 248813.516321333,
+        "perf_counter_ns": 248813516304875,
+        "utc": "2026-10-16T04:28:11.044498+00:00",
+        "wall_time_ns": 1792124891044498000
+      },
+      "item_id": "item_17",
+      "observed_duration_s": 0.047922166995704174,
+      "start": {
+        "monotonic_s": 248813.468399166,
+        "perf_counter_ns": 248813468388000,
+        "utc": "2026-10-16T04:28:10.996585+00:00",
+        "wall_time_ns": 1792124890996585000
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 248840.940497875,
+        "perf_counter_ns": 248840940454541,
+        "utc": "2026-10-16T04:28:38.467002+00:00",
+        "wall_time_ns": 1792124918467002000
+      },
+      "item_id": "item_20",
+      "observed_duration_s": 1.622581709001679,
+      "start": {
+        "monotonic_s": 248839.317916166,
+        "perf_counter_ns": 248839317905166,
+        "utc": "2026-10-16T04:28:36.844551+00:00",
+        "wall_time_ns": 1792124916844551000
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 248851.702283333,
+        "perf_counter_ns": 248851702278791,
+        "utc": "2026-10-16T04:28:49.228182+00:00",
+        "wall_time_ns": 1792124929228182000
+      },
+      "item_id": "item_21",
+      "observed_duration_s": 0.0009349999891128391,
+      "start": {
+        "monotonic_s": 248851.701348333,
+        "perf_counter_ns": 248851701327541,
+        "utc": "2026-10-16T04:28:49.227230+00:00",
+        "wall_time_ns": 1792124929227230000
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 248851.71719525,
+        "perf_counter_ns": 248851717188833,
+        "utc": "2026-10-16T04:28:49.243091+00:00",
+        "wall_time_ns": 1792124929243091000
+      },
+      "item_id": "item_22",
+      "observed_duration_s": 0.0006906670168973505,
+      "start": {
+        "monotonic_s": 248851.716504583,
+        "perf_counter_ns": 248851716496208,
+        "utc": "2026-10-16T04:28:49.242398+00:00",
+        "wall_time_ns": 1792124929242398000
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 248883.661558208,
+        "perf_counter_ns": 248883661552750,
+        "utc": "2026-10-16T04:29:21.185538+00:00",
+        "wall_time_ns": 1792124961185538000
+      },
+      "item_id": "item_23",
+      "observed_duration_s": 0.0009713330073282123,
+      "start": {
+        "monotonic_s": 248883.660586875,
+        "perf_counter_ns": 248883660564833,
+        "utc": "2026-10-16T04:29:21.184550+00:00",
+        "wall_time_ns": 1792124961184550000
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 248912.273669041,
+        "perf_counter_ns": 248912273658958,
+        "utc": "2026-10-16T04:29:49.795928+00:00",
+        "wall_time_ns": 1792124989795928000
+      },
+      "item_id": "item_27",
+      "observed_duration_s": 0.0012098749866709113,
+      "start": {
+        "monotonic_s": 248912.272459166,
+        "perf_counter_ns": 248912272443833,
+        "utc": "2026-10-16T04:29:49.794712+00:00",
+        "wall_time_ns": 1792124989794712000
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 248914.603444291,
+        "perf_counter_ns": 248914603408541,
+        "utc": "2026-10-16T04:29:52.125538+00:00",
+        "wall_time_ns": 1792124992125538000
+      },
+      "item_id": "item_24",
+      "observed_duration_s": 30.868827457976295,
+      "start": {
+        "monotonic_s": 248883.734616833,
+        "perf_counter_ns": 248883734607250,
+        "utc": "2026-10-16T04:29:21.258588+00:00",
+        "wall_time_ns": 1792124961258588000
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 248928.105294875,
+        "perf_counter_ns": 248928105258875,
+        "utc": "2026-10-16T04:30:05.626577+00:00",
+        "wall_time_ns": 1792125005626577000
+      },
+      "item_id": "item_28",
+      "observed_duration_s": 1.6542392089904752,
+      "start": {
+        "monotonic_s": 248926.451055666,
+        "perf_counter_ns": 248926451044166,
+        "utc": "2026-10-16T04:30:03.972462+00:00",
+        "wall_time_ns": 1792125003972462000
+      },
+      "type": "command_execution"
+    },
+    {
+      "end": {
+        "monotonic_s": 248934.702430125,
+        "perf_counter_ns": 248934702424208,
+        "utc": "2026-10-16T04:30:12.223347+00:00",
+        "wall_time_ns": 1792125012223347000
+      },
+      "item_id": "item_29",
+      "observed_duration_s": 0.0013352090027183294,
+      "start": {
+        "monotonic_s": 248934.701094916,
+        "perf_counter_ns": 248934701074416,
+        "utc": "2026-10-16T04:30:12.221997+00:00",
+        "wall_time_ns": 1792125012221997000
+      },
+      "type": "command_execution"
+    }
+  ],
+  "usage": {
+    "cache_write_input_tokens": 0,
+    "cached_input_tokens": 444160,
+    "input_tokens": 498891,
+    "output_tokens": 12283,
+    "reasoning_output_tokens": 5757,
+    "total_tokens": 511174,
+    "uncached_input_tokens": 54731
+  },
+  "usage_errors": [],
+  "usage_scope": "Reported completed-turn usage; interrupted-turn and per-request usage unknown"
+}
