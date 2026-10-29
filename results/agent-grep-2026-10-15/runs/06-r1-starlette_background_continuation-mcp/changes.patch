@@ -1,0 +1,352 @@
+diff --git a/docs/background.md b/docs/background.md
+index a6bfd8c..1a5d0fb 100644
+--- a/docs/background.md
++++ b/docs/background.md
+@@ -43,7 +43,7 @@ app = Starlette(routes=routes)
+ 
+ Used to add multiple background tasks to a response.
+ 
+-Signature: `BackgroundTasks(tasks=[])`
++Signature: `BackgroundTasks(tasks=None, *, continue_on_error=False)`
+ 
+ ```python
+ from starlette.applications import Starlette
+@@ -74,5 +74,11 @@ app = Starlette(routes=routes)
+ ```
+ 
+ !!! important
+-    The tasks are executed in order. In case one of the tasks raises
+-    an exception, the following tasks will not get the opportunity to be executed.
++    The tasks are executed in order. By default, if a task raises an exception,
++    the following tasks will not get the opportunity to be executed.
++
++Set `continue_on_error=True` to run all tasks sequentially despite `Exception`
++failures. After all tasks finish, the first exception is re-raised with its
++original callback traceback. `BaseException` failures, including cancellation,
++always propagate immediately and stop the remaining tasks. `continue_on_error`
++must be a boolean; other values raise `ValueError` at construction.
+diff --git a/starlette/background.py b/starlette/background.py
+index 0430fc0..690629f 100644
+--- a/starlette/background.py
++++ b/starlette/background.py
+@@ -1,6 +1,7 @@
+ from __future__ import annotations
+ 
+ import sys
++import types
+ import typing
+ 
+ if sys.version_info >= (3, 10):  # pragma: no cover
+@@ -29,13 +30,30 @@ class BackgroundTask:
+ 
+ 
+ class BackgroundTasks(BackgroundTask):
+-    def __init__(self, tasks: typing.Sequence[BackgroundTask] | None = None):
++    def __init__(
++        self, tasks: typing.Sequence[BackgroundTask] | None = None, *, continue_on_error: bool = False
++    ) -> None:
++        if not isinstance(continue_on_error, bool):
++            raise ValueError("continue_on_error must be a boolean")
+         self.tasks = list(tasks) if tasks else []
++        self.continue_on_error = continue_on_error
+ 
+     def add_task(self, func: typing.Callable[P, typing.Any], *args: P.args, **kwargs: P.kwargs) -> None:
+         task = BackgroundTask(func, *args, **kwargs)
+         self.tasks.append(task)
+ 
+     async def __call__(self) -> None:
++        first_exception: Exception | None = None
++        first_traceback: types.TracebackType | None = None
+         for task in self.tasks:
+-            await task()
++            try:
++                await task()
++            except Exception as exc:
++                if not self.continue_on_error:
++                    raise
++                if first_exception is None:
++                    first_exception = exc
++                    first_traceback = exc.__traceback__
++
++        if first_exception is not None:
++            raise first_exception.with_traceback(first_traceback)
+diff --git a/tests/test_background_continue_on_error.py b/tests/test_background_continue_on_error.py
+new file mode 100644
+index 0000000..643859a
+--- /dev/null
++++ b/tests/test_background_continue_on_error.py
+@@ -0,0 +1,274 @@
++from __future__ import annotations
++
++import threading
++from types import TracebackType
++
++import anyio
++import pytest
++
++from starlette.background import BackgroundTask, BackgroundTasks
++from starlette.responses import Response
++from starlette.types import Message, Receive, Scope, Send
++from tests.types import TestClientFactory
++
++
++@pytest.mark.parametrize("value", [None, 0, 1, -1, 1.0, "", "true", "false", [], (), {}, object()])
++def test_continue_on_error_requires_boolean(value: object) -> None:
++    with pytest.raises(ValueError, match="continue_on_error"):
++        BackgroundTasks(continue_on_error=value)  # type: ignore[arg-type]
++
++
++def test_continue_on_error_is_keyword_only() -> None:
++    with pytest.raises(TypeError):
++        BackgroundTasks(None, True)  # type: ignore[misc]
++
++
++@pytest.mark.anyio
++@pytest.mark.parametrize("continue_on_error", [None, False])
++async def test_stop_on_first_error_by_default(continue_on_error: bool | None) -> None:
++    calls: list[str] = []
++    error = ValueError("first failure")
++
++    async def fail() -> None:
++        calls.append("first")
++        raise error
++
++    tasks = BackgroundTasks() if continue_on_error is None else BackgroundTasks(continue_on_error=continue_on_error)
++    tasks.add_task(fail)
++    tasks.add_task(calls.append, "later")
++
++    with pytest.raises(ValueError) as exc_info:
++        await tasks()
++
++    assert exc_info.value is error
++    assert calls == ["first"]
++
++
++@pytest.mark.anyio
++@pytest.mark.parametrize("first_is_async", [False, True])
++async def test_continue_on_error_runs_all_tasks_in_order(first_is_async: bool) -> None:
++    calls: list[str] = []
++    event_loop_thread = threading.get_ident()
++    first_error = ValueError("first failure")
++    second_error = RuntimeError("second failure")
++
++    def sync_callback(name: str, *, failure: Exception | None = None) -> None:
++        assert threading.get_ident() != event_loop_thread
++        calls.append(f"{name}:start")
++        calls.append(f"{name}:end")
++        if failure is not None:
++            raise failure
++
++    async def async_callback(name: str, *, failure: Exception | None = None) -> None:
++        assert threading.get_ident() == event_loop_thread
++        calls.append(f"{name}:start")
++        await anyio.sleep(0)
++        calls.append(f"{name}:end")
++        if failure is not None:
++            raise failure
++
++    first_callback = async_callback if first_is_async else sync_callback
++    second_callback = sync_callback if first_is_async else async_callback
++    initial_tasks = (
++        BackgroundTask(async_callback, "initial"),
++        BackgroundTask(first_callback, "first", failure=first_error),
++    )
++    tasks = BackgroundTasks(initial_tasks, continue_on_error=True)
++    tasks.add_task(second_callback, "second", failure=second_error)
++    tasks.add_task(sync_callback, "last")
++
++    with pytest.raises(ValueError) as exc_info:
++        await tasks()
++
++    assert exc_info.value is first_error
++    assert len(initial_tasks) == 2
++    assert calls == [
++        "initial:start",
++        "initial:end",
++        "first:start",
++        "first:end",
++        "second:start",
++        "second:end",
++        "last:start",
++        "last:end",
++    ]
++
++
++@pytest.mark.anyio
++@pytest.mark.parametrize("is_async", [False, True])
++async def test_first_callback_traceback_is_retained_when_exception_is_reused(is_async: bool) -> None:
++    error = ValueError("shared failure")
++    callback_tracebacks: list[TracebackType] = []
++    calls: list[str] = []
++
++    def fail() -> None:
++        try:
++            raise error
++        except ValueError as exc:
++            assert exc.__traceback__ is not None
++            callback_tracebacks.append(exc.__traceback__)
++            raise
++
++    async def async_fail() -> None:
++        fail()
++
++    tasks = BackgroundTasks(continue_on_error=True)
++    tasks.add_task(async_fail if is_async else fail)
++    tasks.add_task(async_fail if is_async else fail)
++    tasks.add_task(calls.append, "last")
++
++    with pytest.raises(ValueError) as exc_info:
++        await tasks()
++
++    assert exc_info.value is error
++    assert calls == ["last"]
++    traceback_nodes: list[TracebackType] = []
++    traceback = exc_info.value.__traceback__
++    while traceback is not None:
++        traceback_nodes.append(traceback)
++        traceback = traceback.tb_next
++    assert len(callback_tracebacks) == 2
++    assert callback_tracebacks[0] in traceback_nodes
++    assert callback_tracebacks[1] not in traceback_nodes
++
++
++@pytest.mark.anyio
++@pytest.mark.parametrize("continue_on_error", [False, True])
++async def test_successful_tasks_return_none_and_forward_arguments(continue_on_error: bool) -> None:
++    calls: list[tuple[str, bool]] = []
++
++    def sync_callback(name: str, *, continue_on_error: bool) -> None:
++        calls.append((name, continue_on_error))
++
++    async def async_callback(name: str, *, continue_on_error: bool) -> None:
++        await anyio.sleep(0)
++        calls.append((name, continue_on_error))
++
++    initial_tasks = [BackgroundTask(sync_callback, "initial", continue_on_error=False)]
++    tasks = BackgroundTasks(initial_tasks, continue_on_error=continue_on_error)
++    tasks.add_task(async_callback, "async", continue_on_error=True)
++    tasks.add_task(sync_callback, "sync", continue_on_error=True)
++
++    assert await tasks() is None
++    assert len(initial_tasks) == 1
++    assert calls == [("initial", False), ("async", True), ("sync", True)]
++
++
++@pytest.mark.anyio
++@pytest.mark.parametrize("continue_on_error", [False, True])
++async def test_empty_tasks_return_none(continue_on_error: bool) -> None:
++    assert await BackgroundTasks(continue_on_error=continue_on_error)() is None
++    assert await BackgroundTasks([], continue_on_error=continue_on_error)() is None
++
++
++@pytest.mark.parametrize("fatal_type", [BaseException, KeyboardInterrupt, SystemExit, GeneratorExit])
++@pytest.mark.parametrize("is_async", [False, True])
++@pytest.mark.parametrize("earlier_failure", [False, True])
++def test_base_exception_stops_tasks_immediately(
++    fatal_type: type[BaseException],
++    is_async: bool,
++    earlier_failure: bool,
++    anyio_backend_name: str,
++    anyio_backend_options: dict[str, object],
++) -> None:
++    calls: list[str] = []
++    fatal_error = fatal_type("stop immediately")
++
++    async def fail() -> None:
++        calls.append("earlier")
++        raise ValueError("earlier failure")
++
++    def stop() -> None:
++        calls.append("fatal")
++        raise fatal_error
++
++    async def async_stop() -> None:
++        stop()
++
++    tasks = BackgroundTasks(continue_on_error=True)
++    if earlier_failure:
++        tasks.add_task(fail)
++    tasks.add_task(async_stop if is_async else stop)
++    tasks.add_task(calls.append, "later")
++
++    # asyncio may propagate a worker's GeneratorExit out of the event loop itself.
++    with pytest.raises(fatal_type) as exc_info:
++        anyio.run(tasks, backend=anyio_backend_name, backend_options=anyio_backend_options)
++
++    assert exc_info.value is fatal_error
++    assert calls == (["earlier", "fatal"] if earlier_failure else ["fatal"])
++
++
++@pytest.mark.anyio
++@pytest.mark.parametrize("earlier_failure", [False, True])
++async def test_cancellation_stops_tasks_immediately(earlier_failure: bool) -> None:
++    calls: list[str] = []
++    cancellations: list[BaseException] = []
++
++    async def fail() -> None:
++        calls.append("earlier")
++        raise ValueError("earlier failure")
++
++    async def cancel() -> None:
++        calls.append("cancel")
++        cancel_scope.cancel()
++        try:
++            await anyio.lowlevel.checkpoint()
++        except anyio.get_cancelled_exc_class() as exc:
++            cancellations.append(exc)
++            raise
++
++    tasks = BackgroundTasks(continue_on_error=True)
++    if earlier_failure:
++        tasks.add_task(fail)
++    tasks.add_task(cancel)
++    tasks.add_task(calls.append, "later")
++
++    with anyio.CancelScope() as cancel_scope:
++        with pytest.raises(anyio.get_cancelled_exc_class()) as exc_info:
++            await tasks()
++
++    assert len(cancellations) == 1
++    assert exc_info.value is cancellations[0]
++    assert calls == (["earlier", "cancel"] if earlier_failure else ["cancel"])
++
++
++@pytest.mark.parametrize("raise_server_exceptions", [False, True])
++def test_response_runs_all_tasks_after_sending_body(
++    test_client_factory: TestClientFactory, raise_server_exceptions: bool
++) -> None:
++    calls: list[str] = []
++    first_error = ValueError("first failure")
++
++    async def first() -> None:
++        calls.append("first")
++        raise first_error
++
++    def second() -> None:
++        calls.append("second")
++        raise RuntimeError("second failure")
++
++    tasks = BackgroundTasks(continue_on_error=True)
++    tasks.add_task(first)
++    tasks.add_task(second)
++    tasks.add_task(calls.append, "last")
++
++    async def app(scope: Scope, receive: Receive, send: Send) -> None:
++        async def record_send(message: Message) -> None:
++            calls.append(message["type"])
++            await send(message)
++
++        response = Response("tasks initiated", background=tasks)
++        await response(scope, receive, record_send)
++
++    client = test_client_factory(app, raise_server_exceptions=raise_server_exceptions)
++    if raise_server_exceptions:
++        with pytest.raises(ValueError) as exc_info:
++            client.get("/")
++        assert exc_info.value is first_error
++    else:
++        response = client.get("/")
++        assert response.status_code == 200
++        assert response.text == "tasks initiated"
++
++    assert calls == ["http.response.start", "http.response.body", "first", "second", "last"]

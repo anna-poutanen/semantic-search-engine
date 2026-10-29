@@ -1,0 +1,5 @@
+Implemented keyword-only `continue_on_error=False` with strict boolean validation. Opting in runs tasks sequentially, then re-raises the first exception object with its original traceback. Cancellation and other `BaseException` failures stop immediately.
+
+Added documentation and a new regression test file; existing tests remain unchanged.
+
+Checks: **198 passed** across asyncio and Trio. `git diff --check` passed. Ruff and mypy were unavailable in the supplied environment.

@@ -1,0 +1,39 @@
+diff --git a/src/click/types.py b/src/click/types.py
+index a70fd58..b592cdd 100644
+--- a/src/click/types.py
++++ b/src/click/types.py
+@@ -243,9 +243,16 @@ class Choice(ParamType):
+ 
+     name = "choice"
+ 
+-    def __init__(self, choices: t.Sequence[str], case_sensitive: bool = True) -> None:
++    def __init__(self, choices: t.Sequence[str], case_sensitive: bool = True, aliases=None) -> None:
++        from collections.abc import Mapping
+         self.choices = choices
+         self.case_sensitive = case_sensitive
++        if aliases is not None and not isinstance(aliases, Mapping):
++            raise ValueError("aliases must be a mapping")
++        self.aliases = dict(aliases) if aliases is not None else {}
++        if any(not isinstance(k, str) or not isinstance(v, str) or v not in self.choices
++               for k, v in self.aliases.items()):
++            raise ValueError("aliases must map strings to original choices")
+ 
+     def to_info_dict(self) -> t.Dict[str, t.Any]:
+         info_dict = super().to_info_dict()
+@@ -290,6 +297,16 @@ class Choice(ParamType):
+                 for normed_choice, original in normed_choices.items()
+             }
+ 
++        for alias, target in self.aliases.items():
++            if ctx is not None and ctx.token_normalize_func is not None:
++                alias = ctx.token_normalize_func(alias)
++            if not self.case_sensitive:
++                alias = alias.casefold()
++            canonical = next(choice for choice in self.choices if choice == target)
++            if alias in normed_choices and normed_choices[alias] != canonical:
++                self.fail("Ambiguous alias", param, ctx)
++            normed_choices[alias] = canonical
++
+         if normed_value in normed_choices:
+             return normed_choices[normed_value]
+ 

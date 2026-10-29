@@ -1,0 +1,353 @@
+diff --git a/docs/user/advanced.rst b/docs/user/advanced.rst
+index f5209a5..698c882 100644
+--- a/docs/user/advanced.rst
++++ b/docs/user/advanced.rst
+@@ -1120,6 +1120,18 @@ coffee.
+ 
+     r = requests.get('https://github.com', timeout=None)
+ 
++To set a default timeout for a session, pass ``timeout`` when creating it::
++
++    s = requests.Session(timeout=(3.05, 27))
++    r = s.get('https://github.com')
++
++You can change the default at any time by assigning ``s.timeout``. Requests that
++omit ``timeout``, including calls to ``s.send()`` with a prepared request, use the
++current session default. An explicit ``timeout=None`` disables it for that request;
++any other explicit timeout overrides it without changing ``s.timeout``. All
++redirects use the timeout selected for the initial request. Sessions default to
++``timeout=None``, preserving the unlimited wait unless a timeout is configured.
++
+ .. note:: The connect timeout applies to each connection attempt to an IP address.
+           If multiple addresses exist for a domain name, the underlying ``urllib3`` will
+           try each address sequentially until one successfully connects.
+diff --git a/src/requests/sessions.py b/src/requests/sessions.py
+index d11355b..04f0449 100644
+--- a/src/requests/sessions.py
++++ b/src/requests/sessions.py
+@@ -73,6 +73,13 @@ else:
+     preferred_clock = time.time
+ 
+ 
++class _DefaultTimeout:
++    """Distinguish an omitted timeout from an explicit ``None``."""
++
++
++_DEFAULT_TIMEOUT = _DefaultTimeout()
++
++
+ def merge_setting(
+     request_setting: Any, session_setting: Any, dict_class: type = OrderedDict
+ ) -> Any:
+@@ -397,6 +404,9 @@ class Session(SessionRedirectMixin):
+ 
+     Provides cookie persistence, connection-pooling, and configuration.
+ 
++    :param timeout: Default timeout for requests that omit ``timeout``.
++        Defaults to ``None`` (no timeout).
++
+     Basic Usage::
+ 
+       >>> import requests
+@@ -417,6 +427,7 @@ class Session(SessionRedirectMixin):
+     hooks: dict[str, list[_t.HookType]]
+     params: MutableMapping[str, Any]
+     stream: bool
++    timeout: _t.TimeoutType
+     verify: _t.VerifyType
+     cert: _t.CertType
+     max_redirects: int
+@@ -435,11 +446,12 @@ class Session(SessionRedirectMixin):
+         "cert",
+         "adapters",
+         "stream",
++        "timeout",
+         "trust_env",
+         "max_redirects",
+     ]
+ 
+-    def __init__(self) -> None:
++    def __init__(self, timeout: _t.TimeoutType = None) -> None:
+         #: A case-insensitive dictionary of headers to be sent on each
+         #: :class:`Request <Request>` sent from this
+         #: :class:`Session <Session>`.
+@@ -465,6 +477,10 @@ class Session(SessionRedirectMixin):
+         #: Stream response content default.
+         self.stream = False
+ 
++        #: Default timeout for requests that omit ``timeout``. ``None`` means
++        #: no timeout; an explicit request timeout overrides this value.
++        self.timeout = timeout
++
+         #: SSL Verification default.
+         #: Defaults to `True`, requiring requests to verify the TLS certificate at the
+         #: remote end.
+@@ -564,7 +580,7 @@ class Session(SessionRedirectMixin):
+         cookies: RequestsCookieJar | CookieJar | dict[str, str] | None = None,
+         files: _t.FilesType = None,
+         auth: _t.AuthType = None,
+-        timeout: _t.TimeoutType = None,
++        timeout: _t.TimeoutType | _DefaultTimeout = _DEFAULT_TIMEOUT,
+         allow_redirects: bool = True,
+         proxies: dict[str, str] | None = None,
+         hooks: _t.HooksInputType | None = None,
+@@ -594,8 +610,9 @@ class Session(SessionRedirectMixin):
+             Basic/Digest/Custom HTTP Auth.
+         :param timeout: (optional) How many seconds to wait for the server to send
+             data before giving up, as a float, or a :ref:`(connect timeout,
+-            read timeout) <timeouts>` tuple.
+-        :type timeout: float or tuple
++            read timeout) <timeouts>` tuple. If omitted, uses ``self.timeout``.
++            Pass ``None`` to disable the session's default timeout for this request.
++        :type timeout: float or tuple or None
+         :param allow_redirects: (optional) Set to True by default.
+         :type allow_redirects: bool
+         :param proxies: (optional) Dictionary mapping protocol or protocol and
+@@ -644,7 +661,7 @@ class Session(SessionRedirectMixin):
+ 
+         # Send the request.
+         send_kwargs = {
+-            "timeout": timeout,
++            "timeout": self.timeout if timeout is _DEFAULT_TIMEOUT else timeout,
+             "allow_redirects": allow_redirects,
+         }
+         send_kwargs.update(settings)
+@@ -752,6 +769,9 @@ class Session(SessionRedirectMixin):
+     def send(self, request: PreparedRequest, **kwargs: Any) -> Response:
+         """Send a given PreparedRequest.
+ 
++        If ``timeout`` is omitted, uses ``self.timeout``. An explicit ``None``
++        disables the session's default timeout for this request.
++
+         :rtype: requests.Response
+         """
+         # Set defaults that the hooks can utilize to ensure they always have
+@@ -759,6 +779,7 @@ class Session(SessionRedirectMixin):
+         kwargs.setdefault("stream", self.stream)
+         kwargs.setdefault("verify", self.verify)
+         kwargs.setdefault("cert", self.cert)
++        kwargs.setdefault("timeout", self.timeout)
+         if "proxies" not in kwargs:
+             kwargs["proxies"] = resolve_proxies(request, self.proxies, self.trust_env)
+ 
+@@ -901,6 +922,8 @@ class Session(SessionRedirectMixin):
+         return state
+ 
+     def __setstate__(self, state: dict[str, Any]) -> None:
++        # Sessions pickled before timeout defaults were added have no timeout.
++        self.timeout = None
+         for attr, value in state.items():
+             setattr(self, attr, value)
+ 
+diff --git a/tests/test_session_timeout.py b/tests/test_session_timeout.py
+new file mode 100644
+index 0000000..01ff520
+--- /dev/null
++++ b/tests/test_session_timeout.py
+@@ -0,0 +1,206 @@
++"""Regression tests for session-wide timeout defaults."""
++
++import pickle
++import threading
++
++import pytest
++from urllib3.util import Timeout as Urllib3Timeout
++
++import requests
++from requests.adapters import BaseAdapter
++
++from .testserver.server import Server
++
++URL = "http://127.0.0.1/"
++METHODS = ("get", "options", "head", "post", "put", "patch", "delete")
++ENTRY_POINTS = ("request", *METHODS, "send")
++TIMEOUTS = (None, 4, 1.5, (2, 7), (None, 7), Urllib3Timeout(connect=2, read=7))
++
++
++class RecordingAdapter(BaseAdapter):
++    def __init__(self, redirects=0):
++        self.timeouts = []
++        self.redirects = redirects
++
++    def send(self, request, **kwargs):
++        self.timeouts.append(kwargs["timeout"])
++        response = requests.Response()
++        response.request = request
++        response.url = request.url
++        response._content = b""
++        if len(self.timeouts) <= self.redirects:
++            response.status_code = 302
++            response.headers["Location"] = f"/redirect/{len(self.timeouts)}"
++        else:
++            response.status_code = 200
++        return response
++
++    def close(self):
++        pass
++
++
++@pytest.fixture
++def adapter():
++    return RecordingAdapter()
++
++
++@pytest.fixture
++def session(adapter):
++    with requests.Session() as session:
++        session.trust_env = False
++        session.mount("http://", adapter)
++        yield session
++
++
++def send_request(session, entry_point, **kwargs):
++    if entry_point == "request":
++        return session.request("GET", URL, **kwargs)
++    if entry_point == "send":
++        request = session.prepare_request(requests.Request("GET", URL))
++        return session.send(request, **kwargs)
++    return getattr(session, entry_point)(URL, **kwargs)
++
++
++def test_default_timeout_is_unlimited(session, adapter):
++    assert session.timeout is None
++    session.get(URL)
++    assert adapter.timeouts == [None]
++
++
++@pytest.mark.parametrize("timeout", TIMEOUTS)
++@pytest.mark.parametrize("entry_point", ENTRY_POINTS)
++def test_constructor_timeout_is_inherited(adapter, timeout, entry_point):
++    with requests.Session(timeout=timeout) as session:
++        session.trust_env = False
++        session.mount("http://", adapter)
++        assert session.timeout is timeout
++        assert send_request(session, entry_point).status_code == 200
++        assert adapter.timeouts == [timeout]
++
++
++@pytest.mark.parametrize("entry_point", ENTRY_POINTS)
++def test_mutating_timeout_changes_subsequent_requests(session, adapter, entry_point):
++    for timeout in TIMEOUTS:
++        session.timeout = timeout
++        send_request(session, entry_point)
++        assert adapter.timeouts[-1] is timeout
++
++
++@pytest.mark.parametrize("timeout", (*TIMEOUTS, 0))
++@pytest.mark.parametrize("entry_point", ENTRY_POINTS)
++def test_explicit_timeout_overrides_without_mutation(
++    session, adapter, timeout, entry_point
++):
++    session.timeout = (3, 9)
++    send_request(session, entry_point, timeout=timeout)
++    assert adapter.timeouts[-1] is timeout
++    assert session.timeout == (3, 9)
++    send_request(session, entry_point)
++    assert adapter.timeouts == [timeout, (3, 9)]
++
++
++@pytest.mark.parametrize("entry_point", ENTRY_POINTS)
++@pytest.mark.parametrize("kwargs", ({}, {"timeout": None}, {"timeout": (1, 5)}))
++@pytest.mark.parametrize("default_timeout", (None, 4, (2, 7)))
++def test_redirects_keep_initial_timeout(
++    session, adapter, entry_point, kwargs, default_timeout
++):
++    adapter.redirects = 2
++    session.timeout = default_timeout
++    effective_timeout = kwargs.get("timeout", default_timeout)
++    hook_timeouts = []
++
++    def change_default(response, **kwargs):
++        hook_timeouts.append(kwargs["timeout"])
++        session.timeout = 99
++
++    session.hooks["response"].append(change_default)
++    response = send_request(session, entry_point, allow_redirects=True, **kwargs)
++    assert response.status_code == 200
++    assert len(response.history) == 2
++    assert adapter.timeouts == [effective_timeout] * 3
++    assert hook_timeouts == [effective_timeout] * 3
++
++
++@pytest.mark.parametrize("timeout", (None, 4, (2, 7)))
++@pytest.mark.parametrize("protocol", range(pickle.HIGHEST_PROTOCOL + 1))
++@pytest.mark.parametrize("entry_point", ("request", "send"))
++def test_timeout_survives_pickling(timeout, protocol, entry_point):
++    with requests.Session(timeout=1) as original:
++        original.timeout = timeout
++        restored = pickle.loads(pickle.dumps(original, protocol=protocol))
++    with restored:
++        assert restored.timeout == timeout
++        restored.trust_env = False
++        adapter = RecordingAdapter()
++        restored.mount("http://", adapter)
++        send_request(restored, entry_point)
++        assert adapter.timeouts == [timeout]
++
++
++def test_loading_state_without_timeout_is_unlimited(session, adapter):
++    state = session.__getstate__()
++    state.pop("timeout")
++    restored = requests.Session.__new__(requests.Session)
++    restored.__setstate__(state)
++    assert restored.timeout is None
++    restored.get(URL)
++    assert adapter.timeouts == [None]
++
++
++@pytest.mark.parametrize("entry_point", ("request", *METHODS))
++@pytest.mark.parametrize("kwargs", ({}, {"timeout": None}, {"timeout": (1, 5)}))
++def test_module_helpers_preserve_timeout_behavior(
++    monkeypatch, adapter, entry_point, kwargs
++):
++    monkeypatch.setattr(requests.Session, "get_adapter", lambda self, url: adapter)
++    if entry_point == "request":
++        response = requests.request("GET", URL, **kwargs)
++    else:
++        response = getattr(requests, entry_point)(URL, **kwargs)
++    assert response.status_code == 200
++    assert adapter.timeouts == [kwargs.get("timeout")]
++
++
++@pytest.mark.parametrize("entry_point", ("request", "send"))
++@pytest.mark.parametrize("timeout", (0, -1, "invalid", (1, 2, 3)))
++def test_invalid_session_timeout_is_rejected_by_http_adapter(entry_point, timeout):
++    with requests.Session(timeout=timeout) as session:
++        session.trust_env = False
++        with pytest.raises(ValueError):
++            send_request(session, entry_point)
++
++
++@pytest.mark.parametrize("entry_point", ("request", "send"))
++@pytest.mark.parametrize("timeout", TIMEOUTS)
++def test_http_adapter_accepts_session_timeout(httpbin, entry_point, timeout):
++    with requests.Session(timeout=timeout) as session:
++        session.trust_env = False
++        url = httpbin("get")
++        if entry_point == "request":
++            response = session.request("GET", url)
++        else:
++            response = session.send(requests.Request("GET", url).prepare())
++        assert response.status_code == 200
++
++
++@pytest.mark.parametrize("entry_point", ("request", "send"))
++def test_session_timeout_is_enforced_by_http_adapter(entry_point):
++    release_response = threading.Event()
++
++    def delayed_response(sock):
++        release_response.wait(2)
++        sock.sendall(b"HTTP/1.1 200 OK\r\nContent-Length: 0\r\n\r\n")
++
++    with Server(delayed_response, host="127.0.0.1") as (host, port):
++        with requests.Session(timeout=(1, 0.1)) as session:
++            session.trust_env = False
++            url = f"http://{host}:{port}/"
++            try:
++                with pytest.raises(requests.exceptions.ReadTimeout):
++                    if entry_point == "request":
++                        session.request("GET", url)
++                    else:
++                        session.send(requests.Request("GET", url).prepare())
++            finally:
++                release_response.set()

@@ -1,0 +1,33 @@
+{
+  "scope": "Current-checkout publication review; historical outcomes unchanged",
+  "core_tests": {
+    "passed": 3223,
+    "skipped": 10
+  },
+  "targeted_tests_passed": 81,
+  "original_non_readme_files_unchanged": 268,
+  "setup_note": "Initial broad run had one failure and five additional skips because this new isolated worktree lacked the offline tokenizer at its own .cache/tokenizers path. Copied the exact existing SHA-verified cache without downloads; final full suite passed. Historical code and all outcome bytes unchanged.",
+  "logs_sha256": {
+    "initial-core-tests.log.gz": "037d4f426648fd453085fccbd3ef136914fa2a348703b64ed532e7b471f9d23d",
+    "core-tests.log": "d4c1b2317226a21a11c6e15ae467937626d1cdb7418b486f7a4318b020cc1dc0"
+  },
+  "whitespace_check_scope": "README, benchmarks, docs, scripts and tests. Historical raw unified-diff artifacts retain their required context-line spaces and original hashes; no raw patch text normalized.",
+  "publication_ci_repair": {
+    "failed_commit": "e2ab4e1",
+    "initial_linux_result": {
+      "failed": 1,
+      "passed": 3222,
+      "skipped": 10
+    },
+    "cause": "Twenty recovered control files existed locally but were omitted from Git by the nested .cache ignore rule.",
+    "repair": "Explicitly force-add only manifest-bound recovered inputs; add repository integration regression checking tracked coverage of all 68 frozen/review source entries and 19 earlier preflight entries.",
+    "historical_artifacts_changed": false,
+    "initial_log": "initial-linux-ci-failure.log.gz",
+    "initial_log_sha256": "e294d49cb95be4dd0f0d6b979ed97f5d44b04da6912b87350d8fe33dd0fa91eb",
+    "validation": "82 focused tests pass; offline audit passes with all 268 original bytes, 64 frozen inputs, 16 attempts, 14 MCP payloads and 61 source excerpts unchanged. All 87 input-manifest paths are Git tracked. Full-suite CI result pending.",
+    "receipts": [
+      "ci-repair-validation.json",
+      "ci-repair-audit.json"
+    ]
+  }
+}

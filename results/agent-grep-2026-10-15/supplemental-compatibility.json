@@ -1,0 +1,112 @@
+{
+  "classification": "Supplemental post-output probe authored after manual review; frozen grades unchanged",
+  "public_contract": "Preserve behavior without aliases",
+  "scenario": "No aliases; choices A_B, a_b, A-B; underscore-to-hyphen token normalizer; case-insensitive conversion of a_b",
+  "reason": "Upstream first deduplicates normalized names then casefolds; fusing stages changes canonical collision priority",
+  "upstream": {
+    "exit_code": 0,
+    "output": {
+      "result": "a_b",
+      "choices": [
+        "A_B",
+        "a_b",
+        "A-B"
+      ]
+    },
+    "stderr": ""
+  },
+  "reference": {
+    "exit_code": 0,
+    "output": {
+      "result": "a_b",
+      "choices": [
+        "A_B",
+        "a_b",
+        "A-B"
+      ]
+    },
+    "stderr": ""
+  },
+  "results": [
+    {
+      "run_id": "03-r1-click_choice_aliases-mcp",
+      "condition": "mcp",
+      "frozen_completed_correct": true,
+      "observed": {
+        "exit_code": 0,
+        "output": {
+          "result": "A-B",
+          "choices": [
+            "A_B",
+            "a_b",
+            "A-B"
+          ]
+        },
+        "stderr": ""
+      },
+      "preserves_upstream": false,
+      "retained_patch_sha256": "af84c819abf54472f4646f731a4770177816e10089d4256efe6336baa727d83c"
+    },
+    {
+      "run_id": "04-r1-click_choice_aliases-baseline",
+      "condition": "baseline",
+      "frozen_completed_correct": true,
+      "observed": {
+        "exit_code": 0,
+        "output": {
+          "result": "a_b",
+          "choices": [
+            "A_B",
+            "a_b",
+            "A-B"
+          ]
+        },
+        "stderr": ""
+      },
+      "preserves_upstream": true,
+      "retained_patch_sha256": "1829178c2b5cd5d622418a2e3fd6c5d2cb7628165e790196c2c8e3d9d2aa874f"
+    },
+    {
+      "run_id": "11-r2-click_choice_aliases-baseline",
+      "condition": "baseline",
+      "frozen_completed_correct": true,
+      "observed": {
+        "exit_code": 0,
+        "output": {
+          "result": "a_b",
+          "choices": [
+            "A_B",
+            "a_b",
+            "A-B"
+          ]
+        },
+        "stderr": ""
+      },
+      "preserves_upstream": true,
+      "retained_patch_sha256": "a9a880a4b9fc5bae01d1f4e32645ea44d409d39a1a757448ce892fed2d6151e5"
+    },
+    {
+      "run_id": "12-r2-click_choice_aliases-mcp",
+      "condition": "mcp",
+      "frozen_completed_correct": true,
+      "observed": {
+        "exit_code": 0,
+        "output": {
+          "result": "a_b",
+          "choices": [
+            "A_B",
+            "a_b",
+            "A-B"
+          ]
+        },
+        "stderr": ""
+      },
+      "preserves_upstream": true,
+      "retained_patch_sha256": "6ee7bdd7bc4b5eec139ce06c3747033a66ff7b49addb9f7cf30159a4ee1aa7b7"
+    }
+  ],
+  "probe_source_sha256": "397d95158d99ac4f63b6098a98665f643fa74aa0115e04835cc2edd0ec714ca4",
+  "findings": [
+    "03-r1-click_choice_aliases-mcp"
+  ]
+}

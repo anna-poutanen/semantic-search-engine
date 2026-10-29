@@ -235,6 +235,21 @@ temperature calibration and are ranking signals, not certainty percentages.
 
 ## Experiments
 
+The [new 16-attempt maintenance comparison](results/agent-grep-2026-10-15/findings.md)
+tests ordinary repository tools against fast dense MCP on four new authored tasks.
+Each condition normally completes **7/8** attempts; a sleep/connection interruption
+accounts for the other attempt in each. All fourteen completed attempts pass the
+frozen checks, but a separate compatibility probe finds one regression in a
+search-assisted Click patch. After excluding interrupted pairs and that known
+defect, five matched pairs use **4.97% fewer gross tokens**, **5.77% less uncached
+input**, **0.18% more agent time**, and **10.15% more full trial time**, including
+fresh search setup. This small post-output subset does not establish better coding
+quality or general token savings. All attempts, interruptions, source receipts,
+patches and the unchanged primary grades remain available. The
+[publication review](docs/agent-grep-publication-review.md) verifies retained
+evidence offline and explains the locally hashed, uncommitted freeze provenance;
+there was no prospective Git commit for this historical study.
+
 The [completed 18-trial coding comparison](results/qwen-coding-workflows-2026-10-14/findings.md)
 retains every attempt, actual usage receipt, timeout and independent patch review.
 Ordinary tools, fast MCP and Qwen MCP each complete **2/6** tasks correctly;
