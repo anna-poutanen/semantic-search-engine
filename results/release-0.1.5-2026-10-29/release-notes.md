@@ -31,5 +31,16 @@ product as a preview. Marketplace publication is not part of this release.
 · [Measured coverage decision](https://github.com/anna-poutanen/semantic-search-engine/blob/main/docs/shared-flow-allocation.md)
 · [Release qualification plan](https://github.com/anna-poutanen/semantic-search-engine/blob/main/docs/release-0.1.5-plan.md)
 
-Qualification results will be recorded before publication; this candidate text
-does not claim that new assets or a fresh setup have passed yet.
+The exact ZIP/VSIX passed committed-source and installed-package binding, a
+fresh-folder managed Python/package/model download and six real HTTP/MCP toy
+searches on the development Mac. An actual own-repository interruption retained
+28 completed documents while preserving the prior 20-window active index;
+restart embedded exactly the remaining 330 documents, then a cache-only restart
+reused all 358 windows. Generated MCP configuration reuse, terminal searches,
+diagnostics, local scripted feedback and clean shutdown passed. The current
+Python suite passed 3,514 tests with 10 skipped, plus 179 editor/helper checks.
+
+These are one-Mac release integration checks, separate from the prior retrieval
+study. [Qualification receipts](https://github.com/anna-poutanen/semantic-search-engine/blob/main/results/release-0.1.5-2026-10-29/prepublication-summary.json)
+retain the exact assets, source commits and limits. Anonymous post-publication
+asset verification and a separate fresh public-download setup follow publication.
