@@ -72,9 +72,17 @@ This follows the agreed plan in **Choose a project for YC roles** on October 12,
    evidence loss and 2.2% median overhead; hybrid quality is unchanged. TanStack
    is now observed development evidence. Most remaining omissions concern
    selection from already retrieved windows/definitions, with separate window
-   deduplication, raw-candidate and character-prefix misses. The next quality
-   target is joint complementary-definition/window selection under existing caps,
-   confirmed on another independently authored repository with unchanged loss gates.
+   deduplication, raw-candidate and character-prefix misses. The
+   [joint complementary-definition/window follow-up](complementary-context-v2.md)
+   now evaluates one fixed rule on 393 observed cases/201 distinct query units,
+   with 786 exact original controls and an independent reconstruction. It completes
+   one additional Jinja behavior but displaces two required TanStack groups after
+   coalescing/backfill, so its unchanged zero-loss gate fails. Aggregate complete
+   counts stay equal and conceal that regression. Production coverage remains
+   the default. The separately committed/source-reviewed attrs corpus (14 queries,
+   204 windows) remains unqueried. The next quality target is complementary task
+   relevance and actual final backfill allocation under the existing caps;
+   lexical support alone does not establish preserved behavior.
    Another coding comparison remains gated on retrieval improvement. All source-only
    labels, raw traces, rejected controls, failure receipts and independent audits
    are preserved.
@@ -188,13 +196,15 @@ returned excerpts, and follow-up reads still consume the agent's tokens.
 
 ## Next milestone
 
-Current retrieval work ships the previously measured coverage/backfill policy
-while retaining shared flow's failed fresh gate. The [latest study and post hoc
-diagnosis](shared-flow-allocation.md) explain why multi-file quality remains open:
-most missing implementations are in the retrieved pool but outside final context.
-A new selector should jointly choose complementary definitions and their windows
-inside current budgets, then pass another independent repository test. Current
-small-sample retrieval gains do not establish coding-workflow token savings.
+Version 0.1.5 ships the previously measured coverage/backfill policy and passes
+separate public-download setup/resume checks. The latest
+[joint window/definition study and saved-trace diagnosis](complementary-context-v2.md)
+find a Jinja gain and a TanStack loss; the fixed rule fails its zero-loss gate.
+The next selector must account for actual final backfill contributions and use
+a more reliable measure of complementary task relevance within current budgets.
+The source-reviewed attrs corpus remains unqueried until a candidate clears the
+development gate, then needs an independent native quality/latency test. Coding
+comparisons remain gated on retrieval improvement; token savings are unestablished.
 
 The [workflow investigation](../results/workflow-investigation-2026-10-13/findings.md)
 records repeated source reads, cache differences and runtime confounds without
