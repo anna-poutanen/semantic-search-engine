@@ -139,7 +139,7 @@ This follows the agreed plan in **Choose a project for YC roles** on October 12,
    runs used available user-level caches, rather than a clean machine. Python,
    JavaScript and TypeScript are integrated. The
    [real HTTP/MCP demo](../results/demo-2026-10-13/findings.md) passes, and the
-   [GitHub release](https://github.com/anna-poutanen/semantic-search-engine/releases/tag/v0.1.4)
+   [GitHub release](https://github.com/anna-poutanen/semantic-search-engine/releases/tag/v0.1.5)
    ships the updated exact installed and tested VSIX, including optional Qwen
    controls. The project now uses the MIT license and includes a
    [guided Mac download](getting-started.md), local Python bootstrap and a small
@@ -157,8 +157,12 @@ This follows the agreed plan in **Choose a project for YC roles** on October 12,
    defaults or establish coding-agent token savings. Preflight can install runtime
    packages and the tokenizer cache first; embedding weights and inference wait
    until included source passes. Version 0.1.4 adds automatic completed-batch
-   resume with atomic active-index publication, as described above. External Mac
-   beta testing remains the next release-validation gap.
+   resume with atomic active-index publication, as described above. Version 0.1.5
+   packages the tested existing coverage policy selected by the separate post hoc
+   product decision; the shared-flow experiment stays research-only. Its
+   [release qualification](release-0.1.5-plan.md) checks exact assets, fresh setup,
+   indexing interruption/resume and client setup without claiming new quality or
+   coding-agent savings. External Mac beta testing remains the next validation gap.
 
 Python, TypeScript and JavaScript are implemented.
 C# and non-Mac deployment follow validation of the core. Serialize GPU work and
