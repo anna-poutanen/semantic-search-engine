@@ -157,6 +157,13 @@ fails and the current default is retained. Aggregate completeness is unchanged,
 which would hide the individual regression. A new independently source-reviewed
 attrs corpus remains unqueried for a candidate that clears the development gate.
 
+The [semantic final-context preparation](docs/semantic-context-preparation.md)
+adds an opt-in research selector that works after actual backfill, an exact
+vector/source boundary, batch query encoding and an independent auditor. Its
+239 affected CPU tests and invented readiness check pass. Real-model feature
+capture, retrieval quality and native latency remain unmeasured; the released
+coverage policy stays the default.
+
 For optional H2O reranking, install its pinned runtime and weights with
 `python3 scripts/setup_mac.py`, start `.venv/bin/python scripts/serve_mac.py` in
 another terminal, then pass `--rerank`:
