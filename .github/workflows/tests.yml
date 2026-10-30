@@ -16,11 +16,19 @@ jobs:
       - run: python -m pytest -q
       - name: Exercise installed lexical CLI without models
         run: python scripts/smoke_cpu_cli.py --output results/local/cpu-cli-ci.json
+      - name: Exercise invented semantic context without models
+        run: python scripts/check_semantic_preparation.py --tokenizer-cache "$TIKTOKEN_CACHE_DIR" --output results/local/semantic-readiness-ci.json
       - name: Retain installed CLI smoke receipt
         uses: actions/upload-artifact@v4
         with:
           name: cpu-cli-${{ github.sha }}
           path: results/local/cpu-cli-ci.json
+          if-no-files-found: error
+      - name: Retain invented semantic readiness receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: semantic-readiness-${{ github.sha }}
+          path: results/local/semantic-readiness-ci.json
           if-no-files-found: error
   editor:
     runs-on: ubuntu-latest

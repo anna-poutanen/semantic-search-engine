@@ -83,6 +83,11 @@ This follows the agreed plan in **Choose a project for YC roles** on October 12,
    204 windows) remains unqueried. The next quality target is complementary task
    relevance and actual final backfill allocation under the existing caps;
    lexical support alone does not establish preserved behavior.
+   The [semantic final-context preparation](semantic-context-preparation.md)
+   now implements that terminal research hook, bound vector features, batch query
+   API and independent reconstruction. Its 239 affected CPU tests and invented
+   readiness check pass; model capture, observed replay and native timing have
+   not run. This is preparation, with no measured quality claim or default change.
    Another coding comparison remains gated on retrieval improvement. All source-only
    labels, raw traces, rejected controls, failure receipts and independent audits
    are preserved.
@@ -200,8 +205,12 @@ Version 0.1.5 ships the previously measured coverage/backfill policy and passes
 separate public-download setup/resume checks. The latest
 [joint window/definition study and saved-trace diagnosis](complementary-context-v2.md)
 find a Jinja gain and a TanStack loss; the fixed rule fails its zero-loss gate.
-The next selector must account for actual final backfill contributions and use
-a more reliable measure of complementary task relevance within current budgets.
+The [prepared semantic selector](semantic-context-preparation.md) now accounts
+for actual final backfill and accepts bound query/window vectors within current
+budgets. Its affected CPU tests and invented terminal-hook check pass. Next,
+implement and freeze the live feature capture/replay harness, then evaluate
+development quality before any fresh-codebase or warm-latency run. Real-model
+testing remains paused under the user's code-preparation-only instruction.
 The source-reviewed attrs corpus remains unqueried until a candidate clears the
 development gate, then needs an independent native quality/latency test. Coding
 comparisons remain gated on retrieval improvement; token savings are unestablished.

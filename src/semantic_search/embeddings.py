@@ -212,6 +212,20 @@ class QwenEmbedder:
             raise ValueError("Query must be a nonempty string")
         return self._embed_texts([QUERY_PROMPT + query])[0]
 
+    def embed_queries(self, queries: list[str], *, cancel_check=None) -> np.ndarray:
+        """Embed queries in input order with the existing query instruction.
+
+        Each input retains the single-query token limit. The existing batch
+        count and padded-token limits can require more than one model forward;
+        cancellation is checked before and after each forward. An empty list
+        returns an empty matrix without loading the checkpoint.
+        """
+        if (not isinstance(queries, list)
+                or any(not isinstance(query, str) or not query.strip() for query in queries)):
+            raise ValueError("Queries must be a list of nonempty strings")
+        return self._embed_texts([QUERY_PROMPT + query for query in queries],
+                                cancel_check=cancel_check)
+
     def close(self):
         """Release embedding weights before running another GPU experiment."""
         self._model = self._tokenizer = None
