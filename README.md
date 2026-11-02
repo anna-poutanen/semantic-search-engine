@@ -164,6 +164,12 @@ vector/source boundary, batch query encoding and an independent auditor. Its
 capture, retrieval quality and native latency remain unmeasured; the released
 coverage policy stays the default.
 
+The [live-capture follow-up](docs/semantic-live-preparation.md) connects the
+executing request's original query vector and current document vectors, including
+unsaved editor overlays, with actual-forward observations and durable request
+receipts. Tests use invented CPU models. Real feature capture, the observed
+quality gate and native timing remain outstanding.
+
 For optional H2O reranking, install its pinned runtime and weights with
 `python3 scripts/setup_mac.py`, start `.venv/bin/python scripts/serve_mac.py` in
 another terminal, then pass `--rerank`:

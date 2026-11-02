@@ -6,6 +6,11 @@ backend still uses the coverage/backfill policy shipped in v0.1.5; release asset
 are unchanged. The earlier [joint-window rule](complementary-context-v2.md) still
 fails its individual zero-loss gate.
 
+The [November 2 live-capture follow-up](semantic-live-preparation.md) now connects
+the resident-vector provider, original-query context, forward observations and
+single-request capture. The October 30 evidence below remains historical;
+observed replay and native testing are still outstanding.
+
 That failure exposed two weaknesses: rare literal query words can favor the wrong
 implementation, and later backfill can undo an earlier allocation. The prepared
 `semantic_final_v1` rule starts with the actual final coverage response, then
@@ -102,5 +107,6 @@ tests intentionally use a toy CPU index with stub embeddings.
    correctness checks and actual provider usage. Production promotion and another
    release require that separate evidence.
 
-The live provider, observed replay and native timing harness are still to be
-implemented. This preparation is not a completed quality study or a release.
+At the original October 30 checkpoint, the live provider, observed replay and
+native timing harness remained to be implemented. See the follow-up above for
+current code preparation. Neither phase is a completed quality study or release.

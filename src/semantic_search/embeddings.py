@@ -6,9 +6,12 @@ MLX is imported and the checkpoint loaded only on the first nonempty request.
 """
 from __future__ import annotations
 
+import copy
+import hashlib
 import importlib.metadata
 import json
 from pathlib import Path
+import time
 
 import numpy as np
 
@@ -141,11 +144,27 @@ class QwenEmbedder:
         return vectors
 
     def _embed_texts(self, texts, *, cancel_check=None, progress_callback=None,
-                     batch_callback=None):
+                     batch_callback=None, forward_observer=None):
+        """Encode texts, optionally observing scheduled native forwards.
+
+        Observation events are isolated dictionaries. ``started`` precedes the
+        native call; a started event alone therefore does not prove model work
+        if its observer raises. Terminal ``completed``/``failed`` events count
+        actual calls. Their duration excludes the started observer and includes
+        native output validation. Completion precedes post-forward cancellation
+        and existing checkpoint/progress callbacks. Observer failures propagate;
+        an observer failure while reporting a model error is chained as the
+        cause of that original model error. No vectors or text are exposed.
+        """
         if not isinstance(texts, list) or any(not isinstance(t, str) or not t.strip() for t in texts):
             raise ValueError("Embedding inputs must be a list of nonempty strings")
+        if forward_observer is not None and not callable(forward_observer):
+            raise TypeError("forward_observer must be callable")
         if not texts:
             return np.empty((0, DIMENSIONS), dtype=np.float32)
+        observed_start = time.perf_counter() if forward_observer is not None else None
+        input_hashes = ([hashlib.sha256(text.encode()).hexdigest() for text in texts]
+                        if forward_observer is not None else None)
         self._ensure_loaded()
         encoded = self._tokenizer(texts, padding=False, truncation=True,
                                   max_length=MAX_TOKENS, add_special_tokens=True)
@@ -156,7 +175,7 @@ class QwenEmbedder:
             raise ValueError(f"Tokenizer exceeded the {MAX_TOKENS}-token embedding limit")
         order = sorted(range(len(ids)), key=lambda i: (len(ids[i]), i))
         output = np.empty((len(texts), DIMENSIONS), dtype=np.float32)
-        reported = completed = start = 0
+        reported = completed = start = forward_index = 0
         while start < len(order):
             if cancel_check is not None:
                 cancel_check()
@@ -167,10 +186,59 @@ class QwenEmbedder:
             while len(ids[order[end - 1]]) * (end - start) > self.max_padded_tokens:
                 end -= 1
             indices = order[start:end]
-            vectors = self._embed_batch([ids[i] for i in indices])
-            if vectors.shape != (len(indices), DIMENSIONS):
-                raise ValueError(f"Unexpected Qwen embedding shape: {vectors.shape}")
-            output[indices] = vectors
+            if forward_observer is None:
+                vectors = self._embed_batch([ids[i] for i in indices])
+                if vectors.shape != (len(indices), DIMENSIONS):
+                    raise ValueError(f"Unexpected Qwen embedding shape: {vectors.shape}")
+                output[indices] = vectors
+            else:
+                lengths = [len(ids[i]) for i in indices]
+                identity = {
+                    "schema": "qwen_embedding_forward_v1", "forward_index": forward_index,
+                    "input_count": len(texts), "batch_input_count": len(indices),
+                    "input_indices": indices.copy(), "token_lengths": lengths,
+                    "padded_tokens": max(lengths) * len(indices),
+                    "padded_shape": [len(indices), max(lengths)],
+                    "expected_output_shape": [len(indices), DIMENSIONS],
+                    "input_sha256": [input_hashes[i] for i in indices],
+                    "token_ids_sha256": [hashlib.sha256(json.dumps(
+                        [int(token) for token in ids[i]], separators=(",", ":")
+                    ).encode()).hexdigest() for i in indices],
+                }
+
+                def observe(status, **details):
+                    # Every callback owns its complete event. Mutation cannot
+                    # alter the schedule, another event, or returned vectors.
+                    event = {**identity, "status": status,
+                             "elapsed_seconds": time.perf_counter() - observed_start,
+                             **details}
+                    forward_observer(copy.deepcopy(event))
+
+                # A failing observer stops admission before model work. A
+                # started event alone is not evidence of a completed forward.
+                observe("started")
+                native_start = time.perf_counter()
+                failure_phase = "forward"
+                try:
+                    vectors = self._embed_batch([ids[i] for i in indices])
+                    failure_phase = "output_validation"
+                    if vectors.shape != (len(indices), DIMENSIONS):
+                        raise ValueError(f"Unexpected Qwen embedding shape: {vectors.shape}")
+                    output[indices] = vectors
+                except BaseException as error:
+                    duration = time.perf_counter() - native_start
+                    try:
+                        observe("failed", duration_seconds=duration,
+                                failure_phase=failure_phase,
+                                exception_type=f"{type(error).__module__}.{type(error).__qualname__}")
+                    except BaseException as observer_error:
+                        # Preserve the original model/validation exception while
+                        # making the failed ledger observer visible as its cause.
+                        raise error from observer_error
+                    raise
+                observe("completed", duration_seconds=time.perf_counter() - native_start,
+                        output_shape=list(vectors.shape), output_dtype=str(vectors.dtype))
+                forward_index += 1
             # Token-length batches otherwise accumulate unused Metal allocations
             # across many shapes. Keep weights resident, release batch buffers.
             if len(texts) > 1 and self._mx is not None:
@@ -193,7 +261,8 @@ class QwenEmbedder:
         return output
 
     def embed_documents(self, texts: list[str], *, cancel_check=None,
-                        progress_callback=None, batch_callback=None) -> np.ndarray:
+                        progress_callback=None, batch_callback=None,
+                        forward_observer=None) -> np.ndarray:
         """Embed in input order; optionally checkpoint each completed native batch.
 
         Checkpoints receive isolated original input indices and float32 vectors.
@@ -202,17 +271,20 @@ class QwenEmbedder:
         try:
             return self._embed_texts(texts, cancel_check=cancel_check,
                                     progress_callback=progress_callback,
-                                    batch_callback=batch_callback)
+                                    batch_callback=batch_callback,
+                                    forward_observer=forward_observer)
         finally:
             if self._mx is not None:
                 self._mx.clear_cache()
 
-    def embed_query(self, query: str) -> np.ndarray:
+    def embed_query(self, query: str, *, forward_observer=None) -> np.ndarray:
         if not isinstance(query, str) or not query.strip():
             raise ValueError("Query must be a nonempty string")
-        return self._embed_texts([QUERY_PROMPT + query])[0]
+        kwargs = {} if forward_observer is None else {"forward_observer": forward_observer}
+        return self._embed_texts([QUERY_PROMPT + query], **kwargs)[0]
 
-    def embed_queries(self, queries: list[str], *, cancel_check=None) -> np.ndarray:
+    def embed_queries(self, queries: list[str], *, cancel_check=None,
+                      forward_observer=None) -> np.ndarray:
         """Embed queries in input order with the existing query instruction.
 
         Each input retains the single-query token limit. The existing batch
@@ -224,7 +296,7 @@ class QwenEmbedder:
                 or any(not isinstance(query, str) or not query.strip() for query in queries)):
             raise ValueError("Queries must be a list of nonempty strings")
         return self._embed_texts([QUERY_PROMPT + query for query in queries],
-                                cancel_check=cancel_check)
+                                cancel_check=cancel_check, forward_observer=forward_observer)
 
     def close(self):
         """Release embedding weights before running another GPU experiment."""

@@ -61,3 +61,38 @@ def make_semantic_postprocessor(feature_provider, *, capture=None):
         return chosen
 
     return postprocess
+
+
+def make_live_semantic_postprocessor(*, capture=None):
+    """Bind the provider to the actual executing saved/overlay request.
+
+    Install only through SearchBackend's explicit research_postprocessor hook.
+    Capture callbacks are trusted, external experiment instrumentation. A fresh
+    provider per request prevents saved-index state leaking into editor overlays.
+    """
+    if capture is not None and not callable(capture):
+        raise TypeError("Semantic experiment capture must be callable")
+
+    def postprocess(response, candidates, *, request_context, **kwargs):
+        from semantic_search.semantic_provider import make_live_feature_provider
+        features = []
+        provider = make_live_feature_provider(request_context, capture=features.append)
+
+        def record(event):
+            if capture is not None:
+                capture({**event, "provider_receipts": features})
+
+        try:
+            return make_semantic_postprocessor(provider, capture=record)(response, candidates, **kwargs)
+        except BaseException as error:
+            # Retain provider partial forwards when active capture fails. A
+            # request harness also records earlier index/query failures through
+            # the backend's external forward observer.
+            if capture is not None:
+                try:
+                    capture({"event_type": "postprocessor_failure", "provider_receipts": features})
+                except BaseException as capture_error:
+                    raise error from capture_error
+            raise
+
+    return postprocess

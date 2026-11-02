@@ -17,6 +17,7 @@ import numpy as np
 from semantic_search.index import document_text
 from semantic_search.corpus import Snippet
 from semantic_search.retrieval import tokenize
+from semantic_search.source import physical_lines
 
 SCHEMA_VERSION = 2
 SQLITE_VEC_VERSION = "0.1.9"
@@ -195,8 +196,11 @@ class SQLiteIndex:
                                         _float32_vectors(matrix)[0].tobytes()))
             connection.execute(f"PRAGMA user_version={SCHEMA_VERSION}")
 
-    def _connect(self):
-        connection = sqlite3.connect(self.db_path, timeout=30)
+    def _connect(self, *, read_only=False):
+        if read_only:
+            connection = sqlite3.connect(self.db_path.resolve().as_uri() + "?mode=ro", uri=True, timeout=30)
+        else:
+            connection = sqlite3.connect(self.db_path, timeout=30)
         connection.execute("PRAGMA foreign_keys=ON")
         return connection
 
@@ -232,6 +236,118 @@ class SQLiteIndex:
             connection.execute("BEGIN")
             return [Snippet(*row) for row in connection.execute(
                 f"SELECT {SNIPPET_COLUMNS} FROM snippets ORDER BY position")]
+
+    def read_semantic_vectors(self, rows, *, model_metadata, cancel_check=lambda: None):
+        """Read original canonical float32 document outputs for exact full rows.
+
+        This research accessor never refreshes, infers, repairs or writes. Active
+        metadata, current literal snippets and canonical cache rows share one
+        read transaction. The separately normalized ``active_vectors`` search
+        representation is deliberately not used. Canonical float64 storage must
+        contain exact widened float32 values; lossy conversion is an error.
+
+        Saved and overlay children both have SQLite snapshots. Provenance shape
+        is checked here, but the schema does not store buffer versions or file
+        hashes: callers must bind provenance to the executing backend snapshot
+        and confirm that source snapshot before and after this operation.
+        """
+        if not callable(cancel_check):
+            raise ValueError("cancel_check must be callable")
+        cancel_check()
+        if not isinstance(model_metadata, dict):
+            raise ValueError("Semantic model metadata must be a JSON object")
+        try:
+            metadata_json = json.dumps(model_metadata, sort_keys=True,
+                                       separators=(",", ":"), allow_nan=False)
+            metadata = json.loads(metadata_json)
+        except (TypeError, ValueError, OverflowError) as error:
+            raise ValueError("Semantic model metadata must be finite JSON data") from error
+        dimensions = metadata.get("dimensions")
+        if type(dimensions) is not int or dimensions < 1:
+            raise ValueError("Semantic model dimensions must be a positive integer")
+        fingerprint = hashlib.sha256(metadata_json.encode()).hexdigest()
+        if not isinstance(rows, (list, tuple)):
+            raise ValueError("Semantic source rows must be a list or tuple")
+        requested = {}
+        for row in rows:
+            cancel_check()
+            if (not isinstance(row, dict)
+                    or any(type(row.get(key)) is not str or not row[key]
+                           for key in ("id", "path", "symbol", "source"))
+                    or any(type(row.get(key)) is not int
+                           for key in ("start_line", "end_line", "window_end_line"))
+                    or row["start_line"] < 1
+                    or row["end_line"] != row["window_end_line"]
+                    or row["end_line"] != row["start_line"] + len(physical_lines(row["source"])) - 1
+                    or row.get("truncated") is not False):
+                raise ValueError("Semantic source row must be an exact full window")
+            origin = row.get("source_origin")
+            if ("source_origin" in row and origin not in ("saved", "overlay")
+                    or origin != "overlay" and any(key in row for key in ("buffer_version", "buffer_hash"))
+                    or origin == "overlay" and (
+                        type(row.get("buffer_version")) is not int
+                        or not 0 <= row["buffer_version"] <= 2**53 - 1
+                        or type(row.get("buffer_hash")) is not str
+                        or len(row["buffer_hash"]) != 64
+                        or any(char not in "0123456789abcdef" for char in row["buffer_hash"]))):
+                raise ValueError("Semantic source provenance is invalid")
+            try:
+                source_hash = hashlib.sha256(row["source"].encode()).hexdigest()
+                snippet = Snippet(row["id"], row["path"], row["symbol"], row["start_line"],
+                                  row["end_line"], row["source"], source_hash)
+                document_hash = hashlib.sha256(document_text(snippet).encode()).hexdigest()
+            except UnicodeError as error:
+                raise ValueError("Semantic source must contain valid Unicode") from error
+            if row.get("source_hash") != source_hash or row.get("content_hash") != source_hash:
+                raise ValueError("Semantic full-window source hash differs")
+            if snippet.id in requested:
+                raise ValueError("Semantic source IDs must be unique")
+            requested[snippet.id] = (snippet, document_hash)
+
+        result = {}
+        with closing(self._connect(read_only=True)) as connection, connection:
+            connection.execute("PRAGMA query_only=ON")
+            connection.execute("BEGIN")
+            stored = connection.execute("SELECT value FROM metadata WHERE key='active'").fetchone()
+            try:
+                active = json.loads(stored[0]) if stored is not None else {}
+                active_json = json.dumps(active.get("embedding"), sort_keys=True,
+                                         separators=(",", ":"), allow_nan=False)
+            except (AttributeError, TypeError, ValueError, OverflowError) as error:
+                raise ValueError("Active semantic model metadata is invalid") from error
+            if (active.get("model_fingerprint") != fingerprint or active_json != metadata_json
+                    or type(active.get("dimensions")) is not int or active["dimensions"] != dimensions):
+                raise ValueError("Active semantic model metadata or dimensions differ")
+            cancel_check()
+            identifiers = list(requested)
+            for start in range(0, len(identifiers), 500):
+                cancel_check()
+                chunk = identifiers[start:start + 500]
+                placeholders = ",".join("?" for _ in chunk)
+                stored_rows = connection.execute(
+                    "SELECT s.id,s.path,s.symbol,s.start_line,s.end_line,s.text,s.content_hash,"
+                    "s.document_hash,s.model_fingerprint,e.dimensions,e.vector FROM snippets s "
+                    "LEFT JOIN embeddings e USING (model_fingerprint,document_hash) "
+                    f"WHERE s.id IN ({placeholders})", chunk)
+                for stored_row in stored_rows:
+                    cancel_check()
+                    snippet, document_hash = requested[stored_row[0]]
+                    expected = (snippet.id, snippet.path, snippet.symbol, snippet.start_line,
+                                snippet.end_line, snippet.text, snippet.content_hash,
+                                document_hash, fingerprint)
+                    if any(type(actual) is not type(wanted) or actual != wanted
+                           for actual, wanted in zip(stored_row[:9], expected)):
+                        raise ValueError("Current semantic source row differs")
+                    vector = _stored_vector(stored_row[9], stored_row[10], dimensions)
+                    with np.errstate(over="ignore", under="ignore", invalid="ignore"):
+                        original = vector.astype(np.float32)
+                    if not np.array_equal(original.astype(np.float64), vector):
+                        raise ValueError("Canonical semantic vector is not exact float32")
+                    result[snippet.id] = original
+            if len(result) != len(requested):
+                raise ValueError("Required current semantic document vectors are missing")
+            cancel_check()
+        return {identifier: result[identifier] for identifier in requested}
 
     def search_lexical(self, query, limit=10):
         """FTS5 BM25 over the same identifier tokens as the original lexical index.

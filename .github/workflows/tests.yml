@@ -18,6 +18,8 @@ jobs:
         run: python scripts/smoke_cpu_cli.py --output results/local/cpu-cli-ci.json
       - name: Exercise invented semantic context without models
         run: python scripts/check_semantic_preparation.py --tokenizer-cache "$TIKTOKEN_CACHE_DIR" --output results/local/semantic-readiness-ci.json
+      - name: Exercise captured invented backend without models
+        run: python scripts/check_semantic_live_preparation.py --tokenizer-cache "$TIKTOKEN_CACHE_DIR" --output-dir results/local/semantic-live-ci
       - name: Retain installed CLI smoke receipt
         uses: actions/upload-artifact@v4
         with:
@@ -30,6 +32,13 @@ jobs:
           name: semantic-readiness-${{ github.sha }}
           path: results/local/semantic-readiness-ci.json
           if-no-files-found: error
+      - name: Retain invented backend capture
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: semantic-live-${{ github.sha }}
+          path: results/local/semantic-live-ci
+          if-no-files-found: warn
   editor:
     runs-on: ubuntu-latest
     defaults:
