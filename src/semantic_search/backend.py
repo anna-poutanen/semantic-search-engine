@@ -25,8 +25,9 @@ from semantic_search.languages import decode_source, extractor_fingerprint, vali
 
 
 class CancellableEmbedder:
-    def __init__(self, embedder, check):
+    def __init__(self, embedder, check, forward_observer=None):
         self.embedder, self.check = embedder, check
+        self.forward_observer = forward_observer
 
     @property
     def metadata(self):
@@ -38,6 +39,10 @@ class CancellableEmbedder:
         extra = {}
         if "cancel_check" in parameters:
             extra["cancel_check"] = self.check
+        if self.forward_observer is not None:
+            if "forward_observer" not in parameters:
+                raise TypeError("Research document inference requires forward observation")
+            extra["forward_observer"] = self.forward_observer
         if progress_callback is not None and "progress_callback" in parameters:
             extra["progress_callback"] = progress_callback
         if batch_callback is not None and "batch_callback" in parameters:
@@ -75,7 +80,8 @@ class SearchBackend:
 
     def __init__(self, repo, source_root="src/flask", db_path=None, *, index=None,
                  embedder=None, h2o_url="http://127.0.0.1:8741", h2o_client=None,
-                 abstention_policy=None, source_exclusions=(), qwen_client=None, progress=None):
+                 abstention_policy=None, source_exclusions=(), qwen_client=None, progress=None,
+                 research_postprocessor=None, research_forward_observer=None):
         self.repo = Path(repo).resolve()
         if not self.repo.is_dir():
             raise ValueError("repo must be an existing directory")
@@ -96,6 +102,13 @@ class SearchBackend:
         if progress is not None and not callable(progress):
             raise ValueError("progress must be a callback")
         self._progress = progress
+        for callback in (research_postprocessor, research_forward_observer):
+            if callback is not None and not callable(callback):
+                raise ValueError("Research hooks must be callable")
+        # Explicit, local research injection only; service/CLI defaults never
+        # install these hooks. An observer may also record a coverage control.
+        self._research_postprocessor = research_postprocessor
+        self._research_forward_observer = research_forward_observer
         try:
             parsed = urlsplit(h2o_url)
             if (parsed.scheme != "http" or parsed.hostname not in ("localhost", "127.0.0.1", "::1")
@@ -288,7 +301,14 @@ class SearchBackend:
             if (self._progress is not None
                     and "progress" in inspect.signature(index.refresh).parameters):
                 extra["progress"] = self._report_progress
-            vectors, stats = index.refresh(snippets, CancellableEmbedder(self._get_embedder(), cancel_check),
+            observer = None
+            if self._research_forward_observer is not None:
+                from copy import deepcopy
+
+                def observer(event):
+                    self._research_forward_observer({**deepcopy(event), "purpose": "documents"})
+
+            vectors, stats = index.refresh(snippets, CancellableEmbedder(self._get_embedder(), cancel_check, observer),
                                            before_commit=before_commit, **extra)
             if snippets:
                 dense = PersistentDenseRetriever(index)
@@ -403,8 +423,19 @@ class SearchBackend:
                 check()
                 phase = time.perf_counter()
                 vector = None
+                query_forward_events = []
                 if self._snippets and retrieval != "bm25":
-                    vector = self._get_embedder().embed_query(query)
+                    if self._research_postprocessor is not None or self._research_forward_observer is not None:
+                        from copy import deepcopy
+
+                        def observe_query(event):
+                            query_forward_events.append(deepcopy(event))
+                            if self._research_forward_observer is not None:
+                                self._research_forward_observer({**deepcopy(event), "purpose": "retrieval_query"})
+
+                        vector = self._get_embedder().embed_query(query, forward_observer=observe_query)
+                    else:
+                        vector = self._get_embedder().embed_query(query)
                 check()
                 embedding_s = time.perf_counter() - phase if vector is not None else 0.0
                 phase = time.perf_counter()
@@ -546,12 +577,32 @@ class SearchBackend:
                         max_results=max_results, source_budget=source_budget,
                         token_budget=token_budget, cancel_check=check)
 
-                response = postprocess_context(response,
+                processor, research = postprocess_context, {}
+                if self._research_postprocessor is not None:
+                    from copy import deepcopy
+                    snapshot = self._manifest
+                    metadata = deepcopy(self._get_embedder().metadata) if vector is not None else None
+                    research = {"request_context": {
+                        "query": query, "retrieval": retrieval,
+                        "query_vector": deepcopy(vector),
+                        "query_forward_events": deepcopy(query_forward_events),
+                        "model_metadata": metadata,
+                        "model_fingerprint": (hashlib.sha256(json.dumps(metadata, sort_keys=True,
+                            separators=(",", ":"), allow_nan=False).encode()).hexdigest()
+                            if metadata is not None else None),
+                        "source_snapshot": snapshot, "index": self._get_index(),
+                        "embedder": self._get_embedder() if vector is not None else None,
+                        "confirm_snapshot": lambda: self._confirm_snapshot(snapshot),
+                        "source_provenance": self._source_provenance,
+                    }}
+                    processor = self._research_postprocessor
+                response = processor(response,
                     (result_row(snippet, score, snippet.text) for snippet, score in selected),
                     max_results=max_results, source_budget=source_budget,
                     token_budget=token_budget, cancel_check=check,
                     ranked_candidates=(result_row(snippet, score, snippet.text) for snippet, score in pairs),
                     definition_keys=self._definition_keys, reference_factory=reference_factory,
+                    **research,
                     **({"selection_plan": selection_plan} if selection_plan is not None else {}))
                 check()
                 self._confirm_snapshot(self._manifest)

@@ -88,12 +88,16 @@ class BorrowedEmbedder:
     def metadata(self):
         return self.parent._get_embedder().metadata
 
-    def embed_documents(self, texts, *, cancel_check=None):
+    def embed_documents(self, texts, *, cancel_check=None, forward_observer=None):
         from semantic_search.backend import CancellableEmbedder
-        return CancellableEmbedder(self.parent._get_embedder(), cancel_check or (lambda: None)).embed_documents(texts)
+        return CancellableEmbedder(self.parent._get_embedder(), cancel_check or (lambda: None),
+                                  forward_observer).embed_documents(texts)
 
-    def embed_query(self, query):
-        return self.parent._get_embedder().embed_query(query)
+    def embed_query(self, query, **kwargs):
+        return self.parent._get_embedder().embed_query(query, **kwargs)
+
+    def embed_queries(self, queries, **kwargs):
+        return self.parent._get_embedder().embed_queries(queries, **kwargs)
 
     def close(self):
         pass
@@ -121,7 +125,9 @@ class OverlayBackend(SearchBackend):
     def __init__(self, parent, entries, digest, raw, decoded, index, check):
         super().__init__(parent.repo, parent.source_root, index.db_path, index=index,
                          embedder=BorrowedEmbedder(parent), h2o_client=parent._h2o, qwen_client=parent._qwen,
-                         source_exclusions=parent.source_exclusions)
+                         source_exclusions=parent.source_exclusions,
+                         research_postprocessor=parent._research_postprocessor,
+                         research_forward_observer=parent._research_forward_observer)
         self.parent = parent
         self._policy = parent._policy
         self.entries = {entry.path: entry for entry in entries}

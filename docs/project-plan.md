@@ -88,6 +88,11 @@ This follows the agreed plan in **Choose a project for YC roles** on October 12,
    API and independent reconstruction. Its 239 affected CPU tests and invented
    readiness check pass; model capture, observed replay and native timing have
    not run. This is preparation, with no measured quality claim or default change.
+   The [live-capture follow-up](semantic-live-preparation.md) now implements the
+   resident-vector provider and request context, read-only canonical vector
+   lookup, actual-forward observations and durable single-request captures.
+   Invented CPU tests include saved/overlay isolation and partial-failure
+   receipts. Real feature capture and the frozen observed replay remain open.
    Another coding comparison remains gated on retrieval improvement. All source-only
    labels, raw traces, rejected controls, failure receipts and independent audits
    are preserved.
@@ -208,7 +213,8 @@ find a Jinja gain and a TanStack loss; the fixed rule fails its zero-loss gate.
 The [prepared semantic selector](semantic-context-preparation.md) now accounts
 for actual final backfill and accepts bound query/window vectors within current
 budgets. Its affected CPU tests and invented terminal-hook check pass. Next,
-implement and freeze the live feature capture/replay harness, then evaluate
+complete and freeze the observed capture/replay runner around the
+[implemented live provider and request capture](semantic-live-preparation.md), then evaluate
 development quality before any fresh-codebase or warm-latency run. Real-model
 testing remains paused under the user's code-preparation-only instruction.
 The source-reviewed attrs corpus remains unqueried until a candidate clears the
