@@ -80,8 +80,8 @@ This follows the agreed plan in **Choose a project for YC roles** on October 12,
    coalescing/backfill, so its unchanged zero-loss gate fails. Aggregate complete
    counts stay equal and conceal that regression. Production coverage remains
    the default. The separately committed/source-reviewed attrs corpus (14 queries,
-   204 windows) remains unqueried. The next quality target is complementary task
-   relevance and actual final backfill allocation under the existing caps;
+   204 windows) was kept unqueried for that study. Its next quality target was
+   complementary task relevance and actual final backfill allocation under the existing caps;
    lexical support alone does not establish preserved behavior.
    The [semantic final-context preparation](semantic-context-preparation.md)
    now implements that terminal research hook, bound vector features, batch query
@@ -102,12 +102,29 @@ This follows the agreed plan in **Choose a project for YC roles** on October 12,
    diagnostic-string audit failure and a narrowly scoped post-outcome correction
    preserved. All three losses were retrieved and delivered before final exchanges
    evicted them for related code with different roles. The candidate fails the
-   unchanged individual-loss gate, so production coverage stays the default,
-   attrs remains unqueried and native warm timing remains gated. Next work is
+   unchanged individual-loss gate, so production coverage stays the default.
+   That study kept attrs unqueried and native warm timing gated. Its next work was
    stronger protection of receiver, registration and attachment implementations
    before semantic exchanges; selecting favorable modes afterward cannot rescue
    this experiment.
-   Another coding comparison remains gated on retrieval improvement. All source-only
+   The [state-write preservation follow-up](../results/role-context-development-2026-11-03/findings.md)
+   now passes the full development gate: all 393 outcomes independently verify,
+   with zero individual evidence losses against either control and one additional
+   distinct complete Jinja multi-file behavior. Complete positive occurrences
+   rise 253 to 255 of 322. The terminal guard accepts 31 genuinely changed
+   proposals and rejects 55, preserving uncertain and explicit state-writing
+   baseline implementations. The separately frozen
+   [fresh attrs native study](../results/role-native-holdout-v2-2026-11-03/findings.md)
+   now completes all 252 searches and six warmups with independent source/vector/
+   forward/timing audit. Dense improves 2/8 to 3/8 multi-file behaviors without
+   an individual evidence loss, but its 660 ms median is 2.48 times coverage's
+   266 ms, exceeding the unchanged 1.25 gate. Hybrid loses one complete
+   converter/code-generation behavior after the formatter had been retrieved
+   and delivered. The syntactic guard does not protect call-only code generators.
+   The original source-only receipt-schema failure and committed input-only
+   correction are preserved. Native qualification fails; attrs is now observed,
+   production remains on coverage, and another coding comparison remains gated
+   on retrieval improvement. All source-only
    labels, raw traces, rejected controls, failure receipts and independent audits
    are preserved.
 4. **Persistent index (core and real-model validation complete at tested scale):**
@@ -220,20 +237,30 @@ returned excerpts, and follow-up reads still consume the agent's tokens.
 
 ## Next milestone
 
-Version 0.1.5 ships the previously measured coverage/backfill policy and passes
-separate public-download setup/resume checks. The latest
-[joint window/definition study and saved-trace diagnosis](complementary-context-v2.md)
-find a Jinja gain and a TanStack loss; the fixed rule fails its zero-loss gate.
-The [prepared semantic selector](semantic-context-preparation.md) now accounts
-for actual final backfill and accepts bound query/window vectors within current
-budgets. Its affected CPU tests and invented terminal-hook check pass. Next,
-complete and freeze the observed capture/replay runner around the
-[implemented live provider and request capture](semantic-live-preparation.md), then evaluate
-development quality before any fresh-codebase or warm-latency run. Real-model
-testing remains paused under the user's code-preparation-only instruction.
-The source-reviewed attrs corpus remains unqueried until a candidate clears the
-development gate, then needs an independent native quality/latency test. Coding
-comparisons remain gated on retrieval improvement; token savings are unestablished.
+Version 0.1.5 ships the measured coverage/backfill policy and passes separate
+public-download setup/resume checks. The
+[state-write preservation study](../results/role-context-development-2026-11-03/findings.md)
+now clears the complete development gate after the semantic-v1 study failed it.
+All 393 saved outcomes pass independent reconstruction; complete positives rise
+253 to 255 of 322 without an individual evidence loss against either control.
+Real-model tests were resumed at the user's request.
+
+The [fresh native experiment](../results/role-native-holdout-v2-2026-11-03/findings.md)
+is now complete and independently audited. Its dense quality gain does not meet
+the fixed latency gate, and hybrid has an individual quality regression. Keep
+those failures and the existing coverage default. Profile the live provider's
+cost outside native clause forwards; most measured provider time is outside
+that forward timer, while the role guard itself takes about 2–2.5 ms. Do not
+substitute repeated-query feature-cache hits for new-query latency.
+
+The next general quality experiment should resolve dependencies through
+explicitly annotated receivers and preserve complementary caller/callee roles,
+including source generators. The fresh miss was already retrieved and delivered
+before selection removed it; dense also still omits that implementation. Freeze
+the new rule on now-observed development data, including attrs, and confirm it
+on another untouched repository. Production defaults and release assets stay
+on coverage. Coding comparisons remain gated on qualified retrieval improvement;
+token savings are unestablished.
 
 The [workflow investigation](../results/workflow-investigation-2026-10-13/findings.md)
 records repeated source reads, cache differences and runtime confounds without

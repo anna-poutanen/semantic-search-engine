@@ -115,6 +115,17 @@ checkout is downloaded separately rather than redistributed as another tree.
 
 Source: [TanStack/query](https://github.com/TanStack/query/tree/ecdf96296b1dfcee617a5a5b9afdf2a42ad436ba)
 
+## attrs complementary-window holdout
+
+The complementary-window holdout uses attrs 25.3.0 at peeled commit
+`3dca08ce5bbe673d7df25f44f3dda92505d1043d`. Published source inventories and
+search excerpts retain its MIT license, Copyright (c) 2015 Hynek Schlawack and
+the attrs contributors, copied verbatim in
+[benchmarks/ATTRS_LICENSE.txt](benchmarks/ATTRS_LICENSE.txt). The ignored source
+checkout is downloaded separately rather than redistributed as another tree.
+
+Source: [python-attrs/attrs](https://github.com/python-attrs/attrs/tree/3dca08ce5bbe673d7df25f44f3dda92505d1043d)
+
 ## H2O-Lightning and the community MLX runtime
 
 The weights and runtime are downloaded separately and not redistributed here.

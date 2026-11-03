@@ -1,0 +1,98 @@
+........................................................................ [ 12%]
+........................................................................ [ 25%]
+........................................................................ [ 38%]
+........................................................................ [ 51%]
+........................................................................ [ 64%]
+........................................................................ [ 77%]
+.......................................F................................ [ 90%]
+..................................................                       [100%]
+=================================== FAILURES ===================================
+_ test_actual_generic_source_identity_receives_only_in_memory_legacy_projection _
+
+tmp_path = PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-67/test_actual_generic_source_ide0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10d13a090>
+
+    def test_actual_generic_source_identity_receives_only_in_memory_legacy_projection(tmp_path, monkeypatch):
+        fixture, correction, _, author = published_flat_fixture(tmp_path, monkeypatch)
+        args, events = fixture.args, []
+        args.runtime_manifest.write_text('{"invented":"runtime metadata seam"}\n')
+        args.freshness_review.write_text('{"invented":"source-only disclosure"}\n')
+        before = {path: path.read_bytes() for path in (args.dataset, args.source_review,
+            args.source_review.with_name("source-review.json"), fixture.protocol)}
+        original_sha, original_generic = native.file_sha, native.frozen._identity_after_parent
+        original_source_facts = native.validate_review_source_facts
+        embedding = {"classification": "invented metadata only; no model or vectors"}
+        freeze_checked = [False]
+    
+        def sha(path):
+            path = Path(path)
+            # Publication/code byte checks are separate real-Git tests. This seam
+            # supplies unrelated generic helper code bindings without copying it.
+            return original_sha(path) if path.is_file() else "d" * 64
+    
+        def committed(paths, commit="HEAD"):
+            if set(paths) == set(native.NATIVE_SOURCES):
+                assert events == ["qualified_parent"]
+                freeze_checked[0] = True
+                events.append("committed_native_source")
+    
+        def generic(value, parent):
+            assert freeze_checked[0] and events[:2] == ["qualified_parent", "committed_native_source"]
+            events.append("generic_source_preparation")
+            projected = native.frozen.read(args.source_review)
+            assert projected["status"] == "passed_source_review_before_holdout_retrieval"
+            assert native.frozen.read(args.dataset) == fixture.data
+            assert native.read(args.source_review)["status"] == "passed"
+            return original_generic(value, parent)
+    
+        def forbidden(*args, **kwargs):
+            pytest.fail("Source-only identity entered model/index/selector work")
+    
+        def source_facts(receipt, binding, inventory):
+            fields = ("id", "path", "symbol", "start_line", "end_line", "content_hash")
+            assert receipt["source_files"] == binding["source_files"]
+            assert receipt["window_inventory"] == [{name: item[name] for name in fields} for item in inventory["inventory"]]
+            assert receipt["definition_keys"] == json.loads(json.dumps(inventory["definition_keys"]))
+            return original_source_facts(receipt, binding, inventory)
+        monkeypatch.setattr(native, "source_authority", lambda: None)
+        monkeypatch.setattr(native, "parent_binding", lambda args: events.append("qualified_parent") or {"artifacts": {}})
+        monkeypatch.setattr(native, "file_sha", sha)
+        monkeypatch.setattr(native.frozen, "file_sha", sha)
+        monkeypatch.setattr(native, "committed", committed)
+        monkeypatch.setattr(native, "git", lambda *args: "0" if "--format=%ct" in args else correction)
+        monkeypatch.setattr(native, "RESERVED_DATASET", args.dataset.relative_to(tmp_path).as_posix())
+        monkeypatch.setattr(native, "RESERVED_DATASET_SHA256", original_sha(args.dataset))
+        monkeypatch.setattr(native, "RESERVED_REVISION", fixture.data["revision"])
+        monkeypatch.setattr(native.frozen, "ROOT", tmp_path)
+        monkeypatch.setattr(native.frozen, "QwenEmbedder", lambda *a, **kw: SimpleNamespace(metadata=embedding))
+        monkeypatch.setattr(native.frozen, "checkpoint_binding", lambda *args: {"invented.weights": "e" * 64})
+        monkeypatch.setattr(native.frozen.replay, "runtime", lambda root: ({"classification": "invented tokenizer seam"}, b""))
+        monkeypatch.setattr(native.transport, "verify_runtime", lambda *a: {"model_binding": {"metadata": embedding}})
+        monkeypatch.setattr(native.frozen, "_identity_after_parent", generic)
+        monkeypatch.setattr(native, "validate_review_source_facts", source_facts)
+        monkeypatch.setattr(native.backend_module, "SearchBackend", forbidden)
+        monkeypatch.setattr(native.role, "apply_role_guard", forbidden)
+>       data, sources, inventory, binding = native.identity(args)
+
+tests/test_role_native.py:1217: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/benchmark_role_native.py:304: in identity
+    validate_review_source_facts(author, binding, inventory)
+tests/test_role_native.py:1198: in source_facts
+    return original_source_facts(receipt, binding, inventory)
+scripts/benchmark_role_native.py:263: in validate_review_source_facts
+    require(canonical(author.get("source_files")) == canonical(binding["source_files"])
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False
+message = 'Original author source membership/canonical window facts differ from current extraction'
+
+    def require(condition, message):
+        if not condition:
+>           raise ValueError(message)
+E           ValueError: Original author source membership/canonical window facts differ from current extraction
+
+scripts/benchmark_windows.py:59: ValueError
+=========================== short test summary info ============================
+FAILED tests/test_role_native.py::test_actual_generic_source_identity_receives_only_in_memory_legacy_projection
+1 failed, 553 passed, 2 deselected in 27.11s

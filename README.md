@@ -155,7 +155,7 @@ adds one complete Jinja behavior but loses two required TanStack evidence groups
 All 393 saved outcomes and 786 controls pass independent audit; the quality gate
 fails and the current default is retained. Aggregate completeness is unchanged,
 which would hide the individual regression. A new independently source-reviewed
-attrs corpus remains unqueried for a candidate that clears the development gate.
+attrs corpus was kept unqueried for a candidate that cleared the development gate.
 
 The [semantic final-context preparation](docs/semantic-context-preparation.md)
 adds an opt-in research selector that works after actual backfill, an exact
@@ -174,10 +174,24 @@ now captures 3,184 document vectors and evaluates all 393 frozen observed cases
 after reproducing 786 controls. Required evidence coverage rises from 415 to
 418 of 522 groups, but the candidate loses three required implementations and
 two previously complete behaviors. It fails the individual quality gate; the
-released coverage policy stays the default and attrs remains unqueried. An
+released coverage policy stays the default and that study kept attrs unqueried. An
 independent audit verifies every outcome, with a preserved correction limited
 to diagnostic wording for inactive features. Native warm search latency and
 coding-agent token savings remain unmeasured for this selector.
+
+The [state-write preservation follow-up](results/role-context-development-2026-11-03/findings.md)
+rejects semantic exchanges that remove state-writing or uncertain baseline
+implementations. Across the same 393 observed cases, it preserves all required
+evidence against both controls and raises complete positives from **253 to 255
+of 322**: one distinct new Jinja behavior, repeated in dense and hybrid.
+Independent reconstruction verifies the full result. This passes development;
+the [fresh attrs native study](results/role-native-holdout-v2-2026-11-03/findings.md)
+then improves dense multi-file completion **2/8 to 3/8** without a dense evidence
+loss, but raises the median **266 to 660 ms** (2.48 times coverage, above the
+fixed 1.25 limit). Hybrid loses one complete behavior despite an unchanged
+aggregate. All 252 searches and six warmups pass independent integrity audit;
+the candidate fails native qualification and stays experimental. Attrs is now
+observed development evidence. Production and release 0.1.5 keep coverage.
 
 For optional H2O reranking, install its pinned runtime and weights with
 `python3 scripts/setup_mac.py`, start `.venv/bin/python scripts/serve_mac.py` in
