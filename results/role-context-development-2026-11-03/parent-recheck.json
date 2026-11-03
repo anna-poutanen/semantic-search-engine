@@ -1,0 +1,583 @@
+{
+  "schema": "semantic_model_study_audit_v1",
+  "status": "passed",
+  "checks_passed": true,
+  "verified_candidate_rows": 393,
+  "exact_control_rows": 786,
+  "distinct_query_units": 201,
+  "retained_negative_references": 2948,
+  "independently_recomputed_qualification": {
+    "qualified": false,
+    "against_controls": {
+      "legacy": {
+        "group_losses": [
+          {
+            "subset": "qwen_httpx_observed",
+            "dataset": "httpx",
+            "query_id": "httpx_json_request_encoding_and_headers",
+            "condition": "hybrid_k24_b1",
+            "groups": [
+              4
+            ]
+          }
+        ],
+        "complete_losses": [],
+        "single_file_first_hit_losses": [],
+        "complete_multi_gains": [
+          {
+            "subset": "native_jinja_observed",
+            "dataset": "jinja",
+            "query_id": "jinja_include_parent_and_local_context",
+            "condition": "dense"
+          },
+          {
+            "subset": "native_jinja_observed",
+            "dataset": "jinja",
+            "query_id": "jinja_include_parent_and_local_context",
+            "condition": "hybrid"
+          },
+          {
+            "subset": "tanstack_observed",
+            "dataset": "tanstack",
+            "query_id": "tanstack_mutation_scope_serial_continuation",
+            "condition": "dense"
+          }
+        ]
+      },
+      "coverage_control": {
+        "group_losses": [
+          {
+            "subset": "qwen_development_observed",
+            "dataset": "starlette",
+            "query_id": "starlette_exception_registration_and_dispatch",
+            "condition": "hybrid_k24_b1",
+            "groups": [
+              1
+            ]
+          },
+          {
+            "subset": "qwen_development_observed",
+            "dataset": "zod",
+            "query_id": "zod_metadata_attachment_registry",
+            "condition": "hybrid_k24_b1",
+            "groups": [
+              1
+            ]
+          },
+          {
+            "subset": "qwen_httpx_observed",
+            "dataset": "httpx",
+            "query_id": "httpx_json_request_encoding_and_headers",
+            "condition": "hybrid_k24_b1",
+            "groups": [
+              4
+            ]
+          }
+        ],
+        "complete_losses": [
+          {
+            "subset": "qwen_development_observed",
+            "dataset": "starlette",
+            "query_id": "starlette_exception_registration_and_dispatch",
+            "condition": "hybrid_k24_b1"
+          },
+          {
+            "subset": "qwen_development_observed",
+            "dataset": "zod",
+            "query_id": "zod_metadata_attachment_registry",
+            "condition": "hybrid_k24_b1"
+          }
+        ],
+        "single_file_first_hit_losses": [],
+        "complete_multi_gains": [
+          {
+            "subset": "native_jinja_observed",
+            "dataset": "jinja",
+            "query_id": "jinja_include_parent_and_local_context",
+            "condition": "dense"
+          },
+          {
+            "subset": "native_jinja_observed",
+            "dataset": "jinja",
+            "query_id": "jinja_include_parent_and_local_context",
+            "condition": "hybrid"
+          }
+        ]
+      }
+    },
+    "additional_distinct_complete_multi_queries_vs_coverage": [
+      [
+        "jinja",
+        "jinja_include_parent_and_local_context"
+      ]
+    ],
+    "occurrences": 393,
+    "distinct_dataset_query_units": 201,
+    "native_warm_latency_measured": false,
+    "automatic_default_change": false
+  },
+  "forward_summary": {
+    "documents": {
+      "api_calls": 1,
+      "model_forward_calls": 797,
+      "encoded_texts": 3184
+    },
+    "query_full": {
+      "api_calls": 185,
+      "model_forward_calls": 185,
+      "encoded_texts": 185
+    },
+    "query_clauses": {
+      "api_calls": 185,
+      "model_forward_calls": 185,
+      "encoded_texts": 475
+    },
+    "total_model_forward_calls": 1167,
+    "total_encoded_texts": 3844
+  },
+  "model_binding_verification": {
+    "model_fingerprint": "74f94ad704c7b37c24def6f651c4d203f92e8f8564167ff41c48db947f4d8849",
+    "checkpoint_files": 40,
+    "actual_checkpoint_verified": true,
+    "actual_runtime_verified": true
+  },
+  "producer_freeze": {
+    "commit": "cca82913ef67bf41d565f6424b9619fec8270edc",
+    "execution_commit": "cca82913ef67bf41d565f6424b9619fec8270edc",
+    "bound_blob_count": 147
+  },
+  "native_warm_latency_measured": false,
+  "automatic_default_change": false,
+  "model_calls": 0,
+  "retrieval_calls": 0,
+  "network_calls": 0,
+  "post_outcome_auditor_correction": {
+    "schema": "semantic_study_auditor_recheck_v1",
+    "audit_freeze": "af54523f3a583f05fcb6ca8eba92504483350ea6",
+    "audit_execution_commit": "ed3bb1b4f3926cca27b29b16b361b8cfe44188ec",
+    "started_at": "2026-11-03T05:15:02.596067+00:00",
+    "plan_path": "results/semantic-model-development-2026-11-02/auditor-recheck-plan.json",
+    "plan_sha256": "56673713458c5b5e874233d4473fe62fa7ae460aebc6cf8fa3968f3fdbecd9c0",
+    "source_sha256": {
+      "scripts/recheck_observed_model_study.py": "ba2be5468d27c3fdbcc514555bd983a932f0050c669b3f0a9bd9d10c6ada9c2d",
+      "tests/test_observed_model_study_recheck.py": "535e996ae6b9f9a9813b2953559f4a0e2034e30d9e39d436da1f7a5328a8e4e5"
+    },
+    "original_study_freeze": "cca82913ef67bf41d565f6424b9619fec8270edc",
+    "original_audit_failure": {
+      "path": "results/semantic-model-development-2026-11-02/audit-attempt-1/audit.log",
+      "sha256": "8afbc1d34f2d5605d6639cac6cbd28b8c8024965e697fb3381d45400cdaed60a"
+    },
+    "expected_normalizations": 26,
+    "original_frozen_auditor_sha256": {
+      "scripts/audit_semantic_study.py": "0f41c0f28831720725ece0d3d2984b23249469da23e6b5afdcdd95436b79ea3c",
+      "scripts/audit_semantic_context.py": "96ee744560b3f069cef9a791aa5b42721e3a20b93cbb7d57e15bd9558712e102"
+    },
+    "classification": "Explicit post-outcome audit diagnostic correction",
+    "policy": "Only copied nonempty feature_error wording for intentional inactive None features when both reject invalid_features",
+    "precedent": {
+      "path": "scripts/audit_semantic_context.py",
+      "function": "verify_record",
+      "freeze": "cca82913ef67bf41d565f6424b9619fec8270edc",
+      "sha256": "96ee744560b3f069cef9a791aa5b42721e3a20b93cbb7d57e15bd9558712e102"
+    },
+    "normalization_count": 26,
+    "normalizations": [
+      {
+        "case_id": "case_4afd0cc7587b17f249cb3c25b9726448e0c4e907a5536d6c8bf6f83d4a2d1ca5",
+        "key": [
+          "language_observed",
+          "express",
+          "express_absent_builtin_rate_limit",
+          "bm25"
+        ],
+        "actual_message": "Feature schema fields differ",
+        "independent_message": "Semantic feature schema",
+        "fallback_reason": "invalid_features",
+        "features": null,
+        "feature_request_active": false,
+        "modified_path": "semantic_receipt.feature_error"
+      },
+      {
+        "case_id": "case_4a96743d0214a012f500da3026a3d7b79a660566b8d82e497591704b2c0639a1",
+        "key": [
+          "language_observed",
+          "express",
+          "express_absent_cookie_encryption_rotation",
+          "bm25"
+        ],
+        "actual_message": "Feature schema fields differ",
+        "independent_message": "Semantic feature schema",
+        "fallback_reason": "invalid_features",
+        "features": null,
+        "feature_request_active": false,
+        "modified_path": "semantic_receipt.feature_error"
+      },
+      {
+        "case_id": "case_d1ee2dad25114aa8b7300a843a7679c45206b43c38bed3c8ff197a756c9e9b57",
+        "key": [
+          "language_observed",
+          "express",
+          "express_absent_outbound_retry",
+          "bm25"
+        ],
+        "actual_message": "Feature schema fields differ",
+        "independent_message": "Semantic feature schema",
+        "fallback_reason": "invalid_features",
+        "features": null,
+        "feature_request_active": false,
+        "modified_path": "semantic_receipt.feature_error"
+      },
+      {
+        "case_id": "case_1d37d922cee85372d57ac9429050b103934ecccc2598bada1bae72640b04c9c5",
+        "key": [
+          "language_observed",
+          "express",
+          "express_append_preserves_headers",
+          "bm25"
+        ],
+        "actual_message": "Feature schema fields differ",
+        "independent_message": "Semantic feature schema",
+        "fallback_reason": "invalid_features",
+        "features": null,
+        "feature_request_active": false,
+        "modified_path": "semantic_receipt.feature_error"
+      },
+      {
+        "case_id": "case_bc676dbc77cba750192c28ec89303789af6b7186fca6ea1947774552bd523a37",
+        "key": [
+          "language_observed",
+          "express",
+          "express_callable_app_dispatch_context",
+          "bm25"
+        ],
+        "actual_message": "Feature schema fields differ",
+        "independent_message": "Semantic feature schema",
+        "fallback_reason": "invalid_features",
+        "features": null,
+        "feature_request_active": false,
+        "modified_path": "semantic_receipt.feature_error"
+      },
+      {
+        "case_id": "case_dbea1234f0eaa0a97464da60c8c2c4da32dc2698fff0708823668bd6b9ce90f7",
+        "key": [
+          "language_observed",
+          "express",
+          "express_case_insensitive_header_alias",
+          "bm25"
+        ],
+        "actual_message": "Feature schema fields differ",
+        "independent_message": "Semantic feature schema",
+        "fallback_reason": "invalid_features",
+        "features": null,
+        "feature_request_active": false,
+        "modified_path": "semantic_receipt.feature_error"
+      },
+      {
+        "case_id": "case_1bde883a3d168b58384bd553b10f5f92a77c0f100c66f2529f069e19ae4e521a",
+        "key": [
+          "language_observed",
+          "express",
+          "express_clear_cookie_ignores_age",
+          "bm25"
+        ],
+        "actual_message": "Feature schema fields differ",
+        "independent_message": "Semantic feature schema",
+        "fallback_reason": "invalid_features",
+        "features": null,
+        "feature_request_active": false,
+        "modified_path": "semantic_receipt.feature_error"
+      },
+      {
+        "case_id": "case_fd5e5db797594a04f33e4d912fead24453d6fbefafbb5f6beecdfcedd6aa790a",
+        "key": [
+          "language_observed",
+          "express",
+          "express_configured_query_parser",
+          "bm25"
+        ],
+        "actual_message": "Feature schema fields differ",
+        "independent_message": "Semantic feature schema",
+        "fallback_reason": "invalid_features",
+        "features": null,
+        "feature_request_active": false,
+        "modified_path": "semantic_receipt.feature_error"
+      },
+      {
+        "case_id": "case_67a53fd904ea3184188a88563f8898e23efe0a6aa011c333f882982be4a8f598",
+        "key": [
+          "language_observed",
+          "express",
+          "express_content_negotiation_fallback",
+          "bm25"
+        ],
+        "actual_message": "Feature schema fields differ",
+        "independent_message": "Semantic feature schema",
+        "fallback_reason": "invalid_features",
+        "features": null,
+        "feature_request_active": false,
+        "modified_path": "semantic_receipt.feature_error"
+      },
+      {
+        "case_id": "case_48201786417e0a4e6d3313501b23fb10e8d62921d1cb81f05f5fba0705acf6e7",
+        "key": [
+          "language_observed",
+          "express",
+          "express_cookie_signing_and_age",
+          "bm25"
+        ],
+        "actual_message": "Feature schema fields differ",
+        "independent_message": "Semantic feature schema",
+        "fallback_reason": "invalid_features",
+        "features": null,
+        "feature_request_active": false,
+        "modified_path": "semantic_receipt.feature_error"
+      },
+      {
+        "case_id": "case_cb4400593a8ca176c7a5775a859bd7671b77a84fa3eb332ef3385bcba0a4ff7c",
+        "key": [
+          "language_observed",
+          "express",
+          "express_jsonp_callback_safety",
+          "bm25"
+        ],
+        "actual_message": "Feature schema fields differ",
+        "independent_message": "Semantic feature schema",
+        "fallback_reason": "invalid_features",
+        "features": null,
+        "feature_request_active": false,
+        "modified_path": "semantic_receipt.feature_error"
+      },
+      {
+        "case_id": "case_421632d713f25e51c9c7c74ff7a56f1abfe46209902e95e044f5d6525cd06b02",
+        "key": [
+          "language_observed",
+          "express",
+          "express_mounted_app_prototype_restore",
+          "bm25"
+        ],
+        "actual_message": "Feature schema fields differ",
+        "independent_message": "Semantic feature schema",
+        "fallback_reason": "invalid_features",
+        "features": null,
+        "feature_request_active": false,
+        "modified_path": "semantic_receipt.feature_error"
+      },
+      {
+        "case_id": "case_0a06a46911f50016ad24f8d9d1170e9288813d4630cabfd0626d943877693f2f",
+        "key": [
+          "language_observed",
+          "express",
+          "express_redirect_html_and_head",
+          "bm25"
+        ],
+        "actual_message": "Feature schema fields differ",
+        "independent_message": "Semantic feature schema",
+        "fallback_reason": "invalid_features",
+        "features": null,
+        "feature_request_active": false,
+        "modified_path": "semantic_receipt.feature_error"
+      },
+      {
+        "case_id": "case_0d391ed06ace603163dce70e6cd7a08d91dc3caed2a926b10759bba7c204cd73",
+        "key": [
+          "language_observed",
+          "express",
+          "express_trusted_forwarded_protocol",
+          "bm25"
+        ],
+        "actual_message": "Feature schema fields differ",
+        "independent_message": "Semantic feature schema",
+        "fallback_reason": "invalid_features",
+        "features": null,
+        "feature_request_active": false,
+        "modified_path": "semantic_receipt.feature_error"
+      },
+      {
+        "case_id": "case_cc121abe00f4f5bc6a5812a5301e992487eba9b7bd4028f98aafb9f0f9767447",
+        "key": [
+          "language_observed",
+          "express",
+          "express_view_cache_and_lookup",
+          "bm25"
+        ],
+        "actual_message": "Feature schema fields differ",
+        "independent_message": "Semantic feature schema",
+        "fallback_reason": "invalid_features",
+        "features": null,
+        "feature_request_active": false,
+        "modified_path": "semantic_receipt.feature_error"
+      },
+      {
+        "case_id": "case_11d94c4899dff4b2301ae955420b938d39a3eec358e142a368dca23dc06a017b",
+        "key": [
+          "language_observed",
+          "zod",
+          "zod_absent_remote_ref_fetch",
+          "bm25"
+        ],
+        "actual_message": "Feature schema fields differ",
+        "independent_message": "Semantic feature schema",
+        "fallback_reason": "invalid_features",
+        "features": null,
+        "feature_request_active": false,
+        "modified_path": "semantic_receipt.feature_error"
+      },
+      {
+        "case_id": "case_4de886ea57aa472417090f1f557aa0f2d4b2eb9c609b61a7e045f8d881989c7c",
+        "key": [
+          "language_observed",
+          "zod",
+          "zod_custom_refinement_issue_context",
+          "bm25"
+        ],
+        "actual_message": "Feature schema fields differ",
+        "independent_message": "Semantic feature schema",
+        "fallback_reason": "invalid_features",
+        "features": null,
+        "feature_request_active": false,
+        "modified_path": "semantic_receipt.feature_error"
+      },
+      {
+        "case_id": "case_a3e8f9c98f67fb86775b0d58dbf61c11d8b1d0cbdb0bc399f8072ee3d29606bb",
+        "key": [
+          "language_observed",
+          "zod",
+          "zod_error_parameter_normalization",
+          "bm25"
+        ],
+        "actual_message": "Feature schema fields differ",
+        "independent_message": "Semantic feature schema",
+        "fallback_reason": "invalid_features",
+        "features": null,
+        "feature_request_active": false,
+        "modified_path": "semantic_receipt.feature_error"
+      },
+      {
+        "case_id": "case_5901e9d4e1cfec6ed7b8cbeaed662bb6dd3fa5112ce560120d0b34de034e2b4a",
+        "key": [
+          "language_observed",
+          "zod",
+          "zod_flatten_errors",
+          "bm25"
+        ],
+        "actual_message": "Feature schema fields differ",
+        "independent_message": "Semantic feature schema",
+        "fallback_reason": "invalid_features",
+        "features": null,
+        "feature_request_active": false,
+        "modified_path": "semantic_receipt.feature_error"
+      },
+      {
+        "case_id": "case_1e17281427882923d95c59a194528630e264074d80364e64d005b739ed2d7956",
+        "key": [
+          "language_observed",
+          "zod",
+          "zod_local_json_schema_refs",
+          "bm25"
+        ],
+        "actual_message": "Feature schema fields differ",
+        "independent_message": "Semantic feature schema",
+        "fallback_reason": "invalid_features",
+        "features": null,
+        "feature_request_active": false,
+        "modified_path": "semantic_receipt.feature_error"
+      },
+      {
+        "case_id": "case_a51c42d368a1a9cf60a1d9dc86a9bfc55a578f8394ba502085d5cb80fd40b248",
+        "key": [
+          "language_observed",
+          "zod",
+          "zod_metadata_attachment_registry",
+          "bm25"
+        ],
+        "actual_message": "Feature schema fields differ",
+        "independent_message": "Semantic feature schema",
+        "fallback_reason": "invalid_features",
+        "features": null,
+        "feature_request_active": false,
+        "modified_path": "semantic_receipt.feature_error"
+      },
+      {
+        "case_id": "case_bb53b1fb5ea200e8a014f60b31c117c3d62f53752add5f7c6ff0cf21ca3ccdf4",
+        "key": [
+          "language_observed",
+          "zod",
+          "zod_nested_deep_partial",
+          "bm25"
+        ],
+        "actual_message": "Feature schema fields differ",
+        "independent_message": "Semantic feature schema",
+        "fallback_reason": "invalid_features",
+        "features": null,
+        "feature_request_active": false,
+        "modified_path": "semantic_receipt.feature_error"
+      },
+      {
+        "case_id": "case_76dfff0a218a63fa942cbf8a4e72fb1a5dd664f62a0ae5baa45c3f84332271e6",
+        "key": [
+          "language_observed",
+          "zod",
+          "zod_safe_parse_lazy_error_redaction",
+          "bm25"
+        ],
+        "actual_message": "Feature schema fields differ",
+        "independent_message": "Semantic feature schema",
+        "fallback_reason": "invalid_features",
+        "features": null,
+        "feature_request_active": false,
+        "modified_path": "semantic_receipt.feature_error"
+      },
+      {
+        "case_id": "case_a16572fdf2ac4876c930bd99d06bc4afef79a21a8c10679cb96559e941a270ab",
+        "key": [
+          "language_observed",
+          "zod",
+          "zod_sync_rejects_async",
+          "bm25"
+        ],
+        "actual_message": "Feature schema fields differ",
+        "independent_message": "Semantic feature schema",
+        "fallback_reason": "invalid_features",
+        "features": null,
+        "feature_request_active": false,
+        "modified_path": "semantic_receipt.feature_error"
+      },
+      {
+        "case_id": "case_302f126186f315b19f9864c58ede7e20f0285fd9902cee614c734fe84a863495",
+        "key": [
+          "language_observed",
+          "zod",
+          "zod_tree_error_paths",
+          "bm25"
+        ],
+        "actual_message": "Feature schema fields differ",
+        "independent_message": "Semantic feature schema",
+        "fallback_reason": "invalid_features",
+        "features": null,
+        "feature_request_active": false,
+        "modified_path": "semantic_receipt.feature_error"
+      },
+      {
+        "case_id": "case_65e122bc47df14153b1907ddaa359740855438f612e8c9ddc07dfba484ec19cc",
+        "key": [
+          "language_observed",
+          "zod",
+          "zod_urlsafe_base64_bytes",
+          "bm25"
+        ],
+        "actual_message": "Feature schema fields differ",
+        "independent_message": "Semantic feature schema",
+        "fallback_reason": "invalid_features",
+        "features": null,
+        "feature_request_active": false,
+        "modified_path": "semantic_receipt.feature_error"
+      }
+    ],
+    "frozen_files_modified": false,
+    "producer_outcomes_recomputed": false,
+    "quality_gate_changed": false,
+    "model_calls": 0,
+    "retrieval_calls": 0,
+    "attrs_reads": 0
+  }
+}
