@@ -179,6 +179,15 @@ independent audit verifies every outcome, with a preserved correction limited
 to diagnostic wording for inactive features. Native warm search latency and
 coding-agent token savings remain unmeasured for this selector.
 
+The [state-write preservation follow-up](results/role-context-development-2026-11-03/findings.md)
+rejects semantic exchanges that remove state-writing or uncertain baseline
+implementations. Across the same 393 observed cases, it preserves all required
+evidence against both controls and raises complete positives from **253 to 255
+of 322**: one distinct new Jinja behavior, repeated in dense and hybrid.
+Independent reconstruction verifies the full result. This passes development;
+the [separate native protocol](docs/role-native-protocol.md) now tests fresh attrs
+quality and complete warm-search cost before any product promotion.
+
 For optional H2O reranking, install its pinned runtime and weights with
 `python3 scripts/setup_mac.py`, start `.venv/bin/python scripts/serve_mac.py` in
 another terminal, then pass `--rerank`:

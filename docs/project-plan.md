@@ -107,6 +107,15 @@ This follows the agreed plan in **Choose a project for YC roles** on October 12,
    stronger protection of receiver, registration and attachment implementations
    before semantic exchanges; selecting favorable modes afterward cannot rescue
    this experiment.
+   The [state-write preservation follow-up](../results/role-context-development-2026-11-03/findings.md)
+   now passes the full development gate: all 393 outcomes independently verify,
+   with zero individual evidence losses against either control and one additional
+   distinct complete Jinja multi-file behavior. Complete positive occurrences
+   rise 253 to 255 of 322. The terminal guard accepts 31 genuinely changed
+   proposals and rejects 55, preserving uncertain and explicit state-writing
+   baseline implementations. The separately frozen native experiment must still
+   establish fresh attrs quality and full new-query warm latency; production
+   remains on coverage and another coding comparison remains gated.
    Another coding comparison remains gated on retrieval improvement. All source-only
    labels, raw traces, rejected controls, failure receipts and independent audits
    are preserved.
@@ -220,20 +229,22 @@ returned excerpts, and follow-up reads still consume the agent's tokens.
 
 ## Next milestone
 
-Version 0.1.5 ships the previously measured coverage/backfill policy and passes
-separate public-download setup/resume checks. The latest
-[joint window/definition study and saved-trace diagnosis](complementary-context-v2.md)
-find a Jinja gain and a TanStack loss; the fixed rule fails its zero-loss gate.
-The [prepared semantic selector](semantic-context-preparation.md) now accounts
-for actual final backfill and accepts bound query/window vectors within current
-budgets. Its affected CPU tests and invented terminal-hook check pass. Next,
-complete and freeze the observed capture/replay runner around the
-[implemented live provider and request capture](semantic-live-preparation.md), then evaluate
-development quality before any fresh-codebase or warm-latency run. Real-model
-testing remains paused under the user's code-preparation-only instruction.
-The source-reviewed attrs corpus remains unqueried until a candidate clears the
-development gate, then needs an independent native quality/latency test. Coding
-comparisons remain gated on retrieval improvement; token savings are unestablished.
+Version 0.1.5 ships the measured coverage/backfill policy and passes separate
+public-download setup/resume checks. The
+[state-write preservation study](../results/role-context-development-2026-11-03/findings.md)
+now clears the complete development gate after the semantic-v1 study failed it.
+All 393 saved outcomes pass independent reconstruction; complete positives rise
+253 to 255 of 322 without an individual evidence loss against either control.
+Real-model tests were resumed at the user's request.
+
+Next, freeze the new native source, then prepare and freeze the reserved attrs
+source inventory and [native quality/latency plan](role-native-protocol.md).
+Measure actual resident searches including fresh clause embeddings, verify
+individual source/evidence preservation and require the primary dense median
+to stay within 1.25 times each control. Attrs remains unqueried until those
+preparation freezes. Production defaults and release assets stay on coverage.
+Coding comparisons remain gated on fresh retrieval improvement; token savings
+are unestablished.
 
 The [workflow investigation](../results/workflow-investigation-2026-10-13/findings.md)
 records repeated source reads, cache differences and runtime confounds without
