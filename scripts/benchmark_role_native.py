@@ -40,6 +40,19 @@ PARENT_PUBLICATION = "597c5ed7235bcc1cc2ef95a8b9af0c0eb57a32ae"
 RESERVED_DATASET = "benchmarks/attrs_complementary_holdout_queries.json"
 RESERVED_DATASET_SHA256 = "2170ca4c21fc3750233a76a905918a914e9f2e0ba50dda3c30064cdefa89923d"
 RESERVED_REVISION = "3dca08ce5bbe673d7df25f44f3dda92505d1043d"
+REVIEW_COUNTS = {"canonical_definitions_with_multiple_windows": 2, "excluded_supported_files": 0,
+    "extracted_definitions": 202, "multi_file_present": 8, "present": 12, "queries": 14,
+    "required_positive_evidence_groups": 35, "scoped_absent": 2, "single_file_present": 4,
+    "source_files": 19, "source_files_with_extracted_implementations": 13,
+    "source_windows_160_40": 204, "target_rows": 40, "unsupported_source_root_files": 12}
+SEMANTIC_REVIEW_FLAGS = ("OR_alternatives_cover_same_exact_bytes_and_distinct_qualified_spans",
+    "all_positive_groups_reviewed_against_executable_source_and_context",
+    "corroborating_tests_read_not_run_and_not_a_proof_of_all_combined_configurations",
+    "multi_file_flags_and_cross_file_necessity_reviewed", "same_definition_separated_windows_are_distinct_real_requirements",
+    "same_named_closure_branches_are_not_interchangeable", "scoped_absences_confirmed_from_complete_membership_API_and_callback_paths")
+PRIOR_SOURCE_FREEZE = "0b651ef32cb6ca2444a016587ce1842854696244"
+FAILED_PREPARATION_COMMIT = "69fb0a88914d3e2721320789094810e47587ef91"
+FAILED_PREPARATION = "results/role-native-preflight-2026-11-03/prepare-attempt-1"
 SETTINGS, GATE = dict(base.SETTINGS), dict(base.GATE)
 ARMS, RETRIEVALS, REPETITIONS, WARM_QUERY = base.ARMS, base.RETRIEVALS, 3, base.WARM_QUERY
 NATIVE_SOURCES = ("scripts/benchmark_role_native.py", "scripts/audit_role_native.py",
@@ -153,6 +166,114 @@ def source_authority():
                     "Executing research helper source authority differs: " + name)
 
 
+def validate_flat_review(review, author, *, dataset_sha256, protocol_sha256, revision, author_sha256):
+    """Validate the original published schema, without relabeling its fields."""
+    require(type(review) is dict and type(author) is dict and review.get("status") == author.get("status") == "passed"
+            and review.get("dataset_sha256") == author.get("dataset_sha256") == dataset_sha256
+            and review.get("protocol_sha256") == author.get("protocol_sha256") == protocol_sha256
+            and review.get("revision") == revision and review.get("author_source_receipt_sha256") == author_sha256,
+            "Original flat source-review identity/author link differs")
+    require(canonical(review.get("counts")) == canonical(REVIEW_COUNTS)
+            and canonical(author.get("counts")) == canonical(REVIEW_COUNTS), "Original reviewed source/query counts differ")
+    for receipt, fields in ((review, ("index", "model", "network", "reranker", "retrieval", "selector_activation")),
+                            (author, ("model", "index", "retrieval", "rule_activation", "network"))):
+        require(canonical(receipt.get("calls")) == canonical({name: 0 for name in fields}),
+                "Original source-only receipt executed unexpected work")
+    require(review.get("dataset_changed") is False and review.get("blocking_findings") == []
+            and review.get("upstream_repository_module_or_test_executed") is False
+            and author.get("source_repository_code_executed") is False
+            and author.get("source_only_precommit_receipt") is True
+            and author.get("semantic_peer_review_required") is True,
+            "Original source-only review status/execution boundary differs")
+    semantic = review.get("semantic_review", {})
+    require(type(semantic) is dict and all(semantic.get(name) is True for name in SEMANTIC_REVIEW_FLAGS),
+            "Original independent semantic source review is incomplete")
+    disclosure = review.get("authorship_and_blinding", {})
+    require(type(disclosure) is dict and all(disclosure.get(name) is True for name in
+                ("author_received_detailed_handoff_after_complete_draft", "current_dataset_matches_that_draft_byte_for_byte",
+                 "reviewer_had_no_selector_design_role", "root_and_designer_receive_only_status_counts_hashes"))
+            and disclosure.get("source_or_gold_contents_sent_to_root_or_rule_designer") is False
+            and type(disclosure.get("query_semantic_or_target_interval_changes_after_handoff")) is int
+            and disclosure["query_semantic_or_target_interval_changes_after_handoff"] == 0
+            and disclosure.get("draft_sha256_before_detailed_designer_handoff") == dataset_sha256,
+            "Original authorship and pre-exposure disclosure differs")
+
+
+def review_digest(value):
+    # Exact original author's JSON convention, including ASCII escapes/newline.
+    return sha((json.dumps(value, sort_keys=True, separators=(",", ":"), allow_nan=False) + "\n").encode())
+
+
+def legacy_review_projection(review, author):
+    """Transient argument adaptation for the unchanged generic source helper.
+
+    This is never persisted or claimed as the historical receipt. Original
+    selector_activation is a single original field, not three separately
+    observed calls: the complete original proof is validated independently.
+    """
+    return {"status": "passed_source_review_before_holdout_retrieval",
+        "dataset": {"sha256": review["dataset_sha256"]},
+        "corpus": {"commit": review["revision"], "source_inventory_sha256": review_digest(author["source_files"])},
+        "protocol": {"sha256": review["protocol_sha256"]},
+        "calls": {"model": review["calls"]["model"], "index": review["calls"]["index"],
+            "retrieval": review["calls"]["retrieval"], **{name: review["calls"]["selector_activation"]
+                for name in ("selector", "postprocessor", "rule_activation", "gold_coverage_scoring")}}}
+
+
+def source_review_binding(args, source_commit):
+    """Bind the actual flat receipts and their published checking source."""
+    data, review = read(args.dataset), read(args.source_review)
+    author_path = args.source_review.with_name("source-review.json")
+    author = read(author_path)
+    validate_flat_review(review, author, dataset_sha256=file_sha(args.dataset),
+        protocol_sha256=file_sha(ROOT / data["source_review_protocol"]), revision=data["revision"], author_sha256=file_sha(author_path))
+    auxiliaries = {args.source_review.with_name(name): expected for name, expected in (
+        ("independent-source-reviewer.py.txt", review["reviewer_source_sha256"]),
+        ("source-review-validator.py.txt", author["validator_sha256"]),
+        ("absence-checks.json", author["absence_checks_sha256"]))}
+    paths = {relative(path): file_sha(path) for path in (args.source_review, author_path, *auxiliaries)}
+    require(all(file_sha(path) == expected for path, expected in auxiliaries.items()), "Original review checking-source SHA differs")
+    for commit in (PARENT_PUBLICATION, source_commit):
+        committed(paths, commit)
+    failed = {relative(ROOT / FAILED_PREPARATION / name): file_sha(ROOT / FAILED_PREPARATION / name)
+              for name in ("failure.json", "prepare.log")}
+    receipt = read(ROOT / FAILED_PREPARATION / "failure.json")
+    require(receipt.get("status") == "failed_source_only_preparation" and receipt.get("source_freeze") == PRIOR_SOURCE_FREEZE
+            and receipt.get("output_plan_created") is False
+            and all(type(receipt.get(name)) is int and receipt[name] == 0
+                    for name in ("model_calls", "index_calls", "retrieval_calls", "native_outcomes"))
+            and receipt.get("log_sha256") == failed[relative(ROOT / FAILED_PREPARATION / "prepare.log")],
+            "Preserved first preparation failure/source-only boundary differs")
+    for commit in (FAILED_PREPARATION_COMMIT, source_commit):
+        committed(failed, commit)
+    for older, newer in ((PRIOR_SOURCE_FREEZE, FAILED_PREPARATION_COMMIT), (FAILED_PREPARATION_COMMIT, source_commit)):
+        subprocess.check_call(["git", "-C", str(ROOT), "merge-base", "--is-ancestor", older, newer])
+    binding = {"source_review_format": "attrs_flat_source_review_v1",
+        "source_review_author": {"path": relative(author_path), "sha256": file_sha(author_path)},
+        "source_review_auxiliaries": {relative(path): expected for path, expected in auxiliaries.items()},
+        "source_review_compatibility": {"prior_source_freeze": PRIOR_SOURCE_FREEZE,
+            "failed_preparation_commit": FAILED_PREPARATION_COMMIT, "failed_preparation_artifacts": failed,
+            "projection_scope": "in_memory_legacy_helper_only"}}
+    return review, author, binding, {**paths, **failed}
+
+
+def validate_review_source_facts(author, binding, inventory):
+    windows = [{name: item[name] for name in ("id", "path", "symbol", "start_line", "end_line", "content_hash")}
+               for item in inventory["inventory"]]
+    require(canonical(author.get("source_files")) == canonical(binding["source_files"])
+            and author.get("excluded_supported_files") == {}
+            and canonical(author.get("window_inventory")) == canonical(windows)
+            and canonical(author.get("definition_keys")) == canonical(inventory["definition_keys"])
+            and author.get("window_inventory_sha256") == review_digest(windows)
+            and author.get("definition_keys_sha256") == review_digest(inventory["definition_keys"]),
+            "Original author source membership/canonical window facts differ from current extraction")
+    require(type(author.get("shared_source_extractor_sha256")) is dict
+            and set(author["shared_source_extractor_sha256"]) == {"src/semantic_search/" + name for name in
+                ("__init__.py", "source.py", "languages.py", "corpus.py")}
+            and all(file_sha(ROOT / name) == expected for name, expected in author["shared_source_extractor_sha256"].items()),
+            "Original shared extraction code differs")
+
+
 def identity(args):
     require(args.repetitions == 3 and args.role == "repository_holdout", "Fixed three-repetition repository holdout required")
     source_authority()
@@ -168,12 +289,19 @@ def identity(args):
     subprocess.check_call(["git", "-C", str(ROOT), "merge-base", "--is-ancestor", source_commit, "HEAD"])
     require(relative(args.dataset) == RESERVED_DATASET and file_sha(args.dataset) == RESERVED_DATASET_SHA256,
             "Use the unchanged, previously reserved dataset")
+    review, author, review_binding, review_paths = source_review_binding(args, source_commit)
     # Reuse source/extraction/graph/evidence-only preparation, never its planner.
     # The old external preflight is TypeScript-only (five-part byte keys).
     # This runner emits the production inventory; the new independent input
     # barrier verifies Python AST definitions/windows before native execution.
-    with patch.object(frozen, "definition_preflight", lambda *unused: None):
+    original_read = frozen.read
+
+    def source_only_read(path):
+        return legacy_review_projection(review, author) if Path(path).resolve() == args.source_review.resolve() else original_read(path)
+
+    with patch.object(frozen, "definition_preflight", lambda *unused: None), patch.object(frozen, "read", source_only_read):
         data, sources, inventory, binding = frozen._identity_after_parent(args, parent)
+    validate_review_source_facts(author, binding, inventory)
     require(data["revision"] == RESERVED_REVISION, "Use the unchanged reserved source revision")
     freshness = {"path": relative(args.freshness_review), "sha256": file_sha(args.freshness_review)}
     published_fresh = {relative(path): file_sha(path) for path in (args.dataset, args.source_review, args.freshness_review)}
@@ -189,6 +317,7 @@ def identity(args):
               "scripts/capture_semantic_request.py", "scripts/semantic_model_study.py", relative(args.runtime_manifest), freshness["path"])
     binding["implementation_sha256"].update({name: file_sha(ROOT / name) for name in extras})
     binding["implementation_sha256"].update(source_paths)
+    binding["implementation_sha256"].update(review_paths)
     # Bind the complete research Python closure, including indirectly imported
     # frozen replay/packing/audit helpers. An added module also changes identity.
     binding["implementation_sha256"].update({relative(path): file_sha(path) for path in (ROOT / "scripts").glob("*.py")})
@@ -200,6 +329,7 @@ def identity(args):
                                          "bound_blob_count": len(source_paths),
                                          "parent_bound_blob_count": len(parent["artifacts"]),
                                          "committed_at_unix": int(git("show", "-s", "--format=%ct", source_commit))})
+    binding.update(review_binding)
     committed(binding["implementation_sha256"])
     return data, sources, inventory, binding
 

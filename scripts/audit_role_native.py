@@ -42,6 +42,17 @@ PARENT_PUBLICATION = "597c5ed7235bcc1cc2ef95a8b9af0c0eb57a32ae"
 RESERVED_DATASET = "benchmarks/attrs_complementary_holdout_queries.json"
 RESERVED_DATASET_SHA = "2170ca4c21fc3750233a76a905918a914e9f2e0ba50dda3c30064cdefa89923d"
 RESERVED_REVISION = "3dca08ce5bbe673d7df25f44f3dda92505d1043d"
+PRIOR_SOURCE_FREEZE = "0b651ef32cb6ca2444a016587ce1842854696244"
+FAILED_PREPARATION_COMMIT = "69fb0a88914d3e2721320789094810e47587ef91"
+FAILED_PREPARATION = "results/role-native-preflight-2026-11-03/prepare-attempt-1"
+REVIEW_FOLDER = "results/attrs-complementary-source-only-preflight-2026-10-29"
+REVIEW_TRUE_FIELDS = ("OR_alternatives_cover_same_exact_bytes_and_distinct_qualified_spans",
+    "all_positive_groups_reviewed_against_executable_source_and_context",
+    "corroborating_tests_read_not_run_and_not_a_proof_of_all_combined_configurations",
+    "multi_file_flags_and_cross_file_necessity_reviewed",
+    "same_definition_separated_windows_are_distinct_real_requirements",
+    "same_named_closure_branches_are_not_interchangeable",
+    "scoped_absences_confirmed_from_complete_membership_API_and_callback_paths")
 SOURCES = ("scripts/benchmark_role_native.py", "scripts/audit_role_native.py", "tests/test_role_native.py",
            "tests/test_role_native_audit.py", "docs/role-native-protocol.md")
 SETTINGS = dict(native.SETTINGS)
@@ -528,6 +539,71 @@ def first_source_freeze(root, binding, *, before=None):
     return frozen
 
 
+def verify_review_compatibility(root, binding):
+    """Preserve the failed source-only attempt and disclose the interface fix."""
+    compatibility = binding.get("source_review_compatibility")
+    require(type(compatibility) is dict and compatibility.get("prior_source_freeze") == PRIOR_SOURCE_FREEZE
+            and compatibility.get("failed_preparation_commit") == FAILED_PREPARATION_COMMIT
+            and compatibility.get("projection_scope") == "in_memory_legacy_helper_only",
+            "Versioned original flat-review compatibility provenance required")
+    expected = {FAILED_PREPARATION + "/" + name: file_sha(Path(root) / FAILED_PREPARATION / name)
+                for name in ("failure.json", "prepare.log")}
+    require(same(compatibility.get("failed_preparation_artifacts"), expected), "Both original failed-preparation artifacts required")
+    for name, value in expected.items():
+        role.verify_blob(root, name, value, (FAILED_PREPARATION_COMMIT, binding["native_source_freeze"]["commit"], "HEAD"))
+        require(binding["implementation_sha256"].get(name) == value, "Original failed preparation omitted from corrected closure")
+    ancestor(root, PRIOR_SOURCE_FREEZE, FAILED_PREPARATION_COMMIT)
+    ancestor(root, FAILED_PREPARATION_COMMIT, binding["native_source_freeze"]["commit"])
+    receipt = read(Path(root) / FAILED_PREPARATION / "failure.json")
+    require(receipt.get("status") == "failed_source_only_preparation" and receipt.get("source_freeze") == PRIOR_SOURCE_FREEZE
+            and receipt.get("output_plan_created") is False
+            and receipt.get("log_sha256") == expected[FAILED_PREPARATION + "/prepare.log"]
+            and all(type(receipt.get(name)) is int and receipt[name] == 0 for name in
+                    ("model_calls", "index_calls", "retrieval_calls", "native_outcomes")),
+            "Prior attempt was not the preserved zero-inference source-only compatibility failure")
+    return compatibility
+
+
+def verify_flat_reviews(review, author, *, author_sha256, dataset_sha256, protocol_sha256, revision,
+                        source_files, excluded_files, unsupported_files, inventory, definition_keys, counts):
+    """Validate original flat receipts as flat receipts, without normalizing them.
+
+    The old generic producer interface may project metadata in memory. This
+    independent checker never consumes that projection or persists a substitute.
+    """
+    require(type(review) is dict and type(author) is dict and role.literal_json(review) and role.literal_json(author),
+            "Original typed flat review receipts required")
+    require(review.get("status") == author.get("status") == "passed"
+            and review.get("dataset_sha256") == author.get("dataset_sha256") == dataset_sha256
+            and review.get("protocol_sha256") == author.get("protocol_sha256") == protocol_sha256
+            and review.get("revision") == revision and review.get("author_source_receipt_sha256") == author_sha256,
+            "Original flat source-review dataset/protocol/revision/author link differs")
+    require(same(review.get("calls"), {name: 0 for name in ("index", "model", "network", "reranker", "retrieval", "selector_activation")})
+            and same(author.get("calls"), {name: 0 for name in ("model", "index", "retrieval", "rule_activation", "network")})
+            and review.get("blocking_findings") == [] and review.get("dataset_changed") is False
+            and review.get("upstream_repository_module_or_test_executed") is False
+            and author.get("source_repository_code_executed") is False and author.get("source_only_precommit_receipt") is True,
+            "Original reviews must remain source-only with no blocking findings or dataset edits")
+    semantic_review = review.get("semantic_review")
+    require(type(semantic_review) is dict and all(semantic_review.get(name) is True for name in REVIEW_TRUE_FIELDS),
+            "Original independent semantic source review is incomplete")
+    require(same(review.get("counts"), counts) and same(author.get("counts"), counts), "Original reviewed source/sample counts differ")
+    required = ("id", "path", "symbol", "start_line", "end_line", "content_hash")
+    windows = [{name: value[name] for name in required} for value in inventory]
+    require(same(author.get("source_files"), source_files) and same(author.get("excluded_supported_files"), excluded_files)
+            and same(author.get("unsupported_source_root_files"), unsupported_files)
+            and same(author.get("window_inventory"), windows) and same(author.get("definition_keys"), definition_keys),
+            "Original author receipt source/complete-window/canonical facts differ")
+    # Original archived validator used JSON's default ASCII escaping, plus NL.
+    def author_canonical(value):
+        return json.dumps(value, sort_keys=True, separators=(",", ":"), allow_nan=False).encode() + b"\n"
+    require(author.get("window_inventory_sha256") == sha(author_canonical(windows))
+            and author.get("definition_keys_sha256") == sha(author_canonical(definition_keys)),
+            "Original author canonical inventory hash framing differs")
+    return {"format": "attrs_flat_source_review_v1", "author_sha256": author_sha256,
+            "counts": deepcopy(counts), "persisted_normalized_receipt": False}
+
+
 def fresh_fixture(root, corpus, output, binding):
     """Complete source-only Python membership/boundaries; never ranks or scores."""
     root, corpus, output = Path(root).resolve(), Path(corpus).resolve(), Path(output).resolve()
@@ -543,7 +619,7 @@ def fresh_fixture(root, corpus, output, binding):
     exclusions = data.get("source_exclusions", [])
     require(type(exclusions) is list and all(type(value) is str and value and not Path(value).is_absolute()
             and ".." not in Path(value).parts for value in exclusions), "Valid fixed source exclusions required")
-    included, excluded = {}, {}
+    included, excluded, unsupported = {}, {}, {}
     supported = set(role.GRAMMARS)
     for raw_name in git(corpus, "ls-files", "-z", "--", data["source_root"]).split(b"\0"):
         if not raw_name:
@@ -551,7 +627,10 @@ def fresh_fixture(root, corpus, output, binding):
         name = raw_name.decode("utf-8", "surrogateescape")
         path = (corpus / name).resolve()
         suffix = Path(name).suffix
-        if suffix not in supported or not path.is_file() or not path.is_relative_to(root_path):
+        if not path.is_file() or not path.is_relative_to(root_path):
+            continue
+        if suffix not in supported:
+            unsupported[name] = {"bytes": path.stat().st_size, "sha256": file_sha(path)}
             continue
         if suffix != ".py" and (name.endswith((".d.ts", ".d.mts", ".d.cts")) or
                 {"node_modules", "bower_components", "dist", "build", "coverage", ".next", ".nuxt", ".svelte-kit", "out"}.intersection(Path(name).parts[:-1])):
@@ -578,16 +657,45 @@ def fresh_fixture(root, corpus, output, binding):
     review_path = (root / binding["source_review_path"]).resolve()
     require(review_path.is_relative_to(root) and file_sha(review_path) == binding["source_review_sha256"], "Independent source review bytes differ")
     review = read(review_path)
-    require(review.get("status") == "passed_source_review_before_holdout_retrieval"
-            and review.get("dataset", {}).get("sha256") == binding["dataset_sha256"]
-            and review.get("corpus", {}).get("commit") == binding["revision"]
-            and review.get("protocol", {}).get("sha256") == file_sha(root / data["source_review_protocol"])
-            and all(type(review.get("calls", {}).get(name)) is int and review["calls"][name] == 0 for name in
-                ("model", "index", "retrieval", "selector", "postprocessor", "rule_activation", "gold_coverage_scoring")),
-            "Actual committed source-only review provenance differs")
+    author_binding = binding.get("source_review_author")
+    require(binding.get("source_review_format") == "attrs_flat_source_review_v1" and type(author_binding) is dict
+            and set(author_binding) == {"path", "sha256"} and author_binding["path"] == REVIEW_FOLDER + "/source-review.json"
+            and binding["source_review_path"] == REVIEW_FOLDER + "/independent-source-review.json",
+            "Original flat independent/author review paths required")
+    author_path = root / author_binding["path"]
+    author = read(author_path)
+    require(file_sha(author_path) == author_binding["sha256"], "Original author receipt bytes differ")
+    groups = [native.old.evidence_groups(query) for query in data["queries"]]
+    multiple = [len({target["path"] for alternatives in gold for target in alternatives}) > 1 for gold in groups]
+    definition_counts = {}
+    for key in document["definition_keys"].values():
+        definition_counts[tuple(key)] = definition_counts.get(tuple(key), 0) + 1
+    counts = {"queries": len(data["queries"]), "present": sum(query["kind"] == "present" for query in data["queries"]),
+        "multi_file_present": sum(multiple), "single_file_present": sum(query["kind"] == "present" and not multi
+            for query, multi in zip(data["queries"], multiple)), "scoped_absent": sum(query["kind"] == "absent" for query in data["queries"]),
+        "required_positive_evidence_groups": sum(len(gold) for gold in groups),
+        "target_rows": sum(len(alternatives) for gold in groups for alternatives in gold),
+        "source_files": len(included), "excluded_supported_files": len(excluded), "unsupported_source_root_files": len(unsupported),
+        "source_windows_160_40": len(document["inventory"]), "extracted_definitions": len(definition_counts),
+        "source_files_with_extracted_implementations": len({value["path"] for value in document["inventory"]}),
+        "canonical_definitions_with_multiple_windows": sum(count > 1 for count in definition_counts.values())}
+    verify_flat_reviews(review, author, author_sha256=author_binding["sha256"], dataset_sha256=binding["dataset_sha256"],
+        protocol_sha256=file_sha(root / data["source_review_protocol"]), revision=binding["revision"], source_files=included,
+        excluded_files=excluded, unsupported_files=unsupported, inventory=document["inventory"],
+        definition_keys=document["definition_keys"], counts=counts)
+    auxiliaries = binding.get("source_review_auxiliaries")
+    expected_auxiliaries = {REVIEW_FOLDER + "/independent-source-reviewer.py.txt": review["reviewer_source_sha256"],
+        REVIEW_FOLDER + "/source-review-validator.py.txt": author["validator_sha256"],
+        REVIEW_FOLDER + "/absence-checks.json": author["absence_checks_sha256"]}
+    require(same(auxiliaries, expected_auxiliaries), "Original reviewer/validator/absence source artifacts required")
+    for name, value in author["shared_source_extractor_sha256"].items():
+        role.verify_blob(root, name, value, (PARENT_PUBLICATION, "HEAD"))
+        require(binding["implementation_sha256"].get(name) == value, "Reviewed source-extractor authority differs")
+    verify_review_compatibility(root, binding)
     freshness = binding.get("freshness_review")
     require(type(freshness) is dict and set(freshness) == {"path", "sha256"}, "Bound original freshness review required")
     frozen_files = {binding["dataset_path"]: binding["dataset_sha256"], binding["source_review_path"]: binding["source_review_sha256"],
+                    author_binding["path"]: author_binding["sha256"], **expected_auxiliaries,
                     freshness["path"]: freshness["sha256"], data["source_review_protocol"]: file_sha(root / data["source_review_protocol"])}
     for name, value in frozen_files.items():
         role.verify_blob(root, name, value, (PARENT_PUBLICATION, binding["native_source_freeze"]["commit"], "HEAD"))
@@ -673,6 +781,8 @@ def audit_inputs(root, corpus, output, counter, *, parent=None):
     result = {"schema": "role_native_input_audit_v1", "status": "passed", "checks_passed": True,
         "plan_sha256": file_sha(output / "plan.json"), "source_inventory_sha256": file_sha(output / "source-inventory.json"),
         "native_source_freeze": first, "source_sha256": authority, "qualified_development_parent": qualified_parent,
+        "source_review_format": binding["source_review_format"], "source_review_author": binding["source_review_author"],
+        "source_review_compatibility": binding["source_review_compatibility"],
         "source_only_calls": dict(SOURCE_ONLY_CALLS), "new_native_outcomes_computed": 0,
         "independent_python_inventory": definitions, "execution_commit": git(root, "rev-parse", "HEAD").decode().strip(),
         "reviewed_at_utc": datetime.now(timezone.utc).isoformat()}
@@ -858,6 +968,7 @@ def audit_native(root, corpus, output, counter):
         "verified_requests": 252, "verified_warmups": 6, "unique_queries": 14,
         "verified_source_windows": len(fixture["inventory"]), "artifact_sha256": artifacts,
         "producer_freeze": chain, "producer_execution": execution, "qualified_development_parent": input_result["qualified_development_parent"],
+        "source_review_compatibility": input_result["source_review_compatibility"],
         "independently_recomputed_metrics": metrics, "independent_python_inventory": input_result["independent_python_inventory"],
         "setup_forward_summary": setup_counts, "measured_native_forward_calls": 252 + sum(value["extra_model_forwards"] for value in activity),
         "measured_extra_clause_texts": sum(value["extra_texts"] for value in activity),

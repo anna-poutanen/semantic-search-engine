@@ -480,3 +480,123 @@ def test_phase_receipts_are_disjoint_finite_actual_work_within_whole_search(chan
         phases["live_feature_provider_s"] = False
     with pytest.raises(ValueError):
         verify(value)
+
+
+def flat_review_fixture():
+    frozen = fixture()
+    rows = list(frozen["inventory"].values())
+    windows = [{name: row[name] for name in ("id", "path", "symbol", "start_line", "end_line", "content_hash")} for row in rows]
+    source_files = {name: {"bytes": len(text.encode()), "sha256": audit.sha(text.encode())} for name, text in frozen["sources"].items()}
+    unsupported = {"src/py.typed": {"bytes": 0, "sha256": audit.sha(b"")}}
+    counts = {"queries": 1, "present": 1, "multi_file_present": 0, "single_file_present": 1, "scoped_absent": 0,
+              "required_positive_evidence_groups": 1, "target_rows": 1, "source_files": 1, "excluded_supported_files": 0,
+              "unsupported_source_root_files": 1, "source_windows_160_40": 1, "extracted_definitions": 1,
+              "source_files_with_extracted_implementations": 1, "canonical_definitions_with_multiple_windows": 0}
+    author = {"version": 1, "status": "passed", "dataset_sha256": "d" * 64, "protocol_sha256": "b" * 64,
+        "source_repository_code_executed": False, "source_only_precommit_receipt": True,
+        "calls": {name: 0 for name in ("model", "index", "retrieval", "rule_activation", "network")}, "counts": deepcopy(counts),
+        "source_files": source_files, "excluded_supported_files": {}, "unsupported_source_root_files": unsupported,
+        "window_inventory": windows, "definition_keys": frozen["definition_keys"],
+        "window_inventory_sha256": audit.sha(audit.canonical(windows) + b"\n"),
+        "definition_keys_sha256": audit.sha(audit.canonical(frozen["definition_keys"]) + b"\n")}
+    review = {"status": "passed", "dataset_sha256": "d" * 64, "protocol_sha256": "b" * 64,
+        "revision": "c" * 40, "author_source_receipt_sha256": "a" * 64, "counts": deepcopy(counts),
+        "calls": {name: 0 for name in ("index", "model", "network", "reranker", "retrieval", "selector_activation")},
+        "dataset_changed": False, "blocking_findings": [], "upstream_repository_module_or_test_executed": False,
+        "semantic_review": {name: True for name in audit.REVIEW_TRUE_FIELDS}}
+    arguments = {"author_sha256": "a" * 64, "dataset_sha256": "d" * 64, "protocol_sha256": "b" * 64, "revision": "c" * 40,
+                 "source_files": source_files, "excluded_files": {}, "unsupported_files": unsupported,
+                 "inventory": rows, "definition_keys": frozen["definition_keys"], "counts": counts}
+    return review, author, arguments
+
+
+def test_original_flat_reviews_are_checked_without_projection_or_input_mutation():
+    review, author, arguments = flat_review_fixture()
+    before = deepcopy((review, author, arguments))
+    value = audit.verify_flat_reviews(review, author, **arguments)
+    assert (review, author, arguments) == before
+    assert value["format"] == "attrs_flat_source_review_v1" and value["persisted_normalized_receipt"] is False
+    assert "dataset" not in review and "corpus" not in review  # No fake legacy receipt persisted.
+
+
+@pytest.mark.parametrize("change", ["status", "dataset", "protocol", "revision", "author_link", "model", "selector",
+    "bool_call", "upstream", "author_executed", "precommit", "dataset_changed", "blocker", "semantic_flag", "counts",
+    "source_files", "unsupported", "window", "definition", "hash_framing"])
+def test_flat_review_compatibility_rejects_altered_original_evidence(change):
+    review, author, arguments = deepcopy(flat_review_fixture())
+    if change in ("status", "dataset", "protocol", "revision", "author_link"):
+        key = {"status": "status", "dataset": "dataset_sha256", "protocol": "protocol_sha256",
+               "revision": "revision", "author_link": "author_source_receipt_sha256"}[change]
+        review[key] = "changed"
+    elif change in ("model", "selector", "bool_call"):
+        review["calls"]["selector_activation" if change == "selector" else "model"] = False if change == "bool_call" else 1
+    elif change == "upstream":
+        review["upstream_repository_module_or_test_executed"] = True
+    elif change == "author_executed":
+        author["source_repository_code_executed"] = True
+    elif change == "precommit":
+        author["source_only_precommit_receipt"] = False
+    elif change == "dataset_changed":
+        review["dataset_changed"] = True
+    elif change == "blocker":
+        review["blocking_findings"] = ["unresolved source issue"]
+    elif change == "semantic_flag":
+        review["semantic_review"][audit.REVIEW_TRUE_FIELDS[0]] = False
+    elif change == "counts":
+        review["counts"]["queries"] += 1
+    elif change == "source_files":
+        author["source_files"] = {}
+    elif change == "unsupported":
+        author["unsupported_source_root_files"] = {}
+    elif change == "window":
+        author["window_inventory"][0]["start_line"] += 1
+    elif change == "definition":
+        next(iter(author["definition_keys"].values()))[3] += 1
+    else:
+        author["window_inventory_sha256"] = audit.sha(audit.canonical(author["window_inventory"]))
+    with pytest.raises(ValueError):
+        audit.verify_flat_reviews(review, author, **arguments)
+
+
+def test_compatibility_requires_preserved_failed_attempt_and_versioned_history(tmp_path, monkeypatch):
+    git(tmp_path, "init", "-q")
+    git(tmp_path, "config", "user.email", "invented@example.test")
+    git(tmp_path, "config", "user.name", "Invented")
+    (tmp_path / "source.py").write_text("# initial source\n")
+    git(tmp_path, "add", ".")
+    git(tmp_path, "commit", "-qm", "invented original source freeze")
+    original = git(tmp_path, "rev-parse", "HEAD")
+    folder = tmp_path / "failed-attempt"
+    folder.mkdir()
+    (folder / "prepare.log").write_text("invented source-only interface failure\n")
+    receipt = {"status": "failed_source_only_preparation", "source_freeze": original, "output_plan_created": False,
+        "log_sha256": audit.file_sha(folder / "prepare.log"), **{name: 0 for name in
+            ("model_calls", "index_calls", "retrieval_calls", "native_outcomes")}}
+    (folder / "failure.json").write_text(json.dumps(receipt))
+    git(tmp_path, "add", ".")
+    git(tmp_path, "commit", "-qm", "preserve invented failed source-only preparation")
+    failed = git(tmp_path, "rev-parse", "HEAD")
+    (tmp_path / "source.py").write_text("# explicitly corrected interface\n")
+    git(tmp_path, "add", ".")
+    git(tmp_path, "commit", "-qm", "invented corrective source freeze")
+    corrected = git(tmp_path, "rev-parse", "HEAD")
+    monkeypatch.setattr(audit, "PRIOR_SOURCE_FREEZE", original)
+    monkeypatch.setattr(audit, "FAILED_PREPARATION_COMMIT", failed)
+    monkeypatch.setattr(audit, "FAILED_PREPARATION", "failed-attempt")
+    hashes = {"failed-attempt/" + name: audit.file_sha(folder / name) for name in ("failure.json", "prepare.log")}
+    compatibility = {"prior_source_freeze": original, "failed_preparation_commit": failed,
+        "failed_preparation_artifacts": hashes, "projection_scope": "in_memory_legacy_helper_only"}
+    binding = {"source_review_compatibility": compatibility, "native_source_freeze": {"commit": corrected},
+               "implementation_sha256": hashes}
+    audit.verify_review_compatibility(tmp_path, binding)
+    wrong = deepcopy(binding)
+    wrong["source_review_compatibility"]["failed_preparation_artifacts"].pop("failed-attempt/prepare.log")
+    with pytest.raises(ValueError, match="Both original"):
+        audit.verify_review_compatibility(tmp_path, wrong)
+    receipt["model_calls"] = 1
+    (folder / "failure.json").write_text(json.dumps(receipt))
+    rebound = deepcopy(binding)
+    rebound["source_review_compatibility"]["failed_preparation_artifacts"]["failed-attempt/failure.json"] = audit.file_sha(folder / "failure.json")
+    rebound["implementation_sha256"]["failed-attempt/failure.json"] = audit.file_sha(folder / "failure.json")
+    with pytest.raises(ValueError, match="Committed bound bytes"):
+        audit.verify_review_compatibility(tmp_path, rebound)

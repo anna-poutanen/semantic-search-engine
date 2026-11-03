@@ -137,3 +137,23 @@ A passed integrity audit is not automatically a quality or latency pass. No
 production-default change, release or coding-agent comparison follows
 implicitly. Coding correctness, time and actual provider-token savings require a
 separate subsequently frozen workflow study after qualified retrieval gains.
+
+## Source-only receipt compatibility correction
+
+The first native source freeze, `0b651ef32cb6ca2444a016587ce1842854696244`,
+preceded the first attrs source-only preparation. That preparation stopped
+because the unchanged attrs review uses its original flat receipt schema,
+whereas the reused native helper expects a later nested schema. No plan,
+index, model forward, retrieval outcome or quality score was produced. The
+original failure log and receipt are retained in
+`results/role-native-preflight-2026-11-03/prepare-attempt-1`.
+
+The compatibility correction validates the original published flat semantic
+review and its author/source/protocol bindings. Any legacy helper projection
+exists only in memory; it cannot replace or relabel an original receipt on disk.
+Both original receipts, dataset, labels, revision, extraction, semantic selector,
+role guard, quality gates and latency gates stay fixed. New invented tests and
+independent checks must precede a separately committed corrective source freeze
+and a separately named native plan. This correction follows source-only exposure
+and precedes all native outcomes; it is a technical input repair, not a new blind
+rule design or an independent confirmation.

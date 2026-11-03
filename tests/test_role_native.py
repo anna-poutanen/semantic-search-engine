@@ -20,6 +20,7 @@ import pytest
 
 from semantic_search.backend import SearchBackend
 from semantic_search.cancellation import SearchCancelled
+from semantic_search.corpus import extract_snippets
 from semantic_search.embeddings import DIMENSIONS, QUERY_PROMPT, QwenEmbedder
 
 
@@ -911,3 +912,323 @@ def test_failure_receipt_write_error_keeps_original_cancellation_and_claimed_att
     assert (attempt / "request-failure.json").is_file() and fixture.lease_events == ["acquired", "released"]
     with pytest.raises(ValueError, match="no overwrite, resume or retry"):
         native.run(fixture.args)
+
+
+def source_only_fixture(tmp_path):
+    """Only source and authored metadata: no backend, index or embedding call."""
+    args = options(tmp_path)
+    args.corpus = tmp_path / "invented-source-corpus"
+    source_root = args.corpus / "src"
+    source_root.mkdir(parents=True)
+    sources = {"src/alpha.py": "def alpha():\n    return 1\n", "src/beta.py": "def beta():\n    return 2\n"}
+    for path, source in sources.items():
+        (args.corpus / path).write_text(source)
+    git_fixture(args.corpus)
+    revision = commit_fixture(args.corpus, "invented complete saved source")
+    definitions = {}
+    snippets = extract_snippets(args.corpus, "src", 160, 40, sources=sources, definition_keys=definitions)
+    inventory = [asdict(value) for value in snippets]
+    source_files = {name: {"bytes": len(text.encode()), "sha256": hashlib.sha256(text.encode()).hexdigest()}
+                    for name, text in sources.items()}
+
+    def target(symbol):
+        item = next(value for value in inventory if value["symbol"] == symbol)
+        return {"path": item["path"], "symbol": symbol, "evidence_lines": [item["start_line"], item["end_line"]],
+                "evidence_sha256": item["content_hash"], "source_file_sha256": source_files[item["path"]]["sha256"]}
+    queries = []
+    for number in range(14):
+        query = {"id": f"invented_source_query_{number}", "query": "find invented source behavior " + str(number),
+                 "kind": "absent" if number >= 12 else "present"}
+        if number < 8:
+            query["target_groups"] = [[target("alpha")], [target("beta")]]
+        else:
+            query["targets"] = [target("alpha")] if number < 12 else []
+        queries.append(query)
+    protocol_path = tmp_path / "invented-source-protocol.md"
+    protocol_path.write_text("Invented source-only authoring protocol.\n")
+    data = {"revision": revision, "source_root": "src", "queries": queries,
+        "source_review_protocol": protocol_path.relative_to(tmp_path).as_posix(), "source_files": source_files,
+        "source_inventory_sha256": native.sha(native.canonical(source_files)), "excluded_supported_files": {}}
+    args.dataset.write_bytes(native.canonical(data))
+    return SimpleNamespace(args=args, data=data, source_files=source_files, sources=sources,
+        inventory=inventory, definition_keys=definitions, protocol=protocol_path)
+
+
+def flat_review_pair(*, dataset_sha256="a" * 64, protocol_sha256="b" * 64, revision="c" * 40):
+    author = {"status": "passed", "dataset_sha256": dataset_sha256, "protocol_sha256": protocol_sha256,
+        "counts": deepcopy(native.REVIEW_COUNTS), "calls": {name: 0 for name in
+            ("model", "index", "retrieval", "rule_activation", "network")},
+        "source_repository_code_executed": False, "source_only_precommit_receipt": True,
+        "semantic_peer_review_required": True, "source_files": {}}
+    author_sha256 = native.sha(native.canonical(author))
+    review = {"status": "passed", "dataset_sha256": dataset_sha256, "protocol_sha256": protocol_sha256,
+        "revision": revision, "author_source_receipt_sha256": author_sha256,
+        "counts": deepcopy(native.REVIEW_COUNTS), "calls": {name: 0 for name in
+            ("index", "model", "network", "reranker", "retrieval", "selector_activation")},
+        "dataset_changed": False, "blocking_findings": [], "upstream_repository_module_or_test_executed": False,
+        "semantic_review": dict.fromkeys(native.SEMANTIC_REVIEW_FLAGS, True),
+        "authorship_and_blinding": {**dict.fromkeys(("author_received_detailed_handoff_after_complete_draft",
+            "current_dataset_matches_that_draft_byte_for_byte", "reviewer_had_no_selector_design_role",
+            "root_and_designer_receive_only_status_counts_hashes"), True),
+            "source_or_gold_contents_sent_to_root_or_rule_designer": False,
+            "query_semantic_or_target_interval_changes_after_handoff": 0,
+            "draft_sha256_before_detailed_designer_handoff": dataset_sha256}}
+    expected = {"dataset_sha256": dataset_sha256, "protocol_sha256": protocol_sha256,
+                "revision": revision, "author_sha256": author_sha256}
+    return review, author, expected
+
+
+def test_flat_review_projection_is_transient_and_preserves_original_typed_receipts():
+    review, author, expected = flat_review_pair()
+    before = deepcopy((review, author))
+    assert native.validate_flat_review(review, author, **expected) is None
+    projected = native.legacy_review_projection(review, author)
+    assert projected["status"] == "passed_source_review_before_holdout_retrieval"
+    assert projected["dataset"] == {"sha256": expected["dataset_sha256"]}
+    assert projected["corpus"] == {"commit": expected["revision"],
+        "source_inventory_sha256": native.sha(native.canonical(author["source_files"]))}
+    assert projected["calls"] == {name: 0 for name in
+        ("model", "index", "retrieval", "selector", "postprocessor", "rule_activation", "gold_coverage_scoring")}
+    projected["calls"]["model"] = 99
+    assert (review, author) == before and "dataset" not in review
+
+
+@pytest.mark.parametrize("operand", ["review", "author"])
+@pytest.mark.parametrize("fault", ["status", "dataset_sha256", "protocol_sha256", "missing_count", "count_type", "extra_call", "call_type", "executed_work"])
+def test_flat_review_rejects_identity_counts_and_call_schema_changes(operand, fault):
+    review, author, expected = flat_review_pair()
+    target = review if operand == "review" else author
+    if fault == "status":
+        target["status"] = "passed_source_review_before_holdout_retrieval"
+    elif fault in ("dataset_sha256", "protocol_sha256"):
+        target[fault] = "f" * 64
+    elif fault == "missing_count":
+        target["counts"].pop("queries")
+    elif fault == "count_type":
+        target["counts"]["excluded_supported_files"] = False
+    elif fault == "extra_call":
+        target["calls"]["unexpected_api"] = 0
+    elif fault == "call_type":
+        target["calls"]["model"] = False
+    else:
+        target["calls"]["retrieval"] = 1
+    with pytest.raises(ValueError):
+        native.validate_flat_review(review, author, **expected)
+
+
+@pytest.mark.parametrize(("operand", "field", "wrong"), [
+    ("review", "author_source_receipt_sha256", "f" * 64), ("review", "revision", "f" * 40),
+    ("review", "dataset_changed", 0), ("review", "dataset_changed", True),
+    ("review", "blocking_findings", ["invented unresolved finding"]),
+    ("review", "upstream_repository_module_or_test_executed", 0),
+    ("author", "source_repository_code_executed", 0),
+    ("author", "source_only_precommit_receipt", 1), ("author", "semantic_peer_review_required", False),
+])
+def test_flat_review_rejects_link_and_execution_boundary_changes(operand, field, wrong):
+    review, author, expected = flat_review_pair()
+    (review if operand == "review" else author)[field] = wrong
+    with pytest.raises(ValueError):
+        native.validate_flat_review(review, author, **expected)
+
+
+@pytest.mark.parametrize("field", native.SEMANTIC_REVIEW_FLAGS)
+@pytest.mark.parametrize("wrong", [None, False, 1])
+def test_every_original_semantic_review_fact_requires_literal_true(field, wrong):
+    review, author, expected = flat_review_pair()
+    review["semantic_review"][field] = wrong
+    with pytest.raises(ValueError, match="semantic source review"):
+        native.validate_flat_review(review, author, **expected)
+
+
+@pytest.mark.parametrize(("field", "wrong"), [
+    ("author_received_detailed_handoff_after_complete_draft", False),
+    ("current_dataset_matches_that_draft_byte_for_byte", 1), ("reviewer_had_no_selector_design_role", False),
+    ("root_and_designer_receive_only_status_counts_hashes", None),
+    ("source_or_gold_contents_sent_to_root_or_rule_designer", 0),
+    ("query_semantic_or_target_interval_changes_after_handoff", False),
+    ("query_semantic_or_target_interval_changes_after_handoff", 1),
+    ("draft_sha256_before_detailed_designer_handoff", "f" * 64),
+])
+def test_flat_review_preserves_authorship_and_blinding_disclosures(field, wrong):
+    review, author, expected = flat_review_pair()
+    review["authorship_and_blinding"][field] = wrong
+    with pytest.raises(ValueError, match="authorship"):
+        native.validate_flat_review(review, author, **expected)
+
+
+def published_flat_fixture(tmp_path, monkeypatch):
+    fixture = source_only_fixture(tmp_path)
+    args = fixture.args
+    # Preserve the real profile's count schema while authoring an internally
+    # consistent, tiny source-only test profile.
+    counts = {**native.REVIEW_COUNTS, "canonical_definitions_with_multiple_windows": 0,
+        "extracted_definitions": 2, "required_positive_evidence_groups": 20, "source_files": 2,
+        "source_files_with_extracted_implementations": 2, "source_windows_160_40": 2,
+        "target_rows": 20, "unsupported_source_root_files": 0}
+    monkeypatch.setattr(native, "REVIEW_COUNTS", counts)
+    monkeypatch.setattr(native, "ROOT", tmp_path)
+    git_fixture(tmp_path)
+    author_path = args.source_review.with_name("source-review.json")
+    reviewer = args.source_review.with_name("independent-source-reviewer.py.txt")
+    validator = args.source_review.with_name("source-review-validator.py.txt")
+    absences = args.source_review.with_name("absence-checks.json")
+    for path in (reviewer, validator, absences):
+        path.write_text("Invented immutable auxiliary proof.\n")
+    extractors = {}
+    for name in ("__init__.py", "source.py", "languages.py", "corpus.py"):
+        path = tmp_path / "src/semantic_search" / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("# Invented source-binding fixture; never executed.\n")
+        extractors[path.relative_to(tmp_path).as_posix()] = native.file_sha(path)
+    review, author, _ = flat_review_pair(dataset_sha256=native.file_sha(args.dataset),
+        protocol_sha256=native.file_sha(fixture.protocol), revision=fixture.data["revision"])
+    fields = ("id", "path", "symbol", "start_line", "end_line", "content_hash")
+    windows = [{name: value[name] for name in fields} for value in fixture.inventory]
+    author.update(source_files=fixture.source_files, excluded_supported_files={}, window_inventory=windows, definition_keys=fixture.definition_keys,
+        window_inventory_sha256=native.sha(native.canonical(windows)),
+        definition_keys_sha256=native.sha(native.canonical(fixture.definition_keys)), shared_source_extractor_sha256=extractors,
+        validator_sha256=native.file_sha(validator), absence_checks_sha256=native.file_sha(absences))
+    native.write(author_path, author)
+    review.update(author_source_receipt_sha256=native.file_sha(author_path), reviewer_source_sha256=native.file_sha(reviewer))
+    native.write(args.source_review, review)
+    publication = commit_fixture(tmp_path, "invented original flat source review publication")
+    monkeypatch.setattr(native, "PARENT_PUBLICATION", publication)
+    monkeypatch.setattr(native, "PRIOR_SOURCE_FREEZE", publication)
+    failed = tmp_path / native.FAILED_PREPARATION
+    failed.mkdir(parents=True)
+    (failed / "prepare.log").write_text("Invented source-only compatibility failure.\n")
+    native.write(failed / "failure.json", {"status": "failed_source_only_preparation", "source_freeze": publication,
+        "output_plan_created": False, **{name: 0 for name in ("model_calls", "index_calls", "retrieval_calls", "native_outcomes")},
+        "log_sha256": native.file_sha(failed / "prepare.log")})
+    failure_commit = commit_fixture(tmp_path, "preserve invented source-only failed preparation")
+    monkeypatch.setattr(native, "FAILED_PREPARATION_COMMIT", failure_commit)
+    (tmp_path / "invented-correction.md").write_text("Compatibility correction only.\n")
+    correction_commit = commit_fixture(tmp_path, "invented prospective compatibility correction")
+    return fixture, correction_commit, review, author
+
+
+def test_original_flat_review_and_auxiliaries_are_bound_at_both_publications(tmp_path, monkeypatch):
+    fixture, correction, review, author = published_flat_fixture(tmp_path, monkeypatch)
+    before = {path: path.read_bytes() for path in (fixture.args.source_review,
+        fixture.args.source_review.with_name("source-review.json"))}
+    actual_review, actual_author, binding, paths = native.source_review_binding(fixture.args, correction)
+    assert actual_review == review and actual_author == json.loads(json.dumps(author))
+    assert binding["source_review_format"] == "attrs_flat_source_review_v1"
+    assert binding["source_review_compatibility"]["projection_scope"] == "in_memory_legacy_helper_only"
+    assert len(paths) == 7 and all(path.read_bytes() == value for path, value in before.items())
+    for name, digest in paths.items():
+        assert native.sha(subprocess.check_output(["git", "-C", str(tmp_path), "show", correction + ":" + name])) == digest
+
+
+@pytest.mark.parametrize("fault", ["author_link", "auxiliary", "republished_link", "failed_preparation_calls"])
+def test_flat_publication_proof_rejects_changed_links_auxiliaries_and_failure_history(tmp_path, monkeypatch, fault):
+    fixture, correction, review, author = published_flat_fixture(tmp_path, monkeypatch)
+    if fault == "author_link":
+        review["author_source_receipt_sha256"] = "f" * 64
+        fixture.args.source_review.write_bytes(native.canonical(review))
+    elif fault == "auxiliary":
+        fixture.args.source_review.with_name("independent-source-reviewer.py.txt").write_text("Changed checking source.\n")
+    elif fault == "republished_link":
+        author["invented_additional_disclosure"] = True
+        author_path = fixture.args.source_review.with_name("source-review.json")
+        author_path.write_bytes(native.canonical(author))
+        review["author_source_receipt_sha256"] = native.file_sha(author_path)
+        fixture.args.source_review.write_bytes(native.canonical(review))
+        correction = commit_fixture(tmp_path, "self-consistent change cannot replace original publication")
+    else:
+        path = tmp_path / native.FAILED_PREPARATION / "failure.json"
+        failed = native.read(path)
+        failed["model_calls"] = False
+        path.write_bytes(native.canonical(failed))
+    with pytest.raises(ValueError):
+        native.source_review_binding(fixture.args, correction)
+
+
+@pytest.mark.parametrize("fault", ["source_files", "window_inventory", "definition_keys", "window_sha", "definition_sha", "extractor_sha"])
+def test_flat_author_full_source_facts_must_equal_actual_extraction(tmp_path, monkeypatch, fault):
+    fixture, _, _, author = published_flat_fixture(tmp_path, monkeypatch)
+    if fault in ("source_files", "window_inventory", "definition_keys"):
+        author[fault] = {} if fault != "window_inventory" else []
+    elif fault == "window_sha":
+        author["window_inventory_sha256"] = "f" * 64
+    elif fault == "definition_sha":
+        author["definition_keys_sha256"] = "f" * 64
+    else:
+        author["shared_source_extractor_sha256"] = {fixture.protocol.name: "f" * 64}
+    with pytest.raises(ValueError):
+        native.validate_review_source_facts(author, {"source_files": fixture.source_files},
+            {"inventory": fixture.inventory, "definition_keys": fixture.definition_keys})
+
+
+def test_actual_generic_source_identity_receives_only_in_memory_legacy_projection(tmp_path, monkeypatch):
+    fixture, correction, _, author = published_flat_fixture(tmp_path, monkeypatch)
+    args, events = fixture.args, []
+    args.runtime_manifest.write_text('{"invented":"runtime metadata seam"}\n')
+    args.freshness_review.write_text('{"invented":"source-only disclosure"}\n')
+    before = {path: path.read_bytes() for path in (args.dataset, args.source_review,
+        args.source_review.with_name("source-review.json"), fixture.protocol)}
+    original_sha, original_generic = native.file_sha, native.frozen._identity_after_parent
+    original_source_facts = native.validate_review_source_facts
+    embedding = {"classification": "invented metadata only; no model or vectors"}
+    freeze_checked = [False]
+
+    def sha(path):
+        path = Path(path)
+        # Publication/code byte checks are separate real-Git tests. This seam
+        # supplies unrelated generic helper code bindings without copying it.
+        return original_sha(path) if path.is_file() else "d" * 64
+
+    def committed(paths, commit="HEAD"):
+        if set(paths) == set(native.NATIVE_SOURCES):
+            assert events == ["qualified_parent"]
+            freeze_checked[0] = True
+            events.append("committed_native_source")
+
+    def generic(value, parent):
+        assert freeze_checked[0] and events[:2] == ["qualified_parent", "committed_native_source"]
+        events.append("generic_source_preparation")
+        projected = native.frozen.read(args.source_review)
+        assert projected["status"] == "passed_source_review_before_holdout_retrieval"
+        assert native.frozen.read(args.dataset) == fixture.data
+        assert native.read(args.source_review)["status"] == "passed"
+        return original_generic(value, parent)
+
+    def forbidden(*args, **kwargs):
+        pytest.fail("Source-only identity entered model/index/selector work")
+
+    def source_facts(receipt, binding, inventory):
+        fields = ("id", "path", "symbol", "start_line", "end_line", "content_hash")
+        assert receipt["source_files"] == binding["source_files"]
+        assert receipt["window_inventory"] == [{name: item[name] for name in fields} for item in inventory["inventory"]]
+        assert receipt["definition_keys"] == json.loads(json.dumps(inventory["definition_keys"]))
+        assert receipt["window_inventory_sha256"] == native.review_digest(receipt["window_inventory"])
+        assert receipt["definition_keys_sha256"] == native.review_digest(inventory["definition_keys"])
+        return original_source_facts(receipt, binding, inventory)
+    monkeypatch.setattr(native, "source_authority", lambda: None)
+    monkeypatch.setattr(native, "parent_binding", lambda args: events.append("qualified_parent") or {"artifacts": {}})
+    monkeypatch.setattr(native, "file_sha", sha)
+    monkeypatch.setattr(native.frozen, "file_sha", sha)
+    monkeypatch.setattr(native, "committed", committed)
+    monkeypatch.setattr(native, "git", lambda *args: "0" if "--format=%ct" in args else correction)
+    monkeypatch.setattr(native, "RESERVED_DATASET", args.dataset.relative_to(tmp_path).as_posix())
+    monkeypatch.setattr(native, "RESERVED_DATASET_SHA256", original_sha(args.dataset))
+    monkeypatch.setattr(native, "RESERVED_REVISION", fixture.data["revision"])
+    monkeypatch.setattr(native.frozen, "ROOT", tmp_path)
+    monkeypatch.setattr(native.frozen, "QwenEmbedder", lambda *a, **kw: SimpleNamespace(metadata=embedding))
+    monkeypatch.setattr(native.frozen, "checkpoint_binding", lambda *args: {"invented.weights": "e" * 64})
+    monkeypatch.setattr(native.frozen.replay, "runtime", lambda root: ({"classification": "invented tokenizer seam"}, b""))
+    monkeypatch.setattr(native.transport, "verify_runtime", lambda *a: {"model_binding": {"metadata": embedding}})
+    monkeypatch.setattr(native.frozen, "_identity_after_parent", generic)
+    monkeypatch.setattr(native, "validate_review_source_facts", source_facts)
+    monkeypatch.setattr(native.backend_module, "SearchBackend", forbidden)
+    monkeypatch.setattr(native.role, "apply_role_guard", forbidden)
+    data, sources, inventory, binding = native.identity(args)
+    assert events == ["qualified_parent", "committed_native_source", "generic_source_preparation"]
+    assert data == fixture.data and sources == fixture.sources and inventory["inventory"] == fixture.inventory
+    assert binding["source_review_sha256"] == original_sha(args.source_review)
+    assert binding["source_review_author"]["sha256"] == original_sha(args.source_review.with_name("source-review.json"))
+    assert binding["source_review_compatibility"]["projection_scope"] == "in_memory_legacy_helper_only"
+    assert native.frozen.read(args.source_review)["status"] == "passed"
+    assert all(path.read_bytes() == content for path, content in before.items())
+    assert native.sha(native.canonical(author["source_files"])) == data["source_inventory_sha256"]
+    assert not args.output.exists() and not list(tmp_path.rglob("*.sqlite3"))
