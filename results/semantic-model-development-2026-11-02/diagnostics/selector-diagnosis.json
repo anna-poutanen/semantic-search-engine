@@ -1,0 +1,3348 @@
+{
+  "schema": "semantic_model_study_saved_trace_diagnosis_v1",
+  "classification": "Posthoc read-only diagnosis of completed saved replay; no rule, labels, thresholds, gates, model calls or new outcomes changed",
+  "input_sha256": {
+    "results/semantic-model-development-2026-11-02/replay/summary.json": "278cf4acda740ce746be811e71e208bffc432a52eb7c5be8cb168d02ee42021a",
+    "results/semantic-model-development-2026-11-02/replay/outcomes.jsonl.gz": "a6eb2fb87c84785e64fc5d9cfd65123eaa73786b78247bc2494fe243b3e6a6d2",
+    "results/semantic-model-development-2026-11-02/prepared-v3/operands.json": "3b7f5db6a976375cea046199138a51c42a47525ecfd6be1b8cb67b6555e30a5b"
+  },
+  "independent_audit_status": "Root audit separate; this diagnosis does not substitute for full independent audit",
+  "counts": {
+    "case_occurrences": 393,
+    "distinct_dataset_query_units": 201,
+    "present_occurrences": 322,
+    "absent_occurrences": 71,
+    "required_groups": 522
+  },
+  "aggregate_metrics": {
+    "legacy": {
+      "rows": 393,
+      "required_groups": 522,
+      "covered_groups": 411,
+      "complete": 250,
+      "multi_file_complete": 47,
+      "single_file_first_hit": 204
+    },
+    "coverage_control": {
+      "rows": 393,
+      "required_groups": 522,
+      "covered_groups": 415,
+      "complete": 253,
+      "multi_file_complete": 50,
+      "single_file_first_hit": 204
+    },
+    "semantic_final_v1": {
+      "rows": 393,
+      "required_groups": 522,
+      "covered_groups": 418,
+      "complete": 253,
+      "multi_file_complete": 50,
+      "single_file_first_hit": 204
+    }
+  },
+  "comparison_counts": {
+    "legacy": {
+      "group_gains": 8,
+      "group_losses": 1,
+      "complete_gain": 3,
+      "complete_loss": 0,
+      "single_file_first_hit_loss": 0
+    },
+    "coverage_control": {
+      "group_gains": 6,
+      "group_losses": 3,
+      "complete_gain": 2,
+      "complete_loss": 2,
+      "single_file_first_hit_loss": 0
+    }
+  },
+  "gate": {
+    "qualified": false,
+    "individual_losses": {
+      "legacy": [
+        {
+          "case_id": "case_e16a54ee46f54bef57c404477d405926c1e47f7b6da55a7f63f19df30f454b0d",
+          "group_gains": [],
+          "group_losses": [
+            4
+          ],
+          "complete_gain": false,
+          "complete_loss": false,
+          "single_file_first_hit_loss": false
+        }
+      ],
+      "coverage_control": [
+        {
+          "case_id": "case_1c15e3ada5cddc7501433edbe6e57cb8cdaa4ad721120620e569b28fad9b518c",
+          "group_gains": [],
+          "group_losses": [
+            1
+          ],
+          "complete_gain": false,
+          "complete_loss": true,
+          "single_file_first_hit_loss": false
+        },
+        {
+          "case_id": "case_b90bdfb25a395c609150c8fe2d1aa89ebb7b8bfe000b8f2d2235f247de58904b",
+          "group_gains": [],
+          "group_losses": [
+            1
+          ],
+          "complete_gain": false,
+          "complete_loss": true,
+          "single_file_first_hit_loss": false
+        },
+        {
+          "case_id": "case_e16a54ee46f54bef57c404477d405926c1e47f7b6da55a7f63f19df30f454b0d",
+          "group_gains": [],
+          "group_losses": [
+            4
+          ],
+          "complete_gain": false,
+          "complete_loss": false,
+          "single_file_first_hit_loss": false
+        }
+      ]
+    },
+    "additional_distinct_complete_multi_queries_vs_coverage": [
+      [
+        "jinja",
+        "jinja_include_parent_and_local_context"
+      ]
+    ],
+    "automatic_default_change": false,
+    "fresh_and_native_validation_still_required": true
+  },
+  "activation": {
+    "active_cases": 329,
+    "inactive_cases": 64,
+    "query_requests": 185,
+    "document_requests": 3184,
+    "feature_active_fraction": 0.8371501272264631,
+    "selector_activated_rows": 355,
+    "accepted_exchange_rows": 86,
+    "accepted_fraction_all": 0.21882951653944022,
+    "accepted_fraction_feature_active": 0.2613981762917933,
+    "total_exchanges": 99,
+    "exchange_count_histogram": {
+      "0": 307,
+      "1": 73,
+      "2": 13
+    },
+    "accepted_by_kind": {
+      "present": 70,
+      "absent": 16
+    },
+    "fallback_reasons": {
+      "invalid_features": 26,
+      "no_feasible_positive_exchange": 234,
+      "None": 86,
+      "no_literal_clauses": 38,
+      "budget_trial_limit": 9
+    },
+    "terminations": {
+      "invalid_features": 26,
+      "no_feasible_positive_exchange": 307,
+      "max_exchanges": 13,
+      "no_literal_clauses": 38,
+      "budget_trial_limit": 9
+    },
+    "fallback_interpretation": "26 invalid_features rows are deliberately feature-inactive BM25 queries that still have literal clauses; they are expected exact-reference fallback, not 26 model/vector capture failures. Another38 rows have no eligible literal clauses. Of329 feature-active rows,86 changed source and243 fell back (234 no feasible positive exchange,9 budget-trial limit)."
+  },
+  "loss_cases": [
+    {
+      "case_id": "case_1c15e3ada5cddc7501433edbe6e57cb8cdaa4ad721120620e569b28fad9b518c",
+      "key": [
+        "qwen_development_observed",
+        "starlette",
+        "starlette_exception_registration_and_dispatch",
+        "hybrid_k24_b1"
+      ],
+      "dataset": "starlette",
+      "query_id": "starlette_exception_registration_and_dispatch",
+      "condition": "hybrid_k24_b1",
+      "query": "Where are registered exception handlers attached to a request scope, and where is the matching handler selected while refusing to replace a response that has already started?",
+      "qualified": false,
+      "multi_file": true,
+      "comparisons": {
+        "legacy": {
+          "group_gains": [],
+          "group_losses": [],
+          "complete_gain": false,
+          "complete_loss": false,
+          "single_file_first_hit_loss": false
+        },
+        "coverage_control": {
+          "group_gains": [],
+          "group_losses": [
+            1
+          ],
+          "complete_gain": false,
+          "complete_loss": true,
+          "single_file_first_hit_loss": false
+        }
+      },
+      "final_evidence_ranks": [
+        null,
+        1
+      ],
+      "raw_required_group_ranks": [
+        [
+          6
+        ],
+        [
+          1,
+          2
+        ]
+      ],
+      "control_references": {
+        "legacy": {
+          "path": "results/window-development-2026-10-21/replay.jsonl.gz",
+          "line_number": 1271,
+          "record_sha256": "9f257fb3c5f722f2ea664d612cfecd8e351526ecf3328dfa4530451772d91f00",
+          "response_sha256": "b2f6001b89df4d5fdaca3b08caf46634ee44246b5a64f98deff0b636e7091ac4",
+          "compact_sha256": "81051059ef85e5449f6279fd61ee68b2f21069342e7391a507a88108797ddaa8"
+        },
+        "coverage_control": {
+          "path": "results/window-development-2026-10-21/replay.jsonl.gz",
+          "line_number": 1272,
+          "record_sha256": "b1eb5988e49de74de36aa3cc815d1b84d0fdc85809ce129bb2bc7451412d258b",
+          "response_sha256": "2545ab550e5c1b56119b72474f6e7e9671ce0d10dca6d84444a19a056c61242c",
+          "compact_sha256": "48a6f0f87e9692b71a97821fbc6929cec096e1eb67b97cd22e66c50e1d276502"
+        }
+      },
+      "control_hashes": {
+        "legacy": {
+          "source_view_sha256": "b2f6001b89df4d5fdaca3b08caf46634ee44246b5a64f98deff0b636e7091ac4",
+          "compact_sha256": "81051059ef85e5449f6279fd61ee68b2f21069342e7391a507a88108797ddaa8"
+        },
+        "coverage_control": {
+          "source_view_sha256": "2545ab550e5c1b56119b72474f6e7e9671ce0d10dca6d84444a19a056c61242c",
+          "compact_sha256": "48a6f0f87e9692b71a97821fbc6929cec096e1eb67b97cd22e66c50e1d276502"
+        }
+      },
+      "semantic_receipt": {
+        "schema": "semantic_final_context_v1",
+        "mode": "semantic_final_v1",
+        "activated": true,
+        "score_scale": 1000000,
+        "max_exchanges": 2,
+        "max_budget_trials": 8,
+        "raw_windows_per_definition": 2,
+        "anchor_ids": [
+          "starlette/_exception_handler.py:wrap_app_handling_exceptions:23-65",
+          "starlette/_exception_handler.py:wrap_app_handling_exceptions.wrapped_app:31-63",
+          "starlette/middleware/errors.py:ServerErrorMiddleware.__call__:150-187",
+          "starlette/middleware/exceptions.py:ExceptionMiddleware.add_exception_handler:35-44",
+          "starlette/middleware/exceptions.py:ExceptionMiddleware.__init__:18-33"
+        ],
+        "protected_rows": {
+          "starlette/_exception_handler.py:wrap_app_handling_exceptions:23-65": [
+            "protected_source_overlap"
+          ],
+          "starlette/middleware/errors.py:ServerErrorMiddleware.__call__:150-187": [
+            "protected_source_overlap"
+          ],
+          "starlette/middleware/exceptions.py:ExceptionMiddleware.add_exception_handler:35-44": [
+            "protected_source_overlap"
+          ],
+          "starlette/middleware/exceptions.py:ExceptionMiddleware.__init__:18-33": [
+            "protected_source_overlap"
+          ],
+          "starlette/_exception_handler.py:_lookup_exception_handler:16-20": [
+            "dependency",
+            "protected_source_overlap"
+          ],
+          "starlette/_utils.py:is_async_callable:35-39": [
+            "dependency",
+            "protected_source_overlap"
+          ],
+          "starlette/middleware/errors.py:ServerErrorMiddleware.debug_response:250-257": [
+            "dependency",
+            "protected_source_overlap"
+          ]
+        },
+        "portfolio_ids": [
+          "starlette/_exception_handler.py:wrap_app_handling_exceptions:23-65",
+          "starlette/_exception_handler.py:wrap_app_handling_exceptions.wrapped_app:31-63",
+          "starlette/middleware/errors.py:ServerErrorMiddleware.__call__:150-187",
+          "starlette/middleware/exceptions.py:ExceptionMiddleware.add_exception_handler:35-44",
+          "starlette/middleware/exceptions.py:ExceptionMiddleware.__init__:18-33",
+          "starlette/middleware/exceptions.py:ExceptionMiddleware.__call__:46-62",
+          "starlette/applications.py:Starlette.add_exception_handler:133-138",
+          "starlette/_exception_handler.py:_lookup_exception_handler:16-20",
+          "starlette/applications.py:Starlette.build_middleware_stack:79-99",
+          "starlette/applications.py:Starlette.exception_handler:165-176",
+          "starlette/routing.py:Router.not_found:641-654",
+          "starlette/routing.py:Router.app:717-765",
+          "starlette/applications.py:Starlette.__init__:30-77",
+          "starlette/routing.py:BaseRoute.__call__:188-205",
+          "starlette/endpoints.py:HTTPEndpoint.dispatch:31-41",
+          "starlette/middleware/base.py:BaseHTTPMiddleware.__call__:98-182",
+          "starlette/middleware/base.py:BaseHTTPMiddleware.__call__.call_next:107-173",
+          "starlette/authentication.py:requires.decorator.sync_wrapper:81-92",
+          "starlette/testclient.py:_TestClientTransport.handle_request:208-356",
+          "starlette/_exception_handler.py:wrap_app_handling_exceptions.wrapped_app.sender:34-39",
+          "starlette/authentication.py:requires.decorator:37-94",
+          "starlette/routing.py:Mount.matches:399-430",
+          "starlette/staticfiles.py:StaticFiles.get_response:109-149",
+          "starlette/authentication.py:requires:30-96"
+        ],
+        "facets": [
+          "Where are registered exception handlers attached to a request scope, and where is the matching handler selected while refusing to replace a response that has already started?",
+          "Where are registered exception handlers attached to a request scope",
+          "where is the matching handler selected",
+          "refusing to replace a response that has already started"
+        ],
+        "reference_support": [
+          618768,
+          608306,
+          488413,
+          419030
+        ],
+        "final_support": [
+          618768,
+          608306,
+          488413,
+          458038
+        ],
+        "trials": [
+          {
+            "candidate_id": "starlette/middleware/base.py:BaseHTTPMiddleware.__call__.call_next:107-173",
+            "victim_id": "starlette/middleware/exceptions.py:ExceptionMiddleware.__call__:46-62",
+            "raw_rank": 17,
+            "victim_position": 8,
+            "gain": 39008,
+            "old_support": [
+              618768,
+              608306,
+              488413,
+              419030
+            ],
+            "proposed_support": [
+              618768,
+              608306,
+              488413,
+              458038
+            ],
+            "source_chars": 7611,
+            "tokens": 2466,
+            "accepted": true,
+            "reason": null
+          }
+        ],
+        "exchanges": [
+          {
+            "candidate_id": "starlette/middleware/base.py:BaseHTTPMiddleware.__call__.call_next:107-173",
+            "victim_id": "starlette/middleware/exceptions.py:ExceptionMiddleware.__call__:46-62",
+            "raw_rank": 17,
+            "victim_position": 8,
+            "gain": 39008,
+            "old_support": [
+              618768,
+              608306,
+              488413,
+              419030
+            ],
+            "proposed_support": [
+              618768,
+              608306,
+              488413,
+              458038
+            ],
+            "source_chars": 7611,
+            "tokens": 2466,
+            "accepted": true,
+            "reason": null
+          }
+        ],
+        "accepted": true,
+        "fallback_reason": null,
+        "termination": "no_feasible_positive_exchange",
+        "guard": {
+          "protected_source_preserved": true,
+          "literal_rows_preserved": true,
+          "semantic_floor_preserved": true,
+          "budgets_preserved": true,
+          "reference_support": [
+            618768,
+            608306,
+            488413,
+            419030
+          ],
+          "proposal_support": [
+            618768,
+            608306,
+            488413,
+            458038
+          ],
+          "accepted": true,
+          "fallback_reason": null
+        },
+        "subsequent_backfill_calls": 0
+      },
+      "removed_rows": [
+        {
+          "id": "starlette/middleware/exceptions.py:ExceptionMiddleware.__call__:46-62",
+          "path": "starlette/middleware/exceptions.py",
+          "symbol": "ExceptionMiddleware.__call__",
+          "start_line": 46,
+          "end_line": 62,
+          "window_end_line": 62,
+          "source": "    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:\n        if scope[\"type\"] not in (\"http\", \"websocket\"):\n            await self.app(scope, receive, send)\n            return\n\n        scope[\"starlette.exception_handlers\"] = (\n            self._exception_handlers,\n            self._status_handlers,\n        )\n\n        conn: Request | WebSocket\n        if scope[\"type\"] == \"http\":\n            conn = Request(scope, receive, send)\n        else:\n            conn = WebSocket(scope, receive, send)\n\n        await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)\n",
+          "content_hash": "c0b5cb274777981dd6750c836d4c38faa03366a8794136419a865d42cb455abe",
+          "source_hash": "c0b5cb274777981dd6750c836d4c38faa03366a8794136419a865d42cb455abe",
+          "retrieval_score": 2.0,
+          "h2o_score": null,
+          "origin": "retrieval",
+          "related_to": null,
+          "truncated": false,
+          "raw_rank": 6
+        }
+      ],
+      "added_rows": [
+        {
+          "id": "starlette/middleware/base.py:BaseHTTPMiddleware.__call__.call_next:107-173",
+          "path": "starlette/middleware/base.py",
+          "symbol": "BaseHTTPMiddleware.__call__.call_next",
+          "start_line": 107,
+          "end_line": 173,
+          "window_end_line": 173,
+          "source": "        async def call_next(request: Request) -> Response:\n            app_exc: Exception | None = None\n\n            async def receive_or_disconnect() -> Message:\n                if response_sent.is_set():\n                    return {\"type\": \"http.disconnect\"}\n\n                async with anyio.create_task_group() as task_group:\n\n                    async def wrap(func: typing.Callable[[], typing.Awaitable[T]]) -> T:\n                        result = await func()\n                        task_group.cancel_scope.cancel()\n                        return result\n\n                    task_group.start_soon(wrap, response_sent.wait)\n                    message = await wrap(wrapped_receive)\n\n                if response_sent.is_set():\n                    return {\"type\": \"http.disconnect\"}\n\n                return message\n\n            async def send_no_error(message: Message) -> None:\n                try:\n                    await send_stream.send(message)\n                except anyio.BrokenResourceError:\n                    # recv_stream has been closed, i.e. response_sent has been set.\n                    return\n\n            async def coro() -> None:\n                nonlocal app_exc\n\n                with send_stream:\n                    try:\n                        await self.app(scope, receive_or_disconnect, send_no_error)\n                    except Exception as exc:\n                        app_exc = exc\n\n            task_group.start_soon(coro)\n\n            try:\n                message = await recv_stream.receive()\n                info = message.get(\"info\", None)\n                if message[\"type\"] == \"http.response.debug\" and info is not None:\n                    message = await recv_stream.receive()\n            except anyio.EndOfStream:\n                if app_exc is not None:\n                    raise app_exc\n                raise RuntimeError(\"No response returned.\")\n\n            assert message[\"type\"] == \"http.response.start\"\n\n            async def body_stream() -> typing.AsyncGenerator[bytes, None]:\n                async for message in recv_stream:\n                    assert message[\"type\"] == \"http.response.body\"\n                    body = message.get(\"body\", b\"\")\n                    if body:\n                        yield body\n                    if not message.get(\"more_body\", False):\n                        break\n\n                if app_exc is not None:\n                    raise app_exc\n\n            response = _StreamingResponse(status_code=message[\"status\"], content=body_stream(), info=info)\n            response.raw_headers = message[\"headers\"]\n            return response\n",
+          "content_hash": "1e7e06f1d853d2f108c6d8878d5ae054d8a68e73d086ab9c0c0ecef5962c46d8",
+          "source_hash": "1e7e06f1d853d2f108c6d8878d5ae054d8a68e73d086ab9c0c0ecef5962c46d8",
+          "retrieval_score": -4.3125,
+          "h2o_score": null,
+          "origin": "retrieval",
+          "related_to": null,
+          "truncated": false,
+          "raw_rank": 17
+        }
+      ],
+      "final_tokens": 2466,
+      "final_source_chars": 7611,
+      "compact_sha256": "7e151a6a11e1285e1bd1e8bed516d46ce33f11bd4053d4cbc84b69c445e737b8",
+      "lost_groups": [
+        {
+          "group_number": 1,
+          "targets": [
+            {
+              "evidence_lines": [
+                51,
+                62
+              ],
+              "evidence_sha256": "d4644d7ce0081d64a839ccdc023faa9f960f5bb961fe29b6fbba0a952e6b7677",
+              "path": "starlette/middleware/exceptions.py",
+              "symbol": "ExceptionMiddleware.__call__"
+            }
+          ],
+          "raw_window_ids": [
+            "starlette/middleware/exceptions.py:ExceptionMiddleware.__call__:46-62"
+          ],
+          "coverage_window_ids": [
+            "starlette/middleware/exceptions.py:ExceptionMiddleware.__call__:46-62"
+          ],
+          "legacy_window_ids": [],
+          "final_window_ids": []
+        }
+      ],
+      "diagnosis": "A complete retrieved ExceptionMiddleware.__call__ window at raw rank6 was delivered in coverage slot8, then replaced by raw-rank17 BaseHTTPMiddleware.__call__.call_next. The removed lines attach exception handlers to scope; the replacement manages response/body streams. The final literal-clause semantic maximum rose from419030 to458038 while the other facet maxima stayed unchanged, so the similarity guard accepted a real loss of scope-attachment implementation. The victim was outside the protected top5/dependency/clipped rows. This is final selection loss, not failure to retrieve or token clipping."
+    },
+    {
+      "case_id": "case_b90bdfb25a395c609150c8fe2d1aa89ebb7b8bfe000b8f2d2235f247de58904b",
+      "key": [
+        "qwen_development_observed",
+        "zod",
+        "zod_metadata_attachment_registry",
+        "hybrid_k24_b1"
+      ],
+      "dataset": "zod",
+      "query_id": "zod_metadata_attachment_registry",
+      "condition": "hybrid_k24_b1",
+      "query": "Where is newly attached schema metadata merged with existing metadata and stored in a weak schema registry, with supplied IDs also mapped back to schemas?",
+      "qualified": false,
+      "multi_file": true,
+      "comparisons": {
+        "legacy": {
+          "group_gains": [],
+          "group_losses": [],
+          "complete_gain": false,
+          "complete_loss": false,
+          "single_file_first_hit_loss": false
+        },
+        "coverage_control": {
+          "group_gains": [],
+          "group_losses": [
+            1
+          ],
+          "complete_gain": false,
+          "complete_loss": true,
+          "single_file_first_hit_loss": false
+        }
+      },
+      "final_evidence_ranks": [
+        null,
+        4,
+        1
+      ],
+      "raw_required_group_ranks": [
+        [
+          8
+        ],
+        [
+          5
+        ],
+        [
+          1
+        ]
+      ],
+      "control_references": {
+        "legacy": {
+          "path": "results/window-development-2026-10-21/replay.jsonl.gz",
+          "line_number": 1551,
+          "record_sha256": "b6ad5581be9484e3399f93ce5c646928f8d45088db0b4f6241f8aa283e9c58e2",
+          "response_sha256": "dee1eb889ece7739d99026b1a460a44a39b2c2a8db0cdcd017dda80099936d2c",
+          "compact_sha256": "28ef6e1b413174e87251df15d2cd98a1222a39d7f9b5713df71b8d89061cd560"
+        },
+        "coverage_control": {
+          "path": "results/window-development-2026-10-21/replay.jsonl.gz",
+          "line_number": 1552,
+          "record_sha256": "2c1b4d7f6ebe4cb43bd679c62701a5f28b9894ba53ab5f8d61aba2a1d7d8b66c",
+          "response_sha256": "fe10d35e41fc3fcfdf9dc042f4d2a5fc319d4aacbaed328565f84e3610e70068",
+          "compact_sha256": "fa3dd1271085ce4f9dfc3acb5294b364333148bded8db9d4b2996b35e732d408"
+        }
+      },
+      "control_hashes": {
+        "legacy": {
+          "source_view_sha256": "dee1eb889ece7739d99026b1a460a44a39b2c2a8db0cdcd017dda80099936d2c",
+          "compact_sha256": "28ef6e1b413174e87251df15d2cd98a1222a39d7f9b5713df71b8d89061cd560"
+        },
+        "coverage_control": {
+          "source_view_sha256": "fe10d35e41fc3fcfdf9dc042f4d2a5fc319d4aacbaed328565f84e3610e70068",
+          "compact_sha256": "fa3dd1271085ce4f9dfc3acb5294b364333148bded8db9d4b2996b35e732d408"
+        }
+      },
+      "semantic_receipt": {
+        "schema": "semantic_final_context_v1",
+        "mode": "semantic_final_v1",
+        "activated": true,
+        "score_scale": 1000000,
+        "max_exchanges": 2,
+        "max_budget_trials": 8,
+        "raw_windows_per_definition": 2,
+        "anchor_ids": [
+          "packages/zod/src/v4/core/registries.ts:$ZodRegistry.<instance-initializers:1>:30-31",
+          "packages/zod/src/v4/core/registries.ts:$ZodRegistry._map:30-30",
+          "packages/zod/src/v4/core/to-json-schema.ts:finalize:568-727",
+          "packages/zod/src/v4/core/json-schema-processors.ts:toJSONSchema:886-934",
+          "packages/zod/src/v4/core/registries.ts:$ZodRegistry.add:33-43"
+        ],
+        "protected_rows": {
+          "packages/zod/src/v4/core/registries.ts:$ZodRegistry.<instance-initializers:1>:30-31": [
+            "protected_source_overlap"
+          ],
+          "packages/zod/src/v4/core/to-json-schema.ts:finalize:568-727": [
+            "protected_source_overlap"
+          ],
+          "packages/zod/src/v4/core/json-schema-processors.ts:toJSONSchema:886-934": [
+            "protected_source_overlap"
+          ],
+          "packages/zod/src/v4/core/registries.ts:$ZodRegistry.add:33-43": [
+            "protected_source_overlap"
+          ],
+          "packages/zod/src/v4/core/to-json-schema.ts:compactTypeUnion:444-465": [
+            "clipped",
+            "dependency",
+            "protected_source_overlap"
+          ],
+          "packages/zod/src/v4/classic/from-json-schema.ts:convertSchema:808-913": [
+            "clipped"
+          ]
+        },
+        "portfolio_ids": [
+          "packages/zod/src/v4/core/registries.ts:$ZodRegistry.<instance-initializers:1>:30-31",
+          "packages/zod/src/v4/core/registries.ts:$ZodRegistry._map:30-30",
+          "packages/zod/src/v4/core/to-json-schema.ts:finalize:568-727",
+          "packages/zod/src/v4/core/json-schema-processors.ts:toJSONSchema:886-934",
+          "packages/zod/src/v4/core/registries.ts:$ZodRegistry.add:33-43",
+          "packages/zod/src/v4/core/to-json-schema.ts:finalize:688-758",
+          "packages/zod/src/v4/core/to-json-schema.ts:extractDefs.makeURI:330-361",
+          "packages/zod/src/v4/core/api.ts:meta:1758-1768",
+          "packages/zod/src/v4/classic/from-json-schema.ts:convertSchema:808-913",
+          "packages/zod/src/v4/core/util.ts:attachSchema:951-955",
+          "packages/zod/src/v4/core/to-json-schema.ts:extractDefs:301-441",
+          "packages/zod/src/v4/core/registries.ts:$ZodRegistry.get:60-72",
+          "packages/zod/src/v4/core/registries.ts:$ZodRegistry.remove:51-58",
+          "packages/zod/src/v4/core/to-json-schema.ts:processSchema:213-291",
+          "packages/zod/src/v4/core/json-schema-generator.ts:JSONSchemaGenerator.get metadataRegistry:52-54",
+          "packages/zod/src/v4/classic/schemas.ts:meta:268-274",
+          "packages/zod/src/v4/core/memoizer.ts:memo.attach:240-319",
+          "packages/zod/src/v4/core/to-json-schema.ts:finalize.flattenRef:576-654",
+          "packages/zod/src/v4/core/util.ts:finalizeIssue:957-992",
+          "packages/zod/src/v4/core/registries.ts:registry:90-92",
+          "packages/zod/src/v4/mini/schemas.ts:register:96-99",
+          "packages/zod/src/v4/classic/schemas.ts:register:208-211",
+          "packages/zod/src/v4/core/compile.ts:withParser:151-200",
+          "packages/zod/src/v4/core/compile.ts:generateIntersectionCheck:1932-1945"
+        ],
+        "facets": [
+          "Where is newly attached schema metadata merged with existing metadata and stored in a weak schema registry, with supplied IDs also mapped back to schemas?",
+          "Where is newly attached schema metadata merged with existing metadata",
+          "stored in a weak schema registry",
+          "with supplied IDs also mapped back to schemas"
+        ],
+        "reference_support": [
+          674646,
+          572525,
+          612527,
+          567284
+        ],
+        "final_support": [
+          674646,
+          588547,
+          612527,
+          569868
+        ],
+        "trials": [
+          {
+            "candidate_id": "packages/zod/src/v4/classic/schemas.ts:meta:268-274",
+            "victim_id": "packages/zod/src/v4/core/api.ts:meta:1758-1768",
+            "raw_rank": 16,
+            "victim_position": 7,
+            "gain": 16022,
+            "old_support": [
+              674646,
+              572525,
+              612527,
+              567284
+            ],
+            "proposed_support": [
+              674646,
+              588547,
+              612527,
+              567284
+            ],
+            "source_chars": 11661,
+            "tokens": 4081,
+            "accepted": true,
+            "reason": null
+          },
+          {
+            "candidate_id": "packages/zod/src/v4/core/registries.ts:$ZodRegistry.get:60-72",
+            "victim_id": "packages/zod/src/v4/core/to-json-schema.ts:extractDefs.makeURI:330-361",
+            "raw_rank": 12,
+            "victim_position": 6,
+            "gain": 2584,
+            "old_support": [
+              674646,
+              588547,
+              612527,
+              567284
+            ],
+            "proposed_support": [
+              674646,
+              588547,
+              612527,
+              569868
+            ],
+            "source_chars": 10652,
+            "tokens": 3799,
+            "accepted": true,
+            "reason": null
+          }
+        ],
+        "exchanges": [
+          {
+            "candidate_id": "packages/zod/src/v4/classic/schemas.ts:meta:268-274",
+            "victim_id": "packages/zod/src/v4/core/api.ts:meta:1758-1768",
+            "raw_rank": 16,
+            "victim_position": 7,
+            "gain": 16022,
+            "old_support": [
+              674646,
+              572525,
+              612527,
+              567284
+            ],
+            "proposed_support": [
+              674646,
+              588547,
+              612527,
+              567284
+            ],
+            "source_chars": 11661,
+            "tokens": 4081,
+            "accepted": true,
+            "reason": null
+          },
+          {
+            "candidate_id": "packages/zod/src/v4/core/registries.ts:$ZodRegistry.get:60-72",
+            "victim_id": "packages/zod/src/v4/core/to-json-schema.ts:extractDefs.makeURI:330-361",
+            "raw_rank": 12,
+            "victim_position": 6,
+            "gain": 2584,
+            "old_support": [
+              674646,
+              588547,
+              612527,
+              567284
+            ],
+            "proposed_support": [
+              674646,
+              588547,
+              612527,
+              569868
+            ],
+            "source_chars": 10652,
+            "tokens": 3799,
+            "accepted": true,
+            "reason": null
+          }
+        ],
+        "accepted": true,
+        "fallback_reason": null,
+        "termination": "max_exchanges",
+        "guard": {
+          "protected_source_preserved": true,
+          "literal_rows_preserved": true,
+          "semantic_floor_preserved": true,
+          "budgets_preserved": true,
+          "reference_support": [
+            674646,
+            572525,
+            612527,
+            567284
+          ],
+          "proposal_support": [
+            674646,
+            588547,
+            612527,
+            569868
+          ],
+          "accepted": true,
+          "fallback_reason": null
+        },
+        "subsequent_backfill_calls": 0
+      },
+      "removed_rows": [
+        {
+          "id": "packages/zod/src/v4/core/to-json-schema.ts:extractDefs.makeURI:330-361",
+          "path": "packages/zod/src/v4/core/to-json-schema.ts",
+          "symbol": "extractDefs.makeURI",
+          "start_line": 330,
+          "end_line": 361,
+          "window_end_line": 361,
+          "source": "  const makeURI = (entry: [schemas.$ZodType<unknown, unknown>, Seen]): { ref: string; defId?: string } => {\n    // comparing the seen objects because sometimes multiple schemas map to the same seen object. e.g. lazy\n\n    // external is configured\n    const defsSegment = ctx.target === \"draft-2020-12\" ? \"$defs\" : \"definitions\";\n    if (ctx.external) {\n      const externalId = ctx.external.registry.get(entry[0])?.id; // ?? \"__shared\";// `__schema${ctx.counter++}`;\n\n      // check if schema is in the external registry\n      const uriGenerator = ctx.external.uri ?? ((id: string) => id);\n      if (externalId) {\n        return { ref: uriGenerator(externalId) };\n      }\n\n      // otherwise, add to __shared\n      const id: string = entry[1].defId ?? (entry[1].schema.id as string) ?? `schema${ctx.counter++}`;\n      entry[1].defId = id; // set defId so it will be reused if needed\n      return { defId: id, ref: `${uriGenerator(\"__shared\")}#/${defsSegment}/${encodeJSONPointerSegment(id)}` };\n    }\n\n    const uriPrefix = `#`;\n    const defUriPrefix = `${uriPrefix}/${defsSegment}/`;\n\n    // an id-less root has nowhere to be extracted to, so it stays inline and self-references as `#`\n    if (entry[1] === root && !entry[1].schema.id) {\n      return { ref: uriPrefix };\n    }\n\n    // self-contained schema\n    const defId = entry[1].schema.id ?? `__schema${ctx.counter++}`;\n    return { defId, ref: defUriPrefix + encodeJSONPointerSegment(defId) };\n  };\n",
+          "content_hash": "84684ff7f5e29b02bd482824964863d64a912b326748ee8976a00592fac965b5",
+          "source_hash": "84684ff7f5e29b02bd482824964863d64a912b326748ee8976a00592fac965b5",
+          "retrieval_score": 3.125,
+          "h2o_score": null,
+          "origin": "retrieval",
+          "related_to": null,
+          "truncated": false,
+          "raw_rank": 7
+        },
+        {
+          "id": "packages/zod/src/v4/core/api.ts:meta:1758-1768",
+          "path": "packages/zod/src/v4/core/api.ts",
+          "symbol": "meta",
+          "start_line": 1758,
+          "end_line": 1768,
+          "window_end_line": 1768,
+          "source": "export function meta<T>(metadata: registries.GlobalMeta): checks.$ZodCheck<T> {\n  const ch = new checks.$ZodCheck({ check: \"meta\" });\n  ch._zod.onattach = [\n    (inst) => {\n      const existing = registries.globalRegistry.get(inst) ?? {};\n      registries.globalRegistry.add(inst, { ...existing, ...metadata });\n    },\n  ];\n  ch._zod.check = () => {}; // no-op check\n  return ch;\n}\n",
+          "content_hash": "c8c346a752073104c5565520a7cbf9e298c0fb2bdbacf47cc05f85f5fa9bec38",
+          "source_hash": "c8c346a752073104c5565520a7cbf9e298c0fb2bdbacf47cc05f85f5fa9bec38",
+          "retrieval_score": 1.75,
+          "h2o_score": null,
+          "origin": "retrieval",
+          "related_to": null,
+          "truncated": false,
+          "raw_rank": 8
+        }
+      ],
+      "added_rows": [
+        {
+          "id": "packages/zod/src/v4/core/registries.ts:$ZodRegistry.get:60-72",
+          "path": "packages/zod/src/v4/core/registries.ts",
+          "symbol": "$ZodRegistry.get",
+          "start_line": 60,
+          "end_line": 72,
+          "window_end_line": 72,
+          "source": "  get<S extends Schema>(schema: S): $replace<Meta, S> | undefined {\n    // return this._map.get(schema) as any;\n\n    // inherit metadata\n    const p = schema._zod.parent as Schema;\n    if (p) {\n      const pm: any = { ...(this.get(p) ?? {}) };\n      delete pm.id; // do not inherit id\n      const f = { ...pm, ...this._map.get(schema) } as any;\n      return Object.keys(f).length ? f : undefined;\n    }\n    return this._map.get(schema) as any;\n  }\n",
+          "content_hash": "d65928d11687394b299bbf65b8a9b3fa42ac6cbbbdb0c7a7f7d0079463022fac",
+          "source_hash": "d65928d11687394b299bbf65b8a9b3fa42ac6cbbbdb0c7a7f7d0079463022fac",
+          "retrieval_score": 0.75,
+          "h2o_score": null,
+          "origin": "retrieval",
+          "related_to": null,
+          "truncated": false,
+          "raw_rank": 12
+        },
+        {
+          "id": "packages/zod/src/v4/classic/schemas.ts:meta:268-274",
+          "path": "packages/zod/src/v4/classic/schemas.ts",
+          "symbol": "meta",
+          "start_line": 268,
+          "end_line": 274,
+          "window_end_line": 274,
+          "source": "    meta(...args: any[]): any {\n      // overloaded: meta() returns the registered metadata, meta(data) returns a clone with `data` registered. The mapped type picks up the second overload, so we accept variadic any-args and return `any` to satisfy both at runtime.\n      if (args.length === 0) return core.globalRegistry.get(this);\n      const cl = this.clone();\n      core.globalRegistry.add(cl, args[0]);\n      return cl;\n    },\n",
+          "content_hash": "625d43496969413c5ad8087360152163398d818cac9f2dbd5fbafb7054eee3f2",
+          "source_hash": "625d43496969413c5ad8087360152163398d818cac9f2dbd5fbafb7054eee3f2",
+          "retrieval_score": -2.375,
+          "h2o_score": null,
+          "origin": "retrieval",
+          "related_to": null,
+          "truncated": false,
+          "raw_rank": 16
+        }
+      ],
+      "final_tokens": 3799,
+      "final_source_chars": 10652,
+      "compact_sha256": "d986e7da008e972ed070e7271a0321abd76538779aa1248233687d437d566c0b",
+      "lost_groups": [
+        {
+          "group_number": 1,
+          "targets": [
+            {
+              "declaration_anchor": "export function meta<T>(",
+              "definition_lines": [
+                1758,
+                1768
+              ],
+              "evidence_lines": [
+                1759,
+                1768
+              ],
+              "evidence_sha256": "8d8a8d07b9dc1a9b1c82630f45c494bf757f04a849c922451269ff92c803eca5",
+              "path": "packages/zod/src/v4/core/api.ts",
+              "source_file_sha256": "9ad4da853ced907f2e5764e5a390f087c0bc8633638a993c50699f0827a5bf5d",
+              "symbol": "meta"
+            }
+          ],
+          "raw_window_ids": [
+            "packages/zod/src/v4/core/api.ts:meta:1758-1768"
+          ],
+          "coverage_window_ids": [
+            "packages/zod/src/v4/core/api.ts:meta:1758-1768"
+          ],
+          "legacy_window_ids": [],
+          "final_window_ids": []
+        }
+      ],
+      "diagnosis": "A complete retrieved core/api.ts meta window at raw rank8 was delivered in coverage slot7, then replaced by raw-rank16 classic/schemas.ts meta. Core meta installs onattach and merges existing metadata; classic meta clones and registers its supplied argument. The first exchange raised facet1 by16022ppm. A second accepted exchange added Registry.get for another2584ppm. Registry.add/initializers and clipped dependencies remained protected, but the required core merge implementation was outside that protection. This is same-named implementation substitution during final selection, not missing upstream source or clipping."
+    },
+    {
+      "case_id": "case_e16a54ee46f54bef57c404477d405926c1e47f7b6da55a7f63f19df30f454b0d",
+      "key": [
+        "qwen_httpx_observed",
+        "httpx",
+        "httpx_json_request_encoding_and_headers",
+        "hybrid_k24_b1"
+      ],
+      "dataset": "httpx",
+      "query_id": "httpx_json_request_encoding_and_headers",
+      "condition": "hybrid_k24_b1",
+      "query": "Build a JSON request body with compact UTF-8 serialization and its byte length, reject non-finite numbers, and preserve content headers explicitly supplied by the caller.",
+      "qualified": false,
+      "multi_file": true,
+      "comparisons": {
+        "legacy": {
+          "group_gains": [],
+          "group_losses": [
+            4
+          ],
+          "complete_gain": false,
+          "complete_loss": false,
+          "single_file_first_hit_loss": false
+        },
+        "coverage_control": {
+          "group_gains": [],
+          "group_losses": [
+            4
+          ],
+          "complete_gain": false,
+          "complete_loss": false,
+          "single_file_first_hit_loss": false
+        }
+      },
+      "final_evidence_ranks": [
+        null,
+        null,
+        1,
+        null
+      ],
+      "raw_required_group_ranks": [
+        [
+          9
+        ],
+        [
+          8
+        ],
+        [
+          1
+        ],
+        [
+          6
+        ]
+      ],
+      "control_references": {
+        "legacy": {
+          "path": "results/window-development-2026-10-21/replay.jsonl.gz",
+          "line_number": 1611,
+          "record_sha256": "533ebf4a1d1ac471c6d29899a18e9aa2fcd22c3a47aa98c2c8a9390f0aa600f9",
+          "response_sha256": "ef1f249b81462772f91b064684ece5ddb9ee09c6aa340494145b8e2ac32e2d55",
+          "compact_sha256": "5e71004083b68299ee719d6239dd447cfc996448c5c4e536aab28e0cd8dfe98e"
+        },
+        "coverage_control": {
+          "path": "results/window-development-2026-10-21/replay.jsonl.gz",
+          "line_number": 1612,
+          "record_sha256": "4501af339df20ce97cff3a906fb8c04edb2334b5ea19e3bb33f8b22e58429eb1",
+          "response_sha256": "e2b509946e4c2841a4c6be57cfd8a097edd9b06bdef3d0f14415bf30f41b6bf4",
+          "compact_sha256": "5e71004083b68299ee719d6239dd447cfc996448c5c4e536aab28e0cd8dfe98e"
+        }
+      },
+      "control_hashes": {
+        "legacy": {
+          "source_view_sha256": "ef1f249b81462772f91b064684ece5ddb9ee09c6aa340494145b8e2ac32e2d55",
+          "compact_sha256": "5e71004083b68299ee719d6239dd447cfc996448c5c4e536aab28e0cd8dfe98e"
+        },
+        "coverage_control": {
+          "source_view_sha256": "e2b509946e4c2841a4c6be57cfd8a097edd9b06bdef3d0f14415bf30f41b6bf4",
+          "compact_sha256": "5e71004083b68299ee719d6239dd447cfc996448c5c4e536aab28e0cd8dfe98e"
+        }
+      },
+      "semantic_receipt": {
+        "schema": "semantic_final_context_v1",
+        "mode": "semantic_final_v1",
+        "activated": true,
+        "score_scale": 1000000,
+        "max_exchanges": 2,
+        "max_budget_trials": 8,
+        "raw_windows_per_definition": 2,
+        "anchor_ids": [
+          "httpx/_content.py:encode_json:176-183",
+          "httpx/_content.py:encode_text:160-165",
+          "httpx/_content.py:encode_content:107-133",
+          "httpx/_content.py:encode_urlencoded_data:136-149",
+          "httpx/_content.py:encode_html:168-173"
+        ],
+        "protected_rows": {
+          "httpx/_content.py:encode_json:176-183": [
+            "protected_source_overlap"
+          ],
+          "httpx/_content.py:encode_text:160-165": [
+            "protected_source_overlap"
+          ],
+          "httpx/_content.py:encode_content:107-133": [
+            "protected_source_overlap"
+          ],
+          "httpx/_content.py:encode_urlencoded_data:136-149": [
+            "protected_source_overlap"
+          ],
+          "httpx/_content.py:encode_html:168-173": [
+            "protected_source_overlap"
+          ],
+          "httpx/_utils.py:peek_filelike_length:95-117": [
+            "dependency",
+            "protected_source_overlap"
+          ],
+          "httpx/_utils.py:primitive_value_to_str:15-27": [
+            "dependency",
+            "protected_source_overlap"
+          ]
+        },
+        "portfolio_ids": [
+          "httpx/_content.py:encode_json:176-183",
+          "httpx/_content.py:encode_text:160-165",
+          "httpx/_content.py:encode_content:107-133",
+          "httpx/_content.py:encode_urlencoded_data:136-149",
+          "httpx/_content.py:encode_html:168-173",
+          "httpx/_models.py:Request._prepare:441-460",
+          "httpx/_models.py:Response._prepare:571-576",
+          "httpx/_content.py:encode_request:186-218",
+          "httpx/_models.py:Request.__init__:383-439",
+          "httpx/_content.py:encode_response:221-240",
+          "httpx/_client.py:BaseClient.build_request:340-389",
+          "httpx/_client.py:AsyncClient.request:1485-1540",
+          "httpx/_multipart.py:MultipartStream.get_headers:287-292",
+          "httpx/_client.py:Client.request:771-825",
+          "httpx/_models.py:Response.__init__:516-569",
+          "httpx/_api.py:request:39-120",
+          "httpx/_models.py:Response.encoding:652-672",
+          "httpx/_multipart.py:DataField.get_length:105-108",
+          "httpx/_multipart.py:MultipartStream.get_content_length:265-283",
+          "httpx/_multipart.py:DataField.render_headers:90-97",
+          "httpx/_main.py:format_request_headers:116-126",
+          "httpx/_multipart.py:FileField.render_headers:186-201",
+          "httpx/_models.py:Headers.encoding:166-189",
+          "httpx/_models.py:Request.read:468-480"
+        ],
+        "facets": [
+          "Build a JSON request body with compact UTF-8 serialization and its byte length, reject non-finite numbers, and preserve content headers explicitly supplied by the caller.",
+          "Build a JSON request body with compact UTF-8 serialization",
+          "reject non-finite numbers",
+          "preserve content headers explicitly supplied by the caller"
+        ],
+        "reference_support": [
+          650829,
+          621225,
+          285029,
+          644805
+        ],
+        "final_support": [
+          650829,
+          621225,
+          285029,
+          662293
+        ],
+        "trials": [
+          {
+            "candidate_id": "httpx/_models.py:Response._prepare:571-576",
+            "victim_id": "httpx/_models.py:Request._prepare:441-460",
+            "raw_rank": 7,
+            "victim_position": 8,
+            "gain": 17488,
+            "old_support": [
+              650829,
+              621225,
+              285029,
+              644805
+            ],
+            "proposed_support": [
+              650829,
+              621225,
+              285029,
+              662293
+            ],
+            "source_chars": 4478,
+            "tokens": 1952,
+            "accepted": true,
+            "reason": null
+          }
+        ],
+        "exchanges": [
+          {
+            "candidate_id": "httpx/_models.py:Response._prepare:571-576",
+            "victim_id": "httpx/_models.py:Request._prepare:441-460",
+            "raw_rank": 7,
+            "victim_position": 8,
+            "gain": 17488,
+            "old_support": [
+              650829,
+              621225,
+              285029,
+              644805
+            ],
+            "proposed_support": [
+              650829,
+              621225,
+              285029,
+              662293
+            ],
+            "source_chars": 4478,
+            "tokens": 1952,
+            "accepted": true,
+            "reason": null
+          }
+        ],
+        "accepted": true,
+        "fallback_reason": null,
+        "termination": "no_feasible_positive_exchange",
+        "guard": {
+          "protected_source_preserved": true,
+          "literal_rows_preserved": true,
+          "semantic_floor_preserved": true,
+          "budgets_preserved": true,
+          "reference_support": [
+            650829,
+            621225,
+            285029,
+            644805
+          ],
+          "proposal_support": [
+            650829,
+            621225,
+            285029,
+            662293
+          ],
+          "accepted": true,
+          "fallback_reason": null
+        },
+        "subsequent_backfill_calls": 0
+      },
+      "removed_rows": [
+        {
+          "id": "httpx/_models.py:Request._prepare:441-460",
+          "path": "httpx/_models.py",
+          "symbol": "Request._prepare",
+          "start_line": 441,
+          "end_line": 460,
+          "window_end_line": 460,
+          "source": "    def _prepare(self, default_headers: dict[str, str]) -> None:\n        for key, value in default_headers.items():\n            # Ignore Transfer-Encoding if the Content-Length has been set explicitly.\n            if key.lower() == \"transfer-encoding\" and \"Content-Length\" in self.headers:\n                continue\n            self.headers.setdefault(key, value)\n\n        auto_headers: list[tuple[bytes, bytes]] = []\n\n        has_host = \"Host\" in self.headers\n        has_content_length = (\n            \"Content-Length\" in self.headers or \"Transfer-Encoding\" in self.headers\n        )\n\n        if not has_host and self.url.host:\n            auto_headers.append((b\"Host\", self.url.netloc))\n        if not has_content_length and self.method in (\"POST\", \"PUT\", \"PATCH\"):\n            auto_headers.append((b\"Content-Length\", b\"0\"))\n\n        self.headers = Headers(auto_headers + self.headers.raw)\n",
+          "content_hash": "2512f2c35f01fe341f99e1c6f88e680bd82ae89b7e9a812b129829724921bb2c",
+          "source_hash": "2512f2c35f01fe341f99e1c6f88e680bd82ae89b7e9a812b129829724921bb2c",
+          "retrieval_score": 0.875,
+          "h2o_score": null,
+          "origin": "retrieval",
+          "related_to": null,
+          "truncated": false,
+          "raw_rank": 6
+        }
+      ],
+      "added_rows": [
+        {
+          "id": "httpx/_models.py:Response._prepare:571-576",
+          "path": "httpx/_models.py",
+          "symbol": "Response._prepare",
+          "start_line": 571,
+          "end_line": 576,
+          "window_end_line": 576,
+          "source": "    def _prepare(self, default_headers: dict[str, str]) -> None:\n        for key, value in default_headers.items():\n            # Ignore Transfer-Encoding if the Content-Length has been set explicitly.\n            if key.lower() == \"transfer-encoding\" and \"content-length\" in self.headers:\n                continue\n            self.headers.setdefault(key, value)\n",
+          "content_hash": "69ed4fb830e46c50f4378a53cbb2ecc4745fb7a0d16e6e2af3fd77f2f8a62761",
+          "source_hash": "69ed4fb830e46c50f4378a53cbb2ecc4745fb7a0d16e6e2af3fd77f2f8a62761",
+          "retrieval_score": 0.0,
+          "h2o_score": null,
+          "origin": "retrieval",
+          "related_to": null,
+          "truncated": false,
+          "raw_rank": 7
+        }
+      ],
+      "final_tokens": 1952,
+      "final_source_chars": 4478,
+      "compact_sha256": "f2dde386125739a2c7f7e30024086038f4204f9fa0ec26c5972b7e2303ec90a1",
+      "lost_groups": [
+        {
+          "group_number": 4,
+          "targets": [
+            {
+              "declaration_anchor": "def _prepare(self, default_headers: dict[str, str]) -> None:",
+              "definition_lines": [
+                441,
+                460
+              ],
+              "evidence_lines": [
+                441,
+                460
+              ],
+              "evidence_sha256": "2512f2c35f01fe341f99e1c6f88e680bd82ae89b7e9a812b129829724921bb2c",
+              "path": "httpx/_models.py",
+              "source_file_sha256": "e3ffc6bb2bf580bc6e6428708a6f247d036220e709f5a72b785392babbd97e6b",
+              "symbol": "Request._prepare"
+            }
+          ],
+          "raw_window_ids": [
+            "httpx/_models.py:Request._prepare:441-460"
+          ],
+          "coverage_window_ids": [
+            "httpx/_models.py:Request._prepare:441-460"
+          ],
+          "legacy_window_ids": [
+            "httpx/_models.py:Request._prepare:441-460"
+          ],
+          "final_window_ids": []
+        }
+      ],
+      "diagnosis": "A complete retrieved Request._prepare window at raw rank6 in coverage slot8 was replaced by raw-rank7 Response._prepare. Their header-default code is similar, but the receiver and full Request implementation differ. The explicit-caller-header facet maximum rose17488ppm; all other maxima stayed unchanged. The final payload used1952/4096tokens, so the token cap was not exhausted; the fixed eight-result cap still applied. Required request source was dropped by the semantic exchange despite being available and delivered by both controls."
+    }
+  ],
+  "gain_cases_vs_coverage": [
+    {
+      "case_id": "case_bca6e91939489c546a8af22ed59e5800b82b015dc3790470560a64231b00ceae",
+      "key": [
+        "native_jinja_observed",
+        "jinja",
+        "jinja_filename_autoescape_to_generated_output",
+        "dense"
+      ],
+      "dataset": "jinja",
+      "query_id": "jinja_filename_autoescape_to_generated_output",
+      "condition": "dense",
+      "query": "Where is automatic HTML escaping selected by a template filename or a separate policy for templates created from strings, then carried into code generation so dynamic expressions are escaped only when enabled?",
+      "qualified": false,
+      "multi_file": true,
+      "comparisons": {
+        "legacy": {
+          "group_gains": [
+            3
+          ],
+          "group_losses": [],
+          "complete_gain": false,
+          "complete_loss": false,
+          "single_file_first_hit_loss": false
+        },
+        "coverage_control": {
+          "group_gains": [
+            3
+          ],
+          "group_losses": [],
+          "complete_gain": false,
+          "complete_loss": false,
+          "single_file_first_hit_loss": false
+        }
+      },
+      "final_evidence_ranks": [
+        1,
+        null,
+        8
+      ],
+      "raw_required_group_ranks": [
+        [
+          1
+        ],
+        [
+          18
+        ],
+        [
+          12
+        ]
+      ],
+      "control_references": {
+        "legacy": {
+          "path": "results/window-development-2026-10-21/replay.jsonl.gz",
+          "line_number": 826,
+          "record_sha256": "671d15c3d811d8e473a94fee97fbc2fc995eb2eda008331ee58cd29e3c8be695",
+          "response_sha256": "b5a4abadd39a2fad4c038c732bea9c817be0df1d16add8b84c371a1e5d686ba6",
+          "compact_sha256": "a7480e5d19cf660d1a6c7a64a4a6280c2afadb850e85c980ce7ab69a4b635e59"
+        },
+        "coverage_control": {
+          "path": "results/window-development-2026-10-21/replay.jsonl.gz",
+          "line_number": 827,
+          "record_sha256": "411c1ba27530a0869789af15879ef435e4bc2b3743e4999219d20fbe9ae3b47c",
+          "response_sha256": "fb6669f36a972b6ed74be72cb9aa39265c7044c2919fd04dbc959c3b8d173f8a",
+          "compact_sha256": "1c54dc79a86b2224d72f5db6d1636d1386827da4a8a533255d4aefe28b96f174"
+        }
+      },
+      "control_hashes": {
+        "legacy": {
+          "source_view_sha256": "b5a4abadd39a2fad4c038c732bea9c817be0df1d16add8b84c371a1e5d686ba6",
+          "compact_sha256": "a7480e5d19cf660d1a6c7a64a4a6280c2afadb850e85c980ce7ab69a4b635e59"
+        },
+        "coverage_control": {
+          "source_view_sha256": "fb6669f36a972b6ed74be72cb9aa39265c7044c2919fd04dbc959c3b8d173f8a",
+          "compact_sha256": "1c54dc79a86b2224d72f5db6d1636d1386827da4a8a533255d4aefe28b96f174"
+        }
+      },
+      "semantic_receipt": {
+        "schema": "semantic_final_context_v1",
+        "mode": "semantic_final_v1",
+        "activated": true,
+        "score_scale": 1000000,
+        "max_exchanges": 2,
+        "max_budget_trials": 8,
+        "raw_windows_per_definition": 2,
+        "anchor_ids": [
+          "src/jinja2/utils.py:select_autoescape:581-634",
+          "src/jinja2/utils.py:select_autoescape.autoescape:624-632",
+          "src/jinja2/filters.py:do_forceescape:139-144",
+          "src/jinja2/tests.py:test_escaped:203-205",
+          "src/jinja2/nodes.py:MarkSafeIfAutoescape.as_const:1104-1113"
+        ],
+        "protected_rows": {
+          "src/jinja2/utils.py:select_autoescape:581-634": [
+            "protected_source_overlap"
+          ],
+          "src/jinja2/filters.py:do_forceescape:139-144": [
+            "protected_source_overlap"
+          ],
+          "src/jinja2/tests.py:test_escaped:203-205": [
+            "protected_source_overlap"
+          ],
+          "src/jinja2/nodes.py:MarkSafeIfAutoescape.as_const:1104-1113": [
+            "protected_source_overlap"
+          ],
+          "src/jinja2/nodes.py:get_eval_context:94-102": [
+            "dependency",
+            "protected_source_overlap"
+          ]
+        },
+        "portfolio_ids": [
+          "src/jinja2/utils.py:select_autoescape:581-634",
+          "src/jinja2/utils.py:select_autoescape.autoescape:624-632",
+          "src/jinja2/filters.py:do_forceescape:139-144",
+          "src/jinja2/tests.py:test_escaped:203-205",
+          "src/jinja2/nodes.py:MarkSafeIfAutoescape.as_const:1104-1113",
+          "src/jinja2/compiler.py:CodeGenerator.visit_MarkSafeIfAutoescape:1915-1920",
+          "src/jinja2/parser.py:Parser.parse_autoescape:290-294",
+          "src/jinja2/compiler.py:CodeGenerator.visit_TemplateData:1677-1683",
+          "src/jinja2/nodes.py:TemplateData.as_const:614-620",
+          "src/jinja2/filters.py:do_mark_safe:1373-1377",
+          "src/jinja2/utils.py:htmlsafe_json_dumps:637-674",
+          "src/jinja2/compiler.py:CodeGenerator._output_child_pre:1476-1490",
+          "src/jinja2/compiler.py:CodeGenerator.return_buffer_contents:394-412",
+          "src/jinja2/runtime.py:Macro.__call__:694-770",
+          "src/jinja2/filters.py:do_tojson:1695-1721",
+          "src/jinja2/environment.py:Template.__new__:1167-1214",
+          "src/jinja2/ext.py:_make_new_gettext.gettext:172-180",
+          "src/jinja2/nodes.py:EvalContext.__init__:76-84",
+          "src/jinja2/compiler.py:generate:101-122",
+          "src/jinja2/environment.py:Environment._generate:682-701",
+          "src/jinja2/compiler.py:CodeGenerator.visit_Filter:1836-1851",
+          "src/jinja2/filters.py:do_xmlattr:259-318",
+          "src/jinja2/environment.py:Environment.compile:731-771",
+          "src/jinja2/environment.py:Environment.list_templates.filter_func:928-929",
+          "src/jinja2/ext.py:_make_new_gettext:171-182",
+          "src/jinja2/runtime.py:ChainableUndefined.__html__:988-989",
+          "src/jinja2/environment.py:TemplateModule.__html__:1543-1544",
+          "src/jinja2/nativetypes.py:NativeTemplate.render:98-112",
+          "src/jinja2/environment.py:Environment.compile_expression:773-816",
+          "src/jinja2/compiler.py:CodeGenerator.visit_Template:829-949",
+          "src/jinja2/compiler.py:CodeGenerator._output_child_to_const:1455-1474",
+          "src/jinja2/meta.py:find_referenced_templates:62-112",
+          "src/jinja2/ext.py:_make_new_pgettext.pgettext:205-216",
+          "src/jinja2/runtime.py:Macro._invoke:780-789",
+          "src/jinja2/filters.py:do_striptags:1051-1056",
+          "src/jinja2/compiler.py:CodeGenerator.visit_Output:1503-1580",
+          "src/jinja2/ext.py:InternationalizationExtension._make_node:527-587",
+          "src/jinja2/runtime.py:markup_join:77-85",
+          "src/jinja2/ext.py:_make_new_ngettext.ngettext:186-199",
+          "src/jinja2/compiler.py:CodeGenerator.visit_MarkSafe:1910-1913",
+          "src/jinja2/environment.py:Environment.parse:598-616",
+          "src/jinja2/filters.py:do_replace:178-211",
+          "src/jinja2/loaders.py:ModuleLoader.get_template_key:659-661",
+          "src/jinja2/compiler.py:CodeGenerator.visit_Include:1042-1098",
+          "src/jinja2/environment.py:TemplateExpression.__init__:1563-1565",
+          "src/jinja2/environment.py:TemplateExpression.__call__:1567-1573",
+          "src/jinja2/environment.py:Template.from_code:1216-1231",
+          "src/jinja2/filters.py:do_mark_unsafe:1380-1382",
+          "src/jinja2/environment.py:Environment.from_string:1092-1111",
+          "src/jinja2/ext.py:babel_extract:774-863"
+        ],
+        "facets": [
+          "Where is automatic HTML escaping selected by a template filename or a separate policy for templates created from strings, then carried into code generation so dynamic expressions are escaped only when enabled?",
+          "Where is automatic HTML escaping selected by a template filename or a separate policy for templates created from strings",
+          "carried into code generation so dynamic expressions are escaped only when enabled"
+        ],
+        "reference_support": [
+          709536,
+          711023,
+          606659
+        ],
+        "final_support": [
+          709536,
+          711023,
+          608213
+        ],
+        "trials": [
+          {
+            "candidate_id": "src/jinja2/compiler.py:CodeGenerator._output_child_pre:1476-1490",
+            "victim_id": "src/jinja2/compiler.py:CodeGenerator.visit_TemplateData:1677-1683",
+            "raw_rank": 12,
+            "victim_position": 8,
+            "gain": 1554,
+            "old_support": [
+              709536,
+              711023,
+              606659
+            ],
+            "proposed_support": [
+              709536,
+              711023,
+              608213
+            ],
+            "source_chars": 4366,
+            "tokens": 1913,
+            "accepted": true,
+            "reason": null
+          }
+        ],
+        "exchanges": [
+          {
+            "candidate_id": "src/jinja2/compiler.py:CodeGenerator._output_child_pre:1476-1490",
+            "victim_id": "src/jinja2/compiler.py:CodeGenerator.visit_TemplateData:1677-1683",
+            "raw_rank": 12,
+            "victim_position": 8,
+            "gain": 1554,
+            "old_support": [
+              709536,
+              711023,
+              606659
+            ],
+            "proposed_support": [
+              709536,
+              711023,
+              608213
+            ],
+            "source_chars": 4366,
+            "tokens": 1913,
+            "accepted": true,
+            "reason": null
+          }
+        ],
+        "accepted": true,
+        "fallback_reason": null,
+        "termination": "no_feasible_positive_exchange",
+        "guard": {
+          "protected_source_preserved": true,
+          "literal_rows_preserved": true,
+          "semantic_floor_preserved": true,
+          "budgets_preserved": true,
+          "reference_support": [
+            709536,
+            711023,
+            606659
+          ],
+          "proposal_support": [
+            709536,
+            711023,
+            608213
+          ],
+          "accepted": true,
+          "fallback_reason": null
+        },
+        "subsequent_backfill_calls": 0
+      },
+      "removed_rows": [
+        {
+          "id": "src/jinja2/compiler.py:CodeGenerator.visit_TemplateData:1677-1683",
+          "path": "src/jinja2/compiler.py",
+          "symbol": "CodeGenerator.visit_TemplateData",
+          "start_line": 1677,
+          "end_line": 1683,
+          "window_end_line": 1683,
+          "source": "    def visit_TemplateData(self, node: nodes.TemplateData, frame: Frame) -> None:\n        try:\n            self.write(repr(node.as_const(frame.eval_ctx)))\n        except nodes.Impossible:\n            self.write(\n                f\"(Markup if context.eval_ctx.autoescape else identity)({node.data!r})\"\n            )\n",
+          "content_hash": "3bd24263843d3e00d96a927109fe572cef58ae11428176bc2fb2558b42d854ba",
+          "source_hash": "3bd24263843d3e00d96a927109fe572cef58ae11428176bc2fb2558b42d854ba",
+          "retrieval_score": 0.5553802847862244,
+          "h2o_score": null,
+          "origin": "retrieval",
+          "related_to": null,
+          "truncated": false,
+          "qwen_score": null,
+          "raw_rank": 8
+        }
+      ],
+      "added_rows": [
+        {
+          "id": "src/jinja2/compiler.py:CodeGenerator._output_child_pre:1476-1490",
+          "path": "src/jinja2/compiler.py",
+          "symbol": "CodeGenerator._output_child_pre",
+          "start_line": 1476,
+          "end_line": 1490,
+          "window_end_line": 1490,
+          "source": "    def _output_child_pre(\n        self, node: nodes.Expr, frame: Frame, finalize: _FinalizeInfo\n    ) -> None:\n        \"\"\"Output extra source code before visiting a child of an\n        ``Output`` node.\n        \"\"\"\n        if frame.eval_ctx.volatile:\n            self.write(\"(escape if context.eval_ctx.autoescape else str)(\")\n        elif frame.eval_ctx.autoescape:\n            self.write(\"escape(\")\n        else:\n            self.write(\"str(\")\n\n        if finalize.src is not None:\n            self.write(finalize.src)\n",
+          "content_hash": "950d7b8230fc9ca2716958a15cb09acbca9abc0ea2946b3b7c02bfd228381085",
+          "source_hash": "950d7b8230fc9ca2716958a15cb09acbca9abc0ea2946b3b7c02bfd228381085",
+          "retrieval_score": 0.5182232856750488,
+          "h2o_score": null,
+          "origin": "retrieval",
+          "related_to": null,
+          "truncated": false,
+          "qwen_score": null,
+          "raw_rank": 12
+        }
+      ],
+      "final_tokens": 1913,
+      "final_source_chars": 4366,
+      "compact_sha256": "19040f46bfc01e6e3affd92ff881c3a9692121649bc7b9dea91e7cc313aa0c8a",
+      "gained_groups": [
+        {
+          "group_number": 3,
+          "targets": [
+            {
+              "path": "src/jinja2/compiler.py",
+              "symbol": "CodeGenerator._output_child_pre",
+              "evidence_lines": [
+                1482,
+                1487
+              ],
+              "source_file_sha256": "f51a42425e57f3c0479652623ec1cf876f791e1d2e029bf0149350baeb542de3",
+              "evidence_sha256": "8cd38d90c72936e7c1d5c22c2705fe6341bd934571b9bed5c63ad85345f5805b"
+            }
+          ],
+          "raw_window_ids": [
+            "src/jinja2/compiler.py:CodeGenerator._output_child_pre:1476-1490"
+          ],
+          "coverage_window_ids": [],
+          "final_window_ids": [
+            "src/jinja2/compiler.py:CodeGenerator._output_child_pre:1476-1490"
+          ]
+        }
+      ],
+      "diagnosis": "New final-context source was already present in the frozen raw pool; exact delivered evidence increased."
+    },
+    {
+      "case_id": "case_7d782616d88477dcf2a9ecfc87583a7d5b4eba4193e29fb0e18a92fdc018a726",
+      "key": [
+        "native_jinja_observed",
+        "jinja",
+        "jinja_filename_autoescape_to_generated_output",
+        "hybrid"
+      ],
+      "dataset": "jinja",
+      "query_id": "jinja_filename_autoescape_to_generated_output",
+      "condition": "hybrid",
+      "query": "Where is automatic HTML escaping selected by a template filename or a separate policy for templates created from strings, then carried into code generation so dynamic expressions are escaped only when enabled?",
+      "qualified": false,
+      "multi_file": true,
+      "comparisons": {
+        "legacy": {
+          "group_gains": [
+            3
+          ],
+          "group_losses": [],
+          "complete_gain": false,
+          "complete_loss": false,
+          "single_file_first_hit_loss": false
+        },
+        "coverage_control": {
+          "group_gains": [
+            3
+          ],
+          "group_losses": [],
+          "complete_gain": false,
+          "complete_loss": false,
+          "single_file_first_hit_loss": false
+        }
+      },
+      "final_evidence_ranks": [
+        1,
+        null,
+        8
+      ],
+      "raw_required_group_ranks": [
+        [
+          1
+        ],
+        [
+          37
+        ],
+        [
+          28
+        ]
+      ],
+      "control_references": {
+        "legacy": {
+          "path": "results/window-development-2026-10-21/replay.jsonl.gz",
+          "line_number": 821,
+          "record_sha256": "4206ec9a24f842529bb7a3e013c38d99b3a1e7e62b52d67a0b4795e62ff10fc0",
+          "response_sha256": "afdd54d4b8ca363014515e2865a9386376d3ff3864ccd75d965b73447330654c",
+          "compact_sha256": "b86783482b73378706cdbbcf88ffbd241b1892a5f062a6e3c513f23477ae8d94"
+        },
+        "coverage_control": {
+          "path": "results/window-development-2026-10-21/replay.jsonl.gz",
+          "line_number": 822,
+          "record_sha256": "35e9dd6bdb8ad2745619db1262d4cd7f258efaa1f81524a34f6a97b418501c14",
+          "response_sha256": "641f567c250e70ddeaf1c99f094f2f31758466ff308444b40091d2c07fb83785",
+          "compact_sha256": "b86783482b73378706cdbbcf88ffbd241b1892a5f062a6e3c513f23477ae8d94"
+        }
+      },
+      "control_hashes": {
+        "legacy": {
+          "source_view_sha256": "afdd54d4b8ca363014515e2865a9386376d3ff3864ccd75d965b73447330654c",
+          "compact_sha256": "b86783482b73378706cdbbcf88ffbd241b1892a5f062a6e3c513f23477ae8d94"
+        },
+        "coverage_control": {
+          "source_view_sha256": "641f567c250e70ddeaf1c99f094f2f31758466ff308444b40091d2c07fb83785",
+          "compact_sha256": "b86783482b73378706cdbbcf88ffbd241b1892a5f062a6e3c513f23477ae8d94"
+        }
+      },
+      "semantic_receipt": {
+        "schema": "semantic_final_context_v1",
+        "mode": "semantic_final_v1",
+        "activated": true,
+        "score_scale": 1000000,
+        "max_exchanges": 2,
+        "max_budget_trials": 8,
+        "raw_windows_per_definition": 2,
+        "anchor_ids": [
+          "src/jinja2/utils.py:select_autoescape:581-634",
+          "src/jinja2/filters.py:do_mark_safe:1373-1377",
+          "src/jinja2/tests.py:test_escaped:203-205",
+          "src/jinja2/utils.py:htmlsafe_json_dumps:637-674",
+          "src/jinja2/filters.py:do_forceescape:139-144"
+        ],
+        "protected_rows": {
+          "src/jinja2/utils.py:select_autoescape:581-634": [
+            "protected_source_overlap"
+          ],
+          "src/jinja2/filters.py:do_mark_safe:1373-1377": [
+            "protected_source_overlap"
+          ],
+          "src/jinja2/tests.py:test_escaped:203-205": [
+            "protected_source_overlap"
+          ],
+          "src/jinja2/utils.py:htmlsafe_json_dumps:637-674": [
+            "protected_source_overlap"
+          ],
+          "src/jinja2/filters.py:do_forceescape:139-144": [
+            "protected_source_overlap"
+          ]
+        },
+        "portfolio_ids": [
+          "src/jinja2/utils.py:select_autoescape:581-634",
+          "src/jinja2/filters.py:do_mark_safe:1373-1377",
+          "src/jinja2/tests.py:test_escaped:203-205",
+          "src/jinja2/utils.py:htmlsafe_json_dumps:637-674",
+          "src/jinja2/filters.py:do_forceescape:139-144",
+          "src/jinja2/meta.py:find_referenced_templates:62-112",
+          "src/jinja2/environment.py:Environment.parse:598-616",
+          "src/jinja2/filters.py:do_tojson:1695-1721",
+          "src/jinja2/ext.py:_make_new_gettext.gettext:172-180",
+          "src/jinja2/environment.py:Environment.compile:731-771",
+          "src/jinja2/environment.py:Template.from_code:1216-1231",
+          "src/jinja2/filters.py:do_xmlattr:259-318",
+          "src/jinja2/environment.py:Environment.from_string:1092-1111",
+          "src/jinja2/ext.py:_make_new_gettext:171-182",
+          "src/jinja2/filters.py:do_replace:178-211",
+          "src/jinja2/utils.py:select_autoescape.autoescape:624-632",
+          "src/jinja2/environment.py:Environment.compile_templates:818-897",
+          "src/jinja2/nodes.py:MarkSafeIfAutoescape.as_const:1104-1113",
+          "src/jinja2/compiler.py:CodeGenerator.visit_MarkSafeIfAutoescape:1915-1920",
+          "src/jinja2/loaders.py:BaseLoader.get_source:75-99",
+          "src/jinja2/ext.py:extract_from_ast:655-731",
+          "src/jinja2/parser.py:Parser.parse_autoescape:290-294",
+          "src/jinja2/compiler.py:CodeGenerator.visit_TemplateData:1677-1683",
+          "src/jinja2/loaders.py:BaseLoader.load:107-149",
+          "src/jinja2/nodes.py:TemplateData.as_const:614-620",
+          "src/jinja2/filters.py:sync_do_join:579-634",
+          "src/jinja2/compiler.py:CodeGenerator.__init__:301-372",
+          "src/jinja2/compiler.py:CodeGenerator._output_child_pre:1476-1490",
+          "src/jinja2/loaders.py:ModuleLoader.__init__:632-657",
+          "src/jinja2/compiler.py:CodeGenerator.return_buffer_contents:394-412",
+          "src/jinja2/environment.py:Template.render_async:1297-1318",
+          "src/jinja2/runtime.py:Macro.__call__:694-770",
+          "src/jinja2/environment.py:Template.__new__:1167-1214",
+          "src/jinja2/filters.py:do_sort:385-438",
+          "src/jinja2/parser.py:Parser.parse_block:296-326",
+          "src/jinja2/environment.py:TemplateStream.dump:1591-1629",
+          "src/jinja2/nodes.py:EvalContext.__init__:76-84",
+          "src/jinja2/compiler.py:generate:101-122",
+          "src/jinja2/environment.py:Environment._generate:682-701",
+          "src/jinja2/environment.py:Template._get_default_module:1425-1450",
+          "src/jinja2/compiler.py:CodeGenerator.push_parameter_definitions:736-743",
+          "src/jinja2/compiler.py:CodeGenerator.visit_Filter:1836-1851",
+          "src/jinja2/utils.py:LRUCache.__getitem__:508-528",
+          "src/jinja2/environment.py:Environment.get_template:981-1016",
+          "src/jinja2/compiler.py:CodeGenerator.visit_Extends:1000-1040",
+          "src/jinja2/environment.py:Environment.list_templates.filter_func:928-929",
+          "src/jinja2/parser.py:Parser.parse_tuple:685-752",
+          "src/jinja2/runtime.py:ChainableUndefined.__html__:988-989",
+          "src/jinja2/compiler.py:Frame.soft:232-243",
+          "src/jinja2/environment.py:TemplateModule.__html__:1543-1544"
+        ],
+        "facets": [
+          "Where is automatic HTML escaping selected by a template filename or a separate policy for templates created from strings, then carried into code generation so dynamic expressions are escaped only when enabled?",
+          "Where is automatic HTML escaping selected by a template filename or a separate policy for templates created from strings",
+          "carried into code generation so dynamic expressions are escaped only when enabled"
+        ],
+        "reference_support": [
+          709536,
+          711023,
+          540666
+        ],
+        "final_support": [
+          709536,
+          711023,
+          608213
+        ],
+        "trials": [
+          {
+            "candidate_id": "src/jinja2/compiler.py:CodeGenerator._output_child_pre:1476-1490",
+            "victim_id": "src/jinja2/filters.py:do_tojson:1695-1721",
+            "raw_rank": 28,
+            "victim_position": 8,
+            "gain": 67547,
+            "old_support": [
+              709536,
+              711023,
+              540666
+            ],
+            "proposed_support": [
+              709536,
+              711023,
+              608213
+            ],
+            "source_chars": 7682,
+            "tokens": 2678,
+            "accepted": true,
+            "reason": null
+          }
+        ],
+        "exchanges": [
+          {
+            "candidate_id": "src/jinja2/compiler.py:CodeGenerator._output_child_pre:1476-1490",
+            "victim_id": "src/jinja2/filters.py:do_tojson:1695-1721",
+            "raw_rank": 28,
+            "victim_position": 8,
+            "gain": 67547,
+            "old_support": [
+              709536,
+              711023,
+              540666
+            ],
+            "proposed_support": [
+              709536,
+              711023,
+              608213
+            ],
+            "source_chars": 7682,
+            "tokens": 2678,
+            "accepted": true,
+            "reason": null
+          }
+        ],
+        "accepted": true,
+        "fallback_reason": null,
+        "termination": "no_feasible_positive_exchange",
+        "guard": {
+          "protected_source_preserved": true,
+          "literal_rows_preserved": true,
+          "semantic_floor_preserved": true,
+          "budgets_preserved": true,
+          "reference_support": [
+            709536,
+            711023,
+            540666
+          ],
+          "proposal_support": [
+            709536,
+            711023,
+            608213
+          ],
+          "accepted": true,
+          "fallback_reason": null
+        },
+        "subsequent_backfill_calls": 0
+      },
+      "removed_rows": [
+        {
+          "id": "src/jinja2/filters.py:do_tojson:1695-1721",
+          "path": "src/jinja2/filters.py",
+          "symbol": "do_tojson",
+          "start_line": 1695,
+          "end_line": 1721,
+          "window_end_line": 1721,
+          "source": "@pass_eval_context\ndef do_tojson(\n    eval_ctx: \"EvalContext\", value: t.Any, indent: t.Optional[int] = None\n) -> Markup:\n    \"\"\"Serialize an object to a string of JSON, and mark it safe to\n    render in HTML. This filter is only for use in HTML documents.\n\n    The returned string is safe to render in HTML documents and\n    ``<script>`` tags. The exception is in HTML attributes that are\n    double quoted; either use single quotes or the ``|forceescape``\n    filter.\n\n    :param value: The object to serialize to JSON.\n    :param indent: The ``indent`` parameter passed to ``dumps``, for\n        pretty-printing the value.\n\n    .. versionadded:: 2.9\n    \"\"\"\n    policies = eval_ctx.environment.policies\n    dumps = policies[\"json.dumps_function\"]\n    kwargs = policies[\"json.dumps_kwargs\"]\n\n    if indent is not None:\n        kwargs = kwargs.copy()\n        kwargs[\"indent\"] = indent\n\n    return htmlsafe_json_dumps(value, dumps=dumps, **kwargs)\n",
+          "content_hash": "97870bf6d58880f0f4075ae87c1fd15cfa6afd15d81d4789dc634b59d0c52878",
+          "source_hash": "97870bf6d58880f0f4075ae87c1fd15cfa6afd15d81d4789dc634b59d0c52878",
+          "retrieval_score": 0.023859649122807018,
+          "h2o_score": null,
+          "origin": "retrieval",
+          "related_to": null,
+          "truncated": false,
+          "qwen_score": null,
+          "raw_rank": 8
+        }
+      ],
+      "added_rows": [
+        {
+          "id": "src/jinja2/compiler.py:CodeGenerator._output_child_pre:1476-1490",
+          "path": "src/jinja2/compiler.py",
+          "symbol": "CodeGenerator._output_child_pre",
+          "start_line": 1476,
+          "end_line": 1490,
+          "window_end_line": 1490,
+          "source": "    def _output_child_pre(\n        self, node: nodes.Expr, frame: Frame, finalize: _FinalizeInfo\n    ) -> None:\n        \"\"\"Output extra source code before visiting a child of an\n        ``Output`` node.\n        \"\"\"\n        if frame.eval_ctx.volatile:\n            self.write(\"(escape if context.eval_ctx.autoescape else str)(\")\n        elif frame.eval_ctx.autoescape:\n            self.write(\"escape(\")\n        else:\n            self.write(\"str(\")\n\n        if finalize.src is not None:\n            self.write(finalize.src)\n",
+          "content_hash": "950d7b8230fc9ca2716958a15cb09acbca9abc0ea2946b3b7c02bfd228381085",
+          "source_hash": "950d7b8230fc9ca2716958a15cb09acbca9abc0ea2946b3b7c02bfd228381085",
+          "retrieval_score": 0.013888888888888888,
+          "h2o_score": null,
+          "origin": "retrieval",
+          "related_to": null,
+          "truncated": false,
+          "qwen_score": null,
+          "raw_rank": 28
+        }
+      ],
+      "final_tokens": 2678,
+      "final_source_chars": 7682,
+      "compact_sha256": "a007e0103236a15e5ba939c26645521203f75e8dc693bad8a033dbf66dbefb69",
+      "gained_groups": [
+        {
+          "group_number": 3,
+          "targets": [
+            {
+              "path": "src/jinja2/compiler.py",
+              "symbol": "CodeGenerator._output_child_pre",
+              "evidence_lines": [
+                1482,
+                1487
+              ],
+              "source_file_sha256": "f51a42425e57f3c0479652623ec1cf876f791e1d2e029bf0149350baeb542de3",
+              "evidence_sha256": "8cd38d90c72936e7c1d5c22c2705fe6341bd934571b9bed5c63ad85345f5805b"
+            }
+          ],
+          "raw_window_ids": [
+            "src/jinja2/compiler.py:CodeGenerator._output_child_pre:1476-1490"
+          ],
+          "coverage_window_ids": [],
+          "final_window_ids": [
+            "src/jinja2/compiler.py:CodeGenerator._output_child_pre:1476-1490"
+          ]
+        }
+      ],
+      "diagnosis": "New final-context source was already present in the frozen raw pool; exact delivered evidence increased."
+    },
+    {
+      "case_id": "case_d83c028ce5289ebc9a646ead029ecfb2a9b632d5af6cd3ea23f353afd7d25eab",
+      "key": [
+        "native_jinja_observed",
+        "jinja",
+        "jinja_include_parent_and_local_context",
+        "dense"
+      ],
+      "dataset": "jinja",
+      "query_id": "jinja_include_parent_and_local_context",
+      "condition": "dense",
+      "query": "When one template includes another with its current variables, where is the rendering call generated with shared parent data and local variables, and where are those locals merged without mutating the caller's shared dictionary?",
+      "qualified": false,
+      "multi_file": true,
+      "comparisons": {
+        "legacy": {
+          "group_gains": [
+            1
+          ],
+          "group_losses": [],
+          "complete_gain": true,
+          "complete_loss": false,
+          "single_file_first_hit_loss": false
+        },
+        "coverage_control": {
+          "group_gains": [
+            1
+          ],
+          "group_losses": [],
+          "complete_gain": true,
+          "complete_loss": false,
+          "single_file_first_hit_loss": false
+        }
+      },
+      "final_evidence_ranks": [
+        8,
+        3
+      ],
+      "raw_required_group_ranks": [
+        [
+          11
+        ],
+        [
+          3
+        ]
+      ],
+      "control_references": {
+        "legacy": {
+          "path": "results/window-development-2026-10-21/replay.jsonl.gz",
+          "line_number": 776,
+          "record_sha256": "cb3a8856fd16c579ed1d67ee02033f8f3491d0a8eb0baa7fd0a706dee6d238f3",
+          "response_sha256": "f60a4ba4288217261419bf7ea79a44254fedff17cfba3c2817ad03b5ceb578bb",
+          "compact_sha256": "4374edc3bcf7a92b249c40cceefe9afbcc0b962e8f44c53d7495ea84cf0d532e"
+        },
+        "coverage_control": {
+          "path": "results/window-development-2026-10-21/replay.jsonl.gz",
+          "line_number": 777,
+          "record_sha256": "9d5025740a5047356fdbaf40cb47d64c63b99827044d662628c739be8cc8d48e",
+          "response_sha256": "2703af059f5ecab23a3146e254da4085e3c36c948ef9092b6819754bf7da0590",
+          "compact_sha256": "4374edc3bcf7a92b249c40cceefe9afbcc0b962e8f44c53d7495ea84cf0d532e"
+        }
+      },
+      "control_hashes": {
+        "legacy": {
+          "source_view_sha256": "f60a4ba4288217261419bf7ea79a44254fedff17cfba3c2817ad03b5ceb578bb",
+          "compact_sha256": "4374edc3bcf7a92b249c40cceefe9afbcc0b962e8f44c53d7495ea84cf0d532e"
+        },
+        "coverage_control": {
+          "source_view_sha256": "2703af059f5ecab23a3146e254da4085e3c36c948ef9092b6819754bf7da0590",
+          "compact_sha256": "4374edc3bcf7a92b249c40cceefe9afbcc0b962e8f44c53d7495ea84cf0d532e"
+        }
+      },
+      "semantic_receipt": {
+        "schema": "semantic_final_context_v1",
+        "mode": "semantic_final_v1",
+        "activated": true,
+        "score_scale": 1000000,
+        "max_exchanges": 2,
+        "max_budget_trials": 8,
+        "raw_windows_per_definition": 2,
+        "anchor_ids": [
+          "src/jinja2/debug.py:get_template_locals:150-191",
+          "src/jinja2/environment.py:Template.new_context:1375-1390",
+          "src/jinja2/runtime.py:new_context:93-119",
+          "src/jinja2/environment.py:Template.make_module:1392-1405",
+          "src/jinja2/environment.py:TemplateExpression.__call__:1567-1573"
+        ],
+        "protected_rows": {
+          "src/jinja2/debug.py:get_template_locals:150-191": [
+            "protected_source_overlap"
+          ],
+          "src/jinja2/environment.py:Template.new_context:1375-1390": [
+            "protected_source_overlap"
+          ],
+          "src/jinja2/runtime.py:new_context:93-119": [
+            "protected_source_overlap"
+          ],
+          "src/jinja2/environment.py:Template.make_module:1392-1405": [
+            "protected_source_overlap"
+          ],
+          "src/jinja2/environment.py:TemplateExpression.__call__:1567-1573": [
+            "protected_source_overlap"
+          ],
+          "src/jinja2/utils.py:consume:121-124": [
+            "dependency",
+            "protected_source_overlap"
+          ]
+        },
+        "portfolio_ids": [
+          "src/jinja2/debug.py:get_template_locals:150-191",
+          "src/jinja2/environment.py:Template.new_context:1375-1390",
+          "src/jinja2/runtime.py:new_context:93-119",
+          "src/jinja2/environment.py:Template.make_module:1392-1405",
+          "src/jinja2/environment.py:TemplateExpression.__call__:1567-1573",
+          "src/jinja2/runtime.py:Context.__contains__:326-327",
+          "src/jinja2/environment.py:Environment.make_globals:1113-1133",
+          "src/jinja2/runtime.py:Context.derived:310-320",
+          "src/jinja2/environment.py:Environment.get_template:981-1016",
+          "src/jinja2/environment.py:Environment.join_path:944-954",
+          "src/jinja2/compiler.py:CodeGenerator.visit_Include:1042-1098",
+          "src/jinja2/environment.py:Template._from_namespace:1247-1273",
+          "src/jinja2/compiler.py:CodeGenerator.visit_Template:829-949",
+          "src/jinja2/environment.py:Environment._load_template:956-979",
+          "src/jinja2/runtime.py:Context.get_all:251-260",
+          "src/jinja2/runtime.py:LoopContext.__call__:573-585",
+          "src/jinja2/compiler.py:CodeGenerator.visit_Extends:1000-1040",
+          "src/jinja2/environment.py:Environment.select_template:1018-1070",
+          "src/jinja2/meta.py:find_referenced_templates:62-112",
+          "src/jinja2/runtime.py:Context.__init__:165-184",
+          "src/jinja2/runtime.py:Context.super:186-198",
+          "src/jinja2/environment.py:get_spontaneous_environment:68-79",
+          "src/jinja2/compiler.py:CodeGenerator.derive_context:771-772",
+          "src/jinja2/environment.py:Template._get_default_module:1425-1450",
+          "src/jinja2/compiler.py:CodeGenerator.visit_OverlayScope:1961-1973",
+          "src/jinja2/runtime.py:Context.resolve_or_missing:229-245",
+          "src/jinja2/compiler.py:CodeGenerator.visit_FromImport:1126-1179",
+          "src/jinja2/meta.py:find_undeclared_variables:34-55",
+          "src/jinja2/compiler.py:CodeGenerator.pull_dependencies:538-582",
+          "src/jinja2/runtime.py:TemplateReference.__getitem__:128-130",
+          "src/jinja2/loaders.py:BaseLoader.load:107-149",
+          "src/jinja2/compiler.py:Frame.copy:219-224",
+          "src/jinja2/environment.py:Template.from_module_dict:1233-1245",
+          "src/jinja2/utils.py:pass_environment:72-82",
+          "src/jinja2/environment.py:Template.render:1275-1295",
+          "src/jinja2/compiler.py:CodeGenerator.dump_local_context:716-721",
+          "src/jinja2/nativetypes.py:NativeTemplate.render:98-112",
+          "src/jinja2/loaders.py:PrefixLoader.load:545-558",
+          "src/jinja2/environment.py:Template.from_code:1216-1231",
+          "src/jinja2/utils.py:pass_context:38-52",
+          "src/jinja2/environment.py:Template.make_module_async:1407-1423",
+          "src/jinja2/runtime.py:BlockReference.__call__:379-391",
+          "src/jinja2/utils.py:LRUCache.copy:467-472",
+          "src/jinja2/idtracking.py:Symbols.copy:89-95",
+          "src/jinja2/environment.py:Environment.get_or_select_template:1072-1090",
+          "src/jinja2/compiler.py:CodeGenerator.pop_assign_tracking:784-825",
+          "src/jinja2/environment.py:Template.__new__:1167-1214",
+          "src/jinja2/utils.py:pass_eval_context:55-69",
+          "src/jinja2/runtime.py:Context.call:262-308",
+          "src/jinja2/environment.py:Environment.from_string:1092-1111"
+        ],
+        "facets": [
+          "When one template includes another with its current variables, where is the rendering call generated with shared parent data and local variables, and where are those locals merged without mutating the caller's shared dictionary?",
+          "When one template includes another with its current variables",
+          "where is the rendering call generated with shared parent data",
+          "where are those locals merged without mutating the caller's shared dictionary"
+        ],
+        "reference_support": [
+          629445,
+          568648,
+          473411,
+          572492
+        ],
+        "final_support": [
+          629445,
+          634664,
+          502334,
+          572492
+        ],
+        "trials": [
+          {
+            "candidate_id": "src/jinja2/compiler.py:CodeGenerator.visit_Include:1042-1098",
+            "victim_id": "src/jinja2/environment.py:Environment.make_globals:1113-1133",
+            "raw_rank": 11,
+            "victim_position": 8,
+            "gain": 66016,
+            "old_support": [
+              629445,
+              568648,
+              473411,
+              572492
+            ],
+            "proposed_support": [
+              629445,
+              634664,
+              473411,
+              572492
+            ],
+            "source_chars": 6363,
+            "tokens": 2423,
+            "accepted": true,
+            "reason": null
+          },
+          {
+            "candidate_id": "src/jinja2/runtime.py:Context.super:186-198",
+            "victim_id": "src/jinja2/runtime.py:Context.__contains__:326-327",
+            "raw_rank": 21,
+            "victim_position": 7,
+            "gain": 28923,
+            "old_support": [
+              629445,
+              634664,
+              473411,
+              572492
+            ],
+            "proposed_support": [
+              629445,
+              634664,
+              502334,
+              572492
+            ],
+            "source_chars": 6781,
+            "tokens": 2533,
+            "accepted": true,
+            "reason": null
+          }
+        ],
+        "exchanges": [
+          {
+            "candidate_id": "src/jinja2/compiler.py:CodeGenerator.visit_Include:1042-1098",
+            "victim_id": "src/jinja2/environment.py:Environment.make_globals:1113-1133",
+            "raw_rank": 11,
+            "victim_position": 8,
+            "gain": 66016,
+            "old_support": [
+              629445,
+              568648,
+              473411,
+              572492
+            ],
+            "proposed_support": [
+              629445,
+              634664,
+              473411,
+              572492
+            ],
+            "source_chars": 6363,
+            "tokens": 2423,
+            "accepted": true,
+            "reason": null
+          },
+          {
+            "candidate_id": "src/jinja2/runtime.py:Context.super:186-198",
+            "victim_id": "src/jinja2/runtime.py:Context.__contains__:326-327",
+            "raw_rank": 21,
+            "victim_position": 7,
+            "gain": 28923,
+            "old_support": [
+              629445,
+              634664,
+              473411,
+              572492
+            ],
+            "proposed_support": [
+              629445,
+              634664,
+              502334,
+              572492
+            ],
+            "source_chars": 6781,
+            "tokens": 2533,
+            "accepted": true,
+            "reason": null
+          }
+        ],
+        "accepted": true,
+        "fallback_reason": null,
+        "termination": "max_exchanges",
+        "guard": {
+          "protected_source_preserved": true,
+          "literal_rows_preserved": true,
+          "semantic_floor_preserved": true,
+          "budgets_preserved": true,
+          "reference_support": [
+            629445,
+            568648,
+            473411,
+            572492
+          ],
+          "proposal_support": [
+            629445,
+            634664,
+            502334,
+            572492
+          ],
+          "accepted": true,
+          "fallback_reason": null
+        },
+        "subsequent_backfill_calls": 0
+      },
+      "removed_rows": [
+        {
+          "id": "src/jinja2/runtime.py:Context.__contains__:326-327",
+          "path": "src/jinja2/runtime.py",
+          "symbol": "Context.__contains__",
+          "start_line": 326,
+          "end_line": 327,
+          "window_end_line": 327,
+          "source": "    def __contains__(self, name: str) -> bool:\n        return name in self.vars or name in self.parent\n",
+          "content_hash": "79b4f1825d346789bd4009fcb3eae293aaa9a7acb9162232dbcf7fbac8c5d297",
+          "source_hash": "79b4f1825d346789bd4009fcb3eae293aaa9a7acb9162232dbcf7fbac8c5d297",
+          "retrieval_score": 0.5114262402057648,
+          "h2o_score": null,
+          "origin": "retrieval",
+          "related_to": null,
+          "truncated": false,
+          "qwen_score": null,
+          "raw_rank": 6
+        },
+        {
+          "id": "src/jinja2/environment.py:Environment.make_globals:1113-1133",
+          "path": "src/jinja2/environment.py",
+          "symbol": "Environment.make_globals",
+          "start_line": 1113,
+          "end_line": 1133,
+          "window_end_line": 1133,
+          "source": "    def make_globals(\n        self, d: t.Optional[t.MutableMapping[str, t.Any]]\n    ) -> t.MutableMapping[str, t.Any]:\n        \"\"\"Make the globals map for a template. Any given template\n        globals overlay the environment :attr:`globals`.\n\n        Returns a :class:`collections.ChainMap`. This allows any changes\n        to a template's globals to only affect that template, while\n        changes to the environment's globals are still reflected.\n        However, avoid modifying any globals after a template is loaded.\n\n        :param d: Dict of template-specific globals.\n\n        .. versionchanged:: 3.0\n            Use :class:`collections.ChainMap` to always prevent mutating\n            environment globals.\n        \"\"\"\n        if d is None:\n            d = {}\n\n        return ChainMap(d, self.globals)\n",
+          "content_hash": "b6eb9ef15eaebcafb4863fef5477e15189712818eb3ca610fc9223bba7a4dffb",
+          "source_hash": "b6eb9ef15eaebcafb4863fef5477e15189712818eb3ca610fc9223bba7a4dffb",
+          "retrieval_score": 0.5091904997825623,
+          "h2o_score": null,
+          "origin": "retrieval",
+          "related_to": null,
+          "truncated": false,
+          "qwen_score": null,
+          "raw_rank": 7
+        }
+      ],
+      "added_rows": [
+        {
+          "id": "src/jinja2/runtime.py:Context.super:186-198",
+          "path": "src/jinja2/runtime.py",
+          "symbol": "Context.super",
+          "start_line": 186,
+          "end_line": 198,
+          "window_end_line": 198,
+          "source": "    def super(\n        self, name: str, current: t.Callable[[\"Context\"], t.Iterator[str]]\n    ) -> t.Union[\"BlockReference\", \"Undefined\"]:\n        \"\"\"Render a parent block.\"\"\"\n        try:\n            blocks = self.blocks[name]\n            index = blocks.index(current) + 1\n            blocks[index]\n        except LookupError:\n            return self.environment.undefined(\n                f\"there is no parent block called {name!r}.\", name=\"super\"\n            )\n        return BlockReference(name, self, blocks, index)\n",
+          "content_hash": "3a6fb0e420c228f26e55ca5dc4eabb6af2490119e809c03d57d8cec4f1ece5d5",
+          "source_hash": "3a6fb0e420c228f26e55ca5dc4eabb6af2490119e809c03d57d8cec4f1ece5d5",
+          "retrieval_score": 0.455608069896698,
+          "h2o_score": null,
+          "origin": "retrieval",
+          "related_to": null,
+          "truncated": false,
+          "qwen_score": null,
+          "raw_rank": 21
+        },
+        {
+          "id": "src/jinja2/compiler.py:CodeGenerator.visit_Include:1042-1098",
+          "path": "src/jinja2/compiler.py",
+          "symbol": "CodeGenerator.visit_Include",
+          "start_line": 1042,
+          "end_line": 1098,
+          "window_end_line": 1098,
+          "source": "    def visit_Include(self, node: nodes.Include, frame: Frame) -> None:\n        \"\"\"Handles includes.\"\"\"\n        if node.ignore_missing:\n            self.writeline(\"try:\")\n            self.indent()\n\n        func_name = \"get_or_select_template\"\n        if isinstance(node.template, nodes.Const):\n            if isinstance(node.template.value, str):\n                func_name = \"get_template\"\n            elif isinstance(node.template.value, (tuple, list)):\n                func_name = \"select_template\"\n        elif isinstance(node.template, (nodes.Tuple, nodes.List)):\n            func_name = \"select_template\"\n\n        self.writeline(f\"template = environment.{func_name}(\", node)\n        self.visit(node.template, frame)\n        self.write(f\", {self.name!r})\")\n        if node.ignore_missing:\n            self.outdent()\n            self.writeline(\"except TemplateNotFound:\")\n            self.indent()\n            self.writeline(\"pass\")\n            self.outdent()\n            self.writeline(\"else:\")\n            self.indent()\n\n        def loop_body() -> None:\n            self.indent()\n            self.simple_write(\"event\", frame)\n            self.outdent()\n\n        if node.with_context:\n            self.writeline(\n                f\"gen = template.root_render_func(\"\n                \"template.new_context(context.get_all(), True,\"\n                f\" {self.dump_local_context(frame)}))\"\n            )\n            self.writeline(\"try:\")\n            self.indent()\n            self.writeline(f\"{self.choose_async()}for event in gen:\")\n            loop_body()\n            self.outdent()\n            self.writeline(\n                f\"finally: {self.choose_async('await gen.aclose()', 'gen.close()')}\"\n            )\n        elif self.environment.is_async:\n            self.writeline(\n                \"for event in (await template._get_default_module_async())\"\n                \"._body_stream:\"\n            )\n            loop_body()\n        else:\n            self.writeline(\"yield from template._get_default_module()._body_stream\")\n\n        if node.ignore_missing:\n            self.outdent()\n",
+          "content_hash": "0c9dc127bee07861a7d950d506d1aa5557ba956995835cef9e4c9bed916d36c5",
+          "source_hash": "0c9dc127bee07861a7d950d506d1aa5557ba956995835cef9e4c9bed916d36c5",
+          "retrieval_score": 0.49089545011520386,
+          "h2o_score": null,
+          "origin": "retrieval",
+          "related_to": null,
+          "truncated": false,
+          "qwen_score": null,
+          "raw_rank": 11
+        }
+      ],
+      "final_tokens": 2533,
+      "final_source_chars": 6781,
+      "compact_sha256": "692c250cd94b1598350e0fe5b610d3d9019f1fb21d945ad84b20ac6477348e5e",
+      "gained_groups": [
+        {
+          "group_number": 1,
+          "targets": [
+            {
+              "path": "src/jinja2/compiler.py",
+              "symbol": "CodeGenerator.visit_Include",
+              "evidence_lines": [
+                1074,
+                1086
+              ],
+              "source_file_sha256": "f51a42425e57f3c0479652623ec1cf876f791e1d2e029bf0149350baeb542de3",
+              "evidence_sha256": "0a9d83da4db1e759c5227e16bc4a564103206ca296344f7bbac81d977d9bbf5c"
+            }
+          ],
+          "raw_window_ids": [
+            "src/jinja2/compiler.py:CodeGenerator.visit_Include:1042-1098"
+          ],
+          "coverage_window_ids": [],
+          "final_window_ids": [
+            "src/jinja2/compiler.py:CodeGenerator.visit_Include:1042-1098"
+          ]
+        }
+      ],
+      "diagnosis": "New final-context source was already present in the frozen raw pool; exact delivered evidence increased."
+    },
+    {
+      "case_id": "case_61377f0d9c90af47d19d1bf68c2b7031e84d35add6d6cb59c8f0be361a7690bc",
+      "key": [
+        "native_jinja_observed",
+        "jinja",
+        "jinja_include_parent_and_local_context",
+        "hybrid"
+      ],
+      "dataset": "jinja",
+      "query_id": "jinja_include_parent_and_local_context",
+      "condition": "hybrid",
+      "query": "When one template includes another with its current variables, where is the rendering call generated with shared parent data and local variables, and where are those locals merged without mutating the caller's shared dictionary?",
+      "qualified": false,
+      "multi_file": true,
+      "comparisons": {
+        "legacy": {
+          "group_gains": [
+            1
+          ],
+          "group_losses": [],
+          "complete_gain": true,
+          "complete_loss": false,
+          "single_file_first_hit_loss": false
+        },
+        "coverage_control": {
+          "group_gains": [
+            1
+          ],
+          "group_losses": [],
+          "complete_gain": true,
+          "complete_loss": false,
+          "single_file_first_hit_loss": false
+        }
+      },
+      "final_evidence_ranks": [
+        8,
+        4
+      ],
+      "raw_required_group_ranks": [
+        [
+          27
+        ],
+        [
+          4
+        ]
+      ],
+      "control_references": {
+        "legacy": {
+          "path": "results/window-development-2026-10-21/replay.jsonl.gz",
+          "line_number": 771,
+          "record_sha256": "e2b731146bd61086f13280f20aff02173eccc17f5e504a83485923c6f94b5651",
+          "response_sha256": "5eccb837ff046c490f01d0dc6b33a2dffbc7e0984d646526f3bee2047cbd1119",
+          "compact_sha256": "83ad111c14ca80f25efeee50f89b83b99a8140c327cabda4fd8d7f4dd58ce7da"
+        },
+        "coverage_control": {
+          "path": "results/window-development-2026-10-21/replay.jsonl.gz",
+          "line_number": 772,
+          "record_sha256": "319a76daae4ec7384a2ad9b35e46f5cc493bc6ef39f3ebd388b640fbb2587bbd",
+          "response_sha256": "8208e2f74f0495faa4d58ec5c596813319e14f71212f09fd32e3c4f6a94a4fcc",
+          "compact_sha256": "83ad111c14ca80f25efeee50f89b83b99a8140c327cabda4fd8d7f4dd58ce7da"
+        }
+      },
+      "control_hashes": {
+        "legacy": {
+          "source_view_sha256": "5eccb837ff046c490f01d0dc6b33a2dffbc7e0984d646526f3bee2047cbd1119",
+          "compact_sha256": "83ad111c14ca80f25efeee50f89b83b99a8140c327cabda4fd8d7f4dd58ce7da"
+        },
+        "coverage_control": {
+          "source_view_sha256": "8208e2f74f0495faa4d58ec5c596813319e14f71212f09fd32e3c4f6a94a4fcc",
+          "compact_sha256": "83ad111c14ca80f25efeee50f89b83b99a8140c327cabda4fd8d7f4dd58ce7da"
+        }
+      },
+      "semantic_receipt": {
+        "schema": "semantic_final_context_v1",
+        "mode": "semantic_final_v1",
+        "activated": true,
+        "score_scale": 1000000,
+        "max_exchanges": 2,
+        "max_budget_trials": 8,
+        "raw_windows_per_definition": 2,
+        "anchor_ids": [
+          "src/jinja2/environment.py:Template.new_context:1375-1390",
+          "src/jinja2/debug.py:get_template_locals:150-191",
+          "src/jinja2/environment.py:Template.make_module:1392-1405",
+          "src/jinja2/runtime.py:new_context:93-119",
+          "src/jinja2/environment.py:Environment.get_template:981-1016"
+        ],
+        "protected_rows": {
+          "src/jinja2/environment.py:Template.new_context:1375-1390": [
+            "protected_source_overlap"
+          ],
+          "src/jinja2/debug.py:get_template_locals:150-191": [
+            "protected_source_overlap"
+          ],
+          "src/jinja2/environment.py:Template.make_module:1392-1405": [
+            "protected_source_overlap"
+          ],
+          "src/jinja2/runtime.py:new_context:93-119": [
+            "protected_source_overlap"
+          ],
+          "src/jinja2/environment.py:Environment.get_template:981-1016": [
+            "protected_source_overlap"
+          ],
+          "src/jinja2/environment.py:Environment.join_path:944-954": [
+            "dependency",
+            "protected_source_overlap"
+          ],
+          "src/jinja2/environment.py:Environment._load_template:956-979": [
+            "dependency",
+            "protected_source_overlap"
+          ]
+        },
+        "portfolio_ids": [
+          "src/jinja2/environment.py:Template.new_context:1375-1390",
+          "src/jinja2/debug.py:get_template_locals:150-191",
+          "src/jinja2/environment.py:Template.make_module:1392-1405",
+          "src/jinja2/runtime.py:new_context:93-119",
+          "src/jinja2/environment.py:Environment.get_template:981-1016",
+          "src/jinja2/environment.py:Environment.select_template:1018-1070",
+          "src/jinja2/runtime.py:Context.derived:310-320",
+          "src/jinja2/environment.py:Environment.make_globals:1113-1133",
+          "src/jinja2/compiler.py:CodeGenerator.visit_Extends:1000-1040",
+          "src/jinja2/environment.py:Environment.join_path:944-954",
+          "src/jinja2/runtime.py:LoopContext.__call__:573-585",
+          "src/jinja2/loaders.py:PrefixLoader.load:545-558",
+          "src/jinja2/environment.py:Template._get_default_module:1425-1450",
+          "src/jinja2/environment.py:Template.make_module_async:1407-1423",
+          "src/jinja2/utils.py:pass_environment:72-82",
+          "src/jinja2/environment.py:Environment.from_string:1092-1111",
+          "src/jinja2/runtime.py:Context.get_all:251-260",
+          "src/jinja2/meta.py:find_undeclared_variables:34-55",
+          "src/jinja2/runtime.py:Context.call:262-308",
+          "src/jinja2/utils.py:pass_context:38-52",
+          "src/jinja2/compiler.py:CodeGenerator.pull_dependencies:538-582",
+          "src/jinja2/utils.py:pass_eval_context:55-69",
+          "src/jinja2/environment.py:TemplateExpression.__call__:1567-1573",
+          "src/jinja2/debug.py:fake_traceback:76-147",
+          "src/jinja2/runtime.py:Context.__contains__:326-327",
+          "src/jinja2/runtime.py:Macro.__call__:694-770",
+          "src/jinja2/compiler.py:CodeGenerator.visit_Include:1042-1098",
+          "src/jinja2/environment.py:Template._from_namespace:1247-1273",
+          "src/jinja2/parser.py:Parser.parse_statements:196-223",
+          "src/jinja2/compiler.py:CodeGenerator.visit_Template:829-949",
+          "src/jinja2/runtime.py:Undefined.__getattr__:861-870",
+          "src/jinja2/environment.py:Environment._load_template:956-979",
+          "src/jinja2/compiler.py:CodeGenerator.macro_body:614-695",
+          "src/jinja2/meta.py:find_referenced_templates:62-112",
+          "src/jinja2/loaders.py:PrefixLoader.get_source:534-543",
+          "src/jinja2/runtime.py:Context.__init__:165-184",
+          "src/jinja2/lexer.py:Lexer.tokeniter:789-868",
+          "src/jinja2/runtime.py:Context.super:186-198",
+          "src/jinja2/environment.py:get_spontaneous_environment:68-79",
+          "src/jinja2/compiler.py:CodeGenerator.derive_context:771-772",
+          "src/jinja2/parser.py:Parser.parse_block:296-326",
+          "src/jinja2/compiler.py:CodeGenerator.visit_OverlayScope:1961-1973",
+          "src/jinja2/lexer.py:Lexer.tokeniter:669-828",
+          "src/jinja2/runtime.py:Context.resolve_or_missing:229-245",
+          "src/jinja2/compiler.py:CodeGenerator.visit_FromImport:1126-1179",
+          "src/jinja2/runtime.py:LoopContext.changed:546-556",
+          "src/jinja2/runtime.py:TemplateReference.__getitem__:128-130",
+          "src/jinja2/compiler.py:CodeGenerator.visit_Name:1637-1660",
+          "src/jinja2/loaders.py:BaseLoader.load:107-149",
+          "src/jinja2/compiler.py:Frame.copy:219-224"
+        ],
+        "facets": [
+          "When one template includes another with its current variables, where is the rendering call generated with shared parent data and local variables, and where are those locals merged without mutating the caller's shared dictionary?",
+          "When one template includes another with its current variables",
+          "where is the rendering call generated with shared parent data",
+          "where are those locals merged without mutating the caller's shared dictionary"
+        ],
+        "reference_support": [
+          629445,
+          568648,
+          462068,
+          572492
+        ],
+        "final_support": [
+          629445,
+          634664,
+          462068,
+          572492
+        ],
+        "trials": [
+          {
+            "candidate_id": "src/jinja2/compiler.py:CodeGenerator.visit_Include:1042-1098",
+            "victim_id": "src/jinja2/environment.py:Environment.select_template:1018-1070",
+            "raw_rank": 27,
+            "victim_position": 8,
+            "gain": 66016,
+            "old_support": [
+              629445,
+              568648,
+              462068,
+              572492
+            ],
+            "proposed_support": [
+              629445,
+              634664,
+              462068,
+              572492
+            ],
+            "source_chars": 8737,
+            "tokens": 2950,
+            "accepted": true,
+            "reason": null
+          }
+        ],
+        "exchanges": [
+          {
+            "candidate_id": "src/jinja2/compiler.py:CodeGenerator.visit_Include:1042-1098",
+            "victim_id": "src/jinja2/environment.py:Environment.select_template:1018-1070",
+            "raw_rank": 27,
+            "victim_position": 8,
+            "gain": 66016,
+            "old_support": [
+              629445,
+              568648,
+              462068,
+              572492
+            ],
+            "proposed_support": [
+              629445,
+              634664,
+              462068,
+              572492
+            ],
+            "source_chars": 8737,
+            "tokens": 2950,
+            "accepted": true,
+            "reason": null
+          }
+        ],
+        "accepted": true,
+        "fallback_reason": null,
+        "termination": "no_feasible_positive_exchange",
+        "guard": {
+          "protected_source_preserved": true,
+          "literal_rows_preserved": true,
+          "semantic_floor_preserved": true,
+          "budgets_preserved": true,
+          "reference_support": [
+            629445,
+            568648,
+            462068,
+            572492
+          ],
+          "proposal_support": [
+            629445,
+            634664,
+            462068,
+            572492
+          ],
+          "accepted": true,
+          "fallback_reason": null
+        },
+        "subsequent_backfill_calls": 0
+      },
+      "removed_rows": [
+        {
+          "id": "src/jinja2/environment.py:Environment.select_template:1018-1070",
+          "path": "src/jinja2/environment.py",
+          "symbol": "Environment.select_template",
+          "start_line": 1018,
+          "end_line": 1070,
+          "window_end_line": 1070,
+          "source": "    @internalcode\n    def select_template(\n        self,\n        names: t.Iterable[t.Union[str, \"Template\"]],\n        parent: t.Optional[str] = None,\n        globals: t.Optional[t.MutableMapping[str, t.Any]] = None,\n    ) -> \"Template\":\n        \"\"\"Like :meth:`get_template`, but tries loading multiple names.\n        If none of the names can be loaded a :exc:`TemplatesNotFound`\n        exception is raised.\n\n        :param names: List of template names to try loading in order.\n        :param parent: The name of the parent template importing this\n            template. :meth:`join_path` can be used to implement name\n            transformations with this.\n        :param globals: Extend the environment :attr:`globals` with\n            these extra variables available for all renders of this\n            template. If the template has already been loaded and\n            cached, its globals are updated with any new items.\n\n        .. versionchanged:: 3.0\n            If a template is loaded from cache, ``globals`` will update\n            the template's globals instead of ignoring the new values.\n\n        .. versionchanged:: 2.11\n            If ``names`` is :class:`Undefined`, an :exc:`UndefinedError`\n            is raised instead. If no templates were found and ``names``\n            contains :class:`Undefined`, the message is more helpful.\n\n        .. versionchanged:: 2.4\n            If ``names`` contains a :class:`Template` object it is\n            returned unchanged.\n\n        .. versionadded:: 2.3\n        \"\"\"\n        if isinstance(names, Undefined):\n            names._fail_with_undefined_error()\n\n        if not names:\n            raise TemplatesNotFound(\n                message=\"Tried to select from an empty list of templates.\"\n            )\n\n        for name in names:\n            if isinstance(name, Template):\n                return name\n            if parent is not None:\n                name = self.join_path(name, parent)\n            try:\n                return self._load_template(name, globals)\n            except (TemplateNotFound, UndefinedError):\n                pass\n        raise TemplatesNotFound(names)  # type: ignore\n",
+          "content_hash": "51019d4205cfb2b0e7bacc72c3d3f5b2519bfe7009ccc0da69970225eca220aa",
+          "source_hash": "51019d4205cfb2b0e7bacc72c3d3f5b2519bfe7009ccc0da69970225eca220aa",
+          "retrieval_score": 0.027106227106227107,
+          "h2o_score": null,
+          "origin": "retrieval",
+          "related_to": null,
+          "truncated": false,
+          "qwen_score": null,
+          "raw_rank": 6
+        }
+      ],
+      "added_rows": [
+        {
+          "id": "src/jinja2/compiler.py:CodeGenerator.visit_Include:1042-1098",
+          "path": "src/jinja2/compiler.py",
+          "symbol": "CodeGenerator.visit_Include",
+          "start_line": 1042,
+          "end_line": 1098,
+          "window_end_line": 1098,
+          "source": "    def visit_Include(self, node: nodes.Include, frame: Frame) -> None:\n        \"\"\"Handles includes.\"\"\"\n        if node.ignore_missing:\n            self.writeline(\"try:\")\n            self.indent()\n\n        func_name = \"get_or_select_template\"\n        if isinstance(node.template, nodes.Const):\n            if isinstance(node.template.value, str):\n                func_name = \"get_template\"\n            elif isinstance(node.template.value, (tuple, list)):\n                func_name = \"select_template\"\n        elif isinstance(node.template, (nodes.Tuple, nodes.List)):\n            func_name = \"select_template\"\n\n        self.writeline(f\"template = environment.{func_name}(\", node)\n        self.visit(node.template, frame)\n        self.write(f\", {self.name!r})\")\n        if node.ignore_missing:\n            self.outdent()\n            self.writeline(\"except TemplateNotFound:\")\n            self.indent()\n            self.writeline(\"pass\")\n            self.outdent()\n            self.writeline(\"else:\")\n            self.indent()\n\n        def loop_body() -> None:\n            self.indent()\n            self.simple_write(\"event\", frame)\n            self.outdent()\n\n        if node.with_context:\n            self.writeline(\n                f\"gen = template.root_render_func(\"\n                \"template.new_context(context.get_all(), True,\"\n                f\" {self.dump_local_context(frame)}))\"\n            )\n            self.writeline(\"try:\")\n            self.indent()\n            self.writeline(f\"{self.choose_async()}for event in gen:\")\n            loop_body()\n            self.outdent()\n            self.writeline(\n                f\"finally: {self.choose_async('await gen.aclose()', 'gen.close()')}\"\n            )\n        elif self.environment.is_async:\n            self.writeline(\n                \"for event in (await template._get_default_module_async())\"\n                \"._body_stream:\"\n            )\n            loop_body()\n        else:\n            self.writeline(\"yield from template._get_default_module()._body_stream\")\n\n        if node.ignore_missing:\n            self.outdent()\n",
+          "content_hash": "0c9dc127bee07861a7d950d506d1aa5557ba956995835cef9e4c9bed916d36c5",
+          "source_hash": "0c9dc127bee07861a7d950d506d1aa5557ba956995835cef9e4c9bed916d36c5",
+          "retrieval_score": 0.014084507042253521,
+          "h2o_score": null,
+          "origin": "retrieval",
+          "related_to": null,
+          "truncated": false,
+          "qwen_score": null,
+          "raw_rank": 27
+        }
+      ],
+      "final_tokens": 2950,
+      "final_source_chars": 8737,
+      "compact_sha256": "352ab3c1dc8f6184d59362f3f17dbe4a2f4fb733c96507792fa1bb19a89dda40",
+      "gained_groups": [
+        {
+          "group_number": 1,
+          "targets": [
+            {
+              "path": "src/jinja2/compiler.py",
+              "symbol": "CodeGenerator.visit_Include",
+              "evidence_lines": [
+                1074,
+                1086
+              ],
+              "source_file_sha256": "f51a42425e57f3c0479652623ec1cf876f791e1d2e029bf0149350baeb542de3",
+              "evidence_sha256": "0a9d83da4db1e759c5227e16bc4a564103206ca296344f7bbac81d977d9bbf5c"
+            }
+          ],
+          "raw_window_ids": [
+            "src/jinja2/compiler.py:CodeGenerator.visit_Include:1042-1098"
+          ],
+          "coverage_window_ids": [],
+          "final_window_ids": [
+            "src/jinja2/compiler.py:CodeGenerator.visit_Include:1042-1098"
+          ]
+        }
+      ],
+      "diagnosis": "New final-context source was already present in the frozen raw pool; exact delivered evidence increased."
+    },
+    {
+      "case_id": "case_3ab6a480980629f0758484da2f15b64c73705270eb6ec6284122c940b0146ce4",
+      "key": [
+        "qwen_httpx_observed",
+        "httpx",
+        "httpx_stacked_content_decoding",
+        "hybrid_k24_b1"
+      ],
+      "dataset": "httpx",
+      "query_id": "httpx_stacked_content_decoding",
+      "condition": "hybrid_k24_b1",
+      "query": "Select supported response content encodings from the headers, undo stacked encodings in reverse order, and pass buffered tail bytes through the remaining decoders at the end.",
+      "qualified": false,
+      "multi_file": true,
+      "comparisons": {
+        "legacy": {
+          "group_gains": [
+            4
+          ],
+          "group_losses": [],
+          "complete_gain": false,
+          "complete_loss": false,
+          "single_file_first_hit_loss": false
+        },
+        "coverage_control": {
+          "group_gains": [
+            4
+          ],
+          "group_losses": [],
+          "complete_gain": false,
+          "complete_loss": false,
+          "single_file_first_hit_loss": false
+        }
+      },
+      "final_evidence_ranks": [
+        1,
+        2,
+        null,
+        8
+      ],
+      "raw_required_group_ranks": [
+        [
+          1
+        ],
+        [
+          2
+        ],
+        [
+          17
+        ],
+        [
+          19
+        ]
+      ],
+      "control_references": {
+        "legacy": {
+          "path": "results/window-development-2026-10-21/replay.jsonl.gz",
+          "line_number": 1616,
+          "record_sha256": "4ecbbf4fbef4757d4a1f0cf249224ab1d2941b9fa28127e75c1e184eb72077f5",
+          "response_sha256": "8e03ea290a5b6e7078ed2a59356d1467c39ae58edd63877dc648e0b946df6bdc",
+          "compact_sha256": "7f4408e3e2cf33676cecf41fa129e8fa8cbb9459a8f5482323b6b8415833ec98"
+        },
+        "coverage_control": {
+          "path": "results/window-development-2026-10-21/replay.jsonl.gz",
+          "line_number": 1617,
+          "record_sha256": "fd5996e88ec4ebecf1d6fd7da555ddd547092c17911affd092b6379543de1c2d",
+          "response_sha256": "5713759265447efbe3af75b1fe7c8341dccbec1ab7aee968b9638b76626e112b",
+          "compact_sha256": "7f4408e3e2cf33676cecf41fa129e8fa8cbb9459a8f5482323b6b8415833ec98"
+        }
+      },
+      "control_hashes": {
+        "legacy": {
+          "source_view_sha256": "8e03ea290a5b6e7078ed2a59356d1467c39ae58edd63877dc648e0b946df6bdc",
+          "compact_sha256": "7f4408e3e2cf33676cecf41fa129e8fa8cbb9459a8f5482323b6b8415833ec98"
+        },
+        "coverage_control": {
+          "source_view_sha256": "5713759265447efbe3af75b1fe7c8341dccbec1ab7aee968b9638b76626e112b",
+          "compact_sha256": "7f4408e3e2cf33676cecf41fa129e8fa8cbb9459a8f5482323b6b8415833ec98"
+        }
+      },
+      "semantic_receipt": {
+        "schema": "semantic_final_context_v1",
+        "mode": "semantic_final_v1",
+        "activated": true,
+        "score_scale": 1000000,
+        "max_exchanges": 2,
+        "max_budget_trials": 8,
+        "raw_windows_per_definition": 2,
+        "anchor_ids": [
+          "httpx/_models.py:Response._get_content_decoder:699-722",
+          "httpx/_decoders.py:MultiDecoder.__init__:208-214",
+          "httpx/_models.py:Response.aiter_text:1007-1026",
+          "httpx/_models.py:Response.iter_text:907-924",
+          "httpx/_models.py:Response.aiter_bytes:982-1005"
+        ],
+        "protected_rows": {
+          "httpx/_models.py:Response._get_content_decoder:699-722": [
+            "protected_source_overlap"
+          ],
+          "httpx/_decoders.py:MultiDecoder.__init__:208-214": [
+            "protected_source_overlap"
+          ],
+          "httpx/_models.py:Response.aiter_text:1007-1026": [
+            "protected_source_overlap"
+          ],
+          "httpx/_models.py:Response.iter_text:907-924": [
+            "protected_source_overlap"
+          ],
+          "httpx/_models.py:Response.aiter_bytes:982-1005": [
+            "protected_source_overlap"
+          ],
+          "httpx/_exceptions.py:request_context:366-379": [
+            "dependency",
+            "protected_source_overlap"
+          ],
+          "httpx/_models.py:Response.iter_bytes:884-905": [
+            "dependency",
+            "protected_source_overlap"
+          ]
+        },
+        "portfolio_ids": [
+          "httpx/_models.py:Response._get_content_decoder:699-722",
+          "httpx/_decoders.py:MultiDecoder.__init__:208-214",
+          "httpx/_models.py:Response.aiter_text:1007-1026",
+          "httpx/_models.py:Response.iter_text:907-924",
+          "httpx/_models.py:Response.aiter_bytes:982-1005",
+          "httpx/_models.py:Response.iter_bytes:884-905",
+          "httpx/_models.py:Headers.encoding:166-189",
+          "httpx/_content.py:encode_response:221-240",
+          "httpx/_models.py:Request._prepare:441-460",
+          "httpx/_models.py:Response._prepare:571-576",
+          "httpx/_models.py:Response.__init__:516-569",
+          "httpx/_decoders.py:DeflateDecoder.flush:78-82",
+          "httpx/_decoders.py:GZipDecoder.flush:101-105",
+          "httpx/_main.py:get_lexer_for_response:103-113",
+          "httpx/_decoders.py:ZStandardDecoder.decode:180-192",
+          "httpx/_decoders.py:BrotliDecoder.flush:145-158",
+          "httpx/_decoders.py:MultiDecoder.decode:216-219",
+          "httpx/_content.py:encode_content:107-133",
+          "httpx/_decoders.py:MultiDecoder.flush:221-225",
+          "httpx/_decoders.py:LineDecoder.decode:333-369",
+          "httpx/_decoders.py:BrotliDecoder.decode:136-143",
+          "httpx/_decoders.py:DeflateDecoder.decode:67-76",
+          "httpx/_decoders.py:ByteChunker.decode:237-258",
+          "httpx/_exceptions.py:RequestError.__init__:112-120"
+        ],
+        "facets": [
+          "Select supported response content encodings from the headers, undo stacked encodings in reverse order, and pass buffered tail bytes through the remaining decoders at the end.",
+          "Select supported response content encodings from the headers",
+          "undo stacked encodings in reverse order",
+          "pass buffered tail bytes through the remaining decoders at the end"
+        ],
+        "reference_support": [
+          697324,
+          730085,
+          510696,
+          560295
+        ],
+        "final_support": [
+          697324,
+          730085,
+          516943,
+          641995
+        ],
+        "trials": [
+          {
+            "candidate_id": "httpx/_decoders.py:MultiDecoder.flush:221-225",
+            "victim_id": "httpx/_models.py:Headers.encoding:166-189",
+            "raw_rank": 19,
+            "victim_position": 8,
+            "gain": 87947,
+            "old_support": [
+              697324,
+              730085,
+              510696,
+              560295
+            ],
+            "proposed_support": [
+              697324,
+              730085,
+              516943,
+              641995
+            ],
+            "source_chars": 5795,
+            "tokens": 2113,
+            "accepted": true,
+            "reason": null
+          }
+        ],
+        "exchanges": [
+          {
+            "candidate_id": "httpx/_decoders.py:MultiDecoder.flush:221-225",
+            "victim_id": "httpx/_models.py:Headers.encoding:166-189",
+            "raw_rank": 19,
+            "victim_position": 8,
+            "gain": 87947,
+            "old_support": [
+              697324,
+              730085,
+              510696,
+              560295
+            ],
+            "proposed_support": [
+              697324,
+              730085,
+              516943,
+              641995
+            ],
+            "source_chars": 5795,
+            "tokens": 2113,
+            "accepted": true,
+            "reason": null
+          }
+        ],
+        "accepted": true,
+        "fallback_reason": null,
+        "termination": "no_feasible_positive_exchange",
+        "guard": {
+          "protected_source_preserved": true,
+          "literal_rows_preserved": true,
+          "semantic_floor_preserved": true,
+          "budgets_preserved": true,
+          "reference_support": [
+            697324,
+            730085,
+            510696,
+            560295
+          ],
+          "proposal_support": [
+            697324,
+            730085,
+            516943,
+            641995
+          ],
+          "accepted": true,
+          "fallback_reason": null
+        },
+        "subsequent_backfill_calls": 0
+      },
+      "removed_rows": [
+        {
+          "id": "httpx/_models.py:Headers.encoding:166-189",
+          "path": "httpx/_models.py",
+          "symbol": "Headers.encoding",
+          "start_line": 166,
+          "end_line": 189,
+          "window_end_line": 189,
+          "source": "    @property\n    def encoding(self) -> str:\n        \"\"\"\n        Header encoding is mandated as ascii, but we allow fallbacks to utf-8\n        or iso-8859-1.\n        \"\"\"\n        if self._encoding is None:\n            for encoding in [\"ascii\", \"utf-8\"]:\n                for key, value in self.raw:\n                    try:\n                        key.decode(encoding)\n                        value.decode(encoding)\n                    except UnicodeDecodeError:\n                        break\n                else:\n                    # The else block runs if 'break' did not occur, meaning\n                    # all values fitted the encoding.\n                    self._encoding = encoding\n                    break\n            else:\n                # The ISO-8859-1 encoding covers all 256 code points in a byte,\n                # so will never raise decode errors.\n                self._encoding = \"iso-8859-1\"\n        return self._encoding\n",
+          "content_hash": "f9fc1ca32eacec61f2b90d5fa59910affb77408013d46373bb18e67045688b88",
+          "source_hash": "f9fc1ca32eacec61f2b90d5fa59910affb77408013d46373bb18e67045688b88",
+          "retrieval_score": 1.75,
+          "h2o_score": null,
+          "origin": "retrieval",
+          "related_to": null,
+          "truncated": false,
+          "raw_rank": 7
+        }
+      ],
+      "added_rows": [
+        {
+          "id": "httpx/_decoders.py:MultiDecoder.flush:221-225",
+          "path": "httpx/_decoders.py",
+          "symbol": "MultiDecoder.flush",
+          "start_line": 221,
+          "end_line": 225,
+          "window_end_line": 225,
+          "source": "    def flush(self) -> bytes:\n        data = b\"\"\n        for child in self.children:\n            data = child.decode(data) + child.flush()\n        return data\n",
+          "content_hash": "dc3469789352f853208be884b95a98d405747c2453735f4eef94d20d09eec99a",
+          "source_hash": "dc3469789352f853208be884b95a98d405747c2453735f4eef94d20d09eec99a",
+          "retrieval_score": -3.5,
+          "h2o_score": null,
+          "origin": "retrieval",
+          "related_to": null,
+          "truncated": false,
+          "raw_rank": 19
+        }
+      ],
+      "final_tokens": 2113,
+      "final_source_chars": 5795,
+      "compact_sha256": "23423149082c8345942f1031c79163df49b3e81dc468b8c796c8ee434c58cd9c",
+      "gained_groups": [
+        {
+          "group_number": 4,
+          "targets": [
+            {
+              "declaration_anchor": "def flush(self) -> bytes:",
+              "definition_lines": [
+                221,
+                225
+              ],
+              "evidence_lines": [
+                221,
+                225
+              ],
+              "evidence_sha256": "dc3469789352f853208be884b95a98d405747c2453735f4eef94d20d09eec99a",
+              "path": "httpx/_decoders.py",
+              "source_file_sha256": "a74757f08d0d1077b1b37506a784ac66eb62321b17aeb5a5ebe1a7a956f488a3",
+              "symbol": "MultiDecoder.flush"
+            }
+          ],
+          "raw_window_ids": [
+            "httpx/_decoders.py:MultiDecoder.flush:221-225"
+          ],
+          "coverage_window_ids": [],
+          "final_window_ids": [
+            "httpx/_decoders.py:MultiDecoder.flush:221-225"
+          ]
+        }
+      ],
+      "diagnosis": "New final-context source was already present in the frozen raw pool; exact delivered evidence increased."
+    },
+    {
+      "case_id": "case_4459f8f2138b0de6e3a90e06f0465161fc1d104a24ea4e93ecba8053762230b5",
+      "key": [
+        "tanstack_observed",
+        "tanstack",
+        "tanstack_invalidation_and_refetch_filter",
+        "hybrid"
+      ],
+      "dataset": "tanstack",
+      "query_id": "tanstack_invalidation_and_refetch_filter",
+      "condition": "hybrid",
+      "query": "Where does invalidating cached queries mark their state stale, optionally skip refetching entirely, and otherwise refetch matching queries while excluding disabled or static ones?",
+      "qualified": true,
+      "multi_file": true,
+      "comparisons": {
+        "legacy": {
+          "group_gains": [
+            2
+          ],
+          "group_losses": [],
+          "complete_gain": false,
+          "complete_loss": false,
+          "single_file_first_hit_loss": false
+        },
+        "coverage_control": {
+          "group_gains": [
+            2
+          ],
+          "group_losses": [],
+          "complete_gain": false,
+          "complete_loss": false,
+          "single_file_first_hit_loss": false
+        }
+      },
+      "final_evidence_ranks": [
+        null,
+        8,
+        1
+      ],
+      "raw_required_group_ranks": [
+        [
+          9
+        ],
+        [
+          24
+        ],
+        [
+          1
+        ]
+      ],
+      "control_references": {
+        "legacy": {
+          "path": "results/flow-native-holdout-2026-10-29/searches.jsonl.gz",
+          "line_number": 19,
+          "record_sha256": "24c07bb4ca404eed6a4d2a07c57aff1a302bb3f87cb0fb79ec951723e2165a2a",
+          "response_sha256": "cb60a1f966a41eaef7a20cad2f2302415dabd06673c6545b08b39bbb2805c6ef",
+          "compact_sha256": "1257bc8e1d1088d2fe5a5ac410cd39125dc052dc5abeb0345165b06863999e57"
+        },
+        "coverage_control": {
+          "path": "results/flow-native-holdout-2026-10-29/searches.jsonl.gz",
+          "line_number": 20,
+          "record_sha256": "f266a9b1f99d0cf6ebf8ef581b27a29922baa0c9ffd0049a41adf72f268d18b3",
+          "response_sha256": "5b0ac15beb84cd49e8cb8d3a53bd0fbeff0439dc5c9ab1d1d232a464fd839ef3",
+          "compact_sha256": "3a08b37ac57088fd90f5f17047992ebbe64caef44b8a2d24ecccdc02938666e7"
+        }
+      },
+      "control_hashes": {
+        "legacy": {
+          "source_view_sha256": "cf4766c825073661eb3daeda752e5b00a4dd1b499f77e744a1d4234a5f1651fc",
+          "compact_sha256": "1257bc8e1d1088d2fe5a5ac410cd39125dc052dc5abeb0345165b06863999e57"
+        },
+        "coverage_control": {
+          "source_view_sha256": "5f39843cd5546c144877760d896bb2b3d930a4dde9c4f151450a0933f2b8ddbf",
+          "compact_sha256": "3a08b37ac57088fd90f5f17047992ebbe64caef44b8a2d24ecccdc02938666e7"
+        }
+      },
+      "semantic_receipt": {
+        "schema": "semantic_final_context_v1",
+        "mode": "semantic_final_v1",
+        "activated": true,
+        "score_scale": 1000000,
+        "max_exchanges": 2,
+        "max_budget_trials": 8,
+        "raw_windows_per_definition": 2,
+        "anchor_ids": [
+          "packages/query-core/src/queryClient.ts:QueryClient.refetchQueries:315-339",
+          "packages/query-core/src/queryClient.ts:QueryClient.refetchQueries.promises:323-336",
+          "packages/query-core/src/query.ts:Query.isStale:297-307",
+          "packages/query-core/src/query.ts:Query.isDisabled:275-284",
+          "packages/query-core/src/queryObserver.ts:shouldFetchOn:771-787"
+        ],
+        "protected_rows": {
+          "packages/query-core/src/queryClient.ts:QueryClient.refetchQueries:315-339": [
+            "protected_source_overlap"
+          ],
+          "packages/query-core/src/query.ts:Query.isStale:297-307": [
+            "protected_source_overlap"
+          ],
+          "packages/query-core/src/query.ts:Query.isDisabled:275-284": [
+            "protected_source_overlap"
+          ],
+          "packages/query-core/src/queryObserver.ts:shouldFetchOn:771-787": [
+            "protected_source_overlap"
+          ],
+          "packages/query-core/src/utils.ts:resolveEnabled:115-125": [
+            "dependency",
+            "protected_source_overlap"
+          ],
+          "packages/query-core/src/utils.ts:resolveStaleTime:101-113": [
+            "dependency",
+            "protected_source_overlap"
+          ]
+        },
+        "portfolio_ids": [
+          "packages/query-core/src/queryClient.ts:QueryClient.refetchQueries:315-339",
+          "packages/query-core/src/queryClient.ts:QueryClient.refetchQueries.promises:323-336",
+          "packages/query-core/src/query.ts:Query.isStale:297-307",
+          "packages/query-core/src/query.ts:Query.isDisabled:275-284",
+          "packages/query-core/src/queryObserver.ts:shouldFetchOn:771-787",
+          "packages/query-core/src/queryObserver.ts:shouldFetchOptionally:789-801",
+          "packages/query-core/src/queryClient.ts:QueryClient.ensureQueryData:140-164",
+          "packages/query-core/src/query.ts:Query.isStaleByTime:309-324",
+          "packages/query-core/src/queryClient.ts:QueryClient.invalidateQueries:293-313",
+          "packages/query-core/src/queryClient.ts:QueryClient.resetQueries:258-276",
+          "packages/query-core/src/query.ts:Query.isStatic:286-295",
+          "packages/query-core/src/streamedQuery.ts:streamedQuery:46-99",
+          "packages/query-core/src/queryClient.ts:QueryClient.fetchQuery:341-370",
+          "packages/query-core/src/queryObserver.ts:isStale:803-811",
+          "packages/query-core/src/utils.ts:matchQuery:127-173",
+          "packages/query-core/src/queryObserver.ts:QueryObserver.refetch:298-304",
+          "packages/query-core/src/queryClient.ts:QueryClient.getQueriesData:166-174",
+          "packages/query-core/src/queryObserver.ts:QueryObserver.#computeRefetchInterval:379-385",
+          "packages/query-core/src/queryObserver.ts:QueryObserver.#updateRefetchInterval:387-409",
+          "packages/query-core/src/utils.ts:ensureQueryFn:413-444",
+          "packages/query-core/src/queryObserver.ts:shouldFetchOnMount:760-769",
+          "packages/query-core/src/query.ts:Query.fetch:387-546",
+          "packages/query-core/src/query.ts:Query.setData:228-243",
+          "packages/query-core/src/query.ts:Query.invalidate:381-385",
+          "packages/query-core/src/queryObserver.ts:QueryObserver.createResult:430-589",
+          "packages/query-core/src/queryObserver.ts:QueryObserver.setOptions:139-221",
+          "packages/query-core/src/queryClient.ts:QueryClient.isMutating:116-120",
+          "packages/query-core/src/queryObserver.ts:QueryObserver.createResult:550-644",
+          "packages/query-core/src/queryClient.ts:QueryClient.cancelQueries:278-291",
+          "packages/query-core/src/queryObserver.ts:QueryObserver.getOptimisticResult:223-258",
+          "packages/query-core/src/queriesObserver.ts:QueriesObserver.#findMatchingObservers:235-261",
+          "packages/query-core/src/queryClient.ts:QueryClient.removeQueries:247-256",
+          "packages/query-core/src/infiniteQueryObserver.ts:InfiniteQueryObserver.createResult:140-184",
+          "packages/query-core/src/queryClient.ts:QueryClient.isFetching:109-114",
+          "packages/query-core/src/query.ts:Query.optionalRemove:222-226",
+          "packages/query-core/src/queryObserver.ts:QueryObserver.#updateTimers:411-414",
+          "packages/query-core/src/query.ts:Query.removeObserver:355-375",
+          "packages/query-core/src/queryClient.ts:QueryClient.clear:644-647",
+          "packages/query-core/src/queryCache.ts:QueryCache.findAll:193-198",
+          "packages/query-core/src/utils.ts:<module>.skipToken:410-410",
+          "packages/query-core/src/queriesObserver.ts:QueriesObserver.getOptimisticResult:171-193",
+          "packages/query-core/src/queryClient.ts:QueryClient.cancelQueries.promises:284-288",
+          "packages/query-core/src/hydration.ts:dehydrate.queries:162-169",
+          "packages/query-core/src/retryer.ts:createRetryer.run:141-205",
+          "packages/query-core/src/queryObserver.ts:QueryObserver.destroy:132-137",
+          "packages/query-core/src/queryObserver.ts:QueryObserver.#updateStaleTimeout:355-377",
+          "packages/query-core/src/queryCache.ts:QueryCache.clear:158-164",
+          "packages/query-core/src/queryObserver.ts:QueryObserver.#clearStaleTimeout:416-421",
+          "packages/query-core/src/queriesObserver.ts:QueriesObserver.setQueries:87-157",
+          "packages/query-core/src/queryClient.ts:QueryClient.getMutationCache:461-463"
+        ],
+        "facets": [
+          "Where does invalidating cached queries mark their state stale, optionally skip refetching entirely, and otherwise refetch matching queries while excluding disabled or static ones?",
+          "Where does invalidating cached queries mark their state stale",
+          "optionally skip refetching entirely",
+          "otherwise refetch matching queries",
+          "excluding disabled or static ones"
+        ],
+        "reference_support": [
+          764998,
+          693365,
+          684032,
+          705995,
+          537351
+        ],
+        "final_support": [
+          764998,
+          740000,
+          697237,
+          705995,
+          537351
+        ],
+        "trials": [
+          {
+            "candidate_id": "packages/query-core/src/query.ts:Query.invalidate:381-385",
+            "victim_id": "packages/query-core/src/queryClient.ts:QueryClient.ensureQueryData:140-164",
+            "raw_rank": 24,
+            "victim_position": 8,
+            "gain": 46635,
+            "old_support": [
+              764998,
+              693365,
+              684032,
+              705995,
+              537351
+            ],
+            "proposed_support": [
+              764998,
+              740000,
+              684032,
+              705995,
+              537351
+            ],
+            "source_chars": 3416,
+            "tokens": 1842,
+            "accepted": true,
+            "reason": null
+          },
+          {
+            "candidate_id": "packages/query-core/src/queryObserver.ts:QueryObserver.refetch:298-304",
+            "victim_id": "packages/query-core/src/queryObserver.ts:shouldFetchOptionally:789-801",
+            "raw_rank": 16,
+            "victim_position": 7,
+            "gain": 13205,
+            "old_support": [
+              764998,
+              740000,
+              684032,
+              705995,
+              537351
+            ],
+            "proposed_support": [
+              764998,
+              740000,
+              697237,
+              705995,
+              537351
+            ],
+            "source_chars": 3133,
+            "tokens": 1757,
+            "accepted": true,
+            "reason": null
+          }
+        ],
+        "exchanges": [
+          {
+            "candidate_id": "packages/query-core/src/query.ts:Query.invalidate:381-385",
+            "victim_id": "packages/query-core/src/queryClient.ts:QueryClient.ensureQueryData:140-164",
+            "raw_rank": 24,
+            "victim_position": 8,
+            "gain": 46635,
+            "old_support": [
+              764998,
+              693365,
+              684032,
+              705995,
+              537351
+            ],
+            "proposed_support": [
+              764998,
+              740000,
+              684032,
+              705995,
+              537351
+            ],
+            "source_chars": 3416,
+            "tokens": 1842,
+            "accepted": true,
+            "reason": null
+          },
+          {
+            "candidate_id": "packages/query-core/src/queryObserver.ts:QueryObserver.refetch:298-304",
+            "victim_id": "packages/query-core/src/queryObserver.ts:shouldFetchOptionally:789-801",
+            "raw_rank": 16,
+            "victim_position": 7,
+            "gain": 13205,
+            "old_support": [
+              764998,
+              740000,
+              684032,
+              705995,
+              537351
+            ],
+            "proposed_support": [
+              764998,
+              740000,
+              697237,
+              705995,
+              537351
+            ],
+            "source_chars": 3133,
+            "tokens": 1757,
+            "accepted": true,
+            "reason": null
+          }
+        ],
+        "accepted": true,
+        "fallback_reason": null,
+        "termination": "max_exchanges",
+        "guard": {
+          "protected_source_preserved": true,
+          "literal_rows_preserved": true,
+          "semantic_floor_preserved": true,
+          "budgets_preserved": true,
+          "reference_support": [
+            764998,
+            693365,
+            684032,
+            705995,
+            537351
+          ],
+          "proposal_support": [
+            764998,
+            740000,
+            697237,
+            705995,
+            537351
+          ],
+          "accepted": true,
+          "fallback_reason": null
+        },
+        "subsequent_backfill_calls": 0
+      },
+      "removed_rows": [
+        {
+          "id": "packages/query-core/src/queryObserver.ts:shouldFetchOptionally:789-801",
+          "path": "packages/query-core/src/queryObserver.ts",
+          "symbol": "shouldFetchOptionally",
+          "start_line": 789,
+          "end_line": 801,
+          "window_end_line": 801,
+          "source": "function shouldFetchOptionally(\n  query: Query<any, any, any, any>,\n  prevQuery: Query<any, any, any, any>,\n  options: QueryObserverOptions<any, any, any, any, any>,\n  prevOptions: QueryObserverOptions<any, any, any, any, any>,\n): boolean {\n  return (\n    (query !== prevQuery ||\n      resolveEnabled(prevOptions.enabled, query) === false) &&\n    (!options.suspense || query.state.status !== 'error') &&\n    isStale(query, options)\n  )\n}\n",
+          "content_hash": "c890cc7fe9e6bef7eafaaa61aa084ef3e6603b4932a61c9e00574b3e746eb1f2",
+          "source_hash": "c890cc7fe9e6bef7eafaaa61aa084ef3e6603b4932a61c9e00574b3e746eb1f2",
+          "retrieval_score": 0.028594771241830064,
+          "h2o_score": null,
+          "origin": "retrieval",
+          "related_to": null,
+          "truncated": false,
+          "qwen_score": null,
+          "raw_rank": 6
+        },
+        {
+          "id": "packages/query-core/src/queryClient.ts:QueryClient.ensureQueryData:140-164",
+          "path": "packages/query-core/src/queryClient.ts",
+          "symbol": "QueryClient.ensureQueryData",
+          "start_line": 140,
+          "end_line": 164,
+          "window_end_line": 164,
+          "source": "  ensureQueryData<\n    TQueryFnData,\n    TError = DefaultError,\n    TData = TQueryFnData,\n    TQueryKey extends QueryKey = QueryKey,\n  >(\n    options: EnsureQueryDataOptions<TQueryFnData, TError, TData, TQueryKey>,\n  ): Promise<TData> {\n    const defaultedOptions = this.defaultQueryOptions(options)\n    const query = this.#queryCache.build(this, defaultedOptions)\n    const cachedData = query.state.data\n\n    if (cachedData === undefined) {\n      return this.fetchQuery(options)\n    }\n\n    if (\n      options.revalidateIfStale &&\n      query.isStaleByTime(resolveStaleTime(defaultedOptions.staleTime, query))\n    ) {\n      void this.prefetchQuery(defaultedOptions)\n    }\n\n    return Promise.resolve(cachedData)\n  }\n",
+          "content_hash": "8b46ea609ee3fe04e215a8636d2f0986cc2c11b04bc678d7af336a5d27757ab2",
+          "source_hash": "8b46ea609ee3fe04e215a8636d2f0986cc2c11b04bc678d7af336a5d27757ab2",
+          "retrieval_score": 0.028577260665441927,
+          "h2o_score": null,
+          "origin": "retrieval",
+          "related_to": null,
+          "truncated": false,
+          "qwen_score": null,
+          "raw_rank": 7
+        }
+      ],
+      "added_rows": [
+        {
+          "id": "packages/query-core/src/queryObserver.ts:QueryObserver.refetch:298-304",
+          "path": "packages/query-core/src/queryObserver.ts",
+          "symbol": "QueryObserver.refetch",
+          "start_line": 298,
+          "end_line": 304,
+          "window_end_line": 304,
+          "source": "  refetch({ ...options }: RefetchOptions = {}): Promise<\n    QueryObserverResult<TData, TError>\n  > {\n    return this.fetch({\n      ...options,\n    })\n  }\n",
+          "content_hash": "f0bd3e09427839328f77e371b9d0c966b4c902e0a3ba75b3f20de87b1b293024",
+          "source_hash": "f0bd3e09427839328f77e371b9d0c966b4c902e0a3ba75b3f20de87b1b293024",
+          "retrieval_score": 0.021198668146503882,
+          "h2o_score": null,
+          "origin": "retrieval",
+          "related_to": null,
+          "truncated": false,
+          "qwen_score": null,
+          "raw_rank": 16
+        },
+        {
+          "id": "packages/query-core/src/query.ts:Query.invalidate:381-385",
+          "path": "packages/query-core/src/query.ts",
+          "symbol": "Query.invalidate",
+          "start_line": 381,
+          "end_line": 385,
+          "window_end_line": 385,
+          "source": "  invalidate(): void {\n    if (!this.state.isInvalidated) {\n      this.#dispatch({ type: 'invalidate' })\n    }\n  }\n",
+          "content_hash": "89f78b79fd48eb15a4970f64d7e3d13566b318fe96a09a076cac2354f4317905",
+          "source_hash": "89f78b79fd48eb15a4970f64d7e3d13566b318fe96a09a076cac2354f4317905",
+          "retrieval_score": 0.015625,
+          "h2o_score": null,
+          "origin": "retrieval",
+          "related_to": null,
+          "truncated": false,
+          "qwen_score": null,
+          "raw_rank": 24
+        }
+      ],
+      "final_tokens": 1757,
+      "final_source_chars": 3133,
+      "compact_sha256": "3c6be1dab929a8e86bca46c5ec9b71df88cefd33ec4c89bc0863043e1d5c7478",
+      "gained_groups": [
+        {
+          "group_number": 2,
+          "targets": [
+            {
+              "path": "packages/query-core/src/query.ts",
+              "symbol": "Query.invalidate",
+              "evidence_lines": [
+                381,
+                385
+              ],
+              "source_file_sha256": "71e75b3f94576d406a99d9967af4734fa2f938683b74518ad61dd464c6671fdc",
+              "evidence_sha256": "89f78b79fd48eb15a4970f64d7e3d13566b318fe96a09a076cac2354f4317905",
+              "evidence_byte_bounds": [
+                9264,
+                9379
+              ],
+              "definition_lines": [
+                381,
+                385
+              ],
+              "ast_definition_byte_bounds": [
+                9266,
+                9378
+              ],
+              "definition_span_byte_bounds": [
+                9266,
+                9378
+              ],
+              "definition_sha256": "a271544ed5e2d9b369889e04f4147ca4b8a22779d58b541d63fbf51f481ad446",
+              "executable_evidence_lines": [
+                382,
+                383,
+                384
+              ]
+            }
+          ],
+          "raw_window_ids": [
+            "packages/query-core/src/query.ts:Query.invalidate:381-385"
+          ],
+          "coverage_window_ids": [],
+          "final_window_ids": [
+            "packages/query-core/src/query.ts:Query.invalidate:381-385"
+          ]
+        }
+      ],
+      "diagnosis": "New final-context source was already present in the frozen raw pool; exact delivered evidence increased."
+    }
+  ],
+  "legacy_only_inherited_complete_gains": [
+    {
+      "case_id": "case_3a858f40b28867a1ab2766fec1d9af03cf0fa9560d6686526aadb5751662f5c4",
+      "key": [
+        "tanstack_observed",
+        "tanstack",
+        "tanstack_mutation_scope_serial_continuation",
+        "dense"
+      ],
+      "dataset": "tanstack",
+      "query_id": "tanstack_mutation_scope_serial_continuation",
+      "condition": "dense",
+      "query": "Where are mutations sharing a scope prevented from executing in parallel, and how is another paused mutation in that scope continued when the current one finishes, including failure?",
+      "qualified": true,
+      "multi_file": true,
+      "comparisons": {
+        "legacy": {
+          "group_gains": [
+            1,
+            3
+          ],
+          "group_losses": [],
+          "complete_gain": true,
+          "complete_loss": false,
+          "single_file_first_hit_loss": false
+        },
+        "coverage_control": {
+          "group_gains": [],
+          "group_losses": [],
+          "complete_gain": false,
+          "complete_loss": false,
+          "single_file_first_hit_loss": false
+        }
+      },
+      "final_evidence_ranks": [
+        8,
+        2,
+        8,
+        1
+      ],
+      "raw_required_group_ranks": [
+        [
+          11
+        ],
+        [
+          3
+        ],
+        [
+          11
+        ],
+        [
+          1
+        ]
+      ],
+      "control_references": {
+        "legacy": {
+          "path": "results/flow-native-holdout-2026-10-29/searches.jsonl.gz",
+          "line_number": 17,
+          "record_sha256": "329953c829ed70ae0e31f3a98ce1c21ca2994031e958bfce626b0bc1447e716a",
+          "response_sha256": "efa3f4986201c25fbffd75fe388945f35b944d02dc39d4aaded827ee885213a6",
+          "compact_sha256": "113240de1c2b1b00f0b3eb736b3079c82c2d2350e58ab7634f8af22118b845ed"
+        },
+        "coverage_control": {
+          "path": "results/flow-native-holdout-2026-10-29/searches.jsonl.gz",
+          "line_number": 18,
+          "record_sha256": "91c8f32dc98c03e7a1254481dbd6dd6cc6501453992e5cff8431d087da3d5b41",
+          "response_sha256": "4d2500aae8c848ff88ef124a564a32afb07abe7f1978f9def472add28f1d84f7",
+          "compact_sha256": "17ea433af06ec48b99b531932ceee131f3453180254929abc0b3fede7c4d72f1"
+        }
+      },
+      "control_hashes": {
+        "legacy": {
+          "source_view_sha256": "e93f546d254d84fccef72695a58e5c487345a149ba4d4ec37f8778ac3855b055",
+          "compact_sha256": "113240de1c2b1b00f0b3eb736b3079c82c2d2350e58ab7634f8af22118b845ed"
+        },
+        "coverage_control": {
+          "source_view_sha256": "147a65d60551b2819e6219146d88f852f8aee6ae789d42c9768cadf3c74c0109",
+          "compact_sha256": "17ea433af06ec48b99b531932ceee131f3453180254929abc0b3fede7c4d72f1"
+        }
+      },
+      "diagnosis": "Inherited coverage-control gain over legacy; no accepted semantic exchange, so this is not a new semantic-selector success."
+    }
+  ],
+  "main_finding": "The componentwise maximum semantic-support guard preserves topic similarity but does not preserve every required implementation. All three newly lost groups were full, already retrieved and already delivered, then evicted from unprotected late slots; none was missing upstream or clipped. One Jinja include behavior newly completes in two conditions, but two other coverage-complete behaviors are lost, leaving total complete positives unchanged and failing the individual no-loss gate.",
+  "next_step_boundary": "Do not promote this selector or open attrs/native evaluation under the failed development gate. Any future rule needs a new separately frozen development protocol; no posthoc mode-specific rescue is applied."
+}
