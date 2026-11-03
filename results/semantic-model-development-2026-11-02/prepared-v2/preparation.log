@@ -1,0 +1,37 @@
+Traceback (most recent call last):
+  File "/Users/annapoutanen/personal-projects/semantic-search-engine/.cache/worktrees/context-selection/scripts/semantic_study_inputs.py", line 311, in <module>
+    main()
+  File "/Users/annapoutanen/personal-projects/semantic-search-engine/.cache/worktrees/context-selection/scripts/semantic_study_inputs.py", line 307, in main
+    print(json.dumps(prepare(args.root, args.output)))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/annapoutanen/personal-projects/semantic-search-engine/.cache/worktrees/context-selection/scripts/semantic_study_inputs.py", line 232, in prepare
+    documents = build(cases, controls, negatives, parents, modules)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/annapoutanen/personal-projects/semantic-search-engine/.cache/worktrees/context-selection/scripts/semantic_study_inputs.py", line 165, in build
+    response, before = _control(case, name, modules)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/annapoutanen/personal-projects/semantic-search-engine/.cache/worktrees/context-selection/scripts/semantic_study_inputs.py", line 88, in _control
+    before = replay.windows.pack(replay.ordered_template(case),
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/annapoutanen/personal-projects/semantic-search-engine/.cache/worktrees/context-selection/scripts/replay_windows.py", line 250, in pack
+    return context.apply_token_budget(result, SETTINGS["token_budget"])
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/annapoutanen/personal-projects/semantic-search-engine/.cache/worktrees/context-selection/src/semantic_search/context.py", line 83, in apply_token_budget
+    if count_context(result) <= budget:
+       ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/annapoutanen/personal-projects/semantic-search-engine/.cache/worktrees/context-selection/src/semantic_search/context.py", line 66, in count_context
+    count = len(counter.encode(serialize_context(compact_result(response)), disallowed_special=()))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/annapoutanen/personal-projects/semantic-search-engine/.cache/worktrees/context-selection/src/semantic_search/context.py", line 20, in serialize_context
+    return json.dumps(envelope, ensure_ascii=False, allow_nan=False, separators=(",", ":"))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/annapoutanen/.local/share/uv/python/cpython-3.12.15-macos-aarch64-none/lib/python3.12/json/__init__.py", line 238, in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+  File "/Users/annapoutanen/.local/share/uv/python/cpython-3.12.15-macos-aarch64-none/lib/python3.12/json/encoder.py", line 200, in encode
+    chunks = self.iterencode(o, _one_shot=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/annapoutanen/.local/share/uv/python/cpython-3.12.15-macos-aarch64-none/lib/python3.12/json/encoder.py", line 258, in iterencode
+    return _iterencode(o, 0)
+           ^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
