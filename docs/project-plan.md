@@ -86,13 +86,27 @@ This follows the agreed plan in **Choose a project for YC roles** on October 12,
    The [semantic final-context preparation](semantic-context-preparation.md)
    now implements that terminal research hook, bound vector features, batch query
    API and independent reconstruction. Its 239 affected CPU tests and invented
-   readiness check pass; model capture, observed replay and native timing have
-   not run. This is preparation, with no measured quality claim or default change.
+   readiness check pass. Preparation established no measured quality claim or
+   default change; real-model development results now follow below.
    The [live-capture follow-up](semantic-live-preparation.md) now implements the
    resident-vector provider and request context, read-only canonical vector
    lookup, actual-forward observations and durable single-request captures.
    Invented CPU tests include saved/overlay isolation and partial-failure
-   receipts. Real feature capture and the frozen observed replay remain open.
+   receipts. The [real Qwen semantic study](../results/semantic-model-development-2026-11-02/findings.md)
+   now captures 3,184 document vectors and 185 full queries with their literal
+   clauses, then evaluates all 393 frozen observed cases after reproducing 786
+   controls. Required group coverage rises 415 to 418 of 522, but three required
+   groups disappear and two complete behaviors become incomplete. Only one
+   distinct new Jinja behavior becomes complete; total complete occurrences stay
+   253/322. Independent reconstruction verifies all outcomes, with the original
+   diagnostic-string audit failure and a narrowly scoped post-outcome correction
+   preserved. All three losses were retrieved and delivered before final exchanges
+   evicted them for related code with different roles. The candidate fails the
+   unchanged individual-loss gate, so production coverage stays the default,
+   attrs remains unqueried and native warm timing remains gated. Next work is
+   stronger protection of receiver, registration and attachment implementations
+   before semantic exchanges; selecting favorable modes afterward cannot rescue
+   this experiment.
    Another coding comparison remains gated on retrieval improvement. All source-only
    labels, raw traces, rejected controls, failure receipts and independent audits
    are preserved.

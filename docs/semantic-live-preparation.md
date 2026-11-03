@@ -1,9 +1,11 @@
 # Live semantic capture: CPU preparation
 
 The live feature provider and request-capture components are implemented and
-tested with invented CPU models. Real model testing is still paused under the
-user's code-preparation-only instruction. No observed retrieval outcomes or
-reserved attrs data were used. This extends the
+tested with invented CPU models. Real model testing was paused during that
+preparation. On November 2 the user explicitly unpaused testing; the
+[prospective development protocol](semantic-model-development-protocol.md)
+governs the next real-model stage. No observed retrieval outcomes or reserved
+attrs data were used in this preparation. This extends the
 [October 30 preparation](semantic-context-preparation.md); it does not establish
 retrieval improvement, native latency or coding-token savings.
 

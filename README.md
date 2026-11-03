@@ -160,15 +160,24 @@ attrs corpus remains unqueried for a candidate that clears the development gate.
 The [semantic final-context preparation](docs/semantic-context-preparation.md)
 adds an opt-in research selector that works after actual backfill, an exact
 vector/source boundary, batch query encoding and an independent auditor. Its
-239 affected CPU tests and invented readiness check pass. Real-model feature
-capture, retrieval quality and native latency remain unmeasured; the released
-coverage policy stays the default.
+239 affected CPU tests and invented readiness check pass. That preparation made
+no real-model quality or latency claim; the released coverage policy stays the
+default.
 
 The [live-capture follow-up](docs/semantic-live-preparation.md) connects the
 executing request's original query vector and current document vectors, including
 unsaved editor overlays, with actual-forward observations and durable request
-receipts. Tests use invented CPU models. Real feature capture, the observed
-quality gate and native timing remain outstanding.
+receipts. Its integration tests use invented CPU models.
+
+The [real Qwen semantic study](results/semantic-model-development-2026-11-02/findings.md)
+now captures 3,184 document vectors and evaluates all 393 frozen observed cases
+after reproducing 786 controls. Required evidence coverage rises from 415 to
+418 of 522 groups, but the candidate loses three required implementations and
+two previously complete behaviors. It fails the individual quality gate; the
+released coverage policy stays the default and attrs remains unqueried. An
+independent audit verifies every outcome, with a preserved correction limited
+to diagnostic wording for inactive features. Native warm search latency and
+coding-agent token savings remain unmeasured for this selector.
 
 For optional H2O reranking, install its pinned runtime and weights with
 `python3 scripts/setup_mac.py`, start `.venv/bin/python scripts/serve_mac.py` in
