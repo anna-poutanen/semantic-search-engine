@@ -127,6 +127,20 @@ This follows the agreed plan in **Choose a project for YC roles** on October 12,
    on retrieval improvement. All source-only
    labels, raw traces, rejected controls, failure receipts and independent audits
    are preserved.
+   The [annotated-dependency follow-up](../results/dependency-context-continuation-2026-11-09/findings.md)
+   now completes all 477 saved terminal decisions and independent integrity
+   checks across 421 quality occurrences / 215 distinct units. It changes no
+   prior-role response, adds no complete behavior and retains the known attrs
+   hybrid loss against coverage, so its quality gate fails. The source resolver
+   declines the motivating class binding because `Converter` is explicitly
+   reassigned through transformation helpers. A timing-envelope harness failure
+   after 396 outcomes and the independently reviewed correction remain preserved;
+   graph, guard, skip and quality rules stayed unchanged. Separately, exact
+   NumPy float32 validation lowers saved-vector provider CPU medians from
+   82.2 to 15.8 ms for dense and 84.3 to 18.2 ms for hybrid with exact feature,
+   receipt and call-count parity. CPU replay excludes real inference, SQLite
+   and source scans; it establishes no native speedup. Production and release
+   0.1.5 remain on coverage.
 4. **Persistent index (core and real-model validation complete at tested scale):**
    durable SQLite FTS5 keyword retrieval, pinned sqlite-vec exact exhaustive
    cosine retrieval, reusable document/model vector caching, atomic source
@@ -253,14 +267,26 @@ cost outside native clause forwards; most measured provider time is outside
 that forward timer, while the role guard itself takes about 2–2.5 ms. Do not
 substitute repeated-query feature-cache hits for new-query latency.
 
-The next general quality experiment should resolve dependencies through
-explicitly annotated receivers and preserve complementary caller/callee roles,
-including source generators. The fresh miss was already retrieved and delivered
-before selection removed it; dense also still omits that implementation. Freeze
-the new rule on now-observed development data, including attrs, and confirm it
-on another untouched repository. Production defaults and release assets stay
-on coverage. Coding comparisons remain gated on qualified retrieval improvement;
-token savings are unestablished.
+The [annotated-receiver development experiment](../results/dependency-context-continuation-2026-11-09/findings.md)
+is now complete and fails its unchanged quality gate: zero protected delivered
+pairs, zero new complete multi-file units and the known hybrid formatter loss.
+The motivating class name is rebound, and forwarding a receiver to another
+helper exceeds the fixed resolver's scope. Dense also needs admission of an
+implementation already retrieved but omitted by coverage. Preserve these limits
+when designing a separate general quality experiment; do not add corpus-specific
+exceptions or retune the published result. A changed rule must pass all observed
+individual-loss/incremental-gain checks before another untouched codebase.
+
+Next, freeze actual-request integration and native profiling of the exact
+float32 validation optimization. Its all-84-request saved-vector CPU comparison
+passes exact output/call parity and lowers provider-call medians to 15.8/18.2 ms,
+but excludes actual model/tokenizer APIs, SQLite validation, source scans,
+metadata generation and factory setup. Include those costs, the original query
+and fresh clause forwards, guards and any proven skips in whole-search timing;
+retain the median ceiling of 1.25 times each control. The 251 skip certificates
+are conditional proofs, with no native inference savings measured yet.
+Production defaults and release assets stay on coverage. Coding comparisons
+remain gated on qualified retrieval improvement; token savings are unestablished.
 
 The [workflow investigation](../results/workflow-investigation-2026-10-13/findings.md)
 records repeated source reads, cache differences and runtime confounds without
