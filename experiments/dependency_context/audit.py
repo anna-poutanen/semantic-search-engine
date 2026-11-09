@@ -355,13 +355,33 @@ def comparison(before, after):
             "single_file_first_hit_loss": before["single_file_first_hit"] and not after["single_file_first_hit"]}
 
 
+def certificate_equal(response, reference):
+    """Compare full contexts while excluding only the top-level timing values.
+
+    This is a disclosed post-failure harness correction. The certificate covers
+    context equivalence, not baseline/final timing snapshots of one request. Presence
+    and dictionary types remain strict; no other metadata, nested timing field,
+    row dictionary or compact serialization is excluded or rewritten.
+    """
+    if (type(response) is not dict or type(reference) is not dict
+            or not inputs.literal_json(response) or not inputs.literal_json(reference)
+            or ("timings" in response) != ("timings" in reference)):
+        return False
+    if "timings" in response and (type(response["timings"]) is not dict or type(reference["timings"]) is not dict):
+        return False
+    return (inputs.same({name: value for name, value in response.items() if name != "timings"},
+                        {name: value for name, value in reference.items() if name != "timings"})
+            and inputs.compact_payload(response) == inputs.compact_payload(reference))
+
+
 def verify_record(record, operand, bundle, graph, outcome, counter, *, role_classifier=None):
     inputs.require(inputs.literal_json(outcome), "Outcome must be finite literal JSON")
     expected, receipt = reconstruct_guard(operand, graph)
     certificate = reconstruct_certificate(operand, graph, role_classifier=role_classifier)
     inputs.require(inputs.same(outcome["response"], expected) and inputs.same(outcome["guard_receipt"], receipt)
                    and inputs.same(outcome["skip_certificate"], certificate), "Independent exact decision/receipt/certificate differs")
-    inputs.require(not certificate["eligible"] or inputs.same(expected, operand["reference"]), "Eligible structural proof differs from exact coverage")
+    inputs.require(not certificate["eligible"] or certificate_equal(expected, operand["reference"]),
+                   "Eligible structural proof differs from exact coverage context outside top-level timings")
     inputs.validate_response(outcome["response"], bundle)
     payload = inputs.compact_payload(expected)
     inputs.require(payload == inputs.compact_payload(outcome["response"]) == outcome["compact_payload"]
@@ -433,6 +453,22 @@ def verify_repetitions(records, outcomes):
                            "Attrs repeated source/decision/compact integrity changed")
 
 
+def timing_envelope_exclusions(records, outcomes):
+    excluded = []
+    for outcome in outcomes:
+        reference = records[outcome["id"]]["reference"]
+        if outcome["skip_certificate"]["eligible"] and not inputs.same(outcome["response"], reference):
+            inputs.require(certificate_equal(outcome["response"], reference), "Unapproved certificate envelope difference")
+            excluded.append({"id": outcome["id"], "dataset": outcome["dataset"], "query_id": outcome["query_id"],
+                             "mode": outcome["mode"], "repetition": outcome["repetition"],
+                             "reference_response_sha256": inputs.sha(inputs.canonical(reference)),
+                             "actual_response_sha256": inputs.sha(inputs.canonical(outcome["response"])),
+                             "reference_timings": deepcopy(reference["timings"]),
+                             "actual_timings": deepcopy(outcome["response"]["timings"]),
+                             "identical_compact_sha256": outcome["compact_sha256"]})
+    return excluded
+
+
 def audit_outcomes(prepared, outcomes, graphs, counter, *, role_classifier=None):
     records, operands = inputs.unique(prepared["records"], "id"), inputs.unique(prepared["operands"], "id")
     indexed = inputs.unique(outcomes, "id")
@@ -481,6 +517,7 @@ def audit(prepared_path, outcome_path, commit, *, root=ROOT):
                     for identifier, receipt in graphs.items()}
     outcomes = [value for _, value, _ in inputs.rows(outcome_path / "outcomes.jsonl.gz")]
     recomputed = audit_outcomes(prepared, outcomes, graphs, offline_counter(root))
+    exclusions = timing_envelope_exclusions(inputs.unique(prepared["records"], "id"), outcomes)
     inputs.require(all(inputs.same(summary.get(name), value) for name, value in recomputed.items())
                    and summary.get("terminal_decisions") == len(outcomes) == 477
                    and summary.get("certificate_checks") == 477
@@ -501,6 +538,12 @@ def audit(prepared_path, outcome_path, commit, *, root=ROOT):
             "artifact_sha256": {**hashes, "summary.json": inputs.file_sha(outcome_path / "summary.json")},
             "prepared_plan_sha256": inputs.file_sha(prepared_path / "frozen-plan.json"),
             "independently_recomputed": recomputed, "graph_checks": graph_checks,
+            "post_failure_certificate_harness_correction": {
+                "classification": "Post-outcome technical correction; original396-row failure preserved",
+                "prior_failure_publication_commit": "d16f876d29ec821226d595512253c3b4152b6c06",
+                "scope": "Only top-level timings values may differ, with equal field presence and finite dictionary values; every other typed field and compact byte remains exact",
+                "terminal_response_rewritten": False, "guard_graph_skip_or_quality_rule_changed": False,
+                "timing_envelope_exclusions_count": len(exclusions), "timing_envelope_exclusions": exclusions},
             "shared_helpers": {"graph_resolver": "AnnotatedDependencies consistency and peer review; not an independent resolution-completeness proof",
                                "role_skip_facts": "frozen independent audit_role_context.classify_row",
                                "source_snapshot": "study_inputs literal source and immutable Git authority"},

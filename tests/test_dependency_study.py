@@ -110,6 +110,55 @@ def test_bad_skip_proof_fails_instead_of_hiding_changed_context(tmp_path):
     assert (output/"failure.json").exists()
 
 
+def test_skip_proof_allows_only_finite_dict_timing_envelopes(tmp_path):
+    prepared = fixture(tmp_path)
+    for operand in prepared["operands"]:
+        operand["reference"]["timings"] = {"packaging_s": .1, "total_s": .2}
+        operand["proposal"] = deepcopy(operand["reference"])
+        operand["proposal"]["timings"] = {"packaging_s": .3, "total_s": .4}
+    output = tmp_path/"timings"
+    study.replay(prepared, output, binding={}, certificate=lambda *a, **k: {"eligible": True})
+    with gzip.open(output/"outcomes.jsonl.gz", "rt") as stream:
+        outcomes = [json.loads(line) for line in stream]
+    assert all(row["response"] == operand["proposal"] for row, operand in zip(outcomes, prepared["operands"]))
+    assert all(row["response"] != operand["reference"] for row, operand in zip(outcomes, prepared["operands"]))
+    assert all(row["compact_payload"] == context.serialize_context(context.compact_result(operand["reference"]))
+               for row, operand in zip(outcomes, prepared["operands"]))
+
+
+@pytest.mark.parametrize("mutation", ["missing_timings", "bad_timings", "nonfinite_timings",
+                                    "extra_field", "indexstats", "tokens", "source", "timings_nested"])
+def test_timing_exception_cannot_hide_any_other_response_change(tmp_path, mutation):
+    response = fixture(tmp_path)["operands"][0]["reference"]
+    response["timings"] = {"total_s": .2}
+    response["indexstats"] = {"windows": 3, "timings": {"nested": .1}}
+    changed = deepcopy(response)
+    if mutation == "missing_timings":
+        del changed["timings"]
+    elif mutation == "bad_timings":
+        changed["timings"] = None
+    elif mutation == "nonfinite_timings":
+        changed["timings"]["total_s"] = float("nan")
+    elif mutation == "extra_field":
+        changed["extra"] = True
+    elif mutation == "indexstats":
+        changed["indexstats"]["windows"] = 4
+    elif mutation == "tokens":
+        changed["token_usage"]["tokens"] += 1
+    elif mutation == "source":
+        changed["results"][0]["source"] += "# altered\n"
+    else:
+        changed["indexstats"]["timings"]["nested"] = .3
+    assert not study.same_delivered_response(response, changed)
+
+
+@pytest.mark.parametrize("malformed", [None, [], ["timings"], "timings", 1])
+def test_certificate_response_comparison_declines_non_objects(tmp_path, malformed):
+    response = fixture(tmp_path)["operands"][0]["reference"]
+    assert not study.same_delivered_response(response, malformed)
+    assert not study.same_delivered_response(malformed, response)
+
+
 def test_exact_operand_still_must_respect_real_token_count(tmp_path):
     prepared = fixture(tmp_path)
     prepared["operands"][0]["reference"]["token_usage"]["tokens"] += 1

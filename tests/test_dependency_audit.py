@@ -259,6 +259,77 @@ def test_independent_skip_declines_free_slot_before_role_classification():
     assert receipt["reason"] == "context_not_full"
 
 
+def test_certificate_allows_only_top_level_finite_timing_dictionary_values(tmp_path):
+    _, _, operand, _, _ = fixture(tmp_path)
+    reference = deepcopy(operand["reference"])
+    reference["timings"] = {"packaging_s": 0.1, "total_s": 0.2}
+    response = deepcopy(reference)
+    response["timings"] = {"packaging_s": 0.7, "total_s": 0.8}
+    before = deepcopy((reference, response))
+    assert audit.certificate_equal(response, reference) is True
+    assert (reference, response) == before
+    assert audit.certificate_equal(operand["reference"], operand["reference"]) is True
+
+
+@pytest.mark.parametrize("change", ["missing", "none", "list", "nan", "indexstats", "source", "score", "token",
+                                   "scalar", "nested_timings", "scope_order", "extra", "total_chars"])
+def test_certificate_timing_exclusion_never_allows_other_fields_or_payload_changes(tmp_path, change):
+    _, _, operand, _, _ = fixture(tmp_path)
+    reference = deepcopy(operand["reference"])
+    reference["timings"] = {"total_s": 0.1}
+    reference["indexstats"] = {"windows": 3}
+    reference["results"][0]["timings"] = {"nested": 1}
+    response = deepcopy(reference)
+    response["timings"] = {"total_s": 0.2}
+    if change == "missing":
+        del response["timings"]
+    elif change == "none":
+        response["timings"] = None
+    elif change == "list":
+        response["timings"] = []
+    elif change == "nan":
+        response["timings"]["total_s"] = float("nan")
+    elif change == "indexstats":
+        response["indexstats"]["windows"] = 4
+    elif change == "source":
+        response["results"][0]["source"] += "# changed"
+    elif change == "score":
+        response["results"][0]["retrieval_score"] = 0.5
+    elif change == "token":
+        response["token_usage"]["tokens"] = 86
+    elif change == "scalar":
+        response["results"][0]["retrieval_score"] = True
+    elif change == "nested_timings":
+        response["results"][0]["timings"]["nested"] = 2
+    elif change == "scope_order":
+        response["scope"] = {"exclude": [], "include": ["module.py"]}
+    elif change == "total_chars":
+        response["total_source_chars"] += 1
+    else:
+        response["unknown"] = "not timing"
+    assert audit.certificate_equal(response, reference) is False
+
+
+def test_timing_exclusions_are_disclosed_without_rewriting_saved_operands(tmp_path):
+    _, record, operand, _, _ = fixture(tmp_path)
+    record["reference"]["timings"] = {"packaging_s": 0.1}
+    response = deepcopy(record["reference"])
+    response["timings"] = {"packaging_s": 0.7}
+    outcome = {"id": record["id"], **{key: record[key] for key in ("dataset", "query_id", "mode", "repetition")},
+               "response": response, "skip_certificate": {"eligible": True},
+               "compact_sha256": inputs.sha(inputs.compact_payload(response).encode())}
+    before = deepcopy((record, outcome))
+    exclusions = audit.timing_envelope_exclusions({record["id"]: record}, [outcome])
+    assert len(exclusions) == 1
+    assert exclusions[0]["reference_timings"] == {"packaging_s": 0.1}
+    assert exclusions[0]["actual_timings"] == {"packaging_s": 0.7}
+    assert exclusions[0]["reference_response_sha256"] != exclusions[0]["actual_response_sha256"]
+    assert (record, outcome) == before
+    outcome["response"]["indexstats"] = {"changed": True}
+    with pytest.raises(ValueError, match="Unapproved"):
+        audit.timing_envelope_exclusions({record["id"]: record}, [outcome])
+
+
 def test_full_context_skip_matches_frozen_independent_role_classifier():
     operand = certificate_operand()
     receipt = audit.reconstruct_certificate(operand, {"accepted": []})

@@ -230,6 +230,26 @@ def summarize(outcomes):
             "fallback_reasons": dict(Counter(row["guard_receipt"]["fallback_reason"] or "accepted" for row in outcomes))}}
 
 
+def same_delivered_response(left, right):
+    """Compare exact saved context, allowing only different timing envelopes.
+
+    Post-outcome harness correction: an original native request can retain
+    baseline and final timing snapshots for the same delivered context. A
+    structural skip proof does not imply equality of those stopwatch values.
+    This does not normalize rows, token counts, indexstats or any other field.
+    The actual terminal result must still be one exact full frozen operand.
+    """
+    if type(left) is not dict or type(right) is not dict or not inputs.literal_json(left) or not inputs.literal_json(right):
+        return False
+    if ("timings" in left) != ("timings" in right):
+        return False
+    if "timings" in left and (type(left["timings"]) is not dict or type(right["timings"]) is not dict):
+        return False
+    return (inputs.same({key: value for key, value in left.items() if key != "timings"},
+                        {key: value for key, value in right.items() if key != "timings"})
+            and serialize_context(compact_result(left)) == serialize_context(compact_result(right)))
+
+
 def replay(prepared, output, *, binding, counter=None, graph_factory=AnnotatedDependencies,
            guard=apply_dependency_guard, certificate=skip_certificate):
     counter = encoding() if counter is None else counter
@@ -265,7 +285,7 @@ def replay(prepared, output, *, binding, counter=None, graph_factory=AnnotatedDe
                 cert = certificate(operand["reference"], operand["raw_rows"], dependencies=facts,
                     definition_keys=operand["definition_keys"], precoalesce_rows=operand["precoalesce_rows"],
                     max_results=operand["limits"]["max_results"])
-                inputs.require(not cert["eligible"] or inputs.same(response, operand["reference"]), "Skip proof disagrees with saved terminal response")
+                inputs.require(not cert["eligible"] or same_delivered_response(response, operand["reference"]), "Skip proof disagrees with saved terminal response")
                 payload = serialize_context(compact_result(response))
                 tokens = len(counter.encode(payload, disallowed_special=()))
                 limits = operand["limits"]

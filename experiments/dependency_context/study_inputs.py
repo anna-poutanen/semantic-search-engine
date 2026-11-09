@@ -470,7 +470,8 @@ def source_hashes(root):
     paths.update((root / "src").rglob("*.py"))
     paths.update((root / "tests").glob("test_dependency*.py"))
     paths.update(root / name for name in ("experiments/__init__.py", "tests/test_annotated_dependencies.py",
-                                         "docs/dependency-context-protocol.md", "pyproject.toml", "uv.lock")
+                                         "docs/dependency-context-protocol.md",
+                                         "docs/dependency-context-continuation-protocol.md", "pyproject.toml", "uv.lock")
                  if (root / name).is_file())
     return {str(path.relative_to(root)): file_sha(path) for path in sorted(paths)}
 
