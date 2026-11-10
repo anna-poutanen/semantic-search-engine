@@ -162,3 +162,28 @@ with an invented 182-line definition whose two windows are lines 1–160 and
 preparation. Original source inventory, independent auditor, native backend,
 queries, model, gates and selector remain fixed. Preserve both failed invocation
 receipts alongside the corrected source and subsequent input freeze.
+
+The first native attempt, input-frozen at
+`6d2649564711f9d3bc9fcb61b2f8722d90c65259`, indexed 204 windows and completed
+the first generic legacy/dense warmup. Its new strict archive writer rejected
+tuple operands that the original native JSON writer represents as arrays. It
+stopped before any measured query. Preserve that attempt and partial setup
+evidence at `results/provider-native-observed-2026-11-10/attempt`, committed in
+`7da19bc62b2b200d7e5e2d701bfbd05aa68ba705`. Its raw warmup response was not
+saved before rejection; disclose that limitation rather than reconstruct it.
+The model closed and lease released; the attempt cannot be resumed.
+
+An invented real-backend CPU reproduction confirms tuple origins and definition
+keys are the transport incompatibility. Correct only the new archive boundary:
+recursively map tuples to arrays, preserving all dictionary order and values,
+then retain the existing strict finite literal JSON validation and durable
+writer. Reject non-string keys and unsupported types; never relax the general
+saved-vector validator. On an append failure, preserve an explicit safe snapshot
+of the completed row, marking unsupported types, without replacing the original
+exception. Archive and snapshot work stays outside backend timing. Test all four
+actual invented arms in both modes through gzip roundtrip plus invalid operands,
+durable-write failure and failure-recorder failure. Commit corrected sources
+before source-only preparation and independent input audit in the exclusive
+`results/provider-native-observed-v2-2026-11-10` directory. Gates, schedule, model,
+corpus and all native algorithms remain unchanged; retain the failed first
+attempt as an ancestor and separate evidence, with no latency claim from it.

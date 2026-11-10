@@ -2,6 +2,7 @@
 from contextlib import contextmanager
 from copy import deepcopy
 from dataclasses import asdict
+import gzip
 import json
 import importlib
 from pathlib import Path
@@ -17,6 +18,58 @@ from semantic_search.relations import ReferenceGraph
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 study = importlib.import_module("experiments.provider_native.study")
+
+
+def test_native_archive_preserves_tuple_values_and_insertion_order(tmp_path):
+    row = {"scope": {"z": "last alphabetically", "a": ("src/code.py", "name", 1, 182)},
+           "values": [True, None, 1, 2.0, "café", ("retrieval", None)]}
+    original = deepcopy(row)
+    path = tmp_path / "invented.jsonl.gz"
+    with study.Ledger(path) as ledger:
+        ledger.append(row)
+    decoded = json.loads(gzip.decompress(path.read_bytes()))
+    assert decoded == json.loads(json.dumps(row, ensure_ascii=False, allow_nan=False))
+    assert list(decoded["scope"]) == ["z", "a"]
+    assert row == original and type(row["scope"]["a"]) is tuple
+
+
+@pytest.mark.parametrize("bad", [float("nan"), float("inf"), object(), {1: "not a string key"}])
+def test_native_archive_rejects_invalid_operands_and_preserves_failure_snapshot(tmp_path, bad):
+    path = tmp_path / "invented.jsonl.gz"
+    with study.Ledger(path) as ledger, pytest.raises(ValueError):
+        ledger.append({"query_id": "invented", "bad": bad})
+    receipt = study.read(tmp_path / "archive-failure.json")
+    assert receipt["archive_file"] == path.name and receipt["resume_allowed"] is False
+    assert receipt["source_row_snapshot"]["query_id"] == "invented"
+    assert "capture_unserializable_type" in receipt["source_row_snapshot"]["bad"]
+    assert gzip.decompress(path.read_bytes()) == b""
+
+
+def test_native_archive_write_failure_keeps_original_error_and_complete_receipt(tmp_path, monkeypatch):
+    original = OSError("invented durable append failure")
+
+    def fail(*args):
+        raise original
+
+    monkeypatch.setattr(study.DurableLedger, "append", fail)
+    row = {"query_id": "invented", "operand": ("source", 1, 2)}
+    with study.Ledger(tmp_path / "invented.gz") as ledger, pytest.raises(OSError) as caught:
+        ledger.append(row)
+    assert caught.value is original
+    assert study.read(tmp_path / "archive-failure.json")["source_row_snapshot"] == study.native_json(row)
+
+
+def test_native_archive_recorder_failure_cannot_replace_original_error(tmp_path, monkeypatch):
+    original, recording = OSError("append"), OSError("failure receipt")
+
+    def fail(*args):
+        raise original
+
+    monkeypatch.setattr(study.DurableLedger, "append", fail)
+    monkeypatch.setattr(study, "write", lambda *args: (_ for _ in ()).throw(recording))
+    with study.Ledger(tmp_path / "invented.gz") as ledger, pytest.raises(OSError) as caught:
+        ledger.append({"query_id": "invented"})
+    assert caught.value is original and caught.value.__cause__ is recording
 
 
 @pytest.mark.parametrize("long_definition", [False, True])

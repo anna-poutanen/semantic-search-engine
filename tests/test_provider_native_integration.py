@@ -1,6 +1,8 @@
 """Invented real-backend integration; never a model or observed-corpus run."""
 from contextlib import closing
+from copy import deepcopy
 from dataclasses import asdict
+import gzip
 import hashlib
 import importlib
 import json
@@ -398,3 +400,39 @@ def test_invalid_reported_component_durations_fail_closed(value):
     metrics["provider_elapsed_s"] = value
     with pytest.raises(ValueError, match="duration"):
         integration.checked_metrics(metrics, {"candidate_capture": None, "elapsed_backend_s": 1.0})
+
+
+def test_actual_eight_conditions_use_lossless_native_tuple_transport(fixture, tmp_path):
+    """Exercise the actual measure→archive boundary that unit traces omitted."""
+    _, _, backend, embedder, _ = fixture
+    study = importlib.import_module("experiments.provider_native.study")
+    strict = importlib.import_module("experiments.dependency_context.study_inputs")
+    path, rows, snapshots, expected_lines = tmp_path / "native-conditions.jsonl.gz", [], [], []
+    with study.Ledger(path) as ledger:
+        for arm in integration.ARMS:
+            for mode in ("dense", "hybrid"):
+                row = integration.measure(backend, embedder, query_record(), 1, arm, mode)
+                # These are original frozen native in-memory metadata types,
+                # intentionally arrays after the historical JSON transport.
+                assert any(type(value) is tuple for value in row["stages"]["origins"].values())
+                assert all(type(value) is tuple for value in row["stages"]["definition_keys"].values())
+                if arm in integration.ROLE_ARMS:
+                    assert all(type(value) is tuple for value in row["candidate_capture"]["definition_keys"].values())
+                assert not strict.literal_json(row)
+                snapshots.append(deepcopy(row))
+                expected_lines.append(json.dumps(row, ensure_ascii=False, separators=(",", ":"), allow_nan=False).encode()+b"\n")
+                ledger.append(row)
+                rows.append(row)
+    assert rows == snapshots  # Transport may not rewrite the actual receipts.
+    with gzip.open(path, "rb") as stream:
+        wire = stream.read()
+    assert wire == b"".join(expected_lines)  # Includes nested dictionary order.
+    decoded = [json.loads(line) for line in wire.splitlines()]
+    assert len(decoded) == 8 and all(strict.literal_json(row) for row in decoded)
+    for actual, saved in zip(rows, decoded, strict=True):
+        assert saved == json.loads(json.dumps(actual, ensure_ascii=False, allow_nan=False))
+        for key in ("compact_payload", "compact_sha256", "query_vector", "query_vector_sha256", "provider_integration"):
+            assert saved[key] == actual[key]
+        if actual["candidate_capture"] is not None:
+            for key in ("features", "provider_receipts", "semantic_receipt", "role_guard_receipt"):
+                assert saved["candidate_capture"][key] == actual["candidate_capture"][key]

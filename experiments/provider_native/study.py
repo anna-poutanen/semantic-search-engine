@@ -23,7 +23,7 @@ if str(ROOT / "scripts") not in sys.path:
     sys.path.insert(0, str(ROOT / "scripts"))
 
 old = importlib.import_module("benchmark_role_native")
-Ledger = importlib.import_module("experiments.dependency_context.study").Ledger
+DurableLedger = importlib.import_module("experiments.dependency_context.study").Ledger
 integration = importlib.import_module("experiments.provider_native.integration")
 
 SCHEMA = "provider_native_study_v1"
@@ -62,6 +62,33 @@ def write(path, value):
         stream.flush()
         os.fsync(stream.fileno())
     sync(Path(path).parent)
+
+
+def native_json(value):
+    """Native tuple operands become JSON arrays without changing mapping order."""
+    if type(value) is dict:
+        require(all(type(key) is str for key in value), "Native archive requires string mapping keys")
+        return {key: native_json(item) for key, item in value.items()}
+    if type(value) in (list, tuple):
+        return [native_json(item) for item in value]
+    return value  # The durable writer still rejects every other nonliteral type.
+
+
+class Ledger(DurableLedger):
+    """Match original native tuple transport, retaining strict durable writes."""
+    def append(self, row):
+        try:
+            super().append(native_json(row))
+        except BaseException as error:
+            try:
+                write(self.path.parent / "archive-failure.json", {
+                    "archive_file": self.path.name, "error_type": type(error).__name__, "error": str(error),
+                    "source_row_snapshot": old.capture_helpers._safe_snapshot(row),
+                    "snapshot_policy": "Tuples become arrays; unsupported or cyclic values have explicit type markers",
+                    "resume_allowed": False})
+            except BaseException as recorder_error:
+                raise error from recorder_error
+            raise
 
 
 def source_hashes():
