@@ -19,10 +19,12 @@ sys.path.insert(0, str(ROOT / "scripts"))
 study = importlib.import_module("experiments.provider_native.study")
 
 
-def test_source_inventory_uses_actual_path_and_decoder_boundaries(tmp_path, monkeypatch):
+@pytest.mark.parametrize("long_definition", [False, True])
+def test_source_inventory_uses_actual_path_and_decoder_boundaries(tmp_path, monkeypatch, long_definition):
     project, corpus = tmp_path/"project", tmp_path/"corpus"
     (corpus/"src").mkdir(parents=True)
-    source = "def implementation():\n    return 'literal café'\n"
+    source = "def implementation():\n" + ("    value = 1\n" * 180 if long_definition else "")
+    source += "    return 'literal café'\n"
     (corpus/"src/api.py").write_text(source)
     (corpus/"src/excluded.py").write_text("invalid syntax !\n")
     (corpus/"src/readme.txt").write_text("unsupported source\n")
@@ -35,7 +37,10 @@ def test_source_inventory_uses_actual_path_and_decoder_boundaries(tmp_path, monk
     document_path.parent.mkdir(parents=True)
     (project/"dataset.json").write_text(json.dumps(data))
     sources, keys = {"src/api.py": source}, {}
-    snippets = extract_snippets(corpus, source_root="src", sources=sources, definition_keys=keys)
+    snippets = extract_snippets(corpus, "src", 160, 40, sources=sources,
+                                source_exclusions=data["source_exclusions"], definition_keys=keys)
+    if long_definition:
+        assert [(item.start_line, item.end_line) for item in snippets] == [(1, 160), (121, 182)]
     graph = ReferenceGraph(sources, snippets)
     document = {"inventory": [asdict(item) for item in snippets],
         "definition_keys": {key: list(value) for key, value in keys.items()},

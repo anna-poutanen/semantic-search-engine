@@ -142,7 +142,8 @@ def inventory(corpus, legacy):
     require({path.relative_to(corpus).as_posix(): file_sha(path) for path in files} == binding["source_sha256"],
             "Complete observed corpus source bytes changed")
     keys = {}
-    snippets = extract_snippets(corpus, source_root=data["source_root"], sources=sources, definition_keys=keys)
+    snippets = extract_snippets(corpus, data["source_root"], 160, 40, sources=sources,
+                                source_exclusions=data.get("source_exclusions", ()), definition_keys=keys)
     graph = ReferenceGraph(sources, snippets)
     document = {"inventory": [asdict(item) for item in snippets],
         "definition_keys": {key: list(value) for key, value in keys.items()},

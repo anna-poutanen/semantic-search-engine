@@ -143,3 +143,22 @@ The outcome establishes observed native performance and exact-output replication
 only. Technical audit, semantic parity, latency qualification, quality
 qualification, fresh confirmation, product integration and coding-token savings
 remain separate claims. No production promotion or release follows automatically.
+
+## Disclosed source-only preparation corrections
+
+The original source freeze `dab55c239cf3a451ec7c389f0133c84ad7917e22`
+remains in history. The first preparation invocation used a nonexistent local
+corpus path; its failure is preserved in commit `1d183db`. The second used the
+correct pinned corpus but exposed a checker mismatch: implicit extraction
+defaults produced 215 windows instead of the original study's 204. Its failure
+is preserved in commit `e9b71a9`. Neither invocation created a plan or native
+attempt, loaded a model, indexed or retrieved; the diagnosis read source and AST
+inventory only.
+
+Before any model run, correct the new preparation check to use the original
+explicit 160-line windows, 40-line overlap and dataset exclusions. Cover this
+with an invented 182-line definition whose two windows are lines 1–160 and
+121–182. Commit the corrected full source closure before repeating source-only
+preparation. Original source inventory, independent auditor, native backend,
+queries, model, gates and selector remain fixed. Preserve both failed invocation
+receipts alongside the corrected source and subsequent input freeze.
