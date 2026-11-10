@@ -1,0 +1,128 @@
+...FF.....                                                               [100%]
+=================================== FAILURES ===================================
+___ test_native_setup_failure_preserves_finalized_ledgers_and_releases_lease ___
+
+tmp_path = PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-111/test_native_setup_failure_pres0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10a81be00>
+
+    def test_native_setup_failure_preserves_finalized_ledgers_and_releases_lease(tmp_path, monkeypatch):
+        original = RuntimeError("invented model setup failure")
+        args = failed_setup(tmp_path, monkeypatch, original)
+        with pytest.raises(RuntimeError) as caught:
+>           study.run(args)
+
+tests/test_provider_native_study.py:116: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+args = namespace(output=PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-111...folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-111/test_native_setup_failure_pres0/tokens'))
+
+    def run(args):
+        attempt = args.output / "attempt"
+        require(not attempt.exists(), "No overwrite, retry or resume of a native attempt")
+        plan, data, sources, document, chain = verify_plan(args)
+        require(chain["committed_at_unix"] <= datetime.now(timezone.utc).timestamp(), "Freeze cannot follow execution")
+        attempt.mkdir(exist_ok=False)
+        sync(attempt.parent)
+        rows, warmups, phase, backend, embedder, lease, attempted = [], [], "claim", None, None, None, 0
+        try:
+            write(attempt / "run-started.json", {"schema": SCHEMA, "started_at_utc": utc(),
+                "execution_commit": git("rev-parse", "HEAD"), "prospective_freeze": chain,
+                "source_freeze": plan["source_freeze"], "plan_sha256": file_sha(args.output / "plan.json"),
+                "resume_allowed": False, "expected_measured_calls": 336, "expected_warmups": 8})
+            with Ledger(attempt / "searches.jsonl.gz") as ledger, Ledger(attempt / "warmups.jsonl.gz") as warm_ledger:
+                phase = "gpu_lease"
+                with old.transport.gpu_lease(ROOT) as lease:
+                    write(attempt / "gpu-lease-acquired.json", deepcopy(lease))
+                    try:
+                        phase = "setup"
+                        rank_bytes = (args.tokenizer_cache / old.base.replay.CACHE_KEY).read_bytes()
+                        require(sha(rank_bytes) == old.base.replay.CACHE_SHA256, "Exact offline tokenizer required")
+                        import tiktoken.load
+    
+                        def rank_reader(url, expected_hash=None):
+                            require(url == old.base.replay.CACHE_URL and expected_hash == old.base.replay.CACHE_SHA256,
+                                    "Unexpected tokenizer resource")
+                            return rank_bytes
+    
+                        with patch.object(tiktoken.load, "read_file_cached", rank_reader):
+                            old.context.encoding()
+>                       embedder = old.RecordingEmbedder(args.model, progress=True)
+E                       AttributeError: 'types.SimpleNamespace' object has no attribute 'model'
+
+experiments/provider_native/study.py:295: AttributeError
+__________ test_failure_recorder_cannot_replace_original_setup_error ___________
+
+path = PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-111/test_failure_recorder_cannot_r0/result/attempt/failure.json')
+value = {'artifacts': {'gpu-lease-acquired.json': 'd48d4ddf07b24e36e75a5721424deaf380c57abb69dfdfec6f3b820006a41bfe', 'gpu-lea...tempted_requests': 0, 'completed_requests': 0, 'error': "'types.SimpleNamespace' object has no attribute 'model'", ...}
+
+    def failing(path, value):
+        if path.name == "failure.json":
+>           raise recording
+E           OSError: failure receipt
+
+tests/test_provider_native_study.py:137: OSError
+
+The above exception was the direct cause of the following exception:
+
+tmp_path = PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-111/test_failure_recorder_cannot_r0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10a82bc20>
+
+    def test_failure_recorder_cannot_replace_original_setup_error(tmp_path, monkeypatch):
+        original, recording = RuntimeError("setup"), OSError("failure receipt")
+        args = failed_setup(tmp_path, monkeypatch, original)
+        write = study.write
+    
+        def failing(path, value):
+            if path.name == "failure.json":
+                raise recording
+            return write(path, value)
+    
+        with patch.object(study, "write", failing), pytest.raises(RuntimeError) as caught:
+>           study.run(args)
+
+tests/test_provider_native_study.py:141: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+experiments/provider_native/study.py:392: in run
+    raise error from recorder_error
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+args = namespace(output=PosixPath('/private/var/folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-111...folders/_z/73gdf5hd10j_6ng9l7m_ssjc0000gn/T/pytest-of-annapoutanen/pytest-111/test_failure_recorder_cannot_r0/tokens'))
+
+    def run(args):
+        attempt = args.output / "attempt"
+        require(not attempt.exists(), "No overwrite, retry or resume of a native attempt")
+        plan, data, sources, document, chain = verify_plan(args)
+        require(chain["committed_at_unix"] <= datetime.now(timezone.utc).timestamp(), "Freeze cannot follow execution")
+        attempt.mkdir(exist_ok=False)
+        sync(attempt.parent)
+        rows, warmups, phase, backend, embedder, lease, attempted = [], [], "claim", None, None, None, 0
+        try:
+            write(attempt / "run-started.json", {"schema": SCHEMA, "started_at_utc": utc(),
+                "execution_commit": git("rev-parse", "HEAD"), "prospective_freeze": chain,
+                "source_freeze": plan["source_freeze"], "plan_sha256": file_sha(args.output / "plan.json"),
+                "resume_allowed": False, "expected_measured_calls": 336, "expected_warmups": 8})
+            with Ledger(attempt / "searches.jsonl.gz") as ledger, Ledger(attempt / "warmups.jsonl.gz") as warm_ledger:
+                phase = "gpu_lease"
+                with old.transport.gpu_lease(ROOT) as lease:
+                    write(attempt / "gpu-lease-acquired.json", deepcopy(lease))
+                    try:
+                        phase = "setup"
+                        rank_bytes = (args.tokenizer_cache / old.base.replay.CACHE_KEY).read_bytes()
+                        require(sha(rank_bytes) == old.base.replay.CACHE_SHA256, "Exact offline tokenizer required")
+                        import tiktoken.load
+    
+                        def rank_reader(url, expected_hash=None):
+                            require(url == old.base.replay.CACHE_URL and expected_hash == old.base.replay.CACHE_SHA256,
+                                    "Unexpected tokenizer resource")
+                            return rank_bytes
+    
+                        with patch.object(tiktoken.load, "read_file_cached", rank_reader):
+                            old.context.encoding()
+>                       embedder = old.RecordingEmbedder(args.model, progress=True)
+E                       AttributeError: 'types.SimpleNamespace' object has no attribute 'model'
+
+experiments/provider_native/study.py:295: AttributeError
+=========================== short test summary info ============================
+FAILED tests/test_provider_native_study.py::test_native_setup_failure_preserves_finalized_ledgers_and_releases_lease
+FAILED tests/test_provider_native_study.py::test_failure_recorder_cannot_replace_original_setup_error
+2 failed, 8 passed in 0.39s
