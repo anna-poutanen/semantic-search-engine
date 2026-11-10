@@ -141,6 +141,17 @@ This follows the agreed plan in **Choose a project for YC roles** on October 12,
    receipt and call-count parity. CPU replay excludes real inference, SQLite
    and source scans; it establishes no native speedup. Production and release
    0.1.5 remain on coverage.
+   The [observed native provider comparison](../results/provider-native-observed-v2-2026-11-10/findings.md)
+   subsequently completes all 336 measured searches and eight warmups. All pass
+   independent reconstruction, including 84 exact role pairs. Whole-search
+   medians fall 692→660 ms dense and 718→663 ms hybrid, while coverage takes
+   276/284 ms. The optimized
+   candidate still takes 2.39/2.33 times coverage against a 1.25 ceiling and
+   retains the same hybrid individual loss. All 161 experiment tests and the
+   full corrected source CI (5,574 passed, 10 skipped, editor checks) pass. The
+   first warmup archive failure, missing raw warmup limitation and separately
+   frozen tuple-transport correction remain in history. This performance
+   replication does not qualify a new quality rule or change release defaults.
 4. **Persistent index (core and real-model validation complete at tested scale):**
    durable SQLite FTS5 keyword retrieval, pinned sqlite-vec exact exhaustive
    cosine retrieval, reusable document/model vector caching, atomic source
@@ -277,16 +288,25 @@ when designing a separate general quality experiment; do not add corpus-specific
 exceptions or retune the published result. A changed rule must pass all observed
 individual-loss/incremental-gain checks before another untouched codebase.
 
-Next, freeze actual-request integration and native profiling of the exact
-float32 validation optimization. Its all-84-request saved-vector CPU comparison
-passes exact output/call parity and lowers provider-call medians to 15.8/18.2 ms,
-but excludes actual model/tokenizer APIs, SQLite validation, source scans,
-metadata generation and factory setup. Include those costs, the original query
-and fresh clause forwards, guards and any proven skips in whole-search timing;
-retain the median ceiling of 1.25 times each control. The 251 skip certificates
-are conditional proofs, with no native inference savings measured yet.
-Production defaults and release assets stay on coverage. Coding comparisons
-remain gated on qualified retrieval improvement; token savings are unestablished.
+The exact float32 validator now has an
+[observed full native comparison](../results/provider-native-observed-v2-2026-11-10/findings.md):
+336 searches, eight warmups and all real model/source/index/factory costs.
+Independent reconstruction passes all searches and 84 exact role pairs.
+Provider-call medians fall about 78 ms; whole-search medians improve 4.6% dense
+and 7.6% hybrid in this battery-powered
+series, still well above the fixed 1.25-times-control ceiling. No clause work is
+skipped; the 251 earlier skip certificates remain conditional proofs.
+
+Next, freeze a separate small returned-template role experiment with invented
+ordinary-formatter counterexamples and all observed individual-loss checks.
+The [source-only design notes](../results/provider-native-preflight-2026-11-10/quality-design-notes.md)
+explain why class-return identity alone cannot prove method preservation through
+generated code. Protecting existing hybrid evidence also cannot admit the dense
+formatter already retrieved but omitted; that needs a separate budget-preserving
+admission experiment. Require a distinct new multi-file gain, no individual loss,
+native latency qualification and another untouched codebase before coding
+comparisons. Production defaults and release assets stay on coverage; token
+savings are unestablished.
 
 The [workflow investigation](../results/workflow-investigation-2026-10-13/findings.md)
 records repeated source reads, cache differences and runtime confounds without

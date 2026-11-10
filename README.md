@@ -199,9 +199,20 @@ complete behavior. Class rebinding prevents the motivating attrs relationship
 from qualifying, so the known hybrid omission remains. Separately, exact float32
 validation reduces saved-vector provider CPU medians **82.2 to 15.8 ms** for dense
 and **84.3 to 18.2 ms** for hybrid, with identical features and receipts. These
-measurements exclude native model/index/source work; whole-search latency and a
-new quality rule still need validation. The original failed timing-envelope
+measurements exclude native model/index/source work; the native follow-up below
+tests whole-search latency. A new quality rule remains unqualified. The original failed timing-envelope
 check and its narrowly corrected continuation are both preserved.
+
+The [observed native provider comparison](results/provider-native-observed-v2-2026-11-10/findings.md)
+now completes 336 real searches and eight warmups. Optimized provider validation
+lowers dense whole-search median **692 to 660 ms** and hybrid **718 to 663 ms**;
+the coverage controls take **276/284 ms**. The candidate remains **2.39/2.33
+times coverage**, above the fixed 1.25 ceiling, and retains the hybrid omission.
+All 336 searches and eight warmups pass independent reconstruction, including
+84 exact original/optimized role pairs. This is observed attrs evidence on
+battery power, with no fresh-codebase or coding-token claim.
+The failed first warmup archive and its tested transport correction are preserved.
+Production and release 0.1.5 keep coverage/backfill.
 
 For optional H2O reranking, install its pinned runtime and weights with
 `python3 scripts/setup_mac.py`, start `.venv/bin/python scripts/serve_mac.py` in
