@@ -152,6 +152,19 @@ This follows the agreed plan in **Choose a project for YC roles** on October 12,
    first warmup archive failure, missing raw warmup limitation and separately
    frozen tuple-transport correction remain in history. This performance
    replication does not qualify a new quality rule or change release defaults.
+   The [returned-template preservation follow-up](../results/template-preservation-development-2026-11-11/findings.md)
+   now passes its observed development gate with independent reconstruction of
+   all 477 decisions. Across 421 scored occurrences / 215 distinct query units,
+   it restores one complete attrs hybrid behavior with no individual losses
+   against legacy, coverage or prior-role. Complete present occurrences rise
+   269 to 270 of 346, and multi-file completeness 58 to 59 of 130. Six decisions
+   return exact saved coverage (two scored, four repetition integrity checks);
+   none admits new evidence. Ordinary display formatters also qualify, without
+   affecting these decisions. The dense formatter retrieved at rank 11 remains
+   omitted. All 181 new tests, 345 reused-helper tests and full corrected-source
+   CI (5,755 passed, 10 skipped, editor checks) pass. The preflight inventory
+   failure and prospective source/input freezes remain committed. Native cost,
+   untouched-codebase confirmation and product promotion remain unresolved.
 4. **Persistent index (core and real-model validation complete at tested scale):**
    durable SQLite FTS5 keyword retrieval, pinned sqlite-vec exact exhaustive
    cosine retrieval, reusable document/model vector caching, atomic source
@@ -297,16 +310,24 @@ and 7.6% hybrid in this battery-powered
 series, still well above the fixed 1.25-times-control ceiling. No clause work is
 skipped; the 251 earlier skip certificates remain conditional proofs.
 
-Next, freeze a separate small returned-template role experiment with invented
-ordinary-formatter counterexamples and all observed individual-loss checks.
-The [source-only design notes](../results/provider-native-preflight-2026-11-10/quality-design-notes.md)
-explain why class-return identity alone cannot prove method preservation through
-generated code. Protecting existing hybrid evidence also cannot admit the dense
-formatter already retrieved but omitted; that needs a separate budget-preserving
-admission experiment. Require a distinct new multi-file gain, no individual loss,
-native latency qualification and another untouched codebase before coding
-comparisons. Production defaults and release assets stay on coverage; token
-savings are unestablished.
+The separate [returned-template role experiment](../results/template-preservation-development-2026-11-11/findings.md)
+now passes its observed development gate: one complete hybrid restoration,
+zero individual losses against all three controls, and an independent audit of
+477 exact terminal decisions. This is recovery of saved coverage, not newly
+retrieved or admitted evidence. Its 209.49-second CPU replay diagnostic is not
+native search latency. Ordinary display formatters also satisfy the literal
+syntax; it proves neither code generation nor relevance.
+
+Next, freeze a separate budget-preserving admission experiment for complementary
+implementations already retrieved but omitted. Dense's rank-11 formatter is
+absent from both operands and cannot be restored by a terminal exact-response
+guard. Preserve the same individual-loss checks and require a distinct complete
+multi-file improvement without corpus-specific exceptions. Resolve whole-search
+cost and meet the fixed native latency ceiling, then validate a separately
+frozen untouched codebase before coding comparisons. The
+[source-only design notes](../results/provider-native-preflight-2026-11-10/quality-design-notes.md)
+retain the earlier class-transformation limits. Production defaults and release
+assets stay on coverage; token savings are unestablished.
 
 The [workflow investigation](../results/workflow-investigation-2026-10-13/findings.md)
 records repeated source reads, cache differences and runtime confounds without
