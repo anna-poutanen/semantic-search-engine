@@ -200,8 +200,9 @@ from qualifying, so the known hybrid omission remains. Separately, exact float32
 validation reduces saved-vector provider CPU medians **82.2 to 15.8 ms** for dense
 and **84.3 to 18.2 ms** for hybrid, with identical features and receipts. These
 measurements exclude native model/index/source work; the native follow-up below
-tests whole-search latency. A new quality rule remains unqualified. The original failed timing-envelope
-check and its narrowly corrected continuation are both preserved.
+tests whole-search latency. The annotated-dependency rule fails its development
+gate. The original failed timing-envelope check and its narrowly corrected
+continuation are both preserved.
 
 The [observed native provider comparison](results/provider-native-observed-v2-2026-11-10/findings.md)
 now completes 336 real searches and eight warmups. Optimized provider validation
@@ -213,6 +214,17 @@ All 336 searches and eight warmups pass independent reconstruction, including
 battery power, with no fresh-codebase or coding-token claim.
 The failed first warmup archive and its tested transport correction are preserved.
 Production and release 0.1.5 keep coverage/backfill.
+
+The [returned-template preservation experiment](results/template-preservation-development-2026-11-11/findings.md)
+now passes its observed development quality gate. Independent reconstruction
+verifies all 477 decisions: across 421 scored occurrences, it restores one
+complete hybrid multi-file result with no individual losses against legacy,
+coverage or prior-role. Complete present occurrences rise **269 to 270 of 346**.
+The guard returns an exact saved coverage response for that query; it admits no
+new implementation. Dense still omits a formatter already retrieved at rank 11.
+Ordinary display formatters also qualify for protection, so the syntactic rule
+makes no code-generation or relevance claim. Admission, native latency and a
+fresh codebase remain unqualified; release defaults stay on coverage/backfill.
 
 For optional H2O reranking, install its pinned runtime and weights with
 `python3 scripts/setup_mac.py`, start `.venv/bin/python scripts/serve_mac.py` in
