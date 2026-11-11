@@ -440,7 +440,7 @@ def test_new_source_closure_includes_guard_auditor_runner_tests_and_transitive_h
         "experiments/template_preservation/guard.py", "experiments/template_preservation/audit.py",
         "experiments/template_preservation/study.py", "experiments/dependency_context/study_inputs.py",
         "tests/test_template_preservation_study.py", "tests/test_template_preservation_guard.py",
-        "docs/template-preservation-protocol.md", "pyproject.toml", "uv.lock", "requirements-mac.lock",
+        "docs/template-preservation-protocol.md", "pyproject.toml", "requirements-workflows.lock", "requirements-mac.lock",
         "results/semantic-model-development-2026-11-02/model-binding.json"]
     for name in names:
         path = tmp_path / name
@@ -449,6 +449,18 @@ def test_new_source_closure_includes_guard_auditor_runner_tests_and_transitive_h
     bound = study.source_hashes(tmp_path)
     assert set(bound) == set(names)
     assert all(bound[name] == inputs.file_sha(tmp_path / name) for name in names)
+
+
+def test_real_checkout_inventory_binds_existing_package_locks_and_complete_new_sources():
+    root = study.ROOT
+    bound = study.source_hashes(root)
+    assert inputs.same(bound, audit.source_hashes(root))
+    assert {"pyproject.toml", "requirements-mac.lock", "requirements-languages.lock",
+            "docs/template-preservation-protocol.md", "experiments/template_preservation/study.py",
+            "experiments/template_preservation/guard.py", "experiments/template_preservation/audit.py",
+            "tests/test_template_preservation_study.py"} <= set(bound)
+    assert {path.name for path in root.glob("requirements*.lock")} <= set(bound)
+    assert all((root / name).is_file() and inputs.file_sha(root / name) == digest for name, digest in bound.items())
 
 
 def input_barrier_fixture():

@@ -168,3 +168,22 @@ would still require actual native integration with the fixed median ceiling of
 1.25 times each control and a separately frozen untouched codebase. The previous
 native timing failure is not repaired by this rule. Production/default/release
 changes and correctness/time/token savings claims remain gated.
+
+## Disclosed source-inventory preparation correction
+
+The first implementation commit `4eded7c685ab1da0b46f24aa8fb574e9e68f0362`
+passed 180 invented tests, but its preflight metadata command incorrectly
+declared a nonexistent `uv.lock`. The source hash calculation failed before any
+plan creation, input audit, observed predicate or outcome. The multi-command
+shell did not stop on that exception and committed the implementation without
+the intended validation receipt. Preserve that source and the factual failure
+receipt in `7104c0c667b8ff57c7c006ee7c8dd27a4e0d3048`; no original traceback log
+was captured for the metadata command, and no substitute log is reconstructed.
+
+Correct only the source inventory in producer and auditor to bind the actual
+root `requirements*.lock` files, retaining explicit required package/Mac lock,
+protocol and model-manifest paths. Add a real-checkout inventory regression in
+addition to the invented source-tree fixture. Use fail-fast shell execution for
+dependent metadata/commit steps. Freeze and push corrected full sources before
+source-only preparation. Candidate grammar, witness/guard semantics, sample,
+quality gates and all historical operands remain unchanged.

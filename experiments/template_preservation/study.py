@@ -65,7 +65,8 @@ def source_hashes(root=ROOT):
     paths = set()
     for folder in ("src", "scripts", "experiments", "tests"):
         paths.update((root / folder).rglob("*.py"))
-    paths.update(root / name for name in ("docs/template-preservation-protocol.md", "pyproject.toml", "uv.lock",
+    paths.update(root.glob("requirements*.lock"))
+    paths.update(root / name for name in ("docs/template-preservation-protocol.md", "pyproject.toml",
         "requirements-mac.lock", "results/semantic-model-development-2026-11-02/model-binding.json"))
     return {path.relative_to(root).as_posix(): file_sha(path) for path in sorted(paths)}
 
