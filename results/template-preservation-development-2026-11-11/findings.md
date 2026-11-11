@@ -115,11 +115,16 @@ change a default/release or establish coding correctness/time/token savings.
   `9fda2f0d2e8cdb6962ce93caa4a4f8e7c15c4bdf`. Only the producer/auditor source
   inventory changed to bind actual root `requirements*.lock` files, with a
   real-checkout regression. Candidate grammar, sample and gates stayed fixed.
-  All **181 new tests**, **345 reused-helper tests**, Ruff, whitespace and
-  independent source reviews pass. Production algorithms are unchanged.
+  All **181 new tests**, **345 reused-helper tests**, Ruff and independent
+  source reviews pass. Production algorithms are unchanged.
 - [Full corrected-source CI](../template-preservation-preflight-2026-11-11/source-freeze-ci.json)
   passes **5,755 tests, 10 skipped**, plus editor and installed lexical/invented
   semantic smoke checks. This CI adds no real-model benchmark evidence.
+- A final [whole-branch whitespace scan](../template-preservation-preflight-2026-11-11/publication-whitespace.json)
+  finds one surplus blank line at the frozen auditor's EOF and trailing spaces
+  in the original CI log. Earlier working-tree checks did not cover those
+  then-untracked files. Source and raw log bytes are preserved; these cosmetic
+  findings do not change the passing functional tests or independent audit.
 - Source-only preparation binds 415 new source blobs, 655 current parent
   artifacts, five historical source freezes and all six unchanged prepared
   artifacts. The original 218-file preparation authority is verified rather
