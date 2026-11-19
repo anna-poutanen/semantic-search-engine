@@ -1,0 +1,88 @@
+{
+  "version": 1,
+  "classification": "prospective_task_evidence_untouched_selection_lock",
+  "phase_0_anchor_revision": "5b8c02ee53f541b6bd31587ec3385b1beddfa512",
+  "selection_date": "2026-11-19",
+  "source_manifests": [
+    {
+      "path": "benchmarks/coding_workflows_multifile.json",
+      "sha256": "e2274eae067bb4c13bd5730fdf84f34adc8ff04bd9d9dc8e76be48dfa189acac"
+    },
+    {
+      "path": "benchmarks/coding_workflows_strict.json",
+      "sha256": "607f7491f5f0dd265591513ebccbe23e0a1685612b7cc25a00dd7c4846351f84"
+    }
+  ],
+  "selection_rule": {
+    "start_after_task_id": "requests_response_limit",
+    "scan_order": "The exact tasks array order in coding_workflows_multifile.json",
+    "choose": "The first eligible task; do not compare retrieval, packing, coverage, latency, or agent outcomes",
+    "eligibility": [
+      "The corpus_id differs from requests",
+      "Every reference production path has a currently supported Python, JavaScript, or TypeScript saved-source extension",
+      "repo_url and revision are pinned, preparation_patch is null, minimum_production_files is at least two, and at least two distinct reference production files are named",
+      "coding_workflows_strict.json has the same task id, corpus id, repo URL, revision, and prompt; strict_control_passed is true; seed base fails; seed reference passes; and the strict checker and shared helper have frozen SHA-256 values",
+      "The selection is committed before candidate source review, retrieval, packing, selector implementation, Requests packet outcomes, or coding-agent trials"
+    ]
+  },
+  "eligible_manifest_candidates": [
+    {
+      "position_after_anchor": 1,
+      "task_id": "click_atomic_transactions",
+      "corpus_id": "click",
+      "repo_url": "https://github.com/pallets/click",
+      "revision": "934813e4d421071a1b3db3973c02fe2721359a6e",
+      "prompt_sha256": "55d3806f38b3002081ff44cb8a58f8fccc2dc1ec9f9326682b35d21a1d710feb",
+      "minimum_production_files": 2,
+      "reference_production_file_count": 4,
+      "strict_checker_path": "benchmarks/strict_multifile_checks/check_click_atomic_transactions.py",
+      "strict_checker_sha256": "28c2188838ddebcc32e36b621f88aca80fcd939f30c8267163c4e63169263ce1"
+    },
+    {
+      "position_after_anchor": 2,
+      "task_id": "starlette_body_limits",
+      "corpus_id": "starlette",
+      "repo_url": "https://github.com/encode/starlette",
+      "revision": "4d72fd87ea1c358691a19468168f7217d8ca6a87",
+      "prompt_sha256": "e1aff29086b15363ef8cba4ecadbcb649948cdd9d5ac3e7886be099c6270567e",
+      "minimum_production_files": 2,
+      "reference_production_file_count": 3,
+      "strict_checker_path": "benchmarks/strict_multifile_checks/check_starlette_body_limits.py",
+      "strict_checker_sha256": "ac22478d83e2b706d24a618c04f64f2d02cade5958d10140ffcb803357b490b6"
+    }
+  ],
+  "selected": {
+    "task_id": "click_atomic_transactions",
+    "corpus_id": "click",
+    "repo_url": "https://github.com/pallets/click",
+    "revision": "934813e4d421071a1b3db3973c02fe2721359a6e",
+    "reason": "First eligible manifest task after requests_response_limit"
+  },
+  "substitution_policy": "Do not fall back to Starlette if Click has no complementary candidate, cannot fit the frozen budgets, or fails admission. Record that failure. Replacing Click requires a new named selection lock created before further source or outcome inspection.",
+  "claim_boundary": {
+    "untouched_means": "Click is untouched by the Phase 0 task-evidence selector, Requests packet outcomes, and any selector tuning performed after this lock",
+    "does_not_mean": "Click is not a fresh project-wide repository holdout; it is an observed development repository with existing task and checker artifacts",
+    "supported_claim_if_passed": "A separately selected observed codebase did not lose frozen evidence under the task-evidence selector",
+    "unsupported_claims": [
+      "generalization to an unseen repository",
+      "JavaScript or TypeScript generalization",
+      "general agent-token savings"
+    ]
+  },
+  "observation_state_at_lock": {
+    "candidate_source_review": false,
+    "candidate_retrieval_calls": 0,
+    "candidate_packing_calls": 0,
+    "candidate_selector_calls": 0,
+    "requests_packet_outcomes": 0,
+    "agent_trials": 0
+  },
+  "required_next_freeze": [
+    "pinned clean Click checkout and exact tracked supported-source membership",
+    "repository-root scope with exact exclusions and implementation/test classification",
+    "source-authored evaluator-only evidence checklist and unsupported structural gaps",
+    "the same resolved control and treatment budgets used by the Requests packet gate",
+    "a no-individual-loss admission rule and deterministic replay schedule",
+    "validator, tests, artifact hashes, and chronology binding committed before selector implementation"
+  ]
+}
