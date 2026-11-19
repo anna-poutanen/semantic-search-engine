@@ -319,15 +319,49 @@ native search latency. Ordinary display formatters also satisfy the literal
 syntax; it proves neither code generation nor relevance.
 
 Next, freeze a separate budget-preserving admission experiment for complementary
-implementations already retrieved but omitted. Dense's rank-11 formatter is
-absent from both operands and cannot be restored by a terminal exact-response
-guard. Preserve the same individual-loss checks and require a distinct complete
-multi-file improvement without corpus-specific exceptions. Resolve whole-search
-cost and meet the fixed native latency ceiling, then validate a separately
-frozen untouched codebase before coding comparisons. The
+implementations already retrieved but omitted. The Requests task-evidence Phase 0
+below is the concrete first instantiation of that milestone; Dense's rank-11
+formatter remains motivating evidence of the omission class, not a competing second
+"next" experiment. Preserve the same individual-loss checks and require a distinct
+complete multi-file improvement without corpus-specific exceptions. Resolve
+whole-search cost and meet the fixed native latency ceiling, then execute a
+prospectively selected and separately frozen untouched codebase before coding
+comparisons. The
 [source-only design notes](../results/provider-native-preflight-2026-11-10/quality-design-notes.md)
 retain the earlier class-transformation limits. Production defaults and release
 assets stay on coverage; token savings are unestablished.
+
+The [task-evidence Phase 0 protocol](task-evidence-development-protocol.md) now
+defines the freeze candidate for `requests_response_limit` as the first narrow
+workflow, with a separate harness-visible
+[request/scope manifest](../benchmarks/task_evidence_requests.json)
+and evaluator-only predeclared key-evidence checklist. Both arms index the
+repository root with tests included, keep the same dense candidate sequence and
+8-result/12,000-character/4,096-token limits, and differ only by the treatment's
+evidence request. Source-only validation finds 17 extractable targets and four
+required module/class/type targets that the current function-window extractor cannot
+return. This stable scoring set is not claimed to enumerate every useful region. Its
+indexable groups alone need 16 distinct original excerpts, so they cannot fit the
+eight-result cap; their full original windows also exceed the character cap. A token
+lower bound is not needed for that infeasibility proof. The packet gate therefore
+uses three deterministic paired replays and requires a complementary implementation
+or caller gain from a newly covered source file—a path absent from the control's
+covered required groups—without losing control evidence, plus factual gaps rather
+than a claim of complete coverage. This working-tree freeze candidate and the
+untouched repository/task/checklist selection must be committed before selector work
+or Requests packet outcomes. The untouched validation executes after the packet and
+latency gates and must pass before coding-agent comparisons. The required push/PR
+job `.github/workflows/task-evidence-freeze.yml` prepares the pinned corpus, runs
+the standalone validator, and runs the freeze tests. Local source-freeze review must
+run the standalone validator with `--corpus <pinned-clean-requests-checkout>`; the
+validation may not be skipped. Until the matching freeze commit exists, every path
+touched after the recorded project base must remain in the artifact closure. Once CI
+can reconstruct an ancestor commit with the exact binding bytes and artifact hashes,
+and the pre-anchor touched-path union is closure-only, later selector work may change
+paths outside that closure. Bound artifacts and the binding must remain untouched
+after the anchor. This ancestry-aware handoff keeps required CI active without
+blocking admission implementation. No production interface or selector changes are
+part of this freeze; admission implementation and the packet gate come next.
 
 The [workflow investigation](../results/workflow-investigation-2026-10-13/findings.md)
 records repeated source reads, cache differences and runtime confounds without

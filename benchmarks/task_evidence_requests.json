@@ -1,0 +1,254 @@
+{
+  "version": 1,
+  "phase": "phase_0_scope_freeze",
+  "classification": "Harness-visible Requests task-evidence scope and paired packet contract; only the resolved request payload crosses the planner boundary",
+  "task": {
+    "id": "requests_response_limit",
+    "prompt": "Add an optional decoded-response byte budget to Requests. Session(max_response_bytes=None) defaults to unlimited; Session.request and its HTTP-method helpers, module-level helpers such as requests.get, and direct Session.send must accept max_response_bytes. An omitted per-request value inherits the session setting; explicit None disables it for that request, including its redirect chain. None or a non-negative non-boolean integer is valid; reject other values with ValueError before the transport is called. Expose the setting as Session.max_response_bytes and preserve it across pickling.\n\nApply the budget to each response independently, including intermediate and final redirects, eager .content/.text reads, streamed iter_content reads and cached responses returned by response hooks. Count actual decoded bytes after content decompression, not Content-Length or Unicode character count. Exact-boundary and empty zero-budget bodies succeed. The live response-wide total must persist across separate iter_content iterators or a partial iterator followed by .content; rereading cached bytes must not add duplicate bytes to that total. Raise before yielding a chunk that makes the cumulative decoded bytes exceed the limit, stop subsequent reads (later read APIs must raise ResponseTooLarge without reading further), and attempt to close the offending response. If close itself fails, preserve ResponseTooLarge and expose the cleanup failure through notes or exception chaining. Expose the same requests.ResponseTooLarge / requests.exceptions.ResponseTooLarge class, deriving from RequestException, with limit, received (the cumulative count at the first crossing), response and request attributes. Eager reads and convenience helpers must surface the same error. Do not leak the custom budget into adapter transport keyword arguments. Existing unlimited requests and encoding/streaming behavior must remain compatible. Add new regression test files without altering existing tests; local HTTP fixtures are allowed.",
+    "prompt_sha256": "986ec59cc684a47862967a146108795d8a9a5950da0dc893779936c70fb04b3a",
+    "source_manifest": {
+      "path": "benchmarks/coding_workflows_multifile.json",
+      "sha256": "e2274eae067bb4c13bd5730fdf84f34adc8ff04bd9d9dc8e76be48dfa189acac"
+    }
+  },
+  "corpus": {
+    "id": "requests",
+    "repo_url": "https://github.com/psf/requests",
+    "revision": "611c6162cbc4ac2020a2f91c7cfa4f3abf9bbb60",
+    "membership": "saved implementations; Git-tracked files only in Git projects"
+  },
+  "index_scope": {
+    "source_root": ".",
+    "source_exclusions": [
+      "docs/*.py",
+      "setup.py"
+    ],
+    "required_prefixes": [
+      {
+        "prefix": "src/requests/",
+        "artifact_kind": "implementation",
+        "membership_globs": [
+          "src/requests/*.py"
+        ],
+        "expected_files": 19
+      },
+      {
+        "prefix": "tests/",
+        "artifact_kind": "test",
+        "membership_globs": [
+          "tests/*.py",
+          "tests/testserver/*.py"
+        ],
+        "expected_files": 15
+      }
+    ],
+    "glob_contract": "Repository-relative POSIX paths. Membership globs are anchored and segment-aware; * does not cross '/'. Runtime source_exclusions retain the current fnmatchcase policy.",
+    "extraction_policy": "saved-implementations-v3",
+    "extractor_fingerprint": {
+      "policy": "saved-implementations-v3",
+      "python_ast": [
+        3,
+        12
+      ],
+      "extensions": {
+        ".py": null,
+        ".js": "javascript",
+        ".jsx": "javascript",
+        ".mjs": "javascript",
+        ".cjs": "javascript",
+        ".ts": "typescript",
+        ".mts": "typescript",
+        ".cts": "typescript",
+        ".tsx": "tsx"
+      },
+      "parser_pins": {
+        "tree-sitter": "0.26.0",
+        "tree-sitter-javascript": "0.25.0",
+        "tree-sitter-typescript": "0.23.2"
+      },
+      "installed_parsers": {
+        "tree-sitter": "0.26.0",
+        "tree-sitter-javascript": "0.25.0",
+        "tree-sitter-typescript": "0.23.2"
+      },
+      "js_excluded_directories": [
+        ".next",
+        ".nuxt",
+        ".svelte-kit",
+        "bower_components",
+        "build",
+        "coverage",
+        "dist",
+        "node_modules",
+        "out"
+      ],
+      "window_lines": 160,
+      "overlap_lines": 40
+    },
+    "window_policy": {
+      "max_lines": 160,
+      "overlap_lines": 40
+    },
+    "expected_inventory": {
+      "eligible_supported_files": 37,
+      "excluded_supported_files": 3,
+      "included_supported_files": 34,
+      "parsed_files": 34,
+      "implementation_windows": 240,
+      "test_windows": 436,
+      "total_windows": 676,
+      "included_files_sha256": "e014860ebe8847add3eaccff04c19f1620c8a2aa244398b2eef08c4c84ba40e0",
+      "implementation_files_sha256": "5c21d3b9e763a7367b26a0d403343000b5daa31390e1e1a0a19c00906c9e0f6f",
+      "test_files_sha256": "d9eade3ef6dc710a3a4285d29381bda0200ee3bd4bd970cdb456dcb8c52f6613",
+      "excluded_files_sha256": "c43469b545bc0c80f5e6d163b925bb7f147308c2fb19a36ff1d4cd962482dd2e",
+      "windows_sha256": "47e44a43d9281470fc901d47b7ecf4556d8226442ef3a6a5c7c3eeda5c776268",
+      "file_inventory_hash_contract": "SHA-256 of canonical compact sorted JSON mapping repository-relative path to raw-file SHA-256",
+      "window_inventory_hash_contract": "SHA-256 of canonical compact sorted JSON mapping snippet id to source content hash"
+    }
+  },
+  "artifact_kinds": {
+    "indexed": [
+      {
+        "kind": "implementation",
+        "unit": "Python function or method implementation window"
+      },
+      {
+        "kind": "test",
+        "unit": "Python test, fixture, helper, function, or method implementation window"
+      }
+    ],
+    "explicitly_unsupported": [
+      {
+        "kind": "configuration",
+        "gap_reason": "unsupported_source_kind"
+      },
+      {
+        "kind": "documentation",
+        "gap_reason": "unsupported_source_kind"
+      },
+      {
+        "kind": "non_python_fixture",
+        "gap_reason": "unsupported_source_kind"
+      },
+      {
+        "kind": "python_module_or_class_structure_without_an_implementation_body",
+        "gap_reason": "unsupported_artifact_kind"
+      }
+    ]
+  },
+  "common_request": {
+    "query_from": "task.prompt",
+    "retrieval": "dense",
+    "rerank": false,
+    "rerank_provider": "h2o",
+    "candidates": 50,
+    "max_results": 8,
+    "source_budget": 12000,
+    "token_budget": 4096,
+    "include_dependencies": true,
+    "overlays": []
+  },
+  "conditions": [
+    {
+      "id": "legacy_control",
+      "needed_evidence": null,
+      "null_behavior": "Omit needed_evidence from the search request and execute the unchanged legacy path"
+    },
+    {
+      "id": "task_evidence",
+      "needed_evidence": [
+        "implementation",
+        "callers",
+        "tests",
+        "behavioral_constraints"
+      ]
+    }
+  ],
+  "planner_boundary": {
+    "input": "The exact resolved backend request for the selected condition; the harness manifest, task id, scope inventory, schedule, gates, and evaluator gold are not planner inputs",
+    "control_request_sha256": "1d0336a1438f1b17245c2780c4938035de8bce3af6012cca45ddbf4725a81db0",
+    "task_evidence_request_sha256": "747c5ed93eb0e5fc79996fb6a21cd131ac12f0ada7f0e7dacc6c55dc2c44721c",
+    "hash_contract": "SHA-256 of canonical compact sorted JSON with UTF-8 and no NaN"
+  },
+  "schedule": {
+    "packet_gate": {
+      "kind": "paired_packet_replay",
+      "pairs": 3,
+      "replays_per_condition": 3,
+      "pair_order": [
+        ["legacy_control", "task_evidence"],
+        ["task_evidence", "legacy_control"],
+        ["legacy_control", "task_evidence"]
+      ],
+      "shared_retrieval_capture": true,
+      "required_before_agent_trials": true,
+      "complementary_gain": "At least one evaluator-predeclared indexed implementation or caller group from a newly covered source file: a path absent from the control's covered required groups"
+    },
+    "native_latency_gate": {
+      "warmups": 6,
+      "measured_searches_per_condition": 42,
+      "measured_pair_order": "Alternate legacy_control/task_evidence then task_evidence/legacy_control for 21 pairs each",
+      "timing_boundary": "Monotonic wall time around each resident backend.search, including one fresh query embedding and all selection and packing; exclude index/model setup, warmups, receipt serialization, and evaluator scoring",
+      "cache_policy": "Use one immutable warm resident index; disable query-result caching; require one fresh query embedding per measured search",
+      "statistic": "Median of 42 treatment durations divided by median of 42 control durations",
+      "maximum_ratio": 1.25
+    },
+    "untouched_validation_prerequisite": {
+      "selection_status": "not_yet_frozen",
+      "selection_required_before": "selector_implementation_or_requests_packet_outcomes",
+      "execution_required_before": "coding_agent_trials",
+      "rule": "Freeze the untouched repository, task, checklist, scope, budgets, and selection rule before selector implementation; execute it after the Requests packet and native-latency gates and before coding-agent comparisons"
+    },
+    "agent_evaluation": {
+      "kind": "fresh_paired_agent_repetitions",
+      "repetitions": 4,
+      "pairs": 4,
+      "trial_count": 8,
+      "fresh_checkout_per_trial": true,
+      "fresh_conversation_per_trial": true,
+      "retry_policy": "No retries, resumes, substitutions, or discarded failures",
+      "pair_order": [
+        {
+          "repetition": 1,
+          "conditions": [
+            "legacy_control",
+            "task_evidence"
+          ]
+        },
+        {
+          "repetition": 2,
+          "conditions": [
+            "task_evidence",
+            "legacy_control"
+          ]
+        },
+        {
+          "repetition": 3,
+          "conditions": [
+            "legacy_control",
+            "task_evidence"
+          ]
+        },
+        {
+          "repetition": 4,
+          "conditions": [
+            "task_evidence",
+            "legacy_control"
+          ]
+        }
+      ]
+    }
+  },
+  "phase_0_gates": [
+    {"id": "source_freeze_integrity", "requirement": "The pinned revision, exact exclusions and membership, extractor fingerprint, counts, hashes, and planner boundary match the freeze."},
+    {"id": "retrieval_parity", "requirement": "Control and treatment use identical requests except needed_evidence and identical source, ranked candidates, scores, relation graph, tokenizer, and budgets."},
+    {"id": "legacy_path_equality", "requirement": "The legacy control compact response is byte-for-byte identical to the unchanged legacy path."},
+    {"id": "complementary_gain", "requirement": "Treatment adds at least one eligible indexed implementation or caller group from a newly covered source file."},
+    {"id": "no_control_coverage_loss", "requirement": "Treatment loses no required group covered by control and preserves the excerpts establishing that coverage byte-for-byte."},
+    {"id": "exact_budgets_and_source", "requirement": "Every packet respects all three caps, and every excerpt matches frozen source bytes, line bounds, and hashes."},
+    {"id": "truthful_gap_reconciliation", "requirement": "Every missing gold group has an accurate evaluator cause and every requested public need has a non-overclaiming status or gap."},
+    {"id": "deterministic_replay", "requirement": "All three executions per condition produce identical selected rows and normalized payloads from the same frozen inputs."},
+    {"id": "native_latency", "requirement": "The frozen 42-search native schedule has a treatment/control median wall-time ratio no greater than 1.25."},
+    {"id": "planner_gold_isolation", "requirement": "No evaluator-only key or sentinel value is present in either resolved planner request."}
+  ]
+}

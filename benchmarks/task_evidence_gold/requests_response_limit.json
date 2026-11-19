@@ -1,0 +1,485 @@
+{
+  "version": 1,
+  "classification": "evaluator_only",
+  "task_id": "requests_response_limit",
+  "corpus_revision": "611c6162cbc4ac2020a2f91c7cfa4f3abf9bbb60",
+  "source_inventory_sha256": "e014860ebe8847add3eaccff04c19f1620c8a2aa244398b2eef08c4c84ba40e0",
+  "scoring": {
+    "within_group": "or",
+    "across_groups": "and",
+    "coverage": "One final delivered excerpt must contain the complete path, symbol, and physical evidence span",
+    "fragment_union_allowed": false,
+    "symbol_match_alone_is_evidence": false
+  },
+  "packet_limits": {
+    "max_results": 8,
+    "source_budget": 12000,
+    "token_budget": 4096,
+    "encoding": "cl100k_base"
+  },
+  "feasibility": {
+    "predeclared_indexable_key_evidence_fits": false,
+    "reason": "result_cap",
+    "indexed_groups": 17,
+    "structurally_unsupported_groups": 4,
+    "minimum_distinct_indexed_excerpts": 16,
+    "full_original_window_source_chars": 25272,
+    "full_original_windows_exceed_source_budget": true,
+    "token_lower_bound": "not_required_for_the_result_cap_proof",
+    "basis": "Every frozen group has one alternative; indexed alternatives each have one exact original extraction window, with two groups sharing one window.",
+    "disposition": "Keep the predeclared key-evidence checklist stable. Score complementary gains and factual gaps; do not treat structurally unsupported groups as packing failures or relabel a partial packet as complete.",
+    "observed_before_selector_implementation": true
+  },
+  "packet_gate": {
+    "minimum_complementary_groups": 1,
+    "require_newly_covered_source_file": true,
+    "eligible_group_ids": [
+      "response_live_stream_state",
+      "eager_content_cache",
+      "buffered_line_consumer",
+      "response_context_exit",
+      "response_close_cleanup",
+      "session_default_insertion",
+      "session_request_to_send",
+      "session_send_lifecycle",
+      "redirect_consume_and_close",
+      "redirect_recursive_send",
+      "module_helper_forwarding",
+      "hook_response_replacement"
+    ]
+  },
+  "groups": [
+    {
+      "id": "response_live_stream_state",
+      "need": "implementation",
+      "importance": "required_for_change",
+      "packet_expectation": "candidate_or_factual_gap",
+      "why": "Shows decoded live reads, cached rereads, and response-wide consumed state.",
+      "alternatives": [
+        {
+          "path": "src/requests/models.py",
+          "symbol": "Response.iter_content",
+          "evidence_lines": [935, 977],
+          "source_file_sha256": "a3351c3c12a86bf5ed211533875350bc4791e9327a685f8c19ba54343e471e26",
+          "evidence_sha256": "02dd071935730bc7b5792e03481cf79add153e15f5a0b7b826fe85cf83285434",
+          "indexability": "indexed"
+        }
+      ]
+    },
+    {
+      "id": "eager_content_cache",
+      "need": "implementation",
+      "importance": "required_for_change",
+      "packet_expectation": "candidate_or_factual_gap",
+      "why": "Shows eager content consumption through iter_content and cached-byte reuse.",
+      "alternatives": [
+        {
+          "path": "src/requests/models.py",
+          "symbol": "Response.content",
+          "evidence_lines": [1038, 1051],
+          "source_file_sha256": "a3351c3c12a86bf5ed211533875350bc4791e9327a685f8c19ba54343e471e26",
+          "evidence_sha256": "dd86d34bb675b96b5351e35ab67376ca036ebc4de4ab144a5ff757b6e885a6bc",
+          "indexability": "indexed"
+        }
+      ]
+    },
+    {
+      "id": "buffered_line_consumer",
+      "need": "implementation",
+      "importance": "required_for_change",
+      "packet_expectation": "candidate_or_factual_gap",
+      "why": "Shows a buffered downstream consumer that must not yield after a size breach.",
+      "alternatives": [
+        {
+          "path": "src/requests/models.py",
+          "symbol": "Response.iter_lines",
+          "evidence_lines": [1010, 1032],
+          "source_file_sha256": "a3351c3c12a86bf5ed211533875350bc4791e9327a685f8c19ba54343e471e26",
+          "evidence_sha256": "af6f6e9c68d8118d647e15f55a82f4998b6af6e94cdcef1f5fb3e14f39fce795",
+          "indexability": "indexed"
+        }
+      ]
+    },
+    {
+      "id": "response_context_exit",
+      "need": "implementation",
+      "importance": "required_for_change",
+      "packet_expectation": "candidate_or_factual_gap",
+      "why": "Shows cleanup invoked by response context managers.",
+      "alternatives": [
+        {
+          "path": "src/requests/models.py",
+          "symbol": "Response.__exit__",
+          "evidence_lines": [815, 816],
+          "source_file_sha256": "a3351c3c12a86bf5ed211533875350bc4791e9327a685f8c19ba54343e471e26",
+          "evidence_sha256": "6348fb7f6551db1bd835224c549fca6ad5bc742d0bbd4dafc6fbe9093b967e21",
+          "indexability": "indexed"
+        }
+      ]
+    },
+    {
+      "id": "response_close_cleanup",
+      "need": "implementation",
+      "importance": "required_for_change",
+      "packet_expectation": "candidate_or_factual_gap",
+      "why": "Shows the cleanup operation whose failure must not mask the primary size error.",
+      "alternatives": [
+        {
+          "path": "src/requests/models.py",
+          "symbol": "Response.close",
+          "evidence_lines": [1173, 1184],
+          "source_file_sha256": "a3351c3c12a86bf5ed211533875350bc4791e9327a685f8c19ba54343e471e26",
+          "evidence_sha256": "4290628346f4f518229e4a5c5e47029a89e374f46440821d3f0907e241457067",
+          "indexability": "indexed"
+        }
+      ]
+    },
+    {
+      "id": "session_default_insertion",
+      "need": "callers",
+      "importance": "required_for_change",
+      "packet_expectation": "candidate_or_factual_gap",
+      "why": "Shows the session defaults and constructor insertion point.",
+      "alternatives": [
+        {
+          "path": "src/requests/sessions.py",
+          "symbol": "Session.__init__",
+          "evidence_lines": [442, 503],
+          "source_file_sha256": "3d2089736ced93b2b405624a943f866d22652b17df06a85eb010f86272fc3e7d",
+          "evidence_sha256": "2a9d61e574e2749a12c2fab0016be5acda8a20d62ca051a071f8104c29c74d34",
+          "indexability": "indexed"
+        }
+      ]
+    },
+    {
+      "id": "session_request_to_send",
+      "need": "callers",
+      "importance": "required_for_change",
+      "packet_expectation": "candidate_or_factual_gap",
+      "why": "Shows the per-request entry point and forwarding boundary into send.",
+      "alternatives": [
+        {
+          "path": "src/requests/sessions.py",
+          "symbol": "Session.request",
+          "evidence_lines": [619, 653],
+          "source_file_sha256": "3d2089736ced93b2b405624a943f866d22652b17df06a85eb010f86272fc3e7d",
+          "evidence_sha256": "7101433c660fb6c75eab7eed1f9b5f843a68c78a3774615bde91d5fdbd917ed3",
+          "indexability": "indexed"
+        }
+      ]
+    },
+    {
+      "id": "session_send_lifecycle",
+      "need": "callers",
+      "importance": "required_for_change",
+      "packet_expectation": "candidate_or_factual_gap",
+      "why": "Shows the adapter boundary, response hooks, redirects, and eager content read.",
+      "alternatives": [
+        {
+          "path": "src/requests/sessions.py",
+          "symbol": "Session.send",
+          "evidence_lines": [752, 829],
+          "source_file_sha256": "3d2089736ced93b2b405624a943f866d22652b17df06a85eb010f86272fc3e7d",
+          "evidence_sha256": "11793248454d9e3d93c552d93aa039c175b1201337f709decaf381b0fe80ea52",
+          "indexability": "indexed"
+        }
+      ]
+    },
+    {
+      "id": "redirect_consume_and_close",
+      "need": "callers",
+      "importance": "required_for_change",
+      "packet_expectation": "candidate_or_factual_gap",
+      "why": "Shows consumption and cleanup of every intermediate redirect response.",
+      "alternatives": [
+        {
+          "path": "src/requests/sessions.py",
+          "symbol": "SessionRedirectMixin.resolve_redirects",
+          "evidence_lines": [202, 223],
+          "source_file_sha256": "3d2089736ced93b2b405624a943f866d22652b17df06a85eb010f86272fc3e7d",
+          "evidence_sha256": "ececd8c9d1766de140703dbe522b47e4431bbbae4f4c294f2b205e57f815b21f",
+          "indexability": "indexed"
+        }
+      ]
+    },
+    {
+      "id": "redirect_recursive_send",
+      "need": "callers",
+      "importance": "required_for_change",
+      "packet_expectation": "candidate_or_factual_gap",
+      "why": "Shows the recursive send call that must retain the per-request setting.",
+      "alternatives": [
+        {
+          "path": "src/requests/sessions.py",
+          "symbol": "SessionRedirectMixin.resolve_redirects",
+          "evidence_lines": [286, 307],
+          "source_file_sha256": "3d2089736ced93b2b405624a943f866d22652b17df06a85eb010f86272fc3e7d",
+          "evidence_sha256": "ec76df38ebaa4f5e335c24690acabfdf6a0cbe3748f809ff42b6b5dba165e547",
+          "indexability": "indexed"
+        }
+      ]
+    },
+    {
+      "id": "module_helper_forwarding",
+      "need": "callers",
+      "importance": "required_for_change",
+      "packet_expectation": "candidate_or_factual_gap",
+      "why": "Shows how module-level convenience helpers converge and forward keyword arguments.",
+      "alternatives": [
+        {
+          "path": "src/requests/api.py",
+          "symbol": "request",
+          "evidence_lines": [67, 71],
+          "source_file_sha256": "4d15480ac046f089209798e8650476ef4a28ebe6f81b400758f8ef42ec6b5509",
+          "evidence_sha256": "973796c1006de97b0b8f00babb6efa4a199f08a20e721456701ba96d7a4726a3",
+          "indexability": "indexed"
+        }
+      ]
+    },
+    {
+      "id": "hook_response_replacement",
+      "need": "callers",
+      "importance": "required_for_change",
+      "packet_expectation": "candidate_or_factual_gap",
+      "why": "Shows that each response hook may replace the response consumed by later hooks and callers.",
+      "alternatives": [
+        {
+          "path": "src/requests/hooks.py",
+          "symbol": "dispatch_hook",
+          "evidence_lines": [39, 48],
+          "source_file_sha256": "ebd8a02475d31a0e473a8f553e9501ff43645b9563885ad52844e7a63f0d76ab",
+          "evidence_sha256": "c5dc78fbd9697c7be2ac12bbccc5ad9259734d25c8531aa33c5f4a569ecfeb05",
+          "indexability": "indexed"
+        }
+      ]
+    },
+    {
+      "id": "exception_request_response_context",
+      "need": "behavioral_constraints",
+      "importance": "required_for_change",
+      "packet_expectation": "candidate_or_factual_gap",
+      "why": "Shows how Requests exceptions acquire response and request context.",
+      "alternatives": [
+        {
+          "path": "src/requests/exceptions.py",
+          "symbol": "RequestException.__init__",
+          "evidence_lines": [28, 35],
+          "source_file_sha256": "c5e18f3352454968e337bb3056f0867df2f37c0a0d2c1a77dc05e7e0b3c0411b",
+          "evidence_sha256": "a773811f96064e4f7bd1c25f6efde2f5d974c6022fbd858ff6b43465469b75dc",
+          "indexability": "indexed"
+        }
+      ]
+    },
+    {
+      "id": "partial_redirect_test",
+      "need": "tests",
+      "importance": "required_for_change",
+      "packet_expectation": "candidate_or_factual_gap",
+      "why": "Existing regression coverage for partial body reads followed by redirect consumption.",
+      "alternatives": [
+        {
+          "path": "tests/test_requests.py",
+          "symbol": "TestRequests.test_manual_redirect_with_partial_body_read",
+          "evidence_lines": [1988, 2005],
+          "source_file_sha256": "5eacf6341d236e225ce6a37a592f3b410f20e69ec17641f0e2c99b03a79b904d",
+          "evidence_sha256": "0a55699c23560a7b994a64f22758289c47ffac5895383520b49c3a2887fc1443",
+          "indexability": "indexed"
+        }
+      ]
+    },
+    {
+      "id": "session_pickling_test",
+      "need": "tests",
+      "importance": "required_for_change",
+      "packet_expectation": "candidate_or_factual_gap",
+      "why": "Existing compatibility test for Session serialization and later use.",
+      "alternatives": [
+        {
+          "path": "tests/test_requests.py",
+          "symbol": "TestRequests.test_session_pickling",
+          "evidence_lines": [1619, 1627],
+          "source_file_sha256": "5eacf6341d236e225ce6a37a592f3b410f20e69ec17641f0e2c99b03a79b904d",
+          "evidence_sha256": "3e8732340f673d9750e8cce5539e6a563f1ce3c018973e5333b18fa4188c59b0",
+          "indexability": "indexed"
+        }
+      ]
+    },
+    {
+      "id": "response_context_cleanup_test",
+      "need": "tests",
+      "importance": "required_for_change",
+      "packet_expectation": "candidate_or_factual_gap",
+      "why": "Existing contract that a response context manager closes the raw response.",
+      "alternatives": [
+        {
+          "path": "tests/test_requests.py",
+          "symbol": "TestRequests.test_response_context_manager",
+          "evidence_lines": [2185, 2189],
+          "source_file_sha256": "5eacf6341d236e225ce6a37a592f3b410f20e69ec17641f0e2c99b03a79b904d",
+          "evidence_sha256": "01a2e0171b01735073d5b9cb8c61f716024097bea67799c99bd1307314a4c720",
+          "indexability": "indexed"
+        }
+      ]
+    },
+    {
+      "id": "hook_chain_test",
+      "need": "tests",
+      "importance": "required_for_change",
+      "packet_expectation": "candidate_or_factual_gap",
+      "why": "Existing test that hook replacements feed the remainder of the hook chain.",
+      "alternatives": [
+        {
+          "path": "tests/test_hooks.py",
+          "symbol": "test_hooks",
+          "evidence_lines": [10, 18],
+          "source_file_sha256": "a9e5163f538543a660be3b06650cd0b803ff0c503f5948f66b6fc50ede38109c",
+          "evidence_sha256": "fa7b5881b117b622e8867572d2c6a1feedf2fd439d01dd80b2fad742424b1d14",
+          "indexability": "indexed"
+        }
+      ]
+    },
+    {
+      "id": "public_exception_export",
+      "need": "behavioral_constraints",
+      "importance": "required_for_change",
+      "packet_expectation": "factual_gap_required",
+      "expected_gap_reason": "unsupported_artifact_kind",
+      "why": "The public import and __all__ contract is module-level structure that the current extractor does not emit.",
+      "alternatives": [
+        {
+          "path": "src/requests/__init__.py",
+          "symbol": "module.exports",
+          "evidence_lines": [171, 214],
+          "source_file_sha256": "80534322a1a3167d8775829ee220a6acf4fe455f3f778c4b8e94bcf7fadfa0b5",
+          "evidence_sha256": "e73e373c0936e31729354bc6176acf1ccebe55d7b0082b8b79d26e5c9e0ce64a",
+          "indexability": "unsupported_artifact_kind",
+          "structural_kind": "module_exports",
+          "structural_facts": {
+            "imported_names": [
+              "RequestException"
+            ],
+            "exported_names": [
+              "RequestException"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "exception_inheritance_contract",
+      "need": "behavioral_constraints",
+      "importance": "required_for_change",
+      "packet_expectation": "factual_gap_required",
+      "expected_gap_reason": "unsupported_artifact_kind",
+      "why": "The exception base and class-level context annotations are not part of an emitted implementation window.",
+      "alternatives": [
+        {
+          "path": "src/requests/exceptions.py",
+          "symbol": "RequestException",
+          "evidence_lines": [20, 27],
+          "source_file_sha256": "c5e18f3352454968e337bb3056f0867df2f37c0a0d2c1a77dc05e7e0b3c0411b",
+          "evidence_sha256": "715b5cfe667963ac6ae8550197b97c771dbf84b6f77c1e1232d5726537d8d632",
+          "indexability": "unsupported_artifact_kind",
+          "structural_kind": "class_declaration",
+          "structural_facts": {
+            "bases": [
+              "IOError"
+            ],
+            "annotated_attributes": [
+              "response",
+              "request"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "session_pickle_membership",
+      "need": "behavioral_constraints",
+      "importance": "required_for_change",
+      "packet_expectation": "factual_gap_required",
+      "expected_gap_reason": "unsupported_artifact_kind",
+      "why": "Session pickling membership is a class-body list outside emitted methods.",
+      "alternatives": [
+        {
+          "path": "src/requests/sessions.py",
+          "symbol": "Session.__attrs__",
+          "evidence_lines": [427, 440],
+          "source_file_sha256": "3d2089736ced93b2b405624a943f866d22652b17df06a85eb010f86272fc3e7d",
+          "evidence_sha256": "1397b3cc6cd2fc749e5e554c9db48ed37791c273e5267372358135fe86188f51",
+          "indexability": "unsupported_artifact_kind",
+          "structural_kind": "class_attribute",
+          "structural_facts": {
+            "list_members": [
+              "headers",
+              "cookies",
+              "auth",
+              "proxies",
+              "hooks",
+              "params",
+              "verify",
+              "cert",
+              "adapters",
+              "stream",
+              "trust_env",
+              "max_redirects"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "public_kwarg_type_contract",
+      "need": "callers",
+      "importance": "required_for_change",
+      "packet_expectation": "factual_gap_required",
+      "expected_gap_reason": "unsupported_artifact_kind",
+      "why": "TypedDict keyword interfaces are class-only declarations omitted by implementation extraction.",
+      "alternatives": [
+        {
+          "path": "src/requests/_types.py",
+          "symbol": "BaseRequestKwargs",
+          "evidence_lines": [157, 188],
+          "source_file_sha256": "84dec9789a8e839807242448a9aa86acd12c440211921e32f43afcbc422a629c",
+          "evidence_sha256": "f6c498f6cd6e239bb504c1223483770870d44f97e50a398ef69b9bdddbf29a35",
+          "indexability": "unsupported_artifact_kind",
+          "structural_kind": "class_family",
+          "structural_facts": {
+            "classes": [
+              {
+                "name": "BaseRequestKwargs",
+                "bases": ["TypedDict"],
+                "fields": ["headers", "cookies", "files", "auth", "timeout", "allow_redirects", "proxies", "hooks", "stream", "verify", "cert"],
+                "total": false
+              },
+              {
+                "name": "RequestKwargs",
+                "bases": ["BaseRequestKwargs"],
+                "fields": ["params", "data", "json"],
+                "total": false
+              },
+              {
+                "name": "GetKwargs",
+                "bases": ["BaseRequestKwargs"],
+                "fields": ["data", "json"],
+                "total": false
+              },
+              {
+                "name": "PostKwargs",
+                "bases": ["BaseRequestKwargs"],
+                "fields": ["params"],
+                "total": false
+              },
+              {
+                "name": "DataKwargs",
+                "bases": ["BaseRequestKwargs"],
+                "fields": ["params", "json"],
+                "total": false
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
