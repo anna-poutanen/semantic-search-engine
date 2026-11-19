@@ -1,0 +1,478 @@
+{
+  "version": 1,
+  "classification": "evaluator_only",
+  "task_id": "click_atomic_transactions",
+  "corpus_revision": "934813e4d421071a1b3db3973c02fe2721359a6e",
+  "source_inventory_sha256": "e3130b2f1d298dc884e9c1d26adf3690add8b9f0e0cf6ff612b97f60d3387b4f",
+  "scoring": {
+    "within_group": "or",
+    "across_groups": "and",
+    "coverage": "One final delivered excerpt must contain the complete path, symbol, and physical evidence span",
+    "fragment_union_allowed": false,
+    "symbol_match_alone_is_evidence": false
+  },
+  "packet_limits": {
+    "max_results": 8,
+    "source_budget": 12000,
+    "token_budget": 4096,
+    "encoding": "cl100k_base"
+  },
+  "feasibility": {
+    "predeclared_indexable_key_evidence_fits": false,
+    "reason": "result_cap",
+    "indexed_groups": 25,
+    "structurally_unsupported_groups": 0,
+    "minimum_distinct_indexed_excerpts": 25,
+    "full_original_window_source_chars": 20914,
+    "full_original_windows_exceed_source_budget": true,
+    "token_lower_bound": "not_required_for_the_result_cap_proof",
+    "basis": "Every frozen group has one indexed alternative and one exact original extraction window. The 25 distinct windows exceed max_results=8, and their 20,914 source characters exceed source_budget=12,000.",
+    "disposition": "Keep the predeclared key-evidence checklist stable. Score preserved anchors, complementary gains, and factual gaps; do not relabel a partial packet as complete. The pass-only KeepOpenFile.__exit__ and the click.open_file module alias are deliberately not separate structural groups because indexed open_file code and control tests establish those unchanged contracts.",
+    "observed_before_selector_implementation": true
+  },
+  "packet_gate": {
+    "no_individual_loss": true,
+    "minimum_complementary_groups": 1,
+    "require_newly_covered_source_file": true,
+    "eligible_group_ids": [
+      "lazy_file_initial_state",
+      "lazy_atomic_materialization",
+      "lazy_cleanup_policy",
+      "lazy_context_exception_handoff",
+      "default_lazy_resolution",
+      "cleanup_exception_swallowing",
+      "context_resource_registration",
+      "context_callback_registration",
+      "context_exit_stack_close",
+      "click_exit_signal",
+      "command_exit_translation"
+    ]
+  },
+  "groups": [
+    {
+      "id": "atomic_stream_creation_and_controls",
+      "need": "implementation",
+      "importance": "required_for_change",
+      "packet_expectation": "candidate_or_factual_gap",
+      "why": "Shows standard-stream ownership, ordinary non-atomic opening, same-directory temporary creation, permission preservation, and construction of the atomic wrapper.",
+      "alternatives": [
+        {
+          "path": "src/click/_compat.py",
+          "symbol": "open_stream",
+          "evidence_lines": [373, 451],
+          "source_file_sha256": "2062a1fc9e5075f2842e2b6745f4c61e779e8d6c680b0fcd5fdb5f31b75c837c",
+          "evidence_sha256": "a96107ad9c4f58ac71479333a85300505cd9972a4b7382420285376d03705e98",
+          "indexability": "indexed"
+        }
+      ]
+    },
+    {
+      "id": "atomic_close_state_transition",
+      "need": "implementation",
+      "importance": "required_for_change",
+      "packet_expectation": "candidate_or_factual_gap",
+      "why": "Shows idempotence state and the current unconditional replace operation where commit versus abort must diverge.",
+      "alternatives": [
+        {
+          "path": "src/click/_compat.py",
+          "symbol": "_AtomicFile.close",
+          "evidence_lines": [465, 470],
+          "source_file_sha256": "2062a1fc9e5075f2842e2b6745f4c61e779e8d6c680b0fcd5fdb5f31b75c837c",
+          "evidence_sha256": "7be553b407ceb3a4d96482711e39f51d78deb525bfad29a6285997697bd986f4",
+          "indexability": "indexed"
+        }
+      ]
+    },
+    {
+      "id": "atomic_context_exception_handoff",
+      "need": "implementation",
+      "importance": "required_for_change",
+      "packet_expectation": "candidate_or_factual_gap",
+      "why": "Shows the direct atomic context-manager path already classifying exceptional exit as deletion, although close currently ignores it.",
+      "alternatives": [
+        {
+          "path": "src/click/_compat.py",
+          "symbol": "_AtomicFile.__exit__",
+          "evidence_lines": [478, 479],
+          "source_file_sha256": "2062a1fc9e5075f2842e2b6745f4c61e779e8d6c680b0fcd5fdb5f31b75c837c",
+          "evidence_sha256": "f9795902928df1abc67cce8f39cd8de0670e5d65c8e8247ec5049474ee638237",
+          "indexability": "indexed"
+        }
+      ]
+    },
+    {
+      "id": "lazy_file_initial_state",
+      "need": "implementation",
+      "importance": "required_for_change",
+      "packet_expectation": "candidate_or_factual_gap",
+      "why": "Shows that ordinary lazy files begin unopened, while standard streams are acquired without atomic wrapping and retain caller ownership.",
+      "alternatives": [
+        {
+          "path": "src/click/utils.py",
+          "symbol": "LazyFile.__init__",
+          "evidence_lines": [113, 138],
+          "source_file_sha256": "71ef88acef6294823be8b1a4537e78a4e7476dea4cf147ed7cd1fb49f314ff6f",
+          "evidence_sha256": "72d1ae73204e7fb427ef4d0a5687669d16be95dad336680c01f3b86dace1ab8c",
+          "indexability": "indexed"
+        }
+      ]
+    },
+    {
+      "id": "lazy_atomic_materialization",
+      "need": "implementation",
+      "importance": "required_for_change",
+      "packet_expectation": "candidate_or_factual_gap",
+      "why": "Shows the deferred transition from an unopened LazyFile to an owned atomic stream and its FileError translation.",
+      "alternatives": [
+        {
+          "path": "src/click/utils.py",
+          "symbol": "LazyFile.open",
+          "evidence_lines": [148, 164],
+          "source_file_sha256": "71ef88acef6294823be8b1a4537e78a4e7476dea4cf147ed7cd1fb49f314ff6f",
+          "evidence_sha256": "4dcbdae36e4d2f17a92c8c835069369c09781b2344229ec101b51030c88b8b65",
+          "indexability": "indexed"
+        }
+      ]
+    },
+    {
+      "id": "lazy_cleanup_policy",
+      "need": "implementation",
+      "importance": "required_for_change",
+      "packet_expectation": "candidate_or_factual_gap",
+      "why": "Shows that cleanup closes only handles Click owns, which preserves standard streams and leaves an unused lazy destination unopened.",
+      "alternatives": [
+        {
+          "path": "src/click/utils.py",
+          "symbol": "LazyFile.close_intelligently",
+          "evidence_lines": [171, 176],
+          "source_file_sha256": "71ef88acef6294823be8b1a4537e78a4e7476dea4cf147ed7cd1fb49f314ff6f",
+          "evidence_sha256": "d0669b1a80ab0b88d62a3795a2931b79093d39fd0c21e1f0c5f8e9e6bcdd566e",
+          "indexability": "indexed"
+        }
+      ]
+    },
+    {
+      "id": "lazy_context_exception_handoff",
+      "need": "implementation",
+      "importance": "required_for_change",
+      "packet_expectation": "candidate_or_factual_gap",
+      "why": "Shows that direct lazy-file context exit currently discards the exception triple before cleanup.",
+      "alternatives": [
+        {
+          "path": "src/click/utils.py",
+          "symbol": "LazyFile.__exit__",
+          "evidence_lines": [181, 187],
+          "source_file_sha256": "71ef88acef6294823be8b1a4537e78a4e7476dea4cf147ed7cd1fb49f314ff6f",
+          "evidence_sha256": "698eaad5fd3107b388588e5e76dcd9704070d35b467cfd311600d70ad9518a3a",
+          "indexability": "indexed"
+        }
+      ]
+    },
+    {
+      "id": "direct_open_dispatch",
+      "need": "callers",
+      "importance": "required_for_change",
+      "packet_expectation": "candidate_or_factual_gap",
+      "why": "Shows the public open_file implementation selecting lazy versus eager opening and wrapping caller-owned streams against closure.",
+      "alternatives": [
+        {
+          "path": "src/click/utils.py",
+          "symbol": "open_file",
+          "evidence_lines": [355, 401],
+          "source_file_sha256": "71ef88acef6294823be8b1a4537e78a4e7476dea4cf147ed7cd1fb49f314ff6f",
+          "evidence_sha256": "74cc1ab7e0656db20e4e4101ddc0cd116ef3ac419a38ad160e3fa26f83af7f38",
+          "indexability": "indexed"
+        }
+      ]
+    },
+    {
+      "id": "default_lazy_resolution",
+      "need": "implementation",
+      "importance": "required_for_change",
+      "packet_expectation": "candidate_or_factual_gap",
+      "why": "Defines explicit eager and lazy behavior plus the default-lazy rule for writable file parameters.",
+      "alternatives": [
+        {
+          "path": "src/click/types.py",
+          "symbol": "File.resolve_lazy_flag",
+          "evidence_lines": [695, 702],
+          "source_file_sha256": "043e50aaae21fbc91ac0198e2332659aae31cd38407f8c02bda38b652043371d",
+          "evidence_sha256": "7fa4cf9182ed11e93e52c77b42f3b407e7bb6139096cfca51bb840727e9acfa3",
+          "indexability": "indexed"
+        }
+      ]
+    },
+    {
+      "id": "file_parameter_cleanup_registration",
+      "need": "callers",
+      "importance": "required_for_change",
+      "packet_expectation": "candidate_or_factual_gap",
+      "why": "Shows eager and lazy command-file construction and the no-argument close callbacks that currently cannot receive callback exceptions.",
+      "alternatives": [
+        {
+          "path": "src/click/types.py",
+          "symbol": "File.convert",
+          "evidence_lines": [704, 745],
+          "source_file_sha256": "043e50aaae21fbc91ac0198e2332659aae31cd38407f8c02bda38b652043371d",
+          "evidence_sha256": "736dbf9f718df93d492afc62ea4d4de45d34fe62cfc5aecfc5d42a8160ba539f",
+          "indexability": "indexed"
+        }
+      ]
+    },
+    {
+      "id": "cleanup_exception_swallowing",
+      "need": "implementation",
+      "importance": "required_for_change",
+      "packet_expectation": "candidate_or_factual_gap",
+      "why": "Shows why a clean atomic commit failure registered through the current eager close callback can be silently converted to success.",
+      "alternatives": [
+        {
+          "path": "src/click/utils.py",
+          "symbol": "safecall",
+          "evidence_lines": [33, 43],
+          "source_file_sha256": "71ef88acef6294823be8b1a4537e78a4e7476dea4cf147ed7cd1fb49f314ff6f",
+          "evidence_sha256": "410b2f90d0de366676ba76f5304756b96a8b98d7b543bf53c09ebff2bd0cc7fa",
+          "indexability": "indexed"
+        }
+      ]
+    },
+    {
+      "id": "context_exception_teardown",
+      "need": "implementation",
+      "importance": "required_for_change",
+      "packet_expectation": "candidate_or_factual_gap",
+      "why": "Shows the actual exception triple, nesting depth, cleanup-before-pop order, and current loss of exception information through Context.close.",
+      "alternatives": [
+        {
+          "path": "src/click/core.py",
+          "symbol": "Context.__exit__",
+          "evidence_lines": [467, 476],
+          "source_file_sha256": "4359c455d72d670bc83ce96de2f7c7928d136271c2784e3450412e97c5a9cafb",
+          "evidence_sha256": "9f87fd8048b1ffb5feb7f8e3e4ff25a393f031b4797889623ffa4ad711b5320a",
+          "indexability": "indexed"
+        }
+      ]
+    },
+    {
+      "id": "context_resource_registration",
+      "need": "callers",
+      "importance": "required_for_change",
+      "packet_expectation": "candidate_or_factual_gap",
+      "why": "Shows that with_resource delegates context-manager entry and later exception handling to the shared ExitStack.",
+      "alternatives": [
+        {
+          "path": "src/click/core.py",
+          "symbol": "Context.with_resource",
+          "evidence_lines": [558, 585],
+          "source_file_sha256": "4359c455d72d670bc83ce96de2f7c7928d136271c2784e3450412e97c5a9cafb",
+          "evidence_sha256": "24d959736acecccce8f6f95c896aff19cc9f5f4eea2afb3e51cba9dfae2dfed4",
+          "indexability": "indexed"
+        }
+      ]
+    },
+    {
+      "id": "context_callback_registration",
+      "need": "callers",
+      "importance": "required_for_change",
+      "packet_expectation": "candidate_or_factual_gap",
+      "why": "Shows that arbitrary cleanup callbacks share the ExitStack ordering and failure path with resources and atomic files.",
+      "alternatives": [
+        {
+          "path": "src/click/core.py",
+          "symbol": "Context.call_on_close",
+          "evidence_lines": [587, 597],
+          "source_file_sha256": "4359c455d72d670bc83ce96de2f7c7928d136271c2784e3450412e97c5a9cafb",
+          "evidence_sha256": "99a4422bc86a3477864c3d313c3180b9f85716f187ac3003571635db4f007745",
+          "indexability": "indexed"
+        }
+      ]
+    },
+    {
+      "id": "context_exit_stack_close",
+      "need": "implementation",
+      "importance": "required_for_change",
+      "packet_expectation": "candidate_or_factual_gap",
+      "why": "Shows clean ExitStack closure without an exception triple and stack replacement for context reuse.",
+      "alternatives": [
+        {
+          "path": "src/click/core.py",
+          "symbol": "Context.close",
+          "evidence_lines": [599, 606],
+          "source_file_sha256": "4359c455d72d670bc83ce96de2f7c7928d136271c2784e3450412e97c5a9cafb",
+          "evidence_sha256": "eae17d91782772b394edcddab1a1e4cc643d1f38d4db230f5bd269f376fc5013",
+          "indexability": "indexed"
+        }
+      ]
+    },
+    {
+      "id": "click_exit_signal",
+      "need": "callers",
+      "importance": "required_for_change",
+      "packet_expectation": "candidate_or_factual_gap",
+      "why": "Shows that both zero and nonzero command exits leave the callback by raising Click's Exit control-flow exception.",
+      "alternatives": [
+        {
+          "path": "src/click/core.py",
+          "symbol": "Context.exit",
+          "evidence_lines": [697, 699],
+          "source_file_sha256": "4359c455d72d670bc83ce96de2f7c7928d136271c2784e3450412e97c5a9cafb",
+          "evidence_sha256": "aeae3c8a904a7bf9e1bb2945362a3147a071390bdff7450ff5c43a6317ada952",
+          "indexability": "indexed"
+        }
+      ]
+    },
+    {
+      "id": "command_exit_translation",
+      "need": "callers",
+      "importance": "required_for_change",
+      "packet_expectation": "candidate_or_factual_gap",
+      "why": "Shows callback invocation inside the Context manager and translation of Exit status to standalone SystemExit or a non-standalone result.",
+      "alternatives": [
+        {
+          "path": "src/click/core.py",
+          "symbol": "BaseCommand.main",
+          "evidence_lines": [1014, 1125],
+          "source_file_sha256": "4359c455d72d670bc83ce96de2f7c7928d136271c2784e3450412e97c5a9cafb",
+          "evidence_sha256": "3f5f80f5b0147daa7c32207f891d029a8858a82acde2a024fa16c69bfe516ea0",
+          "indexability": "indexed"
+        }
+      ]
+    },
+    {
+      "id": "exit_status_state",
+      "need": "behavioral_constraints",
+      "importance": "required_for_change",
+      "packet_expectation": "candidate_or_factual_gap",
+      "why": "Shows the status code carried by Exit, which Context teardown must distinguish as successful zero versus failing nonzero completion.",
+      "alternatives": [
+        {
+          "path": "src/click/exceptions.py",
+          "symbol": "Exit.__init__",
+          "evidence_lines": [295, 296],
+          "source_file_sha256": "57bcc34fa7a6a89f22365d241753f99291662cc590d53d4beda34d28ce18474c",
+          "evidence_sha256": "174a773f0e3d57fa2d7b3d4a7f7785604db6438b216a5fa58417a06d69d5249c",
+          "indexability": "indexed"
+        }
+      ]
+    },
+    {
+      "id": "existing_atomic_visibility_test",
+      "need": "tests",
+      "importance": "required_for_change",
+      "packet_expectation": "candidate_or_factual_gap",
+      "why": "Existing binary File parameter regression proving the destination remains old during the callback and commits after success.",
+      "alternatives": [
+        {
+          "path": "tests/test_arguments.py",
+          "symbol": "test_file_atomics",
+          "evidence_lines": [138, 155],
+          "source_file_sha256": "36a87e185e08b52cec3fbe701d132194413d9b400fbcc9615a83272803585c94",
+          "evidence_sha256": "9203d62aa3d5992b8dd461672a6f8960ff16c31461c6e8a06db3b76537311172",
+          "indexability": "indexed"
+        }
+      ]
+    },
+    {
+      "id": "existing_lazy_opening_test",
+      "need": "tests",
+      "importance": "required_for_change",
+      "packet_expectation": "candidate_or_factual_gap",
+      "why": "Existing coverage for default-lazy writable parameters remaining unopened when unused and explicit eager failure occurring during conversion.",
+      "alternatives": [
+        {
+          "path": "tests/test_basic.py",
+          "symbol": "test_file_lazy_mode",
+          "evidence_lines": [278, 315],
+          "source_file_sha256": "a22bb35be13097b31e48a9f352019c0319d88dc8e5c62bf8031f9a92d8408bb3",
+          "evidence_sha256": "e21a86bce3bf767af6dac051efd0c475ac678ee66172108c0efad3494cf15a4d",
+          "indexability": "indexed"
+        }
+      ]
+    },
+    {
+      "id": "existing_direct_open_control_test",
+      "need": "tests",
+      "importance": "required_for_change",
+      "packet_expectation": "candidate_or_factual_gap",
+      "why": "Existing direct open_file coverage for ordinary files and caller-owned standard input surviving context-manager exit.",
+      "alternatives": [
+        {
+          "path": "tests/test_utils.py",
+          "symbol": "test_open_file",
+          "evidence_lines": [310, 329],
+          "source_file_sha256": "15bf779591265e8761cf0658182fa2c6709f2bb868a5fe2769505b7a0cf00218",
+          "evidence_sha256": "e6f47bc7d5083231fe89708619de5f3ea8377e8244475e05fc7eae89e4a93724",
+          "indexability": "indexed"
+        }
+      ]
+    },
+    {
+      "id": "existing_atomic_permission_test",
+      "need": "tests",
+      "importance": "required_for_change",
+      "packet_expectation": "candidate_or_factual_gap",
+      "why": "Existing direct atomic-close regression for preserving an existing destination's permission bits.",
+      "alternatives": [
+        {
+          "path": "tests/test_utils.py",
+          "symbol": "test_open_file_atomic_permissions_existing_file",
+          "evidence_lines": [386, 401],
+          "source_file_sha256": "15bf779591265e8761cf0658182fa2c6709f2bb868a5fe2769505b7a0cf00218",
+          "evidence_sha256": "a9c2c1378682e7ba8f28fedd09bfd4804645f1ea0d8c21e892f8165fb27a7ae3",
+          "indexability": "indexed"
+        }
+      ]
+    },
+    {
+      "id": "existing_nested_cleanup_test",
+      "need": "tests",
+      "importance": "required_for_change",
+      "packet_expectation": "candidate_or_factual_gap",
+      "why": "Existing regression that nested Context entry defers registered cleanup until the outermost exit.",
+      "alternatives": [
+        {
+          "path": "tests/test_context.py",
+          "symbol": "test_multi_enter",
+          "evidence_lines": [103, 120],
+          "source_file_sha256": "0f40aa32456f0597233a006fa11ca641b3a93034ceedd92df11ba38b382d6b42",
+          "evidence_sha256": "d4aba47fca965479a7b76242326566fcd89aaa088f2bc65c5c22f43b9d8167a4",
+          "indexability": "indexed"
+        }
+      ]
+    },
+    {
+      "id": "existing_cleanup_before_pop_test",
+      "need": "tests",
+      "importance": "required_for_change",
+      "packet_expectation": "candidate_or_factual_gap",
+      "why": "Existing regression that teardown callbacks still observe the active current context before it is popped.",
+      "alternatives": [
+        {
+          "path": "tests/test_context.py",
+          "symbol": "test_close_before_pop",
+          "evidence_lines": [219, 237],
+          "source_file_sha256": "0f40aa32456f0597233a006fa11ca641b3a93034ceedd92df11ba38b382d6b42",
+          "evidence_sha256": "779843838f61ec26d646895d4308b8ab7fa0984d7155c1dedaf895b700f73e1c",
+          "indexability": "indexed"
+        }
+      ]
+    },
+    {
+      "id": "existing_resource_cleanup_test",
+      "need": "tests",
+      "importance": "required_for_change",
+      "packet_expectation": "candidate_or_factual_gap",
+      "why": "Existing test locating with_resource coverage and its normal cleanup contract.",
+      "alternatives": [
+        {
+          "path": "tests/test_context.py",
+          "symbol": "test_with_resource",
+          "evidence_lines": [240, 253],
+          "source_file_sha256": "0f40aa32456f0597233a006fa11ca641b3a93034ceedd92df11ba38b382d6b42",
+          "evidence_sha256": "3a9a425e7a87490183a787ca32431be0189c311689208b4c816b148c56d6b8a0",
+          "indexability": "indexed"
+        }
+      ]
+    }
+  ]
+}

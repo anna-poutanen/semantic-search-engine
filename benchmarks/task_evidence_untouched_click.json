@@ -1,0 +1,332 @@
+{
+  "version": 1,
+  "phase": "untouched_click_child_scope_freeze",
+  "classification": "Harness-visible prospective Click child source and request contract; the exact resolved request is the only condition-specific harness input, while both conditions share execution-frozen candidate and relation inventories",
+  "parent_freeze": {
+    "anchor_revision": "5b8c02ee53f541b6bd31587ec3385b1beddfa512",
+    "selection_revision": "a41d07742d0648dcee62cdd3d00d5996f52a1162"
+  },
+  "selection_lock": {
+    "path": "benchmarks/task_evidence_untouched_selection.json",
+    "sha256": "55aa7fde326a5783e528caaa327443c3be8202000f5cb30d24021509ee886fed"
+  },
+  "task": {
+    "id": "click_atomic_transactions",
+    "prompt": "Make Click atomic output files behave as transactions across direct click.open_file context managers and command file parameters, for eager, explicitly lazy, and default-lazy opening. On normal completion commit the temporary output; while the callback is running, an existing destination remains unchanged. If a direct file-context body raises, or a command callback fails or exits with a nonzero code, discard the temporary file and preserve the original destination (or leave a new destination absent). A zero-code Click command exit counts as success and must commit. Unused lazy output must remain unopened. Support text and binary files, preserve an existing destination's permissions, close owned handles and make repeated close harmless. Explicit successful close remains a commit.\n\nResources registered with a Click context must receive the actual exception on error, with nesting still deferring cleanup until the outermost exit and the current-context stack restored after success or failure. Preserve callback exceptions. A missing temporary file during abort is harmless; if other abort cleanup fails, retain the primary callback exception and make the cleanup problem discoverable through exception notes or chaining. A clean-completion commit failure such as FileNotFoundError must propagate and give the CLI a failing exit, never be silently converted to success. Preserve ordinary non-atomic file behavior and never close caller-owned standard streams. Add new regression test files without changing existing tests.",
+    "prompt_sha256": "55d3806f38b3002081ff44cb8a58f8fccc2dc1ec9f9326682b35d21a1d710feb",
+    "source_manifest": {
+      "path": "benchmarks/coding_workflows_multifile.json",
+      "sha256": "e2274eae067bb4c13bd5730fdf84f34adc8ff04bd9d9dc8e76be48dfa189acac"
+    },
+    "strict_source_manifest": {
+      "path": "benchmarks/coding_workflows_strict.json",
+      "sha256": "607f7491f5f0dd265591513ebccbe23e0a1685612b7cc25a00dd7c4846351f84"
+    }
+  },
+  "corpus": {
+    "id": "click",
+    "repo_url": "https://github.com/pallets/click",
+    "revision": "934813e4d421071a1b3db3973c02fe2721359a6e",
+    "membership": "saved implementations; Git-tracked files only in Git projects"
+  },
+  "index_scope": {
+    "source_root": ".",
+    "scope_override": "Both conditions intentionally override the original workflow source_root src/click with repository root so indexed tests are eligible; claims apply only to this frozen child scope.",
+    "source_exclusions": [
+      "docs/*.py",
+      "examples/*.py"
+    ],
+    "required_prefixes": [
+      {
+        "prefix": "src/click/",
+        "artifact_kind": "implementation",
+        "membership_globs": [
+          "src/click/*.py"
+        ],
+        "expected_files": 16
+      },
+      {
+        "prefix": "tests/",
+        "artifact_kind": "test",
+        "membership_globs": [
+          "tests/*.py",
+          "tests/typing/*.py"
+        ],
+        "expected_files": 29
+      }
+    ],
+    "glob_contract": "Repository-relative POSIX paths. Membership globs are anchored and segment-aware; * does not cross '/'. Runtime source_exclusions retain the current fnmatchcase policy, under which examples/*.py also matches nested example paths.",
+    "extraction_policy": "saved-implementations-v3",
+    "extractor_fingerprint": {
+      "policy": "saved-implementations-v3",
+      "python_ast": [
+        3,
+        12
+      ],
+      "extensions": {
+        ".py": null,
+        ".js": "javascript",
+        ".jsx": "javascript",
+        ".mjs": "javascript",
+        ".cjs": "javascript",
+        ".ts": "typescript",
+        ".mts": "typescript",
+        ".cts": "typescript",
+        ".tsx": "tsx"
+      },
+      "parser_pins": {
+        "tree-sitter": "0.26.0",
+        "tree-sitter-javascript": "0.25.0",
+        "tree-sitter-typescript": "0.23.2"
+      },
+      "installed_parsers": {
+        "tree-sitter": "0.26.0",
+        "tree-sitter-javascript": "0.25.0",
+        "tree-sitter-typescript": "0.23.2"
+      },
+      "js_excluded_directories": [
+        ".next",
+        ".nuxt",
+        ".svelte-kit",
+        "bower_components",
+        "build",
+        "coverage",
+        "dist",
+        "node_modules",
+        "out"
+      ],
+      "window_lines": 160,
+      "overlap_lines": 40
+    },
+    "window_policy": {
+      "max_lines": 160,
+      "overlap_lines": 40
+    },
+    "expected_inventory": {
+      "eligible_supported_files": 70,
+      "excluded_supported_files": 25,
+      "included_supported_files": 45,
+      "parsed_files": 45,
+      "parsed_files_without_windows": 2,
+      "implementation_windows": 474,
+      "test_windows": 597,
+      "total_windows": 1071,
+      "included_files_sha256": "e3130b2f1d298dc884e9c1d26adf3690add8b9f0e0cf6ff612b97f60d3387b4f",
+      "implementation_files_sha256": "e841818743a119a18e822e9d132d39f6d9793c513ffe0fc639236b24d7b4a6b0",
+      "test_files_sha256": "9c8f1dff5b8d45dfff8b6976785d6a2ed0151e5f2e2d8068ced554dfec6542ce",
+      "excluded_files_sha256": "45516743a9112e034be69b5150212f6b565b6c72f666ab794b7b2f2b3b28e471",
+      "windows_sha256": "5f6cf093da973ca62d84c86d2dfcbf5c26dfdd793126430a55693b1d9475fd83",
+      "file_inventory_hash_contract": "SHA-256 of canonical compact sorted JSON mapping repository-relative path to raw-file SHA-256",
+      "window_inventory_hash_contract": "SHA-256 of canonical compact sorted JSON mapping snippet id to source content hash"
+    }
+  },
+  "artifact_kinds": {
+    "indexed": [
+      {
+        "kind": "implementation",
+        "unit": "Python function or method implementation window"
+      },
+      {
+        "kind": "test",
+        "unit": "Python test, fixture, helper, function, or method implementation window"
+      }
+    ],
+    "explicitly_unsupported": [
+      {
+        "kind": "configuration_without_a_registered_extractor",
+        "gap_reason": "unsupported_source_kind"
+      },
+      {
+        "kind": "documentation_without_a_registered_extractor",
+        "gap_reason": "unsupported_source_kind"
+      },
+      {
+        "kind": "non_python_fixture_without_a_registered_extractor",
+        "gap_reason": "unsupported_source_kind"
+      },
+      {
+        "kind": "python_module_or_class_structure_without_an_implementation_body",
+        "gap_reason": "unsupported_artifact_kind"
+      }
+    ]
+  },
+  "gap_contract": {
+    "public_statuses": [
+      "candidate",
+      "partial",
+      "unresolved"
+    ],
+    "reason_vocabulary": [
+      "unsupported_source_kind",
+      "unsupported_artifact_kind",
+      "no_extractable_window",
+      "outside_indexed_scope",
+      "not_retrieved",
+      "selection_excluded",
+      "relation_unresolved",
+      "result_limit_exhausted",
+      "source_budget_exhausted",
+      "token_budget_exhausted"
+    ],
+    "rules": [
+      "A requested artifact whose file kind has no registered extractor is unresolved with unsupported_source_kind; the engine must not claim that the artifact or behavior does not exist",
+      "A supported Python source path matched by docs/*.py or examples/*.py is unresolved with outside_indexed_scope, not unsupported_source_kind",
+      "An included supported source file that parses but emits no implementation window is unresolved with no_extractable_window",
+      "Required module-, class-, assignment-, or annotation-only structure not covered by an emitted implementation window is unresolved with unsupported_artifact_kind",
+      "Retrieval, relation, selection, result, character, and token failures retain their distinct procedural reasons and never become claims of corpus absence"
+    ],
+    "evaluator_boundary": "Literal checklist completeness is computed only after both final packets. Public candidate or partial status is not a completeness claim, and public gaps contain no evaluator-only path, symbol, or line-span label."
+  },
+  "common_request": {
+    "query_from": "task.prompt",
+    "retrieval": "dense",
+    "rerank": false,
+    "rerank_provider": "h2o",
+    "candidates": 50,
+    "max_results": 8,
+    "source_budget": 12000,
+    "token_budget": 4096,
+    "include_dependencies": true,
+    "overlays": []
+  },
+  "conditions": [
+    {
+      "id": "legacy_control",
+      "needed_evidence": null,
+      "null_behavior": "Omit needed_evidence from the search request and execute the unchanged legacy path"
+    },
+    {
+      "id": "task_evidence",
+      "needed_evidence": [
+        "implementation",
+        "callers",
+        "tests",
+        "behavioral_constraints"
+      ]
+    }
+  ],
+  "planner_boundary": {
+    "input": "The exact resolved backend request is the only condition-specific input; both conditions also receive the same execution-frozen candidate and relation inventories. This manifest, task id, scope inventory, parent and selection bindings, schedule, gates, and evaluator-only checklist are not planner inputs",
+    "control_request_sha256": "2f21bcfd7ba0cc35d413d4e3ee7a2b5a345b34b78c28f831970f4cf8e38478cb",
+    "task_evidence_request_sha256": "c63735e89521f2de9c95e45cf36a45a591db8bdfcad203de51ed97625c49e42f",
+    "hash_contract": "SHA-256 of canonical compact sorted JSON with UTF-8 and no NaN"
+  },
+  "claim_boundary": {
+    "untouched_means": "Click is untouched by the Phase 0 task-evidence selector, Requests packet outcomes, and any selector tuning performed after this lock",
+    "does_not_mean": "Click is not a fresh project-wide repository holdout; it is an observed development repository with existing task and checker artifacts",
+    "supported_claim_if_passed": "A separately selected observed codebase did not lose frozen evidence under the task-evidence selector",
+    "unsupported_claims": [
+      "generalization to an unseen repository",
+      "JavaScript or TypeScript generalization",
+      "general agent-token savings"
+    ]
+  },
+  "schedule": {
+    "packet_gate": {
+      "kind": "paired_packet_replay",
+      "pairs": 3,
+      "replays_per_condition": 3,
+      "pair_order": [
+        [
+          "legacy_control",
+          "task_evidence"
+        ],
+        [
+          "task_evidence",
+          "legacy_control"
+        ],
+        [
+          "legacy_control",
+          "task_evidence"
+        ]
+      ],
+      "shared_retrieval_capture": true,
+      "required_after_requests_gates": true,
+      "validation_attempts": 1,
+      "retry_policy": "none",
+      "complementary_gain": true,
+      "no_individual_loss": true,
+      "normalization_contract": "The separate Click execution freeze must bind the exact normalizer source and SHA-256 before the attempt. Equality is canonical compact sorted JSON of the complete compact response after removing only timing and request identifiers named prospectively by that freeze; selected row order and identities, excerpts, evidence statuses and gaps, budgets, source hashes, and relation provenance remain. Retain every raw payload and raw hash."
+    },
+    "untouched_validation_prerequisite": {
+      "execution_freeze_status": "not_yet_frozen",
+      "execution_freeze_required_after": [
+        "requests_packet_gate",
+        "requests_native_latency_gate"
+      ],
+      "execution_freeze_required_before": "click_packet_execution",
+      "execution_binding_path": "benchmarks/task_evidence_gold/untouched_click_execution_freeze.json",
+      "execution_handoff_contract": {
+        "classification": "task_evidence_untouched_click_execution_freeze",
+        "child_handoff_required_fields": [
+          "child_freeze_revision",
+          "child_binding_sha256",
+          "requests_packet_gate_receipt_sha256",
+          "requests_native_latency_gate_receipt_sha256",
+          "attempt_id",
+          "result_path",
+          "result_path_state_at_execution_freeze"
+        ],
+        "ordering": "The execution binding must be committed with the result path absent after both Requests gate receipts and before any Click result-path touch."
+      },
+      "result_path": "results/task-evidence-untouched-click",
+      "result_path_state_at_child_freeze": "absent",
+      "substitution_policy": "Do not fall back to Starlette if Click has no complementary candidate, cannot fit the frozen budgets, or fails admission. Record that failure. Replacing Click requires a new named selection lock created before further source or outcome inspection.",
+      "coding_agent_trial_count": 0,
+      "claim_policy": "This is an outcome-unobserved, predeclared packet validation on an observed development codebase. In the inherited selection lock, untouched by selector tuning means no Click selector execution, packet outcome, or Click-based parameter adjustment; it does not mean designer blindness to reviewed Click source and gold or prove that generic rule design was uninfluenced. The execution freeze must prove corpus neutrality; no Click coding-agent conversation, patch, test execution, or grading is permitted.",
+      "one_shot_receipt_contract": "The execution freeze must bind one unique attempt ID, prove the result path absent through its own commit, and bind an append-only start and finish or failure receipt schema. Every raw and normalized condition payload, infrastructure failure, and gate failure is retained; no discarded local run, retry, resume, or replacement is permitted."
+    }
+  },
+  "gates": [
+    {
+      "id": "source_freeze_integrity",
+      "requirement": "The pinned revision, exact exclusions and membership, extractor fingerprint, counts, hashes, parent and selection chronology, absent result path, and planner boundary match the child freeze."
+    },
+    {
+      "id": "retrieval_parity",
+      "requirement": "Control and treatment use identical requests except needed_evidence and identical source, ordered candidates, scores, relation graph, tokenizer, and budgets."
+    },
+    {
+      "id": "legacy_path_equality",
+      "requirement": "The legacy control compact response is byte-for-byte identical to the unchanged legacy path."
+    },
+    {
+      "id": "complementary_gain",
+      "requirement": "Treatment adds at least one evaluator-predeclared complete indexed implementation or caller group from a newly covered production source file whose path is absent from the control's covered required groups."
+    },
+    {
+      "id": "no_individual_loss",
+      "requirement": "Treatment loses no evaluator-predeclared required group covered by control and preserves the excerpts establishing that coverage byte-for-byte."
+    },
+    {
+      "id": "exact_budgets_and_source",
+      "requirement": "Every packet respects the 8-result, 12000-source-character, and 4096-token caps, and every excerpt matches frozen source bytes, line bounds, and hashes."
+    },
+    {
+      "id": "truthful_gap_reconciliation",
+      "requirement": "Every missing evaluator group has an accurate factual cause and every requested public need has a non-overclaiming status or procedural gap."
+    },
+    {
+      "id": "deterministic_replay",
+      "requirement": "All three executions per condition produce identical selected rows and payloads under the prospectively bound normalization contract from the same frozen inputs."
+    },
+    {
+      "id": "corpus_neutrality",
+      "requirement": "The same selector and packer source must execute Requests and Click; an execution-freeze audit must reject literal Click, task, or gold IDs, paths, symbols, hashes, and conditionals keyed to them while allowing generic features computed uniformly from request and candidate data."
+    },
+    {
+      "id": "planner_gold_isolation",
+      "requirement": "No evaluator-only key, group ID, target path, non-prompt target symbol, line-span metadata, source or evidence hash, or outcome enters either resolved request; the execution freeze and harness must keep the full evaluator checklist unavailable to selection and packing."
+    }
+  ],
+  "calls_at_scope_freeze": {
+    "model": 0,
+    "embedding": 0,
+    "index": 0,
+    "retrieval": 0,
+    "planner": 0,
+    "selector": 0,
+    "packing": 0,
+    "network": 0
+  }
+}

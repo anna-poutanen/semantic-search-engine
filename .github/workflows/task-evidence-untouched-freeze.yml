@@ -1,0 +1,35 @@
+name: Task-evidence untouched Click freeze
+
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  click-child-source-freeze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e '.[test,languages]'
+      - name: Prepare the exact parent Requests checkout
+        run: |
+          git clone --filter=blob:none --no-checkout https://github.com/psf/requests.git .cache/corpora/requests
+          git -C .cache/corpora/requests checkout --detach 611c6162cbc4ac2020a2f91c7cfa4f3abf9bbb60
+      - name: Prepare the exact untouched Click checkout
+        run: |
+          git clone --filter=blob:none --no-checkout https://github.com/pallets/click.git .cache/corpora/click
+          git -C .cache/corpora/click checkout --detach 934813e4d421071a1b3db3973c02fe2721359a6e
+      - name: Revalidate the parent Phase 0 anchor
+        run: python scripts/validate_task_evidence_freeze.py
+      - name: Exercise the parent Phase 0 contracts
+        run: python -m pytest -q tests/test_task_evidence_freeze.py
+      - name: Validate the bound Click child freeze without runtime calls
+        run: python scripts/validate_task_evidence_untouched_freeze.py
+      - name: Exercise the Click child-freeze contracts
+        run: python -m pytest -q tests/test_task_evidence_untouched_freeze.py
